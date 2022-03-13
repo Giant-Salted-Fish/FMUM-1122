@@ -1,0 +1,12 @@
+[{
+	"modid": "fmum",
+	"name": "Flan's Mod Ultimate 1.1 Modified",
+	"description": "Provide highly customizable guns in Minecraft.",
+	"version": "${version}",
+	"mcversion": "${mcversion}",
+	"logoFile": "/fmum.png",
+	"url": "https://www.curseforge.com/minecraft/mc-mods/flans-mod-ultimate-1-1-modified",
+	"updateUrl": "",
+	"authorList": [ "jamioflan", "FlansGames", "W44", "vinidamiani126", "Giant_Salted_Fish" ],
+	"credits": "All code contributors."
+}]

@@ -1,0 +1,41 @@
+{
+  "bullet": {
+    "category": "player",
+    "sounds": [
+      "fmum:bullet1",
+      "fmum:bullet2",
+      "fmum:bullet3",
+      "fmum:bullet4"
+    ]
+  },
+  "UnlockNotch": {
+    "category": "player",
+    "sounds": [
+      "fmum:UnlockNotch"
+    ]
+  },
+  "bulletFlyby": {
+    "category": "player",
+    "sounds": [
+      "fmum:bulletair1",
+      "fmum:bulletair2",
+      "fmum:bulletair3",
+      "fmum:bulletair4",
+      "fmum:bulletair5",
+      "fmum:bulletair6",
+      "fmum:bulletair7"
+    ]
+  },
+    "skullboss_laugh": {
+    "category": "player",
+    "sounds": [
+      "fmum:skullboss_laugh"
+    ]
+  },
+   "skullboss_spawn": {
+    "category": "player",
+    "sounds": [
+      "fmum:skullboss_spawn"
+    ]
+  }
+}
