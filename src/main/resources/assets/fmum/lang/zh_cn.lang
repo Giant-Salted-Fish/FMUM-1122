@@ -1,7 +1,8 @@
 # By Giant_Salted_Fish
 
-fmum.onpreinitialization=正在预初始化FMUM...
-fmum.packfoldercreated=创建FMUM内容包文件夹
+fmum.onpreinitialization=正在预初始化FMUM哈哈...
+fmum.packfoldercreated=创建内容包文件夹<%s>
 fmum.preinitializationcomplete=FMUM预初始化完成 \
 fmum.oninitialization=正在初始化FMUM...
 fmum.oninitializationcomplete=FMUM初始化完成 \
+fmum.unknowncontentpackfiletype=内容包<%s>不属于可接受的文件类型集合{ <文件夹>, <.jar>, <.zip> }

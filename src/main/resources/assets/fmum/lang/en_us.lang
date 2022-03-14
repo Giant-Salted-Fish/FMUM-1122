@@ -1,7 +1,8 @@
 # By Giant_Salted_Fish
 
 fmum.onpreinitialization=FMUM pre-initialization procedure engage...
-fmum.packfoldercreated=FMUM content pack folder created
+fmum.packfoldercreated=Content pack folder <%s> created
 fmum.preinitializationcomplete=FMUM pre-initialization procedure complete \
 fmum.oninitialization=FMUM initialization procedure engage...
 fmum.oninitializationcomplete=FMUM initialization complete \
+fmum.unknowncontentpackfiletype=Invalid content pack file type <%s>: required { <folder>, <.jar>, <.zip> }

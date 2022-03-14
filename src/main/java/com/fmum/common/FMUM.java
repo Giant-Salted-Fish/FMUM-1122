@@ -5,7 +5,10 @@ import java.util.Random;
 
 import org.apache.logging.log4j.Logger;
 
+import com.fmum.common.tab.CreativeTabFMUM;
+
 import net.minecraft.client.resources.I18n;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -20,7 +23,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 //	, guiFactory = "com.flansmod.client.gui.config.ModGuiFactory"
 //	, clientSideOnly = true
 )
-public class FMUM
+public final class FMUM
 {
 	/**
 	 * Universal randomizer
@@ -62,7 +65,7 @@ public class FMUM
 	/**
 	 * Name of the folder that contains content packs to be loaded
 	 */
-	public static final String packDirName = MODID;
+	public static String packDirName = MODID;
 	
 	/**
 	 * Default logger for {@link FMUM}
@@ -81,18 +84,30 @@ public class FMUM
 	 */
 	public static int ticker = 0;
 	
+	/**
+	 * Test tab for fmum TODO: remove this
+	 */
+	public static final CreativeTabFMUM tab = new CreativeTabFMUM("tabfmum");
+	
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent evt)
 	{
 		log = evt.getModLog();
 		log.info(I18n.format("fmum.onpreinitialization"));
 		
+		// Parse FMUM configuration
+		this.syncConfig(new Configuration(evt.getSuggestedConfigurationFile()));
+		
+		// Check content pack folder
 		File packDir = new File(evt.getModConfigurationDirectory().getParentFile(), packDirName);
 		if(!packDir.exists())
 		{
 			packDir.mkdirs();
-			log.info(I18n.format("fmum.packfoldercreated"));
+			log.info(I18n.format("fmum.packfoldercreated", packDirName));
 		}
+		
+		// Load content packs
+		proxy.loadContentPack(packDir);
 		
 		log.info(I18n.format("fmum.preinitializationcomplete"));
 	}
@@ -103,5 +118,21 @@ public class FMUM
 		log.info(I18n.format("fmum.oninitialization"));
 		
 		log.info(I18n.format("fmum.oninitializationcomplete"));
+	}
+	
+	private void syncConfig(Configuration config)
+	{
+		final String COMMON_SETTING = "FMUM Common Settings";
+		
+		packDirName = config.getString(
+			"packFolderName",
+			COMMON_SETTING,
+			packDirName,
+			"Content pack folder name where FMUM will load content packs from"
+		);
+		
+		// Save configuration file if has changed
+		if(config.hasChanged())
+			config.save();
 	}
 }
