@@ -1,5 +1,6 @@
 package com.fmum.common.type;
 
+import com.fmum.common.gun.TypeMag;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
 /**
@@ -11,10 +12,8 @@ public enum EnumType
 {
 	GUN("gun", null),
 	ATTACHMENT("attachment", null),
-	MAG("mag", null),
+	MAG("mag", TypeMag.parser),
 	BULLET("bullet", null);
-	
-	public static final String RECOMMENDED_TAB_SOURCE_DIR_NAME = "tab";
 	
 	public final String recommendedSourceDirName;
 	

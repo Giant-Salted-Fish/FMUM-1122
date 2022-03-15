@@ -32,16 +32,29 @@ public class CommonProxy
 //				contentPacks.add(new ZipContentPack(file))
 				;
 			else
+			{
 				FMUM.log.warn(
 					I18n.format(
 						"fmum.unrecognizedcontentpackfiletype",
 						dir.getName() + "/" + file.getName()
 					)
 				);
+				continue;
+			}
+			
+			FMUM.log.info(I18n.format("fmum.detectcontentpack", file.getName()));
 		}
 		
-		for(FMUMContentProvider fcm : contentProviders) fcm.prepareLoad();
-		for(FMUMContentProvider fcm : contentProviders) fcm.loadContents();
+		for(FMUMContentProvider fcm : contentProviders)
+		{
+			fcm.prepareLoad();
+			FMUM.log.info(I18n.format("fmum.preloadcontentpack", fcm.getSourceName()));
+		}
+		for(FMUMContentProvider fcm : contentProviders)
+		{
+			fcm.loadContents();
+			FMUM.log.info(I18n.format("fmum.loadedcontentpack", fcm.getSourceName()));
+		}
 	}
 	
 	public void registerLocalResource(File source)
@@ -51,4 +64,9 @@ public class CommonProxy
 			FMUM.log.error(I18n.format("fmum.erroraddingclasspath", source.getName()), e);
 		}
 	}
+	
+	/**
+	 * Reload Minecraft resources client side to load resource in content packs
+	 */
+	public void refreshMinecraftResources() { }
 }

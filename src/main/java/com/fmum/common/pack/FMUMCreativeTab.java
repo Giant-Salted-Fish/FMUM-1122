@@ -12,6 +12,8 @@ public final class FMUMCreativeTab extends CreativeTabs
 {
 	public static final HashMap<String, FMUMCreativeTab> tabs = new HashMap<>();
 	
+	public static final String RECOMMENDED_SOURCE_DIR_NAME = "tab";
+	
 	/**
 	 * Default creative item tab for {@link FMUM}
 	 */
@@ -19,12 +21,12 @@ public final class FMUMCreativeTab extends CreativeTabs
 	
 	public final String contentPackName;
 	
-	public FMUMCreativeTab(String name, String contentPackName)
+	public FMUMCreativeTab(String label, String contentPackName)
 	{
-		super(name);
+		super(label);
 		
 		this.contentPackName = contentPackName;
-		tabs.put(name, this);
+		tabs.put(label, this);
 	}
 	
 	@Override

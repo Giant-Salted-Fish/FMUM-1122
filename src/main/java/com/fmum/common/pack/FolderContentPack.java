@@ -62,7 +62,7 @@ public final class FolderContentPack extends LocalContentProvider
 		}
 		
 		// Load creative tabs
-		File tabDir = new File(this.source, EnumType.RECOMMENDED_TAB_SOURCE_DIR_NAME);
+		File tabDir = new File(this.source, FMUMCreativeTab.RECOMMENDED_SOURCE_DIR_NAME);
 		if(!tabDir.exists() || !tabDir.isDirectory()) return;
 		
 		iterateTypeFiles(

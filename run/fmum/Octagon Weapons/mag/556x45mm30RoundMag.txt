@@ -1,0 +1,2 @@
+Name 556x45mm30RoundMag
+Category 556x45mmMag

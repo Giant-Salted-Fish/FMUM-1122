@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.fmum.common.FMUM;
 import com.fmum.common.pack.LocalContentProvider;
 
@@ -32,26 +34,30 @@ public abstract class TypeTextParser<T extends TypeInfo> implements ParserFunc<T
 	/**
 	 * @param superPaser Parent parser. {@code null} if it is the root parser.
 	 * @param typeClass
-	 *     Class of the type that this parser service for. Constructor of the typer will be
+	 *     <p>Class of the type that this parser service for. Constructor of the typer will be
 	 *     retrieved from this given class. The given type class should has a constructor with two
 	 *     parameters of type {@link String}. The name of the parsing typer will be passed via first
 	 *     parameter. The name of the source(usually is the content pack name) will be provided via
-	 *     second parameter.
+	 *     second parameter.</p>
+	 *     
+	 *     <p>{@code null} if this parser is not for a leaf typer class.</p>
 	 */
-	protected TypeTextParser(TypeTextParser<? super T> superPaser, Class<T> typeClass)
+	protected TypeTextParser(TypeTextParser<? super T> superPaser, @Nullable Class<T> typeClass)
 	{
 		this.superPaser = superPaser;
-		try { this.instantiator = typeClass.getConstructor(String.class, String.class); }
-		catch(NoSuchMethodException | SecurityException e)
-		{
-			throw new RuntimeException(
-				I18n.format(
-					"fmum.failedtogettyperconstructor",
-					typeClass.getName()
-				),
-				e
-			);
-		}
+		if(typeClass != null)
+			try { this.instantiator = typeClass.getConstructor(String.class, String.class); }
+			catch(NoSuchMethodException | SecurityException e)
+			{
+				throw new RuntimeException(
+					I18n.format(
+						"fmum.failedtogettyperconstructor",
+						typeClass.getName()
+					),
+					e
+				);
+			}
+		else this.instantiator = null;
 	}
 	
 	public T parse(List<String> text, T type, String sourceTrace)
@@ -90,6 +96,19 @@ public abstract class TypeTextParser<T extends TypeInfo> implements ParserFunc<T
 	
 	public static final class LocalTypeFileParser<T extends TypeInfo> extends TypeTextParser<T>
 	{
+		/**
+		 * Not for a leaf typer class
+		 * 
+		 * @see #LocalTypeFileParser(TypeTextParser, Class)
+		 * @param superPaser Parent parser. {@code null} if it is the root parser.
+		 */
+		public LocalTypeFileParser(TypeTextParser<? super T> superParser) {
+			super(superParser, null);
+		}
+		
+		/**
+		 * @see TypeTextParser#TypeTextParser(TypeTextParser, Class)
+		 */
 		public LocalTypeFileParser(TypeTextParser<? super T> superPaser, Class<T> typeClass) {
 			super(superPaser, typeClass);
 		}

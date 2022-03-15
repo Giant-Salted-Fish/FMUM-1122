@@ -17,5 +17,9 @@ fmum.failedtogettyperconstructor=Failed to get item typer constructor from <%s>.
 fmum.failedtoinstantiateitemtyper=Failed to instantiate item typer with <%s>. This should never happen.
 fmum.errorreadingtypefile=An error has occurred while reading plain text based type file <%s>
 fmum.errorloadingclassbaseditemtyper=An error has occurred while loading class based type file <%s>
+fmum.failtofetchcreativetab=Failed to find creative tab <%s> for <%s>. It will be assigned into default creative tab.
+fmum.itemregistrationcomplete=Item registration complete. <%d> items registered.
 
 fmum.descriptionnotprovided=Description not provided
+
+itemGroup.fmum=FMUM Default Group

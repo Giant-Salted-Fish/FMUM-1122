@@ -6,13 +6,23 @@ import java.util.HashMap;
 import com.fmum.common.CommonProxy;
 import com.fmum.common.FMUM;
 
+import net.minecraftforge.client.resource.VanillaResourceType;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLModContainer;
+import net.minecraftforge.fml.common.MetadataCollection;
 import net.minecraftforge.fml.common.discovery.ContainerType;
 import net.minecraftforge.fml.common.discovery.ModCandidate;
 
 public final class ClientProxy extends CommonProxy
 {
+	@Override
+	public void registerEventListener()
+	{
+		super.registerEventListener();
+		
+		// TODO: register client side events
+	}
+	
 	@Override
 	public void registerLocalResource(File source)
 	{
@@ -23,16 +33,27 @@ public final class ClientProxy extends CommonProxy
 		descriptor.put("modid", FMUM.MODID);
 		descriptor.put("name", FMUM.MOD_NAME + ":" + source.getName());
 		descriptor.put("version", "1");
-		FMLClientHandler.instance().addModAsResource(
-			new FMLModContainer(
-				"com.fmum.common.FMUM",
-				new ModCandidate(
-					source,
-					source,
-					source.isDirectory() ? ContainerType.DIR : ContainerType.JAR
-				),
-				descriptor
-			)
+		FMLModContainer container = new FMLModContainer(
+			"com.fmum.common.FMUM",
+			new ModCandidate(
+				source,
+				source,
+				source.isDirectory() ? ContainerType.DIR : ContainerType.JAR
+			),
+			descriptor
+		);
+		container.bindMetadata(MetadataCollection.from(null, ""));
+		FMLClientHandler.instance().addModAsResource(container);
+	}
+	
+	@Override
+	public void refreshMinecraftResources()
+	{
+		FMLClientHandler.instance().refreshResources(
+			VanillaResourceType.MODELS,
+			VanillaResourceType.TEXTURES,
+			VanillaResourceType.SOUNDS,
+			VanillaResourceType.LANGUAGES
 		);
 	}
 }

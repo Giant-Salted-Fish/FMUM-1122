@@ -2,6 +2,7 @@ package com.fmum.common;
 
 import java.util.LinkedList;
 
+import net.minecraft.client.resources.I18n;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -15,15 +16,15 @@ public final class ForgeEventListener
 	@SubscribeEvent
 	public void onItemRegister(RegistryEvent.Register<Item> evt)
 	{
-		for(
-			int i = itemsWaitForRegistration.size();
-			--i >= 0;
-			itemsWaitForRegistration.poll().onRegister(evt.getRegistry())
-		);
+		final IForgeRegistry<Item> registry = evt.getRegistry();
+		for(RequireItemRegistration rir : itemsWaitForRegistration)
+			registry.register(rir.getRegistrantItem());
+		FMUM.log.info(I18n.format("fmum.itemregistrationcomplete", itemsWaitForRegistration.size()));
+		itemsWaitForRegistration.clear();
 	}
 	
 	@FunctionalInterface
 	public static interface RequireItemRegistration {
-		public void onRegister(IForgeRegistry<Item> registry);
+		public Item getRegistrantItem();
 	}
 }

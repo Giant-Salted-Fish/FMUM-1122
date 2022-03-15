@@ -4,10 +4,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.fmum.common.FMUM;
 import com.fmum.common.ForgeEventListener;
 import com.fmum.common.ForgeEventListener.RequireItemRegistration;
 import com.fmum.common.pack.FMUMCreativeTab;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
+
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.Item;
 
 public abstract class TypeInfo implements RequireItemRegistration
 {
@@ -22,10 +26,11 @@ public abstract class TypeInfo implements RequireItemRegistration
 	public static final LinkedList<String> DEF_DESCRIPTION = new LinkedList<>();
 	
 	public static final LocalTypeFileParser<TypeInfo>
-		parser = new LocalTypeFileParser<>(null, TypeInfo.class);
+		parser = new LocalTypeFileParser<>(null);
 	static
 	{
 		parser.addKeyword("Name", (s, t) -> t.name = s[1]);
+		parser.addKeyword("Category", (s, t) -> t.category = s[1]);
 		parser.addKeyword(
 			"Description",
 			(s, t) -> {
@@ -36,7 +41,15 @@ public abstract class TypeInfo implements RequireItemRegistration
 				t.description.add(des);
 			}
 		);
+		
+		// Visual
+		parser.addKeyword("Icon", (s, t) -> t.iconPath = s[1]);
 	}
+	
+	/**
+	 * Minecraft item that corresponding to this typer. Usually set on item registration.
+	 */
+	public Item item = null;
 	
 	/**
 	 * Identifier of this item
@@ -49,6 +62,11 @@ public abstract class TypeInfo implements RequireItemRegistration
 	public final String contentPackName;
 	
 	/**
+	 * Category of this item. Usually used in grouping different items.
+	 */
+	public String category = "default";
+	
+	/**
 	 * Description that will be displayed when player hovers over the item
 	 */
 	public List<String> description = DEF_DESCRIPTION;
@@ -58,7 +76,12 @@ public abstract class TypeInfo implements RequireItemRegistration
 	 */
 	public String creativeTab = FMUMCreativeTab.INSTANCE.getTabLabel();
 	
-	public TypeInfo(String name, String contentPackName)
+	/**
+	 * Path of the icon for this item
+	 */
+	public String iconPath = "undefined";
+	
+	protected TypeInfo(String name, String contentPackName)
 	{
 		this.name = name;
 		this.contentPackName = contentPackName;
@@ -86,5 +109,33 @@ public abstract class TypeInfo implements RequireItemRegistration
 	@Override
 	public String toString() {
 		return "<" + this.getEnumType() + ">" + this.contentPackName + ":" + this.name;
+	}
+	
+	protected final Item withItem(Item item) { return this.withItem(item, 1, 0); }
+	
+	protected final Item withItem(Item item, int maxStackSize, int maxDamage)
+	{
+		this.item = item;
+		item.setRegistryName(this.name);
+		item.setTranslationKey(this.name);
+		item.setMaxStackSize(maxStackSize);
+		item.setMaxDamage(maxDamage);
+		
+		// Try set required creative tab
+		FMUMCreativeTab tab = FMUMCreativeTab.tabs.get(this.creativeTab);
+		if(tab == null)
+		{
+			FMUM.log.error(
+				I18n.format(
+					"fmum.failtofetchcreativetab",
+					this.creativeTab,
+					this.toString()
+				)
+			);
+			tab = FMUMCreativeTab.INSTANCE;
+		}
+		item.setCreativeTab(tab);
+		
+		return item;
 	}
 }

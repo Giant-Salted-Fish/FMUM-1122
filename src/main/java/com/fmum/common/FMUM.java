@@ -115,10 +115,11 @@ public final class FMUM
 		
 		// Load content packs
 		proxy.loadContentPack(packDir);
+		proxy.refreshMinecraftResources();
 		
 		log.info(I18n.format("fmum.preinitializationcomplete"));
 	}
-
+	
 	@EventHandler
 	public void onInit(FMLInitializationEvent evt)
 	{
