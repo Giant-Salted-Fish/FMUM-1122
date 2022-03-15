@@ -5,8 +5,6 @@ import java.util.Random;
 
 import org.apache.logging.log4j.Logger;
 
-import com.fmum.common.tab.CreativeTabFMUM;
-
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
@@ -16,6 +14,17 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
+/**
+ * A weapon framework based on Flan's Mod and mainly focus on highly customizable guns. Modules for
+ * vehicles, planes, mecha and other irrelevant staffs are removed to avoid massive work required to
+ * maintain these frames. Almost everything left was reworked and refactored in order to simplify
+ * the structure of the module and accomplish fancy features.
+ * 
+ * @author Giant_Salted_Fish
+ * @credit
+ *     jamioflan, FlansGames, W44, vinidamiani126, and everyone who else contributed in building
+ *     Flan's Mod framework which inspired me so intensively ^_^
+ */
 @Mod(
 	modid = FMUM.MODID,
 	name = FMUM.MOD_NAME,
@@ -84,16 +93,14 @@ public final class FMUM
 	 */
 	public static int ticker = 0;
 	
-	/**
-	 * Test tab for fmum TODO: remove this
-	 */
-	public static final CreativeTabFMUM tab = new CreativeTabFMUM("tabfmum");
-	
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent evt)
 	{
 		log = evt.getModLog();
 		log.info(I18n.format("fmum.onpreinitialization"));
+		
+		// Register event listeners
+		proxy.registerEventListener();
 		
 		// Parse FMUM configuration
 		this.syncConfig(new Configuration(evt.getSuggestedConfigurationFile()));
