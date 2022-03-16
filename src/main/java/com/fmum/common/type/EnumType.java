@@ -4,7 +4,8 @@ import com.fmum.common.gun.TypeMag;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
 /**
- * Item types supported by {@link com.fmum.common.FMUM} frame
+ * Item types supported by {@link com.fmum.common.FMUM} frame. These types should be a sub-type of
+ * {@link TypeInfo}.
  * 
  * @author Giant_Salted_Fish
  */
@@ -19,8 +20,10 @@ public enum EnumType
 	
 	public final LocalTypeFileParser<? extends TypeInfo> parser;
 	
-	private EnumType(String recommendedSourceDirName, LocalTypeFileParser<?> parser)
-	{
+	private EnumType(
+		String recommendedSourceDirName,
+		LocalTypeFileParser<? extends TypeInfo> parser
+	) {
 		this.recommendedSourceDirName = recommendedSourceDirName;
 		this.parser = parser;
 	}

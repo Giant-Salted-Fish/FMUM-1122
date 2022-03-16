@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import com.fmum.common.CommonProxy;
 import com.fmum.common.FMUM;
+import com.fmum.common.pack.FMUMCreativeTab;
 
 import net.minecraftforge.client.resource.VanillaResourceType;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -55,5 +56,12 @@ public final class ClientProxy extends CommonProxy
 			VanillaResourceType.SOUNDS,
 			VanillaResourceType.LANGUAGES
 		);
+	}
+	
+	@Override
+	public void setupCreativeTabs()
+	{
+		for(FMUMCreativeTab tab : FMUMCreativeTab.tabs.values())
+			tab.setupIconStack();
 	}
 }

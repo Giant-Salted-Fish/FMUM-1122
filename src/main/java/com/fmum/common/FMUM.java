@@ -125,7 +125,10 @@ public final class FMUM
 	{
 		log.info(I18n.format("fmum.oninitialization"));
 		
+		proxy.setupCreativeTabs();
+		
 		log.info(I18n.format("fmum.oninitializationcomplete"));
+		proxy.initComplete();
 	}
 	
 	private void syncConfig(Configuration config)

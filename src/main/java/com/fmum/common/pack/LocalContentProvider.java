@@ -1,7 +1,12 @@
 package com.fmum.common.pack;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import com.fmum.common.FMUM;
 import com.fmum.common.FMUMClassLoader;
@@ -24,9 +29,12 @@ public abstract class LocalContentProvider implements FMUMContentProvider
 	 */
 	protected final File source;
 	
+	public final ContentProviderSourceInfo info;
+	
 	protected LocalContentProvider(File source)
 	{
 		this.source = source;
+		this.info = new ContentProviderSourceInfo(source.getName());
 	}
 	
 	/**
@@ -39,18 +47,47 @@ public abstract class LocalContentProvider implements FMUMContentProvider
 	@Override
 	public String getSourceName() { return this.source.getName(); }
 	
-	protected static void iterateTypeFiles(File dir, TypeFileProcessor processor) {
-		iterateTypeFiles(dir, dir.getName(), processor);
+	@Override
+	public ContentProviderSourceInfo getInfo() { return this.info; }
+	
+	protected void parseInfo(BufferedReader textInput, String sourceTrace)
+	{
+		try { ContentProviderSourceInfo.parser.parse(textInput, this.info, sourceTrace); }
+		catch(IOException e) { printIOError(sourceTrace, e); }
 	}
 	
-	protected static void iterateTypeFiles(File dir, String classPath, TypeFileProcessor processor)
-	{
+	protected static boolean iterateTypeFiles(File dir, TypeFileProcessor processor) {
+		return iterateTypeFiles(dir, dir.getName(), processor);
+	}
+	
+	protected static boolean iterateTypeFiles(
+		File dir,
+		String classPath,
+		TypeFileProcessor processor
+	) {
 		for(File f : dir.listFiles())
 		{
 			if(f.isDirectory())
 				iterateTypeFiles(f, classPath + "." + f.getName(), processor);
-			else processor.process(f, classPath);
+			else if(processor.process(f, classPath))
+				return true;
 		}
+		
+		return false;
+	}
+	
+	protected static boolean iterateTypeZipEntries(File zipFile, TypeZipEntryProcessor processor)
+	{
+		try(
+			ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFile));
+			BufferedReader in = new BufferedReader(new InputStreamReader(zipIn));
+		) {
+			for(ZipEntry entry = zipIn.getNextEntry(); (entry = zipIn.getNextEntry()) != null; )
+				if(processor.process(entry, in))
+					return true;
+		}
+		catch(IOException e) { printIOError(zipFile.getName(), e); }
+		return false;
 	}
 	
 	/**
@@ -58,9 +95,9 @@ public abstract class LocalContentProvider implements FMUMContentProvider
 	 * 
 	 * @param fName Name of the class file to load
 	 * @param superClassPath Package path of the class to load
-	 * @param packName Content pack name used in error print
+	 * @param sourceTrace Source trace name used in error print
 	 */
-	protected static void tryInstantiate(String fName, String superClassPath, String packName)
+	protected static void tryInstantiate(String fName, String superClassPath, String sourceTrace)
 	{
 		try
 		{
@@ -69,23 +106,17 @@ public abstract class LocalContentProvider implements FMUMContentProvider
 					+ fName.substring(0, fName.length() - CLASS_SUFFIX.length())
 			).getConstructor().newInstance();
 		}
-		catch(
-			InstantiationException
-			| IllegalAccessException
-			| IllegalArgumentException
-			| InvocationTargetException
-			| NoSuchMethodException
-			| SecurityException
-			| ClassNotFoundException e
-		) {
-			FMUM.log.error(
-				I18n.format(
-					"fmum.errorloadingclassbaseditemtyper",
-					packName + ":" + superClassPath + "." + fName
-				),
-				e
-			);
+		catch(Exception e) {
+			FMUM.log.error(I18n.format("fmum.errorloadingclassbaseditemtyper", sourceTrace), e);
 		}
+	}
+	
+	protected static void printIOError(String sourceTrace, IOException e) {
+		FMUM.log.error(I18n.format("fmum.ioerrorreadingfrom", sourceTrace), e);
+	}
+	
+	protected static void printUnrecognizedType(String sourceTrace) {
+		FMUM.log.error(I18n.format("fmum.unrecognizedtypefiletype", sourceTrace));
 	}
 	
 	/**
@@ -95,7 +126,20 @@ public abstract class LocalContentProvider implements FMUMContentProvider
 	 * @author Giant_Salted_Fish
 	 */
 	@FunctionalInterface
-	public static interface TypeFileProcessor {
-		public void process(File typeFile, String superClassPath);
+	public static interface TypeFileProcessor
+	{
+		/**
+		 * @return {@code true} to stop further iteration
+		 */
+		public boolean process(File typeFile, String superClassPath);
+	}
+	
+	@FunctionalInterface
+	public static interface TypeZipEntryProcessor
+	{
+		/**
+		 * @return {@code true} to stop further iteration
+		 */
+		public boolean process(ZipEntry entry, BufferedReader in);
 	}
 }

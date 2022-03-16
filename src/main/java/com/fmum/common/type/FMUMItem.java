@@ -5,7 +5,7 @@ package com.fmum.common.type;
  * 
  * @author Giant_Salted_Fish
  */
-public interface ItemFMUMBase
+public interface FMUMItem
 {
 	/**
 	 * @return Name of this item. Usually can be used to identify different items in FMUM.

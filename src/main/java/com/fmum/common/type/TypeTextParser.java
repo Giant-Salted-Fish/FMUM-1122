@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.fmum.common.FMUM;
-import com.fmum.common.pack.LocalContentProvider;
 
 import net.minecraft.client.resources.I18n;
 
@@ -23,41 +23,17 @@ import net.minecraft.client.resources.I18n;
  * @param <T> Typer that this parser services for
  * @author Giant_Salted_Fish
  */
-public abstract class TypeTextParser<T extends TypeInfo> implements ParserFunc<T>
+public abstract class TypeTextParser<T> implements ParserFunc<T>
 {
 	public final HashMap<String, ParserFunc<T>> parsers = new HashMap<>();
 	
-	protected final TypeTextParser<? super T> superPaser;
-	
-	protected final Constructor<T> instantiator;
+	protected final TypeTextParser<? super T> superParser;
 	
 	/**
-	 * @param superPaser Parent parser. {@code null} if it is the root parser.
-	 * @param typeClass
-	 *     <p>Class of the type that this parser service for. Constructor of the typer will be
-	 *     retrieved from this given class. The given type class should has a constructor with two
-	 *     parameters of type {@link String}. The name of the parsing typer will be passed via first
-	 *     parameter. The name of the source(usually is the content pack name) will be provided via
-	 *     second parameter.</p>
-	 *     
-	 *     <p>{@code null} if this parser is not for a leaf typer class.</p>
+	 * @param superParser Parent parser. {@code null} if it is the root parser.
 	 */
-	protected TypeTextParser(TypeTextParser<? super T> superPaser, @Nullable Class<T> typeClass)
-	{
-		this.superPaser = superPaser;
-		if(typeClass != null)
-			try { this.instantiator = typeClass.getConstructor(String.class, String.class); }
-			catch(NoSuchMethodException | SecurityException e)
-			{
-				throw new RuntimeException(
-					I18n.format(
-						"fmum.failedtogettyperconstructor",
-						typeClass.getName()
-					),
-					e
-				);
-			}
-		else this.instantiator = null;
+	protected TypeTextParser(@Nullable TypeTextParser<? super T> superParser) {
+		this.superParser = superParser;
 	}
 	
 	public T parse(List<String> text, T type, String sourceTrace)
@@ -65,7 +41,7 @@ public abstract class TypeTextParser<T extends TypeInfo> implements ParserFunc<T
 		for(String line : text)
 		{
 			// Skip empty lines and comments
-			int i = line.indexOf("//");
+			int i = Math.min(line.indexOf('*'), line.indexOf("//"));
 			if((line = i < 0 ? line : line.substring(0, i).trim()).length() > 0)
 				this.parse(line.split(" "), type, sourceTrace);
 		}
@@ -83,9 +59,9 @@ public abstract class TypeTextParser<T extends TypeInfo> implements ParserFunc<T
 	public void parse(String[] split, T type, String sourceTrace)
 	{
 		ParserFunc<? super T> parser = this.parsers.get(split[0]);
-		if(parser == null && (parser = this.superPaser) == null)
+		if(parser == null && (parser = this.superParser) == null)
 			FMUM.log.warn(I18n.format("fmum.unknowntypefilekeyword", split[0], sourceTrace));
-		else try { parser.parse(split, type); }
+		else try { parser.parse(split, type, sourceTrace); }
 		catch(Exception e) {
 			FMUM.log.error(I18n.format("fmum.errorparsingtypefile", split[0], sourceTrace), e);
 		}
@@ -94,73 +70,133 @@ public abstract class TypeTextParser<T extends TypeInfo> implements ParserFunc<T
 	@Override
 	public void parse(String[] split, T type) { }
 	
-	public static final class LocalTypeFileParser<T extends TypeInfo> extends TypeTextParser<T>
+	public static final class LocalTypeFileParser<T> extends TypeTextParser<T>
 	{
+		protected final Constructor<T> constructor;
+		
+		protected final ParseTargetInstantiator<T> instantiator;
+		
 		/**
 		 * Not for a leaf typer class
 		 * 
-		 * @see #LocalTypeFileParser(TypeTextParser, Class)
-		 * @param superPaser Parent parser. {@code null} if it is the root parser.
+		 * @param superParser Parent parser. {@code null} if it is the root parser.
 		 */
 		public LocalTypeFileParser(TypeTextParser<? super T> superParser) {
-			super(superParser, null);
+			this(superParser, null);
 		}
 		
 		/**
-		 * @see TypeTextParser#TypeTextParser(TypeTextParser, Class)
+		 * @param typeClass
+		 *     <p>Class of the type that this parser service for. Constructor of the typer will be
+		 *     retrieved from this given class. The given type class should has a constructor with two
+		 *     parameters of type {@link String}. The name of the parsing typer will be passed via first
+		 *     parameter. The name of the source(usually is the content pack name) will be provided via
+		 *     second parameter.</p>
+		 *     
+		 *     <p>{@code null} if this parser is not for a leaf typer class.</p>
+		 * @param superParser Parent parser. {@code null} if it is the root parser.
 		 */
-		public LocalTypeFileParser(TypeTextParser<? super T> superPaser, Class<T> typeClass) {
-			super(superPaser, typeClass);
-		}
-		
-		public T parse(File textFile, String packName, String typePath)
-		{
-			final String fName = textFile.getName();
-			final String sourceTraceName = packName + "." + typePath + "." + fName;
+		public LocalTypeFileParser(
+			@Nonnull Class<T> typeClass,
+			@Nullable TypeTextParser<? super T> superParser
+		) {
+			super(superParser);
 			
-			// Read all lines from text file
-			final LinkedList<String> lines = new LinkedList<>();
-			try(BufferedReader in = new BufferedReader(new FileReader(textFile))) {
-				for(String s; (s = in.readLine()) != null; lines.add(s));
-			}
-			catch(IOException e)
+			try { this.constructor = typeClass.getConstructor(String.class, String.class); }
+			catch(NoSuchMethodException | SecurityException e)
 			{
-				FMUM.log.error(
-					I18n.format(
-						"fmum.errorreadingtypefile",
-						sourceTraceName
-					),
-					e
-				);
-				return null; // TODO: return a info type instance
-			}
-			
-			// Instantiate typer
-			T type;
-			try
-			{
-				type = this.instantiator.newInstance(
-					fName.substring(0, fName.length() - LocalContentProvider.TXT_SUFFIX.length()),
-					packName
-				);
-			}
-			catch(
-				InstantiationException
-				| IllegalAccessException
-				| IllegalArgumentException
-				| InvocationTargetException e
-			) {
 				throw new RuntimeException(
 					I18n.format(
-						"fmum.failedtoinstantiateitemtyper",
-						this.instantiator.getName()
+						"fmum.failedtogettyperconstructor",
+						typeClass.getName()
 					),
 					e
 				);
 			}
 			
-			// Parse from the lines
-			return this.parse(lines, type, sourceTraceName);
+			this.instantiator = (name, sourceName) -> {
+				try{ return this.constructor.newInstance(name, sourceName); }
+				catch(
+					InstantiationException
+					| IllegalAccessException
+					| IllegalArgumentException
+					| InvocationTargetException e
+				) {
+					throw new RuntimeException(
+						I18n.format(
+							"fmum.failedtoinstantiateitemtyper",
+							this.constructor.getName()
+						),
+						e
+					);
+				}
+			};
 		}
+		
+		/**
+		 * @param superParser Parent parser. {@code null} if it is the root parser.
+		 * @param instantiator
+		 *     Used to instantiate target typer instance while directly read from a local plain text
+		 *     file. This allows the caller of this parser to run the parser without having to
+		 *     create the typer instance itself. In default called in
+		 *     {@link #parse(File, String, String)}. {@code null} if this feature is not needed.
+		 */
+		public LocalTypeFileParser(
+			@Nullable TypeTextParser<? super T> superParser,
+			@Nullable ParseTargetInstantiator<T> instantiator
+		) {
+			super(superParser);
+			
+			this.constructor = null;
+			this.instantiator = instantiator;
+		}
+		
+		public T parse(BufferedReader textInput, T type, String sourceTrace)
+			throws IOException
+		{
+			// Read all lines from text file
+			final LinkedList<String> lines = new LinkedList<>();
+			for(String s; (s = textInput.readLine()) != null; lines.add(s));
+			
+			// Parse from the lines
+			return this.parse(lines, type, sourceTrace);
+		}
+		
+		public T parse(
+			BufferedReader textInput,
+			String sourceName,
+			String packName,
+			String sourceTrace
+		) throws IOException
+		{
+			return this.parse(
+				textInput,
+				this.instantiator.instantiate(sourceName, packName),
+				sourceTrace
+			);
+		}
+		
+		public T parse(File textFile, T type, String sourceTrace)
+			throws IOException
+		{
+			try(BufferedReader in = new BufferedReader(new FileReader(textFile))) {
+				return this.parse(in, type, sourceTrace);
+			}
+			catch(IOException e) { throw e; }
+		}
+		
+		public T parse(File textFile, String sourceName, String packName, String sourceTrace)
+			throws IOException
+		{
+			return this.parse(
+				textFile,
+				this.instantiator.instantiate(sourceName, packName),
+				sourceTrace
+			);
+		}
+	}
+	
+	public static interface ParseTargetInstantiator<T> {
+		public T instantiate(String name, String sourceName);
 	}
 }

@@ -16,6 +16,7 @@ public final class ForgeEventListener
 	@SubscribeEvent
 	public void onItemRegister(RegistryEvent.Register<Item> evt)
 	{
+		FMUM.log.info(I18n.format("fmum.onitemregistration"));
 		final IForgeRegistry<Item> registry = evt.getRegistry();
 		for(RequireItemRegistration rir : itemsWaitForRegistration)
 			registry.register(rir.getRegistrantItem());

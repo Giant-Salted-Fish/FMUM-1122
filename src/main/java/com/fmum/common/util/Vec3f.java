@@ -1,7 +1,14 @@
 package com.fmum.common.util;
 
+/**
+ * A simple vector with 3 float values
+ * 
+ * @author Giant_Salted_Fish
+ */
 public final class Vec3f
 {
+	public static final ObjPool<Vec3f> pool = new ObjPool<Vec3f>(() -> new Vec3f());
+	
 	public float x, y, z;
 	
 	public Vec3f() { this(0F); }

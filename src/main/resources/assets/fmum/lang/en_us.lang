@@ -15,11 +15,18 @@ fmum.errorparsingtypefile=Failed to parse keyword <%s> in type file <%s>
 fmum.unknowntypefilekeyword=Unknown type file keyword <%s> used in <%s>
 fmum.failedtogettyperconstructor=Failed to get item typer constructor from <%s>. This should never happen.
 fmum.failedtoinstantiateitemtyper=Failed to instantiate item typer with <%s>. This should never happen.
-fmum.errorreadingtypefile=An error has occurred while reading plain text based type file <%s>
+fmum.ioerrorreadingfrom=An IO error has occurred while attempting to read from <%s>
 fmum.errorloadingclassbaseditemtyper=An error has occurred while loading class based type file <%s>
 fmum.failtofetchcreativetab=Failed to find creative tab <%s> for <%s>. It will be assigned into default creative tab.
-fmum.itemregistrationcomplete=Item registration complete. <%d> items registered.
+fmum.onitemregistration=Registering items for FMUM content packs...
+fmum.itemregistrationcomplete=Item registration complete. %d items registered.
+fmum.failtofindiconitemfortab=Failed to find icon item <%s> for creative tab <%s>
+fmum.infoactivedpacks=Total %d content pack activated
+fmum.activedpackinfo=- %s MADE BY %s
 
-fmum.descriptionnotprovided=Description not provided
+fmum.descriptionmissing=Description not provided
+
+pack.authormissing=Unknown author
+pack.descriptionmissing=Description not provided
 
 itemGroup.fmum=FMUM Default Group

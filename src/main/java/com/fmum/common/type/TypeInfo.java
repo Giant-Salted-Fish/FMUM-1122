@@ -24,6 +24,7 @@ public abstract class TypeInfo implements RequireItemRegistration
 	 * Default item description
 	 */
 	public static final LinkedList<String> DEF_DESCRIPTION = new LinkedList<>();
+	static { DEF_DESCRIPTION.add("fmum.descriptionmissing"); }
 	
 	public static final LocalTypeFileParser<TypeInfo>
 		parser = new LocalTypeFileParser<>(null);
@@ -41,6 +42,7 @@ public abstract class TypeInfo implements RequireItemRegistration
 				t.description.add(des);
 			}
 		);
+		parser.addKeyword("CreativeTab", (s, t) -> t.creativeTab = s[1]);
 		
 		// Visual
 		parser.addKeyword("Icon", (s, t) -> t.iconPath = s[1]);
@@ -135,6 +137,7 @@ public abstract class TypeInfo implements RequireItemRegistration
 			tab = FMUMCreativeTab.INSTANCE;
 		}
 		item.setCreativeTab(tab);
+		tab.itemSettleIn(item);
 		
 		return item;
 	}
