@@ -1,11 +1,10 @@
 package com.fmum.common;
 
-import java.io.File;
 import java.util.Random;
+import java.util.TreeSet;
 
 import org.apache.logging.log4j.Logger;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -46,6 +45,15 @@ public final class FMUM
 		TO_RADIANS = (float)Math.PI / 180F,
 		TO_DEGREES = 180F / (float)Math.PI;
 	
+	public static final String
+		TXT_FILE_SUFFIX = ".txt",
+		CLASS_FILE_SUFFIX = ".class";
+	
+	/**
+	 * Some fixed empty containers that can be used as initializer value
+	 */
+	public static final TreeSet<String> EMPTY_STR_SET = new TreeSet<>();
+	
 	/**
 	 * Id of {@link FMUM}
 	 */
@@ -72,11 +80,6 @@ public final class FMUM
 	public static CommonProxy proxy;
 	
 	/**
-	 * Name of the folder that contains content packs to be loaded
-	 */
-	public static String packDirName = MODID;
-	
-	/**
 	 * Default logger for {@link FMUM}
 	 */
 	public static Logger log = null;
@@ -96,54 +99,79 @@ public final class FMUM
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent evt)
 	{
+		// Parse configuration
+		proxy.syncConfig(new Configuration(evt.getSuggestedConfigurationFile()));
+		
+		proxy.loadLocalizationMap();
+		
 		log = evt.getModLog();
-		log.info(I18n.format("fmum.onpreinitialization"));
+		log.info(proxy.format("fmum.onpreinitialization"));
 		
-		// Register event listeners
-		proxy.registerEventListener();
-		
-		// Parse FMUM configuration
-		this.syncConfig(new Configuration(evt.getSuggestedConfigurationFile()));
-		
-		// Check content pack folder
-		File packDir = new File(evt.getModConfigurationDirectory().getParentFile(), packDirName);
-		if(!packDir.exists())
-		{
-			packDir.mkdirs();
-			log.info(I18n.format("fmum.packfoldercreated", packDirName));
-		}
+		// Launch event listeners
+		proxy.registerEventListeners();
 		
 		// Load content packs
-		proxy.loadContentPack(packDir);
+		proxy.loadContentPack(evt.getModConfigurationDirectory().getParentFile());
 		proxy.refreshMinecraftResources();
 		
-		log.info(I18n.format("fmum.preinitializationcomplete"));
+		log.info(proxy.format("fmum.preinitializationcomplete"));
 	}
 	
 	@EventHandler
 	public void onInit(FMLInitializationEvent evt)
 	{
-		log.info(I18n.format("fmum.oninitialization"));
+		log.info(proxy.format("fmum.oninitialization"));
 		
 		proxy.setupCreativeTabs();
 		
-		log.info(I18n.format("fmum.oninitializationcomplete"));
+		log.info(proxy.format("fmum.oninitializationcomplete"));
 		proxy.initComplete();
 	}
 	
-	private void syncConfig(Configuration config)
+	/**
+	 * Try to load required class and instantiate it. Prints the error if any has occurred. The
+	 * input raw path fragments will be processed by {@link #spliceClassPath(String...)}.
+	 * 
+	 * @param pathFragments class path fragments to the required class
+	 */
+	public static Object tryInstantiate(String... pathFragments)
 	{
-		final String COMMON_SETTING = "FMUM Common Settings";
-		
-		packDirName = config.getString(
-			"packFolderName",
-			COMMON_SETTING,
-			packDirName,
-			"Content pack folder name where FMUM will load content packs from"
+		pathFragments[0] = spliceClassPath(pathFragments);
+		try
+		{
+			return FMUMClassLoader.instance.loadClass(
+				pathFragments[0]
+			).getConstructor().newInstance();
+		}
+		catch(Exception e) {
+			FMUM.log.error(proxy.format("fmum.errorinstantiating", pathFragments[0]), e);
+		}
+		return null;
+	}
+	
+	public static String spliceClassPath(String... pathFragments)
+	{
+		String classPath = pathFragments[pathFragments.length - 1];
+		for(
+			int i = pathFragments.length - 1;
+			--i >= 0;
+			classPath = pathFragments[i] + "." + classPath
 		);
-		
-		// Save configuration file if has changed
-		if(config.hasChanged())
-			config.save();
+		return(
+			classPath.endsWith(CLASS_FILE_SUFFIX)
+			? classPath.substring(0, classPath.length() - CLASS_FILE_SUFFIX.length())
+			: classPath
+		);
+	}
+	
+	public static String splice(String[] split, int head) {
+		return splice(split, head, split.length);
+	}
+	
+	public static String splice(String[] split, int head, int tail)
+	{
+		String s = "";
+		while(--tail >= head) s = split[tail] + " " + s;
+		return s;
 	}
 }

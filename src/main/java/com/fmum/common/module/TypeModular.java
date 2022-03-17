@@ -2,18 +2,30 @@ package com.fmum.common.module;
 
 import com.fmum.common.FMUM;
 import com.fmum.common.type.TypePaintable;
+import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagList;
 
 public abstract class TypeModular extends TypePaintable
 {
-	public static final Slot[] DEF_SLOTS = { };
+	public static final LocalTypeFileParser<TypeModular>
+		parser = new LocalTypeFileParser<>(TypePaintable.parser);
+	static
+	{
+		// Slots and default installed modules TODO
+		parser.addKeyword("Slots", (s, t) -> t.slots = Slot.parse(s, 1));
+	}
 	
-	public Slot[] slots = DEF_SLOTS;
+	public Slot[] slots = Slot.DEF_SLOTS;
 	
-	protected TypeModular(String name, String contentPackName) { super(name, contentPackName); }
+	protected TypeModular(String name) { super(name); }
 	
+	/**
+	 * @param states States of this module
+	 * @param stepLen Step length of the slot rail of the super module
+	 * @return Install position shift
+	 */
 	public float getOffset(int[] states, float stepLen) { return 0F; }
 	
 	public boolean stream(NBTTagList tag, ModuleVisitor visitor)
@@ -77,6 +89,66 @@ public abstract class TypeModular extends TypePaintable
 		
 		return false;
 	}
+	
+	public final int getStreamIndex(NBTTagList tag, byte[] location, int len, int cursor)
+	{
+		if(cursor == len) return 0;
+		
+		int index = 1;
+		int tarSlot = location[cursor];
+		int tarModule = location[cursor + 1];
+		
+		NBTTagList slotTag, moduleTag;
+		for(int i = this.slots.length; --i >= 0; )
+			for(
+				int j = (
+					slotTag = (NBTTagList)tag.get(i + 1)
+				).tagCount();
+				--j >= 0;
+			) {
+				TypeModular type = TagModular.getType(
+					moduleTag = (NBTTagList)slotTag.get(j)
+				);
+				if(i == tarSlot && j == tarModule)
+					return index + type.getStreamIndex(moduleTag, location, len, cursor + 2);
+				index += type.count(moduleTag);
+			}
+		
+		// Should never reach here
+		return -1;
+	}
+	
+	@Override
+	public void postParse()
+	{
+		super.postParse();
+		
+		// Do not forget to apply the model scale
+		this.scale(this.modelScale);
+	}
+	
+	/**
+	 * @param tag Module base tag
+	 * @return How many modules installed on this module including itself
+	 */
+	protected final int count(NBTTagList tag)
+	{
+		int count = 1;
+		
+		NBTTagList slotTag, moduleTag;
+		for(int i = this.slots.length; --i >= 0; )
+			for(
+				int j = (
+					slotTag = (NBTTagList)tag.get(i + 1)
+				).tagCount();
+				--j >= 0;
+				count += TagModular.getType(moduleTag = (NBTTagList)slotTag.get(j)).count(moduleTag)
+			);
+		
+		return count;
+	}
+	
+	protected void scale(float s) { for(Slot slot : this.slots) slot.scale(s); }
 	
 	@FunctionalInterface
 	public static interface ModuleVisitor {

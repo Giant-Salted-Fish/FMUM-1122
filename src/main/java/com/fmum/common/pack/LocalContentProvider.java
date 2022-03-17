@@ -9,9 +9,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import com.fmum.common.FMUM;
-import com.fmum.common.FMUMClassLoader;
-
-import net.minecraft.client.resources.I18n;
+import com.fmum.common.type.TypeInfo;
+import com.fmum.common.util.Messager;
 
 /**
  * Content provider that fetches its source from local disk
@@ -20,10 +19,6 @@ import net.minecraft.client.resources.I18n;
  */
 public abstract class LocalContentProvider implements FMUMContentProvider
 {
-	public static final String
-		TXT_SUFFIX = ".txt",
-		CLASS_SUFFIX = ".class";
-	
 	/**
 	 * Source file on local disk
 	 */
@@ -50,10 +45,10 @@ public abstract class LocalContentProvider implements FMUMContentProvider
 	@Override
 	public ContentProviderSourceInfo getInfo() { return this.info; }
 	
-	protected void parseInfo(BufferedReader textInput, String sourceTrace)
+	protected void parseInfo(BufferedReader textInput, Messager sourceTrace)
 	{
 		try { ContentProviderSourceInfo.parser.parse(textInput, this.info, sourceTrace); }
-		catch(IOException e) { printIOError(sourceTrace, e); }
+		catch(IOException e) { printIOError(sourceTrace.message(), e); }
 	}
 	
 	protected static boolean iterateTypeFiles(File dir, TypeFileProcessor processor) {
@@ -91,32 +86,33 @@ public abstract class LocalContentProvider implements FMUMContentProvider
 	}
 	
 	/**
-	 * Try to load required class and instantiate it. Prints the error if an error has occurred
+	 * Try to load typer class and instantiate it. Prints the error if any has present. Notice that
+	 * this method will notice {@code this} as the provider of loaded {@link TypeInfo}.
 	 * 
-	 * @param fName Name of the class file to load
-	 * @param superClassPath Package path of the class to load
 	 * @param sourceTrace Source trace name used in error print
+	 * @param classPathFragments Class path fragments
 	 */
-	protected static void tryInstantiate(String fName, String superClassPath, String sourceTrace)
+	protected void loadClassBasedTyper(Messager sourceTrace, String... classPathFragments)
 	{
-		try
+		try { ((TypeInfo)FMUM.tryInstantiate(classPathFragments)).noticeProvider(this); }
+		catch(Exception e)
 		{
-			FMUMClassLoader.instance.loadClass(
-				superClassPath + "."
-					+ fName.substring(0, fName.length() - CLASS_SUFFIX.length())
-			).getConstructor().newInstance();
-		}
-		catch(Exception e) {
-			FMUM.log.error(I18n.format("fmum.errorloadingclassbaseditemtyper", sourceTrace), e);
+			FMUM.log.error(
+				FMUM.proxy.format(
+					"fmum.errorloadingclassbasedtyper",
+					sourceTrace.message()
+				),
+				e
+			);
 		}
 	}
 	
 	protected static void printIOError(String sourceTrace, IOException e) {
-		FMUM.log.error(I18n.format("fmum.ioerrorreadingfrom", sourceTrace), e);
+		FMUM.log.error(FMUM.proxy.format("fmum.ioerrorreadingfrom", sourceTrace), e);
 	}
 	
 	protected static void printUnrecognizedType(String sourceTrace) {
-		FMUM.log.error(I18n.format("fmum.unrecognizedtypefiletype", sourceTrace));
+		FMUM.log.error(FMUM.proxy.format("fmum.unrecognizedtypefiletype", sourceTrace));
 	}
 	
 	/**

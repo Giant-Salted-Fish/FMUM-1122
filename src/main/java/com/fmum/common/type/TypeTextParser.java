@@ -14,8 +14,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.fmum.common.FMUM;
-
-import net.minecraft.client.resources.I18n;
+import com.fmum.common.util.Messager;
 
 /**
  * A helper class to read properties of types from plain text
@@ -36,7 +35,7 @@ public abstract class TypeTextParser<T> implements ParserFunc<T>
 		this.superParser = superParser;
 	}
 	
-	public T parse(List<String> text, T type, String sourceTrace)
+	public T parse(List<String> text, T type, Messager sourceTrace)
 	{
 		for(String line : text)
 		{
@@ -56,14 +55,28 @@ public abstract class TypeTextParser<T> implements ParserFunc<T>
 	public ParserFunc<T> removeKeyParser(String key) { return this.parsers.remove(key); }
 	
 	@Override
-	public void parse(String[] split, T type, String sourceTrace)
+	public void parse(String[] split, T type, Messager sourceTrace)
 	{
 		ParserFunc<? super T> parser = this.parsers.get(split[0]);
 		if(parser == null && (parser = this.superParser) == null)
-			FMUM.log.warn(I18n.format("fmum.unknowntypefilekeyword", split[0], sourceTrace));
+			FMUM.log.warn(
+				FMUM.proxy.format(
+					"fmum.unknowntypefilekeyword",
+					split[0],
+					sourceTrace.message()
+				)
+			);
 		else try { parser.parse(split, type, sourceTrace); }
-		catch(Exception e) {
-			FMUM.log.error(I18n.format("fmum.errorparsingtypefile", split[0], sourceTrace), e);
+		catch(Exception e)
+		{
+			FMUM.log.error(
+				FMUM.proxy.format(
+					"fmum.errorparsingtypefile",
+					split[0],
+					sourceTrace.message()
+				),
+				e
+			);
 		}
 	}
 	
@@ -88,10 +101,9 @@ public abstract class TypeTextParser<T> implements ParserFunc<T>
 		/**
 		 * @param typeClass
 		 *     <p>Class of the type that this parser service for. Constructor of the typer will be
-		 *     retrieved from this given class. The given type class should has a constructor with two
-		 *     parameters of type {@link String}. The name of the parsing typer will be passed via first
-		 *     parameter. The name of the source(usually is the content pack name) will be provided via
-		 *     second parameter.</p>
+		 *     retrieved from this given class. The given type class should has a constructor with
+		 *     one parameter of type {@link String}. The name of the parsing typer will be passed
+		 *     via this parameter.</p>
 		 *     
 		 *     <p>{@code null} if this parser is not for a leaf typer class.</p>
 		 * @param superParser Parent parser. {@code null} if it is the root parser.
@@ -102,11 +114,11 @@ public abstract class TypeTextParser<T> implements ParserFunc<T>
 		) {
 			super(superParser);
 			
-			try { this.constructor = typeClass.getConstructor(String.class, String.class); }
+			try { this.constructor = typeClass.getConstructor(String.class); }
 			catch(NoSuchMethodException | SecurityException e)
 			{
 				throw new RuntimeException(
-					I18n.format(
+					FMUM.proxy.format(
 						"fmum.failedtogettyperconstructor",
 						typeClass.getName()
 					),
@@ -114,8 +126,8 @@ public abstract class TypeTextParser<T> implements ParserFunc<T>
 				);
 			}
 			
-			this.instantiator = (name, sourceName) -> {
-				try{ return this.constructor.newInstance(name, sourceName); }
+			this.instantiator = name -> {
+				try{ return this.constructor.newInstance(name); }
 				catch(
 					InstantiationException
 					| IllegalAccessException
@@ -123,7 +135,7 @@ public abstract class TypeTextParser<T> implements ParserFunc<T>
 					| InvocationTargetException e
 				) {
 					throw new RuntimeException(
-						I18n.format(
+						FMUM.proxy.format(
 							"fmum.failedtoinstantiateitemtyper",
 							this.constructor.getName()
 						),
@@ -151,8 +163,7 @@ public abstract class TypeTextParser<T> implements ParserFunc<T>
 			this.instantiator = instantiator;
 		}
 		
-		public T parse(BufferedReader textInput, T type, String sourceTrace)
-			throws IOException
+		public T parse(BufferedReader textInput, T type, Messager sourceTrace) throws IOException
 		{
 			// Read all lines from text file
 			final LinkedList<String> lines = new LinkedList<>();
@@ -162,22 +173,17 @@ public abstract class TypeTextParser<T> implements ParserFunc<T>
 			return this.parse(lines, type, sourceTrace);
 		}
 		
-		public T parse(
-			BufferedReader textInput,
-			String sourceName,
-			String packName,
-			String sourceTrace
-		) throws IOException
+		public T parse(BufferedReader textInput, String sourceName, Messager sourceTrace)
+			throws IOException
 		{
 			return this.parse(
 				textInput,
-				this.instantiator.instantiate(sourceName, packName),
+				this.instantiator.instantiate(sourceName),
 				sourceTrace
 			);
 		}
 		
-		public T parse(File textFile, T type, String sourceTrace)
-			throws IOException
+		public T parse(File textFile, T type, Messager sourceTrace) throws IOException
 		{
 			try(BufferedReader in = new BufferedReader(new FileReader(textFile))) {
 				return this.parse(in, type, sourceTrace);
@@ -185,18 +191,17 @@ public abstract class TypeTextParser<T> implements ParserFunc<T>
 			catch(IOException e) { throw e; }
 		}
 		
-		public T parse(File textFile, String sourceName, String packName, String sourceTrace)
-			throws IOException
+		public T parse(File textFile, String sourceName, Messager sourceTrace) throws IOException
 		{
 			return this.parse(
 				textFile,
-				this.instantiator.instantiate(sourceName, packName),
+				this.instantiator.instantiate(sourceName),
 				sourceTrace
 			);
 		}
 	}
 	
 	public static interface ParseTargetInstantiator<T> {
-		public T instantiate(String name, String sourceName);
+		public T instantiate(String name);
 	}
 }

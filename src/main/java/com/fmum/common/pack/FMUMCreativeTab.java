@@ -31,9 +31,9 @@ public class FMUMCreativeTab extends CreativeTabs
 	/**
 	 * Default creative item tab for {@link FMUM}
 	 */
-	public static final FMUMCreativeTab INSTANCE = new FMUMCreativeTab(FMUM.MODID, FMUM.MOD_NAME);
+	public static final FMUMCreativeTab INSTANCE = new FMUMCreativeTab(FMUM.MODID);
 	
-	public FMUMCreativeTab(String label, String contentPackName)
+	public FMUMCreativeTab(String label)
 	{
 		super(label);
 		
@@ -55,6 +55,8 @@ public class FMUMCreativeTab extends CreativeTabs
     @SideOnly(Side.CLIENT)
 	public ItemStack createIcon() { return DEF_ICON_STACK; }
 	
+	public String getDisplayName() { return FMUM.proxy.format(this.getTranslationKey()); }
+	
 	@Override
 	public String toString() { return "tab:" + this.getTabLabel(); }
 	
@@ -71,6 +73,10 @@ public class FMUMCreativeTab extends CreativeTabs
 		static
 		{
 			parser.addKeyword(
+				"DisplayName",
+				(s, t) -> FMUM.proxy.addLocalizeKey(t.getTranslationKey(), FMUM.splice(s, 1))
+			);
+			parser.addKeyword(
 				"IconItem",
 				(s, t) -> {
 					t.iconItemName = s[1];
@@ -78,6 +84,8 @@ public class FMUMCreativeTab extends CreativeTabs
 						t.iconItemDam = Integer.parseInt(s[2]);
 				}
 			);
+			
+			// TODO: background texture
 		}
 		
 		public static final String DEF_ICON_ITEM_NAME = "undefined";
@@ -87,7 +95,7 @@ public class FMUMCreativeTab extends CreativeTabs
 		
 		public ItemStack iconStack = DEF_ICON_STACK;
 		
-		public IconBasedTab(String label, String contentPackName) { super(label, contentPackName); }
+		public IconBasedTab(String label) { super(label); }
 		
 		@Override
 		@SideOnly(Side.CLIENT)

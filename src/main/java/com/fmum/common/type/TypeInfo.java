@@ -7,11 +7,12 @@ import java.util.List;
 import com.fmum.common.FMUM;
 import com.fmum.common.ForgeEventListener;
 import com.fmum.common.ForgeEventListener.RequireItemRegistration;
+import com.fmum.common.pack.FMUMContentProvider;
 import com.fmum.common.pack.FMUMCreativeTab;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 public abstract class TypeInfo implements RequireItemRegistration
 {
@@ -24,22 +25,29 @@ public abstract class TypeInfo implements RequireItemRegistration
 	 * Default item description
 	 */
 	public static final LinkedList<String> DEF_DESCRIPTION = new LinkedList<>();
-	static { DEF_DESCRIPTION.add("fmum.descriptionmissing"); }
+	static { DEF_DESCRIPTION.add("tooltip.descriptionmissing"); }
 	
 	public static final LocalTypeFileParser<TypeInfo>
 		parser = new LocalTypeFileParser<>(null);
 	static
 	{
-		parser.addKeyword("Name", (s, t) -> t.name = s[1]);
+		parser.addKeyword(
+			"Name",
+			(s, t) -> {
+				t.name = s[1];
+				
+				// Set a server side localized name
+				if(s.length > 2)
+					FMUM.proxy.addLocalizeKey("item." + t.name + ".name", FMUM.splice(s, 2));
+			}
+		);
 		parser.addKeyword("Category", (s, t) -> t.category = s[1]);
 		parser.addKeyword(
 			"Description",
 			(s, t) -> {
 				if(t.description == DEF_DESCRIPTION)
 					t.description = new LinkedList<>();
-				String des = s[s.length - 1];
-				for(int i = s.length - 1; --i > 0; des = s[i] + " " + des);
-				t.description.add(des);
+				t.description.add(FMUM.splice(s, 1));
 			}
 		);
 		parser.addKeyword("CreativeTab", (s, t) -> t.creativeTab = s[1]);
@@ -61,7 +69,7 @@ public abstract class TypeInfo implements RequireItemRegistration
 	/**
 	 * Name of the content pack where this item belongs to
 	 */
-	public final String contentPackName;
+	public FMUMContentProvider provider = null;
 	
 	/**
 	 * Category of this item. Usually used in grouping different items.
@@ -83,15 +91,22 @@ public abstract class TypeInfo implements RequireItemRegistration
 	 */
 	public String iconPath = "undefined";
 	
-	protected TypeInfo(String name, String contentPackName)
+	/**
+	 * Scale that should be applied when rendering this model
+	 */
+	public float modelScale = 1F;
+	
+	protected TypeInfo(String name) { this.name = name; }
+	
+	public TypeInfo noticeProvider(FMUMContentProvider provider)
 	{
-		this.name = name;
-		this.contentPackName = contentPackName;
+		this.provider = provider;
+		return this;
 	}
 	
 	/**
-	 * <p>Called after parsing this typer from a plain text file. In default this method put this
-	 * instance into {@link #types} and add itself into
+	 * <p>Called after parsing this typer from a plain text file. In default this method puts this
+	 * instance into {@link #types} and adds itself into
 	 * {@link ForgeEventListener#itemsWaitForRegistration}.</p>
 	 * 
 	 * <p>Notice that this method will not be called for class based typer. Hence you should
@@ -108,9 +123,13 @@ public abstract class TypeInfo implements RequireItemRegistration
 	 */
 	public abstract EnumType getEnumType();
 	
+	public String getDisplayName(ItemStack stack) {
+		return FMUM.proxy.format(this.item.getTranslationKey(stack) + ".name");
+	}
+	
 	@Override
 	public String toString() {
-		return "<" + this.getEnumType() + ">" + this.contentPackName + ":" + this.name;
+		return "<" + this.getEnumType() + ">" + this.provider.getName() + ":" + this.name;
 	}
 	
 	protected final Item withItem(Item item) { return this.withItem(item, 1, 0); }
@@ -128,7 +147,7 @@ public abstract class TypeInfo implements RequireItemRegistration
 		if(tab == null)
 		{
 			FMUM.log.error(
-				I18n.format(
+				FMUM.proxy.format(
 					"fmum.failtofetchcreativetab",
 					this.creativeTab,
 					this.toString()

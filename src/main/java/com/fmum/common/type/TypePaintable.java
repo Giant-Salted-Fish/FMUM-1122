@@ -11,10 +11,10 @@ public abstract class TypePaintable extends TypeInfo
 		parser.addKeyword("Paintjob", (s, t) -> { }); // TODO
 	}
 	
-	protected TypePaintable(String name, String contentPackName) { super(name, contentPackName); }
+	protected TypePaintable(String name) { super(name); }
 	
 	public static final class Paintjob
 	{
-		
+		// TODO: do not forget to localize paintjob name server side
 	}
 }

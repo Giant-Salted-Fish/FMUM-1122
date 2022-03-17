@@ -1,10 +1,11 @@
 package com.fmum.common.gun;
 
-import net.minecraft.item.Item;
-
-public class ItemMag extends Item
+public class ItemMag extends ItemAmmoContainer
 {
 	public final TypeMag type;
 	
 	public ItemMag(TypeMag type) { this.type = type; }
+	
+	@Override
+	public TypeMag getType() { return this.type; }
 }

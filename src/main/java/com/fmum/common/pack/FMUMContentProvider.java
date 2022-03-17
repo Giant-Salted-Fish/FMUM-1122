@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import com.fmum.common.FMUM;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
 public interface FMUMContentProvider
@@ -60,9 +61,23 @@ public interface FMUMContentProvider
 			parser = new LocalTypeFileParser<>(ContentProviderSourceInfo.class, null);
 		static
 		{
-			parser.addKeyword("Name", (s, t) -> t.name = s[1]);
-			parser.addKeyword("Author", (s, t) -> t.author = s[1]);
-			parser.addKeyword("Description", (s, t) -> t.description = s[1]);
+			parser.addKeyword(
+				"Name",
+				(s, t) -> {
+					t.name = s[1];
+					if(s.length > 2)
+						FMUM.proxy.addLocalizeKey(t.name, FMUM.splice(s, 2));
+				}
+			);
+			parser.addKeyword(
+				"Author",
+				(s, t) -> {
+					t.author = s[1];
+					if(s.length > 2)
+						FMUM.proxy.addLocalizeKey(t.author, FMUM.splice(s, 2));
+				}
+			);
+			parser.addKeyword("Description", (s, t) -> t.description = FMUM.splice(s, 1));
 		}
 		
 		public String name;

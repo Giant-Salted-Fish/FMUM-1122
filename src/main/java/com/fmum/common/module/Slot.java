@@ -3,12 +3,17 @@ package com.fmum.common.module;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
+import com.fmum.common.FMUM;
+
 /**
  * @author Giant_Salted_Fish
  */
 public final class Slot
 {
-	private static final TreeSet<String> DEF_LIST = new TreeSet<>();
+	/**
+	 * A fix instance that can be used as the initializer value
+	 */
+	public static final Slot[] DEF_SLOTS = { };
 	
 	/**
 	 * Relative position of the tail of this slot
@@ -42,15 +47,15 @@ public final class Slot
 	 * White list and blacklist of the type of attachments
 	 */
 	public TreeSet<String>
-		categoryWhitelist = DEF_LIST,
-		categoryBlacklist = DEF_LIST;
+		categoryWhitelist = FMUM.EMPTY_STR_SET,
+		categoryBlacklist = FMUM.EMPTY_STR_SET;
 	
 	/**
 	 * White list and blacklist of the attachments
 	 */
 	public TreeSet<String>
-		attachmentWhitelist = DEF_LIST,
-		attachmentBlacklist = DEF_LIST;
+		attachmentWhitelist = FMUM.EMPTY_STR_SET,
+		attachmentBlacklist = FMUM.EMPTY_STR_SET;
 	
 	public void scale(float s)
 	{
@@ -60,7 +65,7 @@ public final class Slot
 		this.stepLen *= s;
 	}
 	
-	public boolean isAllowed(TypeModule type)
+	public boolean isAllowed(TypeModular type)
 	{
 		return(
 			this.attachmentWhitelist.contains(type.name)

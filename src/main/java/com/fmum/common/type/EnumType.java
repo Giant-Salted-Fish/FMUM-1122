@@ -1,5 +1,6 @@
 package com.fmum.common.type;
 
+import com.fmum.common.gun.TypeGun;
 import com.fmum.common.gun.TypeMag;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
@@ -11,7 +12,7 @@ import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
  */
 public enum EnumType
 {
-	GUN("gun", null),
+	GUN("gun", TypeGun.parser),
 	ATTACHMENT("attachment", null),
 	MAG("mag", TypeMag.parser),
 	BULLET("bullet", null);

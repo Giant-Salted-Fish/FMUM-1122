@@ -12,21 +12,25 @@ fmum.detectcontentpack=Detect content pack <%s>
 fmum.preloadcontentpack=Pre-load content pack <%s>
 fmum.loadedcontentpack=Loaded content pack <%s>
 fmum.errorparsingtypefile=Failed to parse keyword <%s> in type file <%s>
-fmum.unknowntypefilekeyword=Unknown type file keyword <%s> used in <%s>
+fmum.unknowntypefilekeyword=Unknown type file keyword <%s> present in <%s>
 fmum.failedtogettyperconstructor=Failed to get item typer constructor from <%s>. This should never happen.
 fmum.failedtoinstantiateitemtyper=Failed to instantiate item typer with <%s>. This should never happen.
 fmum.ioerrorreadingfrom=An IO error has occurred while attempting to read from <%s>
-fmum.errorloadingclassbaseditemtyper=An error has occurred while loading class based type file <%s>
+fmum.errorloadingclassbasedtyper=An error has occurred while loading class based type file <%s>
 fmum.failtofetchcreativetab=Failed to find creative tab <%s> for <%s>. It will be assigned into default creative tab.
 fmum.onitemregistration=Registering items for FMUM content packs...
-fmum.itemregistrationcomplete=Item registration complete. %d items registered.
+fmum.itemregistrationcomplete=Item registration complete. %s items registered.
+fmum.onmodelregistration=Registering models for FMUM content packs...
+fmum.modelregistrationcomplete=Model registration complete. %s models registered.
 fmum.failtofindiconitemfortab=Failed to find icon item <%s> for creative tab <%s>
-fmum.infoactivedpacks=Total %d content pack activated
+fmum.infoactivedpacks=Total %s content pack activated
 fmum.activedpackinfo=- %s MADE BY %s
-
-fmum.descriptionmissing=Description not provided
+fmum.errorinstantiating=An error has occurred while trying to instantiate <%s>
 
 pack.authormissing=Unknown author
 pack.descriptionmissing=Description not provided
 
 itemGroup.fmum=FMUM Default Group
+
+tooltip.descriptionmissing=Description not provided
+tooltip.providerinfo=From %s by %s
