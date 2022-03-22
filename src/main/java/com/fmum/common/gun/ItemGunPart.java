@@ -42,6 +42,15 @@ public abstract class ItemGunPart extends Item implements ItemModular
 	) { return false; }
 	
 	@Override
+	public final String getTranslationKey(ItemStack stack) {
+		return this.getRecommendedTranslationKey(stack);
+	}
+	
+	@Override
+    @SideOnly(Side.CLIENT)
+	public final boolean isFull3D() { return true; }
+	
+	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(
 		ItemStack stack,

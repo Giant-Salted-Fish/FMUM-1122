@@ -4,48 +4,39 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.fmum.client.model.Model;
+import com.fmum.client.model.Model.SimpleModel;
+import com.fmum.common.CommonProxy;
 import com.fmum.common.FMUM;
 import com.fmum.common.ForgeEventListener;
-import com.fmum.common.ForgeEventListener.RequireItemRegistration;
+import com.fmum.common.ForgeEventListener.RequireItemRegister;
 import com.fmum.common.pack.FMUMContentProvider;
 import com.fmum.common.pack.FMUMCreativeTab;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.registries.IForgeRegistry;
 
-public abstract class TypeInfo implements RequireItemRegistration
+public abstract class TypeInfo extends ItemVariant implements RequireItemRegister
 {
 	/**
 	 * A map that maps all info types with their name
 	 */
 	public static final HashMap<String, TypeInfo> types = new HashMap<>();
 	
-	/**
-	 * Default item description
-	 */
-	public static final LinkedList<String> DEF_DESCRIPTION = new LinkedList<>();
-	static { DEF_DESCRIPTION.add("tooltip.descriptionmissing"); }
-	
 	public static final LocalTypeFileParser<TypeInfo>
-		parser = new LocalTypeFileParser<>(null);
+		parser = new LocalTypeFileParser<>(ItemVariant.parser);
 	static
 	{
-		parser.addKeyword(
-			"Name",
-			(s, t) -> {
-				t.name = s[1];
-				
-				// Set a server side localized name
-				if(s.length > 2)
-					FMUM.proxy.addLocalizeKey("item." + t.name + ".name", FMUM.splice(s, 2));
-			}
-		);
 		parser.addKeyword("Category", (s, t) -> t.category = s[1]);
 		parser.addKeyword(
 			"Description",
 			(s, t) -> {
-				if(t.description == DEF_DESCRIPTION)
+				if(t.description == TypeInfo.DEF_DESCRIPTION)
 					t.description = new LinkedList<>();
 				t.description.add(FMUM.splice(s, 1));
 			}
@@ -53,18 +44,31 @@ public abstract class TypeInfo implements RequireItemRegistration
 		parser.addKeyword("CreativeTab", (s, t) -> t.creativeTab = s[1]);
 		
 		// Visual
-		parser.addKeyword("Icon", (s, t) -> t.iconPath = s[1]);
+		parser.addKeyword(
+			"Model",
+			(s, t) -> {
+				switch(s.length)
+				{
+				case 4: t.texture = s[3];
+				case 3: t.modelScale = Float.parseFloat(s[2]);
+				default: t.model = FMUM.proxy.loadModel(s[1]);
+				}
+			}
+		);
 	}
+	
+	public static final String MODEL_RES_INV = "inventory";
+	
+	/**
+	 * Default item description
+	 */
+	protected static final LinkedList<String> DEF_DESCRIPTION = new LinkedList<>();
+	static { DEF_DESCRIPTION.add("tooltip.descriptionmissing"); }
 	
 	/**
 	 * Minecraft item that corresponding to this typer. Usually set on item registration.
 	 */
 	public Item item = null;
-	
-	/**
-	 * Identifier of this item
-	 */
-	public String name;
 	
 	/**
 	 * Name of the content pack where this item belongs to
@@ -87,16 +91,16 @@ public abstract class TypeInfo implements RequireItemRegistration
 	public String creativeTab = FMUMCreativeTab.INSTANCE.getTabLabel();
 	
 	/**
-	 * Path of the icon for this item
+	 * Corresponding 3D model of this item
 	 */
-	public String iconPath = "undefined";
+	public Model model = SimpleModel.INSTANCE;
 	
 	/**
 	 * Scale that should be applied when rendering this model
 	 */
 	public float modelScale = 1F;
 	
-	protected TypeInfo(String name) { this.name = name; }
+	protected TypeInfo(String name) { super(name); }
 	
 	public TypeInfo noticeProvider(FMUMContentProvider provider)
 	{
@@ -106,16 +110,42 @@ public abstract class TypeInfo implements RequireItemRegistration
 	
 	/**
 	 * <p>Called after parsing this typer from a plain text file. In default this method puts this
-	 * instance into {@link #types} and adds itself into
-	 * {@link ForgeEventListener#itemsWaitForRegistration}.</p>
+	 * instance into {@link #types} and register itself into
+	 * {@link CommonProxy#typesWaitForPostLoadProcess}.
 	 * 
-	 * <p>Notice that this method will not be called for class based typer. Hence you should
-	 * call this method or do similar things yourself in your typer constructor.</p>
+	 * <p>Notice that this method will not be called for class based typer. Hence you should call
+	 * this method or do similar things yourself in your typer constructor.</p>
 	 */
+	@Override
 	public void postParse()
 	{
+		super.postParse();
+		
 		types.put(this.name, this);
+		CommonProxy.typesWaitForPostLoadProcess.add(this);
+	}
+	
+	/**
+	 * Called right after all types been loaded. In default it calls {@link #onItemSetup()} and adds
+	 * itself into {@link ForgeEventListener#itemsWaitForRegistration}.
+	 */
+	public void postLoad()
+	{
+		this.onItemSetup();
 		ForgeEventListener.itemsWaitForRegistration.add(this);
+	}
+	
+	@Override
+	public void onItemRegister(IForgeRegistry<Item> registry) { registry.register(this.item); }
+	
+	@Override
+	public void onModelRegister(ModelRegistryEvent evt)
+	{
+		ModelLoader.setCustomModelResourceLocation(
+			this.item,
+			0, // modid + name
+			new ModelResourceLocation(this.item.getRegistryName(), MODEL_RES_INV)
+		);
 	}
 	
 	/**
@@ -124,7 +154,7 @@ public abstract class TypeInfo implements RequireItemRegistration
 	public abstract EnumType getEnumType();
 	
 	public String getDisplayName(ItemStack stack) {
-		return FMUM.proxy.format(this.item.getTranslationKey(stack) + ".name");
+		return FMUM.proxy.format(this.item.getTranslationKey(stack) + TRANSLATION_SUFFIX);
 	}
 	
 	@Override
@@ -132,9 +162,22 @@ public abstract class TypeInfo implements RequireItemRegistration
 		return "<" + this.getEnumType() + ">" + this.provider.getName() + ":" + this.name;
 	}
 	
-	protected final Item withItem(Item item) { return this.withItem(item, 1, 0); }
+	protected void onItemSetup() { }
 	
-	protected final Item withItem(Item item, int maxStackSize, int maxDamage)
+	/**
+	 * Call {@link #withItem(Item, int, int)} with parameter list {@code (item, 1, 0)}
+	 */
+	protected final void withItem(Item item) { this.withItem(item, 1, 0); }
+	
+	/**
+	 * Helper method that initializes the given item and binds it to this typer
+	 * 
+	 * @param item Item to bind
+	 * @param maxStackSize Max stack size of this item
+	 * @param maxDamage Max item of this item
+	 * @return Parameter {@code item}
+	 */
+	protected final void withItem(Item item, int maxStackSize, int maxDamage)
 	{
 		this.item = item;
 		item.setRegistryName(this.name);
@@ -157,7 +200,5 @@ public abstract class TypeInfo implements RequireItemRegistration
 		}
 		item.setCreativeTab(tab);
 		tab.itemSettleIn(item);
-		
-		return item;
 	}
 }

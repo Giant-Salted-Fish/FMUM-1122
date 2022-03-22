@@ -8,8 +8,6 @@ import com.fmum.common.type.EnumType;
 import com.fmum.common.type.TypeInfo;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
-import net.minecraft.item.Item;
-
 public final class TypeGun extends TypeAmmoContainer
 {
 	public static final HashMap<String, TypeGun> guns = new HashMap<>();
@@ -33,7 +31,7 @@ public final class TypeGun extends TypeAmmoContainer
 	public TypeGun(String name) { super(name); }
 	
 	@Override
-	public Item getRegistrantItem() { return this.withItem(new ItemGun(this)); }
+	public void onItemSetup() { this.withItem(new ItemGun(this)); }
 	
 	@Override
 	public EnumType getEnumType() { return EnumType.GUN; }

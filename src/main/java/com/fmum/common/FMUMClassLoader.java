@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 public final class FMUMClassLoader extends URLClassLoader
 {
-	public static final FMUMClassLoader instance = new FMUMClassLoader();
+	public static final FMUMClassLoader INSTANCE = new FMUMClassLoader();
 	
 	private final HashMap<String, byte[]> source = new HashMap<>();
 	

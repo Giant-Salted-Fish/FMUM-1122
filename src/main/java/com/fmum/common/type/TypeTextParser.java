@@ -17,7 +17,8 @@ import com.fmum.common.FMUM;
 import com.fmum.common.util.Messager;
 
 /**
- * A helper class to read properties of types from plain text
+ * A helper class to read properties of types from plain text. Supported comment symbols are
+ * {@code '#'} and {@code "//"}. Suffix commenting is allowed.
  * 
  * @param <T> Typer that this parser services for
  * @author Giant_Salted_Fish
@@ -40,7 +41,7 @@ public abstract class TypeTextParser<T> implements ParserFunc<T>
 		for(String line : text)
 		{
 			// Skip empty lines and comments
-			int i = Math.min(line.indexOf('*'), line.indexOf("//"));
+			int i = Math.min(line.indexOf('#'), line.indexOf("//"));
 			if((line = i < 0 ? line : line.substring(0, i).trim()).length() > 0)
 				this.parse(line.split(" "), type, sourceTrace);
 		}
@@ -203,5 +204,25 @@ public abstract class TypeTextParser<T> implements ParserFunc<T>
 	
 	public static interface ParseTargetInstantiator<T> {
 		public T instantiate(String name);
+	}
+	
+	public static final class KeywordFormatException extends RuntimeException
+	{
+		private static final long serialVersionUID = 4158902466919166241L;
+
+		public KeywordFormatException(String message) { super(message); }
+		
+		public KeywordFormatException(String message, Throwable cause) { super(message, cause); }
+		
+		public static KeywordFormatException keywordArgNotEnough(String atLeast, String supplied)
+		{
+			return new KeywordFormatException(
+				FMUM.proxy.format(
+					"fmum.keywordargnumnotenough",
+					atLeast,
+					supplied
+				)
+			);
+		}
 	}
 }

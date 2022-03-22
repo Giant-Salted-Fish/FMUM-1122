@@ -5,7 +5,7 @@ package com.fmum.common.type;
  * 
  * @author Giant_Salted_Fish
  */
-public interface FMUMItem
+public interface ItemInfo
 {
 	/**
 	 * @return Type that this item proxy for

@@ -5,6 +5,7 @@ import java.util.TreeSet;
 
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -48,6 +49,11 @@ public final class FMUM
 	public static final String
 		TXT_FILE_SUFFIX = ".txt",
 		CLASS_FILE_SUFFIX = ".class";
+	
+	/**
+	 * Easy referencing
+	 */
+	public static final Minecraft mc = Minecraft.getMinecraft();
 	
 	/**
 	 * Some fixed empty containers that can be used as initializer value
@@ -139,7 +145,7 @@ public final class FMUM
 		pathFragments[0] = spliceClassPath(pathFragments);
 		try
 		{
-			return FMUMClassLoader.instance.loadClass(
+			return FMUMClassLoader.INSTANCE.loadClass(
 				pathFragments[0]
 			).getConstructor().newInstance();
 		}

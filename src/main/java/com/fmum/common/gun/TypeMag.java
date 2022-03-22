@@ -3,8 +3,6 @@ package com.fmum.common.gun;
 import com.fmum.common.type.EnumType;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
-import net.minecraft.item.Item;
-
 /**
  * Type of the magazine that can be loaded into a gun
  * 
@@ -22,7 +20,7 @@ public class TypeMag extends TypeAmmoContainer
 	public TypeMag(String name) { super(name); }
 	
 	@Override
-	public Item getRegistrantItem() { return this.withItem(new ItemMag(this)); }
+	public void onItemSetup() { this.withItem(new ItemMag(this)); }
 	
 	@Override
 	public EnumType getEnumType() { return EnumType.MAG; }

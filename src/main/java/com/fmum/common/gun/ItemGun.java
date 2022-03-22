@@ -49,10 +49,6 @@ public final class ItemGun extends ItemAmmoContainer
 //		
 //	}
 	
-//	@Override
-//	@SideOnly(Side.CLIENT)
-//	public boolean isFull3D() { return true; }
-	
 //	@Override TODO
 //	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
 //	{

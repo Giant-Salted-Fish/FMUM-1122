@@ -1,20 +1,59 @@
 package com.fmum.common.type;
 
+import java.util.ArrayList;
+
+import com.fmum.common.FMUM;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
+
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ModelLoader;
 
 public abstract class TypePaintable extends TypeInfo
 {
 	public static final LocalTypeFileParser<TypePaintable>
 		parser = new LocalTypeFileParser<>(TypeInfo.parser);
-	static
+	static { parser.addKeyword("Paintjob", (s, t) -> t.paintjobs.add(new ItemVariant(null))); }
+	
+	public ArrayList<ItemVariant> paintjobs = new ArrayList<>();
+	
+	protected TypePaintable(String name)
 	{
-		parser.addKeyword("Paintjob", (s, t) -> { }); // TODO
+		super(name);
+		
+		// Add itself as the default paint job
+		this.paintjobs.add(this);
 	}
 	
-	protected TypePaintable(String name) { super(name); }
-	
-	public static final class Paintjob
+	@Override
+	public void onModelRegister(ModelRegistryEvent evt)
 	{
-		// TODO: do not forget to localize paintjob name server side
+		for(int i = this.paintjobs.size(); --i >= 0; )
+		{
+			final ResourceLocation resLoc = new ResourceLocation(
+				FMUM.MODID,
+				this.paintjobs.get(i).name // TODO
+			);
+			ModelLoader.registerItemVariants(this.item, resLoc);
+			ModelLoader.setCustomModelResourceLocation(
+				this.item,
+				i,
+				new ModelResourceLocation(resLoc, MODEL_RES_INV)
+			);
+		}
+	}
+	
+	/**
+	 * Override this method if you want to do a check before adding the paint job or prevent any
+	 * paint job adding
+	 * 
+	 * @param paintjob Paint job to add
+	 */
+	public void registerExternalPaintjob(ItemVariant paintjob) { this.paintjobs.add(paintjob); }
+	
+	public final String getTexture(ItemStack stack) {
+		return this.paintjobs.get(stack.getItemDamage()).texture;
 	}
 }

@@ -22,6 +22,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public final class ClientProxy extends CommonProxy
 {
+	public static final String RECOMMENDED_TEXTURE_FOLDER = "skins" + File.separator;
+	
 	@Override
 	public void syncConfig(Configuration config)
 	{

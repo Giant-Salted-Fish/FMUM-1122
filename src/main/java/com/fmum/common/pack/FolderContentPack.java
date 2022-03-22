@@ -84,7 +84,7 @@ public final class FolderContentPack extends LocalContentProvider
 				
 				// Create a tab in name of the file name if it is the not class based tab
 				if(!fName.endsWith(FMUM.CLASS_FILE_SUFFIX))
-					try { IconBasedTab.parser.parse(tabFile, tabFile.getName(), st); }
+					try { IconBasedTab.parser.parse(tabFile, fName, st); }
 					catch(IOException e) { printIOError(st.message(), e); }
 				
 				else FMUM.tryInstantiate(superClassPath, fName);
