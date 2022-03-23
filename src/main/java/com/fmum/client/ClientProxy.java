@@ -3,13 +3,14 @@ package com.fmum.client;
 import java.io.File;
 import java.util.HashMap;
 
+import org.lwjgl.opengl.GLContext;
+
 import com.fmum.common.CommonProxy;
 import com.fmum.common.FMUM;
 import com.fmum.common.pack.FMUMCreativeTab;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.client.resource.VanillaResourceType;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLModContainer;
@@ -27,6 +28,9 @@ public final class ClientProxy extends CommonProxy
 	@Override
 	public void syncConfig(Configuration config)
 	{
+		// Trigger key bind lazy load
+		KeyManager.init();
+		
 		this.parseConfig(config);
 		
 		// TODO Parse client side only settings
@@ -40,20 +44,19 @@ public final class ClientProxy extends CommonProxy
 	public void loadLocalizationMap() { }
 	
 	@Override
-	public void registerEventListeners()
-	{
-		super.registerEventListeners();
-		
-		MinecraftForge.EVENT_BUS.register(ForgeEventListenerClient.class);
-	}
-	
-	@Override
 	public String format(String translateKey, Object... parameters) {
 		return I18n.format(translateKey, parameters);
 	}
 	
 	@Override
 	public String addLocalizeKey(String key, String formator) { return null; }
+	
+	@Override
+	public void checkOpenGL()
+	{
+		if(!GLContext.getCapabilities().OpenGL30)
+			throw new RuntimeException(I18n.format("fmum.openglversiontoolow"));
+	}
 	
 	@Override
 	public void registerLocalResource(File source)

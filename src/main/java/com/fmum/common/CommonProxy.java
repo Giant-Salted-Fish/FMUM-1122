@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import com.fmum.client.model.Model;
-import com.fmum.client.model.Model.SimpleModel;
+import com.fmum.client.model.ModelDebugBox;
 import com.fmum.common.pack.FMUMContentProvider;
 import com.fmum.common.pack.FolderContentPack;
 import com.fmum.common.pack.ZipContentPack;
@@ -16,7 +16,6 @@ import com.fmum.common.type.TypeInfo;
 import com.fmum.common.util.InstanceRepository;
 
 import net.minecraft.client.resources.I18n;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -72,11 +71,6 @@ public class CommonProxy
 		localizationMap = m;
 	}
 	
-	public void registerEventListeners()
-	{
-		MinecraftForge.EVENT_BUS.register(ForgeEventListener.class);
-	}
-	
 	/**
 	 * This localize the message based on the physical game side. Use this for localization if the
 	 * message could be print in both side.
@@ -92,6 +86,8 @@ public class CommonProxy
 	public String addLocalizeKey(String key, String formator) {
 		return localizationMap.put(key, formator);
 	}
+	
+	public void checkOpenGL() { }
 	
 	public final void loadContentPack(File mcDir)
 	{
@@ -181,6 +177,7 @@ public class CommonProxy
 			);
 	}
 	
+	// TODO: move this to client side maybe?
 	private static final HashMap<String, InstanceRepository<? extends Model>>
 		modelRepositories = new HashMap<>();
 	@SuppressWarnings("unchecked")
@@ -214,7 +211,7 @@ public class CommonProxy
 			);
 		}
 		catch(Exception e) { FMUM.log.error(this.format("fmum.errorloadingmodel", modelPath), e); }
-		return SimpleModel.INSTANCE;
+		return ModelDebugBox.INSTANCE;
 	}
 	
 	protected final void parseConfig(Configuration config)

@@ -113,8 +113,8 @@ public final class FMUM
 		log = evt.getModLog();
 		log.info(proxy.format("fmum.onpreinitialization"));
 		
-		// Launch event listeners
-		proxy.registerEventListeners();
+		// Check OpenGL version
+		proxy.checkOpenGL();
 		
 		// Load content packs
 		proxy.loadContentPack(evt.getModConfigurationDirectory().getParentFile());
@@ -131,6 +131,7 @@ public final class FMUM
 		proxy.setupCreativeTabs();
 		
 		log.info(proxy.format("fmum.oninitializationcomplete"));
+		
 		proxy.initComplete();
 	}
 	

@@ -5,6 +5,7 @@ fmum.packfoldercreated=Content pack folder <%s> created
 fmum.preinitializationcomplete=FMUM pre-initialization procedure complete \
 fmum.oninitialization=FMUM initialization procedure engage...
 fmum.oninitializationcomplete=FMUM initialization complete \
+fmum.openglversiontoolow=Your OpenGL version is too low! Minimum requirement is OpenGL3.0. Please update your GPU driver or change the graphic card.
 fmum.unrecognizedcontentpackfiletype=<%s> is not of valid content pack file type. Required { <folder>, <.jar>, <.zip> }.
 fmum.erroraddingclasspath=Failed to register class path for <%s>. Contents in relevant pack could be inaccessible.
 fmum.unrecognizedtypefiletype=<%s> is not of valid type file type. Required { <.txt>, <.class> }.
@@ -37,3 +38,6 @@ itemGroup.fmum=FMUM Default Group
 
 tooltip.descriptionmissing=Description not provided
 tooltip.providerinfo=From %s by %s
+
+key.category.fmum.assist=FMUM Assist
+key.fmum.co=Co-Key

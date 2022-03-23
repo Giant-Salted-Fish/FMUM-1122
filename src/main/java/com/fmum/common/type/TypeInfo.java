@@ -5,11 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.fmum.client.model.Model;
-import com.fmum.client.model.Model.SimpleModel;
 import com.fmum.common.CommonProxy;
+import com.fmum.common.EventHandler;
+import com.fmum.common.EventHandler.RequireItemRegister;
 import com.fmum.common.FMUM;
-import com.fmum.common.ForgeEventListener;
-import com.fmum.common.ForgeEventListener.RequireItemRegister;
 import com.fmum.common.pack.FMUMContentProvider;
 import com.fmum.common.pack.FMUMCreativeTab;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
@@ -51,7 +50,7 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 				{
 				case 4: t.texture = s[3];
 				case 3: t.modelScale = Float.parseFloat(s[2]);
-				default: t.model = FMUM.proxy.loadModel(s[1]);
+				default: t.modelPath = s[1];
 				}
 			}
 		);
@@ -91,9 +90,15 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 	public String creativeTab = FMUMCreativeTab.INSTANCE.getTabLabel();
 	
 	/**
-	 * Corresponding 3D model of this item
+	 * Path of the model. Will be used to load {@link #model}.
 	 */
-	public Model model = SimpleModel.INSTANCE;
+	public String modelPath = "";
+	
+	/**
+	 * Corresponding 3D model of this item. Due to some reasons this will be loaded on first time
+	 * that the player enters the world.
+	 */
+	public Model model = null;
 	
 	/**
 	 * Scale that should be applied when rendering this model
@@ -127,12 +132,12 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 	
 	/**
 	 * Called right after all types been loaded. In default it calls {@link #onItemSetup()} and adds
-	 * itself into {@link ForgeEventListener#itemsWaitForRegistration}.
+	 * itself into {@link EventHandler#itemsWaitForRegistration}.
 	 */
 	public void postLoad()
 	{
 		this.onItemSetup();
-		ForgeEventListener.itemsWaitForRegistration.add(this);
+		EventHandler.itemsWaitForRegistration.add(this);
 	}
 	
 	@Override
@@ -156,6 +161,8 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 	public String getDisplayName(ItemStack stack) {
 		return FMUM.proxy.format(this.item.getTranslationKey(stack) + TRANSLATION_SUFFIX);
 	}
+	
+	public void loadModel() { this.model = FMUM.proxy.loadModel(this.modelPath); }
 	
 	@Override
 	public String toString() {

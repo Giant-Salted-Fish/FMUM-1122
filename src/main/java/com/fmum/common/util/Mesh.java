@@ -9,11 +9,10 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
-
-import net.minecraft.client.renderer.GLAllocation;
 
 /**
  * A mesh that can be rendered. Currently only support draw mode {@link GL11#GL_TRIANGLES}. Indices
@@ -22,14 +21,14 @@ import net.minecraft.client.renderer.GLAllocation;
  * 
  * @author Giant_Salted_Fish
  */
-public class Mesh implements AutoCloseable
+public final class Mesh implements AutoCloseable
 {
 	/**
 	 * A fix instance that can be used as the initializer value
 	 */
 	public static final Mesh[] DEF_MESHES = { };
 	
-	private int vao = -1;
+	public int vao = -1;
 	
 	/**
 	 * No indices if this is negative
@@ -42,7 +41,7 @@ public class Mesh implements AutoCloseable
 		this.drawSize = indices != null && indices.size() > 0 ? indices.size() : -vertices.size();
 	}
 	
-	public void render(float worldScale)
+	public void render()
 	{
 		GL30.glBindVertexArray(this.vao);
 		if(this.drawSize > 0)
@@ -53,38 +52,32 @@ public class Mesh implements AutoCloseable
 	@Override
 	public void close() { if(this.vao != -1) GL30.glDeleteVertexArrays(this.vao); }
 	
-	private static final SoftReference<?>[] bufPool = {
-		new SoftReference<FloatBuffer>(null), // Vertices
-		new SoftReference<FloatBuffer>(null), // Normals
-		new SoftReference<FloatBuffer>(null), // Texture coordinates
-		new SoftReference<IntBuffer>(null)    // Indices
-	};
 	private static final BufferProducer<FloatBuffer>
-		FLOAT_BUFFER_PRODUCER = count -> GLAllocation.createDirectFloatBuffer(count);
+		FLOAT_BUFFER_PRODUCER = count -> BufferUtils.createFloatBuffer(count);//GLAllocation.createDirectFloatBuffer(count);
 	private static final BufferProducer<IntBuffer>
-		INT_BUFFER_PRODUCER = count -> GLAllocation.createDirectIntBuffer(count);
+		INT_BUFFER_PRODUCER = count -> BufferUtils.createIntBuffer(count);//GLAllocation.createDirectIntBuffer(count);
 	synchronized public static int genVAO(List<Vertex> vertices, @Nullable List<Integer> indices)
 	{
 		// Prepare vertex data data buffer
 		int count = vertices.size();
 		FloatBuffer vertData = (FloatBuffer)fetchBuffer(0, 3 * count, FLOAT_BUFFER_PRODUCER);
-		FloatBuffer normData = (FloatBuffer)fetchBuffer(1, 3 * count, FLOAT_BUFFER_PRODUCER);
-		FloatBuffer texCoordData = (FloatBuffer)fetchBuffer(2, 2 * count, FLOAT_BUFFER_PRODUCER);
+		FloatBuffer texCoordData = (FloatBuffer)fetchBuffer(1, 2 * count, FLOAT_BUFFER_PRODUCER);
+		FloatBuffer normData = (FloatBuffer)fetchBuffer(2, 3 * count, FLOAT_BUFFER_PRODUCER);
 		
 		for(Vertex v : vertices)
 		{
 			vertData.put(v.x);
 			vertData.put(v.y);
 			vertData.put(v.z);
+			texCoordData.put(v.u);
+			texCoordData.put(v.v);
 			normData.put(v.normX);
 			normData.put(v.normY);
 			normData.put(v.normZ);
-			texCoordData.put(v.u);
-			texCoordData.put(v.v);
 		}
 		vertData.flip();
-		normData.flip();
 		texCoordData.flip();
+		normData.flip();
 		
 		// Generate VAO and bind it
 		int vao = GL30.glGenVertexArrays();
@@ -97,17 +90,17 @@ public class Mesh implements AutoCloseable
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertData, GL15.GL_STATIC_DRAW);
 		GL11.glVertexPointer(3, GL11.GL_FLOAT, 0, 0);
 		
-		GL11.glEnableClientState(GL11.GL_NORMAL_ARRAY);
-		int normVBO = GL15.glGenBuffers();
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, normVBO);
-		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, normData, GL15.GL_STATIC_DRAW);
-		GL11.glNormalPointer(GL11.GL_FLOAT, 0, 0);
-		
 		GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 		int texCoordVBO = GL15.glGenBuffers();
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, texCoordVBO);
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, texCoordData, GL15.GL_STATIC_DRAW);
 		GL11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, 0);
+		
+		GL11.glEnableClientState(GL11.GL_NORMAL_ARRAY);
+		int normVBO = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, normVBO);
+		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, normData, GL15.GL_STATIC_DRAW);
+		GL11.glNormalPointer(GL11.GL_FLOAT, 0, 0);
 		
 		// Create EBO if has
 		int ebo = -1;
@@ -135,7 +128,13 @@ public class Mesh implements AutoCloseable
 		
 		return vao;
 	}
-	
+
+	private static final SoftReference<?>[] bufPool = {
+		new SoftReference<FloatBuffer>(null), // Vertices
+		new SoftReference<FloatBuffer>(null), // Texture coordinates
+		new SoftReference<FloatBuffer>(null), // Normals
+		new SoftReference<IntBuffer>(null)    // Indices
+	};
 	private static Buffer fetchBuffer(
 		int index,
 		int count,
@@ -159,8 +158,6 @@ public class Mesh implements AutoCloseable
 	 */
 	public static final class Vertex extends Vec3f
 	{
-		public static final byte BYTES = Float.BYTES * 8;
-		
 		public float
 			u = 0F,
 			v = 0F;
@@ -221,6 +218,13 @@ public class Mesh implements AutoCloseable
 		public Builder add(Integer index)
 		{
 			this.indices.add(index);
+			return this;
+		}
+		
+		public Builder scale(float scale)
+		{
+			for(Vertex v : this.vertices)
+				v.scale(scale);
 			return this;
 		}
 		

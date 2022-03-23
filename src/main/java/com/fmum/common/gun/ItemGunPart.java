@@ -47,7 +47,7 @@ public abstract class ItemGunPart extends Item implements ItemModular
 	}
 	
 	@Override
-    @SideOnly(Side.CLIENT)
+	@SideOnly(Side.CLIENT)
 	public final boolean isFull3D() { return true; }
 	
 	@Override

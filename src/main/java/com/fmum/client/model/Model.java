@@ -1,6 +1,6 @@
 package com.fmum.client.model;
 
-import com.fmum.client.ResourceHandler;
+import com.fmum.client.ResourceManager;
 import com.fmum.common.FMUM;
 import com.fmum.common.util.Mesh;
 
@@ -15,7 +15,7 @@ public abstract class Model extends ModelBase
 	 */
 	protected static final Minecraft mc = FMUM.mc;
 	
-	public void render(float worldScale) { }
+	public void render() { }
 	
 	@Override
 	public void render(
@@ -26,10 +26,10 @@ public abstract class Model extends ModelBase
 		float netHeadYaw,
 		float headPitch,
 		float scale
-	) { this.render(scale); }
+	) { this.render(); }
 	
 	protected static void bindTexture(String textureLocation) {
-		mc.renderEngine.bindTexture(ResourceHandler.getTexture(textureLocation));
+		mc.renderEngine.bindTexture(ResourceManager.getTexture(textureLocation));
 	}
 	
 	/**
@@ -38,56 +38,7 @@ public abstract class Model extends ModelBase
 	 * @author Giant_Salted_Fish
 	 */
 	public static class SimpleModel extends Model
-	{
-		/**
-		 * A simple box model
-		 */
-		public static final SimpleModel INSTANCE = new SimpleModel(
-			new Mesh.Builder()
-				.add(-0.5F, -0.5F, -0.5F, 0F, 0F)
-				.add(0.5F, -0.5F, -0.5F, 1F, 0F)
-				.add(0.5F, 0.5F, -0.5F, 1F, 1F)
-			  	.add(0.5F, 0.5F, -0.5F, 1F, 1F)
-		  		.add(-0.5F, 0.5F, -0.5F, 0F, 1F)
-	  			.add(-0.5F, -0.5F, -0.5F, 0F, 0F)
-	  			
-	  			.add(-0.5F, -0.5F, 0.5F, 0F, 0F)
-	  			.add(0.5F, -0.5F, 0.5F, 1F, 0F)
-	  			.add(0.5F, 0.5F, 0.5F, 1F, 1F)
-	  			.add(0.5F, 0.5F, 0.5F, 1F, 1F)
-	  			.add(-0.5F, 0.5F, 0.5F, 0F, 1F)
-	  			.add(-0.5F, -0.5F, 0.5F, 0F, 0F)
-	  			
-	  			.add(-0.5F, 0.5F, 0.5F, 1F, 0F)
-	  			.add(-0.5F, 0.5F, -0.5F, 1F, 1F)
-	  			.add(-0.5F, -0.5F, -0.5F, 0F, 1F)
-	  			.add(-0.5F, -0.5F, -0.5F, 0F, 1F)
-	  			.add(-0.5F, -0.5F, 0.5F, 0F, 0F)
-	  			.add(-0.5F, 0.5F, 0.5F, 1F, 0F)
-	  			
-	  			.add(0.5F, 0.5F, 0.5F, 1F, 0F)
-	  			.add(0.5F, 0.5F, -0.5F, 1F, 1F)
-	  			.add(0.5F, -0.5F, -0.5F, 0F, 1F)
-	  			.add(0.5F, -0.5F, -0.5F, 0F, 1F)
-	  			.add(0.5F, -0.5F, 0.5F, 0F, 0F)
-	  			.add(0.5F, 0.5F, 0.5F, 1F, 0F)
-	  			
-	  			.add(-0.5F, -0.5F, -0.5F, 0F, 1F)
-	  			.add(0.5F, -0.5F, -0.5F, 1F, 1F)
-	  			.add(0.5F, -0.5F, 0.5F, 1F, 0F)
-	  			.add(0.5F, -0.5F, 0.5F, 1F, 0F)
-	  			.add(-0.5F, -0.5F, 0.5F, 0F, 0F)
-	  			.add(-0.5F, -0.5F, -0.5F, 0F, 1F)
-	  			
-	  			.add(-0.5F, 0.5F, -0.5F, 0F, 1F)
-	  			.add(0.5F, 0.5F, -0.5F, 1F, 1F)
-	  			.add(0.5F, 0.5F, 0.5F, 1F, 0F)
-	  			.add(0.5F, 0.5F, 0.5F, 1F, 0F)
-	  			.add(-0.5F, 0.5F, 0.5F, 0F, 0F)
-	  			.add(-0.5F, 0.5F, -0.5F, 0F, 1F)
-			.genNormal().build()
-		);
-		
+	{	
 		public Mesh[] meshes = Mesh.DEF_MESHES;
 		
 		public SimpleModel() { }
@@ -97,6 +48,6 @@ public abstract class Model extends ModelBase
 		public SimpleModel(Mesh[] meshes) { this.meshes = meshes; }
 		
 		@Override
-		public void render(float worldScale) { for(Mesh m : this.meshes) m.render(worldScale); }
+		public void render() { for(Mesh m : this.meshes) m.render(); }
 	}
 }
