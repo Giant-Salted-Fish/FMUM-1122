@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.fmum.client.model.Model;
+import com.fmum.client.model.ModelDebugBox;
 import com.fmum.common.CommonProxy;
 import com.fmum.common.EventHandler;
 import com.fmum.common.EventHandler.RequireItemRegister;
@@ -92,7 +93,7 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 	/**
 	 * Path of the model. Will be used to load {@link #model}.
 	 */
-	public String modelPath = "";
+	public String modelPath = ModelDebugBox.PATH + ":box";
 	
 	/**
 	 * Corresponding 3D model of this item. Due to some reasons this will be loaded on first time
@@ -162,6 +163,9 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 		return FMUM.proxy.format(this.item.getTranslationKey(stack) + TRANSLATION_SUFFIX);
 	}
 	
+	/**
+	 * Called when the first the player enters a world to load models
+	 */
 	public void loadModel() { this.model = FMUM.proxy.loadModel(this.modelPath); }
 	
 	@Override

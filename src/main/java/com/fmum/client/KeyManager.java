@@ -62,21 +62,33 @@ public abstract class KeyManager
 		TEST_UP("key.fmum.testup", Keyboard.KEY_UP, KEY_CATEGORY_TEST)
 		{
 			@Override
-			protected void trigger()
-			{
-			}
+			protected void trigger() { FMUMClient.tu = true; }
 		},
 		TEST_DOWN("key.fmum.testdown", Keyboard.KEY_DOWN, KEY_CATEGORY_TEST)
 		{
 			@Override
-			protected void trigger()
-			{
-			}
+			protected void trigger() { FMUMClient.td = true; }
 		},
-		TEST_LEFT("key.fmum.testleft", Keyboard.KEY_LEFT, KEY_CATEGORY_TEST),
-		TEST_RIGHT("key.fmum.testright", Keyboard.KEY_RIGHT, KEY_CATEGORY_TEST),
-		TEST_CONFIRM("key.fmum.testconfirm", Keyboard.KEY_NUMPAD5, KEY_CATEGORY_TEST),
-		TEST_CANCEL("key.fmum.testcancel", Keyboard.KEY_NUMPAD2, KEY_CATEGORY_TEST),
+		TEST_LEFT("key.fmum.testleft", Keyboard.KEY_LEFT, KEY_CATEGORY_TEST)
+		{
+			@Override
+			protected void trigger() { FMUMClient.tl = true; }
+		},
+		TEST_RIGHT("key.fmum.testright", Keyboard.KEY_RIGHT, KEY_CATEGORY_TEST)
+		{
+			@Override
+			protected void trigger() { FMUMClient.tr = true; }
+		},
+		TEST_ENTER("key.fmum.testenter", Keyboard.KEY_NUMPAD5, KEY_CATEGORY_TEST)
+		{
+			@Override
+			protected void trigger() { FMUMClient.te = true; }
+		},
+		TEST_QUIT("key.fmum.testquit", Keyboard.KEY_NUMPAD2, KEY_CATEGORY_TEST)
+		{
+			@Override
+			protected void trigger() { FMUMClient.tq = true; }
+		},
 		
 		
 		/**

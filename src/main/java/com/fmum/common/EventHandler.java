@@ -14,6 +14,8 @@ import net.minecraftforge.registries.IForgeRegistry;
 @EventBusSubscriber(modid = FMUM.MODID)
 public abstract class EventHandler
 {
+	private EventHandler() { }
+	
 	public static final LinkedList<RequireItemRegister>
 		itemsWaitForRegistration = new LinkedList<>();
 	

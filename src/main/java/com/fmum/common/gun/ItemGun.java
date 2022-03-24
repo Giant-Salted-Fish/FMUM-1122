@@ -1,12 +1,14 @@
 package com.fmum.common.gun;
 
+import com.fmum.common.type.ItemHoldable;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-public final class ItemGun extends ItemAmmoContainer
+public final class ItemGun extends ItemHoldable implements ItemAmmoContainer
 {
 	public final TypeGun type;
 	
@@ -37,6 +39,12 @@ public final class ItemGun extends ItemAmmoContainer
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
 		return true;
 	}
+	
+	@Override
+	public void renderFP(ItemStack stack) { this.type.model.renderFP(stack, this.type); }
+	
+	@Override
+	public void render() { this.type.model.render(); }
 	
 //	@Override
 //	@SideOnly(Side.CLIENT)

@@ -47,35 +47,38 @@ public final class Mesh implements AutoCloseable
 		if(this.drawSize > 0)
 			GL11.glDrawElements(GL11.GL_TRIANGLES, this.drawSize, GL11.GL_UNSIGNED_INT, 0);
 		else GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, -this.drawSize);
+		
+		// Do not forget to bind back default VAO cause mc uses this without binding to it
+		GL30.glBindVertexArray(0);
 	}
 	
 	@Override
 	public void close() { if(this.vao != -1) GL30.glDeleteVertexArrays(this.vao); }
 	
 	private static final BufferProducer<FloatBuffer>
-		FLOAT_BUFFER_PRODUCER = count -> BufferUtils.createFloatBuffer(count);//GLAllocation.createDirectFloatBuffer(count);
+		FLOAT_BUFFER_PRODUCER = count -> BufferUtils.createFloatBuffer(count);
 	private static final BufferProducer<IntBuffer>
-		INT_BUFFER_PRODUCER = count -> BufferUtils.createIntBuffer(count);//GLAllocation.createDirectIntBuffer(count);
+		INT_BUFFER_PRODUCER = count -> BufferUtils.createIntBuffer(count);
 	synchronized public static int genVAO(List<Vertex> vertices, @Nullable List<Integer> indices)
 	{
 		// Prepare vertex data data buffer
 		int count = vertices.size();
-		FloatBuffer vertData = (FloatBuffer)fetchBuffer(0, 3 * count, FLOAT_BUFFER_PRODUCER);
+		FloatBuffer posData = (FloatBuffer)fetchBuffer(0, 3 * count, FLOAT_BUFFER_PRODUCER);
 		FloatBuffer texCoordData = (FloatBuffer)fetchBuffer(1, 2 * count, FLOAT_BUFFER_PRODUCER);
 		FloatBuffer normData = (FloatBuffer)fetchBuffer(2, 3 * count, FLOAT_BUFFER_PRODUCER);
 		
 		for(Vertex v : vertices)
 		{
-			vertData.put(v.x);
-			vertData.put(v.y);
-			vertData.put(v.z);
+			posData.put(v.x);
+			posData.put(v.y);
+			posData.put(v.z);
 			texCoordData.put(v.u);
 			texCoordData.put(v.v);
 			normData.put(v.normX);
 			normData.put(v.normY);
 			normData.put(v.normZ);
 		}
-		vertData.flip();
+		posData.flip();
 		texCoordData.flip();
 		normData.flip();
 		
@@ -85,9 +88,9 @@ public final class Mesh implements AutoCloseable
 		
 		// Buffer vertices, normals and texture coordinates
 		GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-		int vertVBO = GL15.glGenBuffers();
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertVBO);
-		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertData, GL15.GL_STATIC_DRAW);
+		int posVBO = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, posVBO);
+		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, posData, GL15.GL_STATIC_DRAW);
 		GL11.glVertexPointer(3, GL11.GL_FLOAT, 0, 0);
 		
 		GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
@@ -104,11 +107,12 @@ public final class Mesh implements AutoCloseable
 		
 		// Create EBO if has
 		int ebo = -1;
-		if(indices != null && indices.size() > 0)
+		if(indices != null && (count = indices.size()) > 0)
 		{
 			IntBuffer indexData = (IntBuffer)fetchBuffer(3, count, INT_BUFFER_PRODUCER);
 			for(Integer i : indices)
 				indexData.put(i);
+			indexData.flip();
 			
 			GL15.glBindBuffer(
 				GL15.GL_ELEMENT_ARRAY_BUFFER,
@@ -121,7 +125,7 @@ public final class Mesh implements AutoCloseable
 		GL30.glBindVertexArray(0);
 		
 		// FIXME: make sure deleting vbos would not crash the game
-		GL15.glDeleteBuffers(vertVBO);
+		GL15.glDeleteBuffers(posVBO);
 		GL15.glDeleteBuffers(normVBO);
 		GL15.glDeleteBuffers(texCoordVBO);
 		if(ebo != -1) GL15.glDeleteBuffers(ebo);
@@ -243,7 +247,7 @@ public final class Mesh implements AutoCloseable
 					Vertex vert2 = this.vertices.get(this.indices.get(i - 1));
 					
 					// Calculate normal
-					vec0.set(vert0).sub(vert1).cross(vec1.set(vert2).sub(vert1));
+					vec0.set(vert0).sub(vert1).cross(vec1.set(vert1).sub(vert2));
 					
 					vert0.normX
 						= vert1.normX
@@ -264,7 +268,7 @@ public final class Mesh implements AutoCloseable
 				Vertex vert1 = this.vertices.get(i - 2);
 				Vertex vert2 = this.vertices.get(i - 1);
 
-				vec0.set(vert0).sub(vert1).cross(vec1.set(vert2).sub(vert1));
+				vec0.set(vert0).sub(vert1).cross(vec1.set(vert1).sub(vert2));
 				
 				vert0.normX
 					= vert1.normX
@@ -295,7 +299,7 @@ public final class Mesh implements AutoCloseable
 			if(size % 3 != 0)
 				throw new IllegalArgumentException(
 					"Mesh currently only support triangles: ("
-					+ (size > 0 ? "indices)" : "vertices)") + Math.abs(size)
+					+ (size > 0 ? "indices)" : "vertices)") + size
 				);
 			return new Mesh(this.vertices, this.indices);
 		}

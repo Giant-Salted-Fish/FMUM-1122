@@ -8,12 +8,10 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import com.fmum.client.model.Model;
-import com.fmum.client.model.ModelDebugBox;
 import com.fmum.common.pack.FMUMContentProvider;
 import com.fmum.common.pack.FolderContentPack;
 import com.fmum.common.pack.ZipContentPack;
 import com.fmum.common.type.TypeInfo;
-import com.fmum.common.util.InstanceRepository;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.common.config.Configuration;
@@ -177,42 +175,7 @@ public class CommonProxy
 			);
 	}
 	
-	// TODO: move this to client side maybe?
-	private static final HashMap<String, InstanceRepository<? extends Model>>
-		modelRepositories = new HashMap<>();
-	@SuppressWarnings("unchecked")
-	public final Model loadModel(String modelPath)
-	{
-		final int i = modelPath.indexOf(':');
-		try
-		{
-			if(i < 0)
-				return (Model)FMUMClassLoader.INSTANCE.loadClass(
-					modelPath
-				).getConstructor().newInstance();
-			
-			final String repositoryName = modelPath.substring(0, i);
-			InstanceRepository<? extends Model> repository = modelRepositories.get(repositoryName);
-			if(repository == null)
-				modelRepositories.put(
-					repositoryName,
-					repository = (InstanceRepository<? extends Model>)FMUMClassLoader
-						.INSTANCE.loadClass(repositoryName).getConstructor().newInstance()
-				);
-			Model model = repository.fetch(modelPath.substring(i + 1));
-			if(model != null) return model;
-			
-			FMUM.log.error(
-				this.format(
-					"fmum.modelnotfoundinrepositroy",
-					modelPath.substring(i + 1),
-					repositoryName
-				)
-			);
-		}
-		catch(Exception e) { FMUM.log.error(this.format("fmum.errorloadingmodel", modelPath), e); }
-		return ModelDebugBox.INSTANCE;
-	}
+	public Model loadModel(String modelPath) { return null; }
 	
 	protected final void parseConfig(Configuration config)
 	{

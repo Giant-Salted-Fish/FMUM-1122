@@ -5,9 +5,13 @@ import java.util.HashMap;
 
 import org.lwjgl.opengl.GLContext;
 
+import com.fmum.client.model.Model;
+import com.fmum.client.model.ModelDebugBox;
 import com.fmum.common.CommonProxy;
 import com.fmum.common.FMUM;
+import com.fmum.common.FMUMClassLoader;
 import com.fmum.common.pack.FMUMCreativeTab;
+import com.fmum.common.util.InstanceRepository;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.client.resource.VanillaResourceType;
@@ -97,5 +101,41 @@ public final class ClientProxy extends CommonProxy
 	{
 		for(FMUMCreativeTab tab : FMUMCreativeTab.tabs.values())
 			tab.setupIconStack();
+	}
+	
+	private static final HashMap<String, InstanceRepository<? extends Model>>
+		modelRepositories = new HashMap<>();
+	@SuppressWarnings("unchecked")
+	public Model loadModel(String modelPath)
+	{
+		final int i = modelPath.indexOf(':');
+		try
+		{
+			if(i < 0)
+				return (Model)FMUMClassLoader.INSTANCE.loadClass(
+					modelPath
+				).getConstructor().newInstance();
+			
+			final String repositoryName = modelPath.substring(0, i);
+			InstanceRepository<? extends Model> repository = modelRepositories.get(repositoryName);
+			if(repository == null)
+				modelRepositories.put(
+					repositoryName,
+					repository = (InstanceRepository<? extends Model>)FMUMClassLoader
+						.INSTANCE.loadClass(repositoryName).getConstructor().newInstance()
+				);
+			Model model = repository.fetch(modelPath.substring(i + 1));
+			if(model != null) return model;
+			
+			FMUM.log.error(
+				this.format(
+					"fmum.modelnotfoundinrepositroy",
+					modelPath.substring(i + 1),
+					repositoryName
+				)
+			);
+		}
+		catch(Exception e) { FMUM.log.error(this.format("fmum.errorloadingmodel", modelPath), e); }
+		return ModelDebugBox.INSTANCE;
 	}
 }
