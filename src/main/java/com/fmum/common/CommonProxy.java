@@ -29,6 +29,8 @@ public class CommonProxy
 	
 	protected static final Pattern SUFFIX_ZIP_JAR = Pattern.compile("(.+)\\.(zip|jar)$");
 	
+	protected static File mcDir = null;
+	
 	/**
 	 * Name of the folder that contains content packs to be loaded
 	 */
@@ -43,15 +45,19 @@ public class CommonProxy
 	@SideOnly(Side.SERVER)
 	private static HashMap<String, String> localizationMap;
 	
-	public void syncConfig(Configuration config)
+	public void syncConfig(Configuration config, File minecraftDir)
 	{
+		// Load localization map server side
 		localizeFileName = config.getString(
 			"localizationFile",
 			"Server Only",
 			"en_us.lang",
 			"Server side localization file"
 		);
+		mcDir = minecraftDir;
+		this.loadLocalizationMap();
 		
+		// Parse configuration
 		this.parseConfig(config);
 		
 		// Save configuration file if has changed
@@ -87,7 +93,7 @@ public class CommonProxy
 	
 	public void checkOpenGL() { }
 	
-	public final void loadContentPack(File mcDir)
+	public void loadContentPack()
 	{
 		// Check content pack folder
 		File packDir = new File(mcDir, packDirName);
@@ -148,11 +154,6 @@ public class CommonProxy
 	}
 	
 	/**
-	 * Reload Minecraft resources client side to load resource in content packs
-	 */
-	public void refreshMinecraftResources() { }
-	
-	/**
 	 * Called on client side to prepare tab icon item
 	 */
 	public void setupCreativeTabs() { }
@@ -177,7 +178,7 @@ public class CommonProxy
 	
 	public Model loadModel(String modelPath) { return null; }
 	
-	protected final void parseConfig(Configuration config)
+	protected void parseConfig(Configuration config)
 	{
 		final String COMMON_SETTING = "Common";
 		

@@ -7,6 +7,10 @@ import com.fmum.common.util.Vec3f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiControls;
+import net.minecraft.client.gui.GuiOptions;
+import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.relauncher.Side;
@@ -78,6 +82,18 @@ public abstract class FMUMClient
 	public static final Minecraft mc = FMUM.mc;
 	public static final GameSettings settings = mc.gameSettings;
 	// TODO: packet handler
+	
+	public static float
+		oriFOV = settings.fovSetting,
+		oriGamma = settings.gammaSetting,
+		oriMouseSensi = settings.mouseSensitivity;
+	public static int oriThirdPerson = settings.thirdPersonView;
+	public static boolean oriViewBobbing = settings.viewBobbing;
+	
+	/**
+	 * Game GUI in last tick
+	 */
+	public static Gui prevGUI = null;
 	
 	/**
 	 * Whether manual mode is on
@@ -153,6 +169,44 @@ public abstract class FMUMClient
 		
 		tl = tr = tu = td = te = tq = false;
 		/** for test */
+		
+		// Check in game GUI change
+		if(mc.currentScreen != prevGUI)
+		{
+			// TODO: operation
+			
+			// Show key binds if control GUI is activated
+			if(mc.currentScreen instanceof GuiControls)
+			{
+				KeyManager.enterGUIControls();
+				settings.mouseSensitivity = oriMouseSensi;
+			}
+			else if(prevGUI instanceof GuiControls)
+			{
+				KeyManager.quitGUIControls();
+				oriMouseSensi = settings.mouseSensitivity;
+			}
+			
+			// Set back option values if options GUI is launched
+			else if(mc.currentScreen instanceof GuiOptions)
+			{
+				settings.fovSetting = oriFOV;
+				settings.viewBobbing = oriViewBobbing;
+//				settings.gammaSetting = oriGamma; TODO: force gamma setting
+			}
+			else if(prevGUI instanceof GuiOptions || prevGUI instanceof GuiVideoSettings)
+			{
+				oriFOV = settings.fovSetting;
+				oriViewBobbing = settings.viewBobbing;
+//				oriGamma TODO: force gamma
+
+				// If it is gun in hand, then set back settings for gun
+				// TODO
+			}
+			
+			// Update previous GUI
+			prevGUI = mc.currentScreen;
+		}
 	}
 	
 	public static void addChatMsg(String msg, int id)

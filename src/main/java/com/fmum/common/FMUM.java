@@ -106,7 +106,10 @@ public final class FMUM
 	public void onPreInit(FMLPreInitializationEvent evt)
 	{
 		// Parse configuration
-		proxy.syncConfig(new Configuration(evt.getSuggestedConfigurationFile()));
+		proxy.syncConfig(
+			new Configuration(evt.getSuggestedConfigurationFile()),
+			evt.getModConfigurationDirectory().getParentFile()
+		);
 		
 		proxy.loadLocalizationMap();
 		
@@ -117,8 +120,7 @@ public final class FMUM
 		proxy.checkOpenGL();
 		
 		// Load content packs
-		proxy.loadContentPack(evt.getModConfigurationDirectory().getParentFile());
-		proxy.refreshMinecraftResources();
+		proxy.loadContentPack();
 		
 		log.info(proxy.format("fmum.preinitializationcomplete"));
 	}

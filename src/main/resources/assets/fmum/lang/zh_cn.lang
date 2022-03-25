@@ -1,11 +1,16 @@
 # By Giant_Salted_Fish
 
+fmum.errorcreatingkeybindsfile=创建按键绑定文件时出现错误，FMUM 按键绑定设置可能会不同步
+fmum.errorsavingkeybinds=存储按键绑定时出现错误，FMUM 按键绑定设置可能会不同步
+fmum.errorreadingkeybinds=读取按键绑定时出现错误，FMUM 按键绑定设置可能会不同步
+fmum.keycodeformaterror=按键编号格式错误 <%s>
+fmum.unrecognizedkeybind=按键绑定 <%s> 不存在
 fmum.onpreinitialization=正在预初始化 FMUM...
 fmum.packfoldercreated=创建内容包文件夹 <%s>
 fmum.preinitializationcomplete=FMUM 预初始化完成 \
 fmum.oninitialization=正在初始化 FMUM...
 fmum.oninitializationcomplete=FMUM 初始化完成 \
-fmum.openglversiontoolow=您的 OpenGL 版本过低，最低要求 OpenGL3.0。请考虑更新显卡驱动或是更换您的显卡。
+fmum.openglversiontoolow=您的 OpenGL 版本过低，最低要求 OpenGL3.0。请考虑更新显卡驱动或更换显卡。
 fmum.unrecognizedcontentpackfiletype=文件 <%s> 不属于可接受的内容包文件类型{ <文件夹>, <.jar>, <.zip> }
 fmum.erroraddingclasspath=为 <%s> 注册Class加载路径时遇到了问题 相关内容包内容可能会无法加载
 fmum.unrecognizedtypefiletype=类型描述文件 <%s> 不属于可接受的文件类型{ <.txt>, <.class> }
@@ -38,6 +43,9 @@ itemGroup.fmum=FMUM 默认组
 
 tooltip.descriptionmissing=关于此物品描述未被提供
 tooltip.providerinfo=来自 %s by %s
+
+msg.fmum.manualmodeon=手动模式启动
+msg.fmum.manualmodeoff=手动模式关闭
 
 key.category.fmum.assist=FMUM 辅助
 key.fmum.co=组合键

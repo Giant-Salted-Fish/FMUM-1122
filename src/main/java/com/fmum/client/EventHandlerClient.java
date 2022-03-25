@@ -4,6 +4,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.fmum.client.KeyManager.Key;
 import com.fmum.client.model.Model;
+import com.fmum.client.model.oc.ModelFNMK20SSR;
 import com.fmum.common.EventHandler;
 import com.fmum.common.EventHandler.RequireItemRegister;
 import com.fmum.common.FMUM;
@@ -23,10 +24,12 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -41,6 +44,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @EventBusSubscriber(value = Side.CLIENT, modid = FMUM.MODID)
 public abstract class EventHandlerClient
 {
+	public static float
+		camRoll = 0F,
+		prevCamRoll = 0F;
+	
 	private EventHandlerClient() { }
 	
 	@SubscribeEvent
@@ -168,11 +175,26 @@ public abstract class EventHandlerClient
 		// TODO
 	}
 	
-//	@SubscribeEvent
-//	public static void onPlayerRender(RenderPlayerEvent.Pre evt)
-//	{
-//		
-//	}
+	/**
+	 * Apply camera roll
+	 */
+	@SubscribeEvent
+	public static void onCameraSetup(CameraSetup evt)
+	{
+		float prev = prevCamRoll;
+		evt.setRoll(prev + (camRoll - prev) * (float)evt.getRenderPartialTicks());
+	}
+	
+	@SubscribeEvent
+	public static void onPlayerRender(RenderPlayerEvent.Pre evt)
+	{
+//		GlStateManager.disableCull();
+		FMUMClient.mc.renderEngine.bindTexture(ResourceManager.getTexture("skins/fnmk20ssr-desertyellow.png"));
+//		FMUMClient.mc.renderEngine.bindTexture(ResourceManager.getTexture("skins/test.png"));
+//		FMUMClient.mc.renderEngine.bindTexture(ResourceManager.TEXTURE_GREEN);
+		ModelFNMK20SSR.INSTANCE.render();
+//		ModelTestBox.INSTANCE.render();
+	}
 	
 	/**
 	 * @see KeyManager

@@ -14,10 +14,12 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 
+// TODO: may override render methods in super class?
 public abstract class Model extends ModelBase
 {
 	/**
@@ -51,6 +53,9 @@ public abstract class Model extends ModelBase
 		);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		
+		// Switch y and z axis
+		GL11.glRotatef(90F, 0F, 1F, 0F);
+		
 		/** for test */
 		float[] f = FMUMClient.testList.get(0).testFloat;
 		GL11.glTranslatef(f[0], f[1], f[2]);
@@ -59,9 +64,14 @@ public abstract class Model extends ModelBase
 		GL11.glRotatef(f[3], 1F, 0F, 0F);
 		/** for test */
 		
-		this.render();
+		this.doRenderFP(stack, type);
 	}
 	
+	/**
+	 * Preliminary render method without any additional render information provided, hence it can be
+	 * called in any context. It is recommended to simply render your model in this method to ensure
+	 * the compatibility.
+	 */
 	public void render() { }
 	
 	@Override
@@ -74,6 +84,25 @@ public abstract class Model extends ModelBase
 		float headPitch,
 		float scale
 	) { this.render(); }
+	
+	/**
+	 * Called in each tick. In default it updates first person animator.
+	 */
+	public void tick() { this.getAnimatorFP().tick(this); }
+	
+	/**
+	 * Only one first person animator required at a time. Hence it can be bind to the model.
+	 */
+	public Animator getAnimatorFP() { return null; } // TODO: default instance
+	
+	/**
+	 * Render item holding first person. Projection is setup and coordinate system is oriented at
+	 * camera location.
+	 * 
+	 * @param stack Corresponding stack of the model
+	 * @param type Type
+	 */
+	protected void doRenderFP(ItemStack stack, TypeInfo type) { this.render(); }
 	
 	protected static void bindTexture(String textureLocation) {
 		mc.renderEngine.bindTexture(ResourceManager.getTexture(textureLocation));
@@ -94,5 +123,50 @@ public abstract class Model extends ModelBase
 			? fov * 6F / 7F
 			: fov
 		);
+	}
+	
+	/**
+	 * For lighting stuff
+	 */
+	private static float
+		lightmapLastX = 0F,
+		lightmapLastY = 0F;
+	
+	protected static void glowOn(int glow)
+	{
+		GL11.glPushAttrib(GL11.GL_LIGHTING_BIT);
+		OpenGlHelper.setLightmapTextureCoords(
+			OpenGlHelper.lightmapTexUnit,
+			Math.min(
+				glow / 15F * 240F + (
+					lightmapLastX = OpenGlHelper.lastBrightnessX
+				),
+				240F
+			), 
+			Math.min(
+				glow / 15F * 240F + (
+					lightmapLastY = OpenGlHelper.lastBrightnessY
+				),
+				240F
+			)
+		);
+	}
+	
+	protected static void glowOn()
+	{
+		GL11.glPushAttrib(GL11.GL_LIGHTING_BIT);
+		lightmapLastX = OpenGlHelper.lastBrightnessX;
+		lightmapLastY = OpenGlHelper.lastBrightnessY;
+		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
+	}
+	
+	protected static void glowOff()
+	{
+		OpenGlHelper.setLightmapTextureCoords(
+			OpenGlHelper.lightmapTexUnit,
+			lightmapLastX,
+			lightmapLastY
+		);
+		GL11.glPopAttrib();
 	}
 }

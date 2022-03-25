@@ -22,6 +22,15 @@ public class Vec3f
 		this.z = z;
 	}
 	
+	public Vec3f set(float a)
+	{
+		this.x
+			= this.y
+			= this.z
+			= a;
+		return this;
+	}
+	
 	public final Vec3f set(float x, float y, float z)
 	{
 		this.x = x;
@@ -62,11 +71,28 @@ public class Vec3f
 		return this;
 	}
 	
-	public final Vec3f scale(float s)
+	public Vec3f scale(float s)
 	{
 		this.x *= s;
 		this.y *= s;
 		this.z *= s;
+		return this;
+	}
+	
+	public Vec3f negate()
+	{
+		this.x = -this.x;
+		this.y = -this.y;
+		this.z = -this.z;
+		return this;
+	}
+	
+	public Vec3f normalize()
+	{
+		float len = this.length();
+		this.x /= len;
+		this.y /= len;
+		this.z /= len;
 		return this;
 	}
 	

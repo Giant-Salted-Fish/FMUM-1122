@@ -177,19 +177,19 @@ public final class Mesh implements AutoCloseable
 	 * 
 	 * @author Giant_Salted_Fish
 	 */
-	public static final class Builder
+	public static class Builder
 	{
 		public final ArrayList<Vertex> vertices = new ArrayList<>();
 		
 		public final ArrayList<Integer> indices = new ArrayList<>();
 		
-		public Builder add(Vertex vert)
+		public final Builder add(Vertex vert)
 		{
 			this.vertices.add(vert);
 			return this;
 		}
 		
-		public Builder add(float x, float y, float z, float u, float v)
+		public final Builder add(float x, float y, float z, float u, float v)
 		{
 			Vertex V = new Vertex();
 			V.x = x;
@@ -201,7 +201,7 @@ public final class Mesh implements AutoCloseable
 			return this;
 		}
 		
-		public Builder add(
+		public final Builder add(
 			float x, float y, float z,
 			float u, float v,
 			float normX, float normY, float normZ
@@ -219,20 +219,20 @@ public final class Mesh implements AutoCloseable
 			return this;
 		}
 		
-		public Builder add(Integer index)
+		public final Builder add(Integer index)
 		{
 			this.indices.add(index);
 			return this;
 		}
 		
-		public Builder scale(float scale)
+		public final Builder scale(float scale)
 		{
 			for(Vertex v : this.vertices)
 				v.scale(scale);
 			return this;
 		}
 		
-		public Builder genNormal()
+		public final Builder genNormal()
 		{
 			// Borrow two vectors for convenient operation
 			final Vec3f
@@ -247,7 +247,7 @@ public final class Mesh implements AutoCloseable
 					Vertex vert2 = this.vertices.get(this.indices.get(i - 1));
 					
 					// Calculate normal
-					vec0.set(vert0).sub(vert1).cross(vec1.set(vert1).sub(vert2));
+					vec0.set(vert0).sub(vert1).cross(vec1.set(vert1).sub(vert2)).normalize();
 					
 					vert0.normX
 						= vert1.normX
@@ -293,7 +293,7 @@ public final class Mesh implements AutoCloseable
 		
 		// TODO: flip vertices here maybe?
 		
-		public Mesh build()
+		public final Mesh build()
 		{
 			int size = this.indices.size() > 0 ? this.indices.size() : -this.vertices.size();
 			if(size % 3 != 0)

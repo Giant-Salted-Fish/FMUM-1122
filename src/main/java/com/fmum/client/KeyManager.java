@@ -1,31 +1,37 @@
 package com.fmum.client;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import com.fmum.common.FMUM;
 
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * A static class that manages all the keys of {@link FMUM}
+ * A static class that manages all the keys of {@link FMUM}. Key bindings will be set to
+ * {@link Keyboard#KEY_NONE} in gaming to avoid key binding conflict. They will be set back during
+ * GUI launched.
  * 
  * @author Giant_Salted_Fish
  */
 @SideOnly(Side.CLIENT)
 public abstract class KeyManager
 {
-	/**
-	 * Call this on initialization to trigger lazy load of the keys
-	 */
-	public static void init() { Key.values(); }
-	
 	/**
 	 * Key categories
 	 */
@@ -50,6 +56,11 @@ public abstract class KeyManager
 	 * Keys that will update when {@link Key#CO} is not pressed
 	 */
 	public static final LinkedList<Key> inCoKeys = new LinkedList<>();
+	
+	/**
+	 * Keys that will be referenced independently
+	 */
+	public static final LinkedList<Key> independentKeys = new LinkedList<>();
 	
 	public enum Key
 	{
@@ -90,6 +101,26 @@ public abstract class KeyManager
 			protected void trigger() { FMUMClient.tq = true; }
 		},
 		
+		/**
+		 * <p>These keys will update if {@link #CO} is not down.</p>
+		 * 
+		 * <p>CATEGORY: {@link KeyManager#KEY_CATEGORY_GUN}.</p>
+		 */
+		TOGGLE_MANUAL("key.fmum.togglemanual", Keyboard.KEY_PERIOD, KEY_CATEGORY_GUN)
+		{
+			@Override
+			protected void trigger()
+			{
+				FMUMClient.addChatMsg(
+					I18n.format(
+						(FMUMClient.manualMode = !FMUMClient.manualMode)
+						? "msg.fmum.manualmodeon"
+						: "msg.fmum.manualmodeoff"
+					),
+					0
+				);
+			}
+		},
 		
 		/**
 		 * <p>These keys will update if {@link #CO} is down. {@link #CO} itself is a special case.
@@ -99,7 +130,7 @@ public abstract class KeyManager
 		 */
 		CO("key.fmum.co", Keyboard.KEY_Z, KEY_CATEGORY_ASSIST, primaryKeys);
 		
-		public final KeyBinding key;
+		public final KeyBinding keyBind;
 		public int keyCode;
 		public int pressTime = 0;
 		
@@ -107,45 +138,45 @@ public abstract class KeyManager
 		
 		private Key(String name, int key, String category, List<Key> group)
 		{
+			this(name, key, category, new KeyBinding(name, Keyboard.KEY_NONE, category), group);
+			
+			ClientRegistry.registerKeyBinding(this.keyBind);
+		}
+		
+		private Key(
+			String name,
+			int key,
+			String category,
+			@Nullable KeyBinding keyBind,
+			List<Key> group
+		) {
 			this.keyCode = key;
-			ClientRegistry.registerKeyBinding(
-				this.key = new KeyBinding(name, key, category)
-			);
+			this.keyBind = keyBind;
 			
 			// Group specified, add it to the group
 			if(group != null)
 				group.add(this);
 			
-			// Some special keys may required not to be update via list
-			else switch(this.name())
+			// Otherwise, assign group based on its category
+			else switch(category)
 			{
-			case "FIRE":
-			case "AIM_HOLD":
-			case "AIM_TOGGLE":
-			case "HOLD_BREATH":
-			case "CO":
-				return;
+			case KEY_CATEGORY_TEST:
+			case KEY_CATEGORY_MODIFY:
+				primaryKeys.add(this);
+				break;
+			case KEY_CATEGORY_ASSIST:
+				coKeys.add(this);
+				break;
+			case KEY_CATEGORY_FMUM:
+			case KEY_CATEGORY_GUN:
+				inCoKeys.add(this);
+				break;
 			default:
-				switch(category)
-				{
-				case KEY_CATEGORY_TEST:
-				case KEY_CATEGORY_MODIFY:
-					primaryKeys.add(this);
-					break;
-				case KEY_CATEGORY_ASSIST:
-					coKeys.add(this);
-					break;
-				case KEY_CATEGORY_FMUM:
-				case KEY_CATEGORY_GUN:
-					inCoKeys.add(this);
-					break;
-				default:
-					// This should never happen
-					throw new RuntimeException(
-						"Unexpected key category <" + category
-						+ "> from <" + this.name() + ">"
-					);
-				}
+				// This should never happen
+				throw new RuntimeException(
+					"Unexpected key category <" + category
+					+ "> from <" + this.name() + ">"
+				);
 			}
 		}
 		
@@ -172,6 +203,65 @@ public abstract class KeyManager
 		}
 		
 		protected void trigger() { }
+	}
+	
+	public static void enterGUIControls() {
+		for(Key k : Key.values()) if(k.keyBind != null) k.keyBind.setKeyCode(k.keyCode);
+	}
+	
+	public static void quitGUIControls()
+	{
+		boolean needSyncOptions = false;
+		for(Key k : Key.values())
+		{
+			if(k.keyCode != k.keyBind.getKeyCode())
+			{
+				k.keyCode = k.keyBind.getKeyCode();
+				needSyncOptions = true;
+			}
+			k.keyBind.setKeyCode(Keyboard.KEY_NONE);
+		}
+		KeyBinding.resetKeyBindingArrayAndHash();
+		
+		if(needSyncOptions) saveTo(ClientProxy.keyBindsFile);
+	}
+	
+	public static void saveTo(File file)
+	{
+		try(BufferedWriter out = new BufferedWriter(new FileWriter(file)))
+		{
+			for(Key k : Key.values())
+			{
+				out.write(k.name() + ":" + k.keyCode);
+				out.newLine();
+			}
+		}
+		catch(IOException e) { FMUM.log.error(I18n.format("fmum.errorsavingkeybinds"), e); }
+	}
+	
+	public static void readFrom(File file)
+	{
+		try(BufferedReader in = new BufferedReader(new FileReader(file)))
+		{
+			for(String l; (l = in.readLine()) != null; )
+			{
+				final int i = l.indexOf(':');
+				try
+				{
+					Enum.valueOf(
+						Key.class,
+						l.substring(0, i)
+					).keyCode = Integer.parseInt(l.substring(i + 1));
+				}
+				catch(NumberFormatException e) {
+					FMUM.log.error(I18n.format("fmum.keycodeformaterror", l));
+				}
+				catch(IllegalArgumentException e) {
+					FMUM.log.error(I18n.format("fmum.unrecognizedkeybind", l));
+				}
+			}
+		}
+		catch(IOException e) { FMUM.log.error(I18n.format("fmum.errorreadingkeybinds"), e); }
 	}
 	
 	public static boolean keyDown(int keyCode)

@@ -1,6 +1,7 @@
 package com.fmum.client;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 import org.lwjgl.opengl.GLContext;
@@ -29,21 +30,24 @@ public final class ClientProxy extends CommonProxy
 {
 	public static final String RECOMMENDED_TEXTURE_FOLDER = "skins" + File.separator;
 	
+	public static File keyBindsFile = null;
+	
+	/**
+	 * Override this to skip server only localization map loading
+	 */
 	@Override
-	public void syncConfig(Configuration config)
+	public void syncConfig(Configuration config, File minecraftDir)
 	{
-		// Trigger key bind lazy load
-		KeyManager.init();
-		
 		this.parseConfig(config);
-		
-		// TODO Parse client side only settings
 		
 		// Save configuration file if has changed
 		if(config.hasChanged())
 			config.save();
 	}
 	
+	/**
+	 * Localization map is only used in server side. Skip loading.
+	 */
 	@Override
 	public void loadLocalizationMap() { }
 	
@@ -60,6 +64,21 @@ public final class ClientProxy extends CommonProxy
 	{
 		if(!GLContext.getCapabilities().OpenGL30)
 			throw new RuntimeException(I18n.format("fmum.openglversiontoolow"));
+	}
+	
+	@Override
+	public void loadContentPack()
+	{
+		super.loadContentPack();
+		
+		// Force resource reload to load resources in content packs
+		// TODO: maybe check if is only mod based content pack loaded
+		FMLClientHandler.instance().refreshResources(
+			VanillaResourceType.MODELS,
+			VanillaResourceType.TEXTURES,
+			VanillaResourceType.SOUNDS,
+			VanillaResourceType.LANGUAGES
+		);
 	}
 	
 	@Override
@@ -83,17 +102,6 @@ public final class ClientProxy extends CommonProxy
 		);
 		container.bindMetadata(MetadataCollection.from(null, ""));
 		FMLClientHandler.instance().addModAsResource(container);
-	}
-	
-	@Override
-	public void refreshMinecraftResources()
-	{
-		FMLClientHandler.instance().refreshResources(
-			VanillaResourceType.MODELS,
-			VanillaResourceType.TEXTURES,
-			VanillaResourceType.SOUNDS,
-			VanillaResourceType.LANGUAGES
-		);
 	}
 	
 	@Override
@@ -137,5 +145,37 @@ public final class ClientProxy extends CommonProxy
 		}
 		catch(Exception e) { FMUM.log.error(this.format("fmum.errorloadingmodel", modelPath), e); }
 		return ModelDebugBox.INSTANCE;
+	}
+	
+	@Override
+	protected void parseConfig(Configuration config)
+	{
+		super.parseConfig(config);
+		final String CLIENT_SETTING = "Client";
+		
+		// Parse client side only settings
+		keyBindsFile = new File(
+			mcDir,
+			config.getString(
+				"keyBindsFile",
+				CLIENT_SETTING,
+				"config/fmumoptions.txt",
+				"File name where FMUM will save key binds to"
+			)
+		);
+		
+		// Create options file if not exist
+		if(!keyBindsFile.exists())
+		{
+			try { keyBindsFile.createNewFile(); }
+			catch(IOException e) {
+				FMUM.log.error(I18n.format("fmum.errorcreatingkeybindsfile"), e);
+			}
+			KeyManager.saveTo(keyBindsFile);
+		}
+		
+		// Otherwise, read key bind settings from the file
+		// NOTICE: an empty key bind file may fail to trigger lazy load of keys
+		else KeyManager.readFrom(keyBindsFile);
 	}
 }

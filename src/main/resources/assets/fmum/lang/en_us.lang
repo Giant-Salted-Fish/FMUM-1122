@@ -1,5 +1,10 @@
 # By Giant_Salted_Fish
 
+fmum.errorcreatingkeybindsfile=A error has occurred while attempting to create key binds file
+fmum.errorsavingkeybinds=A error has occurred while attempting to save key binds
+fmum.errorreadingkeybinds=A error has occurred while attempting to read key binds
+fmum.keycodeformaterror=Key code format error <%s>
+fmum.unrecognizedkeybind=Unrecognized key bind <%s>
 fmum.onpreinitialization=FMUM pre-initialization procedure engage...
 fmum.packfoldercreated=Content pack folder <%s> created
 fmum.preinitializationcomplete=FMUM pre-initialization procedure complete \
@@ -38,6 +43,9 @@ itemGroup.fmum=FMUM Default Group
 
 tooltip.descriptionmissing=Description not provided
 tooltip.providerinfo=From %s by %s
+
+msg.fmum.manualmodeon=Manual mode enabled
+msg.fmum.manualmodeoff=Manual mode disabled
 
 key.category.fmum.assist=FMUM Assist
 key.fmum.co=Co-Key
