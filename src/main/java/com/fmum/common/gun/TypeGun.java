@@ -8,6 +8,8 @@ import com.fmum.common.type.EnumType;
 import com.fmum.common.type.TypeInfo;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
+import net.minecraft.nbt.NBTTagList;
+
 public final class TypeGun extends TypeAmmoContainer
 {
 	public static final HashMap<String, TypeGun> guns = new HashMap<>();
@@ -31,6 +33,23 @@ public final class TypeGun extends TypeAmmoContainer
 	public TypeGun(String name) { super(name); }
 	
 	@Override
+	public void postParse()
+	{
+		super.postParse();
+		
+		guns.put(this.name, this);
+	}
+	
+	public NBTTagList genTag(int dam)
+	{
+		NBTTagList tag = this.genTag(dam, 0, 0);
+		
+		// TODO: a ton of states based on attachments installed
+		
+		return tag;
+	}
+	
+	@Override
 	public void onItemSetup() { this.withItem(new ItemGun(this)); }
 	
 	@Override
@@ -38,4 +57,7 @@ public final class TypeGun extends TypeAmmoContainer
 	
 	@Override
 	public final boolean validateMag(TypeInfo mag) { return this.mags.contains(mag.category); }
+	
+	@Override
+	protected int[] genStates() { return new int[TagGun.NUM_STATES]; }
 }

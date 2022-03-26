@@ -39,8 +39,17 @@ public abstract class ItemHoldable extends Item implements ItemPaintable
 	
 	@Override
 	public final String getTranslationKey(ItemStack stack) {
-		return this.getRecommendedTranslationKey(stack);
+		return ItemPaintable.super.getTranslationKey(stack);
 	}
+	
+//	@Override
+//	public void onUpdate(
+//		ItemStack stack,
+//		World worldIn,
+//		Entity entityIn,
+//		int itemSlot,
+//		boolean isSelected
+//	) { }
 	
 	@Override
 	@SideOnly(Side.CLIENT)

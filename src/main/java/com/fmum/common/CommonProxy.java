@@ -145,6 +145,16 @@ public class CommonProxy
 			t.postLoad();
 	}
 	
+	/**
+	 * Called in client side to prepare tab icon item
+	 */
+	public void setupCreativeTabs() { }
+	
+	/**
+	 * Called in client side to trigger key lazy load and load key binds
+	 */
+	public void loadKeyBinds() { }
+	
 	public void registerLocalResource(File source)
 	{
 		try { FMUMClassLoader.INSTANCE.addURL(source.toURI().toURL()); }
@@ -152,11 +162,6 @@ public class CommonProxy
 			FMUM.log.error(this.format("fmum.erroraddingclasspath", source.getName()), e);
 		}
 	}
-	
-	/**
-	 * Called on client side to prepare tab icon item
-	 */
-	public void setupCreativeTabs() { }
 	
 	public final void initComplete()
 	{

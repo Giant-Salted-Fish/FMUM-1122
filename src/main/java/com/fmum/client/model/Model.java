@@ -25,7 +25,7 @@ public abstract class Model extends ModelBase
 	/**
 	 * A refer to Minecraft instance for convenience
 	 */
-	protected static final Minecraft mc = FMUM.mc;
+	protected static final Minecraft mc = FMUMClient.mc;
 	
 	/**
 	 * Buffered instances for convenient operations

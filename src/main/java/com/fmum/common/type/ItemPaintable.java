@@ -7,7 +7,7 @@ public interface ItemPaintable extends ItemInfo
 	@Override
 	public TypePaintable getType();
 	
-	default public String getRecommendedTranslationKey(ItemStack stack) {
+	default public String getTranslationKey(ItemStack stack) {
 		return this.getType().paintjobs.get(stack.getItemDamage()).translationKey;
 	}
 }

@@ -1,5 +1,7 @@
 package com.fmum.common.gun;
 
+import java.util.HashMap;
+
 import com.fmum.common.type.EnumType;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
@@ -10,6 +12,8 @@ import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
  */
 public class TypeMag extends TypeAmmoContainer
 {
+	public static final HashMap<String, TypeMag> mags = new HashMap<>();
+	
 	public static final LocalTypeFileParser<TypeMag>
 		parser = new LocalTypeFileParser<>(TypeMag.class, TypeAmmoContainer.parser);
 	static
@@ -18,6 +22,14 @@ public class TypeMag extends TypeAmmoContainer
 	}
 	
 	public TypeMag(String name) { super(name); }
+	
+	@Override
+	public void postParse()
+	{
+		super.postParse();
+		
+		mags.put(this.name, this);
+	}
 	
 	@Override
 	public void onItemSetup() { this.withItem(new ItemMag(this)); }

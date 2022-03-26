@@ -1,7 +1,10 @@
 package com.fmum.common.network;
 
+import com.fmum.common.FMUM;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -13,30 +16,41 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * 
  * @author FlansGame
  */
-public abstract class PacketBase
+public interface FMUMPacket
 {
 	/**
 	 * Encode the packet into a ByteBuf stream. Advanced data handlers can be found at
 	 * {@link net.minecraftforge.fml.common.network.ByteBufUtils}.
 	 */
-	public abstract void encodeInto(ChannelHandlerContext ctx, ByteBuf data);
+	public void encodeInto(ChannelHandlerContext ctx, ByteBuf data);
 	
 	/**
 	 * Decode the packet from a ByteBuf stream. Advanced data handlers can be found at
 	 * {@link net.minecraftforge.fml.common.network.ByteBufUtils}.
 	 */
-	public abstract void decodeInto(ChannelHandlerContext ctx, ByteBuf data);
+	public void decodeInto(ChannelHandlerContext ctx, ByteBuf data);
 	
 	/**
 	 * Handle the packet on server side, post-decoding
 	 */
-	public abstract void handleServerSide(EntityPlayerMP playerEntity);
+	default public void handleServerSide(EntityPlayerMP player)
+	{
+		FMUM.log.error(
+			FMUM.proxy.format(
+				"fmum.unhandledpackets",
+				this.getClass(),
+				player.getName()
+			)
+		);
+	}
 	
 	/**
 	 * Handle the packet on client side, post-decoding
 	 */
 	@SideOnly(Side.CLIENT)
-	public abstract void handleClientSide(EntityPlayer clientPlayer);
+	default public void handleClientSide(EntityPlayer player) {
+		FMUM.log.error(I18n.format("fmum.unhandledpacketc", this.getClass().getName()));
+	}
 	
 	/**
 	 * Convenient method to write strings

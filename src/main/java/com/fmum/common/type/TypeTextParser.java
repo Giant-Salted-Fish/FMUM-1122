@@ -119,10 +119,7 @@ public abstract class TypeTextParser<T> implements ParserFunc<T>
 			catch(NoSuchMethodException | SecurityException e)
 			{
 				throw new RuntimeException(
-					FMUM.proxy.format(
-						"fmum.failedtogettyperconstructor",
-						typeClass.getName()
-					),
+					"Failed to get constructor from typer <" + typeClass.getName() + ">",
 					e
 				);
 			}

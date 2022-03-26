@@ -173,7 +173,7 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 		return "<" + this.getEnumType() + ">" + this.provider.getName() + ":" + this.name;
 	}
 	
-	protected void onItemSetup() { }
+	protected abstract void onItemSetup();
 	
 	/**
 	 * Call {@link #withItem(Item, int, int)} with parameter list {@code (item, 1, 0)}

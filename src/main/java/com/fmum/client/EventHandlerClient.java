@@ -98,7 +98,7 @@ public abstract class EventHandlerClient
 		
 		// Check if holding one FMUM item
 		final EntityPlayerSP player = mc.player;
-		ItemStack stack = player.getHeldItemMainhand();
+		ItemStack stack = player.inventory.getCurrentItem();
 		Item item = stack.getItem();
 		if(!(item instanceof ItemInfo)) return;
 		
@@ -146,7 +146,7 @@ public abstract class EventHandlerClient
 		entityRenderer.disableLightmap();
 		
 		// Cancel event if no native item to render in off-hand to render
-		if(player.getHeldItemOffhand().isEmpty())
+		if(player.inventory.offHandInventory.get(0).isEmpty())
 			evt.setCanceled(true);
 	}
 	
@@ -203,7 +203,7 @@ public abstract class EventHandlerClient
 	public static void onInput(InputEvent evt)
 	{
 		// Avoid key input if yet not enter a world or a GUI is activated
-		if(FMUM.mc.player == null || FMUM.mc.currentScreen != null) return;
+		if(FMUMClient.mc.player == null || FMUMClient.mc.currentScreen != null) return;
 		
 		// Update keys upon condition
 		for(Key k : KeyManager.primaryKeys) k.update();

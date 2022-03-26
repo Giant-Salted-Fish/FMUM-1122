@@ -2,8 +2,11 @@ package com.fmum.common;
 
 import java.util.Random;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
+
+import com.fmum.common.network.PacketHandler;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.config.Configuration;
@@ -12,6 +15,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 /**
@@ -45,6 +49,10 @@ public final class FMUM
 	public static final float
 		TO_RADIANS = (float)Math.PI / 180F,
 		TO_DEGREES = 180F / (float)Math.PI;
+	
+	public static final Pattern
+		INTEGER_FOMAT = Pattern.compile("-?[0-9]+"),
+		FLOAT_FORMAT = Pattern.compile("-?[0-9]+\\.?[0-9]*");
 	
 	public static final String
 		TXT_FILE_SUFFIX = ".txt",
@@ -89,6 +97,11 @@ public final class FMUM
 	 * Default logger for {@link FMUM}
 	 */
 	public static Logger log = null;
+
+	/**
+	 * Network handler
+	 */
+	public static final PacketHandler netHandler = new PacketHandler();
 	
 	/**
 	 * Debug mode flag. Should be finalized in release version. Call {@link #toggleDebug()} to
@@ -101,6 +114,12 @@ public final class FMUM
 	 * Universal ticker
 	 */
 	public static int ticker = 0;
+	
+	/// Configurations ///
+	/**
+	 * Max layers of the modules(unsigned byte)
+	 */
+	public static byte maxLayers = 8;
 	
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent evt)
@@ -131,10 +150,23 @@ public final class FMUM
 		log.info(proxy.format("fmum.oninitialization"));
 		
 		proxy.setupCreativeTabs();
+		netHandler.init();
 		
-		log.info(proxy.format("fmum.oninitializationcomplete"));
+		log.info(proxy.format("fmum.initializationcomplete"));
 		
 		proxy.initComplete();
+	}
+	
+	@EventHandler
+	public void onPostInit(FMLPostInitializationEvent evt)
+	{
+		log.info(proxy.format("fmum.onpostinitialization"));
+		
+		netHandler.postInit();
+		
+		proxy.loadKeyBinds();
+		
+		log.info(proxy.format("fmum.postinitializationcomplete"));
 	}
 	
 	/**

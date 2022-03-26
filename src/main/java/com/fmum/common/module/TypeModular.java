@@ -1,23 +1,35 @@
 package com.fmum.common.module;
 
+import java.util.HashMap;
+
 import com.fmum.common.FMUM;
 import com.fmum.common.type.TypePaintable;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
 import net.minecraft.item.Item;
+import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
 
 public abstract class TypeModular extends TypePaintable
 {
+	public static final HashMap<String, TypeModular> modules = new HashMap<>();
+	
 	public static final LocalTypeFileParser<TypeModular>
 		parser = new LocalTypeFileParser<>(TypePaintable.parser);
 	static
 	{
-		// Slots and default installed modules TODO
 		parser.addKeyword("Slots", (s, t) -> t.slots = Slot.parse(s, 1));
+		parser.addKeyword(
+			"DefaultModules",
+			(s, t) -> (t.defaultModules = new DefaultModules(t.name)).parse(s, 1)
+		);
 	}
 	
+	protected static final DefaultModules DEF_DEF_MODULES = new DefaultModules(null);
+	
 	public Slot[] slots = Slot.DEF_SLOTS;
+	
+	public DefaultModules defaultModules = DEF_DEF_MODULES;
 	
 	protected TypeModular(String name) { super(name); }
 	
@@ -125,7 +137,39 @@ public abstract class TypeModular extends TypePaintable
 		
 		// Do not forget to apply the model scale
 		this.scale(this.modelScale);
+		
+		modules.put(this.name, this);
 	}
+	
+	public NBTTagList genTag(int dam, int step, int offset)
+	{
+		// Create tag and states tag
+		NBTTagList tag = new NBTTagList();
+		NBTTagList statesWrapper = new NBTTagList();
+		int[] states = this.genStates();
+		statesWrapper.appendTag(new NBTTagIntArray(states));
+		tag.appendTag(statesWrapper);
+		
+		// Write default states
+		TagModular.setIdDam(states, Item.getIdFromItem(this.item), dam);
+		TagModular.setStep(states, step);
+		TagModular.setOffset(states, offset);
+		
+		// Add default modules
+		this.defaultModules.writeToTag(tag);
+		
+		// Append slot tag
+		for(int i = this.slots.length; --i >= 0; tag.appendTag(new NBTTagList()));
+		return tag;
+	}
+	
+	/**
+	 * Generate {@code int} array to set as states of this module. Sub-types can override this
+	 * method to have more customized states.
+	 * 
+	 * @return Raw states array
+	 */
+	protected int[] genStates() { return new int[TagModular.NUM_STATES]; }
 	
 	/**
 	 * @param tag Module base tag
@@ -165,60 +209,5 @@ public abstract class TypeModular extends TypePaintable
 			float sin, float cos,
 			float rotX
 		);
-	}
-	
-	public static class TagModular
-	{
-		public static final String TAG = "0";
-		
-		public static final byte
-			ID_DAM = 0,
-			FLAG = 1;
-		
-		/**
-		 * TODO:
-		 */
-		public static final int MAX_DAMAGE = 128;
-		
-		/**
-		 * Get states from given compound tag
-		 * 
-		 * @param tag Tag to retrieve states
-		 * @return States in form of integer array
-		 */
-		public static int[] getStates(NBTTagList tag) {
-			return ((NBTTagList)tag.get(0)).getIntArrayAt(0);
-		}
-		
-//		public static boolean getFlag(int[] states, int mask) { return (states[FLAG] & mask) != 0; }
-		
-		public static int getDam(int[] states) { return states[ID_DAM] << 16 >>> 16; }
-		
-		public static void setIdDam(int[] states, int id, int dam) {
-			states[ID_DAM] = id << 16 | dam << 16 >>> 16;
-		}
-		
-//		public static int getDam(NBTTagList tag) { return getStates(tag)[ID_DAM] << 16 >>> 16; }
-		
-//		public static int getId(int[] states) { return states[ID_DAM] >>> 16; }
-		
-		public static float getState(int[] states, int i) {
-			return Float.intBitsToFloat(states[i]);
-		}
-		
-		public static void setState(int[] states, float value, int i) {
-			states[i] = Float.floatToIntBits(value);
-		}
-		
-		public static TypeModular getType(int[] states) {
-			return ((ItemModular)Item.getItemById(states[ID_DAM] >>> 16)).getType();
-		}
-		
-		public static TypeModular getType(NBTTagList tag)
-		{
-			return ((ItemModular)Item.getItemById(
-				((NBTTagList)tag.get(0)).getIntArrayAt(0)[ID_DAM] >>> 16
-			)).getType();
-		}
 	}
 }

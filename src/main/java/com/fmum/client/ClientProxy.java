@@ -82,6 +82,31 @@ public final class ClientProxy extends CommonProxy
 	}
 	
 	@Override
+	public void setupCreativeTabs()
+	{
+		for(FMUMCreativeTab tab : FMUMCreativeTab.tabs.values())
+			tab.setupIconStack();
+	}
+	
+	@Override
+	public void loadKeyBinds()
+	{
+		// Create options file if not exist
+		if(!keyBindsFile.exists())
+		{
+			try { keyBindsFile.createNewFile(); }
+			catch(IOException e) {
+				FMUM.log.error(I18n.format("fmum.errorcreatingkeybindsfile"), e);
+			}
+			KeyManager.saveTo(keyBindsFile);
+		}
+		
+		// Otherwise, read key bind settings from the file
+		// NOTICE: an empty key bind file may fail to trigger lazy load of keys
+		else KeyManager.readFrom(keyBindsFile);
+	}
+	
+	@Override
 	public void registerLocalResource(File source)
 	{
 		super.registerLocalResource(source);
@@ -102,13 +127,6 @@ public final class ClientProxy extends CommonProxy
 		);
 		container.bindMetadata(MetadataCollection.from(null, ""));
 		FMLClientHandler.instance().addModAsResource(container);
-	}
-	
-	@Override
-	public void setupCreativeTabs()
-	{
-		for(FMUMCreativeTab tab : FMUMCreativeTab.tabs.values())
-			tab.setupIconStack();
 	}
 	
 	private static final HashMap<String, InstanceRepository<? extends Model>>
@@ -163,19 +181,5 @@ public final class ClientProxy extends CommonProxy
 				"File name where FMUM will save key binds to"
 			)
 		);
-		
-		// Create options file if not exist
-		if(!keyBindsFile.exists())
-		{
-			try { keyBindsFile.createNewFile(); }
-			catch(IOException e) {
-				FMUM.log.error(I18n.format("fmum.errorcreatingkeybindsfile"), e);
-			}
-			KeyManager.saveTo(keyBindsFile);
-		}
-		
-		// Otherwise, read key bind settings from the file
-		// NOTICE: an empty key bind file may fail to trigger lazy load of keys
-		else KeyManager.readFrom(keyBindsFile);
 	}
 }

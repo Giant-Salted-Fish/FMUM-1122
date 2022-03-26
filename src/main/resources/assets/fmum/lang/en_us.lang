@@ -1,15 +1,13 @@
 # By Giant_Salted_Fish
 
-fmum.errorcreatingkeybindsfile=A error has occurred while attempting to create key binds file
-fmum.errorsavingkeybinds=A error has occurred while attempting to save key binds
-fmum.errorreadingkeybinds=A error has occurred while attempting to read key binds
-fmum.keycodeformaterror=Key code format error <%s>
-fmum.unrecognizedkeybind=Unrecognized key bind <%s>
+# Loading phase log
 fmum.onpreinitialization=FMUM pre-initialization procedure engage...
 fmum.packfoldercreated=Content pack folder <%s> created
 fmum.preinitializationcomplete=FMUM pre-initialization procedure complete \
 fmum.oninitialization=FMUM initialization procedure engage...
-fmum.oninitializationcomplete=FMUM initialization complete \
+fmum.initializationcomplete=FMUM initialization complete \
+fmum.onpostinitialization=FMUM post-initialization procedure enabled...
+fmum.postinitializationcomplete=FMUM post-initialization complete \
 fmum.openglversiontoolow=Your OpenGL version is too low! Minimum requirement is OpenGL3.0. Please update your GPU driver or change the graphic card.
 fmum.unrecognizedcontentpackfiletype=<%s> is not of valid content pack file type. Required { <folder>, <.jar>, <.zip> }.
 fmum.erroraddingclasspath=Failed to register class path for <%s>. Contents in relevant pack could be inaccessible.
@@ -17,11 +15,11 @@ fmum.unrecognizedtypefiletype=<%s> is not of valid type file type. Required { <.
 fmum.detectcontentpack=Detect content pack <%s>
 fmum.preloadcontentpack=Pre-load content pack <%s>
 fmum.loadedcontentpack=Loaded content pack <%s>
-fmum.failedtogettyperconstructor=Failed to get item typer constructor from <%s>. This should never happen.
 fmum.failedtoinstantiateitemtyper=Failed to instantiate item typer with <%s>. This should never happen.
 fmum.ioerrorreadingfrom=An IO error has occurred while attempting to read from <%s>
 fmum.errorparsingtypefile=Failed to parse keyword <%s> in type file <%s>
 fmum.unknowntypefilekeyword=Unknown type file keyword <%s> present in <%s>
+fmum.toomanykeywordargs=Too many keyword arguments
 fmum.keywordargnumnotenough=Keyword arguments not enough: %s at least, %s supplied.
 fmum.modelnotfoundinrepositroy=Model <%s> does not exist in specified model repository <%s>
 fmum.errorloadingmodel=A error has occurred while loading model <%s>
@@ -35,17 +33,36 @@ fmum.failtofindiconitemfortab=Failed to find icon item <%s> for creative tab <%s
 fmum.infoactivedpacks=Total %s content pack activated
 fmum.activedpackinfo=- %s MADE BY %s
 fmum.errorinstantiating=An error has occurred while trying to instantiate <%s>
+fmum.errorcreatingkeybindsfile=A error has occurred while attempting to create key binds file
+fmum.errorsavingkeybinds=A error has occurred while attempting to save key binds
+fmum.errorreadingkeybinds=A error has occurred while attempting to read key binds
+fmum.keycodeformaterror=Key code format error <%s>
+fmum.unrecognizedkeybind=Unrecognized key bind <%s>
 
+# Gaming phase log
+fmum.defaultmodulenotfound=Can not find default module <%s>
+
+# Network
+fmum.unhandledpackets=Receive unrecognized packet <%s> from <%s>
+fmum.unhandledpacketc=Receive unrecognized packet <%s>
+fmum.unhandleditemoppackets=Receive unrecognized item operation packet <%s:%s> from <%s>
+fmum.unhandleditemoppacketc=Receive unrecognized item operation packet <%s:%s>
+
+# Content pack info
 pack.authormissing=Unknown author
 pack.descriptionmissing=Description not provided
 
+# Creative tab
 itemGroup.fmum=FMUM Default Group
 
+# Item tooltip
 tooltip.descriptionmissing=Description not provided
 tooltip.providerinfo=From %s by %s
 
+# In game message
 msg.fmum.manualmodeon=Manual mode enabled
 msg.fmum.manualmodeoff=Manual mode disabled
 
+# Key binds
 key.category.fmum.assist=FMUM Assist
 key.fmum.co=Co-Key
