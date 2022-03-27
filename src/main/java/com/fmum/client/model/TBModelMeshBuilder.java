@@ -1,6 +1,5 @@
 package com.fmum.client.model;
 
-import com.fmum.common.FMUM;
 import com.fmum.common.util.CoordSystem;
 import com.fmum.common.util.Mesh;
 import com.fmum.common.util.Vec3f;
@@ -12,6 +11,8 @@ import com.fmum.common.util.Vec3f;
  */
 public final class TBModelMeshBuilder extends Mesh.Builder
 {
+	public static final float TO_DEGREES = 180F / (float)Math.PI;
+	
 	public static final float PRIMARY_SCALE = 1F / 16F;
 	
 	/**
@@ -27,11 +28,6 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 		textureY;
 	
 	private int indexBase = 0;
-	
-	/**
-	 * Create a builder with proposed texture resolution set to 512x512
-	 */
-	public TBModelMeshBuilder() { this(512, 512); }
 	
 	/**
 	 * Create a builder with proposed texture resolution(Usually is the texture resolution that used
@@ -133,7 +129,7 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 
 		// Note that coordinate y, z are flipped in ToolBox
 		sys.setDefault();
-		sys.globalRot(rotX * FMUM.TO_DEGREES, -rotY * FMUM.TO_DEGREES, rotZ * FMUM.TO_DEGREES);
+		sys.globalRot(rotX * TO_DEGREES, -rotY * TO_DEGREES, rotZ * TO_DEGREES);
 		sys.trans(offX, -offY, -offZ);
 		pos.set(posX, -posY, -posZ);
 		
@@ -243,6 +239,12 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 		);
 	}
 	
+	/**
+	 * Do general process and build the mesh. It will scale the vertices by {@value #PRIMARY_SCALE}
+	 * and generate normal before the build.
+	 * 
+	 * @return {@code this}
+	 */
 	public Mesh process() { return this.scale(PRIMARY_SCALE).genNormal().build(); }
 	
 	protected void addIndices(Integer index)

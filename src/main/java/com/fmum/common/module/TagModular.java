@@ -40,7 +40,11 @@ public abstract class TagModular
 	public static boolean validateTag(ItemStack stack)
 	{
 		NBTTagCompound tag = stack.getTagCompound();
-		return tag != null && tag.getTag(TAG) != null;
+		return tag != null && tag.hasKey(TAG);
+	}
+	
+	public static NBTTagList getTag(ItemStack stack) {
+		return (NBTTagList)stack.getTagCompound().getTag(TAG);
 	}
 	
 	/**

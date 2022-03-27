@@ -43,16 +43,9 @@ public final class FMUM
 	 */
 	public static final Random rand = new Random();
 	
-	/**
-	 * Transform between radians and degrees
-	 */
-	public static final float
-		TO_RADIANS = (float)Math.PI / 180F,
-		TO_DEGREES = 180F / (float)Math.PI;
-	
 	public static final Pattern
-		INTEGER_FOMAT = Pattern.compile("-?[0-9]+"),
-		FLOAT_FORMAT = Pattern.compile("-?[0-9]+\\.?[0-9]*");
+		INTEGER_FORMAT = Pattern.compile("-?[0-9]+"),
+		REAL_NUMBER_FORMAT = Pattern.compile("-?[0-9]+\\.?[0-9]*");
 	
 	public static final String
 		TXT_FILE_SUFFIX = ".txt",

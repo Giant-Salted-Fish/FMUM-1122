@@ -7,19 +7,19 @@ package com.fmum.common.util;
  */
 public class MotionTendency
 {
-	public final Vec3f
-		tarPos = new Vec3f(),
-		curPos = new Vec3f(),
-		prevPos = new Vec3f();
+	public final Vec3
+		tarPos = new Vec3(),
+		curPos = new Vec3(),
+		prevPos = new Vec3();
 	
-	public final Vec3f velocity = new Vec3f();
+	public final Vec3 velocity = new Vec3();
 	
 	/**
 	 * Buffered vector for convenient vector operation
 	 */
-	protected final Vec3f vec = new Vec3f();
+	protected final Vec3 vec = new Vec3();
 	
-	public void update(float speedFactor, float maxForce, float forceMult)
+	public void update(double speedFactor, double maxForce, double forceMult)
 	{
 		// Set previous value
 		this.prevPos.set(this.curPos);
@@ -30,9 +30,9 @@ public class MotionTendency
 		this.vec.sub(this.curPos);
 		
 		// Make sure force is not exceeding max force
-		float squared = vec.lengthSquared();
+		double squared = vec.lengthSquared();
 		if(squared > maxForce * maxForce)
-			vec.scale(maxForce / (float)Math.sqrt(squared));
+			vec.scale(maxForce / Math.sqrt(squared));
 		
 		// Apply modification on speed
 		this.vec.scale(forceMult);
@@ -46,7 +46,7 @@ public class MotionTendency
 	 * 
 	 * @param factor Force factor
 	 */
-	public final void approachTarPos(float factor)
+	public final void approachTarPos(double factor)
 	{
 		this.vec.set(this.tarPos);
 		this.vec.sub(this.curPos);
@@ -54,7 +54,7 @@ public class MotionTendency
 		this.curPos.trans(this.vec);
 	}
 	
-	public final void getSmoothedPos(Vec3f dest, float smoother)
+	public final void getSmoothedPos(Vec3 dest, double smoother)
 	{
 		dest.set(this.curPos);
 		dest.sub(this.prevPos);
@@ -62,7 +62,7 @@ public class MotionTendency
 		dest.trans(this.prevPos);
 	}
 	
-	public final void applySmoothedPos(Vec3f dest, float smoother)
+	public final void applySmoothedPos(Vec3 dest, double smoother)
 	{
 		this.vec.set(this.curPos);
 		this.vec.sub(this.prevPos);
@@ -71,21 +71,21 @@ public class MotionTendency
 		dest.trans(this.prevPos);
 	}
 	
-	public final float getSmoothedX(float smoother)
+	public final double getSmoothedX(double smoother)
 	{
-		float prev = this.prevPos.x;
+		double prev = this.prevPos.x;
 		return prev + (this.curPos.x - prev) * smoother;
 	}
 	
-	public final float getSmoothedY(float smoother)
+	public final double getSmoothedY(double smoother)
 	{
-		float prev = this.prevPos.y;
+		double prev = this.prevPos.y;
 		return prev + (this.curPos.y - prev) * smoother;
 	}
 	
-	public final float getSmoothedZ(float smoother)
+	public final double getSmoothedZ(double smoother)
 	{
-		float prev = this.prevPos.z;
+		double prev = this.prevPos.z;
 		return prev + (this.curPos.z - prev) * smoother;
 	}
 	
@@ -97,13 +97,13 @@ public class MotionTendency
 	 */
 	public static class BasedMotionTendency extends MotionTendency
 	{
-		public float speedFactor;
+		public double speedFactor;
 		
-		public float maxForce;
+		public double maxForce;
 		
-		public float forceMult;
+		public double forceMult;
 		
-		public BasedMotionTendency(float speedFactor, float maxForce, float forceMult)
+		public BasedMotionTendency(double speedFactor, double maxForce, double forceMult)
 		{
 			this.speedFactor = speedFactor;
 			this.maxForce = maxForce;
@@ -113,7 +113,7 @@ public class MotionTendency
 		public void update() { super.update(this.speedFactor, this.maxForce, this.forceMult); }
 		
 		@Override
-		public void update(float speedFactor, float maxForce, float forceMult)
+		public void update(double speedFactor, double maxForce, double forceMult)
 		{
 			super.update(
 				this.speedFactor * speedFactor,

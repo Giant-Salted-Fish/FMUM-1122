@@ -82,6 +82,18 @@ public abstract class ItemHoldable extends Item implements ItemPaintable
 	@Override
 	public final String getCreatorModId(ItemStack itemStack) { return FMUM.MODID; }
 	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void renderFP(ItemStack stack)
+	{
+		final TypeInfo type = this.getType();
+		type.model.renderFP(stack, type);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void render() { this.getType().model.render(); }
+	
 	@SideOnly(Side.CLIENT)
 	protected void addAttriInfo(ItemStack stack, List<String> tooltip) { }
 }

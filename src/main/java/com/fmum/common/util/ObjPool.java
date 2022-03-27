@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A simple pool to buffer instances like {@link Vec3f}
+ * A simple pool to buffer instances like {@link Vec3}
  *
  * @param <T> Class of buffered instance
  * 

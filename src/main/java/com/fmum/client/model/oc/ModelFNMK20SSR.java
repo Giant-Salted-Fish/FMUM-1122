@@ -10,7 +10,7 @@ public class ModelFNMK20SSR extends ModelGun
 	public ModelFNMK20SSR()
 	{
 		super(
-			new TBModelMeshBuilder()
+			new TBModelMeshBuilder(512, 512)
 				.addShapeBox(-109F, -39.5F, -3.5F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 34, 7, 345, 169, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 				.addShapeBox(-105F, -39.5F, -2.5F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 34, 5, 97, 169, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F)
 				.addShapeBox(-109F, -43.5F, -1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 4, 3, 385, 153, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 2F, 0F, 0F, 2F, 0F, 0F, 2F, 0F, 0F, 2F)

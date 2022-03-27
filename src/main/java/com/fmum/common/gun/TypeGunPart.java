@@ -20,9 +20,9 @@ public abstract class TypeGunPart extends TypeModular
 		parser.addKeyword(
 			"AimCenter",
 			(s, t) -> {
-				t.aimCenterY = Float.parseFloat(s[1]);
+				t.aimCenterY = Double.parseDouble(s[1]);
 				if(s.length > 2)
-					t.aimCenterZ = Float.parseFloat(s[2]);
+					t.aimCenterZ = Double.parseDouble(s[2]);
 			}
 		);
 	}
@@ -30,9 +30,9 @@ public abstract class TypeGunPart extends TypeModular
 	/**
 	 * Y and z coordinate in space where player can aim down with this gun part
 	 */
-	public float
-		aimCenterY = 0F,
-		aimCenterZ = 0F;
+	public double
+		aimCenterY = 0D,
+		aimCenterZ = 0D;
 	
 	protected TypeGunPart(String name) { super(name); }
 	

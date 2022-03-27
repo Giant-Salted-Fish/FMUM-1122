@@ -4,11 +4,12 @@ import java.util.LinkedList;
 import java.util.TreeSet;
 
 import com.fmum.common.FMUM;
+import com.fmum.common.util.Vec3;
 
 /**
  * @author Giant_Salted_Fish
  */
-public final class Slot
+public final class Slot extends Vec3
 {
 	/**
 	 * A fix instance that can be used as the initializer value
@@ -16,22 +17,14 @@ public final class Slot
 	public static final Slot[] DEF_SLOTS = { };
 	
 	/**
-	 * Relative position of the tail of this slot
-	 */
-	public float
-		x = 0F,
-		y = 0F,
-		z = 0F;
-	
-	/**
 	 * Orientation of this slot. Its the rotation along x-axis.
 	 */
-	public float rotX = 0F;
+	public double rotX = 0D;
 	
 	/**
 	 * How far it goes for each adjustment step
 	 */
-	public float stepLen = 0F;
+	public double stepLen = 0D;
 	
 	/**
 	 * Max steps that the attachments can go on this slot
@@ -57,12 +50,11 @@ public final class Slot
 		attachmentWhitelist = FMUM.EMPTY_STR_SET,
 		attachmentBlacklist = FMUM.EMPTY_STR_SET;
 	
-	public void scale(float s)
+	public Slot scale(double s)
 	{
-		this.x *= s;
-		this.y *= s;
-		this.z *= s;
+		super.scale(s);
 		this.stepLen *= s;
+		return this;
 	}
 	
 	public boolean isAllowed(TypeModular type)
@@ -124,19 +116,19 @@ public final class Slot
 				switch(i - cursor)
 				{
 				case 0:
-					slot.x = Float.parseFloat(split[i]) / 16F;
+					slot.x = Double.parseDouble(split[i]) / 16D;
 					break;
 				case 1:
-					slot.y = Float.parseFloat(split[i]) / 16F;
+					slot.y = Double.parseDouble(split[i]) / 16D;
 					break;
 				case 2:
-					slot.z = Float.parseFloat(split[i]) / 16F;
+					slot.z = Double.parseDouble(split[i]) / 16D;
 					break;
 				case 3:
-					slot.rotX = Float.parseFloat(split[i]);
+					slot.rotX = Double.parseDouble(split[i]);
 					break;
 				case 4:
-					slot.stepLen = Float.parseFloat(split[i]) / 16F;
+					slot.stepLen = Double.parseDouble(split[i]) / 16D;
 					break;
 				case 5:
 					slot.maxStep = Short.parseShort(split[i]);

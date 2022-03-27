@@ -2,9 +2,10 @@ package com.fmum.common.module;
 
 import java.util.HashMap;
 
-import com.fmum.common.FMUM;
 import com.fmum.common.type.TypePaintable;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
+import com.fmum.common.util.CoordSystem;
+import com.fmum.common.util.Mather;
 
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagIntArray;
@@ -38,7 +39,7 @@ public abstract class TypeModular extends TypePaintable
 	 * @param stepLen Step length of the slot rail of the super module
 	 * @return Install position shift
 	 */
-	public float getOffset(int[] states, float stepLen) { return 0F; }
+	public double getPos(int[] states, double stepLen) { return 0D; }
 	
 	public boolean stream(NBTTagList tag, ModuleVisitor visitor)
 	{
@@ -60,14 +61,14 @@ public abstract class TypeModular extends TypePaintable
 	
 	public boolean stream(
 		NBTTagList tag,
-		float x, float y, float z,
-		float rotX,
+		double x, double y, double z,
+		double rotX,
 		ModulePosRotVisitor visitor
 	) {
 		// Prepare sin and cos value
-		float sin = rotX * FMUM.TO_RADIANS;
-		float cos = (float)Math.cos(sin);
-		sin = (float)Math.sin(sin);
+		double sin = rotX * Mather.TO_RADIANS;
+		double cos = Math.cos(sin);
+		sin = Math.sin(sin);
 		
 		// Visit this module
 		if(visitor.visit(tag, this, x, y, z, sin, cos, rotX)) return true;
@@ -76,10 +77,10 @@ public abstract class TypeModular extends TypePaintable
 		for(int i = this.slots.length; --i >= 0; )
 		{
 			Slot slot = this.slots[i];
-			float ax = x + slot.x;
-			float ay = y + slot.y * cos - slot.z * sin;
-			float az = z + slot.y * sin + slot.z * cos;
-			float arotX = rotX + slot.rotX;
+			double ax = x + slot.x;
+			double ay = y + slot.y * cos - slot.z * sin;
+			double az = z + slot.y * sin + slot.z * cos;
+			double arotX = rotX + slot.rotX;
 			
 			// Go through each module installed on this slot
 			NBTTagList slotTag = (NBTTagList)tag.get(i + 1);
@@ -91,7 +92,7 @@ public abstract class TypeModular extends TypePaintable
 				if(
 					type.stream(
 						moduleTag,
-						ax + type.getOffset(states, slot.stepLen), ay, az,
+						ax + type.getPos(states, slot.stepLen), ay, az,
 						arotX,
 						visitor
 					)
@@ -100,6 +101,57 @@ public abstract class TypeModular extends TypePaintable
 		}
 		
 		return false;
+	}
+
+	/**
+	 * Stream for renderer. Difference from a normal stream is that the visitor is capable to change
+	 * the position of current module and it will effect all the modules installed on this module.
+	 * 
+	 * @param tag Base tag of current module
+	 * @param thisSys Coordinate system that this module is positioned in
+	 * @param visitor Visitor to visit each module
+	 */
+	public final void stream(NBTTagList tag, CoordSystem thisSys, RenderInfoVisitor visitor)
+	{
+		// Visit this module
+		visitor.visit(tag, this, thisSys);
+		
+		// Check if this module has slots to iterate
+		if(this.slots.length == 0) return;
+		
+		// Fetch coordinate systems
+		final CoordSystem moduleSys = CoordSystem.pool.poll();
+		final CoordSystem slotSys = CoordSystem.pool.poll();
+		
+		// Go through each slot
+		for(int i = this.slots.length; --i >= 0; )
+		{
+			// Check if there exists some installed modules
+			NBTTagList slotTag = (NBTTagList)tag.get(i + 1);
+			if(slotTag.tagCount() == 0) continue;
+			
+			// Setup coordinate system
+			final Slot slot = this.slots[i];
+			slotSys.set(thisSys);
+			slotSys.trans(slot);
+			if(slot.rotX != 0D)
+				slotSys.rot(slot.rotX, CoordSystem.X);
+			slotSys.submitRot();
+			
+			for(int j = slotTag.tagCount(); --j >= 0; )
+			{
+				NBTTagList moduleTag = (NBTTagList)slotTag.get(j);
+				int[] states = TagModular.getStates(moduleTag);
+				TypeModular moduleType = TagModular.getType(states);
+				
+				moduleSys.set(slotSys);
+				moduleSys.trans(moduleType.getPos(states, slot.stepLen), CoordSystem.NORM_X);
+				moduleType.stream(moduleTag, moduleSys, visitor);
+			}
+		}
+		
+		CoordSystem.pool.back(slotSys);
+		CoordSystem.pool.back(moduleSys);
 	}
 	
 	public final int getStreamIndex(NBTTagList tag, byte[] location, int len, int cursor)
@@ -192,7 +244,7 @@ public abstract class TypeModular extends TypePaintable
 		return count;
 	}
 	
-	protected void scale(float s) { for(Slot slot : this.slots) slot.scale(s); }
+	protected void scale(double s) { for(Slot slot : this.slots) slot.scale(s); }
 	
 	@FunctionalInterface
 	public static interface ModuleVisitor {
@@ -205,9 +257,26 @@ public abstract class TypeModular extends TypePaintable
 		public boolean visit(
 			NBTTagList tag,
 			TypeModular type,
-			float x, float y, float z,
-			float sin, float cos,
-			float rotX
+			double x, double y, double z,
+			double sin, double cos,
+			double rotX
 		);
+	}
+	
+	@FunctionalInterface
+	public static interface RenderInfoVisitor
+	{
+		/**
+		 * See {@link TypeModular#stream(RenderInfoVisitor, NBTTagList, CoordSystem)}
+		 * 
+		 * @param tag Tag of this module
+		 * @param type Type of this module
+		 * @param sys
+		 *     Position of this module. Note that this is just a buffer and it is likely to be
+		 *     changed in the future. If you want to keep it please fetch a {@link CoordSystem}
+		 *     instance and copy the value of this system to it. Changing position of this system
+		 *     will have effect on all attachments installed on it.
+		 */
+		public void visit(NBTTagList tag, TypeModular type, CoordSystem sys);
 	}
 }

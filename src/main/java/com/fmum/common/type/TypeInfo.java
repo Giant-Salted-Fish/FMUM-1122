@@ -50,7 +50,7 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 				switch(s.length)
 				{
 				case 4: t.texture = s[3];
-				case 3: t.modelScale = Float.parseFloat(s[2]);
+				case 3: t.modelScale = Double.parseDouble(s[2]);
 				default: t.modelPath = s[1];
 				}
 			}
@@ -104,7 +104,7 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 	/**
 	 * Scale that should be applied when rendering this model
 	 */
-	public float modelScale = 1F;
+	public double modelScale = 1D;
 	
 	protected TypeInfo(String name) { super(name); }
 	

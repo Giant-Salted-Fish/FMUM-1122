@@ -1,7 +1,5 @@
 package com.fmum.common.util;
 
-import net.minecraft.util.math.Vec3d;
-
 /**
  * A kind of hacky version of matrix4 with all transformations changed to circular functions. Can be
  * used to track coordinates in 3D space(usually used to track the position transformed by OpenGL
@@ -11,10 +9,6 @@ import net.minecraft.util.math.Vec3d;
  */
 public final class CoordSystem
 {
-	protected static final double
-		TO_DEGREE = 180D / Math.PI,
-		TO_RADIANS = Math.PI / 180D;
-	
 	public static final ObjPool<CoordSystem> pool = new ObjPool<>(() -> new CoordSystem());
 	
 	public static final byte
@@ -98,7 +92,7 @@ public final class CoordSystem
 	 * 
 	 * @param vec Amount to translate on each dimension
 	 */
-	public void trans(Vec3f vec)
+	public void trans(Vec3 vec)
 	{
 		this.trans(vec.x, NORM_X);
 		this.trans(vec.y, NORM_Y);
@@ -141,7 +135,7 @@ public final class CoordSystem
 	 * 
 	 * @param vec Amount to translate on each dimension
 	 */
-	public void globalTrans(Vec3f vec)
+	public void globalTrans(Vec3 vec)
 	{
 		this.vec[OFFSET + X] += vec.x;
 		this.vec[OFFSET + Y] += vec.y;
@@ -149,17 +143,17 @@ public final class CoordSystem
 	}
 	
 	/**
-	 * Rotate current coordinate system with given xzy value. It will call {@link #rot(float, byte)}
+	 * Rotate current coordinate system with given xzy value. It will call {@link #rot(double, byte)}
 	 * in x, z, y order.
 	 * 
 	 * @note Sequence can effect the final result. Correct order should be a reverse of the OpenGL.
-	 * @see #rot(float, byte)
+	 * @see #rot(double, byte)
 	 * 
 	 * @param x Amount to rot on X
 	 * @param y Amount to rot on Y
 	 * @param z Amount to rot on Z
 	 */
-	public void rot(float x, float y, float z)
+	public void rot(double x, double y, double z)
 	{
 		this.rot(x, X);
 		this.rot(z, Z);
@@ -167,10 +161,10 @@ public final class CoordSystem
 	}
 	
 	/**
-	 * @see #rot(float, float, float)
+	 * @see #rot(double, double, double)
 	 * @param vec Amount to rot on each axis
 	 */
-	public void rot(Vec3f vec)
+	public void rot(Vec3 vec)
 	{
 		this.rot(vec.x, X);
 		this.rot(vec.z, Z);
@@ -189,7 +183,7 @@ public final class CoordSystem
 	 * @note
 	 *     Sequence of the rotations applied can effect the final result. It should be called in a
 	 *     reversed order of OpenGL.
-	 * @see #globalRot(float, byte)
+	 * @see #globalRot(double, byte)
 	 * 
 	 * @param amount Amount to rotate on this axis
 	 * @param along Axis to rotate with. One of {@link #X}, {@link #Y}, {@link #Z}.
@@ -221,10 +215,10 @@ public final class CoordSystem
 
 	/**
 	 * Rotate normal vectors of current coordinate system with given xzy value. It will call
-	 * {@link #globalRot(float, byte)} in x, z, y order.
+	 * {@link #globalRot(double, byte)} in x, z, y order.
 	 * 
 	 * @note Sequence can effect the final result. Correct order should be a reverse of the OpenGL.
-	 * @see #globalRot(float, byte)
+	 * @see #globalRot(double, byte)
 	 * 
 	 * @param x Amount to rot on X
 	 * @param y Amount to rot on Y
@@ -238,10 +232,10 @@ public final class CoordSystem
 	}
 	
 	/**
-	 * @see #globalRot(float, float, float)
+	 * @see #globalRot(double, double, double)
 	 * @param vec Amount to rot on each axis
 	 */
-	public void globalRot(Vec3f vec)
+	public void globalRot(Vec3 vec)
 	{
 		this.globalRot(vec.x, X);
 		this.globalRot(vec.z, Z);
@@ -258,7 +252,7 @@ public final class CoordSystem
 	 * @note
 	 *     Sequence of the rotations applied can effect the final result. It should be called in a
 	 *     reversed order of OpenGL.
-	 * @see #rot(float, byte)
+	 * @see #rot(double, byte)
 	 * 
 	 * @param amount Amount to rotate on this axis
 	 * @param along Axis to rotate with. One of {@link #X}, {@link #Y}, {@link #Z}.
@@ -303,10 +297,37 @@ public final class CoordSystem
 	 * @param raw Raw vector to transfer
 	 * @param dest Destination of the result
 	 */
-	public void apply(Vec3f raw, Vec3f dest)
+	public void apply(Vec3 raw, Vec3 dest)
 	{
 		// Destination vector could be raw vector
 		// So buffer result before computation is done
+		double x = (
+			raw.x * this.vec[NORM_X + X]
+			+ raw.y * this.vec[NORM_Y + X]
+			+ raw.z * this.vec[NORM_Z + X]
+			+ this.vec[OFFSET + X]
+		);
+		double y = (
+			raw.x * this.vec[NORM_X + Y]
+			+ raw.y * this.vec[NORM_Y + Y]
+			+ raw.z * this.vec[NORM_Z + Y]
+			+ this.vec[OFFSET + Y]
+		);
+		dest.z = (
+			raw.x * this.vec[NORM_X + Z]
+			+ raw.y * this.vec[NORM_Y + Z]
+			+ raw.z * this.vec[NORM_Z + Z]
+			+ this.vec[OFFSET + Z]
+		);
+		dest.y = y;
+		dest.x = x;
+	}
+	
+	/**
+	 * Convenience method used in processing ToolBox models
+	 */
+	public void apply(Vec3f raw, Vec3f dest)
+	{
 		float x = (float)(
 			raw.x * this.vec[NORM_X + X]
 			+ raw.y * this.vec[NORM_Y + X]
@@ -329,49 +350,13 @@ public final class CoordSystem
 		dest.x = x;
 	}
 	
-	public Vec3d apply(Vec3d raw)
-	{
-		return new Vec3d(
-			raw.x * this.vec[NORM_X + X]
-				+ raw.y * this.vec[NORM_Y + X]
-				+ raw.z * this.vec[NORM_Z + X]
-				+ this.vec[OFFSET + X],
-			raw.x * this.vec[NORM_X + Y]
-				+ raw.y * this.vec[NORM_Y + Y]
-				+ raw.z * this.vec[NORM_Z + Y]
-				+ this.vec[OFFSET + Y],
-			raw.x * this.vec[NORM_X + Z]
-				+ raw.y * this.vec[NORM_Y + Z]
-				+ raw.z * this.vec[NORM_Z + Z]
-				+ this.vec[OFFSET + Z]
-		);
-	}
-	
-	public Vec3d apply(Vec3f raw)
-	{
-		return new Vec3d(
-			raw.x * this.vec[NORM_X + X]
-				+ raw.y * this.vec[NORM_Y + X]
-				+ raw.z * this.vec[NORM_Z + X]
-				+ this.vec[OFFSET + X],
-			raw.x * this.vec[NORM_X + Y]
-				+ raw.y * this.vec[NORM_Y + Y]
-				+ raw.z * this.vec[NORM_Z + Y]
-				+ this.vec[OFFSET + Y],
-			raw.x * this.vec[NORM_X + Z]
-				+ raw.y * this.vec[NORM_Y + Z]
-				+ raw.z * this.vec[NORM_Z + Z]
-				+ this.vec[OFFSET + Z]
-		);
-	}
-	
 	/**
 	 * Apply rotation and scale of this coordinate system for the given raw vector
 	 * 
 	 * @param raw Raw vector to transfer
 	 * @param dest Destination of the result
 	 */
-	public void applyRot(Vec3f raw, Vec3f dest)
+	public void applyRot(Vec3 raw, Vec3 dest)
 	{
 		double x = (
 			raw.x * this.vec[NORM_X + X]
@@ -383,13 +368,13 @@ public final class CoordSystem
 			+ raw.y * this.vec[NORM_Y + Y]
 			+ raw.z * this.vec[NORM_Z + Y]
 		);
-		dest.z = (float)(
+		dest.z = (
 			raw.x * this.vec[NORM_X + Z]
 			+ raw.y * this.vec[NORM_Y + Z]
 			+ raw.z * this.vec[NORM_Z + Z]
 		);
-		dest.y = (float)y;
-		dest.x = (float)x;
+		dest.y = y;
+		dest.x = x;
 	}
 	
 	/**
@@ -399,7 +384,7 @@ public final class CoordSystem
 	 * @param dest Destination coordinate system. Should not be this instance.
 	 * @param opVec Vector that will be used in operation
 	 */
-	public void apply(CoordSystem raw, CoordSystem dest, Vec3f opVec)
+	public void apply(CoordSystem raw, CoordSystem dest, Vec3 opVec)
 	{
 		raw.get(opVec, NORM_X);
 		this.applyRot(opVec, opVec);
@@ -418,7 +403,7 @@ public final class CoordSystem
 	
 	/**
 	 * <p>Get xzy angle of the system. You can call
-	 * {@link org.lwjgl.opengl.GL11#glRotatef(float, float, float, float)} in YZX order to reproduce
+	 * {@link org.lwjgl.opengl.GL11#glRotated(double, double, double, double)} in YZX order to reproduce
 	 * the angles.</p>
 	 * 
 	 * <p>Note that this method will devastate current rotation of the system. Make sure you set it
@@ -426,32 +411,32 @@ public final class CoordSystem
 	 * 
 	 * @param dest Destination vector to receive angle values
 	 */
-	public void getAngle(Vec3f dest)
+	public void getAngle(Vec3 dest)
 	{
 		double sin, cos;
 		
 		sin = Math.atan(
 			-this.vec[NORM_X + Z] / (cos = this.vec[NORM_X + X])
-		) * TO_DEGREE;
+		) * Mather.TO_DEGREES;
 		// Check angle flip of tan function
 		this.globalRot(-(sin = cos < 0D ? sin + 180D : sin), Y);
-		dest.y = (float)sin;
+		dest.y = sin;
 		
 		sin = Math.atan(
 			this.vec[NORM_X + Y] / (cos = this.vec[NORM_X + X])
-		) * TO_DEGREE;
+		) * Mather.TO_DEGREES;
 		this.globalRot(-(sin = cos < 0D ? sin + 180D : sin), Z);
-		dest.z = (float)sin;
+		dest.z = sin;
 		
 		sin = Math.atan(
 			this.vec[NORM_Y + Z] / (cos = this.vec[NORM_Y + Y])
-		) * TO_DEGREE;
-		dest.x = (float)(cos < 0D ? sin + 180D : sin);
+		) * Mather.TO_DEGREES;
+		dest.x = cos < 0D ? sin + 180D : sin;
 	}
 	
 	/**
 	 * <p>Get zy angle of the system. It can be considered as the view rotation of the system. You can
-	 * call {@link org.lwjgl.opengl.GL11#glRotatef(float, float, float, float)} in YZ order to
+	 * call {@link org.lwjgl.opengl.GL11#glRotated(double, double, double, double)} in YZ order to
 	 * reproduce the angles.</p>
 	 * 
 	 * <p>Note that this method uses normal x to calculate angle and will devastate normal x, which
@@ -460,24 +445,24 @@ public final class CoordSystem
 	 * 
 	 * @param dest Destination vector to receive angle values. Only y and z will be used.
 	 */
-	public void getViewAngle(Vec3f dest)
+	public void getViewAngle(Vec3 dest)
 	{
 		double sin = this.vec[NORM_X + Z];
 		double cos = this.vec[NORM_X + X];
 		
 		sin = (
 			cos != 0D
-			? Math.atan(-sin / cos) * TO_DEGREE
+			? Math.atan(-sin / cos) * Mather.TO_DEGREES
 			: sin > 0D ? -90D : sin < 0D ? 90D : 0D
 		);
 		// Check angle flip of tan function
 		this.globalRot(-(sin = cos < 0D ? sin + 180D : sin), Y);
-		dest.y = (float)sin;
+		dest.y = sin;
 		
 		// Now cos value can only be positive or zero
-		dest.z = (float)(
+		dest.z = (
 			(cos = this.vec[NORM_X + X]) != 0D
-			? Math.atan(this.vec[NORM_X + Y] / cos) * TO_DEGREE
+			? Math.atan(this.vec[NORM_X + Y] / cos) * Mather.TO_DEGREES
 			: this.vec[NORM_X + Y] > 0D ? 90D : -90D
 		);
 	}
@@ -490,17 +475,17 @@ public final class CoordSystem
 	 * 
 	 * @return Angle of the system along x-axis
 	 */
-	public float getCameraRoll()
+	public double getCameraRoll()
 	{
 		double sin = this.vec[NORM_Y + Z];
 		double cos = this.vec[NORM_Y + Y];
 		
 		sin = (
 			cos != 0D
-			? Math.atan(sin / cos) * TO_DEGREE
+			? Math.atan(sin / cos) * Mather.TO_DEGREES
 			: sin > 0D ? 90D : sin < 0D ? -90D : 0D
 		);
-		return (float)(cos < 0D ? sin + 180D : sin);
+		return cos < 0D ? sin + 180D : sin;
 	}
 	
 	/**
@@ -509,11 +494,11 @@ public final class CoordSystem
 	 * @param dest Destination vector
 	 * @param base Required value source
 	 */
-	public void get(Vec3f dest, byte base)
+	public void get(Vec3 dest, byte base)
 	{
-		dest.x = (float)this.vec[base + X];
-		dest.y = (float)this.vec[base + Y];
-		dest.z = (float)this.vec[base + Z];
+		dest.x = this.vec[base + X];
+		dest.y = this.vec[base + Y];
+		dest.z = this.vec[base + Z];
 	}
 	
 	public void set(double x, double y, double z, byte base)
@@ -523,7 +508,7 @@ public final class CoordSystem
 		this.vec[base + Z] = z;
 	}
 	
-	public void set(Vec3f v, byte base)
+	public void set(Vec3 v, byte base)
 	{
 		this.vec[base + X] = v.x;
 		this.vec[base + Y] = v.y;
@@ -562,7 +547,7 @@ public final class CoordSystem
 	private void rot(double amount, byte along, byte base)
 	{
 		// Get sin and cos
-		double sin = amount * TO_RADIANS;
+		double sin = amount * Mather.TO_RADIANS;
 		double cos = Math.cos(sin);
 		sin = Math.sin(sin);
 		

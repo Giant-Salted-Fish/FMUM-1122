@@ -228,7 +228,7 @@ public class PacketHandler extends MessageToMessageCodec<FMLProxyPacket, FMUMPac
 		double x,
 		double y,
 		double z,
-		float range,
+		double range,
 		int dimension
 	) { this.sendToAllAround(packet, new NetworkRegistry.TargetPoint(dimension, x, y, z, range)); }
 	

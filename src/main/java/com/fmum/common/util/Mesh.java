@@ -162,14 +162,9 @@ public final class Mesh implements AutoCloseable
 	 */
 	public static final class Vertex extends Vec3f
 	{
-		public float
-			u = 0F,
-			v = 0F;
+		public float u, v;
 		
-		public float
-			normX = 0F,
-			normY = 0F,
-			normZ = 0F;
+		public float normX, normY, normZ;
 	}
 	
 	/**
@@ -252,15 +247,15 @@ public final class Mesh implements AutoCloseable
 					vert0.normX
 						= vert1.normX
 						= vert2.normX
-						= vec0.x;
+						= (float)vec0.x;
 					vert0.normY
 						= vert1.normY
 						= vert2.normY
-						= vec0.y;
+						= (float)vec0.y;
 					vert0.normZ
 						= vert1.normZ
 						= vert2.normZ
-						= vec0.z;
+						= (float)vec0.z;
 				}
 			else for(int i = this.vertices.size(); i > 0; i -= 3)
 			{
@@ -273,15 +268,15 @@ public final class Mesh implements AutoCloseable
 				vert0.normX
 					= vert1.normX
 					= vert2.normX
-					= vec0.x;
+					= (float)vec0.x;
 				vert0.normY
 					= vert1.normY
 					= vert2.normY
-					= vec0.y;
+					= (float)vec0.y;
 				vert0.normZ
 					= vert1.normZ
 					= vert2.normZ
-					= vec0.z;
+					= (float)vec0.z;
 			}
 			
 			// Do not forget to return the vectors

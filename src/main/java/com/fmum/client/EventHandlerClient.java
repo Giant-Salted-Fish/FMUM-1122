@@ -37,6 +37,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -44,9 +46,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @EventBusSubscriber(value = Side.CLIENT, modid = FMUM.MODID)
 public abstract class EventHandlerClient
 {
-	public static float
-		camRoll = 0F,
-		prevCamRoll = 0F;
+	public static float actualCameraRoll = 0F;
 	
 	private EventHandlerClient() { }
 	
@@ -77,6 +77,14 @@ public abstract class EventHandlerClient
 		case END:
 			FMUMClient.tick();
 		}
+	}
+	
+	/**
+	 * Update partial tick time for after later rendering
+	 */
+	@SubscribeEvent
+	public static void onRenderTick(RenderTickEvent evt) {
+		if(evt.phase == Phase.START) Model.smoother = evt.renderTickTime;
 	}
 	
 	@SubscribeEvent
@@ -136,7 +144,6 @@ public abstract class EventHandlerClient
 		
 		// Outer layer has pushed a matrix, hence not push matrix needed here
 //		GlStateManager.disableCull();
-		Model.smoother = evt.getPartialTicks();
 		((ItemInfo)stack.getItem()).renderFP(stack);
 		
 		GlStateManager.disableRescaleNormal();
@@ -179,11 +186,7 @@ public abstract class EventHandlerClient
 	 * Apply camera roll
 	 */
 	@SubscribeEvent
-	public static void onCameraSetup(CameraSetup evt)
-	{
-		float prev = prevCamRoll;
-		evt.setRoll(prev + (camRoll - prev) * (float)evt.getRenderPartialTicks());
-	}
+	public static void onCameraSetup(CameraSetup evt) { evt.setRoll(actualCameraRoll); }
 	
 	@SubscribeEvent
 	public static void onPlayerRender(RenderPlayerEvent.Pre evt)

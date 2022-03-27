@@ -5,13 +5,13 @@ import org.lwjgl.util.glu.Project;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.client.ResourceManager;
-import com.fmum.common.FMUM;
 import com.fmum.common.type.TypeInfo;
 import com.fmum.common.util.CoordSystem;
-import com.fmum.common.util.Vec3f;
+import com.fmum.common.util.Vec3;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -31,7 +31,7 @@ public abstract class Model extends ModelBase
 	 * Buffered instances for convenient operations
 	 */
 	protected static final CoordSystem sys = new CoordSystem();
-	protected static final Vec3f vec = new Vec3f();
+	protected static final Vec3 vec = new Vec3();
 	
 	/**
 	 * Partial tick time. This could be used widely hence it is set as a static variable to avoid
@@ -40,6 +40,24 @@ public abstract class Model extends ModelBase
 	 */
 	public static float smoother = 0F;
 	
+	/**
+	 * Player's actual rotation when rendering scope glass texture
+	 */
+	public static float
+		renderEyePitch = 0F,
+		renderEyeYaw = 0F;
+	
+	/**
+	 * Actual position of player's eye when rendering scope glass texture
+	 */
+	public static double
+		renderEyePosX = 0D,
+		renderEyePosY = 0D,
+		renderEyePosZ = 0D;
+	
+	/**
+	 * Render this model in first person view. Note that x and z axis are swapped in default.
+	 */
 	public void renderFP(ItemStack stack, TypeInfo type)
 	{
 		// Re-setup projection matrix
@@ -54,14 +72,14 @@ public abstract class Model extends ModelBase
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		
 		// Switch y and z axis
-		GL11.glRotatef(90F, 0F, 1F, 0F);
+//		GL11.glRotatef(90F, 0F, 1F, 0F);
 		
 		/** for test */
-		float[] f = FMUMClient.testList.get(0).testFloat;
-		GL11.glTranslatef(f[0], f[1], f[2]);
-		GL11.glRotatef(f[4], 0F, 1F, 0F);
-		GL11.glRotatef(f[5], 0F, 0F, 1F);
-		GL11.glRotatef(f[3], 1F, 0F, 0F);
+//		double[] f = FMUMClient.testList.get(0).testFloat;
+//		GL11.glTranslated(f[0], f[1], f[2]);
+//		GL11.glRotated(f[4], 0D, 1D, 0D);
+//		GL11.glRotated(f[5], 0D, 0D, 1D);
+//		GL11.glRotated(f[3], 1D, 0D, 0D);
 		/** for test */
 		
 		this.doRenderFP(stack, type);
@@ -86,14 +104,32 @@ public abstract class Model extends ModelBase
 	) { this.render(); }
 	
 	/**
-	 * Called in each tick. In default it updates first person animator.
+	 * Called in each tick. In default ticks its first person animator.
 	 */
 	public void tick() { this.getAnimatorFP().tick(this); }
 	
 	/**
+	 * Called in each render tick. In default it updates player's render position and first person
+	 * animator.
+	 */
+	public void renderTick(ItemStack stack, TypeInfo type)
+	{
+		// Update player actual position
+		EntityPlayerSP player = mc.player;
+		double prev = player.prevPosX;
+		renderEyePosX = prev + (player.posX - prev) * smoother;
+		prev = player.prevPosY;
+		renderEyePosY = prev + (player.posY - prev) * smoother + player.getEyeHeight();
+		prev = player.prevPosZ;
+		renderEyePosZ = prev + (player.posZ - prev) * smoother;
+		
+		this.getAnimatorFP().renderTick(this);
+	}
+	
+	/**
 	 * Only one first person animator required at a time. Hence it can be bind to the model.
 	 */
-	public Animator getAnimatorFP() { return null; } // TODO: default instance
+	public Animator getAnimatorFP() { return CamControlAnimator.INSTANCE; }
 	
 	/**
 	 * Render item holding first person. Projection is setup and coordinate system is oriented at

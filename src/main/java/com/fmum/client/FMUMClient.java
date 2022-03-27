@@ -2,10 +2,11 @@ package com.fmum.client;
 
 import java.util.LinkedList;
 
+import com.fmum.client.model.Model;
 import com.fmum.common.FMUM;
 import com.fmum.common.network.PacketHandler;
 import com.fmum.common.type.ItemInfo;
-import com.fmum.common.util.Vec3f;
+import com.fmum.common.util.Vec3;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -15,6 +16,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.MouseHelper;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -65,14 +68,14 @@ public abstract class FMUMClient
 	
 	public static final class TestPosRot
 	{
-		public final float[] testFloat = { 0F, 0F, 0F, 0F, 0F, 0F };
+		public final double[] testValue = { 0D, 0D, 0D, 0D, 0D, 0D };
 		
-		public void getPos(Vec3f dest) {
-			dest.set(this.testFloat[0], this.testFloat[1], this.testFloat[2]);
+		public void getPos(Vec3 dest) {
+			dest.set(this.testValue[0], this.testValue[1], this.testValue[2]);
 		}
 		
-		public void getRot(Vec3f dest) {
-			dest.set(this.testFloat[3], this.testFloat[4], this.testFloat[5]);
+		public void getRot(Vec3 dest) {
+			dest.set(this.testValue[3], this.testValue[4], this.testValue[5]);
 		}
 	}
 	/** for test */
@@ -104,6 +107,16 @@ public abstract class FMUMClient
 	public static int prevSlot = 0;
 	
 	/**
+	 * Item stack that holden last tick
+	 */
+	public static ItemStack prevStack = ItemStack.EMPTY;
+	
+	/**
+	 * Item holden last tick
+	 */
+	public static ItemInfo prevItem = ItemInfo.NONE;
+	
+	/**
 	 * Whether manual mode is on
 	 */
 	public static boolean manualMode = false;
@@ -114,6 +127,30 @@ public abstract class FMUMClient
 	 */
 	public static Operation operating = Operation.NONE;
 	
+	protected static final MouseHelper MOUSE_HELPER_PROXY = new MouseHelper()
+	{
+		@Override
+		public void mouseXYChange()
+		{
+			super.mouseXYChange();
+			
+			// Set actual player rotation for rendering
+			float mouseScaler = settings.mouseSensitivity * 0.6F + 0.2F;
+			mouseScaler *= mouseScaler * mouseScaler * 8F * 0.15F;
+			Model.renderEyeYaw = mc.player.rotationYaw + this.deltaX * mouseScaler;
+			mouseScaler *= this.deltaY;
+			Model.renderEyePitch = MathHelper.clamp(
+				mc.player.prevRotationPitch
+					+ (settings.invertMouse ? mouseScaler : -mouseScaler),
+				-90F,
+				90F
+			);
+			
+			// Call render tick and do pre-render
+			prevItem.renderTick(prevStack);
+		}
+	};
+	
 	private FMUMClient() { }
 	
 	static void tick()
@@ -123,7 +160,9 @@ public abstract class FMUMClient
 		if(player == null) return;
 		
 		/** for test */
-		float[] f = testList.get(testInsNum).testFloat;
+		double[] d = testList.get(testInsNum).testValue;
+		
+		EventHandlerClient.actualCameraRoll = (float)d[3];
 		if(KeyManager.Key.CO.down())
 		{
 			if(tl);
@@ -166,18 +205,18 @@ public abstract class FMUMClient
 					2
 				);
 			else if(tu || td)
-				f[testNum] += (tu ? 1F : -1F) * (testNum < 3 ? manualMode ? 0.1F : 0.5F : manualMode ? 1F : 5F);
+				d[testNum] += (tu ? 1D : -1D) * (testNum < 3 ? manualMode ? 0.1D : 0.5D : manualMode ? 1D : 5D);
 			else if(te)
 			{
 				addChatMsg("cur ins: " + getTestInsString(testInsNum) + ", list size: " + testList.size(), 3);
-				addChatMsg("pos xyz: " + f[0] + " " + f[1] + " " + f[2], 4);
-				addChatMsg("rot xyz: " + f[3] + " " + f[4] + " " + f[5], 5);
+				addChatMsg("pos xyz: " + d[0] + " " + d[1] + " " + d[2], 4);
+				addChatMsg("rot xyz: " + d[3] + " " + d[4] + " " + d[5], 5);
 //				RenderGun.createSmokeForGun = true;
 			}
 			else if(tq)
 			{
-				addChatMsg("set " + getTestString(testNum) + " to 0F", 2);
-				f[testNum] = 0F;
+				addChatMsg("set " + getTestString(testNum) + " to 0D", 2);
+				d[testNum] = 0D;
 			}
 		}
 		
@@ -185,34 +224,26 @@ public abstract class FMUMClient
 		/** for test */
 		
 		ItemStack stack = player.inventory.getCurrentItem();
-		if(stack.getItem() instanceof ItemInfo)
+		ItemInfo item = (
+			stack.getItem() instanceof ItemInfo
+			? (ItemInfo)stack.getItem()
+			: ItemInfo.NONE
+		);
+		
+		if(player.inventory.currentItem != prevSlot)
 		{
-			ItemInfo item = (ItemInfo)stack.getItem();
+			settings.viewBobbing = oriViewBobbing && !item.shouldDisableViewBobbing();
+			if(operating.switchItem(stack))
+				operating = Operation.NONE;
+			item.onTakeOut(stack);
 			
-			// Notify take out if just switched to this item
-			if(player.inventory.currentItem != prevSlot)
-			{
-				settings.viewBobbing = oriViewBobbing && !item.shouldDisableViewBobbing();
-				if(operating.switchItem(stack))
-					operating = Operation.NONE;
-				item.onTakeOut(stack);
-			}
-			
-			if(item.tagReady(stack))
-			{
-			}
-		}
-		else
-		{
-			if(player.inventory.currentItem != prevSlot)
-			{
-				settings.viewBobbing = oriViewBobbing;
-				if(operating.switchItem(ItemStack.EMPTY))
-					operating = Operation.NONE;
-			}
-			// TODO: default model to control camera effects
+			prevSlot = player.inventory.currentItem;
 		}
 		
+		// Tick item and current operation
+		item.tick(stack);
+		if(operating.tick(stack))
+			operating = Operation.NONE;
 		
 		// Check in game GUI change
 		// TODO: mods like Optfine may add more layers in settings
@@ -244,14 +275,22 @@ public abstract class FMUMClient
 				oriFOV = settings.fovSetting;
 				oriViewBobbing = settings.viewBobbing;
 //				oriGamma TODO: force gamma
-
+				
 				// If it is gun in hand, then set back settings for gun
 				// TODO
 			}
 			
-			// Update previous GUI
+			// Update last tick GUI
 			prevGUI = mc.currentScreen;
 		}
+		
+		// Player can still change current hold stack by replacing the item in current slot. Hence
+		// it is needed to update it every tick.
+		prevStack = stack;
+		prevItem = item;
+		
+		// Ensure mouse helper(Mods like Flan's Mod may change mouse help in certain conditions)
+		mc.mouseHelper = MOUSE_HELPER_PROXY;
 	}
 	
 	/**
@@ -285,7 +324,7 @@ public abstract class FMUMClient
 	{
 		public static final Operation NONE = new Operation();
 		
-		public float getSmoothedProgress(float smoother) { return 1F; }
+		public double getSmoothedProgress(float smoother) { return 1D; }
 		
 		/**
 		 * Tick this operation
@@ -332,26 +371,26 @@ public abstract class FMUMClient
 	 */
 	public static abstract class ProgressiveOperation extends Operation
 	{
-		public float progress = 0F;
-		public float prevProgress = 0F;
+		public double progress = 0D;
+		public double prevProgress = 0D;
 		
-		public float progressor = 1F / 16F;
+		public double progressor = 1D / 16D;
 		
 		@Override
-		public final float getSmoothedProgress(float smoother) {
+		public final double getSmoothedProgress(float smoother) {
 			return this.prevProgress + (this.progress - this.prevProgress) * smoother;
 		}
 		
 		@Override
-		protected void launch(ItemStack stack) { this.progress = this.prevProgress = 0F; }
+		protected void launch(ItemStack stack) { this.progress = this.prevProgress = 0D; }
 		
 		@Override
 		protected boolean tick(ItemStack stack)
 		{
 			this.prevProgress = this.progress;
-			if((this.progress += this.progressor) > 1F)
-				this.progress = 1F;
-			return this.prevProgress >= 1F;
+			if((this.progress += this.progressor) > 1D)
+				this.progress = 1D;
+			return this.prevProgress >= 1D;
 		}
 	}
 }

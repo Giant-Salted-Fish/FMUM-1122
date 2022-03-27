@@ -9,7 +9,4 @@ public interface ItemGunPart extends ItemModular
 {
 	@Override
 	public abstract TypeGunPart getType();
-	
-	@Override
-	default public boolean shouldDisableViewBobbing() { return true; }
 }

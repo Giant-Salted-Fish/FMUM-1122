@@ -8,7 +8,7 @@ public final class ModelDebugBox extends MeshBasedModel implements InstanceRepos
 	public static final String PATH = "com.fmum.client.model.ModelDebugBox";
 	
 	public static final ModelDebugBox INSTANCE = new ModelDebugBox(
-		new TBModelMeshBuilder()
+		new TBModelMeshBuilder(32, 32)
 			.addShapeBox(
 				0F, 0F, 0F,
 				-0.5F, -0.5F, -0.5F,

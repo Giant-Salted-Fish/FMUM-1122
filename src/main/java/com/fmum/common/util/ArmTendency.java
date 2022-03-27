@@ -5,63 +5,63 @@ import com.fmum.common.util.MotionTendency.BasedMotionTendency;
 public class ArmTendency
 {
 	protected static final CoordSystem sys = new CoordSystem();
-	protected static final Vec3f vec = new Vec3f();
+	protected static final Vec3 vec = new Vec3();
 	
 	/**
 	 * Length of upper arm
 	 */
-	public float upperArmLen;
+	public double upperArmLen;
 	
 	/**
 	 * Length of forearm
 	 */
-	public float forearmLen;
+	public double forearmLen;
 	
 	/**
 	 * Track and simulate the motion of the hand and shoulder
 	 */
 	public final BasedMotionTendency
-		shoulderPos = new BasedMotionTendency(0.4F, 0.125F, 0.25F),
-		handPos = new BasedMotionTendency(0.4F, 0.125F, 0.25F),
-		handRotX = new BasedMotionTendency(0.4F, 4.25F, 1F),
-		armRotX = new BasedMotionTendency(0.4F, 4.25F, 1F);
+		shoulderPos = new BasedMotionTendency(0.4D, 0.125D, 0.25D),
+		handPos = new BasedMotionTendency(0.4D, 0.125D, 0.25D),
+		handRotX = new BasedMotionTendency(0.4D, 4.25D, 1D),
+		armRotX = new BasedMotionTendency(0.4D, 4.25D, 1D);
 	
-	public final Vec3f
-		handRot = new Vec3f(),
-		prevHandRot = new Vec3f();
+	public final Vec3
+		handRot = new Vec3(),
+		prevHandRot = new Vec3();
 	
-//	public final Vector3f elbowPos = new Vector3f();
+//	public final Vec3 elbowPos = new Vec3();
 	
-	public ArmTendency() { this(10F / 16F); }
+	public ArmTendency() { this(10D / 16D); }
 	
-	public ArmTendency(float armLen) { this(armLen, armLen); }
+	public ArmTendency(double armLen) { this(armLen, armLen); }
 	
-	public ArmTendency(float upperArmLen, float forearmLen)
+	public ArmTendency(double upperArmLen, double forearmLen)
 	{
 		this.upperArmLen = upperArmLen;
 		this.forearmLen = forearmLen;
 	}
 	
-	public void setHandTarPos(Vec3f pos) { this.handPos.tarPos.set(pos); }
+	public void setHandTarPos(Vec3 pos) { this.handPos.tarPos.set(pos); }
 	
-	public void setShoulderTarPos(Vec3f pos) { this.shoulderPos.tarPos.set(pos); }
+	public void setShoulderTarPos(Vec3 pos) { this.shoulderPos.tarPos.set(pos); }
 	
-	public void setHandTarRotX(float rotX) { this.handRotX.tarPos.x = rotX; }
+	public void setHandTarRotX(double rotX) { this.handRotX.tarPos.x = rotX; }
 	
-	public void setArmTarRotX(float rotX) { this.armRotX.tarPos.x = rotX; }
+	public void setArmTarRotX(double rotX) { this.armRotX.tarPos.x = rotX; }
 	
-	public void getSmoothedPos(Vec3f dest, float smoother) {
+	public void getSmoothedPos(Vec3 dest, double smoother) {
 		this.handPos.getSmoothedPos(dest, smoother);
 	}
 	
-	public void getSmoothedRot(Vec3f dest, float smoother)
+	public void getSmoothedRot(Vec3 dest, double smoother)
 	{
 		dest.set(this.handRot);
 		dest.sub(this.prevHandRot);
 		dest.scale(smoother);
 		dest.trans(this.prevHandRot);
 		
-		float prevX = this.handRotX.prevPos.x;
+		double prevX = this.handRotX.prevPos.x;
 		dest.x = prevX + (this.handRotX.curPos.x - prevX) * smoother;
 	}
 	
@@ -71,13 +71,13 @@ public class ArmTendency
 	public void update()
 	{
 		this.shoulderPos.prevPos.set(this.shoulderPos.curPos);
-		this.shoulderPos.approachTarPos(1F);
+		this.shoulderPos.approachTarPos(1D);
 		this.handPos.prevPos.set(this.handPos.curPos);
-		this.handPos.approachTarPos(1F);
+		this.handPos.approachTarPos(1D);
 		this.handRotX.prevPos.set(this.handRotX.curPos);
-		this.handRotX.approachTarPos(1F);
+		this.handRotX.approachTarPos(1D);
 		this.armRotX.prevPos.set(this.armRotX.curPos);
-		this.armRotX.approachTarPos(1F);
+		this.armRotX.approachTarPos(1D);
 		
 		this.updateArmOrientation();
 	}
@@ -95,17 +95,17 @@ public class ArmTendency
 		// Get distance from hand to shoulder
 		vec.set(this.handPos.curPos);
 		vec.sub(this.shoulderPos.curPos);
-		float disSquared = vec.lengthSquared();
+		double disSquared = vec.lengthSquared();
 		
 		// Check side length before we calculate angle
-		float distance = (float)Math.sqrt(disSquared);
+		double distance = Math.sqrt(disSquared);
 		if(
 			this.forearmLen >= this.upperArmLen + distance
 			|| this.upperArmLen >= this.forearmLen + distance
 		) {
 			// Distance is so small that we have to clip our arm
-			this.handRot.y = -90F;
-			this.handRot.z = 90F - this.armRotX.curPos.x;
+			this.handRot.y = -90D;
+			this.handRot.z = 90D - this.armRotX.curPos.x;
 			return;
 		}
 		
@@ -122,15 +122,15 @@ public class ArmTendency
 		}
 		
 		// Get elbow coordinate
-		float rotY = vec.y, rotZ = vec.z;
-		float cos = (
+		double rotY = vec.y, rotZ = vec.z;
+		double cos = (
 				this.forearmLen * this.forearmLen + disSquared
 				- this.upperArmLen * this.upperArmLen
 			) / (2 * this.forearmLen * distance);
 		vec.set(
 			distance - this.forearmLen * cos,
-			-this.forearmLen * (float)Math.sqrt(1F - cos * cos),
-			0F
+			-this.forearmLen * Math.sqrt(1D - cos * cos),
+			0D
 		);
 		
 		// Get elbow coordinate in 3D space
@@ -149,27 +149,27 @@ public class ArmTendency
 	}
 	
 	/** for test */
-	public void setAbsoluteHandPos(Vec3f pos)
+	public void setAbsoluteHandPos(Vec3 pos)
 	{
 		this.handPos.tarPos.set(pos);
 		this.handPos.curPos.set(pos);
 		this.handPos.prevPos.set(pos);
 	}
 	
-	public void setAbsoluteShoulderPos(Vec3f pos)
+	public void setAbsoluteShoulderPos(Vec3 pos)
 	{
 		this.shoulderPos.tarPos.set(pos);
 		this.shoulderPos.curPos.set(pos);
 		this.shoulderPos.prevPos.set(pos);
 	}
 	
-	public void setAbsoluteHandRot(Vec3f rot)
+	public void setAbsoluteHandRot(Vec3 rot)
 	{
 		this.handRot.set(rot);
 		this.prevHandRot.set(rot);
 	}
 	
-	public void setAbsoluteArmRot(float x)
+	public void setAbsoluteArmRot(double x)
 	{
 		this.armRotX.curPos.x
 			= this.armRotX.tarPos.x

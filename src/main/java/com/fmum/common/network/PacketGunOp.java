@@ -32,7 +32,8 @@ public class PacketGunOp implements PacketItemOp
 			return;
 		}
 		
-		PacketItemOp.super.handleServerSide(player);
+		if(this.handleServerSide(player, stack))
+			PacketItemOp.super.handleServerSide(player);
 	}
 	
 	protected boolean handleServerSide(EntityPlayerMP player, ItemStack stack)

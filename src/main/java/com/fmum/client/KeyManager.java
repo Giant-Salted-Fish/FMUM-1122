@@ -202,7 +202,7 @@ public abstract class KeyManager
 			else if(this.pressTime++ == 0) this.trigger();
 		}
 		
-		protected void trigger() { }
+		protected void trigger() { FMUMClient.prevItem.keyNotify(this); }
 	}
 	
 	public static void enterGUIControls() {
