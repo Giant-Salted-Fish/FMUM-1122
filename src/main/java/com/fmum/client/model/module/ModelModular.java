@@ -21,7 +21,6 @@ public class ModelModular extends MeshBasedModel
 		ModuleRenderInfo info = this.getRenderInfo();
 		info.tag = tag;
 		info.type = type;
-		info.model = this;
 		info.sys.set(sys);
 		return info;
 	}

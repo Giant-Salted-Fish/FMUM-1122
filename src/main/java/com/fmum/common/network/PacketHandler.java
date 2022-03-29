@@ -99,9 +99,7 @@ public class PacketHandler extends MessageToMessageCodec<FMLProxyPacket, FMUMPac
 		// If this packet has not been registered by our handler, reject it
 		Integer discriminator = this.packetIdMap.get(clazz);
 		if(discriminator == null)
-			throw new RuntimeException(
-				"Try to encode packet that is not registered <" + clazz.getName() + ">"
-			);
+			FMUM.log.error("Try to encode packet that is not registered <" + clazz.getName() + ">");
 		
 		// Like a packet ID. Stored as the first entry in the packet code for recognition
 		encodedData.writeByte(discriminator);
@@ -157,7 +155,7 @@ public class PacketHandler extends MessageToMessageCodec<FMLProxyPacket, FMUMPac
 		
 		// Register packets
 		this.registerPacket(PacketConfigSync.class);
-//		this.registerPacket(PacketModularOp.class); TODO
+		this.registerPacket(PacketGunOp.class);
 	}
 	
 	public void postInit() { this.modInitialized = true; }

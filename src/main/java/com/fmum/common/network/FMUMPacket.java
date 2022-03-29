@@ -4,9 +4,11 @@ import com.fmum.common.FMUM;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumActionResult;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -35,6 +37,13 @@ public interface FMUMPacket
 	 */
 	default public void handleServerSide(EntityPlayerMP player)
 	{
+		if(
+			this.doHandleServerSide(
+				player,
+				player.inventory.getCurrentItem()
+			) == EnumActionResult.SUCCESS
+		) return;
+		
 		FMUM.log.error(
 			FMUM.proxy.format(
 				"fmum.unhandledpackets",
@@ -48,8 +57,28 @@ public interface FMUMPacket
 	 * Handle the packet on client side, post-decoding
 	 */
 	@SideOnly(Side.CLIENT)
-	default public void handleClientSide(EntityPlayer player) {
+	default public void handleClientSide(EntityPlayerSP player)
+	{
+		if(
+			this.doHandleClientSide(
+				player,
+				player.inventory.getCurrentItem()
+			) == EnumActionResult.SUCCESS
+		) return;
+		
 		FMUM.log.error(I18n.format("fmum.unhandledpacketc", this.getClass().getName()));
+	}
+	
+	default public EnumActionResult doHandleServerSide(EntityPlayerMP player, ItemStack stack) {
+		return EnumActionResult.PASS;
+	}
+	
+	/**
+	 * @return {@code true} if an error has occurred or it is not handled
+	 */
+	@SideOnly(Side.CLIENT)
+	default public EnumActionResult doHandleClientSide(EntityPlayerSP player, ItemStack stack) {
+		return EnumActionResult.PASS;
 	}
 	
 	/**

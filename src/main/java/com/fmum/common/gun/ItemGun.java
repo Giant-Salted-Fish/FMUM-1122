@@ -47,7 +47,7 @@ public final class ItemGun extends ItemHoldable implements ItemAmmoContainer
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean shouldDisableViewBobbing() { return true; }
+	public boolean disableViewBobbing() { return true; }
 	
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -62,7 +62,7 @@ public final class ItemGun extends ItemHoldable implements ItemAmmoContainer
 		// TODO: ton of tick task
 		
 		
-		this.type.model.tick();
+		this.type.model.itemTick(stack, this.type);
 		return false;
 	}
 	
@@ -73,6 +73,9 @@ public final class ItemGun extends ItemHoldable implements ItemAmmoContainer
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void render() { this.type.model.render(); }
+	
+	@Override
+	public boolean disableCrosshair() { return true; }
 	
 //	@Override
 //	@SideOnly(Side.CLIENT)

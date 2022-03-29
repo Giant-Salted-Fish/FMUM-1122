@@ -1,5 +1,11 @@
 package com.fmum.common.network;
 
+import com.fmum.common.module.TagModular;
+
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumActionResult;
+
 public interface PacketModularOp extends PacketItemOp
 {
 	/**
@@ -18,6 +24,8 @@ public interface PacketModularOp extends PacketItemOp
 	public static final byte MODULE_BASED_EX = 24;
 	
 	public static final byte
+		INIT_ITEM_TAG = NON_MODULE_BASED_OP + 0,
+		
 		MODULE_LASER_TOGGLE = MODULE_BASED_OP + 1,
 		MODULE_LIGHT_TOGGLE = MODULE_BASED_OP + 2,
 		MODULE_TYPE_TOGGLE = MODULE_BASED_OP + 3,
@@ -27,4 +35,19 @@ public interface PacketModularOp extends PacketItemOp
 		UPDATE_MODULE_POS = MODULE_BASED_EX + 2,
 		UPDATE_PAINTJOB = MODULE_BASED_EX + 3;
 	
+	/**
+	 * @param stack Sure implement {@link ItemModular}
+	 */
+	@Override
+	default public EnumActionResult doHandleServerSide(EntityPlayerMP player, ItemStack stack)
+	{
+		switch(this.getOpCode())
+		{
+		case INIT_ITEM_TAG:
+			if(!TagModular.validateTag(stack))
+				TagModular.setupTag(stack);
+			return EnumActionResult.SUCCESS;
+		}
+		return EnumActionResult.PASS;
+	}
 }

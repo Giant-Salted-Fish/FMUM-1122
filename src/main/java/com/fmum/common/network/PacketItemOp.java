@@ -4,8 +4,8 @@ import com.fmum.common.FMUM;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -42,7 +42,7 @@ public interface PacketItemOp extends FMUMPacket
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	default public void handleClientSide(EntityPlayer player)
+	default public void handleClientSide(EntityPlayerSP player)
 	{	
 		FMUM.log.error(
 			I18n.format(

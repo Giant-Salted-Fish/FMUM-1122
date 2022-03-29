@@ -13,22 +13,22 @@ import java.util.List;
 public final class ObjPool<T>
 {
 	private final List<T> pool;
-	private final InstanceFactory<T> factory;
+	private final ObjFactory<T> factory;
 	private final Recycler<T> recycler;
 	
-	public ObjPool(List<T> pool, InstanceFactory<T> factory, Recycler<T> recycler)
+	public ObjPool(List<T> pool, ObjFactory<T> factory, Recycler<T> recycler)
 	{
 		this.pool = pool;
 		this.factory = factory;
 		this.recycler = recycler;
 	}
 	
-	public ObjPool(InstanceFactory<T> factory)
+	public ObjPool(ObjFactory<T> factory)
 	{
 		this(
 			new ArrayList<>(),
 			factory,
-			(pool, instance) -> { if(pool.size() < 64) pool.add(instance); }
+			(instance, pool) -> { if(pool.size() < 64) pool.add(instance); }
 		);
 	}
 	
@@ -37,19 +37,12 @@ public final class ObjPool<T>
 		return (
 			this.pool.size() > 0
 			? this.pool.remove(this.pool.size() - 1)
-			: this.factory.newInstance()
+			: this.factory.produce()
 		);
 	}
 	
-	public void back(T instance) { this.recycler.recycle(this.pool, instance); }
+	public void back(T instance) { this.recycler.recycle(instance, this.pool); }
 	
 	@FunctionalInterface
-	public static interface InstanceFactory<T> {
-		public T newInstance();
-	}
-	
-	@FunctionalInterface
-	public static interface Recycler<T> {
-		public void recycle(List<T> pool, T instance);
-	}
+	public static interface Recycler<T> { public void recycle(T instance, List<T> pool); }
 }

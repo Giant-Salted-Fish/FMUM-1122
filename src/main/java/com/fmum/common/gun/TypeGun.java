@@ -40,9 +40,10 @@ public final class TypeGun extends TypeAmmoContainer
 		guns.put(this.name, this);
 	}
 	
+	@Override
 	public NBTTagList genTag(int dam)
 	{
-		NBTTagList tag = this.genTag(dam, 0, 0);
+		NBTTagList tag = super.genTag(dam);
 		
 		// TODO: a ton of states based on attachments installed
 		

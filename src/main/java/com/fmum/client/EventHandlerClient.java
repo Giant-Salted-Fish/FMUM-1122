@@ -28,6 +28,7 @@ import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
@@ -46,7 +47,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @EventBusSubscriber(value = Side.CLIENT, modid = FMUM.MODID)
 public abstract class EventHandlerClient
 {
-	public static float actualCameraRoll = 0F;
+	public static float
+		renderCamRoll = 0F,
+		renderCamYaw = 0F,
+		renderCamPitch = 0F;
 	
 	private EventHandlerClient() { }
 	
@@ -76,6 +80,22 @@ public abstract class EventHandlerClient
 			break;
 		case END:
 			FMUMClient.tick();
+		}
+	}
+	
+	@SubscribeEvent
+	public static void onGameOverlayRender(RenderGameOverlayEvent evt)
+	{
+		switch(evt.getType())
+		{
+		case CROSSHAIRS:
+			ItemStack stack = FMUM.mc.player.inventory.getCurrentItem();
+			if(
+				stack.getItem() instanceof ItemInfo
+				&& ((ItemInfo)stack.getItem()).disableCrosshair()
+			) evt.setCanceled(true);
+			return;
+		default:;
 		}
 	}
 	
@@ -186,7 +206,12 @@ public abstract class EventHandlerClient
 	 * Apply camera roll
 	 */
 	@SubscribeEvent
-	public static void onCameraSetup(CameraSetup evt) { evt.setRoll(actualCameraRoll); }
+	public static void onCameraSetup(CameraSetup evt)
+	{
+		evt.setRoll(renderCamRoll);
+		evt.setYaw(renderCamYaw);
+		evt.setPitch(renderCamPitch);
+	}
 	
 	@SubscribeEvent
 	public static void onPlayerRender(RenderPlayerEvent.Pre evt)

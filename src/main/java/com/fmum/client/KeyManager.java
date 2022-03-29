@@ -58,7 +58,7 @@ public abstract class KeyManager
 	public static final LinkedList<Key> inCoKeys = new LinkedList<>();
 	
 	/**
-	 * Keys that will be referenced independently
+	 * Keys that will never update. They will be referenced independently.
 	 */
 	public static final LinkedList<Key> independentKeys = new LinkedList<>();
 	
@@ -111,6 +111,8 @@ public abstract class KeyManager
 			@Override
 			protected void trigger()
 			{
+				super.trigger();
+				
 				FMUMClient.addChatMsg(
 					I18n.format(
 						(FMUMClient.manualMode = !FMUMClient.manualMode)
@@ -121,6 +123,7 @@ public abstract class KeyManager
 				);
 			}
 		},
+		LOOK_AROUND("key.fmum.lookaround", Keyboard.KEY_NONE, KEY_CATEGORY_GUN),
 		
 		/**
 		 * <p>These keys will update if {@link #CO} is down. {@link #CO} itself is a special case.
@@ -128,7 +131,8 @@ public abstract class KeyManager
 		 * 
 		 * <p>CATEGORY: {@link KeyManager#KEY_CATEGORY_ASSIST}.</p>
 		 */
-		CO("key.fmum.co", Keyboard.KEY_Z, KEY_CATEGORY_ASSIST, primaryKeys);
+		CO("key.fmum.co", Keyboard.KEY_Z, KEY_CATEGORY_ASSIST, primaryKeys),
+		CO_LOOK_AROUND("key.fmum.colookaround", Keyboard.KEY_NONE, KEY_CATEGORY_ASSIST);
 		
 		public final KeyBinding keyBind;
 		public int keyCode;

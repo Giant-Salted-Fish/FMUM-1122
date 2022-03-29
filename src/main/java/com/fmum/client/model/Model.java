@@ -4,29 +4,22 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.client.ResourceManager;
 import com.fmum.common.type.TypeInfo;
 import com.fmum.common.util.CoordSystem;
 import com.fmum.common.util.Vec3;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.MouseHelper;
 import net.minecraft.util.math.MathHelper;
 
 // TODO: may override render methods in super class?
 public abstract class Model extends ModelBase
 {
-	/**
-	 * A refer to Minecraft instance for convenience
-	 */
-	protected static final Minecraft mc = FMUMClient.mc;
-	
 	/**
 	 * Buffered instances for convenient operations
 	 */
@@ -41,21 +34,6 @@ public abstract class Model extends ModelBase
 	public static float smoother = 0F;
 	
 	/**
-	 * Player's actual rotation when rendering scope glass texture
-	 */
-	public static float
-		renderEyePitch = 0F,
-		renderEyeYaw = 0F;
-	
-	/**
-	 * Actual position of player's eye when rendering scope glass texture
-	 */
-	public static double
-		renderEyePosX = 0D,
-		renderEyePosY = 0D,
-		renderEyePosZ = 0D;
-	
-	/**
 	 * Render this model in first person view. Note that x and z axis are swapped in default.
 	 */
 	public void renderFP(ItemStack stack, TypeInfo type)
@@ -65,14 +43,14 @@ public abstract class Model extends ModelBase
 		GL11.glLoadIdentity();
 		Project.gluPerspective(
 			getFOVModifier(smoother),
-			(float)mc.displayWidth / mc.displayHeight,
+			(float)FMUMClient.mc.displayWidth / FMUMClient.mc.displayHeight,
 			0.05F,
-			mc.gameSettings.renderDistanceChunks * 16 * MathHelper.SQRT_2
+			FMUMClient.settings.renderDistanceChunks * 16 * MathHelper.SQRT_2
 		);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		
 		// Switch y and z axis
-//		GL11.glRotatef(90F, 0F, 1F, 0F);
+		GL11.glRotatef(90F, 0F, 1F, 0F);
 		
 		/** for test */
 //		double[] f = FMUMClient.testList.get(0).testFloat;
@@ -106,24 +84,16 @@ public abstract class Model extends ModelBase
 	/**
 	 * Called in each tick. In default ticks its first person animator.
 	 */
-	public void tick() { this.getAnimatorFP().tick(this); }
+	public void itemTick(ItemStack stack, TypeInfo type) {
+		this.getAnimatorFP().itemTick(stack, type);
+	}
 	
 	/**
 	 * Called in each render tick. In default it updates player's render position and first person
 	 * animator.
 	 */
-	public void renderTick(ItemStack stack, TypeInfo type)
-	{
-		// Update player actual position
-		EntityPlayerSP player = mc.player;
-		double prev = player.prevPosX;
-		renderEyePosX = prev + (player.posX - prev) * smoother;
-		prev = player.prevPosY;
-		renderEyePosY = prev + (player.posY - prev) * smoother + player.getEyeHeight();
-		prev = player.prevPosZ;
-		renderEyePosZ = prev + (player.posZ - prev) * smoother;
-		
-		this.getAnimatorFP().renderTick(this);
+	public void itemRenderTick(ItemStack stack, TypeInfo type, MouseHelper mouse) {
+		this.getAnimatorFP().itemRenderTick(stack, type, mouse);
 	}
 	
 	/**
@@ -140,10 +110,6 @@ public abstract class Model extends ModelBase
 	 */
 	protected void doRenderFP(ItemStack stack, TypeInfo type) { this.render(); }
 	
-	protected static void bindTexture(String textureLocation) {
-		mc.renderEngine.bindTexture(ResourceManager.getTexture(textureLocation));
-	}
-	
 	/**
 	 * Based {@link net.minecraft.client.renderer.EntityRenderer#getFOVModifier(float, boolean)}
 	 */
@@ -152,8 +118,8 @@ public abstract class Model extends ModelBase
 		float fov = FMUMClient.settings.fovSetting;
 		return(
 			ActiveRenderInfo.getBlockStateAtEntityViewpoint(
-				mc.world,
-				mc.getRenderViewEntity(),
+				FMUMClient.mc.world,
+				FMUMClient.mc.getRenderViewEntity(),
 				smoother
 			).getMaterial() == Material.WATER
 			? fov * 6F / 7F

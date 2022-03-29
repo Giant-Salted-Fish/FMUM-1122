@@ -1,12 +1,12 @@
 package com.fmum.common.network;
 
 import com.fmum.common.gun.ItemGunPart;
-import com.fmum.common.gun.TagGun;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumActionResult;
 
-public class PacketGunOp implements PacketItemOp
+public class PacketGunOp implements PacketModularOp
 {
 	public static final byte INIT_TAG = 0;
 	
@@ -32,19 +32,11 @@ public class PacketGunOp implements PacketItemOp
 			return;
 		}
 		
-		if(this.handleServerSide(player, stack))
-			PacketItemOp.super.handleServerSide(player);
-	}
-	
-	protected boolean handleServerSide(EntityPlayerMP player, ItemStack stack)
-	{
-		switch(this.opCode)
-		{
-		case INIT_TAG:
-			if(!TagGun.validateTag(stack))
-				TagGun.setupTag(stack);
-			return false;
-		}
-		return true;
+		if(
+			PacketModularOp.super.doHandleServerSide(player, stack) == EnumActionResult.SUCCESS
+//			|| 
+		) return;
+		
+		// proper log
 	}
 }

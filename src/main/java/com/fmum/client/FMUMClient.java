@@ -2,7 +2,6 @@ package com.fmum.client;
 
 import java.util.LinkedList;
 
-import com.fmum.client.model.Model;
 import com.fmum.common.FMUM;
 import com.fmum.common.network.PacketHandler;
 import com.fmum.common.type.ItemInfo;
@@ -17,7 +16,6 @@ import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MouseHelper;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -134,20 +132,8 @@ public abstract class FMUMClient
 		{
 			super.mouseXYChange();
 			
-			// Set actual player rotation for rendering
-			float mouseScaler = settings.mouseSensitivity * 0.6F + 0.2F;
-			mouseScaler *= mouseScaler * mouseScaler * 8F * 0.15F;
-			Model.renderEyeYaw = mc.player.rotationYaw + this.deltaX * mouseScaler;
-			mouseScaler *= this.deltaY;
-			Model.renderEyePitch = MathHelper.clamp(
-				mc.player.prevRotationPitch
-					+ (settings.invertMouse ? mouseScaler : -mouseScaler),
-				-90F,
-				90F
-			);
-			
 			// Call render tick and do pre-render
-			prevItem.renderTick(prevStack);
+			prevItem.renderTick(prevStack, this);
 		}
 	};
 	
@@ -162,7 +148,7 @@ public abstract class FMUMClient
 		/** for test */
 		double[] d = testList.get(testInsNum).testValue;
 		
-		EventHandlerClient.actualCameraRoll = (float)d[3];
+		EventHandlerClient.renderCamRoll = (float)d[3];
 		if(KeyManager.Key.CO.down())
 		{
 			if(tl);
@@ -232,7 +218,7 @@ public abstract class FMUMClient
 		
 		if(player.inventory.currentItem != prevSlot)
 		{
-			settings.viewBobbing = oriViewBobbing && !item.shouldDisableViewBobbing();
+			settings.viewBobbing = oriViewBobbing && !item.disableViewBobbing();
 			if(operating.switchItem(stack))
 				operating = Operation.NONE;
 			item.onTakeOut(stack);
@@ -318,6 +304,10 @@ public abstract class FMUMClient
 	
 	public static void addChatMsg(String msg) {
 		mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentString(msg));
+	}
+	
+	public static void bindTexture(String textureLocation) {
+		mc.renderEngine.bindTexture(ResourceManager.getTexture(textureLocation));
 	}
 	
 	public static class Operation

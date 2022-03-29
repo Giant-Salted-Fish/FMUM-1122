@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import org.lwjgl.opengl.GL11;
 
-import com.fmum.client.EventHandlerClient;
-import com.fmum.client.model.Animator;
 import com.fmum.client.model.Model;
 import com.fmum.client.model.ModelDebugBox;
 import com.fmum.client.model.module.ModelModular;
@@ -20,6 +18,7 @@ import com.fmum.common.util.ObjPool;
 import com.fmum.common.util.Vec3;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.MouseHelper;
 
 public class ModelGun extends ModelModular
 {
@@ -33,9 +32,7 @@ public class ModelGun extends ModelModular
 	/** TODO: validate needary
 	 * Buffered systems for rendering
 	 */
-	protected static final CoordSystem
-		gunSys = new CoordSystem(),
-		primaySys = new CoordSystem();
+	protected static final CoordSystem gunSys = new CoordSystem();
 	
 	/**
 	 * Render info queue
@@ -46,11 +43,16 @@ public class ModelGun extends ModelModular
 	
 	protected static final ArrayList<ScopeRenderInfo> scopeQueue = new ArrayList<>();
 	
-	public Animator animator = GunAnimator.INSTANCE;
+	public GunAnimator animator = GunAnimator.INSTANCE;
 	
 	public final Vec3
 		holdPos = new Vec3(87.5D / 160D, -72D / 160D, 14D / 160D),
 		holdRot = new Vec3(-5D, 0D, 0D);
+	
+	public final double[] viewRotInertia = {
+		0D, 0.001D, -0.001D,
+		0.15D, -0.15D, -0.2D
+	};
 	
 	public ModelGun() { }
 	
@@ -59,9 +61,12 @@ public class ModelGun extends ModelModular
 	public ModelGun(Mesh[] meshes) { super(meshes); }
 	
 	@Override
-	public void renderTick(ItemStack stack, TypeInfo type)
+	public GunAnimator getAnimatorFP() { return this.animator; }
+	
+	@Override
+	public void itemRenderTick(ItemStack stack, TypeInfo type, MouseHelper mouse)
 	{
-		super.renderTick(stack, type);
+		super.itemRenderTick(stack, type, mouse);
 		
 		// Return out dated occupied info instances
 		for(int i = scopeQueue.size(); --i >= 0; )
@@ -78,10 +83,11 @@ public class ModelGun extends ModelModular
 		// Make sure gun tags are ready before rendering
 		if(!TagGun.validateTag(stack)) return;
 		
-		// Get gun render coordinate system
+		// Position gun into shoulder coordinate system
 		float smoother = Model.smoother;
-		final Animator animator = this.animator;
-		animator.setupRenderCoordSys(gunSys, smoother);
+		final GunAnimator animator = this.animator;
+		gunSys.setDefault();
+		animator.applyShoulderTransform(gunSys, smoother);
 		
 		// TODO: Apply view translation if is in modification mode
 //		if(FMUMClient.operating == OpGunModification.INSTANCE)
@@ -91,7 +97,7 @@ public class ModelGun extends ModelModular
 //		else
 		{
 			// Apply Movements controlled by animator
-			animator.apply(gunSys, smoother);
+			animator.applyTransform(gunSys, smoother);
 			
 			// Get position of each attachment on gun, buffer them for future rendering
 			((TypeModular)type).stream(
@@ -115,6 +121,7 @@ public class ModelGun extends ModelModular
 //		AimableRenderInfo sightOnUse = aimableQueue.get(0);
 		
 		// TODO: Handle eyepiece texture rendering for scopes
+		
 	}
 	
 	@Override
@@ -123,14 +130,15 @@ public class ModelGun extends ModelModular
 		// Not yet ready for render, skip
 		if(infoQueue.size() == 0) return;
 		
+		// TODO: validate if frequently used or not
+		float smoother = Model.smoother;
+		GunAnimator animator = this.animator;
+		
 		// TODO: Render scope mask if has
 		
 		
 		// Restore world coordinate system
-		GL11.glRotatef(-EventHandlerClient.actualCameraRoll, 1F, 0F, 0F); // animator.roll
-		GL11.glRotatef(renderEyePitch, 0F, 0F, 1F);
-		GL11.glRotatef(renderEyeYaw + 180F, 0F, 1F, 0F);
-		GL11.glTranslated(-renderEyePosX, -renderEyePosY, -renderEyePosZ);
+		animator.restoreGLWorldCoordSystem(smoother);
 		
 		// TODO: render modifying
 //		if(FMUMClient.operating == )
@@ -141,7 +149,21 @@ public class ModelGun extends ModelModular
 		{
 			// TODO: Render arm
 			
+			// Setup shoulder coordinate system to render the arms
+			GL11.glPushMatrix();
+			{
+				animator.applyGLShoulderTransform(smoother);
+				
+				
+			}
+			GL11.glPopMatrix();
 			
+			for(int i = 0, size = infoQueue.size(); i < size; ++i)
+			{
+				GL11.glPushMatrix(); {
+					infoQueue.get(i).render();
+				} GL11.glPopMatrix();
+			}
 		}
 		
 		GL11.glPushMatrix();

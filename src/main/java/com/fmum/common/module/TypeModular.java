@@ -34,6 +34,17 @@ public abstract class TypeModular extends TypePaintable
 	
 	protected TypeModular(String name) { super(name); }
 	
+	@Override
+	public void postParse()
+	{
+		super.postParse();
+		
+		// Do not forget to apply the model scale
+		this.scale(this.modelScale);
+		
+		modules.put(this.name, this);
+	}
+	
 	/**
 	 * @param states States of this module
 	 * @param stepLen Step length of the slot rail of the super module
@@ -182,15 +193,20 @@ public abstract class TypeModular extends TypePaintable
 		return -1;
 	}
 	
-	@Override
-	public void postParse()
+	/**
+	 * Generate tag for a modular item stack
+	 * 
+	 * @param dam Damage of the item
+	 * @return Generated tag that can set in item's nbt tag
+	 */
+	public NBTTagList genTag(int dam)
 	{
-		super.postParse();
+		NBTTagList tag = this.genTag(dam, 0, 0);
 		
-		// Do not forget to apply the model scale
-		this.scale(this.modelScale);
+		// Add default modules
+		this.defaultModules.writeToTag(tag);
 		
-		modules.put(this.name, this);
+		return tag;
 	}
 	
 	public NBTTagList genTag(int dam, int step, int offset)
@@ -207,12 +223,13 @@ public abstract class TypeModular extends TypePaintable
 		TagModular.setStep(states, step);
 		TagModular.setOffset(states, offset);
 		
-		// Add default modules
-		this.defaultModules.writeToTag(tag);
-		
 		// Append slot tag
 		for(int i = this.slots.length; --i >= 0; tag.appendTag(new NBTTagList()));
 		return tag;
+	}
+	
+	public final String getTexture(NBTTagList tag) {
+		return this.paintjobs.get(TagModular.getDam(tag)).texture;
 	}
 	
 	/**

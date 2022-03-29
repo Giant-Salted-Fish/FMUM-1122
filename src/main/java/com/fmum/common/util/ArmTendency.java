@@ -1,7 +1,5 @@
 package com.fmum.common.util;
 
-import com.fmum.common.util.MotionTendency.BasedMotionTendency;
-
 public class ArmTendency
 {
 	protected static final CoordSystem sys = new CoordSystem();
@@ -50,7 +48,7 @@ public class ArmTendency
 	
 	public void setArmTarRotX(double rotX) { this.armRotX.tarPos.x = rotX; }
 	
-	public void getSmoothedPos(Vec3 dest, double smoother) {
+	public void getSmoothedPos(Vec3 dest, float smoother) {
 		this.handPos.getSmoothedPos(dest, smoother);
 	}
 	

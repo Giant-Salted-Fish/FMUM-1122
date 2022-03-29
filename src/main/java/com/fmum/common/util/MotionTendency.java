@@ -54,7 +54,7 @@ public class MotionTendency
 		this.curPos.trans(this.vec);
 	}
 	
-	public final void getSmoothedPos(Vec3 dest, double smoother)
+	public final void getSmoothedPos(Vec3 dest, float smoother)
 	{
 		dest.set(this.curPos);
 		dest.sub(this.prevPos);
@@ -62,7 +62,7 @@ public class MotionTendency
 		dest.trans(this.prevPos);
 	}
 	
-	public final void applySmoothedPos(Vec3 dest, double smoother)
+	public final void applySmoothedPos(Vec3 dest, float smoother)
 	{
 		this.vec.set(this.curPos);
 		this.vec.sub(this.prevPos);
@@ -87,39 +87,5 @@ public class MotionTendency
 	{
 		double prev = this.prevPos.z;
 		return prev + (this.curPos.z - prev) * smoother;
-	}
-	
-	/**
-	 * A sub-type of {@link MotionTendency} that carries {@link #speedFactor}, {@link #maxForce} and
-	 * {@link #forceMult}
-	 * 
-	 * @author Giant_Salted_Fish
-	 */
-	public static class BasedMotionTendency extends MotionTendency
-	{
-		public double speedFactor;
-		
-		public double maxForce;
-		
-		public double forceMult;
-		
-		public BasedMotionTendency(double speedFactor, double maxForce, double forceMult)
-		{
-			this.speedFactor = speedFactor;
-			this.maxForce = maxForce;
-			this.forceMult = forceMult;
-		}
-		
-		public void update() { super.update(this.speedFactor, this.maxForce, this.forceMult); }
-		
-		@Override
-		public void update(double speedFactor, double maxForce, double forceMult)
-		{
-			super.update(
-				this.speedFactor * speedFactor,
-				this.maxForce * maxForce,
-				this.forceMult * forceMult
-			);
-		}
 	}
 }

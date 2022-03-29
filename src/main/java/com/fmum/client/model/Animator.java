@@ -1,7 +1,14 @@
 package com.fmum.client.model;
 
+import com.fmum.client.EventHandlerClient;
+import com.fmum.client.FMUMClient;
+import com.fmum.common.type.TypeInfo;
 import com.fmum.common.util.CoordSystem;
 import com.fmum.common.util.Vec3;
+
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.MouseHelper;
 
 public abstract class Animator
 {
@@ -14,15 +21,16 @@ public abstract class Animator
 	/**
 	 * <p>Called in each tick to update animation state.</p>
 	 * 
-	 * <p>Note that player rotation is updated every frame. Modify it in {@link #renderTick(Model)}
-	 * if it is needed. Camera roll should be updated in this method.</p> 
+	 * <p>Note that player rotation is updated every frame. Modify it in
+	 * {@link #itemRenderTick(Model)} if it is needed. Camera roll should be updated in this method.
+	 * </p> 
 	 * 
 	 * @note TODO
 	 *     Previous tick rotation of the player can not be trusted. Use {@link #getPrevRotPitch()}
 	 *     and {@link #getPrevRotYaw()} if they are needed.
 	 */
-	public void tick(Model model) { }
-
+	public void itemTick(ItemStack stack, TypeInfo type) { }
+	
 	/**
 	 * <p>Called right after the rotation of the current player is updated and item holding is yet
 	 * about to be rendered.</p>
@@ -30,20 +38,9 @@ public abstract class Animator
 	 * <p>It is recommended to update player rotation in this method. Update camera roll in
 	 * {@link #tick(Model)} if it is needed.</p>
 	 */
-	public void renderTick(Model model) { }
+	public void itemRenderTick(ItemStack stack, TypeInfo type, MouseHelper mouse) { }
 	
-	public void fire(Model model) { }
-	
-	/**
-	 * Setup the coordinate system that this item should located in when rendering. In default it
-	 * just load identity for the given system.
-	 * 
-	 * @param sys
-	 *     Coordinate system to load render coordinate system into. Note that the input system could
-	 *     be a raw system so it is recommended to call {@link CoordSystem#setDefault()} before
-	 *     apply any transform.
-	 */
-	public void setupRenderCoordSys(CoordSystem sys, float smoother) { sys.setDefault(); }
+	public void fire(ItemStack stack, TypeInfo type) { }
 	
 	/**
 	 * Apply position and rotation that indicated by this animator to the given coordinate system.
@@ -53,5 +50,27 @@ public abstract class Animator
 	 * @param sys Copy position and rotation to this system
 	 * @param smoother Partial tick time
 	 */
-	public void apply(CoordSystem sys, float smoother) { }
+	public void applyTransform(CoordSystem sys, float smoother) { }
+	
+	protected static EntityPlayerSP getPlayer() { return FMUMClient.mc.player; }
+	
+	protected static float getRenderCamRoll() { return EventHandlerClient.renderCamRoll; }
+	
+	protected static float getRenderCamYaw() { return EventHandlerClient.renderCamYaw; }
+	
+	protected static float getRenderCamPitch() { return EventHandlerClient.renderCamPitch; }
+	
+	protected static void setRenderCamRoll(float camRoll) {
+		EventHandlerClient.renderCamRoll = camRoll;
+	}
+	
+	protected static void setRenderCamYaw(float camYaw) {
+		EventHandlerClient.renderCamYaw = camYaw;
+	}
+	
+	protected static void setRenderCamPitch(float camPitch) {
+		EventHandlerClient.renderCamPitch = camPitch;
+	}
+	
+	protected static float getSmoother() { return Model.smoother; }
 }

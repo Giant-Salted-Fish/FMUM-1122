@@ -4,7 +4,7 @@ import com.fmum.common.FMUM;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.entity.EntityPlayerSP;
 
 public final class PacketConfigSync implements FMUMPacket
 {
@@ -20,6 +20,9 @@ public final class PacketConfigSync implements FMUMPacket
 		FMUM.maxLayers = data.readByte();
 	}
 	
+	/**
+	 * Override to disable error log client side
+	 */
 	@Override
-	public void handleClientSide(EntityPlayer player) { }
+	public void handleClientSide(EntityPlayerSP player) { }
 }

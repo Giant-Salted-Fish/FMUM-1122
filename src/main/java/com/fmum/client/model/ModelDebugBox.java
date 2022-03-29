@@ -1,11 +1,14 @@
 package com.fmum.client.model;
 
-import com.fmum.common.util.InstanceRepository;
+import com.fmum.client.FMUMClient;
+import com.fmum.common.util.ObjRepository;
 import com.fmum.common.util.Mesh;
 
-public final class ModelDebugBox extends MeshBasedModel implements InstanceRepository<ModelDebugBox>
+public final class ModelDebugBox extends MeshBasedModel implements ObjRepository<ModelDebugBox>
 {
 	public static final String PATH = "com.fmum.client.model.ModelDebugBox";
+	
+	public static final String TEXTURE = "skins/debugbox.png";
 	
 	public static final ModelDebugBox INSTANCE = new ModelDebugBox(
 		new TBModelMeshBuilder(32, 32)
@@ -34,7 +37,7 @@ public final class ModelDebugBox extends MeshBasedModel implements InstanceRepos
 	@Override
 	public void render()
 	{
-		bindTexture("skins/debugbox.png");
+		FMUMClient.bindTexture(TEXTURE);
 		super.render();
 	}
 	

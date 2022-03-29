@@ -43,6 +43,20 @@ public abstract class TagModular
 		return tag != null && tag.hasKey(TAG);
 	}
 	
+	public static void setupTag(ItemStack stack)
+	{
+		NBTTagCompound compound = stack.getTagCompound();
+		if(compound == null)
+			stack.setTagCompound(
+				compound = new NBTTagCompound()
+			);
+		
+		compound.setTag(
+			TAG,
+			((ItemModular)stack.getItem()).getType().genTag(stack.getItemDamage())
+		);
+	}
+	
 	public static NBTTagList getTag(ItemStack stack) {
 		return (NBTTagList)stack.getTagCompound().getTag(TAG);
 	}
@@ -56,6 +70,8 @@ public abstract class TagModular
 	public static int[] getStates(NBTTagList tag) {
 		return ((NBTTagList)tag.get(0)).getIntArrayAt(0);
 	}
+	
+	public static int getDam(NBTTagList tag) { return getStates(tag)[ID_DAM] << 16 >>> 16; }
 	
 	public static int getDam(int[] states) { return states[ID_DAM] << 16 >>> 16; }
 	

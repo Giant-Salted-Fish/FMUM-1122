@@ -4,6 +4,7 @@ import com.fmum.client.KeyManager.Key;
 import com.fmum.client.model.ModelDebugBox;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.MouseHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -24,14 +25,14 @@ public interface ItemInfo
 		public boolean tick(ItemStack stack)
 		{
 			// Tick default model to apply primary camera control
-			ModelDebugBox.INSTANCE.tick();
+			ModelDebugBox.INSTANCE.itemTick(stack, null);
 			return false;
 		}
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public void renderTick(ItemStack stack) {
-			ModelDebugBox.INSTANCE.renderTick(ItemStack.EMPTY, null);
+		public void renderTick(ItemStack stack, MouseHelper mouse) {
+			ModelDebugBox.INSTANCE.itemRenderTick(ItemStack.EMPTY, null, mouse);
 		}
 		
 		@Override
@@ -52,7 +53,10 @@ public interface ItemInfo
 	 * @return {@code true} if view bobbing should be disabled when holding this item
 	 */
 	@SideOnly(Side.CLIENT)
-	default public boolean shouldDisableViewBobbing() { return false; }
+	default public boolean disableViewBobbing() { return false; }
+	
+	@SideOnly(Side.CLIENT)
+	default public boolean disableCrosshair() { return false; }
 	
 	/**
 	 * Called when player switched to this item
@@ -69,15 +73,16 @@ public interface ItemInfo
 	@SideOnly(Side.CLIENT)
 	default public boolean tick(ItemStack stack)
 	{
-		this.getType().model.tick();
+		final TypeInfo type = this.getType();
+		type.model.itemTick(stack, type);
 		return false;
 	}
 	
 	@SideOnly(Side.CLIENT)
-	default public void renderTick(ItemStack stack)
+	default public void renderTick(ItemStack stack, MouseHelper mouse)
 	{
 		final TypeInfo type = this.getType();
-		type.model.renderTick(stack, type);
+		type.model.itemRenderTick(stack, type, mouse);
 	}
 	
 	@SideOnly(Side.CLIENT)

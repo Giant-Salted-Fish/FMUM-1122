@@ -12,7 +12,7 @@ import com.fmum.common.CommonProxy;
 import com.fmum.common.FMUM;
 import com.fmum.common.FMUMClassLoader;
 import com.fmum.common.pack.FMUMCreativeTab;
-import com.fmum.common.util.InstanceRepository;
+import com.fmum.common.util.ObjRepository;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.client.resource.VanillaResourceType;
@@ -129,7 +129,7 @@ public final class ClientProxy extends CommonProxy
 		FMLClientHandler.instance().addModAsResource(container);
 	}
 	
-	private static final HashMap<String, InstanceRepository<? extends Model>>
+	private static final HashMap<String, ObjRepository<? extends Model>>
 		modelRepositories = new HashMap<>();
 	@SuppressWarnings("unchecked")
 	public Model loadModel(String modelPath)
@@ -143,11 +143,11 @@ public final class ClientProxy extends CommonProxy
 				).getConstructor().newInstance();
 			
 			final String repositoryName = modelPath.substring(0, i);
-			InstanceRepository<? extends Model> repository = modelRepositories.get(repositoryName);
+			ObjRepository<? extends Model> repository = modelRepositories.get(repositoryName);
 			if(repository == null)
 				modelRepositories.put(
 					repositoryName,
-					repository = (InstanceRepository<? extends Model>)FMUMClassLoader
+					repository = (ObjRepository<? extends Model>)FMUMClassLoader
 						.INSTANCE.loadClass(repositoryName).getConstructor().newInstance()
 				);
 			Model model = repository.fetch(modelPath.substring(i + 1));
