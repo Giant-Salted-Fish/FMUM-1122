@@ -415,22 +415,22 @@ public final class CoordSystem
 	{
 		double sin, cos;
 		
-		sin = Math.atan(
-			-this.vec[NORM_X + Z] / (cos = this.vec[NORM_X + X])
-		) * Mather.TO_DEGREES;
+		sin = Math.toDegrees(
+			Math.atan(-this.vec[NORM_X + Z] / (cos = this.vec[NORM_X + X]))
+		);
 		// Check angle flip of tan function
 		this.globalRot(-(sin = cos < 0D ? sin + 180D : sin), Y);
 		dest.y = sin;
 		
-		sin = Math.atan(
-			this.vec[NORM_X + Y] / (cos = this.vec[NORM_X + X])
-		) * Mather.TO_DEGREES;
+		sin = Math.toDegrees(
+			Math.atan(this.vec[NORM_X + Y] / (cos = this.vec[NORM_X + X]))
+		);
 		this.globalRot(-(sin = cos < 0D ? sin + 180D : sin), Z);
 		dest.z = sin;
 		
-		sin = Math.atan(
-			this.vec[NORM_Y + Z] / (cos = this.vec[NORM_Y + Y])
-		) * Mather.TO_DEGREES;
+		sin = Math.toDegrees(
+			Math.atan(this.vec[NORM_Y + Z] / (cos = this.vec[NORM_Y + Y]))
+		);
 		dest.x = cos < 0D ? sin + 180D : sin;
 	}
 	
@@ -452,7 +452,7 @@ public final class CoordSystem
 		
 		sin = (
 			cos != 0D
-			? Math.atan(-sin / cos) * Mather.TO_DEGREES
+			? Math.toDegrees(Math.atan(-sin / cos))
 			: sin > 0D ? -90D : sin < 0D ? 90D : 0D
 		);
 		// Check angle flip of tan function
@@ -462,7 +462,7 @@ public final class CoordSystem
 		// Now cos value can only be positive or zero
 		dest.z = (
 			(cos = this.vec[NORM_X + X]) != 0D
-			? Math.atan(this.vec[NORM_X + Y] / cos) * Mather.TO_DEGREES
+			? Math.toDegrees(Math.atan(this.vec[NORM_X + Y] / cos))
 			: this.vec[NORM_X + Y] > 0D ? 90D : -90D
 		);
 	}
@@ -482,7 +482,7 @@ public final class CoordSystem
 		
 		sin = (
 			cos != 0D
-			? Math.atan(sin / cos) * Mather.TO_DEGREES
+			? Math.toDegrees(Math.atan(sin / cos))
 			: sin > 0D ? 90D : sin < 0D ? -90D : 0D
 		);
 		return cos < 0D ? sin + 180D : sin;
@@ -547,7 +547,7 @@ public final class CoordSystem
 	private void rot(double amount, byte along, byte base)
 	{
 		// Get sin and cos
-		double sin = amount * Mather.TO_RADIANS;
+		double sin = Math.toRadians(amount);
 		double cos = Math.cos(sin);
 		sin = Math.sin(sin);
 		

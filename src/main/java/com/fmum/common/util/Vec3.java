@@ -128,4 +128,7 @@ public class Vec3
 		this.z -= v.z;
 		return this;
 	}
+	
+	@Override
+	public String toString() { return "(" + this.x + ", " + this.y + ", " + this.z + ")"; }
 }

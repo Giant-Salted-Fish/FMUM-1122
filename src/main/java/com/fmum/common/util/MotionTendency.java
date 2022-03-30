@@ -19,6 +19,8 @@ public class MotionTendency
 	 */
 	protected final Vec3 vec = new Vec3();
 	
+	public void update() { this.update(0.4D, 4.25D, 1D); }
+	
 	public void update(double speedFactor, double maxForce, double forceMult)
 	{
 		// Set previous value

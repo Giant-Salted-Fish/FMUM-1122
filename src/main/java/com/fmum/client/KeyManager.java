@@ -36,11 +36,11 @@ public abstract class KeyManager
 	 * Key categories
 	 */
 	public static final String
-		KEY_CATEGORY_FMUM = "key.category.fmum",
-		KEY_CATEGORY_GUN = "key.category.fmum.gun",
-		KEY_CATEGORY_ASSIST = "key.category.fmum.assist",
-		KEY_CATEGORY_MODIFY = "key.category.fmum.modify",
-		KEY_CATEGORY_TEST = "key.category.fmum.test";
+		KEY_CATEGORY_FMUM = "keycategory.fmum",
+		KEY_CATEGORY_GUN = "keycategory.fmum.gun",
+		KEY_CATEGORY_ASSIST = "keycategory.fmum.assist",
+		KEY_CATEGORY_MODIFY = "keycategory.fmum.modify",
+		KEY_CATEGORY_TEST = "keycategory.fmum.test";
 	
 	/**
 	 * Keys that will update always update
@@ -123,7 +123,7 @@ public abstract class KeyManager
 				);
 			}
 		},
-		LOOK_AROUND("key.fmum.lookaround", Keyboard.KEY_NONE, KEY_CATEGORY_GUN),
+		LOOK_AROUND("key.fmum.lookaround", Keyboard.KEY_LMENU, KEY_CATEGORY_GUN),
 		
 		/**
 		 * <p>These keys will update if {@link #CO} is down. {@link #CO} itself is a special case.
@@ -207,6 +207,10 @@ public abstract class KeyManager
 		}
 		
 		protected void trigger() { FMUMClient.prevItem.keyNotify(this); }
+		
+		public static boolean lookAroundActivated() {
+			return (CO.pressTime > 0 ? CO_LOOK_AROUND : LOOK_AROUND).pressTime > 0;
+		}
 	}
 	
 	public static void enterGUIControls() {

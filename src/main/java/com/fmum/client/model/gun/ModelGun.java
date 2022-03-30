@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import org.lwjgl.opengl.GL11;
 
+import com.fmum.client.FMUMClient;
+import com.fmum.client.model.CamControlAnimator;
 import com.fmum.client.model.Model;
 import com.fmum.client.model.ModelDebugBox;
 import com.fmum.client.model.module.ModelModular;
@@ -45,14 +47,60 @@ public class ModelGun extends ModelModular
 	
 	public GunAnimator animator = GunAnimator.INSTANCE;
 	
+//	public double
+//		shoulderOffsetX = 0.5D / 16D,
+//		shoulderOffsetY = -1D / 16D;
+	
 	public final Vec3
-		holdPos = new Vec3(87.5D / 160D, -72D / 160D, 14D / 160D),
+		holdPos = new Vec3(
+			87.5D / 160D, // - this.shoulderOffsetX,
+			-72D / 160D,  // - this.shoulderOffsetY,
+			14D / 160D
+		),
 		holdRot = new Vec3(-5D, 0D, 0D);
 	
-	public final double[] viewRotInertia = {
-		0D, 0.001D, -0.001D,
-		0.15D, -0.15D, -0.2D
-	};
+	public final Vec3
+		smoothViewRot_P = new Vec3(0D, 0.001D, -0.001D),
+		smoothViewRot_R = new Vec3(0.15D, -0.15D, -0.2D);
+	
+	public double
+		breathCycleBase = 0.75D / 16D,
+		breathCycleIncr = 0.75D / 16D;
+	
+	public final Vec3
+		breathAmpltCamBase = new Vec3(0D, 5D / 16D, 5D / 16D),
+		breathAmpltCamIncr = new Vec3(0D, 0D, 0D);
+	
+	public final Vec3
+		breathAmpltGunBase_P = new Vec3(0D, 0D, 0D),
+		breathAmpltGunIncr_P = new Vec3(0D, 0D, 0D),
+		breathAmpltGunBase_R = new Vec3(-5D / 16D, -5D / 16D, -5D / 16D),
+		breathAmpltGunIncr_R = new Vec3(0D, 0D, 0D);
+	
+	public double
+		dropCycle = CamControlAnimator.dropCycle,
+		dropAmpltCam = CamControlAnimator.dropAmpltCam;
+	
+	/**
+	 * @note
+	 *     Gun animator will apply rotation on z axis of the camera on impact which and enhance the
+	 *     impact effect and is not equipped in {@link CamControlAnimator}. Hence the default value
+	 *     is scaled to avoid over-effect.
+	 */
+	public double
+		dropImpactAmpltCam = CamControlAnimator.dropImpactAmpltCam * 0.75D;
+	
+	public double
+		walkCycle = Math.PI * 0.6D,
+		crouchWalkCycle = Math.PI;
+	
+	public double dropImpactAccCamMult = 0.5D;
+	
+	public final Vec3 motionAmpltCam = new Vec3(-7.5D, 7.5D, -10D);
+	
+	public final Vec3
+		walkAmpltCam = new Vec3(-3D, 1.5D, 3D),
+		sprintAmltCam = new Vec3(-3D, 1.5D, 3D);
 	
 	public ModelGun() { }
 	
@@ -87,7 +135,7 @@ public class ModelGun extends ModelModular
 		float smoother = Model.smoother;
 		final GunAnimator animator = this.animator;
 		gunSys.setDefault();
-		animator.applyShoulderTransform(gunSys, smoother);
+		animator.applyRenderTransform(gunSys, smoother);
 		
 		// TODO: Apply view translation if is in modification mode
 //		if(FMUMClient.operating == OpGunModification.INSTANCE)
@@ -96,6 +144,20 @@ public class ModelGun extends ModelModular
 //		}
 //		else
 		{
+			/** for test */
+			if(FMUMClient.manualMode)
+			{
+				gunSys.trans(20F / 16F, 2F / 16F, 5F / 16F);
+				double viewRotYaw = animator.renderRot.y % 360D;
+				if(viewRotYaw > 180D) viewRotYaw -= 360D; // TODO: validate
+				else if(viewRotYaw < -180D) viewRotYaw += 360D;
+				gunSys.rot(viewRotYaw, CoordSystem.Y);
+				gunSys.rot(animator.renderRot.z, CoordSystem.Z);
+				gunSys.submitRot();
+				gunSys.trans(0F, 0F, -5F / 16F);
+			}
+			/** for test */
+			
 			// Apply Movements controlled by animator
 			animator.applyTransform(gunSys, smoother);
 			
@@ -152,7 +214,7 @@ public class ModelGun extends ModelModular
 			// Setup shoulder coordinate system to render the arms
 			GL11.glPushMatrix();
 			{
-				animator.applyGLShoulderTransform(smoother);
+				animator.applyGLRenderTransform(smoother);
 				
 				
 			}

@@ -137,8 +137,8 @@ public abstract class EventHandlerClient
 		/// Key lighting codes copied from {@link ItemRenderer#renderItemInFirstPerson(float)}
 		// {@link ItemRenderer#rotateArroundXAndY(float, float)}
 		GL11.glPushMatrix();
-		GL11.glRotated(player.rotationPitch, 1D, 0D, 0D);
-		GL11.glRotated(player.rotationYaw, 0D, 1D, 0D);
+		GL11.glRotated(renderCamPitch, 1D, 0D, 0D); // player.rotationPitch
+		GL11.glRotated(renderCamYaw, 0D, 1D, 0D);   // player.rotationYaw
 		RenderHelper.enableStandardItemLighting();
 		GL11.glPopMatrix();
 		

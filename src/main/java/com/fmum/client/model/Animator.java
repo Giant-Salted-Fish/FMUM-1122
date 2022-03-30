@@ -52,6 +52,8 @@ public abstract class Animator
 	 */
 	public void applyTransform(CoordSystem sys, float smoother) { }
 	
+	protected static double getAirLost() { return 0D; }
+	
 	protected static EntityPlayerSP getPlayer() { return FMUMClient.mc.player; }
 	
 	protected static float getRenderCamRoll() { return EventHandlerClient.renderCamRoll; }

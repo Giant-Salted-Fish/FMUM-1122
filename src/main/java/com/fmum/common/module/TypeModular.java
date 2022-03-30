@@ -5,7 +5,6 @@ import java.util.HashMap;
 import com.fmum.common.type.TypePaintable;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 import com.fmum.common.util.CoordSystem;
-import com.fmum.common.util.Mather;
 
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagIntArray;
@@ -77,7 +76,7 @@ public abstract class TypeModular extends TypePaintable
 		ModulePosRotVisitor visitor
 	) {
 		// Prepare sin and cos value
-		double sin = rotX * Mather.TO_RADIANS;
+		double sin = Math.toRadians(rotX);
 		double cos = Math.cos(sin);
 		sin = Math.sin(sin);
 		

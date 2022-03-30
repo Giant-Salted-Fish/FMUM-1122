@@ -64,5 +64,9 @@ msg.fmum.manualmodeon=Manual mode enabled
 msg.fmum.manualmodeoff=Manual mode disabled
 
 # Key binds
-key.category.fmum.assist=FMUM Assist
+keycategory.fmum.gun=FMUM Guns
+keycategory.fmum.assist=FMUM Assist
+key.fmum.lookaround=Look Around
+key.fmum.togglemanual=Toggle Manual Mode
 key.fmum.co=Co-Key
+key.fmum.colookaround=Co-Look Around

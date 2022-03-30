@@ -1,6 +1,5 @@
 package com.fmum.common.module;
 
-import com.fmum.common.util.Mather;
 import com.fmum.common.util.Vec3;
 
 import net.minecraft.item.ItemStack;
@@ -48,7 +47,9 @@ public class ModuleInfo extends Vec3
 	 */
 	public final ModuleInfo updateSinAndCos()
 	{
-		this.sin = Math.sin(this.cos = this.rotX * Mather.TO_RADIANS);
+		this.sin = Math.sin(
+			this.cos = Math.toRadians(this.rotX)
+		);
 		this.cos = Math.cos(this.cos);
 		return this;
 	}

@@ -64,5 +64,9 @@ msg.fmum.manualmodeon=手动模式启动
 msg.fmum.manualmodeoff=手动模式关闭
 
 # 按键绑定
-key.category.fmum.assist=FMUM 辅助
+keycategory.fmum.gun=FMUM 枪械
+keycategory.fmum.assist=FMUM 辅助
+key.fmum.lookaround=环视
+key.fmum.togglemanual=启动/关闭手动模式
 key.fmum.co=组合键
+key.fmum.colookaround=环视组合键

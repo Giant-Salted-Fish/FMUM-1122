@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import com.fmum.common.FMUM;
 import com.fmum.common.network.PacketHandler;
 import com.fmum.common.type.ItemInfo;
+import com.fmum.common.util.Messager;
 import com.fmum.common.util.Vec3;
 
 import net.minecraft.client.Minecraft;
@@ -75,6 +76,15 @@ public abstract class FMUMClient
 		public void getRot(Vec3 dest) {
 			dest.set(this.testValue[3], this.testValue[4], this.testValue[5]);
 		}
+	}
+	
+	public static void toggleManualTell(Messager... msgs)
+	{
+		if(!manualMode) return;
+		
+		for(int i = 0; i < msgs.length; ++i)
+			addChatMsg(msgs[i].message(), i);
+		manualMode = false;
 	}
 	/** for test */
 	
