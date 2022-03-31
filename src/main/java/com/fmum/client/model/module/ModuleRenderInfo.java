@@ -3,6 +3,7 @@ package com.fmum.client.model.module;
 import org.lwjgl.opengl.GL11;
 
 import com.fmum.client.FMUMClient;
+import com.fmum.client.ResourceManager;
 import com.fmum.common.module.TypeModular;
 import com.fmum.common.util.CoordSystem;
 import com.fmum.common.util.ObjPool;
@@ -42,7 +43,9 @@ public class ModuleRenderInfo
 		GL11.glScaled(scale, scale, scale);
 		
 		// Bind texture and render
-		FMUMClient.bindTexture(type.getTexture(this.tag));
+		FMUMClient.mc.renderEngine.bindTexture(
+			ResourceManager.getTexture(type.getTexture(this.tag))
+		);
 		this.type.model.render();
 	}
 	

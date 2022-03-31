@@ -316,10 +316,6 @@ public abstract class FMUMClient
 		mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentString(msg));
 	}
 	
-	public static void bindTexture(String textureLocation) {
-		mc.renderEngine.bindTexture(ResourceManager.getTexture(textureLocation));
-	}
-	
 	public static class Operation
 	{
 		public static final Operation NONE = new Operation();

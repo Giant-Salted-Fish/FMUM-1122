@@ -20,9 +20,14 @@ public class CamControlAnimator extends Animator
 {
 	public static final CamControlAnimator INSTANCE = new CamControlAnimator();
 	
+	/**
+	 * @note This value is not real-time
+	 */
+	protected static final Vec3 prevCamPos = new Vec3();
+	
 	protected static final Vec3
-		playerVelocity = new Vec3(),
-		prevPlayerVelocity = new Vec3();
+		camVelocity = new Vec3(),
+		prevCamVelocity = new Vec3();
 	
 	// TODO: read from config
 	public static double
@@ -30,7 +35,7 @@ public class CamControlAnimator extends Animator
 		dropAmpltCam = 3D;
 	
 	public static double
-		dropImpactAmpltCam = 10D;
+		dropImpactAmpltCam = 7.5D;
 	
 	protected static double dropDistanceCycle = 0D;
 	
@@ -45,8 +50,8 @@ public class CamControlAnimator extends Animator
 	public final Vec3 actualPlayerRot = new Vec3();
 	
 	public final Vec3
-		renderEyePos = new Vec3(),
-		renderEyeRot = new Vec3();
+		renderCamPos = new Vec3(),
+		renderCamRot = new Vec3();
 	
 	/**
 	 * Used to save the off-axis angle when {@link Key#lookAroundActivated()} is {@code true}
@@ -84,8 +89,8 @@ public class CamControlAnimator extends Animator
 		final Vec3 actual = this.actualPlayerRot;
 		actual.set(0D, player.rotationYaw, player.rotationPitch);
 		
-		final Vec3 eyePos = this.renderEyePos;
-		final Vec3 eyeRot = this.renderEyeRot;
+		final Vec3 eyePos = this.renderCamPos;
+		final Vec3 eyeRot = this.renderCamRot;
 		
 		// Update player's actual eye position
 		double prev = player.prevPosX;
@@ -185,12 +190,12 @@ public class CamControlAnimator extends Animator
 	public void restoreGLWorldCoordSystem(float smoother)
 	{
 		// Restore world coordinate system
-		Vec3 v = this.renderEyeRot;
+		Vec3 v = this.renderCamRot;
 		GL11.glRotated(-v.x, 1D, 0D, 0D);
 		GL11.glRotated(v.z, 0D, 0D, 1D);
 		GL11.glRotated(v.y + 90D, 0D, 1D, 0D);
 		
-		v = this.renderEyePos;
+		v = this.renderCamPos;
 		GL11.glTranslated(-v.x, -v.y, -v.z);
 	}
 	
@@ -209,7 +214,7 @@ public class CamControlAnimator extends Animator
 	 *     be a raw system so it is recommended to call {@link CoordSystem#setDefault()} before
 	 *     apply any transform.
 	 */
-	public void applyRenderTransform(CoordSystem sys, float smoother)
+	public void setupRenderTransform(CoordSystem sys, float smoother)
 	{
 		sys.globalTrans(this.renderPos);
 		
@@ -217,7 +222,7 @@ public class CamControlAnimator extends Animator
 		sys.globalRot(v.x, -v.y - 90D, -v.z);
 	}
 	
-	public void applyGLRenderTransform(float smoother)
+	public void setupGLRenderTransform(float smoother)
 	{
 		Vec3 v = this.renderPos;
 		GL11.glTranslated(v.x, v.y, v.z);
@@ -233,16 +238,16 @@ public class CamControlAnimator extends Animator
 		final BasedMotionTendency easingCam = this.camOffAxis.grab(MotionTracks.EASING);
 		
 		/// Apply drop camera effects ///
-		updatePlayerVelocity();
-		vec.set(playerVelocity);
+		updateCamVelocity();
+		vec.set(camVelocity);
 		double dropSpeed = Math.min(0D, vec.y);
 		dropDistanceCycle += dropSpeed * dropCycle;
 		
-		vec.sub(prevPlayerVelocity);
+		vec.sub(prevCamVelocity);
 		easingCam.velocity.x += dropSpeed * dropAmpltCam * Math.sin(dropDistanceCycle);
 		
 		// Apply drop impact on camera if is hitting the ground
-		if(prevPlayerVelocity.y < 0D && vec.y > 0D)
+		if(prevCamVelocity.y < 0D && vec.y > 0D)
 		{
 			Vec3 v = easingCam.velocity;
 			boolean positive = v.x == 0D ? FMUM.rand.nextBoolean() : v.x > 0D;
@@ -261,22 +266,21 @@ public class CamControlAnimator extends Animator
 	
 	protected void updateRenderPosRot(ItemStack stack, TypeInfo type)
 	{
-		this.renderPos.set(this.renderEyePos);
+		this.renderPos.set(this.renderCamPos);
 		this.renderRot.set(this.actualPlayerRot);
 	}
 	
 	/**
-	 * Updates {@link #playerVelocity} and {@link #prevPlayerVelocity}
+	 * Updates {@link #camVelocity} and {@link #prevCamVelocity}
 	 */
-	protected static void updatePlayerVelocity()
+	protected static void updateCamVelocity()
 	{
 		final EntityPlayerSP player = getPlayer();
-		prevPlayerVelocity.set(playerVelocity);
-		playerVelocity.set(
-			player.posX - player.prevPosX,
-			player.posY - player.prevPosY,
-			player.posZ - player.prevPosZ
-		);
+		prevCamVelocity.set(camVelocity);
+		vec.set(player.posX, player.posY + player.getEyeHeight(), player.posZ);
+		camVelocity.set(vec);
+		camVelocity.sub(prevCamPos);
+		prevCamPos.set(vec);
 	}
 	
 	protected static boolean getInvertMouse() { return FMUMClient.settings.invertMouse; }

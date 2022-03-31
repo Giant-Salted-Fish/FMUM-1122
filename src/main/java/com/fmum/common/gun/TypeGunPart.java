@@ -25,6 +25,14 @@ public abstract class TypeGunPart extends TypeModular
 					t.aimCenterZ = Double.parseDouble(s[2]);
 			}
 		);
+		parser.addKeyword(
+			"LeftHandPriority",
+			(s, t) -> t.leftHandPriority = Integer.parseInt(s[1])
+		);
+		parser.addKeyword(
+			"RightHandPriority",
+			(s, t) -> t.rightHandPriority = Integer.parseInt(s[1])
+		);
 	}
 	
 	/**
@@ -33,6 +41,10 @@ public abstract class TypeGunPart extends TypeModular
 	public double
 		aimCenterY = 0D,
 		aimCenterZ = 0D;
+	
+	public int
+		leftHandPriority = Integer.MIN_VALUE,
+		rightHandPriority = Integer.MIN_VALUE;
 	
 	protected TypeGunPart(String name) { super(name); }
 	

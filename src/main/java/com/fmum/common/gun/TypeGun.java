@@ -30,6 +30,13 @@ public final class TypeGun extends TypeAmmoContainer
 	
 	public TreeSet<String> mags = FMUM.EMPTY_STR_SET;
 	
+	{
+		// Set a default hand priority for guns
+		this.leftHandPriority
+			= this.rightHandPriority
+			= -1;
+	}
+	
 	public TypeGun(String name) { super(name); }
 	
 	@Override

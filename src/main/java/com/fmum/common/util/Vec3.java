@@ -24,6 +24,13 @@ public class Vec3
 		this.z = z;
 	}
 	
+	public Vec3(Vec3 v)
+	{
+		this.x = v.x;
+		this.y = v.y;
+		this.z = v.z;
+	}
+	
 	public Vec3 set(double a)
 	{
 		this.x
@@ -78,6 +85,22 @@ public class Vec3
 		this.x *= s;
 		this.y *= s;
 		this.z *= s;
+		return this;
+	}
+	
+	public final Vec3 scale(double x, double y, double z)
+	{
+		this.x *= x;
+		this.y *= y;
+		this.z *= z;
+		return this;
+	}
+	
+	public final Vec3 scale(Vec3 v)
+	{
+		this.x *= v.x;
+		this.y *= v.y;
+		this.z *= v.z;
 		return this;
 	}
 	

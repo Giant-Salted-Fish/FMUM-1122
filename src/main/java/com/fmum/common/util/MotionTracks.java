@@ -51,4 +51,28 @@ public class MotionTracks<T extends MotionTendency>
 		for(Entry<String, T> e : this.tracks.entrySet())
 			e.getValue().applySmoothedPos(dest, smoother);
 	}
+	
+	public double getSmoothedX(float smoother)
+	{
+		double ret = 0D;
+		for(Entry<String, T> e : this.tracks.entrySet())
+			ret += e.getValue().getSmoothedX(smoother);
+		return ret;
+	}
+	
+	public double getSmoothedY(float smoother)
+	{
+		double ret = 0D;
+		for(Entry<String, T> e : this.tracks.entrySet())
+			ret += e.getValue().getSmoothedY(smoother);
+		return ret;
+	}
+	
+	public double getSmoothedZ(float smoother)
+	{
+		double ret = 0D;
+		for(Entry<String, T> e : this.tracks.entrySet())
+			ret += e.getValue().getSmoothedZ(smoother);
+		return ret;
+	}
 }

@@ -66,6 +66,9 @@ msg.fmum.manualmodeoff=Manual mode disabled
 # Key binds
 keycategory.fmum.gun=FMUM Guns
 keycategory.fmum.assist=FMUM Assist
+key.fmum.pulltrigger=Pull Trigger
+key.fmum.aimhold=Aim Hold
+key.fmum.aimtoggle=Aim Toggle
 key.fmum.lookaround=Look Around
 key.fmum.togglemanual=Toggle Manual Mode
 key.fmum.co=Co-Key

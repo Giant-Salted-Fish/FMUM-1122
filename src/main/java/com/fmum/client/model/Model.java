@@ -4,6 +4,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
 import com.fmum.client.FMUMClient;
+import com.fmum.client.ResourceManager;
 import com.fmum.common.type.TypeInfo;
 import com.fmum.common.util.CoordSystem;
 import com.fmum.common.util.Vec3;
@@ -109,6 +110,10 @@ public abstract class Model extends ModelBase
 	 * @param type Type
 	 */
 	protected void doRenderFP(ItemStack stack, TypeInfo type) { this.render(); }
+	
+	protected static void bindTexture(String location) {
+		FMUMClient.mc.renderEngine.bindTexture(ResourceManager.getTexture(location));
+	}
 	
 	/**
 	 * Based {@link net.minecraft.client.renderer.EntityRenderer#getFOVModifier(float, boolean)}

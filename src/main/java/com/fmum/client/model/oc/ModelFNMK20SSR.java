@@ -1,11 +1,16 @@
 package com.fmum.client.model.oc;
 
-import com.fmum.client.model.TBModelMeshBuilder;
 import com.fmum.client.model.gun.ModelGun;
+import com.fmum.common.util.TBModelMeshBuilder;
 
 public class ModelFNMK20SSR extends ModelGun
 {
 	public static final ModelFNMK20SSR INSTANCE = new ModelFNMK20SSR();
+	
+	{
+		this.grabPos.set(63D / 160D, 20D / 160D, 0D);
+		this.grabPos_R.set(-17.5D / 160D, 7.5D / 160D, 0D);
+	}
 	
 	public ModelFNMK20SSR()
 	{

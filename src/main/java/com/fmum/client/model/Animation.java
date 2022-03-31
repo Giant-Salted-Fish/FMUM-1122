@@ -1,5 +1,10 @@
 package com.fmum.client.model;
 
+import com.fmum.common.util.ArmTendency;
+import com.fmum.common.util.CoordSystem;
+import com.fmum.common.util.MotionTendency;
+import com.fmum.common.util.MotionTracks;
+
 public class Animation implements Comparable<Animation>
 {
 	public static final Animation INSTANCE = new Animation();
@@ -13,13 +18,31 @@ public class Animation implements Comparable<Animation>
 	 */
 	public boolean tick() { return false; }
 	
-	public int getKeyTick() { return 0; }
+	public void onCamUpdate(MotionTracks<? extends MotionTendency> cam) { cam.update(); }
+	
+	public void onPosRotUpdate(
+		MotionTracks<? extends MotionTendency> pos,
+		MotionTracks<? extends MotionTendency> rot
+	) {
+		pos.update();
+		rot.update();
+	}
+	
+	public void onArmUpdate(ArmTendency left, ArmTendency right)
+	{
+		left.update();
+		right.update();
+	}
+	
+	public void apply(CoordSystem sys, float smoother) { }
+	
+	public double getKeyTime() { return 0D; }
 	
 	@Override
 	public int compareTo(Animation a)
 	{
-		int i = this.getKeyTick();
-		int j = a.getKeyTick();
-		return i > j ? 1 : i < j ? -1 : 0;
+		double t0 = this.getKeyTime();
+		double t1 = a.getKeyTime();
+		return t0 > t1 ? 1 : t0 < t1 ? -1 : 0;
 	}
 }

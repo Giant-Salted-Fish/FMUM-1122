@@ -2,6 +2,12 @@ package com.fmum.common.util;
 
 public class ArmTendency
 {
+	/**
+	 * Recommended forearm and upper arm length. It is the typical value for
+	 * {@link com.fmum.client.model.ModelSteveArm} and {@link com.fmum.client.model.ModelAlexArm}.
+	 */
+	public static final double RECOMMENDED_ARM_LENGTH = 10D / 16D;
+	
 	protected static final CoordSystem sys = new CoordSystem();
 	protected static final Vec3 vec = new Vec3();
 	
@@ -30,7 +36,12 @@ public class ArmTendency
 	
 //	public final Vec3 elbowPos = new Vec3();
 	
-	public ArmTendency() { this(10D / 16D); }
+	/**
+	 * Create an instance with forearm and upper arm length set to {@value #RECOMMENDED_ARM_LENGTH}
+	 * 
+	 * @see #RECOMMENDED_ARM_LENGTH
+	 */
+	public ArmTendency() { this(RECOMMENDED_ARM_LENGTH); }
 	
 	public ArmTendency(double armLen) { this(armLen, armLen); }
 	

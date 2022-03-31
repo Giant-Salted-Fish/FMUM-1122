@@ -106,6 +106,9 @@ public abstract class KeyManager
 		 * 
 		 * <p>CATEGORY: {@link KeyManager#KEY_CATEGORY_GUN}.</p>
 		 */
+		PULL_TRIGGER("key.fmum.pulltrigger", -100, KEY_CATEGORY_GUN, primaryKeys),
+		AIM_HOLD("key.fmum.aimhold", -99, KEY_CATEGORY_GUN, primaryKeys),
+		AIM_TOGGLE("key.fmum.aimtoggle", Keyboard.KEY_NONE, KEY_CATEGORY_GUN, primaryKeys),
 		TOGGLE_MANUAL("key.fmum.togglemanual", Keyboard.KEY_PERIOD, KEY_CATEGORY_GUN)
 		{
 			@Override

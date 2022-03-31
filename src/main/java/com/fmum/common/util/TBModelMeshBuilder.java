@@ -1,8 +1,4 @@
-package com.fmum.client.model;
-
-import com.fmum.common.util.CoordSystem;
-import com.fmum.common.util.Mesh;
-import com.fmum.common.util.Vec3f;
+package com.fmum.common.util;
 
 /**
  * Mesh builder with native support for models exported by ToolBox in form of .java files
@@ -129,7 +125,7 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 
 		// Note that coordinate y, z are flipped in ToolBox
 		sys.setDefault();
-		sys.globalRot(rotX * TO_DEGREES, -rotY * TO_DEGREES, rotZ * TO_DEGREES);
+		sys.globalRot(rotX * TO_DEGREES, rotY * TO_DEGREES, rotZ * TO_DEGREES);
 		sys.trans(offX, -offY, -offZ);
 		pos.set(posX, -posY, -posZ);
 		
