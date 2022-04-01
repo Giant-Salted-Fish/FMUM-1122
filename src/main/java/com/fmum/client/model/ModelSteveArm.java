@@ -4,7 +4,7 @@ import com.fmum.common.util.TBModelMeshBuilder;
 
 import net.minecraft.util.ResourceLocation;
 
-public final class ModelSteveArm extends MeshBasedModel
+public final class ModelSteveArm extends ModelMeshBased
 {
 	public static final ResourceLocation TEXTURE
 		= new ResourceLocation("textures/entity/steve.png");
@@ -30,7 +30,7 @@ public final class ModelSteveArm extends MeshBasedModel
 					0F, 0F, 0F,
 					0F, 0F, 0F
 				)
-			.process()
+			.quickBuild()
 		);
 	}
 }

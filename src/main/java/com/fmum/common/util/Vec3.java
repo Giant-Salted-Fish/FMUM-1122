@@ -104,6 +104,14 @@ public class Vec3
 		return this;
 	}
 	
+	public final Vec3 flip(boolean x, boolean y, boolean z)
+	{
+		this.x = x ? -this.x : this.x;
+		this.y = y ? -this.y : this.y;
+		this.z = z ? -this.z : this.z;
+		return this;
+	}
+	
 	public Vec3 negate()
 	{
 		this.x = -this.x;

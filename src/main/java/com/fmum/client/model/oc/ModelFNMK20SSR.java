@@ -641,7 +641,7 @@ public class ModelFNMK20SSR extends ModelGun
 				.addShapeBox(118.49F, -64F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 2, 1, 7, 279, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 				.addShapeBox(-39.01F, -62.51F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 1, 1, 1, 279, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F)
 				.addShapeBox(-37.51F, -63F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 1, 1, 1, 283, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.process()
+			.quickBuild()
 		);
 	}
 }

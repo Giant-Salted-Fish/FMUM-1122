@@ -33,7 +33,7 @@ public class ModelGrip extends ModelModular implements ModelGrable
 		info.apply(vec, vec);
 		location.apply(vec, vec);
 		dest.setHandTarPos(vec);
-		dest.setHandTarRotX(this.grabHandRot + ((GunAnimator)ani).rot.getSmoothedX(1F));
+		dest.setHandTarRotX(this.grabHandRot + ((AnimatorGun)ani).rot.getSmoothedX(1F));
 		dest.setArmTarRotX(this.grabArmRot);
 	}
 	

@@ -241,7 +241,7 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 	 * 
 	 * @return {@code this}
 	 */
-	public Mesh process() { return this.scale(PRIMARY_SCALE).genNormal().build(); }
+	public Mesh quickBuild() { return this.scale(PRIMARY_SCALE).genNormal().build(); }
 	
 	protected void addIndices(Integer index)
 	{

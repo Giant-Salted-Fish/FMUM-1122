@@ -97,6 +97,11 @@ public abstract class FMUMClient
 	public static final GameSettings settings = mc.gameSettings;
 	public static final PacketHandler netHandler = FMUM.netHandler;
 	
+	/**
+	 * Client side ticker
+	 */
+	public static int ticker = 0;
+	
 	public static float
 		oriFOV = settings.fovSetting,
 		oriGamma = settings.gammaSetting,
@@ -151,6 +156,9 @@ public abstract class FMUMClient
 	
 	static void tick()
 	{
+		++ticker;
+		// TODO: check speed up
+		
 		// Abandon if have not entered a world yet
 		EntityPlayerSP player = mc.player;
 		if(player == null) return;
@@ -236,7 +244,7 @@ public abstract class FMUMClient
 			prevSlot = player.inventory.currentItem;
 		}
 		
-		// Tick item and current operation
+		// Tick item and current operation TODO: figure out which one is better to be the first
 		item.tick(stack);
 		if(operating.tick(stack))
 			operating = Operation.NONE;
@@ -293,14 +301,13 @@ public abstract class FMUMClient
 	 * Try to launch the given operation
 	 * 
 	 * @param op Operation to launch
-	 * @param stack Holding stack
 	 * @return Whether succeed to launch the given operation
 	 */
-	public static boolean tryLaunchOp(Operation op, ItemStack stack)
+	public static boolean tryLaunchOp(Operation op)
 	{
 		if(!operating.encounter(op)) return false;
 		
-		(operating = op).launch(stack);
+		(operating = op).launch(prevStack);
 		return true;
 	}
 	
@@ -314,79 +321,5 @@ public abstract class FMUMClient
 	
 	public static void addChatMsg(String msg) {
 		mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentString(msg));
-	}
-	
-	public static class Operation
-	{
-		public static final Operation NONE = new Operation();
-		
-		public double getSmoothedProgress(float smoother) { return 1D; }
-		
-		/**
-		 * Tick this operation
-		 * 
-		 * @param stack Current holding stack
-		 * @return {@code true} if this operation has complete and should exit
-		 */
-		protected boolean tick(ItemStack stack) { return false; }
-		
-		/**
-		 * Launch this operation with given holding stack
-		 * 
-		 * @param stack ItemStack that the player is currently holding
-		 */
-		protected void launch(ItemStack stack) { }
-		
-		/**
-		 * A new operation is arriving, check if this operation volunteer to terminate itself so the
-		 * new operation can execute immediately
-		 * 
-		 * @param op New operation
-		 * @return {@code true} if this operation abandon its execution and let new operation to run
-		 */
-		protected boolean encounter(Operation op) { return true; }
-		
-		/**
-		 * Called when player switch to a new holding item
-		 * 
-		 * @param stack New holding item
-		 * @return {@code true} if should give up execution of this operation
-		 */
-		protected boolean switchItem(ItemStack stack) { return true; }
-		
-		/**
-		 * @return {@code true} if should kill this operation on GUI change
-		 */
-		protected boolean onGUIChange(GuiScreen gui) { return true; }
-	}
-	
-	/**
-	 * Super type of operations that usually have a fixed amount of execution time
-	 * 
-	 * @author Giant_Salted_Fish
-	 */
-	public static abstract class ProgressiveOperation extends Operation
-	{
-		public double progress = 0D;
-		public double prevProgress = 0D;
-		
-		public double progressor = 1D / 16D;
-		
-		@Override
-		public final double getSmoothedProgress(float smoother) {
-			return this.prevProgress + (this.progress - this.prevProgress) * smoother;
-		}
-		
-		@Override
-		protected void launch(ItemStack stack) { this.progress = this.prevProgress = 0D; }
-		
-		@Override
-		protected boolean tick(ItemStack stack)
-		{
-			this.prevProgress = this.progress;
-			if((this.progress += this.progressor) > 1D)
-				this.progress = 1D;
-			return this.prevProgress >= 1D;
-		}
 	}
 }

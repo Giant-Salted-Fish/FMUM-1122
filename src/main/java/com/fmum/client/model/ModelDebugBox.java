@@ -4,7 +4,7 @@ import com.fmum.common.util.Mesh;
 import com.fmum.common.util.ObjRepository;
 import com.fmum.common.util.TBModelMeshBuilder;
 
-public final class ModelDebugBox extends MeshBasedModel implements ObjRepository<ModelDebugBox>
+public final class ModelDebugBox extends ModelMeshBased implements ObjRepository<ModelDebugBox>
 {
 	public static final String PATH = "com.fmum.client.model.ModelDebugBox";
 	
@@ -27,7 +27,7 @@ public final class ModelDebugBox extends MeshBasedModel implements ObjRepository
 				0F, 0F, 0F,
 				0F, 0F, 0F
 			)
-		.process()
+		.quickBuild()
 	);
 	
 	public ModelDebugBox() { }

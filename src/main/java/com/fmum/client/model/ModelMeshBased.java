@@ -7,15 +7,15 @@ import com.fmum.common.util.Mesh;
  * 
  * @author Giant_Salted_Fish
  */
-public class MeshBasedModel extends Model
+public class ModelMeshBased extends Model
 {
 	public Mesh[] meshes = Mesh.DEF_MESHES;
 	
-	public MeshBasedModel() { }
+	public ModelMeshBased() { }
 	
-	public MeshBasedModel(Mesh mesh) { this.meshes = new Mesh[] { mesh }; }
+	public ModelMeshBased(Mesh mesh) { this.meshes = new Mesh[] { mesh }; }
 	
-	public MeshBasedModel(Mesh[] meshes) { this.meshes = meshes; }
+	public ModelMeshBased(Mesh[] meshes) { this.meshes = meshes; }
 	
 	@Override
 	public void render() { for(Mesh m : this.meshes) m.render(); }

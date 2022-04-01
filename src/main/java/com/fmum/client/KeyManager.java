@@ -127,6 +127,7 @@ public abstract class KeyManager
 			}
 		},
 		LOOK_AROUND("key.fmum.lookaround", Keyboard.KEY_LMENU, KEY_CATEGORY_GUN),
+		VIEW_WEAPON("key.fmum.viewweapon", Keyboard.KEY_V, KEY_CATEGORY_GUN),
 		
 		/**
 		 * <p>These keys will update if {@link #CO} is down. {@link #CO} itself is a special case.
@@ -135,7 +136,8 @@ public abstract class KeyManager
 		 * <p>CATEGORY: {@link KeyManager#KEY_CATEGORY_ASSIST}.</p>
 		 */
 		CO("key.fmum.co", Keyboard.KEY_Z, KEY_CATEGORY_ASSIST, primaryKeys),
-		CO_LOOK_AROUND("key.fmum.colookaround", Keyboard.KEY_NONE, KEY_CATEGORY_ASSIST);
+		CO_LOOK_AROUND("key.fmum.colookaround", Keyboard.KEY_NONE, KEY_CATEGORY_ASSIST),
+		CO_VIEW_WEAPON("key.fmum.viewweapon", Keyboard.KEY_NONE, KEY_CATEGORY_ASSIST);
 		
 		public final KeyBinding keyBind;
 		public int keyCode;

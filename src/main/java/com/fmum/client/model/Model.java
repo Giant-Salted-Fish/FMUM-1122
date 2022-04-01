@@ -100,7 +100,7 @@ public abstract class Model extends ModelBase
 	/**
 	 * Only one first person animator required at a time. Hence it can be bind to the model.
 	 */
-	public Animator getAnimatorFP() { return CamControlAnimator.INSTANCE; }
+	public Animator getAnimatorFP() { return AnimatorCamControl.INSTANCE; }
 	
 	/**
 	 * Render item holding first person. Projection is setup and coordinate system is oriented at

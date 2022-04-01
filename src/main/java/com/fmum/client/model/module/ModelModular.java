@@ -1,13 +1,13 @@
 package com.fmum.client.model.module;
 
-import com.fmum.client.model.MeshBasedModel;
+import com.fmum.client.model.ModelMeshBased;
 import com.fmum.common.module.TypeModular;
 import com.fmum.common.util.CoordSystem;
 import com.fmum.common.util.Mesh;
 
 import net.minecraft.nbt.NBTTagList;
 
-public class ModelModular extends MeshBasedModel
+public class ModelModular extends ModelMeshBased
 {
 	public ModelModular() { }
 	
@@ -16,14 +16,14 @@ public class ModelModular extends MeshBasedModel
 	public ModelModular(Mesh[] meshes) { super(meshes); }
 	
 	// TODO: override in aimable and scope model 
-	public ModuleRenderInfo prepareRenderInfo(NBTTagList tag, TypeModular type, CoordSystem sys)
+	public RenderInfoModule prepareRenderInfo(NBTTagList tag, TypeModular type, CoordSystem sys)
 	{
-		ModuleRenderInfo info = this.getRenderInfo();
+		RenderInfoModule info = this.getRenderInfo();
 		info.tag = tag;
 		info.type = type;
 		info.sys.set(sys);
 		return info;
 	}
 	
-	protected ModuleRenderInfo getRenderInfo() { return ModuleRenderInfo.pool.poll(); }
+	protected RenderInfoModule getRenderInfo() { return RenderInfoModule.pool.poll(); }
 }

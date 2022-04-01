@@ -2,16 +2,16 @@ package com.fmum.client.model.gun;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.client.KeyManager.Key;
-import com.fmum.client.model.Animation;
-import com.fmum.client.model.CamControlAnimator;
+import com.fmum.client.model.AnimatorCamControl;
 import com.fmum.common.FMUM;
 import com.fmum.common.gun.TagGun;
 import com.fmum.common.gun.TypeGunPart;
 import com.fmum.common.module.ModuleInfo;
 import com.fmum.common.module.TypeModular;
 import com.fmum.common.type.TypeInfo;
+import com.fmum.common.util.Animation;
 import com.fmum.common.util.ArmTendency;
-import com.fmum.common.util.BasedMotionTendency;
+import com.fmum.common.util.MotionTendencyBased;
 import com.fmum.common.util.CoordSystem;
 import com.fmum.common.util.MotionTendency;
 import com.fmum.common.util.MotionTracks;
@@ -20,9 +20,9 @@ import com.fmum.common.util.Vec3;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
 
-public class GunAnimator extends CamControlAnimator
+public class AnimatorGun extends AnimatorCamControl
 {
-	public static final GunAnimator INSTANCE = new GunAnimator();
+	public static final AnimatorGun INSTANCE = new AnimatorGun();
 	
 	protected static final Vec3 prevPlayerRot = new Vec3();
 	
@@ -34,14 +34,14 @@ public class GunAnimator extends CamControlAnimator
 	
 	protected static double walkDistanceCycle = 0D;
 	
-	public final MotionTracks<BasedMotionTendency>
+	public final MotionTracks<MotionTendency>
 		pos = new MotionTracks<>(
-			new BasedMotionTendency(0.4D, 0.125D, 0.25D),
-			new BasedMotionTendency(0.4D, 0.125D, 0.25D)
+			new MotionTendencyBased(0.4D, 0.125D, 0.25D),
+			new MotionTendencyBased(0.4D, 0.125D, 0.25D)
 		),
 		rot = new MotionTracks<>(
-			new BasedMotionTendency(0.4D, 4.25D, 1D),
-			new BasedMotionTendency(0.4D, 4.25D, 1D)
+			new MotionTendencyBased(0.4D, 4.25D, 1D),
+			new MotionTendencyBased(0.4D, 4.25D, 1D)
 		);
 	
 	public final ArmTendency
@@ -51,14 +51,22 @@ public class GunAnimator extends CamControlAnimator
 	/**
 	 * Animation that is currently playing
 	 */
-	public Animation animation = Animation.INSTANCE;
+	public AnimationGun animation = AnimationGun.NONE;
 	
+	public AnimatorGun()
 	{
 		// Setup default shoulder position for arms
 		vec.set(1.15D / 16D, -4D / 16D, -5D / 16D);
 		this.leftArmPos.setShoulderTarPos(vec);
 		vec.set(-1.85D / 16D, -4D / 16D, 3D / 16D);
 		this.rightArmPos.setShoulderTarPos(vec);
+	}
+	
+	@Override
+	public void launchAnimation(Animation animation)
+	{
+		this.animation = ((AnimationGun)animation);
+		animation.launch();
 	}
 	
 	@Override
@@ -71,14 +79,14 @@ public class GunAnimator extends CamControlAnimator
 		sys.submitRot();
 		
 		// Do not forget to apply the playing animation
-		this.animation.apply(sys, smoother);
+		this.animation.applyGunTransform(sys, FMUMClient.operating.getSmoothedProgress(smoother));
 	}
 	
 	@Override
 	protected void doItemTick(ItemStack stack, TypeInfo type)
 	{
-		if(this.animation.tick())
-			this.animation = Animation.INSTANCE;
+		if(this.animation.tick(FMUMClient.operating.getProgress()))
+			this.animation = AnimationGun.NONE;
 		
 		// Prepare values
 		final EntityPlayerSP player = getPlayer();
@@ -146,7 +154,6 @@ public class GunAnimator extends CamControlAnimator
 		sys.globalRot(this.renderCamRot.y + 90D, CoordSystem.Y);
 		sys.globalRot(this.renderCamRot.z, CoordSystem.Z);
 		sys.apply(vec, vec);
-//		FMUMClient.toggleManualTell(() -> vec.toString() + ", drop speed: " + dropSpeed);
 		
 		v = model.motionAmpltCam;
 		easingCam.velocity.x += vec.z * v.z
@@ -253,7 +260,7 @@ public class GunAnimator extends CamControlAnimator
 		
 		// Update camera, position and rotation
 		this.animation.onCamUpdate(this.camOffAxis);
-		this.animation.onPosRotUpdate(this.pos, this.rot);
+		this.animation.onGunUpdate(this.pos, this.rot);
 		
 		/// Update arm/hand position ///
 		TypeModular gun = (TypeModular)type;
@@ -303,15 +310,5 @@ public class GunAnimator extends CamControlAnimator
 		
 		// Update last tick values
 		prevPlayerRot.set(0D, player.rotationYaw, player.rotationPitch);
-		
-		if(false)//FMUMClient.manualMode)
-		{
-			sys.setDefault();
-			sys.rot(30D, -45D, 27D);
-			sys.submitRot();
-			sys.getAngle(vec);
-			FMUMClient.addChatMsg(vec.toString());
-			FMUMClient.manualMode = false;
-		}
 	}
 }

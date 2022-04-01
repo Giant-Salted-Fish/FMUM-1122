@@ -5,7 +5,7 @@ import com.fmum.common.util.TBModelMeshBuilder;
 
 import net.minecraft.util.ResourceLocation;
 
-public final class ModelAlexArm extends MeshBasedModel
+public final class ModelAlexArm extends ModelMeshBased
 {
 	public static final ResourceLocation TEXTURE = new ResourceLocation("textures/entity/alex.png");
 	
@@ -30,7 +30,7 @@ public final class ModelAlexArm extends MeshBasedModel
 					0F, 0F, 0F,
 					0F, 0F, 0F
 				)
-			.process()
+			.quickBuild()
 		);
 	}
 	

@@ -6,13 +6,12 @@ import org.lwjgl.opengl.GL11;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.client.model.Animator;
-import com.fmum.client.model.CamControlAnimator;
+import com.fmum.client.model.AnimatorCamControl;
 import com.fmum.client.model.Model;
 import com.fmum.client.model.ModelAlexArm;
 import com.fmum.client.model.ModelDebugBox;
 import com.fmum.client.model.module.ModelModular;
-import com.fmum.client.model.module.ModuleRenderInfo;
-import com.fmum.client.model.oc.ModelFNMK20SSR;
+import com.fmum.client.model.module.RenderInfoModule;
 import com.fmum.common.gun.TagGun;
 import com.fmum.common.module.ModuleInfo;
 import com.fmum.common.module.TagModular;
@@ -44,13 +43,13 @@ public class ModelGun extends ModelGrip
 	/**
 	 * Render info queue
 	 */
-	protected static final ArrayList<ModuleRenderInfo> infoQueue = new ArrayList<>();
+	protected static final ArrayList<RenderInfoModule> infoQueue = new ArrayList<>();
 	
-	protected static final ArrayList<AimableRenderInfo> aimableQueue = new ArrayList<>();
+	protected static final ArrayList<RenderInfoAimable> aimableQueue = new ArrayList<>();
 	
-	protected static final ArrayList<ScopeRenderInfo> scopeQueue = new ArrayList<>();
+	protected static final ArrayList<RenderInfoScope> scopeQueue = new ArrayList<>();
 	
-	public GunAnimator animator = GunAnimator.INSTANCE;
+	public AnimatorGun animator = AnimatorGun.INSTANCE;
 	
 //	public double
 //		shoulderOffsetX = 0.5D / 16D,
@@ -93,17 +92,17 @@ public class ModelGun extends ModelGrip
 		breathAmpltGunIncr_R = new Vec3(0D, 0D, 0D);
 	
 	public double
-		dropCycle = CamControlAnimator.dropCycle,
-		dropAmpltCam = CamControlAnimator.dropAmpltCam;
+		dropCycle = AnimatorCamControl.dropCycle,
+		dropAmpltCam = AnimatorCamControl.dropAmpltCam;
 	
 	/**
 	 * @note
 	 *     Gun animator will apply rotation on z axis of the camera on impact which and enhance the
-	 *     impact effect and is not equipped in {@link CamControlAnimator}. Hence the default value
+	 *     impact effect and is not equipped in {@link AnimatorCamControl}. Hence the default value
 	 *     is scaled to avoid over-effect.
 	 */
 	public double
-		dropImpactAmpltCam = CamControlAnimator.dropImpactAmpltCam * 0.75D;
+		dropImpactAmpltCam = AnimatorCamControl.dropImpactAmpltCam * 0.75D;
 	
 	/**
 	 * Player's acceleration on y axis could be very intensive when stepping onto stairs. Hence it
@@ -163,12 +162,12 @@ public class ModelGun extends ModelGrip
 		info.apply(vec, vec);
 		location.apply(vec, vec);
 		dest.setHandTarPos(vec);
-		dest.setHandTarRotX(this.grabHandRot_R + ((GunAnimator)ani).rot.getSmoothedX(1F));
+		dest.setHandTarRotX(this.grabHandRot_R + ((AnimatorGun)ani).rot.getSmoothedX(1F));
 		dest.setArmTarRotX(this.grabArmRot_R);
 	}
 	
 	@Override
-	public GunAnimator getAnimatorFP() { return this.animator; }
+	public AnimatorGun getAnimatorFP() { return this.animator; }
 	
 	@Override
 	public void itemRenderTick(ItemStack stack, TypeInfo type, MouseHelper mouse)
@@ -179,7 +178,7 @@ public class ModelGun extends ModelGrip
 		for(int i = scopeQueue.size(); --i >= 0; )
 			if(scopeQueue.get(i).scopeTexture != 0)
 			{
-				ScopeRenderInfo scope = scopeQueue.get(i);
+				RenderInfoScope scope = scopeQueue.get(i);
 				scopeTexturePool.back(scope.scopeTexture);
 				scope.scopeTexture = 0;
 			}
@@ -192,7 +191,7 @@ public class ModelGun extends ModelGrip
 		
 		// Position gun into shoulder coordinate system
 		float smoother = Model.smoother;
-		final GunAnimator animator = this.animator;
+		final AnimatorGun animator = this.animator;
 		gunSys.setDefault();
 		animator.setupRenderTransform(gunSys, smoother);
 		
@@ -226,14 +225,14 @@ public class ModelGun extends ModelGrip
 				gunSys,
 				(tag, typ, sys) -> {
 					// Reserve information for later rendering
-					ModuleRenderInfo info
+					RenderInfoModule info
 						= ((ModelModular)type.model).prepareRenderInfo(tag, typ, sys);
 					infoQueue.add(info);
 					
-					if(info instanceof ScopeRenderInfo)
-						scopeQueue.add((ScopeRenderInfo)info);
-					else if(info instanceof AimableRenderInfo)
-						aimableQueue.add((AimableRenderInfo)info);
+					if(info instanceof RenderInfoScope)
+						scopeQueue.add((RenderInfoScope)info);
+					else if(info instanceof RenderInfoAimable)
+						aimableQueue.add((RenderInfoAimable)info);
 				}
 			);
 		}
@@ -253,7 +252,7 @@ public class ModelGun extends ModelGrip
 		
 		// TODO: validate if frequently used or not
 		float smoother = Model.smoother;
-		GunAnimator animator = this.animator;
+		AnimatorGun animator = this.animator;
 		
 		// TODO: Render scope mask if has
 		
@@ -310,18 +309,6 @@ public class ModelGun extends ModelGrip
 			ModelDebugBox.INSTANCE.render();
 		}
 		GL11.glPopMatrix();
-		
-//		Vec3 v = this.holdPos;
-//		GL11.glTranslated(v.x, v.y, v.z);
-//		v = this.holdRot;
-//		GL11.glRotated(v.y, 0D, 1D, 0D);
-//		GL11.glRotated(v.z, 0D, 0D, 1D);
-//		GL11.glRotated(v.x, 1D, 0D, 0D);
-//		
-//		double s = type.modelScale;
-//		GL11.glScaled(s, s, s);
-//		mc.renderEngine.bindTexture(ResourceManager.getTexture(type.texture));
-//		this.render();
 	}
 	
 	protected void renderArms(float smoother)
@@ -369,5 +356,5 @@ public class ModelGun extends ModelGrip
 	}
 	
 	@Override
-	protected ModuleRenderInfo getRenderInfo() { return AimableRenderInfo.pool.poll(); }
+	protected RenderInfoModule getRenderInfo() { return RenderInfoAimable.pool.poll(); }
 }

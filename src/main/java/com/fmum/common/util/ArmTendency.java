@@ -24,11 +24,11 @@ public class ArmTendency
 	/**
 	 * Track and simulate the motion of the hand and shoulder
 	 */
-	public final BasedMotionTendency
-		shoulderPos = new BasedMotionTendency(0.4D, 0.125D, 0.25D),
-		handPos = new BasedMotionTendency(0.4D, 0.125D, 0.25D),
-		handRotX = new BasedMotionTendency(0.4D, 4.25D, 1D),
-		armRotX = new BasedMotionTendency(0.4D, 4.25D, 1D);
+	public final MotionTendencyBased
+		shoulderPos = new MotionTendencyBased(0.4D, 0.125D, 0.25D),
+		handPos = new MotionTendencyBased(0.4D, 0.125D, 0.25D),
+		handRotX = new MotionTendencyBased(0.4D, 4.25D, 1D),
+		armRotX = new MotionTendencyBased(0.4D, 4.25D, 1D);
 	
 	public final Vec3
 		handRot = new Vec3(),

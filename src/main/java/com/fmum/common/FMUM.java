@@ -103,11 +103,6 @@ public final class FMUM
 	public static boolean debug = false;
 	public static void toggleDebug() { debug = !debug; }
 	
-	/**
-	 * Universal ticker
-	 */
-	public static int ticker = 0;
-	
 	/// Configurations ///
 	/**
 	 * Max layers of the modules(unsigned byte)

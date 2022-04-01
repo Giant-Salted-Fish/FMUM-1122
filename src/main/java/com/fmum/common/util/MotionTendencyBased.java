@@ -6,7 +6,7 @@ package com.fmum.common.util;
  * 
  * @author Giant_Salted_Fish
  */
-public class BasedMotionTendency extends MotionTendency
+public class MotionTendencyBased extends MotionTendency
 {
 	public double speedFactor;
 	
@@ -14,13 +14,14 @@ public class BasedMotionTendency extends MotionTendency
 	
 	public double forceMult;
 	
-	public BasedMotionTendency(double speedFactor, double maxForce, double forceMult)
+	public MotionTendencyBased(double speedFactor, double maxForce, double forceMult)
 	{
 		this.speedFactor = speedFactor;
 		this.maxForce = maxForce;
 		this.forceMult = forceMult;
 	}
 	
+	@Override
 	public void update() { super.update(this.speedFactor, this.maxForce, this.forceMult); }
 	
 	@Override

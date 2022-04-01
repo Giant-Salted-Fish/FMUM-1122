@@ -3,6 +3,7 @@ package com.fmum.client.model;
 import com.fmum.client.EventHandlerClient;
 import com.fmum.client.FMUMClient;
 import com.fmum.common.type.TypeInfo;
+import com.fmum.common.util.Animation;
 import com.fmum.common.util.CoordSystem;
 import com.fmum.common.util.Vec3;
 
@@ -16,6 +17,7 @@ public abstract class Animator
 	
 	protected static final Vec3 vec = new Vec3();
 	
+	// TODO: remove this maybe?
 	public void launchAnimation(Animation animation) { }
 	
 	/**

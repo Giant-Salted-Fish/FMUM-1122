@@ -11,10 +11,10 @@ import com.fmum.common.util.Vec3;
 
 import net.minecraft.nbt.NBTTagList;
 
-public class ModuleRenderInfo
+public class RenderInfoModule
 {
-	public static final ObjPool<ModuleRenderInfo>
-		pool = new ObjPool<>(() -> new ModuleRenderInfo());
+	public static final ObjPool<RenderInfoModule>
+		pool = new ObjPool<>(() -> new RenderInfoModule());
 	
 	protected static final Vec3 vec = new Vec3();
 	

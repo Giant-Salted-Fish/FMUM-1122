@@ -1,6 +1,9 @@
 package com.fmum.common.gun;
 
 import com.fmum.client.FMUMClient;
+import com.fmum.client.OperationProgressive;
+import com.fmum.client.model.gun.AnimationTracksGun;
+import com.fmum.client.KeyManager.Key;
 import com.fmum.common.module.TagModular;
 import com.fmum.common.network.PacketGunOp;
 import com.fmum.common.type.ItemHoldable;
@@ -75,7 +78,22 @@ public final class ItemGun extends ItemHoldable implements ItemAmmoContainer
 	public void render() { this.type.model.render(); }
 	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public boolean disableCrosshair() { return true; }
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void keyNotify(Key key)
+	{
+		switch(key)
+		{
+		case VIEW_WEAPON:
+		case CO_VIEW_WEAPON:
+			FMUMClient.tryLaunchOp(new OperationProgressive() { { this.progressor = 1D / 2.52D / 20D; } });
+			((ItemGun)FMUMClient.prevItem).type.model.getAnimatorFP().launchAnimation(AnimationTracksGun.TEST);
+		default:;
+		}
+	}
 	
 //	@Override
 //	@SideOnly(Side.CLIENT)

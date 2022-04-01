@@ -6,7 +6,7 @@ import com.fmum.client.FMUMClient;
 import com.fmum.client.KeyManager.Key;
 import com.fmum.common.FMUM;
 import com.fmum.common.type.TypeInfo;
-import com.fmum.common.util.BasedMotionTendency;
+import com.fmum.common.util.MotionTendencyBased;
 import com.fmum.common.util.CoordSystem;
 import com.fmum.common.util.Mather;
 import com.fmum.common.util.MotionTracks;
@@ -16,9 +16,9 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MouseHelper;
 
-public class CamControlAnimator extends Animator
+public class AnimatorCamControl extends Animator
 {
-	public static final CamControlAnimator INSTANCE = new CamControlAnimator();
+	public static final AnimatorCamControl INSTANCE = new AnimatorCamControl();
 	
 	/**
 	 * @note This value is not real-time
@@ -56,16 +56,16 @@ public class CamControlAnimator extends Animator
 	/**
 	 * Used to save the off-axis angle when {@link Key#lookAroundActivated()} is {@code true}
 	 */
-	public final BasedMotionTendency eyeOffAxis = new BasedMotionTendency(0.4D, 40D, 0.125D);
+	public final MotionTendencyBased eyeOffAxis = new MotionTendencyBased(0.4D, 40D, 0.125D);
 	
 	/**
 	 * Animation tracks to control the camera. Notice that this will not effect the actual walking
 	 * direction of the player.
 	 */
-	public final MotionTracks<BasedMotionTendency>
+	public final MotionTracks<MotionTendencyBased>
 		camOffAxis = new MotionTracks<>(
-			new BasedMotionTendency(0.4D, 4.25D, 1D),
-			new BasedMotionTendency(0.4D, 4.25D, 1D)
+			new MotionTendencyBased(0.4D, 4.25D, 1D),
+			new MotionTendencyBased(0.4D, 4.25D, 1D)
 		);
 	
 	public float
@@ -115,7 +115,7 @@ public class CamControlAnimator extends Animator
 		{
 			double pitchLimitMin = -90D - actual.z;
 			double pitchLimitMax = 90D - actual.z;
-			final BasedMotionTendency offAsix = this.eyeOffAxis;
+			final MotionTendencyBased offAsix = this.eyeOffAxis;
 			eyeRot.set(actual);
 			
 			Vec3 v = offAsix.curPos;
@@ -175,7 +175,7 @@ public class CamControlAnimator extends Animator
 	@Override
 	public void itemTick(ItemStack stack, TypeInfo type)
 	{
-		final BasedMotionTendency offAxis = this.eyeOffAxis;
+		final MotionTendencyBased offAxis = this.eyeOffAxis;
 		
 		// If looking around, clear camera recover speed
 		if(Key.lookAroundActivated())
@@ -235,7 +235,7 @@ public class CamControlAnimator extends Animator
 	
 	protected void doItemTick(ItemStack stack, TypeInfo type)
 	{
-		final BasedMotionTendency easingCam = this.camOffAxis.grab(MotionTracks.EASING);
+		final MotionTendencyBased easingCam = this.camOffAxis.grab(MotionTracks.EASING);
 		
 		/// Apply drop camera effects ///
 		updateCamVelocity();
