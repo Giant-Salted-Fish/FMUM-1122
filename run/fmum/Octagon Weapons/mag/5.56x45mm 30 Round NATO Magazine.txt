@@ -1,0 +1,3 @@
+Name 556x45mm30roundmag 5.56x45mm 30 Round NATO Magazine
+Category 556x45mmmag
+CreativeTab oc

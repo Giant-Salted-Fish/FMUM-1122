@@ -1,0 +1,5 @@
+Name hk416dustcover H&K416 Dust Cover
+Category ardustcover
+CreativeTab oc
+
+Model com.fmum.client.model.oc.ModelOCGun:HK416DustCover 0.1 skins/hk416d10rs.png

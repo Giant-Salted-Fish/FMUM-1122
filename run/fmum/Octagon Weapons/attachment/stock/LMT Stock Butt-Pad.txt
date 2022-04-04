@@ -1,0 +1,5 @@
+Name lmtstockbuttpad LMT Stock Butt-Pad
+Category lmtstockbuttpad
+CreativeTab oc
+
+Model com.fmum.client.model.oc.ModelOCGun:LMTStockButtPad 0.1 skins/hk416d10rs.png

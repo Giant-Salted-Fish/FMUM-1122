@@ -1,0 +1,5 @@
+Name cicis4rearsight CIC IS-4 Rear Sight
+Category pra
+CreativeTab oc
+
+Model com.fmum.client.model.oc.ModelOCGun:CICIS4RearSight 0.1 skins/ironsights.png

@@ -1,5 +1,7 @@
 package com.fmum.client.model.module;
 
+import java.util.function.Consumer;
+
 import com.fmum.client.model.ModelMeshBased;
 import com.fmum.common.module.TypeModular;
 import com.fmum.common.util.CoordSystem;
@@ -13,7 +15,7 @@ public class ModelModular extends ModelMeshBased
 	
 	public ModelModular(Mesh mesh) { super(mesh); }
 	
-	public ModelModular(Mesh[] meshes) { super(meshes); }
+	public ModelModular(Consumer<ModelModular> initializer) { initializer.accept(this); }
 	
 	// TODO: override in aimable and scope model 
 	public RenderInfoModule prepareRenderInfo(NBTTagList tag, TypeModular type, CoordSystem sys)

@@ -3,13 +3,13 @@ package com.fmum.common.util;
 public interface Animation extends Comparable<Animation>
 {
 	/**
-	 * Prepare this animation to prepare for the launch
+	 * Notify this animation to prepare for the launch
 	 */
 	default public void launch() { }
 	
 	/**
 	 * Tick current animation. Mainly used to switch to non-movement animation when this animation
-	 * is complete.
+	 * is finished.
 	 * 
 	 * @return {@code true} if this animation has complete
 	 */
@@ -24,7 +24,7 @@ public interface Animation extends Comparable<Animation>
 	default public void getSmoothedPos(Vec3 dest, double smoothedProgress) { dest.set(0D); }
 	
 	/**
-	 * Get key frame time of this animation. Usually used in animation nodes.
+	 * Get key frame time of this animation. For animation nodes.
 	 * 
 	 * @return Key frame time
 	 */

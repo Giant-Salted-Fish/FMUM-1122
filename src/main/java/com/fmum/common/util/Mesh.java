@@ -24,7 +24,12 @@ import org.lwjgl.opengl.GL30;
 public final class Mesh implements AutoCloseable
 {
 	/**
-	 * A fix instance that can be used as the initializer value
+	 * A fixed instance that renders nothing
+	 */
+	public static final Mesh NONE = new Mesh();
+	
+	/**
+	 * A fixed instance that can be used as the initializer value
 	 */
 	public static final Mesh[] DEF_MESHES = { };
 	
@@ -34,6 +39,12 @@ public final class Mesh implements AutoCloseable
 	 * No indices if this is negative
 	 */
 	private int drawSize = 0;
+	
+	private Mesh()
+	{
+		this.vao = 0;
+		this.drawSize = 0;
+	}
 	
 	public Mesh(List<Vertex> vertices, List<Integer> indices)
 	{
@@ -286,7 +297,12 @@ public final class Mesh implements AutoCloseable
 			return this;
 		}
 		
-		// TODO: flip vertices here maybe?
+		public final Builder flip()
+		{
+			for(Vertex v : this.vertices)
+				v.flip(false, true, true);
+			return this;
+		}
 		
 		public final Mesh build()
 		{
@@ -298,5 +314,7 @@ public final class Mesh implements AutoCloseable
 				);
 			return new Mesh(this.vertices, this.indices);
 		}
+		
+		public Mesh quickBuild() { return this.build(); }
 	}
 }

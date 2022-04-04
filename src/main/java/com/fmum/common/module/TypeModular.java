@@ -2,6 +2,7 @@ package com.fmum.common.module;
 
 import java.util.HashMap;
 
+import com.fmum.client.FMUMClient;
 import com.fmum.common.type.TypePaintable;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 import com.fmum.common.util.CoordSystem;
@@ -49,7 +50,9 @@ public abstract class TypeModular extends TypePaintable
 	 * @param stepLen Step length of the slot rail of the super module
 	 * @return Install position shift
 	 */
-	public double getPos(int[] states, double stepLen) { return 0D; }
+	public double getPos(int[] states, double stepLen) {
+		return TagModular.getStep(states) * stepLen;
+	}
 	
 	public boolean stream(NBTTagList tag, ModuleVisitor visitor)
 	{
@@ -219,7 +222,11 @@ public abstract class TypeModular extends TypePaintable
 		
 		// Write default states
 		TagModular.setIdDam(states, Item.getIdFromItem(this.item), dam);
-		TagModular.setStep(states, step);
+		if(step != 0)
+		{
+			TagModular.setStep(states, step);
+			FMUMClient.addChatMsg("Get " + TagModular.getStep(states));
+		}
 		TagModular.setOffset(states, offset);
 		
 		// Append slot tag

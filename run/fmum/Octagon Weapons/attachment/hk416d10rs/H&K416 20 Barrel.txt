@@ -1,0 +1,7 @@
+Name hk41620barrel H&K416 20" Barrel
+Category hk416barrel
+CreativeTab oc
+
+Model com.fmum.client.model.oc.ModelOCGun:HK41620Barrel 0.1 skins/hk416d10rs.png
+
+Slots 100 C[ 556mmmuzzle ] | 49 C[ hk416gasblock ]

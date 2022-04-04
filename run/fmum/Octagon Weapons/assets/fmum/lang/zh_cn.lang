@@ -1,6 +1,47 @@
 # By Giant_Salted_Fish
 
+# 内容包概要
 oc.pack=八边形枪械包
 oc.author=一条大大的咸鱼
 
+# 创造模式物品栏
 itemGroup.oc=八边形枪械包
+
+# H&K416
+item.hk416d10rs.name=H&K416 D10RS
+item.hk416lowerreceiver=H&K416 下机匣
+item.hk416104barrel.name=H&K416 10.4英寸枪管
+item.hk416145barrel.name=H&K416 14.5英寸枪管
+item.hk416145handguard.name=H&K416 14.5英寸护木
+item.hk416165barrel.name=H&K416 16.5英寸枪管
+item.hk41620barrel.name=H&K416 20英寸枪管
+item.hk416barrelextension.name=H&K416 枪管节套
+item.hk416barrelnut.name=H&K416 枪管螺母
+item.hk416bolt.name=H&K416 枪击组件
+item.hk416buffertube.name=H&K416 缓冲管
+item.hk416chargehandle.name=H&K416 拉机柄
+item.hk416dustcover.name=H&K416 防尘盖
+item.hk416dustcoverclosed=H&K416 防尘盖-关闭
+item.hk416frontsight.name=H&K416 折叠式准星
+item.hk416gasblock.name=H&K416 导气组件
+item.hk416handguard.name=H&K416 护木
+item.hk416pistolgrip.name=H&K416 手枪握把
+item.hk416pistonguide.name=H&K416 活塞导筒
+item.hk416piston.name=H&K416 活塞
+item.hk416receiverendplate.name=H&K416 机匣尾板
+item.hk416receiverextensionnut.name=H&K416 机匣延伸螺母
+item.hk416upperreceiver.name=H&K416 上机匣
+
+# 弹匣
+item.556x45mm30roundmag.name=5.56x45mm 30发北约标准弹匣
+
+# 机械瞄具
+item.cicis4frontsight.name=CIC IS-4 折叠式准星
+item.cicis4rearsight.name=CIC IS-4 折叠式觇孔照门
+
+# 膛口装置
+item.556mmthreadprotector.name=5.56mm 螺纹保护帽
+
+# 枪托
+item.lmtstock.name=海军托
+item.lmtstockbuttpad.name=海军托缓冲垫

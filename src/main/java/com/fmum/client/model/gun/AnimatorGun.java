@@ -274,9 +274,9 @@ public class AnimatorGun extends AnimatorCamControl
 			(tag, typ, x, y, z, sin0, cos0, rotX) -> {
 				TypeGunPart part = (TypeGunPart)typ;
 				final boolean leftGrab = part.leftHandPriority
-					> ((TypeGunPart)leftHandGrabbing.type).leftHandPriority;
+					>= ((TypeGunPart)leftHandGrabbing.type).leftHandPriority;
 				final boolean rightGrab = part.rightHandPriority
-					> ((TypeGunPart)rightHandGrabbing.type).rightHandPriority;
+					>= ((TypeGunPart)rightHandGrabbing.type).rightHandPriority;
 				if(leftGrab || rightGrab)
 				{
 					final ModuleInfo info = leftGrab ? leftHandGrabbing : rightHandGrabbing;
@@ -286,6 +286,7 @@ public class AnimatorGun extends AnimatorCamControl
 					info.z = z;
 					info.sin = sin0;
 					info.cos = cos0;
+					info.rotX = rotX;
 				}
 				return false;
 			}

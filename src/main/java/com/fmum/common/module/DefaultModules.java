@@ -110,7 +110,8 @@ public final class DefaultModules
 			for(DefaultModules dm : this.slots.get(i))
 			{
 				NBTTagList moduleTag = dm.genTag();
-				if(moduleTag != null) slotTag.appendTag(moduleTag);
+				if(moduleTag != null)
+					slotTag.appendTag(moduleTag);
 			}
 		}
 	}

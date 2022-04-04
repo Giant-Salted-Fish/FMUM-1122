@@ -1,7 +1,5 @@
 package com.fmum.common.util;
 
-import com.fmum.common.util.Mesh.Vertex;
-
 /**
  * A simple vector with 3 {@code double} values
  * 
@@ -138,27 +136,12 @@ public class Vec3
 	
 	public final double length() { return Math.sqrt(this.lengthSquared()); }
 	
-	/**
-	 * Helper method for {@link Vertex}
-	 */
-	public final Vec3 set(Vertex v)
-	{
-		this.x = v.x;
-		this.y = v.y;
-		this.z = v.z;
-		return this;
-	}
+	public boolean nonZero() { return this.x != 0D || this.y != 0D || this.z != 0D; }
 	
-	/**
-	 * Helper method for {@link Vertex}
-	 */
-	public final Vec3 sub(Vertex v)
-	{
-		this.x -= v.x;
-		this.y -= v.y;
-		this.z -= v.z;
-		return this;
-	}
+	public final boolean equals(Vec3 v) { return this.x == v.x && this.y == v.y && this.z == v.z; }
+	
+	@Override
+	public boolean equals(Object o) { return o instanceof Vec3 && this.equals((Vec3)o); }
 	
 	@Override
 	public String toString() { return "(" + this.x + ", " + this.y + ", " + this.z + ")"; }

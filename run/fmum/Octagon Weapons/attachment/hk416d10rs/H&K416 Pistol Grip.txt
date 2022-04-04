@@ -1,0 +1,7 @@
+Name hk416pistolgrip H&K416 Pistol Grip
+Category arpistolgrip
+CreativeTab oc
+
+Model com.fmum.client.model.oc.ModelOCGun:HK416PistolGrip 0.1 skins/hk416d10rs.png
+
+RightHandPriority 0

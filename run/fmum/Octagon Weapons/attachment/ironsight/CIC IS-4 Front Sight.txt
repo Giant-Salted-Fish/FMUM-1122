@@ -1,0 +1,5 @@
+Name cicis4frontsight CIC IS-4 Front Sight
+Category pra
+CreativeTab oc
+
+Model com.fmum.client.model.oc.ModelOCGun:CICIS4FrontSight 0.1 skins/ironsights.png

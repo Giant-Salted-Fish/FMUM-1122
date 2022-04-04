@@ -1,6 +1,7 @@
 package com.fmum.client.model.gun;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 import org.lwjgl.opengl.GL11;
 
@@ -10,6 +11,7 @@ import com.fmum.client.model.AnimatorCamControl;
 import com.fmum.client.model.Model;
 import com.fmum.client.model.ModelAlexArm;
 import com.fmum.client.model.ModelDebugBox;
+import com.fmum.client.model.gun.ModelGunPart.ModelGrip;
 import com.fmum.client.model.module.ModelModular;
 import com.fmum.client.model.module.RenderInfoModule;
 import com.fmum.common.gun.TagGun;
@@ -135,7 +137,7 @@ public class ModelGun extends ModelGrip
 		smoothViewRot_R = new Vec3(0.15D, -0.15D, -0.2D);
 	
 	public final Vec3
-		smoothMotion_P = new Vec3(-0.2D, -0.2D, -0.2D),
+		smoothMotion_P = new Vec3(-0.2D, -0.2D, -0.1D),
 		smoothMotion_R = new Vec3(-25D, -15D, -15D);
 	
 	/**
@@ -149,7 +151,7 @@ public class ModelGun extends ModelGrip
 	
 	public ModelGun(Mesh mesh) { super(mesh); }
 	
-	public ModelGun(Mesh[] meshes) { super(meshes); }
+	public ModelGun(Consumer<ModelGun> initializer) { initializer.accept(this); }
 	
 	@Override
 	public void updateRightHandTarPos(

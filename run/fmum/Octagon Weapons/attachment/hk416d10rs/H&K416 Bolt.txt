@@ -1,0 +1,5 @@
+Name hk416bolt H&K416 Bolt
+Category hk416bolt
+CreativeTab oc
+
+Model com.fmum.client.model.oc.ModelOCGun:HK416Bolt 0.1 skins/hk416d10rs.png

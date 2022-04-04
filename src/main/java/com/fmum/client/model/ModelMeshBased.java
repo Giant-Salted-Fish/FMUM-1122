@@ -1,5 +1,7 @@
 package com.fmum.client.model;
 
+import java.util.function.Consumer;
+
 import com.fmum.common.util.Mesh;
 
 /**
@@ -15,7 +17,7 @@ public class ModelMeshBased extends Model
 	
 	public ModelMeshBased(Mesh mesh) { this.meshes = new Mesh[] { mesh }; }
 	
-	public ModelMeshBased(Mesh[] meshes) { this.meshes = meshes; }
+	public ModelMeshBased(Consumer<ModelMeshBased> initializer) { initializer.accept(this); }
 	
 	@Override
 	public void render() { for(Mesh m : this.meshes) m.render(); }

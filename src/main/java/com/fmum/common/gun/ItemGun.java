@@ -89,8 +89,8 @@ public final class ItemGun extends ItemHoldable implements ItemAmmoContainer
 		{
 		case VIEW_WEAPON:
 		case CO_VIEW_WEAPON:
-			FMUMClient.tryLaunchOp(new OperationProgressive() { { this.progressor = 1D / 2.52D / 20D; } });
-			((ItemGun)FMUMClient.prevItem).type.model.getAnimatorFP().launchAnimation(AnimationTracksGun.TEST);
+			FMUMClient.tryLaunchOp(new OperationProgressive() { { this.progressor = 1D / 5.52D / 20D; } });
+			((ItemGun)FMUMClient.prevItem).type.model.getAnimatorFP().launchAnimation(AnimationTracksGun.RELOAD);
 		default:;
 		}
 	}

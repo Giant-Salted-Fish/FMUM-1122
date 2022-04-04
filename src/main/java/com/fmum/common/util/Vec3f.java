@@ -14,6 +14,15 @@ public class Vec3f
 		y = 0F,
 		z = 0F;
 	
+	public final Vec3f set(float a)
+	{
+		this.x
+			= this.y
+			= this.z
+			= a;
+		return this;
+	}
+	
 	public final Vec3f set(float x, float y, float z)
 	{
 		this.x = x;
@@ -27,6 +36,14 @@ public class Vec3f
 		this.x = v.x;
 		this.y = v.y;
 		this.z = v.z;
+		return this;
+	}
+	
+	public final Vec3f trans(Vec3f v)
+	{
+		this.x += v.x;
+		this.y += v.y;
+		this.z += v.z;
 		return this;
 	}
 	
@@ -46,6 +63,14 @@ public class Vec3f
 		return this;
 	}
 	
+	public final Vec3f flip(boolean x, boolean y, boolean z)
+	{
+		this.x = x ? -this.x : this.x;
+		this.y = y ? -this.y : this.y;
+		this.z = z ? -this.z : this.z;
+		return this;
+	}
+	
 	public final Vec3f cross(Vec3f v)
 	{
 		float x = this.y * v.z - this.z * v.y;
@@ -62,4 +87,11 @@ public class Vec3f
 			1F / (float)Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z)
 		);
 	}
+	
+	public boolean nonZero() { return this.x != 0F || this.y != 0F || this.z != 0F; }
+	
+	public final boolean equals(Vec3f v) { return this.x == v.x && this.y == v.y && this.z == v.z; }
+	
+	@Override
+	public boolean equals(Object o) { return o instanceof Vec3f && this.equals((Vec3f)o); }
 }
