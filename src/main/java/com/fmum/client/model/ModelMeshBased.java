@@ -15,7 +15,7 @@ public class ModelMeshBased extends Model
 	
 	public ModelMeshBased() { }
 	
-	public ModelMeshBased(Mesh mesh) { this.meshes = new Mesh[] { mesh }; }
+	public ModelMeshBased(Mesh... meshes) { this.meshes =meshes; }
 	
 	public ModelMeshBased(Consumer<ModelMeshBased> initializer) { initializer.accept(this); }
 	

@@ -1,5 +1,6 @@
 package com.fmum.common.network;
 
+import com.fmum.client.model.module.OpModification;
 import com.fmum.common.FMUM;
 
 import io.netty.buffer.ByteBuf;
@@ -20,9 +21,8 @@ public final class PacketConfigSync implements FMUMPacket
 		FMUM.maxLayers = data.readByte();
 	}
 	
-	/**
-	 * Override to disable error log client side
-	 */
 	@Override
-	public void handleClientSide(EntityPlayerSP player) { }
+	public void handleClientSide(EntityPlayerSP player) {
+		OpModification.INSTANCE.onConfigSync();
+	}
 }

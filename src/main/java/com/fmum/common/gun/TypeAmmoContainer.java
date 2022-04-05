@@ -2,7 +2,6 @@ package com.fmum.common.gun;
 
 import java.util.TreeSet;
 
-import com.fmum.common.FMUM;
 import com.fmum.common.type.TypeInfo;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
@@ -16,7 +15,7 @@ public abstract class TypeAmmoContainer extends TypeGunPart
 		parser.addKeyword(
 			"Ammo",
 			(s, t) -> {
-				if(t.ammo == FMUM.EMPTY_STR_SET)
+				if(t.ammo == TypeInfo.EMPTY_STR_SET)
 					t.ammo = new TreeSet<>();
 				for(int i = s.length; --i > 0; t.ammo.add(s[i]));
 			}
@@ -31,7 +30,7 @@ public abstract class TypeAmmoContainer extends TypeGunPart
 	/**
 	 * All ammo types that accepted by this ammo container
 	 */
-	public TreeSet<String> ammo = FMUM.EMPTY_STR_SET;
+	public TreeSet<String> ammo = TypeInfo.EMPTY_STR_SET;
 	
 	protected TypeAmmoContainer(String name) { super(name); }
 	

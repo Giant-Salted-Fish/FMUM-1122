@@ -1,7 +1,6 @@
 package com.fmum.common;
 
 import java.util.Random;
-import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
@@ -47,19 +46,10 @@ public final class FMUM
 		INTEGER_FORMAT = Pattern.compile("-?[0-9]+"),
 		REAL_NUMBER_FORMAT = Pattern.compile("-?[0-9]+\\.?[0-9]*");
 	
-	public static final String
-		TXT_FILE_SUFFIX = ".txt",
-		CLASS_FILE_SUFFIX = ".class";
-	
 	/**
 	 * Easy referencing
 	 */
 	public static final Minecraft mc = Minecraft.getMinecraft();
-	
-	/**
-	 * Some fixed empty containers that can be used as initializer value
-	 */
-	public static final TreeSet<String> EMPTY_STR_SET = new TreeSet<>();
 	
 	/**
 	 * Id of {@link FMUM}
@@ -187,8 +177,8 @@ public final class FMUM
 			classPath = pathFragments[i] + "." + classPath
 		);
 		return(
-			classPath.endsWith(CLASS_FILE_SUFFIX)
-			? classPath.substring(0, classPath.length() - CLASS_FILE_SUFFIX.length())
+			classPath.endsWith(".class")
+			? classPath.substring(0, classPath.length() - ".class".length())
 			: classPath
 		);
 	}

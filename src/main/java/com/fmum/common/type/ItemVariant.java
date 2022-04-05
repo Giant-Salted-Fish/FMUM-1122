@@ -28,7 +28,6 @@ public class ItemVariant
 					FMUM.proxy.addLocalizeKey(t.translationKey + ".name", FMUM.splice(s, 2));
 			}
 		);
-		parser.addKeyword("Icon", (s, t) -> t.iconPath = s[1]);
 		parser.addKeyword("Texture", (s, t) -> t.texture = s[1]);
 		parser.addKeyword("Material", (s, t) -> t.material = parseMaterial(s, 1));
 	}
@@ -37,12 +36,14 @@ public class ItemVariant
 		TRANSLATION_PREFIX = "item.",
 		TRANSLATION_SUFFIX = ".name";
 	
+	/**
+	 * A parser that reads attributes for item variant. Note that it will not set {@link #name} and
+	 * {@link #translationKey} cause they are initialized in instantiation.
+	 */
 	protected static final ParserFunc<ItemVariant> paintjobParser = (s, t) -> {
-		t.translationKey = TRANSLATION_PREFIX + s[1];
-		t.iconPath = s[s.length > 2 ? 2 : 1];
-		t.texture = s[s.length > 3 ? 3 : 1];
-		if(s.length > 4)
-			t.material = parseMaterial(s, 4);
+		t.texture = s.length > 2 ? s[2] : ClientProxy.RECOMMENDED_TEXTURE_FOLDER + s[1] + ".png";
+		if(s.length > 3)
+			t.material = parseMaterial(s, 3);
 	};
 	
 	protected static final TreeMap<String, Integer> DEF_MATERIAL = new TreeMap<>();
@@ -56,11 +57,6 @@ public class ItemVariant
 	 * Translation key for localization. In default is {@value #TRANSLATION_PREFIX} + {@link #name}.
 	 */
 	public String translationKey;
-	
-	/**
-	 * Path of the icon for this item
-	 */
-	public String iconPath = null;
 	
 	/**
 	 * Texture of the item. Usually for 3D model rendering.
@@ -80,8 +76,8 @@ public class ItemVariant
 	
 	public void postParse()
 	{
-		if(this.iconPath == null) this.iconPath = this.name;
-		if(this.texture == null) this.texture = ClientProxy.RECOMMENDED_TEXTURE_FOLDER + this.name;
+		if(this.texture == null)
+			this.texture = ClientProxy.RECOMMENDED_TEXTURE_FOLDER + this.name + ".png";
 	}
 	
 	protected static TreeMap<String, Integer> parseMaterial(String[] split, int cursor)

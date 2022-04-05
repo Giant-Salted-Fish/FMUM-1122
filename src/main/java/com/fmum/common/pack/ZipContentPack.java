@@ -56,7 +56,7 @@ public final class ZipContentPack extends LocalContentProvider
 					// Not a normal type, check if it is creative tab
 					if(entryName.substring(i).equals(FMUMCreativeTab.RECOMMENDED_SOURCE_DIR_NAME))
 					{
-						if(entryName.endsWith(FMUM.CLASS_FILE_SUFFIX))
+						if(entryName.endsWith(".class"))
 							FMUM.tryInstantiate(entryName.replace('/', '.'));
 						
 						// Create a tab in name of the file name
@@ -68,17 +68,17 @@ public final class ZipContentPack extends LocalContentProvider
 				}
 				
 				// Load typer based on file type
-				if(entryName.endsWith(FMUM.TXT_FILE_SUFFIX))
+				if(entryName.endsWith(".txt"))
 					try
 					{
 						type.parser.parse(
 							in,
-							fName.substring(0, fName.length() - FMUM.TXT_FILE_SUFFIX.length()),
+							fName.substring(0, fName.length() - ".txt".length()),
 							sourceTrace
 						).noticeProvider(this).postParse();
 					}
 					catch(IOException e) { printIOError(sourceTrace.message(), e); }
-				else if(entryName.endsWith(FMUM.CLASS_FILE_SUFFIX))
+				else if(entryName.endsWith(".class"))
 					this.loadClassBasedTyper(sourceTrace, entryName.replace('/', '.'));
 				else printUnrecognizedType(sourceTrace.message());
 				

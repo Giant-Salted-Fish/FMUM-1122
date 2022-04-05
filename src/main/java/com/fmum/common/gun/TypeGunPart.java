@@ -52,8 +52,6 @@ public abstract class TypeGunPart extends TypeModular
 	
 	public boolean validateAmmo(TypeInfo ammo) { return false; }
 	
-	public boolean validateMag(TypeInfo mag) { return false; }
-	
 	@Override
 	public void postParse()
 	{

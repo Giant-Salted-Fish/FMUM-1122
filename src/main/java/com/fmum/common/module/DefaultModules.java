@@ -82,7 +82,7 @@ public final class DefaultModules
 					curModule.offset = Byte.parseByte(split[i]);
 					break;
 				case 3:
-					this.dam = Short.parseShort(split[i]);
+					curModule.dam = Short.parseShort(split[i]);
 					
 					cursor = i + 1;
 					break;

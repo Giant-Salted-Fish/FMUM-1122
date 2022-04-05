@@ -11,11 +11,10 @@ import com.fmum.client.model.AnimatorCamControl;
 import com.fmum.client.model.Model;
 import com.fmum.client.model.ModelAlexArm;
 import com.fmum.client.model.ModelDebugBox;
-import com.fmum.client.model.gun.ModelGunPart.ModelGrip;
 import com.fmum.client.model.module.ModelModular;
 import com.fmum.client.model.module.RenderInfoModule;
 import com.fmum.common.gun.TagGun;
-import com.fmum.common.module.ModuleInfo;
+import com.fmum.common.module.InfoModule;
 import com.fmum.common.module.TagModular;
 import com.fmum.common.module.TypeModular;
 import com.fmum.common.type.TypeInfo;
@@ -37,7 +36,7 @@ public class ModelGun extends ModelGrip
 		() -> 1 // FIXME: initialize a texture
 	);
 	
-	/** TODO: validate needary
+	/**
 	 * Buffered systems for rendering
 	 */
 	protected static final CoordSystem gunSys = new CoordSystem();
@@ -125,8 +124,8 @@ public class ModelGun extends ModelGrip
 	public final Vec3
 		walkAmpltGun_P = new Vec3(0D, 0.05D, 0.05D),
 		walkAmpltGun_R = new Vec3(-15D, 0D, 5D),
-		sprintAmpltGun_P = new Vec3(0D, 0.16D, 0.1D),
-		sprintAmpltGun_R = new Vec3(-30D, -15D, 15D);
+		sprintAmpltGun_P = new Vec3(0D, 0.16D * 1.75D, 0.1D * 1.5D),
+		sprintAmpltGun_R = new Vec3(-30D, -15D, 15D * 1.125D);
 	
 	public final Vec3
 		walkAmpltCompensationGun_P = new Vec3(-0.15D, 0D, -0.15D),
@@ -149,7 +148,7 @@ public class ModelGun extends ModelGrip
 	
 	public ModelGun() { }
 	
-	public ModelGun(Mesh mesh) { super(mesh); }
+	public ModelGun(Mesh... meshes) { super(meshes); }
 	
 	public ModelGun(Consumer<ModelGun> initializer) { initializer.accept(this); }
 	
@@ -157,7 +156,7 @@ public class ModelGun extends ModelGrip
 	public void updateRightHandTarPos(
 		Animator ani,
 		CoordSystem location,
-		ModuleInfo info,
+		InfoModule info,
 		ArmTendency dest
 	) {
 		vec.set(this.grabPos_R);

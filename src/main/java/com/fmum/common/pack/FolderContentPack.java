@@ -53,18 +53,18 @@ public final class FolderContentPack extends LocalContentProvider
 					final Messager fileTrace
 						= () -> this.getSourceName() + "." + superClassPath + "." + fName;
 					
-					if(fName.endsWith(FMUM.TXT_FILE_SUFFIX))
+					if(fName.endsWith(".txt"))
 						try
 						{
 							this.curParser.parse(
 								typeFile,
-								fName.substring(0, fName.length() - FMUM.TXT_FILE_SUFFIX.length()),
+								fName.substring(0, fName.length() - ".txt".length()),
 								fileTrace
 							).noticeProvider(this).postParse();
 						}
 						catch(IOException e) { printIOError(fileTrace.message(), e); }
 					// Load typer by class file
-					else if(fName.endsWith(FMUM.CLASS_FILE_SUFFIX))
+					else if(fName.endsWith(".class"))
 						this.loadClassBasedTyper(fileTrace, superClassPath, fName);
 					else printUnrecognizedType(fileTrace.message());
 					return false;
@@ -83,7 +83,7 @@ public final class FolderContentPack extends LocalContentProvider
 				final Messager st = () -> this.getSourceName() + ":" + superClassPath + "." + fName;
 				
 				// Create a tab in name of the file name if it is the not class based tab
-				if(!fName.endsWith(FMUM.CLASS_FILE_SUFFIX))
+				if(!fName.endsWith(".class"))
 					try { IconBasedTab.parser.parse(tabFile, fName, st); }
 					catch(IOException e) { printIOError(st.message(), e); }
 				

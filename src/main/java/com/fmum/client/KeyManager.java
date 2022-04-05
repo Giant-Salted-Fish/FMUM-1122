@@ -57,10 +57,10 @@ public abstract class KeyManager
 	 */
 	public static final LinkedList<Key> inCoKeys = new LinkedList<>();
 	
-	/**
+	/** TODO: validate necessary?
 	 * Keys that will never update. They will be referenced independently.
 	 */
-	public static final LinkedList<Key> independentKeys = new LinkedList<>();
+//	public static final LinkedList<Key> independentKeys = new LinkedList<>();
 	
 	public enum Key
 	{
@@ -189,32 +189,22 @@ public abstract class KeyManager
 			}
 		}
 		
-		public boolean down()
-		{
-			return(
-				this.keyCode != Keyboard.KEY_NONE
-				&& (
-					this.keyCode < 0
-					? Mouse.isButtonDown(this.keyCode + 100) 
-					: Keyboard.isKeyDown(this.keyCode)
-				)
-			);
-		}
+		public boolean down() { return this.pressTime > 0; }
 		
-		public boolean lastDown() { return this.pressTime > 1; }
+//		public boolean lastDown() { return this.pressTime > 1; }
 		
 		public boolean bounden() { return this.keyCode != Keyboard.KEY_NONE; }
 		
 		protected void update()
 		{
-			if(!this.down()) this.pressTime = 0;
+			if(!keyDown(this.keyCode)) this.pressTime = 0;
 			else if(this.pressTime++ == 0) this.trigger();
 		}
 		
 		protected void trigger() { FMUMClient.prevItem.keyNotify(this); }
 		
 		public static boolean lookAroundActivated() {
-			return (CO.pressTime > 0 ? CO_LOOK_AROUND : LOOK_AROUND).pressTime > 0;
+			return (CO.pressTime > 0 ? CO_LOOK_AROUND : LOOK_AROUND).down();
 		}
 	}
 	
@@ -280,7 +270,7 @@ public abstract class KeyManager
 	public static boolean keyDown(int keyCode)
 	{
 		return(
-			keyCode != 0
+			keyCode != Keyboard.KEY_NONE
 			&& (
 				keyCode < 0
 				? Mouse.isButtonDown(keyCode + 100)

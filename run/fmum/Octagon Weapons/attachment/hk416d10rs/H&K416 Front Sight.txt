@@ -2,4 +2,5 @@ Name hk416frontsight H&K416 Front Sight
 Category hk416frontsight
 CreativeTab oc
 
-Model com.fmum.client.model.oc.ModelOCGun:HK416FrontSight 0.1 skins/hk416d10rs.png
+Model com.fmum.client.model.oc.ModelOCGun:HK416FrontSight 0.1 skins/ironsights.png
+Paintjob hk416frontsight-tritium skins/ironsights-tritium.png

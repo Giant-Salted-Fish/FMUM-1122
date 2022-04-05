@@ -3,8 +3,11 @@ package com.fmum.client.model.oc;
 import java.util.function.Consumer;
 
 import com.fmum.client.model.Model;
+import com.fmum.client.model.gun.ModelGrip;
 import com.fmum.client.model.gun.ModelGun;
-import com.fmum.client.model.gun.ModelGunPart;
+import com.fmum.client.model.gun.ModelGunBolt;
+import com.fmum.client.model.module.ModelGlow;
+import com.fmum.client.model.module.ModelModular;
 import com.fmum.common.util.Mesh;
 import com.fmum.common.util.ObjRepository;
 import com.fmum.common.util.TBModelMeshBuilder;
@@ -81,7 +84,10 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		return null;
 	}
 	
-	private static final ModelGunPart CICIS4_FRONT_SIGHT = new ModelGunPart(
+	private static final ModelModular CICIS4_FRONT_SIGHT = new ModelModular(
+		new TBModelMeshBuilder(512, 512)
+			.addShapeBox(1.5F, -2F, -0.5F, -0.01F, -8F, 0F, 0F, 0F, 0F, 1, 2, 1, 169, 49, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+		.quickBuild(),
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-1.5F, -1F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 1, 7, 465, 41, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F)
 			.addShapeBox(-1.5F, 0F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 2, 1, 489, 41, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
@@ -97,12 +103,17 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 			.addShapeBox(-0.5F, 0F, -6.5F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 1, 3, 145, 49, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(0.5F, 1F, -7F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 3, 345, 41, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(0.5F, -1F, -7F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 3, 105, 49, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F)
-			.addShapeBox(1.5F, -2F, -0.5F, -0.01F, -8F, 0F, 0F, 0F, 0F, 1, 2, 1, 169, 49, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(1.5F, -2F, -3.5F, -0.5F, -0.5F, 0F, 0F, 0F, -0.78539816F, 1, 1, 7, 177, 49, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart CICIS4_REAR_SIGHT = new ModelGunPart(
+	private static final ModelGlow CICIS4_REAR_SIGHT = new ModelGlow(
+		new TBModelMeshBuilder(512, 512)
+			.addShapeBox(-1.5F, -2.5F, 0F, -1.01F, -7.9F, 1.1F, 0F, 0F, 0F, 1, 1, 1, 233, 33, 0F, -0.4F, 0F, 0F, -0.4F, 0F, 0F, 0F, -0.6F, 0F, 0F, -0.6F, 0F, -0.2F, -0.4F, 0F, -0.2F, -0.4F, 0F, -0.6F, -0.2F, 0F, -0.6F, -0.2F)
+			.addShapeBox(-1.5F, -2.5F, 0F, -1.01F, -7.9F, -1.9F, 0F, 0F, 0F, 1, 1, 1, 505, 33, 0F, -0.4F, 0F, 0F, -0.4F, 0F, 0F, 0F, -0.6F, 0F, 0F, -0.6F, 0F, -0.2F, -0.4F, 0F, -0.2F, -0.4F, 0F, -0.6F, -0.2F, 0F, -0.6F, -0.2F)
+			.addShapeBox(-1.5F, -2.5F, 0.600000000000001F, 1.9F, -5.01F, 0F, 0F, 0F, 0F, 1, 1, 1, 105, 41, -0.6F, 0F, 0F, 0F, 0F, -0.4F, -0.4F, 0F, -0.2F, -0.2F, 0F, -0.6F, -0.6F, 0F, 0F, 0F, 0F, -0.4F, -0.4F, 0F, -0.2F, -0.2F, 0F, -0.6F)
+			.addShapeBox(-1.5F, -2.5F, -1.6F, 1.9F, -5.01F, 0F, 0F, 0F, 0F, 1, 1, 1, 177, 49, -0.2F, 0F, -0.6F, -0.4F, 0F, -0.2F, 0F, 0F, -0.4F, -0.6F, 0F, 0F, -0.2F, 0F, -0.6F, -0.4F, 0F, -0.2F, 0F, 0F, -0.4F, -0.6F, 0F, 0F)
+		.quickBuild(),
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(0F, 1F, -4F, -1F, 0F, 0F, 0F, 0F, 0F, 5, 1, 1, 353, 25, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(0F, 1F, 3F, -1F, 0F, 0F, 0F, 0F, 0F, 5, 1, 1, 249, 33, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
@@ -117,11 +128,9 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 			.addShapeBox(-1.5F, -2.5F, 0F, -1.5F, 0.5F, -2.5F, 0F, 0F, 0F, 3, 1, 5, 65, 41, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F)
 			.addShapeBox(0.5F, -1F, -7F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 3, 385, 9, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F)
 			.addShapeBox(0.5F, 1F, -7F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 3, 449, 9, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(-1.5F, -2.5F, 0F, -1.01F, -7.9F, 1.1F, 0F, 0F, 0F, 1, 1, 1, 233, 33, 0F, -0.4F, 0F, 0F, -0.4F, 0F, 0F, 0F, -0.6F, 0F, 0F, -0.6F, 0F, -0.2F, -0.4F, 0F, -0.2F, -0.4F, 0F, -0.6F, -0.2F, 0F, -0.6F, -0.2F)
 			.addShapeBox(-1.5F, -2.5F, 1F, -1F, -9F, 0F, 0F, 0F, 0F, 1, 1, 1, 369, 33, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-1.5F, -2.5F, 0F, -1F, -7.5F, -2F, 0F, 0F, 0F, 1, 1, 1, 409, 33, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F)
 			.addShapeBox(-1.5F, -2.5F, 0F, -1F, -7.5F, 1F, 0F, 0F, 0F, 1, 1, 1, 489, 33, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(-1.5F, -2.5F, 0F, -1.01F, -7.9F, -1.9F, 0F, 0F, 0F, 1, 1, 1, 505, 33, 0F, -0.4F, 0F, 0F, -0.4F, 0F, 0F, 0F, -0.6F, 0F, 0F, -0.6F, 0F, -0.2F, -0.4F, 0F, -0.2F, -0.4F, 0F, -0.6F, -0.2F, 0F, -0.6F, -0.2F)
 			.addShapeBox(-1.5F, -2.5F, 0F, -1.5F, -2.5F, -2.5F, 0F, 0F, 0F, 3, 1, 5, 89, 41, 1F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 1F, 1F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-1.5F, -2.5F, 0F, -2.5F, -8.5F, -3.5F, 0F, 0F, 0F, 4, 5, 1, 17, 41, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-1F, -2.5F, -3F, -1.5F, -5F, 0F, 0F, 0F, 0F, 1, 1, 6, 161, 41, 0.25F, -0.5F, 0F, -0.5F, 0.25F, 0F, -0.5F, 0.25F, 0F, 0.25F, -0.5F, 0F, -0.5F, 0.25F, 0F, 0.25F, -0.5F, 0F, 0.25F, -0.5F, 0F, -0.5F, 0.25F, 0F)
@@ -133,7 +142,6 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 			.addShapeBox(-1.5F, -2.5F, 0F, 2F, -5F, -2F, 0F, 0F, 0F, 1, 1, 1, 49, 41, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F)
 			.addShapeBox(-1.5F, -2.5F, 0F, 2F, -5F, 1F, 0F, 0F, 0F, 1, 1, 1, 65, 41, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-1.5F, -2.5F, 0F, 3F, -5F, -1F, 0F, 0F, 0F, 1, 1, 2, 57, 33, 0F, 0F, 1F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 1F)
-			.addShapeBox(-1.5F, -2.5F, 0.600000000000001F, 1.9F, -5.01F, 0F, 0F, 0F, 0F, 1, 1, 1, 105, 41, -0.6F, 0F, 0F, 0F, 0F, -0.4F, -0.4F, 0F, -0.2F, -0.2F, 0F, -0.6F, -0.6F, 0F, 0F, 0F, 0F, -0.4F, -0.4F, 0F, -0.2F, -0.2F, 0F, -0.6F)
 			.addShapeBox(-2F, -1F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 6, 1, 6, 297, 41, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(4F, -1F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 1, 4, 321, 9, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F)
 			.addShapeBox(-1.5F, -2.5F, 0F, -1F, -1F, -4.5F, 0F, 0F, 0F, 2, 2, 9, 257, 41, 0F, -1F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, -1F, 0F, -1F, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, -1F, 0F, 0F)
@@ -141,11 +149,10 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 			.addShapeBox(-3F, -4F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 3, 1, 377, 41, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 3F, 0F, 0F, 3F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-1F, -1F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 2, 1, 457, 41, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-1.5F, -2.5F, -2F, -1F, -9F, 0F, 0F, 0F, 0F, 1, 1, 1, 161, 49, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(-1.5F, -2.5F, -1.6F, 1.9F, -5.01F, 0F, 0F, 0F, 0F, 1, 1, 1, 177, 49, -0.2F, 0F, -0.6F, -0.4F, 0F, -0.2F, 0F, 0F, -0.4F, -0.6F, 0F, 0F, -0.2F, 0F, -0.6F, -0.4F, 0F, -0.2F, 0F, 0F, -0.4F, -0.6F, 0F, 0F)
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart LMT_STOCK_BUTT_PAD = new ModelGunPart(
+	private static final ModelModular LMT_STOCK_BUTT_PAD = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-3F, -5F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 4, 7, 345, 289, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -3F, 0F, 0F, -3F, 0F, -1F, 3F, 0F, -1F, 3F, 0F, -1F, 0F, 0F, -1F, 0F)
 			.addShapeBox(-3F, -2F, -5F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 30, 10, 369, 289, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
@@ -158,7 +165,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart LMT_STOCK = new ModelGunPart(
+	private static final ModelModular LMT_STOCK = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-32.5F, -5F, -1.99999999999999F, 0F, 0F, 0F, 0F, 0F, 0F, 50, 1, 4, 321, 265, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-32.5F, -5F, 4.00000000000001F, 0F, 0F, 0F, 0F, 0F, 0F, 50, 4, 1, 1, 273, 0F, -1F, 2F, 0F, -1F, 2F, 0F, 0F, -3F, 0F, 0F, -3F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, -1F, 0F)
@@ -689,7 +696,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		}
 	);
 	
-	private static final ModelGunPart HK416_CHARGE_HANDLE = new ModelGunPart(
+	private static final ModelModular HK416_CHARGE_HANDLE = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-4.5F, -2F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 2, 6, 193, 97, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-6.5F, -3.5F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 2, 4, 156, 48, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
@@ -753,7 +760,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		}
 	);
 	
-	private static final ModelGunPart HK416_DUST_COVER_CLOSED = new ModelGunPart(
+	private static final ModelModular HK416_DUST_COVER_CLOSED = new ModelModular(
 		new TBModelMeshBuilder(515, 512)
 			.addShapeBox(-11.5F, 0F, 0F, 0F, -1F, -1F, -0.20943951F, 0F, 0F, 8, 2, 2, 281, 41, 0F, -1F, 0F, 0.5F, -1F, 0F, 0.5F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, -1F, 0.5F, 0F, -1F, 0.5F, -1F, 0F, 0F, -1F, 0F)
 			.addShapeBox(-11.5F, 0F, 0F, 0F, -4F, -1F, -0.20943951F, 0F, 0F, 8, 4, 1, 97, 137, 0F, 0.5F, 0F, 0.5F, 0.5F, 0F, 0.5F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F)
@@ -774,7 +781,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_DUST_COVER = new ModelGunPart(
+	private static final ModelModular HK416_DUST_COVER = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-11.5F, 0F, 0F, 0F, -1F, -1F, 2.84488668F, 0F, 0F, 8, 2, 2, 281, 41, 0F, -1F, 0F, 0.5F, -1F, 0F, 0.5F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, -1F, 0.5F, 0F, -1F, 0.5F, -1F, 0F, 0F, -1F, 0F)
 			.addShapeBox(-11.5F, 0F, 0F, 0F, -4F, -1F, 2.84488668F, 0F, 0F, 8, 4, 1, 97, 137, 0F, 0.5F, 0F, 0.5F, 0.5F, 0F, 0.5F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F)
@@ -795,7 +802,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_RECEIVER_EXTENSION_NUT = new ModelGunPart(
+	private static final ModelModular HK416_RECEIVER_EXTENSION_NUT = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-2F, -5F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 4, 313, 33, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F)
 			.addShapeBox(-2F, -2F, 4F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 4, 1, 361, 169, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F)
@@ -816,7 +823,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_RECEIVER_END_PALTE = new ModelGunPart(
+	private static final ModelModular HK416_RECEIVER_END_PALTE = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-0.5F, -12.5F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 1, 4, 265, 137, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-0.5F, -9.5F, -5F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 4, 1, 257, 145, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F)
@@ -840,7 +847,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelBolt HK416_BOLT = new ModelBolt(
+	private static final ModelGunBolt HK416_BOLT = new ModelGunBolt(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-4F, -1F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 7, 2, 4, 273, 249, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-4F, -2F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 8, 1, 2, 321, 457, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 1F)
@@ -875,7 +882,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_PISTON = new ModelGunPart(
+	private static final ModelModular HK416_PISTON = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-70F, -1F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 65, 2, 2, 41, 201, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, -1F, 0F, 0F, -1F, 0F)
 			.addShapeBox(-5F, -0.5F, -1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 13, 1, 3, 201, 201, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
@@ -894,7 +901,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_PISTON_GUIDE = new ModelGunPart(
+	private static final ModelModular HK416_PISTON_GUIDE = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(0F, -1.5F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 22, 1, 1, 433, 201, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 1F)
 			.addShapeBox(0F, -0.5F, -1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 22, 1, 1, 1, 209, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
@@ -904,57 +911,61 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_FRONT_SIGHT_FLODED = new ModelGunPart(
+	private static final ModelGlow HK416_FRONT_SIGHT_FLODED = new ModelGlow(
 		new TBModelMeshBuilder(512, 512)
-			.addShapeBox(0F, 0F, -2F, -1F, -8F, 0F, 0F, 0F, -1.57079633F, 2, 5, 4, 89, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F)
-			.addShapeBox(0F, 0F, -2F, -1F, -9F, 0F, 0F, 0F, -1.57079633F, 2, 1, 3, 73, 241, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F)
-			.addShapeBox(0F, 0F, -1.5F, -1F, -13F, 0F, 0F, 0F, -1.57079633F, 2, 4, 3, 153, 257, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, -0.5F, -0.5F, -16.5F, 0F, 0F, 0F, -1.57079633F, 1, 2, 1, 105, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, -1F, -1F, -14.5F, 0F, 0F, 0F, -1.57079633F, 2, 1, 2, 113, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, -1F, -1F, -14.5F, -2F, 0F, 0F, -1.57079633F, 2, 1, 2, 129, 465, 0F, 1F, -1F, 0F, 1F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -2F, 0F, 0F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, 3F, -1F, -14.5F, -2F, 0F, 0F, -1.57079633F, 2, 1, 2, 145, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, -1F, 0F, 1F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -2F, 0F, 0F, -2F, 0F)
-			.addShapeBox(0F, 0F, 4F, -1F, -17.5F, -2F, 0F, 0F, -1.57079633F, 2, 2, 1, 161, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, -1F, -1F, -17.5F, -2F, 0F, 0F, -1.57079633F, 2, 2, 1, 169, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, -1F, -1F, -18.5F, -2F, 0F, 0F, -1.57079633F, 2, 1, 1, 177, 465, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, 4F, -1F, -18.5F, -2F, 0F, 0F, -1.57079633F, 2, 1, 1, 185, 465, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, -1F, -1F, -13.5F, 0F, 0F, 0F, -1.57079633F, 2, 1, 2, 193, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F)
-			.addShapeBox(0F, 0F, -2.5F, -0.5F, -3F, 0F, 0F, 0F, -1.57079633F, 1, 1, 5, 321, 49, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, -1F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, 0F, -1F, 0F)
-			.addShapeBox(0F, 0F, -2.5F, -0.5F, -5F, 0F, 0F, 0F, -1.57079633F, 1, 1, 5, 449, 49, -0.5F, -0.5F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, -0.5F, -0.5F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, -2.5F, -0.5F, -0.5F, 0F, 0F, 0F, -2.35619449F, 1, 1, 5, 119, 57, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, -2F, -1F, 0.5F, 0F, 0F, 0F, -1.57079633F, 2, 1, 1, 1, 71, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F)
-			.addShapeBox(-0.0100000000000051F, 0F, -0.5F, -0.5F, -16.5F, 0F, 0F, 0F, -1.57079633F, 1, 2, 1, 99, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, -2F, -1F, -2.5F, 0F, 0F, 0F, -1.57079633F, 2, 3, 1, 42, 449, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, 1F, -1F, -2.5F, 0F, 0F, 0F, -1.57079633F, 2, 3, 1, 42, 454, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, 1F, -1F, 0.5F, 0F, 0F, 0F, -1.57079633F, 2, 1, 1, 1, 74, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F)
+			.addShapeBox(-0.00999999999999801F, 0F, -0.5F, -0.5F, -16.5F, 0F, 0F, 0F, -1.57079633F, 1, 2, 1, 25, 5, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+		.quickBuild(),
+		new TBModelMeshBuilder(512, 512)
+			.addShapeBox(0F, 0F, -2F, -1F, -8F, 0F, 0F, 0F, -1.57079633F, 2, 5, 4, 12, 11, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F)
+			.addShapeBox(0F, 0F, -2F, -1F, -9F, 0F, 0F, 0F, -1.57079633F, 2, 1, 3, 41, 16, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F)
+			.addShapeBox(0F, 0F, -1.5F, -1F, -13F, 0F, 0F, 0F, -1.57079633F, 2, 4, 3, 1, 11, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -0.5F, -0.5F, -16.5F, 0F, 0F, 0F, -1.57079633F, 1, 2, 1, 52, 8, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -1F, -1F, -14.5F, 0F, 0F, 0F, -1.57079633F, 2, 1, 2, 73, 7, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -1F, -1F, -14.5F, -2F, 0F, 0F, -1.57079633F, 2, 1, 2, 82, 5, 0F, 1F, -1F, 0F, 1F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -2F, 0F, 0F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, 3F, -1F, -14.5F, -2F, 0F, 0F, -1.57079633F, 2, 1, 2, 66, 4, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, -1F, 0F, 1F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -2F, 0F, 0F, -2F, 0F)
+			.addShapeBox(0F, 0F, 4F, -1F, -17.5F, -2F, 0F, 0F, -1.57079633F, 2, 2, 1, 46, 5, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -1F, -1F, -17.5F, -2F, 0F, 0F, -1.57079633F, 2, 2, 1, 39, 5, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -1F, -1F, -18.5F, -2F, 0F, 0F, -1.57079633F, 2, 1, 1, 18, 6, 0F, 0F, -1F, 0F, 0F, -1F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, 4F, -1F, -18.5F, -2F, 0F, 0F, -1.57079633F, 2, 1, 1, 1, 6, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -1F, -1F, -13.5F, 0F, 0F, 0F, -1.57079633F, 2, 1, 2, 30, 5, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F)
+			.addShapeBox(0F, 0F, -2.5F, -0.5F, -3F, 0F, 0F, 0F, -1.57079633F, 1, 1, 5, 1, 19, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, -1F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, 0F, -1F, 0F)
+			.addShapeBox(0F, 0F, -2.5F, -0.5F, -5F, 0F, 0F, 0F, -1.57079633F, 1, 1, 5, 9, 21, -0.5F, -0.5F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, -0.5F, -0.5F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -2.5F, -0.5F, -0.5F, 0F, 0F, 0F, -2.35619449F, 1, 1, 5, 20, 29, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -2F, -1F, 0.5F, 0F, 0F, 0F, -1.57079633F, 2, 1, 1, 36, 9, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F)
+			.addShapeBox(0F, 0F, -2F, -1F, -2.5F, 0F, 0F, 0F, -1.57079633F, 2, 3, 1, 1, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, 1F, -1F, -2.5F, 0F, 0F, 0F, -1.57079633F, 2, 3, 1, 18, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, 1F, -1F, 0.5F, 0F, 0F, 0F, -1.57079633F, 2, 1, 1, 9, 11, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F)
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_FRONT_SIGHT = new ModelGunPart(
+	private static final ModelGlow HK416_FRONT_SIGHT = new ModelGlow(
 		new TBModelMeshBuilder(512, 512)
-			.addShapeBox(0F, -2F, -2F, -1F, -6F, 0F, 0F, 0F, 0F, 2, 5, 4, 89, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F)
-			.addShapeBox(0F, -1F, -2F, -1F, -8F, 0F, 0F, 0F, 0F, 2, 1, 3, 73, 241, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F)
-			.addShapeBox(0F, -1F, -1.5F, -1F, -12F, 0F, 0F, 0F, 0F, 2, 4, 3, 153, 257, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, -1F, -0.5F, -0.5F, -15.5F, 0F, 0F, 0F, 0F, 1, 2, 1, 105, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, -1F, -1F, -1F, -13.5F, 0F, 0F, 0F, 0F, 2, 1, 2, 113, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, -1F, -1F, -1F, -13.5F, -2F, 0F, 0F, 0F, 2, 1, 2, 129, 465, 0F, 1F, -1F, 0F, 1F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -2F, 0F, 0F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, -1F, 3F, -1F, -13.5F, -2F, 0F, 0F, 0F, 2, 1, 2, 145, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, -1F, 0F, 1F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -2F, 0F, 0F, -2F, 0F)
-			.addShapeBox(0F, -1F, 4F, -1F, -16.5F, -2F, 0F, 0F, 0F, 2, 2, 1, 161, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, -1F, -1F, -1F, -16.5F, -2F, 0F, 0F, 0F, 2, 2, 1, 169, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, -1F, -1F, -1F, -17.5F, -2F, 0F, 0F, 0F, 2, 1, 1, 177, 465, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, -1F, 4F, -1F, -17.5F, -2F, 0F, 0F, 0F, 2, 1, 1, 185, 465, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, -1F, -1F, -1F, -12.5F, 0F, 0F, 0F, 0F, 2, 1, 2, 193, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F)
-			.addShapeBox(0F, 0F, -2.5F, -0.5F, -3F, 0F, 0F, 0F, 0F, 1, 1, 5, 321, 49, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, -1F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, 0F, -1F, 0F)
-			.addShapeBox(0F, 0F, -2.5F, -0.5F, -5F, 0F, 0F, 0F, 0F, 1, 1, 5, 449, 49, -0.5F, -0.5F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, -0.5F, -0.5F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, -2.5F, -0.5F, -0.5F, 0F, 0F, 0F, -0.78539816F, 1, 1, 5, 119, 57, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, -2F, -1F, 0.5F, 0F, 0F, 0F, 0F, 2, 1, 1, 1, 71, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F)
-			.addShapeBox(-0.0100000000000051F, -1F, -0.5F, -0.5F, -15.5F, 0F, 0F, 0F, 0F, 1, 2, 1, 99, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, -2F, -1F, -2.5F, 0F, 0F, 0F, 0F, 2, 3, 1, 42, 449, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, 1F, -1F, -2.5F, 0F, 0F, 0F, 0F, 2, 3, 1, 42, 454, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
-			.addShapeBox(0F, 0F, 1F, -1F, 0.5F, 0F, 0F, 0F, 0F, 2, 1, 1, 1, 74, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F)
+			.addShapeBox(-0.00999999999999801F, 0F, -0.5F, -0.5F, -16.5F, 0F, 0F, 0F, 0F, 1, 2, 1, 25, 5, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+		.quickBuild(),
+		new TBModelMeshBuilder(512, 512)
+			.addShapeBox(0F, 0F, -2F, -1F, -8F, 0F, 0F, 0F, 0F, 2, 5, 4, 12, 11, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F)
+			.addShapeBox(0F, 0F, -2F, -1F, -9F, 0F, 0F, 0F, 0F, 2, 1, 3, 41, 16, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F)
+			.addShapeBox(0F, 0F, -1.5F, -1F, -13F, 0F, 0F, 0F, 0F, 2, 4, 3, 1, 11, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -0.5F, -0.5F, -16.5F, 0F, 0F, 0F, 0F, 1, 2, 1, 52, 8, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -1F, -1F, -14.5F, 0F, 0F, 0F, 0F, 2, 1, 2, 73, 7, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -1F, -1F, -14.5F, -2F, 0F, 0F, 0F, 2, 1, 2, 82, 5, 0F, 1F, -1F, 0F, 1F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -2F, 0F, 0F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, 3F, -1F, -14.5F, -2F, 0F, 0F, 0F, 2, 1, 2, 66, 4, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, -1F, 0F, 1F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -2F, 0F, 0F, -2F, 0F)
+			.addShapeBox(0F, 0F, 4F, -1F, -17.5F, -2F, 0F, 0F, 0F, 2, 2, 1, 46, 5, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -1F, -1F, -17.5F, -2F, 0F, 0F, 0F, 2, 2, 1, 39, 5, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -1F, -1F, -18.5F, -2F, 0F, 0F, 0F, 2, 1, 1, 18, 6, 0F, 0F, -1F, 0F, 0F, -1F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, 4F, -1F, -18.5F, -2F, 0F, 0F, 0F, 2, 1, 1, 1, 6, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -1F, -1F, -13.5F, 0F, 0F, 0F, 0F, 2, 1, 2, 30, 5, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F)
+			.addShapeBox(0F, 0F, -2.5F, -0.5F, -3F, 0F, 0F, 0F, 0F, 1, 1, 5, 1, 19, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, -1F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, 0F, -1F, 0F)
+			.addShapeBox(0F, 0F, -2.5F, -0.5F, -5F, 0F, 0F, 0F, 0F, 1, 1, 5, 9, 21, -0.5F, -0.5F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, -0.5F, -0.5F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -2.5F, -0.5F, -0.5F, 0F, 0F, 0F, -0.78539816F, 1, 1, 5, 20, 29, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, -2F, -1F, 0.5F, 0F, 0F, 0F, 0F, 2, 1, 1, 36, 9, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F)
+			.addShapeBox(0F, 0F, -2F, -1F, -2.5F, 0F, 0F, 0F, 0F, 2, 3, 1, 1, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, 1F, -1F, -2.5F, 0F, 0F, 0F, 0F, 2, 3, 1, 18, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0F, 0F, 1F, -1F, 0.5F, 0F, 0F, 0F, 0F, 2, 1, 1, 9, 11, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F)
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_GAS_BLOCK = new ModelGunPart(
+	private static final ModelModular HK416_GAS_BLOCK = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(0F, -4.5F, -1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 11, 2, 3, 249, 41, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(14.5F, -6F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 2, 2, 425, 9, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
@@ -1006,7 +1017,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_20_BARREL = new ModelGunPart(
+	private static final ModelModular HK416_20_BARREL = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-6F, -3F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 55, 2, 2, 116, 77, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 2F, 0F, 0F, 2F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-6F, -1F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 55, 2, 2, 305, 73, 0F, 2F, 0F, 0F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
@@ -1029,7 +1040,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_165_BARREL = new ModelGunPart(
+	private static final ModelModular HK416_165_BARREL = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-6F, -3F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 55, 2, 2, 116, 77, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 2F, 0F, 0F, 2F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-6F, -1F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 55, 2, 2, 305, 73, 0F, 2F, 0F, 0F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
@@ -1052,7 +1063,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_145_BARREL = new ModelGunPart(
+	private static final ModelModular HK416_145_BARREL = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-6F, -3F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 55, 2, 2, 116, 77, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 2F, 0F, 0F, 2F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-6F, -1F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 55, 2, 2, 305, 73, 0F, 2F, 0F, 0F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
@@ -1091,7 +1102,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_104_BARREL = new ModelGunPart(
+	private static final ModelModular HK416_104_BARREL = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-6F, -3F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 55, 2, 2, 116, 77, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 2F, 0F, 0F, 2F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-6F, -1F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 55, 2, 2, 305, 73, 0F, 2F, 0F, 0F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
@@ -1114,7 +1125,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_BARREL_EXTENSION = new ModelGunPart(
+	private static final ModelModular HK416_BARREL_EXTENSION = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-9F, -2F, 3F, 0F, 0F, 0F, 0F, 0F, 0F, 9, 4, 1, 377, 241, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(-9F, -2F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 9, 4, 1, 401, 241, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F)
@@ -1143,7 +1154,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_BARREL_NUT = new ModelGunPart(
+	private static final ModelModular HK416_BARREL_NUT = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(0F, -2F, -6F, 0F, 0F, 0F, 0F, 0F, 0F, 8, 4, 1, 489, 201, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(0F, 5F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 8, 1, 4, 49, 209, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F)
@@ -1180,7 +1191,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_BUFFER_TUBE = new ModelGunPart(
+	private static final ModelModular HK416_BUFFER_TUBE = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-57F, -4F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 58, 2, 4, 289, 105, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 2F, 0F, 0F, 2F, 0F, 0F, 2F, 0F, 0F, 2F)
 			.addShapeBox(-57F, -2F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 58, 4, 8, 81, 113, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
@@ -1189,7 +1200,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGunPart HK416_UPPER_RECEIVER = new ModelGunPart(
+	private static final ModelModular HK416_UPPER_RECEIVER = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(4F, -15.5F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 46, 5, 1, 417, 65, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F)
 			.addShapeBox(-5F, -12.5F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 1, 1, 47, 67, -0.5F, -0.5F, 0F, 0.5F, -0.5F, 0F, 0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F)
@@ -1515,7 +1526,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		}
 	);
 	
-	private static final ModelGunPart _556MM_THREAD_PROTECTOR = new ModelGunPart(
+	private static final ModelModular _556MM_THREAD_PROTECTOR = new ModelModular(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(0F, -3F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 1, 2, 385, 401, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 			.addShapeBox(0F, 2F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 1, 2, 425, 401, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)

@@ -3,6 +3,7 @@ package com.fmum.common.type;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 
 import com.fmum.client.model.Model;
 import com.fmum.client.model.ModelDebugBox;
@@ -64,6 +65,11 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 	 */
 	protected static final LinkedList<String> DEF_DESCRIPTION = new LinkedList<>();
 	static { DEF_DESCRIPTION.add("tooltip.descriptionmissing"); }
+	
+	/**
+	 * Some fixed empty containers that can be used as initializer value
+	 */
+	public static final TreeSet<String> EMPTY_STR_SET = new TreeSet<>();
 	
 	/**
 	 * Minecraft item that corresponding to this typer. Usually set on item registration.
@@ -149,8 +155,11 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 	{
 		ModelLoader.setCustomModelResourceLocation(
 			this.item,
-			0, // modid + name
-			new ModelResourceLocation(this.item.getRegistryName(), MODEL_RES_INV)
+			0,
+			new ModelResourceLocation(
+				this.item.getRegistryName(), // modid + name
+				MODEL_RES_INV
+			)
 		);
 	}
 	

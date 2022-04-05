@@ -19,6 +19,13 @@ public abstract class TypeModular extends TypePaintable
 		parser = new LocalTypeFileParser<>(TypePaintable.parser);
 	static
 	{
+		parser.addKeyword(
+			"Offsets",
+			(s, t) -> {
+				t.offsets = new double[s.length - 1];
+				for(int i = s.length; --i > 0; t.offsets[i - 1] = Double.parseDouble(s[i]));
+			}
+		);
 		parser.addKeyword("Slots", (s, t) -> t.slots = Slot.parse(s, 1));
 		parser.addKeyword(
 			"DefaultModules",
@@ -27,6 +34,10 @@ public abstract class TypeModular extends TypePaintable
 	}
 	
 	protected static final DefaultModules DEF_DEF_MODULES = new DefaultModules(null);
+	
+	protected static final double[] DEF_OFFSETS = { 0D };
+	
+	public double[] offsets = DEF_OFFSETS;
 	
 	public Slot[] slots = Slot.DEF_SLOTS;
 	
@@ -40,7 +51,10 @@ public abstract class TypeModular extends TypePaintable
 		super.postParse();
 		
 		// Do not forget to apply the model scale
-		this.scale(this.modelScale);
+		// Notice that the default offset is 0D, hence scaling it will not change anything
+		for(int i = this.offsets.length; --i >= 0; this.offsets[i] *= this.modelScale);
+		for(Slot slot : this.slots)
+			slot.scale(this.modelScale);
 		
 		modules.put(this.name, this);
 	}
@@ -51,7 +65,7 @@ public abstract class TypeModular extends TypePaintable
 	 * @return Install position shift
 	 */
 	public double getPos(int[] states, double stepLen) {
-		return TagModular.getStep(states) * stepLen;
+		return TagModular.getStep(states) * stepLen + this.offsets[TagModular.getOffset(states)];
 	}
 	
 	public boolean stream(NBTTagList tag, ModuleVisitor visitor)
@@ -266,8 +280,6 @@ public abstract class TypeModular extends TypePaintable
 		
 		return count;
 	}
-	
-	protected void scale(double s) { for(Slot slot : this.slots) slot.scale(s); }
 	
 	@FunctionalInterface
 	public static interface ModuleVisitor {

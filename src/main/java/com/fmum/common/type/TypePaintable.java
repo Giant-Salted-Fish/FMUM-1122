@@ -15,7 +15,17 @@ public abstract class TypePaintable extends TypeInfo
 {
 	public static final LocalTypeFileParser<TypePaintable>
 		parser = new LocalTypeFileParser<>(TypeInfo.parser);
-	static { parser.addKeyword("Paintjob", (s, t) -> t.paintjobs.add(new ItemVariant(null))); }
+	static
+	{
+		parser.addKeyword(
+			"Paintjob",
+			(s, t) -> {
+				ItemVariant paintjob = new ItemVariant(s[1]);
+				paintjobParser.parse(s, paintjob);
+				t.paintjobs.add(paintjob);
+			}
+		);
+	}
 	
 	public ArrayList<ItemVariant> paintjobs = new ArrayList<>();
 	

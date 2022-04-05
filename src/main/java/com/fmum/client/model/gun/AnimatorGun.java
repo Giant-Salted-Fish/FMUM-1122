@@ -6,7 +6,7 @@ import com.fmum.client.model.AnimatorCamControl;
 import com.fmum.common.FMUM;
 import com.fmum.common.gun.TagGun;
 import com.fmum.common.gun.TypeGunPart;
-import com.fmum.common.module.ModuleInfo;
+import com.fmum.common.module.InfoModule;
 import com.fmum.common.module.TypeModular;
 import com.fmum.common.type.TypeInfo;
 import com.fmum.common.util.Animation;
@@ -26,9 +26,9 @@ public class AnimatorGun extends AnimatorCamControl
 	
 	protected static final Vec3 prevPlayerRot = new Vec3();
 	
-	protected static final ModuleInfo
-		leftHandGrabbing = new ModuleInfo(),
-		rightHandGrabbing = new ModuleInfo();
+	protected static final InfoModule
+		leftHandGrabbing = new InfoModule(),
+		rightHandGrabbing = new InfoModule();
 	
 	protected static double breathCycle = 0D;
 	
@@ -90,7 +90,7 @@ public class AnimatorGun extends AnimatorCamControl
 		
 		// Prepare values
 		final EntityPlayerSP player = getPlayer();
-		final boolean aiming = Key.AIM_HOLD.pressTime > 0;
+		final boolean aiming = Key.AIM_HOLD.down();
 		final boolean crouching = player.isSneaking();
 		final boolean sprinting = player.isSprinting();
 		final ModelGun model = (ModelGun)type.model;
@@ -279,7 +279,7 @@ public class AnimatorGun extends AnimatorCamControl
 					>= ((TypeGunPart)rightHandGrabbing.type).rightHandPriority;
 				if(leftGrab || rightGrab)
 				{
-					final ModuleInfo info = leftGrab ? leftHandGrabbing : rightHandGrabbing;
+					final InfoModule info = leftGrab ? leftHandGrabbing : rightHandGrabbing;
 					info.type = typ;
 					info.x = x;
 					info.y = y;

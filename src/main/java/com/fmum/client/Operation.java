@@ -1,5 +1,6 @@
 package com.fmum.client;
 
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -50,4 +51,6 @@ public class Operation
 	 * @return {@code true} if should kill this operation on GUI change
 	 */
 	protected boolean onGUIChange(GuiScreen gui) { return true; }
+	
+	protected static EntityPlayerSP getPlayer() { return FMUMClient.mc.player; }
 }

@@ -5,7 +5,7 @@ import com.fmum.common.util.Vec3;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagList;
 
-public class ModuleInfo extends Vec3
+public class InfoModule extends Vec3
 {
 	public double
 		sin = 0D,
@@ -17,19 +17,19 @@ public class ModuleInfo extends Vec3
 	
 	public TypeModular type = null;
 	
-	public ModuleInfo() { }
+	public InfoModule() { }
 	
-	public ModuleInfo(NBTTagList tag, TypeModular type)
+	public InfoModule(NBTTagList tag, TypeModular type)
 	{
 		this.tag = tag;
 		this.type = type;
 	}
 	
-	public final ModuleInfo setDefault(ItemStack stack) {
+	public final InfoModule setDefault(ItemStack stack) {
 		return this.setDefault(TagModular.getTag(stack), ((ItemModular)stack.getItem()).getType());
 	}
 	
-	public final ModuleInfo setDefault(NBTTagList tag, TypeModular type)
+	public final InfoModule setDefault(NBTTagList tag, TypeModular type)
 	{
 		this.tag = tag;
 		this.type = type;
@@ -45,7 +45,7 @@ public class ModuleInfo extends Vec3
 	 * 
 	 * @return {@code this}
 	 */
-	public final ModuleInfo updateSinAndCos()
+	public final InfoModule updateSinAndCos()
 	{
 		this.sin = Math.sin(
 			this.cos = Math.toRadians(this.rotX)
@@ -63,7 +63,7 @@ public class ModuleInfo extends Vec3
 	 * @param len Depth to go upon location
 	 * @return {@code this} with target modifiable's x, y, z, x-rot, sin, cos, atTag
 	 */
-	public final ModuleInfo moveTo(byte[] loc, int len)
+	public final InfoModule moveTo(byte[] loc, int len)
 	{
 		for(int i = 0; i < len; i += 2)
 		{
@@ -92,7 +92,7 @@ public class ModuleInfo extends Vec3
 	 * @param index Index of the modifiable
 	 * @return {@code this}
 	 */
-	public final ModuleInfo moveTo(int slot, int index)
+	public final InfoModule moveTo(int slot, int index)
 	{
 		Slot s = this.type.slots[slot];
 		int[] states = (
@@ -120,7 +120,7 @@ public class ModuleInfo extends Vec3
 	 * @param len Length of the location
 	 * @return {@code null} if any error occurred in the progress
 	 */
-	public final ModuleInfo tryMoveTo(byte[] loc, int len)
+	public final InfoModule tryMoveTo(byte[] loc, int len)
 	{
 		if(len < 0 || (len & 1) > 0) return null;
 		

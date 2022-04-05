@@ -3,7 +3,7 @@ package com.fmum.common.module;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
-import com.fmum.common.FMUM;
+import com.fmum.common.type.TypeInfo;
 import com.fmum.common.util.Vec3;
 
 /**
@@ -40,15 +40,15 @@ public final class Slot extends Vec3
 	 * White list and blacklist of the type of attachments
 	 */
 	public TreeSet<String>
-		categoryWhitelist = FMUM.EMPTY_STR_SET,
-		categoryBlacklist = FMUM.EMPTY_STR_SET;
+		categoryWhitelist = TypeInfo.EMPTY_STR_SET,
+		categoryBlacklist = TypeInfo.EMPTY_STR_SET;
 	
 	/**
 	 * White list and blacklist of the attachments
 	 */
 	public TreeSet<String>
-		attachmentWhitelist = FMUM.EMPTY_STR_SET,
-		attachmentBlacklist = FMUM.EMPTY_STR_SET;
+		attachmentWhitelist = TypeInfo.EMPTY_STR_SET,
+		attachmentBlacklist = TypeInfo.EMPTY_STR_SET;
 	
 	public Slot scale(double s)
 	{

@@ -13,7 +13,7 @@ public class ModelModular extends ModelMeshBased
 {
 	public ModelModular() { }
 	
-	public ModelModular(Mesh mesh) { super(mesh); }
+	public ModelModular(Mesh... meshes) { super(meshes); }
 	
 	public ModelModular(Consumer<ModelModular> initializer) { initializer.accept(this); }
 	
