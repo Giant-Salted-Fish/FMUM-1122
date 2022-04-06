@@ -128,6 +128,7 @@ public abstract class KeyManager
 		},
 		LOOK_AROUND("key.fmum.lookaround", Keyboard.KEY_LMENU, KEY_CATEGORY_GUN),
 		VIEW_WEAPON("key.fmum.viewweapon", Keyboard.KEY_V, KEY_CATEGORY_GUN),
+		TOGGLE_MODIFY("key.fmum.togglemodify", Keyboard.KEY_I, KEY_CATEGORY_GUN),
 		
 		/**
 		 * <p>These keys will update if {@link #CO} is down. {@link #CO} itself is a special case.
@@ -136,8 +137,27 @@ public abstract class KeyManager
 		 * <p>CATEGORY: {@link KeyManager#KEY_CATEGORY_ASSIST}.</p>
 		 */
 		CO("key.fmum.co", Keyboard.KEY_Z, KEY_CATEGORY_ASSIST, primaryKeys),
+		CO_TOGGLE_MANUAL("key.fmum.cotogglemanual", Keyboard.KEY_NONE, KEY_CATEGORY_ASSIST)
+		{
+			@Override
+			protected void trigger() { TOGGLE_MANUAL.trigger(); }
+		},
 		CO_LOOK_AROUND("key.fmum.colookaround", Keyboard.KEY_NONE, KEY_CATEGORY_ASSIST),
-		CO_VIEW_WEAPON("key.fmum.viewweapon", Keyboard.KEY_NONE, KEY_CATEGORY_ASSIST);
+		CO_VIEW_WEAPON("key.fmum.coviewweapon", Keyboard.KEY_NONE, KEY_CATEGORY_ASSIST),
+		CO_TOGGLE_MODIFY("key.fmum.cotogglemodify", Keyboard.KEY_NONE, KEY_CATEGORY_ASSIST),
+		
+		/**
+		 * <p>These keys will always update.</p>
+		 * 
+		 * <p>CATEGORY: {@link KeyManager#KEY_CATEGORY_MODIFY}.</p>
+		 */
+		SELECT_UP("key.fmum.selectup", Keyboard.KEY_UP, KEY_CATEGORY_MODIFY),
+		SELECT_DOWN("key.fmum.selectdown", Keyboard.KEY_DOWN, KEY_CATEGORY_MODIFY),
+		SELECT_LEFT("key.fmum.selectleft", Keyboard.KEY_LEFT, KEY_CATEGORY_MODIFY),
+		SELECT_RIGHT("key.fmum.selectright", Keyboard.KEY_RIGHT, KEY_CATEGORY_MODIFY),
+		SELECT_CONFIRM("key.fmum.selectconfirm", Keyboard.KEY_G, KEY_CATEGORY_MODIFY),
+		SELECT_CANCEL("key.fmum.selectcancel", Keyboard.KEY_H, KEY_CATEGORY_MODIFY),
+		SELECT_TOGGLE("key.fmum.selecttoggle", Keyboard.KEY_V, KEY_CATEGORY_MODIFY);
 		
 		public final KeyBinding keyBind;
 		public int keyCode;

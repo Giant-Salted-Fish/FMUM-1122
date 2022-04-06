@@ -2,11 +2,11 @@ package com.fmum.common.type;
 
 import java.util.ArrayList;
 
+import com.fmum.client.ResourceManager;
 import com.fmum.common.FMUM;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -63,7 +63,7 @@ public abstract class TypePaintable extends TypeInfo
 	 */
 	public void registerExternalPaintjob(ItemVariant paintjob) { this.paintjobs.add(paintjob); }
 	
-	public final String getTexture(ItemStack stack) {
-		return this.paintjobs.get(stack.getItemDamage()).texture;
+	public ResourceLocation getTexture(int dam) {
+		return ResourceManager.getTexture(this.paintjobs.get(dam).texture);
 	}
 }

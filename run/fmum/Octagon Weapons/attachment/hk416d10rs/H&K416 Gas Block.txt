@@ -2,6 +2,6 @@ Name hk416gasblock H&K416 Gas Block
 Category hk416gasblock
 CreativeTab oc
 
-Model com.fmum.client.model.oc.ModelOCGun:HK416GasBlock 0.1 skins/hk416d10rs.png
+Model com.fmum.oc.client.model.ModelOCGun:HK416GasBlock 0.1 skins/hk416d10rs.png
 
 Slots 14 4.5 C[ hk416frontsight ] | 0 6 C[ hk416piston ]

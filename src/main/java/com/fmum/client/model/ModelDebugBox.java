@@ -1,14 +1,18 @@
 package com.fmum.client.model;
 
+import com.fmum.client.FMUMClient;
+import com.fmum.client.ResourceManager;
 import com.fmum.common.util.Mesh;
 import com.fmum.common.util.ObjRepository;
 import com.fmum.common.util.TBModelMeshBuilder;
+
+import net.minecraft.util.ResourceLocation;
 
 public final class ModelDebugBox extends ModelMeshBased implements ObjRepository<ModelDebugBox>
 {
 	public static final String PATH = "com.fmum.client.model.ModelDebugBox";
 	
-	public static final String TEXTURE = "skins/debugbox.png";
+	public static final ResourceLocation TEXTURE = ResourceManager.getTexture("skins/debugbox.png");
 	
 	public static final ModelDebugBox INSTANCE = new ModelDebugBox(
 		new TBModelMeshBuilder(32, 32)
@@ -37,7 +41,7 @@ public final class ModelDebugBox extends ModelMeshBased implements ObjRepository
 	@Override
 	public void render()
 	{
-		bindTexture(TEXTURE);
+		FMUMClient.mc.renderEngine.bindTexture(TEXTURE);
 		super.render();
 	}
 	

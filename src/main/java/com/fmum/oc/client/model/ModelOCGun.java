@@ -1,13 +1,13 @@
-package com.fmum.client.model.oc;
+package com.fmum.oc.client.model;
 
 import java.util.function.Consumer;
 
+import com.fmum.client.gun.model.ModelGrip;
+import com.fmum.client.gun.model.ModelGun;
+import com.fmum.client.gun.model.ModelGunBolt;
 import com.fmum.client.model.Model;
-import com.fmum.client.model.gun.ModelGrip;
-import com.fmum.client.model.gun.ModelGun;
-import com.fmum.client.model.gun.ModelGunBolt;
-import com.fmum.client.model.module.ModelGlow;
-import com.fmum.client.model.module.ModelModular;
+import com.fmum.client.module.model.ModelGlow;
+import com.fmum.client.module.model.ModelModular;
 import com.fmum.common.util.Mesh;
 import com.fmum.common.util.ObjRepository;
 import com.fmum.common.util.TBModelMeshBuilder;

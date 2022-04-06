@@ -1,6 +1,7 @@
-package com.fmum.client.model.gun;
+package com.fmum.client.gun.model;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import org.lwjgl.opengl.GL11;
@@ -8,47 +9,30 @@ import org.lwjgl.opengl.GL11;
 import com.fmum.client.FMUMClient;
 import com.fmum.client.model.Animator;
 import com.fmum.client.model.AnimatorCamControl;
-import com.fmum.client.model.Model;
 import com.fmum.client.model.ModelAlexArm;
-import com.fmum.client.model.ModelDebugBox;
-import com.fmum.client.model.module.ModelModular;
-import com.fmum.client.model.module.RenderInfoModule;
-import com.fmum.common.gun.TagGun;
+import com.fmum.client.module.model.RenderInfoModule;
 import com.fmum.common.module.InfoModule;
-import com.fmum.common.module.TagModular;
 import com.fmum.common.module.TypeModular;
 import com.fmum.common.type.TypeInfo;
 import com.fmum.common.util.ArmTendency;
 import com.fmum.common.util.CoordSystem;
 import com.fmum.common.util.Mesh;
-import com.fmum.common.util.ObjPool;
 import com.fmum.common.util.Vec3;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.MouseHelper;
 
 public class ModelGun extends ModelGrip
 {
 	/**
-	 * A pool that buffers scope eyepiece textures
-	 */
-	protected static final ObjPool<Integer> scopeTexturePool = new ObjPool<>(
-		() -> 1 // FIXME: initialize a texture
-	);
-	
-	/**
 	 * Buffered systems for rendering
 	 */
 	protected static final CoordSystem gunSys = new CoordSystem();
 	
-	/**
-	 * Render info queue
-	 */
-	protected static final ArrayList<RenderInfoModule> infoQueue = new ArrayList<>();
+	protected static final TreeSet<RenderInfoAimable> aimableQueue = new TreeSet<>();
 	
-	protected static final ArrayList<RenderInfoAimable> aimableQueue = new ArrayList<>();
-	
-	protected static final ArrayList<RenderInfoScope> scopeQueue = new ArrayList<>();
+	protected static final TreeSet<RenderInfoScope> scopeQueue = new TreeSet<>();
 	
 	public AnimatorGun animator = AnimatorGun.INSTANCE;
 	
@@ -125,7 +109,7 @@ public class ModelGun extends ModelGrip
 		walkAmpltGun_P = new Vec3(0D, 0.05D, 0.05D),
 		walkAmpltGun_R = new Vec3(-15D, 0D, 5D),
 		sprintAmpltGun_P = new Vec3(0D, 0.16D * 1.75D, 0.1D * 1.5D),
-		sprintAmpltGun_R = new Vec3(-30D, -15D, 15D * 1.125D);
+		sprintAmpltGun_R = new Vec3(-30D, -15D * 1.125D, 15D * 1.125D);
 	
 	public final Vec3
 		walkAmpltCompensationGun_P = new Vec3(-0.15D, 0D, -0.15D),
@@ -153,6 +137,16 @@ public class ModelGun extends ModelGrip
 	public ModelGun(Consumer<ModelGun> initializer) { initializer.accept(this); }
 	
 	@Override
+	public RenderInfoModule prepareRenderInfo(NBTTagList tag, TypeModular type, CoordSystem sys)
+	{
+		RenderInfoAimable info = RenderInfoAimable.pool.poll();
+		info.tag = tag;
+		info.type = type;
+		info.sys.set(sys);
+		return info;
+	}
+	
+	@Override
 	public void updateRightHandTarPos(
 		Animator ani,
 		CoordSystem location,
@@ -175,68 +169,23 @@ public class ModelGun extends ModelGrip
 	{
 		super.itemRenderTick(stack, type, mouse);
 		
-		// Return out dated occupied info instances
-		for(int i = scopeQueue.size(); --i >= 0; )
-			if(scopeQueue.get(i).scopeTexture != 0)
-			{
-				RenderInfoScope scope = scopeQueue.get(i);
-				scopeTexturePool.back(scope.scopeTexture);
-				scope.scopeTexture = 0;
-			}
-		scopeQueue.clear();
+		// TODO: validate needary?
+		final Collection<RenderInfoAimable> aimableQueue = this.getAimableQueue();
+		final Collection<RenderInfoScope> scopeQueue = this.getScopeQueue();
+		
+		// Release resources located in last render tick
 		aimableQueue.clear();
-		for(int i = infoQueue.size(); --i >= 0; infoQueue.remove(i).release());
+		scopeQueue.clear();
 		
-		// Make sure gun tags are ready before rendering
-		if(!TagGun.validateTag(stack)) return;
-		
-		// Position gun into shoulder coordinate system
-		float smoother = Model.smoother;
-		final AnimatorGun animator = this.animator;
-		gunSys.setDefault();
-		animator.setupRenderTransform(gunSys, smoother);
-		
-		// TODO: Apply view translation if is in modification mode
-//		if(FMUMClient.operating == OpGunModification.INSTANCE)
-//		{
-//			
-//		}
-//		else
-		{
-			/** for test */
-			if(FMUMClient.manualMode)
+		// Find all sight and scope for later use
+		for(RenderInfoModule info : this.getInfoQueue())
+			if(info instanceof RenderInfoAimable)
 			{
-				gunSys.trans(20D / 16D, 2D / 16D, 0D);
-				double viewRotYaw = animator.renderRot.y % 360D;
-				if(viewRotYaw > 180D) viewRotYaw -= 360D; // TODO: validate
-				else if(viewRotYaw < -180D) viewRotYaw += 360D;
-				gunSys.rot(viewRotYaw, CoordSystem.Y);
-				gunSys.rot(animator.renderRot.z, CoordSystem.Z);
-				gunSys.submitRot();
-//				gunSys.trans(0D, 0D, 0D);
+				aimableQueue.add((RenderInfoAimable)info);
+				
+				if(info instanceof RenderInfoScope)
+					scopeQueue.add((RenderInfoScope)info);
 			}
-			/** for test */
-			
-			// Apply Movements controlled by animator
-			animator.applyTransform(gunSys, smoother);
-			
-			// Get position of each attachment on gun, buffer them for future rendering
-			((TypeModular)type).stream(
-				TagModular.getTag(stack),
-				gunSys,
-				(tag, typ, sys) -> {
-					// Reserve information for later rendering
-					RenderInfoModule info
-						= ((ModelModular)type.model).prepareRenderInfo(tag, typ, sys);
-					infoQueue.add(info);
-					
-					if(info instanceof RenderInfoScope)
-						scopeQueue.add((RenderInfoScope)info);
-					else if(info instanceof RenderInfoAimable)
-						aimableQueue.add((RenderInfoAimable)info);
-				}
-			);
-		}
 		
 		// TODO: Get sight on use
 //		AimableRenderInfo sightOnUse = aimableQueue.get(0);
@@ -248,70 +197,12 @@ public class ModelGun extends ModelGrip
 	@Override
 	protected void doRenderFP(ItemStack stack, TypeInfo type)
 	{
-		// Not yet ready for render, skip
-		if(infoQueue.size() == 0) return;
+		super.doRenderFP(stack, type);
 		
-		// TODO: validate if frequently used or not
-		float smoother = Model.smoother;
-		AnimatorGun animator = this.animator;
-		
-		// TODO: Render scope mask if has
-		
-		
-		// Restore world coordinate system
-		animator.restoreGLWorldCoordSystem(smoother);
-		
-		// TODO: render modifying
-//		if(FMUMClient.operating == )
-//		{
-//			
-//		}
-//		else
-		{
-			// TODO: Render arm
-			
-			// Setup shoulder coordinate system to render the arms
-			GL11.glPushMatrix();
-			{ this.renderArms(smoother); }
-			GL11.glPopMatrix();
-			
-			for(int i = 0, size = infoQueue.size(); i < size; ++i)
-			{
-				GL11.glPushMatrix(); {
-					infoQueue.get(i).render();
-				} GL11.glPopMatrix();
-			}
-		}
-		
-		GL11.glPushMatrix();
-		{
-			GL11.glTranslatef(0F, 0F, 0F);
-			ModelDebugBox.INSTANCE.render();
-		}
-		GL11.glPopMatrix();
-		
-		GL11.glPushMatrix();
-		{
-			GL11.glTranslatef(1F, 0F, 0F);
-			ModelDebugBox.INSTANCE.render();
-		}
-		GL11.glPopMatrix();
-		
-		GL11.glPushMatrix();
-		{
-			GL11.glTranslatef(0F, 1F, 0F);
-			ModelDebugBox.INSTANCE.render();
-		}
-		GL11.glPopMatrix();
-		
-		GL11.glPushMatrix();
-		{
-			GL11.glTranslatef(0F, 0F, 1F);
-			ModelDebugBox.INSTANCE.render();
-		}
-		GL11.glPopMatrix();
+		// TODO
 	}
 	
+	@Override
 	protected void renderArms(float smoother)
 	{
 		this.animator.setupGLRenderTransform(smoother);
@@ -356,6 +247,37 @@ public class ModelGun extends ModelGrip
 		ModelAlexArm.INSTANCE.render();
 	}
 	
-	@Override
-	protected RenderInfoModule getRenderInfo() { return RenderInfoAimable.pool.poll(); }
+	protected Collection<RenderInfoAimable> getAimableQueue() { return aimableQueue; }
+	
+	protected Collection<RenderInfoScope> getScopeQueue() { return scopeQueue; }
+	
+	/** for test */
+//		GL11.glPushMatrix();
+//		{
+//			GL11.glTranslatef(0F, 0F, 0F);
+//			ModelDebugBox.INSTANCE.render();
+//		}
+//		GL11.glPopMatrix();
+//		
+//		GL11.glPushMatrix();
+//		{
+//			GL11.glTranslatef(1F, 0F, 0F);
+//			ModelDebugBox.INSTANCE.render();
+//		}
+//		GL11.glPopMatrix();
+//		
+//		GL11.glPushMatrix();
+//		{
+//			GL11.glTranslatef(0F, 1F, 0F);
+//			ModelDebugBox.INSTANCE.render();
+//		}
+//		GL11.glPopMatrix();
+//		
+//		GL11.glPushMatrix();
+//		{
+//			GL11.glTranslatef(0F, 0F, 1F);
+//			ModelDebugBox.INSTANCE.render();
+//		}
+//		GL11.glPopMatrix();
+	/** for test */
 }

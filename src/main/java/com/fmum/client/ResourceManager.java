@@ -11,14 +11,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public abstract class ResourceManager
 {
+	private static final HashMap<String, ResourceLocation> textures = new HashMap<>();
+	
 	public static final String RECOMMENDED_TEXTURE_FOLDER = "skins/";
 	
 	public static final ResourceLocation
-		TEXTURE_RED = new ResourceLocation(FMUM.MODID, RECOMMENDED_TEXTURE_FOLDER + "0xff0000.png"),
-		TEXTURE_GREEN = new ResourceLocation(FMUM.MODID, RECOMMENDED_TEXTURE_FOLDER + "0x00ff00.png"),
-		TEXTURE_BLUE = new ResourceLocation(FMUM.MODID, RECOMMENDED_TEXTURE_FOLDER + "0x0000ff.png");
-	
-	private static final HashMap<String, ResourceLocation> textures = new HashMap<>();
+		TEXTURE_RED = getTexture(RECOMMENDED_TEXTURE_FOLDER + "0xff0000.png"),
+		TEXTURE_GREEN = getTexture(RECOMMENDED_TEXTURE_FOLDER + "0x00ff00.png"),
+		TEXTURE_BLUE = getTexture(RECOMMENDED_TEXTURE_FOLDER + "0x0000ff.png");
 	
 	public static ResourceLocation getTexture(String path)
 	{

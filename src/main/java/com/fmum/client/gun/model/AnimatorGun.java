@@ -1,4 +1,4 @@
-package com.fmum.client.model.gun;
+package com.fmum.client.gun.model;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.client.KeyManager.Key;

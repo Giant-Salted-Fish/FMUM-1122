@@ -1,4 +1,4 @@
-package com.fmum.client.model.gun;
+package com.fmum.client.gun.model;
 
 import com.fmum.client.model.Animator;
 import com.fmum.common.module.InfoModule;

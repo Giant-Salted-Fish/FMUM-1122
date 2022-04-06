@@ -60,12 +60,14 @@ public final class Slot extends Vec3
 	public boolean isAllowed(TypeModular type)
 	{
 		return(
-			this.attachmentWhitelist.contains(type.name)
-			|| (
+			this.attachmentWhitelist.size() > 0
+			? this.attachmentWhitelist.contains(type.name)
+			: (
 				!this.attachmentBlacklist.contains(type.name)
 				&& (
-					this.categoryWhitelist.contains(type.category)
-					|| !this.categoryBlacklist.contains(type.category)
+					this.categoryWhitelist.size() > 0
+					? this.categoryWhitelist.contains(type.category)
+					: !this.categoryBlacklist.contains(type.category)
 				)
 			)
 		);

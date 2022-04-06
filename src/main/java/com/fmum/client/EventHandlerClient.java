@@ -4,7 +4,6 @@ import org.lwjgl.opengl.GL11;
 
 import com.fmum.client.KeyManager.Key;
 import com.fmum.client.model.Model;
-import com.fmum.client.model.oc.ModelFNMK20SSR;
 import com.fmum.common.EventHandler;
 import com.fmum.common.EventHandler.RequireItemRegister;
 import com.fmum.common.FMUM;
@@ -36,7 +35,6 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
@@ -217,11 +215,8 @@ public abstract class EventHandlerClient
 	public static void onPlayerRender(RenderPlayerEvent.Pre evt)
 	{
 //		GlStateManager.disableCull();
-		FMUMClient.mc.renderEngine.bindTexture(ResourceManager.getTexture("skins/fnmk20ssr-desertyellow.png"));
-//		FMUMClient.mc.renderEngine.bindTexture(ResourceManager.getTexture("skins/test.png"));
-//		FMUMClient.mc.renderEngine.bindTexture(ResourceManager.TEXTURE_GREEN);
-		ModelFNMK20SSR.INSTANCE.render();
-//		ModelTestBox.INSTANCE.render();
+//		FMUMClient.mc.renderEngine.bindTexture(ResourceManager.getTexture("skins/fnmk20ssr-desertyellow.png"));
+//		ModelFNMK20SSR.INSTANCE.render();
 	}
 	
 	/**
@@ -236,12 +231,6 @@ public abstract class EventHandlerClient
 		// Update keys upon condition
 		for(Key k : KeyManager.primaryKeys) k.update();
 		for(Key k : Key.CO.down() ? KeyManager.coKeys : KeyManager.inCoKeys) k.update();
-	}
-	
-	@SubscribeEvent
-	public static void onPlayerLogin(PlayerLoggedInEvent evt)
-	{
-		// TODO: sync config
 	}
 	
 	private static boolean modelCompiled = false;

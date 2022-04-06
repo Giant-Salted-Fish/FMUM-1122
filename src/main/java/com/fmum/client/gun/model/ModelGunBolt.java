@@ -1,6 +1,6 @@
-package com.fmum.client.model.gun;
+package com.fmum.client.gun.model;
 
-import com.fmum.client.model.module.ModelModular;
+import com.fmum.client.module.model.ModelModular;
 import com.fmum.common.util.Mesh;
 
 public class ModelGunBolt extends ModelModular

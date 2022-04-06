@@ -1,6 +1,8 @@
 package com.fmum.common.module;
 
 import com.fmum.client.FMUMClient;
+import com.fmum.client.KeyManager.Key;
+import com.fmum.client.module.OpModification;
 import com.fmum.common.network.PacketGunOp;
 import com.fmum.common.type.ItemPaintable;
 
@@ -22,5 +24,45 @@ public interface ItemModular extends ItemPaintable
 		
 		FMUMClient.netHandler.sendToServer(new PacketGunOp(PacketGunOp.INIT_TAG));
 		return true;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	default void keyNotify(Key key)
+	{
+		ItemPaintable.super.keyNotify(key);
+		
+		switch(key)
+		{
+		case SELECT_UP:
+			OpModification.INSTANCE.upKeyDown = true;
+			break;
+		case SELECT_DOWN:
+			OpModification.INSTANCE.downKeyDown = true;
+			break;
+		case SELECT_LEFT:
+			OpModification.INSTANCE.leftKeyDown = true;
+			break;
+		case SELECT_RIGHT:
+			OpModification.INSTANCE.rightKeyDown = true;
+			break;
+		case SELECT_CONFIRM:
+			OpModification.INSTANCE.confirmKeyDown = true;
+			break;
+		case SELECT_CANCEL:
+			OpModification.INSTANCE.cancelKeyDown = true;
+			break;
+		case SELECT_TOGGLE:
+			OpModification.INSTANCE.toggleKeyDown = true;
+			break;
+		case TOGGLE_MODIFY:
+		case CO_TOGGLE_MODIFY:
+			final OpModification modify = OpModification.INSTANCE;
+			if(FMUMClient.operating == modify)
+				modify.progressor = -modify.progressor;
+			else FMUMClient.tryLaunchOp(modify);
+			break;
+		default:;
+		}
 	}
 }

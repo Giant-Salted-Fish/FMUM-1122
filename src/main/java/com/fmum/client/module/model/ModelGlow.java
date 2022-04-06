@@ -1,4 +1,4 @@
-package com.fmum.client.model.module;
+package com.fmum.client.module.model;
 
 import java.util.function.Consumer;
 

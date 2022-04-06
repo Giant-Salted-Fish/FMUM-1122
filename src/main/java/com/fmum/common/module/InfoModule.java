@@ -68,11 +68,11 @@ public class InfoModule extends Vec3
 		for(int i = 0; i < len; i += 2)
 		{
 			Slot slot = this.type.slots[loc[i]];
-			int[] states = (
+			int[] states = TagModular.getStates(
 				this.tag = ((NBTTagList)(
 					(NBTTagList)this.tag.get(loc[i] + 1)
 				).get(loc[i + 1]))
-			).getIntArrayAt(0);
+			);
 			
 			this.x += slot.x + (
 				this.type = TagModular.getType(states)
@@ -95,11 +95,11 @@ public class InfoModule extends Vec3
 	public final InfoModule moveTo(int slot, int index)
 	{
 		Slot s = this.type.slots[slot];
-		int[] states = (
+		int[] states = TagModular.getStates(
 			this.tag = ((NBTTagList)(
 				(NBTTagList)this.tag.get(slot + 1)
 			).get(index))
-		).getIntArrayAt(0);
+		);
 		
 		this.x += s.x + (
 			this.type = TagModular.getType(states)

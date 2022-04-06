@@ -1,9 +1,9 @@
-package com.fmum.client.model.gun;
+package com.fmum.client.gun.model;
 
 import java.util.function.Consumer;
 
 import com.fmum.client.model.Animator;
-import com.fmum.client.model.module.ModelModular;
+import com.fmum.client.module.model.ModelModular;
 import com.fmum.common.module.InfoModule;
 import com.fmum.common.util.ArmTendency;
 import com.fmum.common.util.CoordSystem;

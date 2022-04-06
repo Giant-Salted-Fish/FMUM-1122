@@ -2,8 +2,8 @@ package com.fmum.common.gun;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.client.OperationProgressive;
-import com.fmum.client.model.gun.AnimationTracksGun;
 import com.fmum.client.KeyManager.Key;
+import com.fmum.client.gun.model.AnimationTracksGun;
 import com.fmum.common.module.TagModular;
 import com.fmum.common.network.PacketGunOp;
 import com.fmum.common.type.ItemHoldable;
@@ -85,6 +85,8 @@ public final class ItemGun extends ItemHoldable implements ItemAmmoContainer
 	@SideOnly(Side.CLIENT)
 	public void keyNotify(Key key)
 	{
+		ItemAmmoContainer.super.keyNotify(key);
+		
 		switch(key)
 		{
 		case VIEW_WEAPON:

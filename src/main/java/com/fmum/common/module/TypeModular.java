@@ -3,6 +3,7 @@ package com.fmum.common.module;
 import java.util.HashMap;
 
 import com.fmum.client.FMUMClient;
+import com.fmum.client.ResourceManager;
 import com.fmum.common.type.TypePaintable;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 import com.fmum.common.util.CoordSystem;
@@ -10,6 +11,7 @@ import com.fmum.common.util.CoordSystem;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
 
 public abstract class TypeModular extends TypePaintable
 {
@@ -66,6 +68,16 @@ public abstract class TypeModular extends TypePaintable
 	 */
 	public double getPos(int[] states, double stepLen) {
 		return TagModular.getStep(states) * stepLen + this.offsets[TagModular.getOffset(states)];
+	}
+	
+	/**
+	 * Used in modification mode where this module is still in preview mode and not yet been
+	 * installed
+	 * 
+	 * @see #getPos(int[], double)
+	 */
+	public double getPos(int step, int offset, double stepLen) {
+		return step * stepLen + this.offsets[offset];
 	}
 	
 	public boolean stream(NBTTagList tag, ModuleVisitor visitor)
@@ -248,8 +260,8 @@ public abstract class TypeModular extends TypePaintable
 		return tag;
 	}
 	
-	public final String getTexture(NBTTagList tag) {
-		return this.paintjobs.get(TagModular.getDam(tag)).texture;
+	public final ResourceLocation getTexture(NBTTagList tag) {
+		return ResourceManager.getTexture(this.paintjobs.get(TagModular.getDam(tag)).texture);
 	}
 	
 	/**
@@ -305,13 +317,13 @@ public abstract class TypeModular extends TypePaintable
 		 * See {@link TypeModular#stream(RenderInfoVisitor, NBTTagList, CoordSystem)}
 		 * 
 		 * @param tag Tag of this module
-		 * @param type Type of this module
+		 * @param typ Type of this module
 		 * @param sys
 		 *     Position of this module. Note that this is just a buffer and it is likely to be
 		 *     changed in the future. If you want to keep it please fetch a {@link CoordSystem}
 		 *     instance and copy the value of this system to it. Changing position of this system
 		 *     will have effect on all attachments installed on it.
 		 */
-		public void visit(NBTTagList tag, TypeModular type, CoordSystem sys);
+		public void visit(NBTTagList tag, TypeModular typ, CoordSystem sys);
 	}
 }

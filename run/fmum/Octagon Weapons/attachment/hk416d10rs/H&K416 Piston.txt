@@ -2,4 +2,4 @@ Name hk416piston H&K416 Piston
 Category hk416piston
 CreativeTab oc
 
-Model com.fmum.client.model.oc.ModelOCGun:HK416Piston 0.1 skins/hk416d10rs.png
+Model com.fmum.oc.client.model.ModelOCGun:HK416Piston 0.1 skins/hk416d10rs.png

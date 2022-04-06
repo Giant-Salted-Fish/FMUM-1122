@@ -1,11 +1,13 @@
 package com.fmum.common.network;
 
-import com.fmum.client.model.module.OpModification;
+import com.fmum.client.module.OpModification;
 import com.fmum.common.FMUM;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public final class PacketConfigSync implements FMUMPacket
 {
@@ -22,6 +24,7 @@ public final class PacketConfigSync implements FMUMPacket
 	}
 	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void handleClientSide(EntityPlayerSP player) {
 		OpModification.INSTANCE.onConfigSync();
 	}

@@ -1,6 +1,5 @@
-package com.fmum.client.model.module;
+package com.fmum.client.module;
 
-import com.fmum.client.FMUMClient;
 import com.fmum.client.KeyManager.Key;
 import com.fmum.client.OperationProgressive;
 import com.fmum.common.FMUM;
@@ -55,7 +54,7 @@ public final class OpModification extends OperationProgressive
 		return this.modifyingLen == 0 || this.modifying[this.modifyingLen - 1] >= 0;
 	}
 	
-	public boolean nonBaseSelected() {
+	public boolean nonPrimarySelected() {
 		return this.modifyingLen > 0 && this.modifying[this.modifyingLen - 1] >= 0;
 	}
 	
@@ -92,7 +91,7 @@ public final class OpModification extends OperationProgressive
 		NBTTagList baseTag = this.info.tag;
 		this.baseType = this.info.type;
 		
-		if(this.nonBaseSelected())
+		if(this.nonPrimarySelected())
 			this.info.moveTo(modifying[modifyingLen - 2], modifying[modifyingLen - 1]);
 		
 		if(Key.CO.down())
@@ -205,14 +204,65 @@ public final class OpModification extends OperationProgressive
 		/// Co-key is not down ///
 		else
 		{
-			// Switch slot, switch module, quit layer require layer > 0
+			// Switch slot, switch module and quit layer require layer > 0
 			if(modifyingLen > 0)
 			{
-				
+				if(this.cancelKeyDown)
+				{
+					this.modifyingLen -= 2;
+					this.updateModifying(stack);
+				}
+				else if(this.upKeyDown || this.downKeyDown)
+				{
+					int slots = this.baseType.slots.length;
+					int i = modifying[modifyingLen - 2];
+					modifying[modifyingLen - 1] = (byte)(
+						((NBTTagList)baseTag.get(
+							(
+								modifying[modifyingLen - 2] = (byte)(
+									this.upKeyDown
+									? (i > 0 ? i : slots) - 1
+									: ++i < slots ? i : 0
+								)
+							) + 1
+						)).tagCount() > 0
+						? 0
+						: -1
+					);
+					this.updateModifying(stack);
+				}
+				else if(this.leftKeyDown || this.rightKeyDown)
+				{
+					int count = ((NBTTagList)baseTag.get(
+						modifying[modifyingLen - 2] + 1
+					)).tagCount();
+					int i = modifying[modifyingLen - 1];
+					
+					modifying[modifyingLen - 1] = (byte)(
+						this.leftKeyDown
+						? (i >= 0 ? i : count) - 1
+						: ++i < count ? i : -1
+					);
+					this.updateModifying(stack);
+				}
 			}
 			
-			// Enter next layer if gun is selected or an attachment is selected
-			
+			// Enter next layer if gun is selected or an module is selected
+			if(
+				this.confirmKeyDown
+				&& this.selected()
+				&& this.info.type.slots.length > 0
+				&& modifyingLen < modifying.length
+			) {
+				this.modifyingLen += 2;
+				modifying[modifyingLen] = 0;
+				
+				// If has module installed on first slot, then select it 
+				modifying[modifyingLen + 1] = (byte)(
+					((NBTTagList)this.info.tag.get(1)).tagCount() > 0 ? 0 : -1
+				);
+				this.updateModifying(stack);
+			}
 		}
 		
 		// One tick is done, clear key input
@@ -232,10 +282,9 @@ public final class OpModification extends OperationProgressive
 		// If it is the primary base selected
 		if(this.modifyingLen == 0)
 		{
-			this.streamIndex
-				= this.step
-				= this.offset
-				= 0;
+			this.streamIndex = 0;
+			this.step = 0;
+			this.offset = 0;
 			this.dam = stack.getItemDamage();
 			return;
 		}

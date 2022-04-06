@@ -1,6 +1,6 @@
-package com.fmum.client.model.oc;
+package com.fmum.oc.client.model;
 
-import com.fmum.client.model.gun.ModelGun;
+import com.fmum.client.gun.model.ModelGun;
 import com.fmum.common.util.TBModelMeshBuilder;
 
 public class ModelFNMK20SSR extends ModelGun

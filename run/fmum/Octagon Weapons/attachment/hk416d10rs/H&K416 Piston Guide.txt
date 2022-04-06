@@ -2,4 +2,4 @@ Name hk416pistonguide H&K416 Piston Guide
 Category hk416pistonguide
 CreativeTab oc
 
-Model com.fmum.client.model.oc.ModelOCGun:HK416PistonGuide 0.1 skins/hk416d10rs.png
+Model com.fmum.oc.client.model.ModelOCGun:HK416PistonGuide 0.1 skins/hk416d10rs.png
