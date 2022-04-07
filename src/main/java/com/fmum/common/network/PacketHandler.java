@@ -155,7 +155,8 @@ public class PacketHandler extends MessageToMessageCodec<FMLProxyPacket, FMUMPac
 		
 		// Register packets
 		this.registerPacket(PacketConfigSync.class);
-		this.registerPacket(PacketGunOp.class);
+		this.registerPacket(PacketInitModuleTag.class);
+		this.registerPacket(PacketInstallModule.class);
 	}
 	
 	public void postInit() { this.modInitialized = true; }

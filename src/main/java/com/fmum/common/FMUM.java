@@ -93,12 +93,6 @@ public final class FMUM
 	public static boolean debug = false;
 	public static void toggleDebug() { debug = !debug; }
 	
-	/// Configurations ///
-	/**
-	 * Max layers of the modules(unsigned byte)
-	 */
-	public static byte maxLayers = 8;
-	
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent evt)
 	{

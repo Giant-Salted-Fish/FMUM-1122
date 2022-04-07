@@ -22,11 +22,10 @@ public interface ItemInfo
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public boolean tick(ItemStack stack)
+		public void tick(ItemStack stack)
 		{
 			// Tick default model to apply primary camera control
 			ModelDebugBox.INSTANCE.itemTick(stack, null);
-			return false;
 		}
 		
 		@Override
@@ -67,15 +66,12 @@ public interface ItemInfo
 	/**
 	 * Called when player is holding this item. In default it ticks the model and return
 	 * {@code false}.
-	 * 
-	 * @return {@code true} if this stack still need some time to prepare for the tick
 	 */
 	@SideOnly(Side.CLIENT)
-	default public boolean tick(ItemStack stack)
+	default public void tick(ItemStack stack)
 	{
 		final TypeInfo type = this.getType();
 		type.model.itemTick(stack, type);
-		return false;
 	}
 	
 	@SideOnly(Side.CLIENT)

@@ -24,13 +24,13 @@ public interface FMUMPacket
 	 * Encode the packet into a ByteBuf stream. Advanced data handlers can be found at
 	 * {@link net.minecraftforge.fml.common.network.ByteBufUtils}.
 	 */
-	public void encodeInto(ChannelHandlerContext ctx, ByteBuf data);
+	default public void encodeInto(ChannelHandlerContext ctx, ByteBuf data) { }
 	
 	/**
 	 * Decode the packet from a ByteBuf stream. Advanced data handlers can be found at
 	 * {@link net.minecraftforge.fml.common.network.ByteBufUtils}.
 	 */
-	public void decodeInto(ChannelHandlerContext ctx, ByteBuf data);
+	default public void decodeInto(ChannelHandlerContext ctx, ByteBuf data) { }
 	
 	/**
 	 * Handle the packet on server side, post-decoding

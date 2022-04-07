@@ -3,7 +3,7 @@ package com.fmum.common.module;
 import com.fmum.client.FMUMClient;
 import com.fmum.client.KeyManager.Key;
 import com.fmum.client.module.OpModification;
-import com.fmum.common.network.PacketGunOp;
+import com.fmum.common.network.PacketInitModuleTag;
 import com.fmum.common.type.ItemPaintable;
 
 import net.minecraft.item.ItemStack;
@@ -17,13 +17,11 @@ public interface ItemModular extends ItemPaintable
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	default boolean tick(ItemStack stack)
+	default void tick(ItemStack stack)
 	{
 		if(TagModular.validateTag(stack))
-			return ItemPaintable.super.tick(stack);
-		
-		FMUMClient.netHandler.sendToServer(new PacketGunOp(PacketGunOp.INIT_TAG));
-		return true;
+			ItemPaintable.super.tick(stack);
+		else FMUMClient.netHandler.sendToServer(new PacketInitModuleTag());
 	}
 	
 	@Override

@@ -2,7 +2,7 @@ package com.fmum.client.module;
 
 import com.fmum.client.KeyManager.Key;
 import com.fmum.client.OperationProgressive;
-import com.fmum.common.FMUM;
+import com.fmum.common.CommonProxy;
 import com.fmum.common.module.InfoModule;
 import com.fmum.common.module.ItemModular;
 import com.fmum.common.module.TagModular;
@@ -46,7 +46,7 @@ public final class OpModification extends OperationProgressive
 	
 	private final InfoModule info = new InfoModule();
 	
-	public void onConfigSync() { this.modifying = new byte[FMUM.maxLayers << 1]; }
+	public void onConfigSync() { this.modifying = new byte[CommonProxy.maxLocLen]; }
 	
 	public boolean isPaintMode() { return this.mode == ModifyMode.PAINTJOB; }
 	

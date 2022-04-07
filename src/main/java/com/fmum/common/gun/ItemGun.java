@@ -1,11 +1,11 @@
 package com.fmum.common.gun;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.client.OperationProgressive;
 import com.fmum.client.KeyManager.Key;
+import com.fmum.client.OperationProgressive;
 import com.fmum.client.gun.model.AnimationTracksGun;
 import com.fmum.common.module.TagModular;
-import com.fmum.common.network.PacketGunOp;
+import com.fmum.common.network.PacketInitModuleTag;
 import com.fmum.common.type.ItemHoldable;
 
 import net.minecraft.entity.Entity;
@@ -54,19 +54,18 @@ public final class ItemGun extends ItemHoldable implements ItemAmmoContainer
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean tick(ItemStack stack)
+	public void tick(ItemStack stack)
 	{
 		if(!TagModular.validateTag(stack))
 		{
-			FMUMClient.netHandler.sendToServer(new PacketGunOp(PacketGunOp.INIT_TAG));
-			return true;
+			FMUMClient.netHandler.sendToServer(new PacketInitModuleTag());
+			return;
 		}
 		
 		// TODO: ton of tick task
 		
 		
 		this.type.model.itemTick(stack, this.type);
-		return false;
 	}
 	
 	@Override

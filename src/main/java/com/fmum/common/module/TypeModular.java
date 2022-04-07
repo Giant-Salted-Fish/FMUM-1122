@@ -80,6 +80,28 @@ public abstract class TypeModular extends TypePaintable
 		return step * stepLen + this.offsets[offset];
 	}
 	
+	/**
+	 * @param tag Tag of this module
+	 * @return Number nodes in the deepest path including this node 
+	 */
+	public final int getNodeDepth(NBTTagList tag)
+	{
+		int max = 1;
+		for(int i = this.slots.length; --i >= 0; )
+		{
+			NBTTagList slotTag = (NBTTagList)tag.get(1 + i);
+			int j = slotTag.tagCount();
+			if(j == 0) continue;
+			
+			while(--j >= 0)
+			{
+				NBTTagList moduleTag = (NBTTagList)slotTag.get(j);
+				max = Math.max(max, 1 + TagModular.getType(moduleTag).getNodeDepth(moduleTag));
+			}
+		}
+		return max;
+	}
+	
 	public boolean stream(NBTTagList tag, ModuleVisitor visitor)
 	{
 		// Visit this module
@@ -88,7 +110,7 @@ public abstract class TypeModular extends TypePaintable
 		// Visit each module installed on this module
 		NBTTagList slotTag, moduleTag;
 		for(int i = this.slots.length; --i >= 0; )
-			for(int j = (slotTag = (NBTTagList)tag.get(i + 1)).tagCount(); --j >= 0; )
+			for(int j = (slotTag = (NBTTagList)tag.get(1 + i)).tagCount(); --j >= 0; )
 				if(
 					TagModular.getType(
 						moduleTag = (NBTTagList)slotTag.get(j)
@@ -122,7 +144,7 @@ public abstract class TypeModular extends TypePaintable
 			double arotX = rotX + slot.rotX;
 			
 			// Go through each module installed on this slot
-			NBTTagList slotTag = (NBTTagList)tag.get(i + 1);
+			NBTTagList slotTag = (NBTTagList)tag.get(1 + i);
 			for(int j = slotTag.tagCount(); --j >= 0; )
 			{
 				NBTTagList moduleTag = (NBTTagList)slotTag.get(j);
@@ -166,7 +188,7 @@ public abstract class TypeModular extends TypePaintable
 		for(int i = this.slots.length; --i >= 0; )
 		{
 			// Check if there exists some installed modules
-			NBTTagList slotTag = (NBTTagList)tag.get(i + 1);
+			NBTTagList slotTag = (NBTTagList)tag.get(1 + i);
 			if(slotTag.tagCount() == 0) continue;
 			
 			// Setup coordinate system
@@ -205,7 +227,7 @@ public abstract class TypeModular extends TypePaintable
 		for(int i = this.slots.length; --i >= 0; )
 			for(
 				int j = (
-					slotTag = (NBTTagList)tag.get(i + 1)
+					slotTag = (NBTTagList)tag.get(1 + i)
 				).tagCount();
 				--j >= 0;
 			) {
@@ -284,7 +306,7 @@ public abstract class TypeModular extends TypePaintable
 		for(int i = this.slots.length; --i >= 0; )
 			for(
 				int j = (
-					slotTag = (NBTTagList)tag.get(i + 1)
+					slotTag = (NBTTagList)tag.get(1 + i)
 				).tagCount();
 				--j >= 0;
 				count += TagModular.getType(moduleTag = (NBTTagList)slotTag.get(j)).count(moduleTag)

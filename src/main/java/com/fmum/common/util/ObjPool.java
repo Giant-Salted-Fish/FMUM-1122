@@ -1,6 +1,7 @@
 package com.fmum.common.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,20 +17,33 @@ public final class ObjPool<T>
 	private final ObjFactory<T> factory;
 	private final Recycler<T> recycler;
 	
+	/**
+	 * In default it uses a synchronized {@link ArrayList} as pool which guarantee the thread safe
+	 * 
+	 * @param factory Instance factory which provides instance when there is none left in pool
+	 */
+	public ObjPool(ObjFactory<T> factory)
+	{
+		this(
+			factory,
+			(instance, pool) -> { if(pool.size() < 64) pool.add(instance); }
+		);
+	}
+	
+	public ObjPool(ObjFactory<T> factory, Recycler<T> recycler)
+	{
+		this(
+			Collections.synchronizedList(new ArrayList<>()),
+			factory,
+			recycler
+		);
+	}
+	
 	public ObjPool(List<T> pool, ObjFactory<T> factory, Recycler<T> recycler)
 	{
 		this.pool = pool;
 		this.factory = factory;
 		this.recycler = recycler;
-	}
-	
-	public ObjPool(ObjFactory<T> factory)
-	{
-		this(
-			new ArrayList<>(),
-			factory,
-			(instance, pool) -> { if(pool.size() < 64) pool.add(instance); }
-		);
 	}
 	
 	public T poll()

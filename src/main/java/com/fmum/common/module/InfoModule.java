@@ -19,10 +19,10 @@ public class InfoModule extends Vec3
 	
 	public InfoModule() { }
 	
-	public InfoModule(NBTTagList tag, TypeModular type)
+	public InfoModule(ItemStack stack)
 	{
-		this.tag = tag;
-		this.type = type;
+		this.tag = TagModular.getTag(stack);
+		this.type = ((ItemModular)stack.getItem()).getType();
 	}
 	
 	public final InfoModule setDefault(ItemStack stack) {
@@ -70,7 +70,7 @@ public class InfoModule extends Vec3
 			Slot slot = this.type.slots[loc[i]];
 			int[] states = TagModular.getStates(
 				this.tag = ((NBTTagList)(
-					(NBTTagList)this.tag.get(loc[i] + 1)
+					(NBTTagList)this.tag.get(1 + loc[i])
 				).get(loc[i + 1]))
 			);
 			
@@ -97,7 +97,7 @@ public class InfoModule extends Vec3
 		Slot s = this.type.slots[slot];
 		int[] states = TagModular.getStates(
 			this.tag = ((NBTTagList)(
-				(NBTTagList)this.tag.get(slot + 1)
+				(NBTTagList)this.tag.get(1 + slot)
 			).get(index))
 		);
 		
@@ -113,22 +113,19 @@ public class InfoModule extends Vec3
 	
 	/**
 	 * Try to move to given location. It validates the given location and length to make sure
-	 * that this method never crash. Every byte of the location should be valid and length
-	 * should be multiple of 2 and not negative.
+	 * that this method never crash. Every byte of the location should be valid.
 	 * 
-	 * @param location Location of the target modifiable
+	 * @param loc Location of the target module
 	 * @param len Length of the location
 	 * @return {@code null} if any error occurred in the progress
 	 */
 	public final InfoModule tryMoveTo(byte[] loc, int len)
 	{
-		if(len < 0 || (len & 1) > 0) return null;
-		
 		for(int i = 0; i < len; i += 2)
 		{
 			if((0xFF & loc[i]) >= this.type.slots.length) return null;
 			Slot slot = this.type.slots[loc[i]];
-			this.tag = ((NBTTagList)this.tag.get(loc[i] + 1));
+			this.tag = ((NBTTagList)this.tag.get(1 + loc[i]));
 			
 			if((0xFF & loc[i + 1]) >= this.tag.tagCount()) return null;
 			int[] states = (

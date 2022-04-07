@@ -1,7 +1,7 @@
 package com.fmum.common.network;
 
 import com.fmum.client.module.OpModification;
-import com.fmum.common.FMUM;
+import com.fmum.common.CommonProxy;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -14,18 +14,19 @@ public final class PacketConfigSync implements FMUMPacket
 	@Override
 	public void encodeInto(ChannelHandlerContext ctx, ByteBuf data)
 	{
-		data.writeByte(FMUM.maxLayers);
+		data.writeShort(CommonProxy.maxLocLen);
 	}
 	
 	@Override
 	public void decodeInto(ChannelHandlerContext ctx, ByteBuf data)
 	{
-		FMUM.maxLayers = data.readByte();
+		CommonProxy.maxLocLen = data.readShort();
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void handleClientSide(EntityPlayerSP player) {
+	public void handleClientSide(EntityPlayerSP player)
+	{
 		OpModification.INSTANCE.onConfigSync();
 	}
 }

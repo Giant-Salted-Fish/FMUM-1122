@@ -36,6 +36,12 @@ public class CommonProxy
 	 */
 	public static String packDirName = FMUM.MODID;
 	
+	/// Configurations ///
+	/**
+	 * Max layers of the modules x 2(0-255 x 2 = 0-510)
+	 */
+	public static int maxLocLen = 16;
+	
 	@SideOnly(Side.SERVER)
 	private static String localizeFileName;
 	
@@ -193,5 +199,13 @@ public class CommonProxy
 			packDirName,
 			"Content pack folder name where FMUM will load content packs from"
 		);
+		maxLocLen = config.getInt(
+			"maxLayers",
+			COMMON_SETTING,
+			8,
+			1,
+			255,
+			"Max layers of modules that you can install on a primary module"
+		) << 1;
 	}
 }
