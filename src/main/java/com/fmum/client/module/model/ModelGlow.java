@@ -28,4 +28,12 @@ public class ModelGlow extends ModelModular
 		this.meshes[GLOW].render();
 		glowOff();
 	}
+	
+	@Override
+	public void renderSelected()
+	{
+		glowOn();
+		super.render();
+		glowOff();
+	}
 }

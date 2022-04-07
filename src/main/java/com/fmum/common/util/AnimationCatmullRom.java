@@ -11,7 +11,7 @@ public class AnimationCatmullRom extends AnimationLinear
 	}
 	
 	@Override
-	public void getSmoothedPos(Vec3 dest, double smoothedProgress)
+	public void getSmoothedPos(Vec3 dst, double smoothedProgress)
 	{
 		this.time = smoothedProgress;
 		final AnimationNode p1 = this.nodes.floor(this);
@@ -25,20 +25,20 @@ public class AnimationCatmullRom extends AnimationLinear
 		
 		Vec3 v = this.pos;
 		
-		dest.set(p0.pos);
-		dest.scale(-0.5D * ttt + tt - 0.5D * t);
+		dst.set(p0.pos);
+		dst.scale(-0.5D * ttt + tt - 0.5D * t);
 		
 		v.set(p1.pos);
 		v.scale(1.5D * ttt - 2.5D * tt + 1D);
-		dest.trans(v);
+		dst.trans(v);
 		
 		v.set(p2.pos);
 		v.scale(-1.5D * ttt + 2D * tt + 0.5D * t);
-		dest.trans(v);
+		dst.trans(v);
 		
 		v.set(p3.pos);
 		v.scale(0.5D * ttt - 0.5D * tt);
-		dest.trans(v);
+		dst.trans(v);
 	}
 	
 	public static class Builder extends AnimationLinear.Builder

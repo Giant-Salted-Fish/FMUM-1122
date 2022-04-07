@@ -42,6 +42,8 @@ public class CommonProxy
 	 */
 	public static int maxLocLen = 16;
 	
+	public static int maxCanInstall = 5;
+	
 	@SideOnly(Side.SERVER)
 	private static String localizeFileName;
 	
@@ -202,10 +204,18 @@ public class CommonProxy
 		maxLocLen = config.getInt(
 			"maxLayers",
 			COMMON_SETTING,
-			8,
+			maxLocLen >>> 1,
 			1,
 			255,
-			"Max layers of modules that you can install on a primary module"
+			"Max layers of modules can be installed on a base module"
 		) << 1;
+		maxCanInstall = config.getInt(
+			"maxCanInstall",
+			COMMON_SETTING,
+			maxCanInstall,
+			1,
+			255,
+			"Max number of modules that can be installed in a single slot"
+		);
 	}
 }

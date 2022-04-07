@@ -36,8 +36,12 @@ item.hk416upperreceiver.name=H&K416 Upper Receiver
 item.556x45mm30roundmag.name=5.56x45mm 30 Round NATO Magazine
 
 # Iron sight
+item.cicis4frontsight.name=CIC IS-2 Front Sight
+item.cicis4rearsight.name=CIC IS-2 Rear Sight
 item.cicis4frontsight.name=CIC IS-4 Front Sight
 item.cicis4rearsight.name=CIC IS-4 Rear Sight
+item.cicis4frontsight.name=CIC IS-9 Front Sight
+item.cicis4rearsight.name=CIC IS-9 Rear Sight
 
 # Muzzle
 item.556mmthreadprotector.name=5.56mm Thread Protector

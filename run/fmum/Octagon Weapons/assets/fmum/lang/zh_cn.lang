@@ -36,8 +36,12 @@ item.hk416upperreceiver.name=H&K416 上机匣
 item.556x45mm30roundmag.name=5.56x45mm 30发北约标准弹匣
 
 # 机械瞄具
+item.cicis4frontsight.name=CIC IS-2 折叠式准星
+item.cicis4rearsight.name=CIC IS-2 折叠式觇孔照门
 item.cicis4frontsight.name=CIC IS-4 折叠式准星
 item.cicis4rearsight.name=CIC IS-4 折叠式觇孔照门
+item.cicis4frontsight.name=CIC IS-9 折叠式准星
+item.cicis4rearsight.name=CIC IS-9 折叠式觇孔照门
 
 # 膛口装置
 item.556mmthreadprotector.name=5.56mm 螺纹保护帽

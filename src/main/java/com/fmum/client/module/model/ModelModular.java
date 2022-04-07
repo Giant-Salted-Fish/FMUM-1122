@@ -41,6 +41,12 @@ public class ModelModular extends ModelMeshBased
 	
 	public ModelModular(Consumer<ModelModular> initializer) { initializer.accept(this); }
 	
+	/**
+	 * Call in modification mode to render model in selected state. In default it glows the model.
+	 * Notice that calling glow twice could cause weird lighting problem. Hence it is recommended
+	 * to override this method if you used {@link #glowOn()} or {@link #glowOn(int)} in
+	 * {@link #render()}.
+	 */
 	public void renderSelected()
 	{
 		glowOn();
@@ -190,7 +196,7 @@ public class ModelModular extends ModelMeshBased
 			{
 				final int[] states = TagModular.getStates(tag);
 				final double stepLen = modify.baseType.slots[
-					modify.modifying[modify.modifyingLen - 2]
+					modify.loc[modify.locLen - 2]
 				].stepLen;
 				sys.trans(
 					typ.getPos(modify.step, modify.offset, stepLen)

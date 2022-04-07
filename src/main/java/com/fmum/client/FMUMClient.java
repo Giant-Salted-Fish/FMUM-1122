@@ -69,12 +69,12 @@ public abstract class FMUMClient
 	{
 		public final double[] testValue = { 0D, 0D, 0D, 0D, 0D, 0D };
 		
-		public void getPos(Vec3 dest) {
-			dest.set(this.testValue[0], this.testValue[1], this.testValue[2]);
+		public void getPos(Vec3 dst) {
+			dst.set(this.testValue[0], this.testValue[1], this.testValue[2]);
 		}
 		
-		public void getRot(Vec3 dest) {
-			dest.set(this.testValue[3], this.testValue[4], this.testValue[5]);
+		public void getRot(Vec3 dst) {
+			dst.set(this.testValue[3], this.testValue[4], this.testValue[5]);
 		}
 	}
 	

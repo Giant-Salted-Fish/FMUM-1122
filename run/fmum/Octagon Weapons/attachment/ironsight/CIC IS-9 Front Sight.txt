@@ -1,0 +1,6 @@
+Name cicis9frontsight CIC IS-9 Front Sight
+Category pra
+CreativeTab oc
+
+Model com.fmum.oc.client.model.ModelOCGun:CICIS9FrontSight 0.1 skins/ironsights.png
+Paintjob cicis9frontsight-tritium skins/ironsights-tritium.png

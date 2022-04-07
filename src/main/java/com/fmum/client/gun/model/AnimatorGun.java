@@ -267,11 +267,11 @@ public class AnimatorGun extends AnimatorCamControl
 		leftHandGrabbing.type
 			= rightHandGrabbing.type
 			= gun;
+		sys.setDefault();
 		gun.stream(
 			TagGun.getTag(stack),
-			0D, 0D, 0D,
-			0D,
-			(tag, typ, x, y, z, sin0, cos0, rotX) -> {
+			sys,
+			(tag, typ, sys) -> {
 				TypeGunPart part = (TypeGunPart)typ;
 				final boolean leftGrab = part.leftHandPriority
 					>= ((TypeGunPart)leftHandGrabbing.type).leftHandPriority;
@@ -280,15 +280,10 @@ public class AnimatorGun extends AnimatorCamControl
 				if(leftGrab || rightGrab)
 				{
 					final InfoModule info = leftGrab ? leftHandGrabbing : rightHandGrabbing;
+					info.tag = tag;
 					info.type = typ;
-					info.x = x;
-					info.y = y;
-					info.z = z;
-					info.sin = sin0;
-					info.cos = cos0;
-					info.rotX = rotX;
+					info.sys.set(sys);
 				}
-				return false;
 			}
 		);
 		

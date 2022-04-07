@@ -23,19 +23,19 @@ public class AnimationLinear extends AnimationNode
 	public boolean tick(double progress) { return progress > 1D; }
 	
 	@Override
-	public void getSmoothedPos(Vec3 dest, double smoothedProgress)
+	public void getSmoothedPos(Vec3 dst, double smoothedProgress)
 	{
 		this.time = smoothedProgress;
 		final AnimationNode n0 = this.nodes.floor(this);
 		final AnimationNode n1 = this.nodes.higher(n0);
 		
 		smoothedProgress = (smoothedProgress - n0.time) / (n1.time - n0.time);
-		dest.set(n1.pos);
-		dest.scale(smoothedProgress);
+		dst.set(n1.pos);
+		dst.scale(smoothedProgress);
 		
 		this.pos.set(n0.pos);
 		this.pos.scale(1D - smoothedProgress);
-		dest.trans(this.pos);
+		dst.trans(this.pos);
 	}
 	
 	public static class Builder

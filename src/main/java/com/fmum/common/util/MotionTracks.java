@@ -40,16 +40,16 @@ public class MotionTracks<T extends MotionTendency>
 	
 	public T popTrack(String identifier) { return this.tracks.remove(identifier); }
 	
-	public void getSmoothedPos(Vec3 dest, float smoother)
+	public void getSmoothedPos(Vec3 dst, float smoother)
 	{
-		dest.set(0D);
-		this.applySmoothedPos(dest, smoother);
+		dst.set(0D);
+		this.applySmoothedPos(dst, smoother);
 	}
 	
-	public void applySmoothedPos(Vec3 dest, float smoother)
+	public void applySmoothedPos(Vec3 dst, float smoother)
 	{
 		for(Entry<String, T> e : this.tracks.entrySet())
-			e.getValue().applySmoothedPos(dest, smoother);
+			e.getValue().applySmoothedPos(dst, smoother);
 	}
 	
 	public double getSmoothedX(float smoother)

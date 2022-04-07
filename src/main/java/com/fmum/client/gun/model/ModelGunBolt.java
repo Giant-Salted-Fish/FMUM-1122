@@ -9,13 +9,7 @@ public class ModelGunBolt extends ModelModular
 		BOLT = 0,
 		CARRIER = 1;
 	
-	public ModelGunBolt(Mesh bolt, Mesh carrier)
-	{
-		this.meshes = new Mesh[] {
-			bolt,
-			carrier
-		};
-	}
+	public ModelGunBolt(Mesh bolt, Mesh carrier) { super(bolt, carrier); }
 	
 	// TODO: render valid gun bolt
 }

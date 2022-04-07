@@ -1,0 +1,6 @@
+Name cicis2rearsight CIC IS-2 Rear Sight
+Category pra
+CreativeTab oc
+
+Model com.fmum.oc.client.model.ModelOCGun:CICIS2RearSight 0.1 skins/ironsights.png
+Paintjob cicis2rearsight-tritium skins/ironsights-tritium.png

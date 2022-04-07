@@ -56,21 +56,21 @@ public class MotionTendency
 		this.curPos.trans(this.vec);
 	}
 	
-	public final void getSmoothedPos(Vec3 dest, float smoother)
+	public final void getSmoothedPos(Vec3 dst, float smoother)
 	{
-		dest.set(this.curPos);
-		dest.sub(this.prevPos);
-		dest.scale(smoother);
-		dest.trans(this.prevPos);
+		dst.set(this.curPos);
+		dst.sub(this.prevPos);
+		dst.scale(smoother);
+		dst.trans(this.prevPos);
 	}
 	
-	public final void applySmoothedPos(Vec3 dest, float smoother)
+	public final void applySmoothedPos(Vec3 dst, float smoother)
 	{
 		this.vec.set(this.curPos);
 		this.vec.sub(this.prevPos);
 		this.vec.scale(smoother);
-		dest.trans(this.vec);
-		dest.trans(this.prevPos);
+		dst.trans(this.vec);
+		dst.trans(this.prevPos);
 	}
 	
 	public final double getSmoothedX(double smoother)

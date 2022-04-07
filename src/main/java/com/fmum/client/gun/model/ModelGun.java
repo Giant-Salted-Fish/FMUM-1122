@@ -151,14 +151,14 @@ public class ModelGun extends ModelGrip
 		Animator ani,
 		CoordSystem location,
 		InfoModule info,
-		ArmTendency dest
+		ArmTendency dst
 	) {
 		vec.set(this.grabPos_R);
-		info.apply(vec, vec);
+		info.sys.apply(vec, vec);
 		location.apply(vec, vec);
-		dest.setHandTarPos(vec);
-		dest.setHandTarRotX(this.grabHandRot_R + ((AnimatorGun)ani).rot.getSmoothedX(1F));
-		dest.setArmTarRotX(this.grabArmRot_R);
+		dst.setHandTarPos(vec);
+		dst.setHandTarRotX(this.grabHandRot_R + ((AnimatorGun)ani).rot.getSmoothedX(1F));
+		dst.setArmTarRotX(this.grabArmRot_R);
 	}
 	
 	@Override

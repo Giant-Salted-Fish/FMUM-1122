@@ -59,19 +59,19 @@ public class ArmTendency
 	
 	public void setArmTarRotX(double rotX) { this.armRotX.tarPos.x = rotX; }
 	
-	public void getSmoothedPos(Vec3 dest, float smoother) {
-		this.handPos.getSmoothedPos(dest, smoother);
+	public void getSmoothedPos(Vec3 dst, float smoother) {
+		this.handPos.getSmoothedPos(dst, smoother);
 	}
 	
-	public void getSmoothedRot(Vec3 dest, double smoother)
+	public void getSmoothedRot(Vec3 dst, double smoother)
 	{
-		dest.set(this.handRot);
-		dest.sub(this.prevHandRot);
-		dest.scale(smoother);
-		dest.trans(this.prevHandRot);
+		dst.set(this.handRot);
+		dst.sub(this.prevHandRot);
+		dst.scale(smoother);
+		dst.trans(this.prevHandRot);
 		
 		double prevX = this.handRotX.prevPos.x;
-		dest.x = prevX + (this.handRotX.curPos.x - prevX) * smoother;
+		dst.x = prevX + (this.handRotX.curPos.x - prevX) * smoother;
 	}
 	
 	/**

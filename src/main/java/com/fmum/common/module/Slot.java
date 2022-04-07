@@ -34,7 +34,7 @@ public final class Slot extends Vec3
 	/**
 	 * Maximum number of attachments can be attached to this slot
 	 */
-	public byte maxCanAttach = 1;
+	public byte maxCanInstall = 1;
 	
 	/**
 	 * White list and blacklist of the type of attachments
@@ -90,13 +90,13 @@ public final class Slot extends Vec3
 				cursor = i + 1;
 				break;
 			
-			case "A[":
+			case "M[":
 				int after = parseList(split, "]", i, slot.attachmentWhitelist = new TreeSet<>());
 				cursor += after - i + 1;
 				i = after;
 				break;
 			
-			case "A<":
+			case "M<":
 				after = parseList(split, ">", i, slot.attachmentBlacklist = new TreeSet<>());
 				cursor += after - i + 1;
 				i = after;
@@ -136,7 +136,7 @@ public final class Slot extends Vec3
 					slot.maxStep = Short.parseShort(split[i]);
 					break;
 				case 6:
-					slot.maxCanAttach = Byte.parseByte(split[i]);
+					slot.maxCanInstall = Byte.parseByte(split[i]);
 					break;
 				default:
 					throw new RuntimeException("Too many arguments for one attachable slot");
@@ -149,10 +149,10 @@ public final class Slot extends Vec3
 		return ret;
 	}
 	
-	private static int parseList(String[] split, String close, int cursor, TreeSet<String> dest)
+	private static int parseList(String[] split, String close, int cursor, TreeSet<String> dst)
 	{
 		while(!split[++cursor].equals(close))
-			dest.add(split[cursor]);
+			dst.add(split[cursor]);
 		return cursor;
 	}
 }

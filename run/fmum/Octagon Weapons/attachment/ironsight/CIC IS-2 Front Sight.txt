@@ -1,0 +1,6 @@
+Name cicis2frontsight CIC IS-2 Front Sight
+Category pra
+CreativeTab oc
+
+Model com.fmum.oc.client.model.ModelOCGun:CICIS2FrontSight 0.1 skins/ironsights.png
+Paintjob cicis2frontsight-tritium skins/ironsights-tritium.png

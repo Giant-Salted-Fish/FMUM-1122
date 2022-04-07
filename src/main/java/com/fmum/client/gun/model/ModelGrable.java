@@ -11,13 +11,13 @@ public interface ModelGrable
 		Animator ani,
 		CoordSystem location,
 		InfoModule info,
-		ArmTendency dest
+		ArmTendency dst
 	);
 	
 	public void updateRightHandTarPos(
 		Animator ani,
 		CoordSystem location,
 		InfoModule info,
-		ArmTendency dest
+		ArmTendency dst
 	);
 }

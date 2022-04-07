@@ -5,6 +5,7 @@ import org.lwjgl.opengl.GL11;
 import com.fmum.client.FMUMClient;
 import com.fmum.client.ResourceManager;
 import com.fmum.client.module.OpModification;
+import com.fmum.common.module.InfoModule;
 import com.fmum.common.module.ItemModular;
 import com.fmum.common.module.Slot;
 import com.fmum.common.module.TypeModular;
@@ -12,21 +13,13 @@ import com.fmum.common.util.CoordSystem;
 import com.fmum.common.util.ObjPool;
 import com.fmum.common.util.Vec3;
 
-import net.minecraft.nbt.NBTTagList;
-
-public class RenderInfoModule
+public class RenderInfoModule extends InfoModule
 {
 	public static final ObjPool<RenderInfoModule>
 		pool = new ObjPool<>(() -> new RenderInfoModule());
 	
 	protected static final Vec3 vec = new Vec3();
-	
-	public NBTTagList tag = null;
-	
-	public TypeModular type = null;
-	
-	public final CoordSystem sys = new CoordSystem();
-	
+	 
 	public void render()
 	{
 		// Apply transform
@@ -61,13 +54,13 @@ public class RenderInfoModule
 		{
 			GL11.glPushMatrix();
 			{
-				final Slot slot = this.type.slots[modify.modifying[modify.modifyingLen - 2]];
+				final Slot slot = this.type.slots[modify.loc[modify.locLen - 2]];
 				GL11.glTranslated(slot.x, slot.y, slot.z);
 				GL11.glRotated(slot.rotX, 1D, 0D, 0D);
 				
 				FMUMClient.mc.renderEngine.bindTexture(ResourceManager.TEXTURE_GREEN);
 				
-				if(modify.previewIndex != -1)
+				if(modify.previewInvSlot != -1)
 				{
 					TypeModular typ = ((ItemModular)modify.previewStack.getItem()).getType();
 					GL11.glTranslated(typ.getPos(modify.step, modify.offset, slot.stepLen), 0D, 0D);

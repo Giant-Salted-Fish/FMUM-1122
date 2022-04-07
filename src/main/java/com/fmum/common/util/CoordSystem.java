@@ -295,9 +295,9 @@ public final class CoordSystem
 	 * Apply rotation, translation and scale of this coordinate system for the given raw vector
 	 * 
 	 * @param raw Raw vector to transfer
-	 * @param dest Destination of the result
+	 * @param dst Destination of the result
 	 */
-	public void apply(Vec3 raw, Vec3 dest)
+	public void apply(Vec3 raw, Vec3 dst)
 	{
 		// Destination vector could be raw vector
 		// So buffer result before computation is done
@@ -313,20 +313,20 @@ public final class CoordSystem
 			+ raw.z * this.vec[NORM_Z + Y]
 			+ this.vec[OFFSET + Y]
 		);
-		dest.z = (
+		dst.z = (
 			raw.x * this.vec[NORM_X + Z]
 			+ raw.y * this.vec[NORM_Y + Z]
 			+ raw.z * this.vec[NORM_Z + Z]
 			+ this.vec[OFFSET + Z]
 		);
-		dest.y = y;
-		dest.x = x;
+		dst.y = y;
+		dst.x = x;
 	}
 	
 	/**
 	 * Convenience method used in processing ToolBox models
 	 */
-	public void apply(Vec3f raw, Vec3f dest)
+	public void apply(Vec3f raw, Vec3f dst)
 	{
 		float x = (float)(
 			raw.x * this.vec[NORM_X + X]
@@ -340,23 +340,23 @@ public final class CoordSystem
 			+ raw.z * this.vec[NORM_Z + Y]
 			+ this.vec[OFFSET + Y]
 		);
-		dest.z = (float)(
+		dst.z = (float)(
 			raw.x * this.vec[NORM_X + Z]
 			+ raw.y * this.vec[NORM_Y + Z]
 			+ raw.z * this.vec[NORM_Z + Z]
 			+ this.vec[OFFSET + Z]
 		);
-		dest.y = y;
-		dest.x = x;
+		dst.y = y;
+		dst.x = x;
 	}
 	
 	/**
 	 * Apply rotation and scale of this coordinate system for the given raw vector
 	 * 
 	 * @param raw Raw vector to transfer
-	 * @param dest Destination of the result
+	 * @param dst Destination of the result
 	 */
-	public void applyRot(Vec3 raw, Vec3 dest)
+	public void applyRot(Vec3 raw, Vec3 dst)
 	{
 		double x = (
 			raw.x * this.vec[NORM_X + X]
@@ -368,37 +368,37 @@ public final class CoordSystem
 			+ raw.y * this.vec[NORM_Y + Y]
 			+ raw.z * this.vec[NORM_Z + Y]
 		);
-		dest.z = (
+		dst.z = (
 			raw.x * this.vec[NORM_X + Z]
 			+ raw.y * this.vec[NORM_Y + Z]
 			+ raw.z * this.vec[NORM_Z + Z]
 		);
-		dest.y = y;
-		dest.x = x;
+		dst.y = y;
+		dst.x = x;
 	}
 	
 	/**
 	 * Apply rotation, translation and scale of this coordinate system for the given raw system
 	 * 
 	 * @param raw Sub-coordinate system
-	 * @param dest Destination coordinate system. Should not be this instance.
+	 * @param dst Destination coordinate system. Should not be this instance.
 	 * @param opVec Vector that will be used in operation
 	 */
-	public void apply(CoordSystem raw, CoordSystem dest, Vec3 opVec)
+	public void apply(CoordSystem raw, CoordSystem dst, Vec3 opVec)
 	{
 		raw.get(opVec, NORM_X);
 		this.applyRot(opVec, opVec);
-		dest.set(opVec, NORM_X);
+		dst.set(opVec, NORM_X);
 		raw.get(opVec, NORM_Y);
 		this.applyRot(opVec, opVec);
-		dest.set(opVec, NORM_Y);
+		dst.set(opVec, NORM_Y);
 		raw.get(opVec, NORM_Z);
 		this.applyRot(opVec, opVec);
-		dest.set(opVec, NORM_Z);
+		dst.set(opVec, NORM_Z);
 		
 		raw.get(opVec, OFFSET);
 		this.apply(opVec, opVec);
-		dest.set(opVec, OFFSET);
+		dst.set(opVec, OFFSET);
 	}
 	
 	/**
@@ -409,9 +409,9 @@ public final class CoordSystem
 	 * <p>Note that this method will devastate current rotation of the system. Make sure you set it
 	 * back if you want to keep to use the angle information in this system.</p>
 	 * 
-	 * @param dest Destination vector to receive angle values
+	 * @param dst Destination vector to receive angle values
 	 */
-	public void getAngle(Vec3 dest)
+	public void getAngle(Vec3 dst)
 	{
 		double sin, cos;
 		
@@ -420,18 +420,18 @@ public final class CoordSystem
 		);
 		// Check angle flip of tan function
 		this.globalRot(-(sin = cos < 0D ? sin + 180D : sin), Y);
-		dest.y = sin;
+		dst.y = sin;
 		
 		sin = Math.toDegrees(
 			Math.atan(this.vec[NORM_X + Y] / (cos = this.vec[NORM_X + X]))
 		);
 		this.globalRot(-(sin = cos < 0D ? sin + 180D : sin), Z);
-		dest.z = sin;
+		dst.z = sin;
 		
 		sin = Math.toDegrees(
 			Math.atan(this.vec[NORM_Y + Z] / (cos = this.vec[NORM_Y + Y]))
 		);
-		dest.x = cos < 0D ? sin + 180D : sin;
+		dst.x = cos < 0D ? sin + 180D : sin;
 	}
 	
 	/**
@@ -443,9 +443,9 @@ public final class CoordSystem
 	 * means it is not necessary to set normal y and normal z before calling this method and normal
 	 * x should not be trusted after calling this method.</p>
 	 * 
-	 * @param dest Destination vector to receive angle values. Only y and z will be used.
+	 * @param dst Destination vector to receive angle values. Only y and z will be used.
 	 */
-	public void getViewAngle(Vec3 dest)
+	public void getViewAngle(Vec3 dst)
 	{
 		double sin = this.vec[NORM_X + Z];
 		double cos = this.vec[NORM_X + X];
@@ -457,10 +457,10 @@ public final class CoordSystem
 		);
 		// Check angle flip of tan function
 		this.globalRot(-(sin = cos < 0D ? sin + 180D : sin), Y);
-		dest.y = sin;
+		dst.y = sin;
 		
 		// Now cos value can only be positive or zero
-		dest.z = (
+		dst.z = (
 			(cos = this.vec[NORM_X + X]) != 0D
 			? Math.toDegrees(Math.atan(this.vec[NORM_X + Y] / cos))
 			: this.vec[NORM_X + Y] > 0D ? 90D : -90D
@@ -491,14 +491,14 @@ public final class CoordSystem
 	/**
 	 * Copy the value of required vector to given destination
 	 * 
-	 * @param dest Destination vector
+	 * @param dst Destination vector
 	 * @param base Required value source
 	 */
-	public void get(Vec3 dest, byte base)
+	public void get(Vec3 dst, byte base)
 	{
-		dest.x = this.vec[base + X];
-		dest.y = this.vec[base + Y];
-		dest.z = this.vec[base + Z];
+		dst.x = this.vec[base + X];
+		dst.y = this.vec[base + Y];
+		dst.z = this.vec[base + Z];
 	}
 	
 	public void set(double x, double y, double z, byte base)

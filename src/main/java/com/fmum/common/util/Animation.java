@@ -18,10 +18,10 @@ public interface Animation extends Comparable<Animation>
 	/**
 	 * Set smoothed animation position into destination vector
 	 * 
-	 * @param dest Vector to contain result value
+	 * @param dst Vector to contain result value
 	 * @param smoothedProgress Progress of the current animation taken in count of partial tick time
 	 */
-	default public void getSmoothedPos(Vec3 dest, double smoothedProgress) { dest.set(0D); }
+	default public void getSmoothedPos(Vec3 dst, double smoothedProgress) { dst.set(0D); }
 	
 	/**
 	 * Get key frame time of this animation. For animation nodes.

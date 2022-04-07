@@ -29,14 +29,14 @@ public class ModelGrip extends ModelModular implements ModelGrable
 		Animator ani,
 		CoordSystem location,
 		InfoModule info,
-		ArmTendency dest
+		ArmTendency dst
 	) {
 		vec.set(this.grabPos);
-		info.apply(vec, vec);
+		info.sys.apply(vec, vec);
 		location.apply(vec, vec);
-		dest.setHandTarPos(vec);
-		dest.setHandTarRotX(this.grabHandRot + ((AnimatorGun)ani).rot.getSmoothedX(1F));
-		dest.setArmTarRotX(this.grabArmRot);
+		dst.setHandTarPos(vec);
+		dst.setHandTarRotX(this.grabHandRot + ((AnimatorGun)ani).rot.getSmoothedX(1F));
+		dst.setArmTarRotX(this.grabArmRot);
 	}
 	
 	@Override
@@ -44,6 +44,6 @@ public class ModelGrip extends ModelModular implements ModelGrable
 		Animator ani,
 		CoordSystem location,
 		InfoModule info,
-		ArmTendency dest
-	) { this.updateLeftHandTarPos(ani, location, info, dest); }
+		ArmTendency dst
+	) { this.updateLeftHandTarPos(ani, location, info, dst); }
 }

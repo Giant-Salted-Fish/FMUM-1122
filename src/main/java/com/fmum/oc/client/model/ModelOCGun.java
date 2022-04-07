@@ -5,12 +5,14 @@ import java.util.function.Consumer;
 import com.fmum.client.gun.model.ModelGrip;
 import com.fmum.client.gun.model.ModelGun;
 import com.fmum.client.gun.model.ModelGunBolt;
+import com.fmum.client.gun.model.ModelMag;
 import com.fmum.client.model.Model;
 import com.fmum.client.module.model.ModelGlow;
 import com.fmum.client.module.model.ModelModular;
 import com.fmum.common.util.Mesh;
 import com.fmum.common.util.ObjRepository;
 import com.fmum.common.util.TBModelMeshBuilder;
+import com.fmum.common.util.Vec3;
 
 public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 {
@@ -70,9 +72,16 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		case "HK416UpperReceiver": return HK416_UPPER_RECEIVER;
 		case "HK416LowerReceiver": return HK416_LOWER_RECEIVER;
 		
+		// Magazines
+		case "556x45mm30RoundMag": return _556X45MM_30_ROUND_MAG;
+		
 		// Iron sights
+		case "CICIS2RearSight": return CICIS2_REAR_SIGHT;
+		case "CICIS2FrontSight": return CICIS2_FRONT_SIGHT;
 		case "CICIS4RearSight": return CICIS4_REAR_SIGHT;
 		case "CICIS4FrontSight": return CICIS4_FRONT_SIGHT;
+		case "CICIS9FrontSight": return CICIS9_FRONT_SIGHT;
+		case "CICIS9RearSight": return CICIS9_REAR_SIGHT;
 		
 		// Muzzles
 		case "556mmThreadProtector": return _556MM_THREAD_PROTECTOR;
@@ -84,7 +93,273 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		return null;
 	}
 	
-	private static final ModelModular CICIS4_FRONT_SIGHT = new ModelModular(
+	private static final ModelMag _556X45MM_30_ROUND_MAG = new ModelMag(
+		new TBModelMeshBuilder(512, 512)
+			.addShapeBox(1F, 0F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 10, 1, 4, 401, 297, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(2.5F, -1F, -1.25F, 0F, 0F, 0F, 0F, 0F, 0F, 11, 1, 1, 433, 297, 0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0.5F, 0F, 0F, 1F, 0F, 0.5F, 1.5F, 0F, 0.5F, 1.5F, 0F, 0.5F, 1F, 0F, 0.5F)
+			.addShapeBox(0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 1, 2, 17, 465, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(12F, 0F, -1.75F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 1, 3, 25, 465, 0.75F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0.75F, 0F, 0.5F, 0.75F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0.75F, 0F, 0.5F)
+			.addShapeBox(11F, 0F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 1, 3, 33, 241, 0F, 0F, 0F, -0.75F, 0F, -0.25F, -0.75F, 0F, 0.75F, 0F, 0F, 1F, 0F, 0F, 0F, -0.75F, 0F, -0.25F, -0.75F, 0F, 0.75F, 0F, 0F, 1F)
+		.quickBuild(),
+		new TBModelMeshBuilder(512, 512)
+			.addShapeBox(11.5F, 0F, -2.25F, 0F, 0F, 0F, 0F, 0F, 0F, 6, 22, 1, 465, 297, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, -0.5F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, -0.5F, 0F, -0.5F)
+			.addShapeBox(12.5F, 22F, -2.25F, 0F, 0F, 0F, 0F, 0F, 0F, 6, 8, 1, 481, 297, 1F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, -0.5F, 1F, -0.5F)
+			.addShapeBox(13.5F, 32F, -2.25F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 3, 1, 497, 297, 1F, 1F, 0F, 0F, 2F, 0F, 0F, 2F, -0.5F, 0.5F, 1F, -0.5F, 0F, 0.5F, 0F, 1F, 0F, 0F, 1F, 0F, -0.5F, -0.5F, 0.5F, -0.5F)
+			.addShapeBox(14.5F, 35F, -2.25F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 7, 1, 1, 305, 1F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0.5F, -0.5F, -0.5F, -1F, 1.5F, 0F, 2F, 0F, 0F, 2F, 0F, -0.5F, -1.5F, 1.5F, -0.5F)
+			.addShapeBox(0F, 2F, -1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 21, 3, 17, 305, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, 0F, 0F, 0F)
+			.addShapeBox(16.5F, 43F, -2.25F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 6, 1, 33, 305, 1F, -0.5F, 0F, 0F, 1F, 0F, 0F, 1F, -0.5F, 0.5F, -0.5F, -0.5F, -2F, 1.5F, 0F, 2.5F, -0.5F, 0F, 2.5F, -0.5F, -0.5F, -2.5F, 1.5F, -0.5F)
+			.addShapeBox(2F, 0F, -2.5F, 0F, 0F, 0F, 0F, 0F, 0F, 9, 30, 1, 49, 305, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F)
+			.addShapeBox(15.5F, 0F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 22, 1, 73, 305, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.25F, 0.5F, 0F, -0.25F, 0.5F, 0.4F, 0F, 0F, 0F, 0F, 0F, 0F, -0.25F, 0.5F, 0.4F, -0.25F)
+			.addShapeBox(8.5F, 0F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 21, 1, 89, 305, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 1F, 0F)
+			.addShapeBox(4F, 0F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 23, 1, 105, 305, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 1.5F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0.5F, 1.5F, -0.5F)
+			.addShapeBox(1.5F, 0F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 23, 1, 193, 297, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 1F, 0F)
+			.addShapeBox(15.5F, 22F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 8, 1, 121, 305, 0.5F, -0.4F, 0F, 0F, 0F, 0F, 0F, 0F, -0.25F, 0.5F, -0.4F, -0.25F, -0.5F, 0.6F, 0F, 1F, 0F, 0F, 1F, 0F, -0.25F, -0.5F, 0.6F, -0.25F)
+			.addShapeBox(16.5F, 30F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 5, 1, 137, 305, 0.5F, -0.6F, 0F, 0F, 0F, 0F, 0F, 0F, -0.25F, 0.5F, -0.6F, -0.25F, -0.6F, 0.8F, 0F, 1F, 0F, 0F, 1F, 0F, -0.25F, -0.6F, 0.8F, -0.25F)
+			.addShapeBox(17.5F, 35F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 7, 1, 153, 305, 0.4F, -0.8F, 0F, 0F, 0F, 0F, 0F, 0F, -0.25F, 0.4F, -0.8F, -0.25F, -1.5F, 1F, 0F, 2F, 0F, 0F, 2F, 0F, -0.25F, -1.5F, 1F, -0.25F)
+			.addShapeBox(0F, 24F, -1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 8, 3, 169, 305, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, -1F, 0.5F, 0F, 1F, 0.5F, 0F, 1F, 0.5F, 0F, -1F, 0.5F, 0F)
+			.addShapeBox(19.5F, 42F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 6, 1, 201, 305, 0.5F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, -0.25F, 0.5F, -1F, -0.25F, -2.2F, 2.0469F, 0F, 2.5F, 0.5F, 0F, 2.5F, 0.5F, -0.25F, -2.2F, 2.0469F, -0.25F)
+			.addShapeBox(8.5F, 22F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 8, 1, 217, 305, 0.5F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0.5F, 0F, 0F, -0.5F, 1F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, -0.5F, 1F, 0F)
+			.addShapeBox(9.5F, 31F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 6, 1, 233, 305, 0.5F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0.5F, 0F, 0F, -1F, 1F, 0F, 1.5F, 0F, 0F, 1.5F, 0F, 0F, -1F, 1F, 0F)
+			.addShapeBox(10.5F, 38F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 6, 1, 249, 305, 0F, 0F, 0F, 0.5F, 1F, 0F, 0.5F, 1F, 0F, 0F, 0F, 0F, -2F, 1F, 0F, 2.5F, 0F, 0F, 2.5F, 0F, 0F, -2F, 1F, 0F)
+			.addShapeBox(12.5F, 45F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 6, 1, 265, 305, 0F, 0F, 0F, 0.5F, 1F, 0F, 0.5F, 1F, 0F, 0F, 0F, 0F, -3F, 1.9531F, 0F, 3.2F, -0.0156F, 0F, 3.2F, -0.0156F, 0F, -3F, 1.9531F, 0F)
+			.addShapeBox(4F, 25F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 6, 1, 281, 305, 0.5F, 0.5F, 0F, 0F, 2F, 0F, 0F, 2F, -0.5F, 0.5F, 0.5F, -0.5F, -0.5F, 1F, 0F, 1F, 0F, 0F, 1F, 0F, -0.5F, -0.5F, 1F, -0.5F)
+			.addShapeBox(5F, 32F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 6, 1, 297, 305, 0.5F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, -0.5F, 0.5F, 0F, -0.5F, -1F, 1F, 0F, 1.5F, 0F, 0F, 1.5F, 0F, -0.5F, -1F, 1F, -0.5F)
+			.addShapeBox(6.5F, 39F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 6, 1, 313, 305, 0.5F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, -0.5F, 0.5F, 0F, -0.5F, -1.5F, 1.5F, 0F, 2F, 0F, 0F, 2F, 0F, -0.5F, -1.5F, 1.5F, -0.5F)
+			.addShapeBox(8.5F, 46F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 7, 1, 329, 305, 0.5F, -0.5F, 0F, 0F, 1F, 0F, 0F, 1F, -0.5F, 0.5F, -0.5F, -0.5F, -2.7F, 1.9688F, 0F, 3F, 0.4219F, 0F, 3F, 0.4219F, -0.5F, -2.7F, 1.9688F, -0.5F)
+			.addShapeBox(1.5F, 24F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 8, 1, 185, 305, 0.5F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0.5F, 0F, 0F, -0.5F, 0.5F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, -0.5F, 0.5F, 0F)
+			.addShapeBox(2.5F, 33F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 6, 1, 345, 305, 0.5F, 0.5F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0.5F, 0.5F, 0F, -1F, 0.5F, 0F, 1.5F, 0F, 0F, 1.5F, 0F, 0F, -1F, 0.5F, 0F)
+			.addShapeBox(4F, 40F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 9, 1, 353, 305, 0.5F, 0.5F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0.5F, 0.5F, 0F, -2.5F, 0.5F, 0F, 3F, 0F, 0F, 3F, 0F, 0F, -2.5F, 0.5F, 0F)
+			.addShapeBox(7F, 50F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 5, 1, 361, 305, 0.5F, 0.5F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0.5F, 0.5F, 0F, -2F, 1F, 0F, 2.4F, 0.3438F, 0F, 2.4F, 0.3438F, 0F, -2F, 1F, 0F)
+			.addShapeBox(1F, 32.5F, -1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 7, 3, 401, 305, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1.5F, 0F, 0F, 1.5F, 0F, 0F, 1.5F, 0F, 0F, -1.5F, 0F, 0F)
+			.addShapeBox(2.5F, 39.5F, -1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 10, 3, 417, 305, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -3F, 0.5F, 0F, 3F, 0F, 0F, 3F, 0F, 0F, -3F, 0.5F, 0F)
+			.addShapeBox(5.5F, 49.5F, -1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 6, 3, 433, 305, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, -2.5F, 0.5F, 0F, 2.5F, 0.5F, 0F, 2.5F, 0.5F, 0F, -2.5F, 0.5F, 0F)
+			.addShapeBox(2F, 30F, -2.5F, 0F, 0F, 0F, 0F, 0F, 0F, 9, 21, 1, 233, 313, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, -7F, 5F, 0F, 8.7F, -0.0156F, 0F, 8.7F, -0.0156F, -0.5F, -7F, 5F, -0.5F)
+			.addShapeBox(2F, 9F, 1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 9, 21, 1, 169, 321, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(2F, 30F, 1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 9, 21, 1, 201, 321, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, -7F, 5F, -0.5F, 8.7F, -0.0156F, -0.5F, 8.7F, -0.0156F, 0F, -7F, 5F, 0F)
+			.addShapeBox(15.5F, 0F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 22, 1, 321, 313, 0.5F, 0F, -0.25F, 0F, 0F, -0.25F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0.4F, -0.25F, 0F, 0F, -0.25F, 0F, 0F, 0F, 0.5F, 0.4F, 0F)
+			.addShapeBox(15.5F, 22F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 8, 1, 481, 313, 0.5F, -0.4F, -0.25F, 0F, 0F, -0.25F, 0F, 0F, 0F, 0.5F, -0.4F, 0F, -0.5F, 0.6F, -0.25F, 1F, 0F, -0.25F, 1F, 0F, 0F, -0.5F, 0.6F, 0F)
+			.addShapeBox(16.5F, 30F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 5, 1, 1, 321, 0.5F, -0.6F, -0.25F, 0F, 0F, -0.25F, 0F, 0F, 0F, 0.5F, -0.6F, 0F, -0.6F, 0.8F, -0.25F, 1F, 0F, -0.25F, 1F, 0F, 0F, -0.6F, 0.8F, 0F)
+			.addShapeBox(17.5F, 35F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 7, 1, 337, 321, 0.4F, -0.8F, -0.25F, 0F, 0F, -0.25F, 0F, 0F, 0F, 0.4F, -0.8F, 0F, -1.5F, 1F, -0.25F, 2F, 0F, -0.25F, 2F, 0F, 0F, -1.5F, 1F, 0F)
+			.addShapeBox(19.5F, 42F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 6, 1, 353, 321, 0.5F, -1F, -0.25F, 0F, 0F, -0.25F, 0F, 0F, 0F, 0.5F, -1F, 0F, -2.2F, 2.0469F, -0.25F, 2.5F, 0.5F, -0.25F, 2.5F, 0.5F, 0F, -2.2F, 2.0469F, 0F)
+			.addShapeBox(8.5F, 0F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 21, 1, 401, 321, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 1F, 0F)
+			.addShapeBox(4F, 9F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 14, 1, 417, 321, 0.5F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 1.5F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0.5F, 1.5F, 0F)
+			.addShapeBox(1.5F, 0F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 23, 1, 225, 321, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 1F, 0F)
+			.addShapeBox(8.5F, 22F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 8, 1, 433, 321, 0.5F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0.5F, 0F, 0F, -0.5F, 1F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, -0.5F, 1F, 0F)
+			.addShapeBox(9.5F, 31F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 6, 1, 449, 321, 0.5F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0.5F, 0F, 0F, -1F, 1F, 0F, 1.5F, 0F, 0F, 1.5F, 0F, 0F, -1F, 1F, 0F)
+			.addShapeBox(10.5F, 38F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 6, 1, 465, 321, 0F, 0F, 0F, 0.5F, 1F, 0F, 0.5F, 1F, 0F, 0F, 0F, 0F, -2F, 1F, 0F, 2.5F, 0F, 0F, 2.5F, 0F, 0F, -2F, 1F, 0F)
+			.addShapeBox(6.5F, 39F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 6, 1, 497, 321, 0.5F, 0F, -0.5F, 0F, 1F, -0.5F, 0F, 1F, 0F, 0.5F, 0F, 0F, -1.5F, 1.5F, -0.5F, 2F, 0F, -0.5F, 2F, 0F, 0F, -1.5F, 1.5F, 0F)
+			.addShapeBox(5F, 32F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 6, 1, 1, 329, 0.5F, 0F, -0.5F, 0F, 1F, -0.5F, 0F, 1F, 0F, 0.5F, 0F, 0F, -1F, 1F, -0.5F, 1.5F, 0F, -0.5F, 1.5F, 0F, 0F, -1F, 1F, 0F)
+			.addShapeBox(4F, 25F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 6, 1, 25, 329, 0.5F, 0.5F, -0.5F, 0F, 2F, -0.5F, 0F, 2F, 0F, 0.5F, 0.5F, 0F, -0.5F, 1F, -0.5F, 1F, 0F, -0.5F, 1F, 0F, 0F, -0.5F, 1F, 0F)
+			.addShapeBox(1.5F, 24F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 8, 1, 41, 329, 0.5F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0.5F, 0F, 0F, -0.5F, 0.5F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, -0.5F, 0.5F, 0F)
+			.addShapeBox(2.5F, 33F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 6, 1, 161, 313, 0.5F, 0.5F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0.5F, 0.5F, 0F, -1F, 0.5F, 0F, 1.5F, 0F, 0F, 1.5F, 0F, 0F, -1F, 0.5F, 0F)
+			.addShapeBox(4F, 40F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 9, 1, 73, 329, 0.5F, 0.5F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0.5F, 0.5F, 0F, -2.5F, 0.5F, 0F, 3F, 0F, 0F, 3F, 0F, 0F, -2.5F, 0.5F, 0F)
+			.addShapeBox(8.5F, 46F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 7, 1, 81, 329, 0.5F, -0.5F, -0.5F, 0F, 1F, -0.5F, 0F, 1F, 0F, 0.5F, -0.5F, 0F, -2.7F, 1.9688F, -0.5F, 3F, 0.4219F, -0.5F, 3F, 0.4219F, 0F, -2.7F, 1.9688F, 0F)
+			.addShapeBox(12.5F, 45F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 6, 1, 257, 329, 0F, 0F, 0F, 0.5F, 1F, 0F, 0.5F, 1F, 0F, 0F, 0F, 0F, -3F, 1.9531F, 0F, 3.2F, -0.0156F, 0F, 3.2F, -0.0156F, 0F, -3F, 1.9531F, 0F)
+			.addShapeBox(7F, 50F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 5, 1, 361, 313, 0.5F, 0.5F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0.5F, 0.5F, 0F, -2F, 1F, 0F, 2.4F, 0.3438F, 0F, 2.4F, 0.3438F, 0F, -2F, 1F, 0F)
+			.addShapeBox(17.5F, 1F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 21, 4, 297, 321, 0F, 0F, 0.25F, 0F, 0F, 0.25F, 0F, 0F, 0.25F, 0F, 0F, 0.25F, 0F, 0F, 0.25F, 0F, 0F, 0.25F, 0F, 0F, 0.25F, 0F, 0F, 0.25F)
+			.addShapeBox(17.5F, 22F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 8, 4, 97, 329, 0F, 0F, 0.25F, 0F, 0F, 0.25F, 0F, 0F, 0.25F, 0F, 0F, 0.25F, -1F, 0F, 0.25F, 1F, 0F, 0.25F, 1F, 0F, 0.25F, -1F, 0F, 0.25F)
+			.addShapeBox(18.5F, 30F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 5, 4, 113, 329, 0F, 0F, 0.25F, 0F, 0F, 0.25F, 0F, 0F, 0.25F, 0F, 0F, 0.25F, -1F, 0F, 0.25F, 1F, 0F, 0.25F, 1F, 0F, 0.25F, -1F, 0F, 0.25F)
+			.addShapeBox(19.5F, 35F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 7, 4, 273, 329, 0F, 0F, 0.25F, 0F, 0F, 0.25F, 0F, 0F, 0.25F, 0F, 0F, 0.25F, -2F, 0F, 0.25F, 2F, 0F, 0.25F, 2F, 0F, 0.25F, -2F, 0F, 0.25F)
+			.addShapeBox(21.5F, 42F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 6, 4, 345, 329, 0F, 0F, 0.25F, 0F, 0F, 0.25F, 0F, 0F, 0.25F, 0F, 0F, 0.25F, -2.5F, 0.5F, 0.25F, 2.5F, 0.5F, 0.25F, 2.5F, 0.5F, 0.25F, -2.5F, 0.5F, 0.25F)
+			.addShapeBox(9.5F, 48F, -2.25F, 0F, 0F, 0F, 0F, 0F, 0F, 15, 1, 4, 441, 329, 0.5F, -7F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0.5F, 0.5F, -7F, 0.5F, 0.5F, 7F, 0F, 0.5F, -0.5F, 0F, 0.5F, -0.5F, 0.5F, 0.5F, 7F, 0.5F)
+			.addShapeBox(1F, -0.5F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 11, 1, 1, 481, 329, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0.5F, -0.5F, 0F, 0.5F, -0.5F, 0F, 0F, -0.5F, 0F)
+			.addShapeBox(1F, -1.5F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 10, 1, 1, 1, 337, 0F, 0F, -1.25F, 0F, 0F, -1.25F, 0.25F, -0.25F, 0.5F, 0F, -0.25F, 0.5F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1F, -0.5F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 11, 1, 1, 129, 337, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0.5F, -0.5F, 0F, 0.5F, -0.5F, 0F, 0F, -0.5F, 0F)
+			.addShapeBox(1F, -1.5F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 10, 1, 1, 49, 337, 0F, -0.25F, 0.5F, 0.25F, -0.25F, 0.5F, 0F, 0F, -1.25F, 0F, 0F, -1.25F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1F, 1F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 23, 1, 193, 329, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1F, 24F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 8, 4, 361, 329, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, -1F, 0.5F, 0F, 0.5F, 0.5F, 0F, 0.5F, 0.5F, 0F, -1F, 0.5F, 0F)
+			.addShapeBox(2F, 32.5F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 7, 4, 25, 337, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, -1.5F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, -1.5F, 0F, 0F)
+			.addShapeBox(3.5F, 39.5F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 10, 4, 121, 337, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, -3F, 0F, 0F, 2.5F, 0F, 0F, 2.5F, 0F, 0F, -3F, 0F, 0F)
+			.addShapeBox(5.5F, 50F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 6, 4, 153, 337, -1F, 0.5F, 0F, 0.5F, 0.5F, 0F, 0.5F, 0.5F, 0F, -1F, 0.5F, 0F, -3.5F, 0F, 0F, 3F, -0.5F, 0F, 3F, -0.5F, 0F, -3.5F, 0F, 0F)
+			.addShapeBox(11.5F, 0F, 1.25F, 0F, 0F, 0F, 0F, 0F, 0F, 6, 22, 1, 233, 337, -0.5F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(12.5F, 22F, 1.25F, 0F, 0F, 0F, 0F, 0F, 0F, 6, 8, 1, 249, 337, 0.5F, 0F, -0.5F, -1F, 0F, -0.5F, -1F, 0F, 0F, 1F, 0F, 0F, -0.5F, 1F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 1F, 0F)
+			.addShapeBox(13.5F, 32F, 1.25F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 3, 1, 313, 337, 0.5F, 1F, -0.5F, 0F, 2F, -0.5F, 0F, 2F, 0F, 1F, 1F, 0F, -0.5F, 0.5F, -0.5F, 1F, 0F, -0.5F, 1F, 0F, 0F, 0F, 0.5F, 0F)
+			.addShapeBox(14.5F, 35F, 1.25F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 7, 1, 329, 337, 0.5F, -0.5F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 1F, -0.5F, 0F, -1.5F, 1.5F, -0.5F, 2F, 0F, -0.5F, 2F, 0F, 0F, -1F, 1.5F, 0F)
+			.addShapeBox(16.5F, 43F, 1.25F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 6, 1, 377, 337, 0.5F, -0.5F, -0.5F, 0F, 1F, -0.5F, 0F, 1F, 0F, 1F, -0.5F, 0F, -2.5F, 1.5F, -0.5F, 2.5F, -0.5F, -0.5F, 2.5F, -0.5F, 0F, -2F, 1.5F, 0F)
+			.addShapeBox(4F, 0F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 7, 1, 417, 337, 0.5F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0.5F, 0F, 0F)
+			.addShapeBox(3F, 0F, 1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 7, 1, 433, 337, 0.5F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0.5F, 0F, 0F)
+			.addShapeBox(7F, 7F, 1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 2, 1, 449, 305, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(2.5F, 7F, 1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 2, 1, 497, 305, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(3.75F, 9F, 2.5F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 2, 1, 281, 329, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, -0.5F, 0F, 0F, -0.5F, 0F)
+			.addShapeBox(0F, 1F, -1.5F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 22, 1, 393, 457, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0.5F, 0F, 0F, 1F, 0F, 0F, 1F, -0.5F, -0.5F, 0.5F, -0.5F)
+			.addShapeBox(0F, 1F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 22, 1, 401, 457, -0.5F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0.5F, -0.5F, 0F, 1F, -0.5F, 0F, 1F, 0F, -0.5F, 0.5F, 0F)
+			.addShapeBox(1F, 1F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 23, 1, 409, 457, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(17.5F, 0F, 1.75F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 1, 1, 304, 322, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F)
+			.addShapeBox(17.5F, 0F, -2.25F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 1, 1, 309, 322, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F)
+		.quickBuild(),
+		m -> {
+			m.followerPos = new Vec3[] {
+				new Vec3(0.5D / 16D, 0D, 0D)
+			};
+		}
+	);
+	
+	private static final ModelGlow CICIS9_REAR_SIGHT = new ModelGlow(
+		new TBModelMeshBuilder(512, 512)
+			.addShapeBox(1.5F, -2F, 1.1F, -1.01F, -8.4F, 0F, 0F, 0F, 0F, 1, 1, 1, 225, 1, 0F, -0.4F, 0F, 0F, -0.4F, 0F, 0F, 0F, -0.6F, 0F, 0F, -0.6F, 0F, -0.2F, -0.4F, 0F, -0.2F, -0.4F, 0F, -0.6F, -0.2F, 0F, -0.6F, -0.2F)
+			.addShapeBox(1.5F, -2F, -1.9F, -1.01F, -8.4F, 0F, 0F, 0F, 0F, 1, 1, 1, 233, 1, 0F, -0.4F, 0F, 0F, -0.4F, 0F, 0F, 0F, -0.6F, 0F, 0F, -0.6F, 0F, -0.2F, -0.4F, 0F, -0.2F, -0.4F, 0F, -0.6F, -0.2F, 0F, -0.6F, -0.2F)
+		.quickBuild(),
+		new TBModelMeshBuilder(512, 512)
+			.addShapeBox(-1.5F, -1F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 1, 8, 1, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-1.5F, 0F, 3F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 2, 1, 25, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-1.5F, 0F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 2, 1, 41, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-0.5F, -3F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 2, 2, 57, 1, -1F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, -0.5F, -1F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F)
+			.addShapeBox(-0.5F, -3F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 2, 2, 73, 1, -1F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -2F, -1F, -1F, 0F, 0F, 0F, 0F, 2, 1, 4, 89, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, 1F, -1F, -8.5F, 0F, 0F, 0F, 0F, 1, 1, 1, 53, 5, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -2F, -1F, -8.5F, 0F, 0F, 0F, 0F, 1, 1, 1, 105, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -2F, -1F, 0F, 0F, 0F, 0F, 0F, 1, 1, 4, 113, 1, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -0.5F, -1F, -10F, 0F, 0F, 0F, 0F, 1, 1, 1, 121, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -2F, -1F, -7F, 0F, 0F, 0F, 0F, 1, 2, 4, 129, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -2.5F, 0F, -7F, 0F, 0F, 0F, 0F, 2, 1, 1, 137, 1, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F)
+			.addShapeBox(1.5F, -2F, -2F, -1F, -2F, 0F, 0F, 0F, 0F, 2, 1, 4, 145, 1, 0F, 0F, 0.5F, 1F, 0F, 0.5F, 1F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-0.5F, 0F, -6.5F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 1, 3, 161, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-0.5F, -1F, -7F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 3, 177, 1, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-0.5F, 1F, -7F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 3, 193, 1, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -1.5F, -1F, -10F, 0F, 0F, 0F, 0F, 1, 1, 1, 185, 1, 0F, -1.5F, 0.5F, 0F, -1.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, -0.5F, 0F, 0.5F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, 0.5F, -1F, -10F, 0F, 0F, 0F, 0F, 1, 1, 1, 201, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1.5F, 0.5F, 0F, -1.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, -0.5F, 0F, 0.5F, -0.5F)
+			.addShapeBox(1.5F, -2F, 1F, -1F, -8F, 0F, 0F, 0F, 0F, 1, 1, 1, 209, 1, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -2F, -1F, -8F, 0F, 0F, 0F, 0F, 1, 1, 1, 217, 1, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F)
+			.addShapeBox(1.5F, -2F, 0.5F, -1F, -4.5F, 0F, 0F, 0F, 0F, 1, 1, 1, 241, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -1.5F, -1F, -4.5F, 0F, 0F, 0F, 0F, 1, 1, 1, 249, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -0.5F, -1F, -3.5F, 0F, 0F, 0F, 0F, 1, 1, 2, 257, 1, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, -1F)
+			.addShapeBox(1.5F, -2F, -1.5F, -1F, -5F, 0F, 0F, 0F, 0F, 1, 1, 3, 265, 1, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F)
+			.addShapeBox(1.5F, -2F, -4F, -0.5F, -0.5F, 0F, 0F, 0F, -0.78539816F, 1, 1, 8, 273, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -2.5F, 0F, -6F, 0F, 0F, 0F, 0F, 2, 4, 1, 289, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F)
+			.addShapeBox(1.5F, -2F, 1.5F, 0F, -6F, 0F, 0F, 0F, 0F, 2, 4, 1, 297, 1, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, 1.5F, -1F, -4F, 0F, 0F, 0F, 0F, 1, 2, 1, 305, 1, 0F, -0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -2.5F, -1F, -4F, 0F, 0F, 0F, 0F, 1, 2, 1, 313, 1, 0F, -0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, 1.5F, 0F, -7F, 0F, 0F, 0F, 0F, 2, 1, 1, 273, 1, 0F, 0F, -0.5F, -1F, 0F, -0.5F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -1.5F, 0F, -4.5F, 0F, 0F, 0F, 0F, 1, 3, 3, 321, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -2F, 0F, -4.5F, 0F, 0F, 0F, 0F, 1, 3, 1, 337, 1, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F)
+			.addShapeBox(1.5F, -2F, 1F, 0F, -4.5F, 0F, 0F, 0F, 0F, 1, 3, 1, 345, 1, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, 4F, -1F, -1F, 0F, 0F, 0F, -2.35619449F, 2, 2, 2, 369, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(1.5F, -2F, -2F, 0F, -6F, 0F, 0F, 0F, 0F, 1, 1, 4, 385, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, 0F, -0.5F, 0F)
+			.addShapeBox(1.5F, -2F, -2F, 0F, -7F, 0F, 0F, 0F, 0F, 1, 1, 4, 353, 1, 0F, -0.5F, 0F, -0.5F, -0.5F, 0F, -0.5F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+		.quickBuild()
+	);
+	
+	private static final ModelGlow CICIS9_FRONT_SIGHT = new ModelGlow(
+		new TBModelMeshBuilder(512, 512)
+			.addShapeBox(0.5F, -2F, -0.5F, 0.99F, -8F, 0F, 0F, 0F, 0F, 1, 2, 1, 393, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+		.quickBuild(),
+		new TBModelMeshBuilder(512, 512)
+			.addShapeBox(-1.5F, -1F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 1, 8, 393, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-1.5F, 0F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 2, 1, 417, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-1.5F, 0F, 3F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 2, 1, 433, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-1.5F, -3F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 2, 2, 449, 1, -1F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-1.5F, -3F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 2, 2, 465, 1, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1F, -1F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0.5F, -2F, -2F, -1F, 0F, 0F, 0F, 0F, 0F, 1, 1, 4, 481, 1, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0.5F, -2F, -2F, -1F, -2F, 0F, 0F, 0F, 0F, 2, 2, 4, 497, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0.5F, -2F, -2F, -1F, -3F, 0F, 0F, 0F, 0F, 3, 1, 4, 25, 9, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0.5F, -2F, -1.5F, -1F, -6F, 0F, 0F, 0F, 0F, 3, 3, 3, 41, 9, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0.5F, -2F, -0.5F, 1F, -8F, 0F, 0F, 0F, 0F, 1, 2, 1, 361, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(0.5F, -2F, -4F, -0.5F, -0.5F, 0F, 0F, 0F, 0.78539816F, 1, 1, 8, 49, 9, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-0.5F, -1F, -7F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 3, 65, 9, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-0.5F, 0F, -6.5F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 1, 3, 81, 9, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-0.5F, 1F, -7F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 3, 97, 9, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F)
+		.quickBuild()
+	);
+	
+	private static final ModelGlow CICIS2_REAR_SIGHT = new ModelGlow(
+		new TBModelMeshBuilder(512, 512)
+			.addShapeBox(-5.5F, -4.5F, -1F, -0.51F, -6.01F, -0.5F, 0F, 0F, 0F, 1, 1, 1, 337, 57, 0F, -0.25F, 0F, 0F, -0.25F, 0F, 0F, -0.25F, -0.5F, 0F, -0.25F, -0.5F, 0F, -0.25F, 0F, 0F, -0.25F, 0F, 0F, -0.25F, -0.5F, 0F, -0.25F, -0.5F)
+			.addShapeBox(-5.5F, -4.5F, 1F, -0.51F, -6.01F, -0.5F, 0F, 0F, 0F, 1, 1, 1, 343, 57, 0F, -0.25F, -0.5F, 0F, -0.25F, -0.5F, 0F, -0.25F, 0F, 0F, -0.25F, 0F, 0F, -0.25F, -0.5F, 0F, -0.25F, -0.5F, 0F, -0.25F, 0F, 0F, -0.25F, 0F)
+		.quickBuild(),
+		new TBModelMeshBuilder(512, 512)
+			.addShapeBox(-7.5F, -1F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 10, 1, 6, 209, 49, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-7.5F, -3F, 3F, 0F, 0F, 0F, 0F, 0F, 0F, 10, 3, 1, 281, 49, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-0.5F, 0F, 3F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 1, 1, 241, 49, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(2.5F, -2F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 2, 1, 193, 49, 0F, 1F, -0.5F, 0F, -1F, -0.5F, 0F, -1F, 0F, 0F, 1F, 1F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 1F)
+			.addShapeBox(-5.5F, -3F, 4F, -2F, -1F, 0F, 0F, 0F, 0F, 4, 2, 4, 305, 49, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -1F, -2F, 4F, 0F, 0F, 0F, 3, 1, 4, 329, 49, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -1F, 1F, 4F, 0F, 0F, 0F, 3, 1, 4, 345, 49, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -2.5F, -0.5F, 4F, 0F, 0F, 0F, 1, 1, 4, 433, 41, 0F, 0F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -0.5F, -3F, 4F, 0F, 0F, 0F, 1, 1, 4, 9, 49, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F)
+			.addShapeBox(-0.5F, 1F, 3F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 1, 1, 321, 49, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-0.5F, 0F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 1, 1, 361, 49, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-0.5F, 1F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 1, 1, 377, 49, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-7.5F, -3F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 10, 3, 1, 393, 49, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(2.5F, -2F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 2, 1, 417, 49, 0F, 1F, 1F, 0F, -1F, 0F, 0F, -1F, -0.5F, 0F, 1F, -0.5F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F)
+			.addShapeBox(-5.5F, -3F, 0F, -2F, -5F, -1F, 0F, 0F, 0F, 4, 6, 2, 425, 49, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -1F, -5.5F, -2F, 0F, 0F, 0F, 2, 6, 1, 441, 49, 0F, 1F, 0F, 0F, 1F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 1F, 0.5F, 0F, 1F, 0.5F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -1F, -5.5F, 1F, 0F, 0F, 0F, 2, 6, 1, 449, 49, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 1F, 0.5F, 0F, 1F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -0.5F, -9F, -1.5F, 0F, 0F, 0F, 1, 1, 1, 457, 49, 0F, -1.5F, 0.5F, 0F, -1.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, -0.5F, 0F, 0.5F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -1F, -8F, -2F, 0F, 0F, 0F, 2, 2, 1, 489, 49, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0.5F, 0F, -0.5F, 0.5F, 0F, -0.5F)
+			.addShapeBox(-5.5F, -3F, 0F, -0.5F, -7.5F, -2F, 0F, 0F, 0F, 1, 1, 1, 497, 49, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -0.5F, -9F, 0.5F, 0F, 0F, 0F, 1, 1, 1, 505, 49, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1.5F, 0.5F, 0F, -1.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, -0.5F, 0F, 0.5F, -0.5F)
+			.addShapeBox(-5.5F, -3F, 0F, -1F, 1F, -1F, 0F, 0F, 0F, 2, 1, 2, 129, 49, 1F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -1F, 1F, 1F, 0F, 0F, 0F, 2, 1, 1, 1, 57, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F)
+			.addShapeBox(-0.5F, 0F, 4F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 1, 2, 17, 57, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F)
+			.addShapeBox(0.5F, -1F, 4F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 3, 369, 49, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F)
+			.addShapeBox(0.5F, 1F, 4F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 3, 33, 57, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -1F, -1F, -4F, 0F, 0F, 0F, 2, 2, 8, 49, 57, 0F, -1F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, -1F, 0F, -1F, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, -1F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -0.5F, -7.5F, 1F, 0F, 0F, 0F, 1, 1, 1, 65, 57, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F)
+			.addShapeBox(-5.5F, -3F, 0F, -0.5F, -9F, -0.5F, 0F, 0F, 0F, 1, 1, 1, 89, 57, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -1F, -8F, 1F, 0F, 0F, 0F, 2, 2, 1, 97, 57, 0.5F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0F, -0.5F, 0F, 0F, -0.5F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -1F, -9.5F, 1F, 0F, 0F, 0F, 2, 1, 1, 105, 57, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -1.5F, 0F, 0F, -1.5F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0.5F, -0.5F, 0.5F, 0.5F, -0.5F)
+			.addShapeBox(-5.5F, -3F, 0F, -1F, -9.5F, -2F, 0F, 0F, 0F, 2, 1, 1, 113, 57, 0F, -1.5F, 0F, 0F, -1.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0.5F, 0.5F, -0.5F, 0.5F, 0.5F, -0.5F, 0.5F, 0F, 0F, 0.5F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -1F, -9.5F, -1F, 0F, 0F, 0F, 2, 1, 2, 121, 57, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -1.5F, -4F, -2.5F, 0F, 0F, 0F, 3, 3, 1, 137, 57, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 1F, 0.5F, 0F, 1F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -2.5F, -4F, -1.5F, 0F, 0F, 0F, 5, 3, 3, 153, 57, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -1.5F, -4F, 1.5F, 0F, 0F, 0F, 3, 3, 1, 193, 57, 1F, 0.5F, 0F, 1F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-1.5F, -3F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 2, 1, 209, 57, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0.5F, 0F, 0F)
+			.addShapeBox(-1.5F, -3F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 4, 2, 1, 225, 57, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F)
+			.addShapeBox(-6.5F, -4F, 3F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 1, 169, 57, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F)
+			.addShapeBox(-6.5F, -4F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 1, 241, 57, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F)
+			.addShapeBox(2.5F, -1F, -2.5F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 5, 249, 57, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 4F, -0.5F, -3F, 0F, 0F, 0F, 0.78539816F, 1, 1, 4, 249, 49, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F)
+			.addShapeBox(-5.5F, -3F, 4F, -0.5F, -3F, 0F, 0F, 0F, -0.78539816F, 1, 1, 4, 217, 57, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F)
+			.addShapeBox(-5.5F, -3F, 4F, -0.5F, -3F, 0F, 0F, 0F, -2.35619449F, 1, 1, 4, 233, 57, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F)
+			.addShapeBox(-5.5F, -3F, 4F, -0.5F, -3F, 0F, 0F, 0F, 2.35619449F, 1, 1, 4, 265, 57, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, 1.5F, -0.5F, 4F, 0F, 0F, 0F, 1, 1, 4, 281, 57, -0.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0.5F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -0.5F, 2F, 4F, 0F, 0F, 0F, 1, 1, 4, 297, 57, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -2.5F, -0.5F, -8F, 0F, 0F, 0F, 1, 1, 4, 313, 57, 0F, 0F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, -8F, -0.5F, -3F, 0F, 0F, 0F, -0.78539816F, 1, 1, 4, 329, 57, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -0.5F, -3F, -8F, 0F, 0F, 0F, 1, 1, 4, 345, 57, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -1F, -2F, -8F, 0F, 0F, 0F, 3, 1, 4, 361, 57, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, -8F, -0.5F, -3F, 0F, 0F, 0F, 0.78539816F, 1, 1, 4, 377, 57, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F)
+			.addShapeBox(-5.5F, -3F, -8F, -0.5F, -3F, 0F, 0F, 0F, 2.35619449F, 1, 1, 4, 393, 57, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -0.5F, 2F, -8F, 0F, 0F, 0F, 1, 1, 4, 409, 57, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F)
+			.addShapeBox(-5.5F, -3F, -8F, -0.5F, -3F, 0F, 0F, 0F, -2.35619449F, 1, 1, 4, 441, 57, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F, 0.4F, -0.1F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -1F, 1F, -8F, 0F, 0F, 0F, 3, 1, 4, 457, 57, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, -2F, -1F, -8F, 0F, 0F, 0F, 4, 2, 4, 473, 57, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, 0F, 1.5F, -0.5F, -8F, 0F, 0F, 0F, 1, 1, 4, 497, 57, -0.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0.5F, 0F, -0.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -0.5F, 0.5F, 0F)
+			.addShapeBox(-5.5F, 0F, 0F, -0.5F, -9F, 0.5F, 0F, 0F, 0F, 1, 1, 1, 273, 57, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, -0.5F, 0F, 0.5F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1.5F, 0.5F, 0F, -1.5F, 0.5F)
+			.addShapeBox(-5.5F, 0F, 0F, -0.5F, -9F, -1.5F, 0F, 0F, 0F, 1, 1, 1, 289, 57, 0F, 0.5F, -0.5F, 0F, 0.5F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1.5F, 0.5F, 0F, -1.5F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, 0F, 0F, -0.5F, -9F, -0.5F, 0F, 0F, 0F, 1, 1, 1, 305, 57, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.5F, -3F, -3F, -1F, 1F, 1F, 0F, 0F, 0F, 2, 1, 1, 8, 57, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+		.quickBuild()
+	);
+	
+	private static final ModelGlow CICIS2_FRONT_SIGHT = new ModelGlow(
+		new TBModelMeshBuilder(512, 512)
+			.addShapeBox(-1.25F, -2F, -0.5F, -0.51F, -8F, 0F, 0F, 0F, 0F, 1, 2, 1, 321, 57, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+		.quickBuild(),
+		new TBModelMeshBuilder(512, 512)
+			.addShapeBox(-10.75F, -1F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 12, 1, 4, 1, 65, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-0.5F, -1F, 4F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 3, 41, 65, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-11.75F, -1F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 1, 3, 73, 65, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F)
+			.addShapeBox(-0.5F, 0F, 3.5F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 1, 3, 89, 65, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-0.5F, 1F, 4F, 0F, 0F, 0F, 0F, 0F, 0F, 2, 1, 3, 105, 65, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, -1F, 0F, 0F)
+			.addShapeBox(-7.75F, -1F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 10, 1, 1, 113, 65, 1F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-7.75F, -1F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 10, 1, 1, 137, 65, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 1F, 0F, 0F)
+			.addShapeBox(-0.75F, -1F, 3F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 3, 1, 161, 65, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-0.75F, -1F, -4F, 0F, 0F, 0F, 0F, 0F, 0F, 3, 3, 1, 177, 65, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-5.75F, -2F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 8, 1, 1, 193, 65, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-4.75F, -3F, -3F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 1, 1, 217, 65, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F)
+			.addShapeBox(-4.75F, -3F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 5, 1, 1, 233, 65, 0F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F, 1F, 0F, 0F)
+			.addShapeBox(-5.75F, -2F, 2F, 0F, 0F, 0F, 0F, 0F, 0F, 8, 1, 1, 249, 65, 0F, 0F, 0F, -1F, 0F, 0F, -1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-1.25F, -2F, -3.5F, -0.5F, -0.5F, 0F, 0F, 0F, -0.78539816F, 1, 1, 7, 265, 65, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-1.25F, -2F, -2F, -1F, -6F, 0F, 0F, 0F, 0F, 2, 6, 4, 208, 64, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-1.25F, -2F, -0.5F, -0.5F, -8F, 0F, 0F, 0F, 0F, 1, 2, 1, 249, 57, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-1.25F, -2F, 1F, -1F, -9F, 0F, 0F, 0F, 0F, 2, 3, 1, 281, 65, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-1.25F, -2F, -2F, -1F, -9F, 0F, 0F, 0F, 0F, 2, 3, 1, 289, 65, 0F, 0F, 0.5F, 0F, 0F, 0.5F, 0F, 0F, -0.5F, 0F, 0F, -0.5F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+			.addShapeBox(-1.25F, -2F, -2F, 0F, 0F, 0F, 0F, 0F, 0F, 1, 1, 4, 297, 65, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
+		.quickBuild()
+	);
+	
+	private static final ModelGlow CICIS4_FRONT_SIGHT = new ModelGlow(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(1.5F, -2F, -0.5F, -0.01F, -8F, 0F, 0F, 0F, 0F, 1, 2, 1, 169, 49, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 		.quickBuild(),
