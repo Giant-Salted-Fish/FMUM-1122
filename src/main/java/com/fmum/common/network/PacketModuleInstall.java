@@ -11,11 +11,11 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagList;
 
-public final class PacketInstallModule extends DataModuleLocEx
+public final class PacketModuleInstall extends DataModuleLocEx
 {
-	public PacketInstallModule() { }
+	public PacketModuleInstall() { }
 	
-	public PacketInstallModule(byte[] loc, int locLen, int invSlot, int step, int offset) {
+	public PacketModuleInstall(byte[] loc, int locLen, int invSlot, int step, int offset) {
 		super(loc, locLen, invSlot + (offset << 8) + (step << 16));
 	}
 	

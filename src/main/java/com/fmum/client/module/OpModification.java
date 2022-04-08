@@ -8,8 +8,8 @@ import com.fmum.common.module.InfoModule;
 import com.fmum.common.module.ItemModular;
 import com.fmum.common.module.TagModular;
 import com.fmum.common.module.TypeModular;
-import com.fmum.common.network.PacketInstallModule;
-import com.fmum.common.network.PacketRemoveModule;
+import com.fmum.common.network.PacketModuleInstall;
+import com.fmum.common.network.PacketModuleRemove;
 
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
@@ -173,7 +173,7 @@ public final class OpModification extends OperationProgressive
 				}
 				else if(this.confirmKeyDown)
 				{
-					// TODO: Update position and offset
+					// Update position, offset and damage
 					if(loc[locLen - 1] >= 0)
 					{
 						
@@ -181,7 +181,7 @@ public final class OpModification extends OperationProgressive
 					else if(this.previewInvSlot != -1)
 					{
 						FMUMClient.netHandler.sendToServer(
-							new PacketInstallModule(
+							new PacketModuleInstall(
 								loc,
 								locLen,
 								this.previewInvSlot,
@@ -197,7 +197,7 @@ public final class OpModification extends OperationProgressive
 				}
 				else if(this.cancelKeyDown && loc[locLen - 1] >= 0)
 				{
-					FMUMClient.netHandler.sendToServer(new PacketRemoveModule(loc, locLen));
+					FMUMClient.netHandler.sendToServer(new PacketModuleRemove(loc, locLen));
 					
 					// Clear selected after remove(keep step)
 					loc[locLen - 1] = -1;

@@ -105,26 +105,34 @@ public class InfoModule
 	public final InfoModule tryMoveTo(byte[] loc, int len)
 	{
 		for(int i = 0; i < len; i += 2)
-		{
-			if((0xFF & loc[i]) >= this.type.slots.length) return null;
-			Slot slot = this.type.slots[loc[i]];
-			this.tag = ((NBTTagList)this.tag.get(1 + loc[i]));
-			
-			if((0xFF & loc[i + 1]) >= this.tag.tagCount()) return null;
-			int[] states = TagModular.getStates(
-				this.tag = ((NBTTagList)this.tag.get(loc[i + 1]))
-			);
-			
-			this.sys.trans(
-				slot.x + (
-					this.type = TagModular.getType(states)
-				).getPos(states, slot.stepLen),
-				slot.y,
-				slot.z
-			);
-			this.sys.rot(slot.rotX, CoordSystem.X);
-			this.sys.submitRot();
-		}
+			if(this.tryMoveTo(0xFF & loc[i], 0xFF & loc[i + 1]) == null)
+				return null;
+		return this;
+	}
+	
+	/**
+	 * @see #tryMoveTo(byte[], int)
+	 */
+	public final InfoModule tryMoveTo(int slot, int index)
+	{
+		if(slot >= this.type.slots.length) return null;
+		Slot s = this.type.slots[slot];
+		NBTTagList slotTag = (NBTTagList)this.tag.get(1 + slot);
+		
+		if(index >= slotTag.tagCount()) return null;
+		int[] states = TagModular.getStates(
+			this.tag = (NBTTagList)slotTag.get(index)
+		);
+		
+		this.sys.trans(
+			s.x + (
+				this.type = TagModular.getType(states)
+			).getPos(states, s.stepLen),
+			s.y,
+			s.z
+		);
+		this.sys.rot(s.rotX, CoordSystem.X);
+		this.sys.submitRot();
 		return this;
 	}
 }

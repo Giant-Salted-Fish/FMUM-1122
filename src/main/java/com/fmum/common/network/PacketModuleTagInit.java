@@ -6,7 +6,7 @@ import com.fmum.common.module.TagModular;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 
-public final class PacketInitModuleTag implements FMUMPacket
+public final class PacketModuleTagInit implements FMUMPacket
 {
 	@Override
 	public void handleServerSide(EntityPlayerMP player)

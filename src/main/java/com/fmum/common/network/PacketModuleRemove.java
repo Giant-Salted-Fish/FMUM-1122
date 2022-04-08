@@ -9,11 +9,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
-public final class PacketRemoveModule extends DataModuleLoc
+public final class PacketModuleRemove extends DataModuleLoc
 {
-	public PacketRemoveModule() { }
+	public PacketModuleRemove() { }
 	
-	public PacketRemoveModule(byte[] loc, int locLen) { super(loc, locLen); }
+	public PacketModuleRemove(byte[] loc, int locLen) { super(loc, locLen); }
 	
 	@Override
 	public void handleServerSide(EntityPlayerMP player)
