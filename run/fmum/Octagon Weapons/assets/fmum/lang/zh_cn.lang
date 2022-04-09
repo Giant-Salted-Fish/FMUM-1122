@@ -36,12 +36,30 @@ item.hk416upperreceiver.name=H&K416 上机匣
 item.556x45mm30roundmag.name=5.56x45mm 30发北约标准弹匣
 
 # 机械瞄具
-item.cicis4frontsight.name=CIC IS-2 折叠式准星
-item.cicis4rearsight.name=CIC IS-2 折叠式觇孔照门
+item.cicis2frontsight.name=CIC IS-2 折叠式准星
+item.cicis2frontsight-tritiumgreen.name=CIC IS-2 折叠式准星 - 绿氚光
+item.cicis2frontsight-tritiumred.name=CIC IS-2 折叠式准星 - 红氚光
+item.cicis2frontsight-tritiumwhite.name=CIC IS-2 折叠式准星 - 白氚光
+item.cicis2rearsight.name=CIC IS-2 折叠式觇孔照门
+item.cicis2rearsight-tritiumgreen.name=CIC IS-2 折叠式觇孔照门 - 绿氚光
+item.cicis2rearsight-tritiumred.name=CIC IS-2 折叠式觇孔照门 - 红氚光
+item.cicis2rearsight-tritiumwhite.name=CIC IS-2 折叠式觇孔照门 - 白氚光
 item.cicis4frontsight.name=CIC IS-4 折叠式准星
+item.cicis4frontsight-tritiumgreen.name=CIC IS-4 折叠式准星 - 绿氚光
+item.cicis4frontsight-tritiumred.name=CIC IS-4 折叠式准星 - 红氚光
+item.cicis4frontsight-tritiumwhite.name=CIC IS-4 折叠式准星 - 白氚光
 item.cicis4rearsight.name=CIC IS-4 折叠式觇孔照门
-item.cicis4frontsight.name=CIC IS-9 折叠式准星
-item.cicis4rearsight.name=CIC IS-9 折叠式觇孔照门
+item.cicis4rearsight-tritiumgreen.name=CIC IS-4 折叠式觇孔照门 - 绿氚光
+item.cicis4rearsight-tritiumred.name=CIC IS-4 折叠式觇孔照门 - 红氚光
+item.cicis4rearsight-tritiumwhite.name=CIC IS-4 折叠式觇孔照门 - 白氚光
+item.cicis9frontsight.name=CIC IS-9 折叠式准星
+item.cicis9frontsight-tritiumgreen.name=CIC IS-9 折叠式准星 - 绿氚光
+item.cicis9frontsight-tritiumred.name=CIC IS-9 折叠式准星 - 红氚光
+item.cicis9frontsight-tritiumwhite.name=CIC IS-9 折叠式准星 - 白氚光
+item.cicis9rearsight.name=CIC IS-9 折叠式觇孔照门
+item.cicis9rearsight-tritiumgreen.name=CIC IS-9 折叠式觇孔照门 - 绿氚光
+item.cicis9rearsight-tritiumred.name=CIC IS-9 折叠式觇孔照门 - 红氚光
+item.cicis9rearsight-tritiumwhite.name=CIC IS-9 折叠式觇孔照门 - 白氚光
 
 # 膛口装置
 item.556mmthreadprotector.name=5.56mm 螺纹保护帽

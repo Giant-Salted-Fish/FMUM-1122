@@ -1,0 +1,3 @@
+Name hk416frontsight-tritiumpink H&K416 Front Sight - Tritium Pink
+Texture skins/ironsights-tritiumpink.png
+Target hk416frontsight

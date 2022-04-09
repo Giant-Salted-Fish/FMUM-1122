@@ -3,4 +3,6 @@ Category pra
 CreativeTab oc
 
 Model com.fmum.oc.client.model.ModelOCGun:CICIS2FrontSight 0.1 skins/ironsights.png
-Paintjob cicis2frontsight-tritium skins/ironsights-tritium.png
+Paintjob cicis2frontsight-tritiumgreen skins/ironsights-tritiumgreen.png
+Paintjob cicis2frontsight-tritiumred skins/ironsights-tritiumred.png
+Paintjob cicis2frontsight-tritiumwhite skins/ironsights-tritiumwhite.png

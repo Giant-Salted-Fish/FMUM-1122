@@ -36,12 +36,30 @@ item.hk416upperreceiver.name=H&K416 Upper Receiver
 item.556x45mm30roundmag.name=5.56x45mm 30 Round NATO Magazine
 
 # Iron sight
-item.cicis4frontsight.name=CIC IS-2 Front Sight
-item.cicis4rearsight.name=CIC IS-2 Rear Sight
+item.cicis2frontsight.name=CIC IS-2 Front Sight
+item.cicis2frontsight-tritiumgreen.name=CIC IS-2 Front Sight - Tritium Green
+item.cicis2frontsight-tritiumred.name=CIC IS-2 Front Sight - Tritium Red
+item.cicis2frontsight-tritiumwhite.name=CIC IS-2 Front Sight - Tritium White
+item.cicis2rearsight.name=CIC IS-2 Rear Sight
+item.cicis2rearsight-tritiumgreen.name=CIC IS-2 Rear Sight - Tritium Green
+item.cicis2rearsight-tritiumred.name=CIC IS-2 Rear Sight - Tritium Red
+item.cicis2rearsight-tritiumwhite.name=CIC IS-2 Rear Sight - Tritium White
 item.cicis4frontsight.name=CIC IS-4 Front Sight
+item.cicis4frontsight-tritiumgreen.name=CIC IS-4 Front Sight - Tritium Green
+item.cicis4frontsight-tritiumred.name=CIC IS-4 Front Sight - Tritium Red
+item.cicis4frontsight-tritiumwhite.name=CIC IS-4 Front Sight - Tritium White
 item.cicis4rearsight.name=CIC IS-4 Rear Sight
-item.cicis4frontsight.name=CIC IS-9 Front Sight
-item.cicis4rearsight.name=CIC IS-9 Rear Sight
+item.cicis4rearsight-tritiumgreen.name=CIC IS-4 Rear Sight - Tritium Green
+item.cicis4rearsight-tritiumred.name=CIC IS-4 Rear Sight - Tritium Red
+item.cicis4rearsight-tritiumwhite.name=CIC IS-4 Rear Sight - Tritium White
+item.cicis9frontsight.name=CIC IS-9 Front Sight
+item.cicis9frontsight-tritiumgreen.name=CIC IS-9 Front Sight - Tritium Green
+item.cicis9frontsight-tritiumred.name=CIC IS-9 Front Sight - Tritium Red
+item.cicis9frontsight-tritiumwhite.name=CIC IS-9 Front Sight - Tritium White
+item.cicis9rearsight.name=CIC IS-9 Rear Sight
+item.cicis9rearsight-tritiumgreen.name=CIC IS-9 Rear Sight - Tritium Green
+item.cicis9rearsight-tritiumred.name=CIC IS-9 Rear Sight - Tritium Red
+item.cicis9rearsight-tritiumwhite.name=CIC IS-9 Rear Sight - Tritium White
 
 # Muzzle
 item.556mmthreadprotector.name=5.56mm Thread Protector

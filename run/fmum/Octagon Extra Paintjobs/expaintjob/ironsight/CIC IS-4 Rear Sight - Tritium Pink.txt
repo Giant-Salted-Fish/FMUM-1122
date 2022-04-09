@@ -1,0 +1,3 @@
+Name cicis4rearsight-tritiumpink CIC IS-4 Rear Sight - Tritium Pink
+Texture skins/ironsights-tritiumpink.png
+Target cicis4rearsight
