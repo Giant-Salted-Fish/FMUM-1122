@@ -8,7 +8,7 @@ import java.io.IOException;
 import com.fmum.common.FMUM;
 import com.fmum.common.pack.FMUMCreativeTab.IconBasedTab;
 import com.fmum.common.type.EnumType;
-import com.fmum.common.type.TypeInfo;
+import com.fmum.common.type.ItemVariant;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 import com.fmum.common.util.Messager;
 
@@ -22,7 +22,7 @@ public final class FolderContentPack extends LocalContentProvider
 	/**
 	 * Parser that is currently used to parse plain type file
 	 */
-	protected LocalTypeFileParser<? extends TypeInfo> curParser = null;
+	protected LocalTypeFileParser<? extends ItemVariant> curParser = null;
 	
 	public FolderContentPack(File dir) { super(dir); }
 	
@@ -60,7 +60,7 @@ public final class FolderContentPack extends LocalContentProvider
 								typeFile,
 								fName.substring(0, fName.length() - ".txt".length()),
 								fileTrace
-							).noticeProvider(this).postParse();
+							).notifyProvider(this).postParse();
 						}
 						catch(IOException e) { printIOError(fileTrace.message(), e); }
 					// Load typer by class file

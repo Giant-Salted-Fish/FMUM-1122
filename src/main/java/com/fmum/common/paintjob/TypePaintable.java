@@ -1,18 +1,24 @@
-package com.fmum.common.type;
+package com.fmum.common.paintjob;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.fmum.client.ResourceManager;
 import com.fmum.common.FMUM;
+import com.fmum.common.type.ItemVariant;
+import com.fmum.common.type.TypeInfo;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 
 public abstract class TypePaintable extends TypeInfo
 {
+	public static final HashMap<String, TypePaintable> paintables = new HashMap<>();
+	
 	public static final LocalTypeFileParser<TypePaintable>
 		parser = new LocalTypeFileParser<>(TypeInfo.parser);
 	static
@@ -20,13 +26,14 @@ public abstract class TypePaintable extends TypeInfo
 		parser.addKeyword(
 			"Paintjob",
 			(s, t) -> {
-				ItemVariant paintjob = new ItemVariant(s[1]);
+				ItemVariant paintjob = new ItemVariant(s[1]).notifyProvider(t.provider);
 				paintjobParser.parse(s, paintjob);
 				t.paintjobs.add(paintjob);
 			}
 		);
 	}
 	
+	// FIXME: sort the list to avoid dismatch of index and paintjobs on server side and client side
 	public ArrayList<ItemVariant> paintjobs = new ArrayList<>();
 	
 	protected TypePaintable(String name)
@@ -35,6 +42,14 @@ public abstract class TypePaintable extends TypeInfo
 		
 		// Add itself as the default paint job
 		this.paintjobs.add(this);
+	}
+	
+	@Override
+	public void postParse()
+	{
+		super.postParse();
+		
+		paintables.put(this.name, this);
 	}
 	
 	@Override
@@ -65,5 +80,10 @@ public abstract class TypePaintable extends TypeInfo
 	
 	public ResourceLocation getTexture(int dam) {
 		return ResourceManager.getTexture(this.paintjobs.get(dam).texture);
+	}
+	
+	@Override
+	public ResourceLocation getTexture(ItemStack stack) {
+		return this.getTexture(stack.getItemDamage());
 	}
 }

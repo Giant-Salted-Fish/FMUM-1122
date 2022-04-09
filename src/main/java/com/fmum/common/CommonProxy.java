@@ -11,7 +11,7 @@ import com.fmum.client.model.Model;
 import com.fmum.common.pack.FMUMContentProvider;
 import com.fmum.common.pack.FolderContentPack;
 import com.fmum.common.pack.ZipContentPack;
-import com.fmum.common.type.TypeInfo;
+import com.fmum.common.type.ItemVariant;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.common.config.Configuration;
@@ -24,8 +24,6 @@ public class CommonProxy
 	 * All content packs loaded for {@link FMUM}
 	 */
 	public static final TreeMap<String, FMUMContentProvider> contentProviders = new TreeMap<>();
-	
-	public static final LinkedList<TypeInfo> typesWaitForPostLoadProcess = new LinkedList<>();
 	
 	protected static final Pattern SUFFIX_ZIP_JAR = Pattern.compile("(.+)\\.(zip|jar)$");
 	
@@ -148,8 +146,8 @@ public class CommonProxy
 			FMUM.log.info(this.format("fmum.loadedcontentpack", fcm.getSourceName()));
 		}
 		
-		// Call post process for types requires this
-		for(TypeInfo t : typesWaitForPostLoadProcess)
+		// Do post load process
+		for(ItemVariant t : ItemVariant.variants.values())
 			t.postLoad();
 	}
 	
@@ -214,7 +212,7 @@ public class CommonProxy
 			COMMON_SETTING,
 			maxCanInstall,
 			1,
-			255,
+			254,
 			"Max number of modules that can be installed in a single slot"
 		);
 	}

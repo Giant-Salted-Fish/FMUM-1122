@@ -16,7 +16,7 @@ public final class PacketModuleInstall extends DataModuleLocEx
 	public PacketModuleInstall() { }
 	
 	public PacketModuleInstall(byte[] loc, int locLen, int invSlot, int step, int offset) {
-		super(loc, locLen, invSlot + (offset << 8) + (step << 16));
+		super(loc, locLen, invSlot | offset << 8 | step << 16);
 	}
 	
 	@Override
@@ -74,7 +74,7 @@ public final class PacketModuleInstall extends DataModuleLocEx
 			return;
 		}
 		
-		int slotIndex = this.loc[this.loc.length - 2];
+		int slotIndex = 0xFF & this.loc[this.loc.length - 2];
 		if(slotIndex >= base.type.slots.length)
 		{
 			// Proper log

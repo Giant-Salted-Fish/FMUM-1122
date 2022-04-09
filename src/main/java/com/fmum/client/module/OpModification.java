@@ -10,7 +10,9 @@ import com.fmum.common.module.TagModular;
 import com.fmum.common.module.TypeModular;
 import com.fmum.common.network.PacketModuleInstall;
 import com.fmum.common.network.PacketModuleRemove;
+import com.fmum.common.network.PacketModuleUpdate;
 
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagList;
@@ -55,10 +57,10 @@ public final class OpModification extends OperationProgressive
 	
 	public boolean isPaintMode() { return this.mode == ModifyMode.PAINTJOB; }
 	
-	public boolean selected() { return this.locLen == 0 || this.loc[this.locLen - 1] >= 0; }
+	public boolean selected() { return this.locLen == 0 || this.loc[this.locLen - 1] != -1; }
 	
 	public boolean nonPrimarySelected() {
-		return this.locLen > 0 && this.loc[this.locLen - 1] >= 0;
+		return this.locLen > 0 && this.loc[this.locLen - 1] != -1;
 	}
 	
 	@Override
@@ -91,28 +93,42 @@ public final class OpModification extends OperationProgressive
 		
 		// Get base module we are currently on
 		this.info.setDefault(stack).moveTo(loc, Math.max(0, locLen - 2));
-		NBTTagList baseTag = this.info.tag;
+		final NBTTagList baseTag = this.info.tag;
 		this.baseType = this.info.type;
 		
 		if(this.nonPrimarySelected())
-			this.info.moveTo(loc[locLen - 2], loc[locLen - 1]);
+			this.info.moveTo(0xFF & loc[locLen - 2], 0xFF & loc[locLen - 1]);
 		
-		if(Key.CO.down())
+		// Handle toggle mode
+		if(this.toggleKeyDown)
 		{
-			// TODO:Press confirm to install or update state, cancel to remove current module
-			
+			switch(this.mode)
+			{
+			case ON_SLOT: this.mode = ModifyMode.ON_MODULE; break;
+			case ON_MODULE: this.mode = ModifyMode.PAINTJOB; break;
+			default: this.mode = ModifyMode.ON_SLOT;
+			}
+			FMUMClient.addPromptMsg(I18n.format(this.mode.notifyMessage));
+		}
+		
+		if(Key.CO.down)
+		{
 			switch(this.mode)
 			{
 			case PAINTJOB:
-				// TODO: handle paintjob
-				break;
+				if(this.leftKeyDown || this.rightKeyDown)
+				{
+					int maxDam = this.info.type.paintjobs.size();
+					this.dam = (this.dam + (this.leftKeyDown ? maxDam - 1 : 1)) % maxDam;
+					break;
+				}
 			
 			default:
 				if(locLen == 0) break;
 				
 				if(
 					(this.upKeyDown || this.downKeyDown)
-					&& loc[locLen - 1] < 0
+					&& loc[locLen - 1] == -1
 				) {
 					int stepper = this.upKeyDown ? -1 : 1;
 					InventoryPlayer inv = getPlayer().inventory;
@@ -127,7 +143,7 @@ public final class OpModification extends OperationProgressive
 						ItemStack s = inv.getStackInSlot(next);
 						if(
 							s.getItem() instanceof ItemModular
-							&& this.baseType.slots[loc[locLen - 2]].isAllowed(
+							&& this.baseType.slots[0xFF & loc[locLen - 2]].isAllowed(
 								((ItemModular)s.getItem()).getType()
 							)
 						) {
@@ -145,38 +161,68 @@ public final class OpModification extends OperationProgressive
 						this.previewInvSlot = -1;
 						this.previewStack = ItemStack.EMPTY;
 					}
+					else
+					{
+						// Find one allowed module, check if it is valid
+						this.valid = this.baseType.availableForInstall(baseTag, loc[locLen - 2]);
+						
+						// TODO: hitbox test
+					}
 					
 					this.offset = 0;
 				}
 				else if(
 					(this.leftKeyDown || this.rightKeyDown)
-					&& (loc[locLen - 1] >= 0 || this.previewStack != ItemStack.EMPTY)
+					&& (loc[locLen - 1] != -1 || this.previewStack != ItemStack.EMPTY)
 				) {
 					switch(this.mode)
 					{
 					case ON_SLOT:
-						int bound = this.baseType.slots[loc[locLen - 2]].maxStep;
-						this.step = (
-							this.leftKeyDown
-							? (this.step > 0 ? this.step : bound) - 1
-							: ++this.step < bound ? this.step : 0
-						);
+						int bound = this.baseType.slots[0xFF & loc[locLen - 2]].maxStep + 1;
+						this.step = (this.step + (this.leftKeyDown ? bound - 1 : 1)) % bound;
 						break;
 					default: // ON_MODULE
 						bound = this.info.type.offsets.length;
-						this.offset = (
-							this.leftKeyDown
-							? (this.offset > 0 ? this.offset : bound) - 1
-							: ++this.offset < bound ? this.offset : 0
-						);
+						this.offset = (this.offset + (this.leftKeyDown ? bound - 1 : 1)) % bound;
 					}
 				}
 				else if(this.confirmKeyDown)
 				{
 					// Update position, offset and damage
-					if(loc[locLen - 1] >= 0)
+					if(loc[locLen - 1] != -1)
 					{
+						int[] states = TagModular.getStates(this.info.tag);
 						
+						if(TagModular.getStep(states) != this.step)
+							FMUMClient.netHandler.sendToServer(
+								new PacketModuleUpdate(
+									loc,
+									locLen,
+									PacketModuleUpdate.STEP,
+									this.step
+								)
+							);
+						if(TagModular.getOffset(states) != this.offset)
+							FMUMClient.netHandler.sendToServer(
+								new PacketModuleUpdate(
+									loc,
+									locLen,
+									PacketModuleUpdate.OFFSET,
+									this.offset
+								)
+							);
+						if(TagModular.getDam(states) != this.dam)
+						{
+							// TODO: validate if the materials are equipped
+							FMUMClient.netHandler.sendToServer(
+								new PacketModuleUpdate(
+									loc,
+									locLen,
+									PacketModuleUpdate.PAINT,
+									this.dam
+								)
+							);
+						}
 					}
 					else if(this.previewInvSlot != -1)
 					{
@@ -195,7 +241,7 @@ public final class OpModification extends OperationProgressive
 						this.offset = 0;
 					}
 				}
-				else if(this.cancelKeyDown && loc[locLen - 1] >= 0)
+				else if(this.cancelKeyDown && loc[locLen - 1] != -1)
 				{
 					FMUMClient.netHandler.sendToServer(new PacketModuleRemove(loc, locLen));
 					
@@ -222,33 +268,19 @@ public final class OpModification extends OperationProgressive
 				else if(this.upKeyDown || this.downKeyDown)
 				{
 					int slots = this.baseType.slots.length;
-					int i = loc[locLen - 2];
+					int i = ((0xFF & loc[locLen - 2]) + (this.upKeyDown ? slots - 1 : 1)) % slots;
+					loc[locLen - 2] = (byte)i;
 					loc[locLen - 1] = (byte)(
-						((NBTTagList)baseTag.get(
-							(
-								loc[locLen - 2] = (byte)(
-									this.upKeyDown
-									? (i > 0 ? i : slots) - 1
-									: ++i < slots ? i : 0
-								)
-							) + 1
-						)).tagCount() > 0
-						? 0
-						: -1
+						((NBTTagList)baseTag.get(1 + i)).tagCount() > 0 ? 0 : -1
 					);
 					this.updateModifying(stack);
 				}
 				else if(this.leftKeyDown || this.rightKeyDown)
 				{
-					int count = ((NBTTagList)baseTag.get(
-						loc[locLen - 2] + 1
-					)).tagCount();
-					int i = loc[locLen - 1];
-					
+					int count = ((NBTTagList)baseTag.get(1 + (0xFF & loc[locLen - 2]))).tagCount();
 					loc[locLen - 1] = (byte)(
-						this.leftKeyDown
-						? (i >= 0 ? i : count) - 1
-						: ++i < count ? i : -1
+						((0xFF & loc[locLen - 1] + 1)
+							+ (this.leftKeyDown ? count : 1)) % (count + 1) - 1
 					);
 					this.updateModifying(stack);
 				}
@@ -259,16 +291,25 @@ public final class OpModification extends OperationProgressive
 				this.confirmKeyDown
 				&& this.selected()
 				&& this.info.type.slots.length > 0
-				&& locLen < loc.length
 			) {
-				this.locLen += 2;
-				loc[locLen] = 0;
-				
-				// If has module installed on first slot, then select it 
-				loc[locLen + 1] = (byte)(
-					((NBTTagList)this.info.tag.get(1)).tagCount() > 0 ? 0 : -1
+				if(locLen < loc.length)
+				{
+					this.locLen += 2;
+					loc[locLen] = 0;
+					
+					// If has module installed on first slot, then select it 
+					loc[locLen + 1] = (byte)(
+						((NBTTagList)this.info.tag.get(1)).tagCount() > 0 ? 0 : -1
+					);
+					this.updateModifying(stack);
+				}
+				else FMUMClient.addChatMsg(
+					I18n.format(
+						"msg.fmum.reachmaxlayer",
+						Integer.toString(CommonProxy.maxLocLen >>> 1)
+					),
+					I18n.format("msg.fmum.promptconfigmaxlayers")
 				);
-				this.updateModifying(stack);
 			}
 		}
 		
@@ -285,6 +326,7 @@ public final class OpModification extends OperationProgressive
 	private void updateModifying(ItemStack stack)
 	{
 		this.clearPreviewSelected();
+		this.valid = true;
 		
 		// If it is the primary base selected
 		if(this.locLen == 0)
@@ -297,7 +339,7 @@ public final class OpModification extends OperationProgressive
 		}
 		
 		// Set index based on whether non selected or not
-		boolean flag = this.loc[this.locLen - 1] < 0;
+		boolean flag = this.loc[this.locLen - 1] == -1;
 		this.streamIndex = this.info.setDefault(stack).type.getStreamIndex(
 			TagModular.getTag(stack),
 			this.loc,
@@ -318,8 +360,8 @@ public final class OpModification extends OperationProgressive
 		
 		int[] states = TagModular.getStates(
 			this.info.moveTo(
-				this.loc[this.locLen - 2],
-				this.loc[this.locLen - 1]
+				0xFF & this.loc[this.locLen - 2],
+				0xFF & this.loc[this.locLen - 1]
 			).tag
 		);
 		this.step = TagModular.getStep(states);
@@ -347,8 +389,14 @@ public final class OpModification extends OperationProgressive
 	
 	public enum ModifyMode
 	{
-		ON_SLOT,
-		ON_MODULE,
-		PAINTJOB;
+		ON_SLOT("onslot"),
+		ON_MODULE("onmodule"),
+		PAINTJOB("paintjob");
+		
+		public final String notifyMessage;
+		
+		private ModifyMode(String translationKey) {
+			this.notifyMessage = "msg.fmum.modifymode" + translationKey;
+		}
 	}
 }

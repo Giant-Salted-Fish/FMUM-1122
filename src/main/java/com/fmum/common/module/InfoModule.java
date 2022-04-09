@@ -45,24 +45,7 @@ public class InfoModule
 	public final InfoModule moveTo(byte[] loc, int len)
 	{
 		for(int i = 0; i < len; i += 2)
-		{
-			Slot slot = this.type.slots[loc[i]];
-			int[] states = TagModular.getStates(
-				this.tag = ((NBTTagList)(
-					(NBTTagList)this.tag.get(1 + loc[i])
-				).get(loc[i + 1]))
-			);
-			
-			this.sys.trans(
-				slot.x + (
-					this.type = TagModular.getType(states)
-				).getPos(states, slot.stepLen),
-				slot.y,
-				slot.z
-			);
-			this.sys.rot(slot.rotX, CoordSystem.X);
-			this.sys.submitRot();
-		}
+			this.moveTo(0xFF & loc[i], 0xFF & loc[i + 1]);
 		return this;
 	}
 	

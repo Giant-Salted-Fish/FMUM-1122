@@ -39,7 +39,7 @@ public abstract class KeyManager
 		KEY_CATEGORY_FMUM = "keycategory.fmum",
 		KEY_CATEGORY_GUN = "keycategory.fmum.gun",
 		KEY_CATEGORY_ASSIST = "keycategory.fmum.assist",
-		KEY_CATEGORY_MODIFY = "keycategory.fmum.modify",
+		KEY_CATEGORY_MODIFY = "keycategory.fmum.modification",
 		KEY_CATEGORY_TEST = "keycategory.fmum.test";
 	
 	/**
@@ -73,32 +73,32 @@ public abstract class KeyManager
 		TEST_UP("key.fmum.testup", Keyboard.KEY_UP, KEY_CATEGORY_TEST)
 		{
 			@Override
-			protected void trigger() { FMUMClient.tu = true; }
+			protected void fire() { FMUMClient.tu = true; }
 		},
 		TEST_DOWN("key.fmum.testdown", Keyboard.KEY_DOWN, KEY_CATEGORY_TEST)
 		{
 			@Override
-			protected void trigger() { FMUMClient.td = true; }
+			protected void fire() { FMUMClient.td = true; }
 		},
 		TEST_LEFT("key.fmum.testleft", Keyboard.KEY_LEFT, KEY_CATEGORY_TEST)
 		{
 			@Override
-			protected void trigger() { FMUMClient.tl = true; }
+			protected void fire() { FMUMClient.tl = true; }
 		},
 		TEST_RIGHT("key.fmum.testright", Keyboard.KEY_RIGHT, KEY_CATEGORY_TEST)
 		{
 			@Override
-			protected void trigger() { FMUMClient.tr = true; }
+			protected void fire() { FMUMClient.tr = true; }
 		},
 		TEST_ENTER("key.fmum.testenter", Keyboard.KEY_NUMPAD5, KEY_CATEGORY_TEST)
 		{
 			@Override
-			protected void trigger() { FMUMClient.te = true; }
+			protected void fire() { FMUMClient.te = true; }
 		},
 		TEST_QUIT("key.fmum.testquit", Keyboard.KEY_NUMPAD2, KEY_CATEGORY_TEST)
 		{
 			@Override
-			protected void trigger() { FMUMClient.tq = true; }
+			protected void fire() { FMUMClient.tq = true; }
 		},
 		
 		/**
@@ -112,17 +112,16 @@ public abstract class KeyManager
 		TOGGLE_MANUAL("key.fmum.togglemanual", Keyboard.KEY_PERIOD, KEY_CATEGORY_GUN)
 		{
 			@Override
-			protected void trigger()
+			protected void fire()
 			{
-				super.trigger();
+				super.fire();
 				
-				FMUMClient.addChatMsg(
+				FMUMClient.addPromptMsg(
 					I18n.format(
 						(FMUMClient.manualMode = !FMUMClient.manualMode)
 						? "msg.fmum.manualmodeon"
 						: "msg.fmum.manualmodeoff"
-					),
-					0
+					)
 				);
 			}
 		},
@@ -140,7 +139,7 @@ public abstract class KeyManager
 		CO_TOGGLE_MANUAL("key.fmum.cotogglemanual", Keyboard.KEY_NONE, KEY_CATEGORY_ASSIST)
 		{
 			@Override
-			protected void trigger() { TOGGLE_MANUAL.trigger(); }
+			protected void fire() { TOGGLE_MANUAL.fire(); }
 		},
 		CO_LOOK_AROUND("key.fmum.colookaround", Keyboard.KEY_NONE, KEY_CATEGORY_ASSIST),
 		CO_VIEW_WEAPON("key.fmum.coviewweapon", Keyboard.KEY_NONE, KEY_CATEGORY_ASSIST),
@@ -161,7 +160,7 @@ public abstract class KeyManager
 		
 		public final KeyBinding keyBind;
 		public int keyCode;
-		public int pressTime = 0;
+		public boolean down = false;
 		
 		private Key(String name, int key, String category) { this(name, key, category, null); }
 		
@@ -209,22 +208,24 @@ public abstract class KeyManager
 			}
 		}
 		
-		public boolean down() { return this.pressTime > 0; }
-		
 //		public boolean lastDown() { return this.pressTime > 1; }
 		
 		public boolean bounden() { return this.keyCode != Keyboard.KEY_NONE; }
 		
 		protected void update()
 		{
-			if(!keyDown(this.keyCode)) this.pressTime = 0;
-			else if(this.pressTime++ == 0) this.trigger();
+			if(!keyDown(this.keyCode)) this.down = false;
+			else if(!this.down)
+			{
+				this.down = true;
+				this.fire();
+			}
 		}
 		
-		protected void trigger() { FMUMClient.prevItem.keyNotify(this); }
+		protected void fire() { FMUMClient.prevItem.keyNotify(this); }
 		
 		public static boolean lookAroundActivated() {
-			return (CO.pressTime > 0 ? CO_LOOK_AROUND : LOOK_AROUND).down();
+			return (CO.down ? CO_LOOK_AROUND : LOOK_AROUND).down;
 		}
 	}
 	

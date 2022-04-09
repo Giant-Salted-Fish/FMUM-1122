@@ -192,12 +192,12 @@ public abstract class EventHandlerClient
 	public static void onFOVUpdate(FOVUpdateEvent evt) { evt.setNewfov(1F); }
 	
 	/**
-	 * Apply fov modification here for scope glass texture rendering
+	 * TODO: Apply fov modification here for scope glass texture rendering
 	 */
 	@SubscribeEvent
 	public static void onFOVModify(FOVModifier evt)
 	{
-		// TODO
+		
 	}
 	
 	/**
@@ -230,7 +230,7 @@ public abstract class EventHandlerClient
 		
 		// Update keys upon condition
 		for(Key k : KeyManager.primaryKeys) k.update();
-		for(Key k : Key.CO.down() ? KeyManager.coKeys : KeyManager.inCoKeys) k.update();
+		for(Key k : Key.CO.down ? KeyManager.coKeys : KeyManager.inCoKeys) k.update();
 	}
 	
 	private static boolean modelCompiled = false;

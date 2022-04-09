@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.fmum.common.FMUM;
 import com.fmum.common.type.TypeInfo;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
+import com.fmum.common.util.Util;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
@@ -74,7 +75,7 @@ public class FMUMCreativeTab extends CreativeTabs
 		{
 			parser.addKeyword(
 				"DisplayName",
-				(s, t) -> FMUM.proxy.addLocalizeKey(t.getTranslationKey(), FMUM.splice(s, 1))
+				(s, t) -> FMUM.proxy.addLocalizeKey(t.getTranslationKey(), Util.splice(s, 1))
 			);
 			parser.addKeyword(
 				"IconItem",

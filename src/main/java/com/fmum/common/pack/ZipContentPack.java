@@ -75,7 +75,7 @@ public final class ZipContentPack extends LocalContentProvider
 							in,
 							fName.substring(0, fName.length() - ".txt".length()),
 							sourceTrace
-						).noticeProvider(this).postParse();
+						).notifyProvider(this).postParse();
 					}
 					catch(IOException e) { printIOError(sourceTrace.message(), e); }
 				else if(entryName.endsWith(".class"))

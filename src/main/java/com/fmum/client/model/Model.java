@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MouseHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 
 // TODO: may override render methods in super class?
@@ -71,6 +72,32 @@ public abstract class Model extends ModelBase
 	 */
 	public void render() { }
 	
+	/**
+	 * <p>Call in when the corresponding model is focused or high lighted. In default it glows the
+	 * model before rendering it.</p>
+	 * 
+	 * <p>Notice that calling glow twice could cause weird lighting problem. Hence it is recommended
+	 * to override this method if you used {@link #glowOn()} or {@link #glowOn(int)} in
+	 * {@link #render()}.</p>
+	 */
+	public void renderHighLighted()
+	{
+		glowOn();
+		this.render();
+		glowOff();
+	}
+	
+	/**
+	 * Bind texture, scale and render!
+	 */
+	public void renderItem(ItemStack stack, TypeInfo type)
+	{
+		bindTexture(type.getTexture(stack));
+		final double scale = type.modelScale;
+		GL11.glScaled(scale, scale, scale);
+		this.render();
+	}
+	
 	@Override
 	public void render(
 		Entity entityIn,
@@ -112,6 +139,10 @@ public abstract class Model extends ModelBase
 	protected void doRenderFP(ItemStack stack, TypeInfo type) { this.render(); }
 	
 	protected static Operation getOperating() { return FMUMClient.operating; }
+	
+	protected static void bindTexture(ResourceLocation texture) {
+		FMUMClient.mc.renderEngine.bindTexture(texture);
+	}
 	
 	/**
 	 * Based {@link net.minecraft.client.renderer.EntityRenderer#getFOVModifier(float, boolean)}

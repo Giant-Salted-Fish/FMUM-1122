@@ -78,12 +78,12 @@ public abstract class FMUMClient
 		}
 	}
 	
-	public static void toggleManualTell(Messager... msgs)
+	public static void toggleManualTell(Messager... msg)
 	{
 		if(!manualMode) return;
 		
-		for(int i = 0; i < msgs.length; ++i)
-			addChatMsg(msgs[i].message(), i);
+		for(int i = 0; i < msg.length; ++i)
+			addPromptMsg(msg[i].message(), i);
 		manualMode = false;
 	}
 	/** for test */
@@ -167,12 +167,12 @@ public abstract class FMUMClient
 		double[] d = testList.get(testInsNum).testValue;
 		
 		EventHandlerClient.renderCamRoll = (float)d[3];
-		if(KeyManager.Key.CO.down())
+		if(KeyManager.Key.CO.down)
 		{
 			if(tl);
 			else if(tr);
 			else if(tu || td)
-				addChatMsg(
+				addPromptMsg(
 					"switch to " + getTestInsString(
 						tu
 						? testInsNum < 1 ? testInsNum = testList.size() - 1 : --testInsNum
@@ -182,7 +182,7 @@ public abstract class FMUMClient
 				);
 			else if(te)
 			{
-				addChatMsg("created: " + getTestInsString(testList.size()), 2);
+				addPromptMsg("created: " + getTestInsString(testList.size()), 2);
 				testList.add(new TestPosRot());
 			}
 			else if(tq)
@@ -194,13 +194,13 @@ public abstract class FMUMClient
 					if(testInsNum >= testList.size())
 						testInsNum = testList.size() - 1;
 				}
-				else addChatMsg("can not remove last one instance", 2);
+				else addPromptMsg("can not remove last one instance", 2);
 			}
 		}
 		else
 		{
 			if(tl || tr)
-				addChatMsg(
+				addPromptMsg(
 					"move to " + getTestString(
 						tl
 						? testNum < 1 ? testNum = 5 : --testNum
@@ -212,14 +212,14 @@ public abstract class FMUMClient
 				d[testNum] += (tu ? 1D : -1D) * (testNum < 3 ? manualMode ? 0.1D : 0.5D : manualMode ? 1D : 5D);
 			else if(te)
 			{
-				addChatMsg("cur ins: " + getTestInsString(testInsNum) + ", list size: " + testList.size(), 3);
-				addChatMsg("pos xyz: " + d[0] + " " + d[1] + " " + d[2], 4);
-				addChatMsg("rot xyz: " + d[3] + " " + d[4] + " " + d[5], 5);
+				addPromptMsg("cur ins: " + getTestInsString(testInsNum) + ", list size: " + testList.size(), 3);
+				addPromptMsg("pos xyz: " + d[0] + " " + d[1] + " " + d[2], 4);
+				addPromptMsg("rot xyz: " + d[3] + " " + d[4] + " " + d[5], 5);
 //				RenderGun.createSmokeForGun = true;
 			}
 			else if(tq)
 			{
-				addChatMsg("set " + getTestString(testNum) + " to 0D", 2);
+				addPromptMsg("set " + getTestString(testNum) + " to 0D", 2);
 				d[testNum] = 0D;
 			}
 		}
@@ -250,7 +250,8 @@ public abstract class FMUMClient
 			operating = Operation.NONE;
 		
 		// Check in game GUI change
-		// TODO: mods like Optfine may add more layers in settings
+		// TODO: mods like Optfine may add more layers in settings gui
+		// TODO: synchronize config in main menu(not in world which means this will never be reached
 		if(mc.currentScreen != prevGUI)
 		{
 			// TODO: operation
@@ -311,7 +312,11 @@ public abstract class FMUMClient
 		return true;
 	}
 	
-	public static void addChatMsg(String msg, int id)
+	public static void addPromptMsg(String... msg) {
+		for(int i = 0; i < msg.length; ++i) addPromptMsg(msg[i], i);
+	}
+	
+	public static void addPromptMsg(String msg, int id)
 	{
 		mc.ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(
 			new TextComponentString(msg),
@@ -319,7 +324,9 @@ public abstract class FMUMClient
 		);
 	}
 	
-	public static void addChatMsg(String msg) {
-		mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentString(msg));
+	public static void addChatMsg(String... msg)
+	{
+		for(String s : msg)
+			mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentString(s));
 	}
 }

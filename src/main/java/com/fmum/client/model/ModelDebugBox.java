@@ -1,6 +1,5 @@
 package com.fmum.client.model;
 
-import com.fmum.client.FMUMClient;
 import com.fmum.client.ResourceManager;
 import com.fmum.common.util.Mesh;
 import com.fmum.common.util.ObjRepository;
@@ -41,7 +40,7 @@ public final class ModelDebugBox extends ModelMeshBased implements ObjRepository
 	@Override
 	public void render()
 	{
-		FMUMClient.mc.renderEngine.bindTexture(TEXTURE);
+		bindTexture(TEXTURE);
 		super.render();
 	}
 	

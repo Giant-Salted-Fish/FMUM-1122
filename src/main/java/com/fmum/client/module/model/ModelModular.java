@@ -6,10 +6,12 @@ import java.util.function.Consumer;
 
 import org.lwjgl.opengl.GL11;
 
+import com.fmum.client.ResourceManager;
 import com.fmum.client.model.AnimatorCamControl;
 import com.fmum.client.model.Model;
 import com.fmum.client.model.ModelMeshBased;
 import com.fmum.client.module.OpModification;
+import com.fmum.common.module.Slot;
 import com.fmum.common.module.TagModular;
 import com.fmum.common.module.TypeModular;
 import com.fmum.common.module.TypeModular.RenderInfoVisitor;
@@ -41,17 +43,81 @@ public class ModelModular extends ModelMeshBased
 	
 	public ModelModular(Consumer<ModelModular> initializer) { initializer.accept(this); }
 	
-	/**
-	 * Call in modification mode to render model in selected state. In default it glows the model.
-	 * Notice that calling glow twice could cause weird lighting problem. Hence it is recommended
-	 * to override this method if you used {@link #glowOn()} or {@link #glowOn(int)} in
-	 * {@link #render()}.
-	 */
-	public void renderSelected()
+	public void renderModule(NBTTagList tag, TypeModular type)
 	{
-		glowOn();
+		bindTexture(type.getTexture(tag));
+		final double scale = type.modelScale;
+		GL11.glScaled(scale, scale, scale);
 		this.render();
-		glowOff();
+	}
+	
+	public void renderModifyFocused(NBTTagList tag, TypeModular type, OpModification modify)
+	{
+		final boolean paintMode = modify.isPaintMode();
+		final boolean nonPrimarySelected = modify.nonPrimarySelected();
+		
+		bindTexture(
+			modify.selected()
+			? (
+				paintMode
+				? type.getTexture(modify.dam)
+				: (
+					nonPrimarySelected
+					? modify.valid ? ResourceManager.TEXTURE_GREEN : ResourceManager.TEXTURE_RED
+					: type.getTexture(tag)
+				)
+			)
+			: type.getTexture(tag)
+		);
+		
+		final double scale = type.modelScale;
+		GL11.glScaled(scale, scale, scale);
+		if(nonPrimarySelected || paintMode)
+			this.renderHighLighted();
+		else this.render();
+	}
+	
+	public void renderPreview(NBTTagList tag, TypeModular type, OpModification modify)
+	{
+		// Render modules installed on this module
+		for(int i = type.slots.length; i-- > 0; )
+		{
+			final NBTTagList slotTag = (NBTTagList)tag.get(1 + i);
+			int j = slotTag.tagCount();
+			if(j == 0) continue;
+			
+			final Slot slot = type.slots[i];
+			GL11.glPushMatrix();
+			{
+				GL11.glTranslated(slot.x, slot.y, slot.z);
+				GL11.glRotated(slot.rotX, 1D, 0D, 0D);
+				while(j-- > 0)
+				{
+					final NBTTagList moduleTag = (NBTTagList)slotTag.get(j);
+					final TypeModular moduleType = TagModular.getType(moduleTag);
+					GL11.glPushMatrix();
+					{
+						GL11.glTranslated(
+							moduleType.getPos(TagModular.getStates(moduleTag), slot.stepLen),
+							0D,
+							0D
+						);
+						((ModelModular)moduleType.model).renderPreview(
+							moduleTag,
+							moduleType,
+							modify
+						);
+					}
+					GL11.glPopMatrix();
+				}
+			}
+			GL11.glPopMatrix();
+		}
+		
+		bindTexture(modify.valid ? ResourceManager.TEXTURE_GREEN : ResourceManager.TEXTURE_RED);
+		final double scale = type.modelScale;
+		GL11.glScaled(scale, scale, scale);
+		this.renderHighLighted();
 	}
 	
 	@Override
@@ -196,7 +262,7 @@ public class ModelModular extends ModelMeshBased
 			{
 				final int[] states = TagModular.getStates(tag);
 				final double stepLen = modify.baseType.slots[
-					modify.loc[modify.locLen - 2]
+					0xFF & modify.loc[modify.locLen - 2]
 				].stepLen;
 				sys.trans(
 					typ.getPos(modify.step, modify.offset, stepLen)

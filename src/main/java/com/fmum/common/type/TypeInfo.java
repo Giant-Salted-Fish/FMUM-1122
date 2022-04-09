@@ -7,13 +7,12 @@ import java.util.TreeSet;
 
 import com.fmum.client.model.Model;
 import com.fmum.client.model.ModelDebugBox;
-import com.fmum.common.CommonProxy;
 import com.fmum.common.EventHandler;
 import com.fmum.common.EventHandler.RequireItemRegister;
 import com.fmum.common.FMUM;
-import com.fmum.common.pack.FMUMContentProvider;
 import com.fmum.common.pack.FMUMCreativeTab;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
+import com.fmum.common.util.Util;
 
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -39,7 +38,7 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 			(s, t) -> {
 				if(t.description == TypeInfo.DEF_DESCRIPTION)
 					t.description = new LinkedList<>();
-				t.description.add(FMUM.splice(s, 1));
+				t.description.add(Util.splice(s, 1));
 			}
 		);
 		parser.addKeyword("CreativeTab", (s, t) -> t.creativeTab = s[1]);
@@ -77,11 +76,6 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 	public Item item = null;
 	
 	/**
-	 * Name of the content pack where this item belongs to
-	 */
-	public FMUMContentProvider provider = null;
-	
-	/**
 	 * Category of this item. Usually used in grouping different items.
 	 */
 	public String category = "default";
@@ -114,33 +108,19 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 	
 	protected TypeInfo(String name) { super(name); }
 	
-	public TypeInfo noticeProvider(FMUMContentProvider provider)
-	{
-		this.provider = provider;
-		return this;
-	}
-	
-	/**
-	 * <p>Called after parsing this typer from a plain text file. In default this method puts this
-	 * instance into {@link #types} and register itself into
-	 * {@link CommonProxy#typesWaitForPostLoadProcess}.
-	 * 
-	 * <p>Notice that this method will not be called for class based typer. Hence you should call
-	 * this method or do similar things yourself in your typer constructor.</p>
-	 */
 	@Override
 	public void postParse()
 	{
 		super.postParse();
 		
 		types.put(this.name, this);
-		CommonProxy.typesWaitForPostLoadProcess.add(this);
 	}
 	
 	/**
-	 * Called right after all types been loaded. In default it calls {@link #onItemSetup()} and adds
+	 * {@inheritDoc}. In default it calls {@link #onItemSetup()} and adds
 	 * itself into {@link EventHandler#itemsWaitForRegistration}.
 	 */
+	@Override
 	public void postLoad()
 	{
 		this.onItemSetup();
@@ -162,11 +142,6 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 			)
 		);
 	}
-	
-	/**
-	 * @return {@link EnumType} that this instance belongs to
-	 */
-	public abstract EnumType getEnumType();
 	
 	public String getDisplayName(ItemStack stack) {
 		return FMUM.proxy.format(this.item.getTranslationKey(stack) + TRANSLATION_SUFFIX);

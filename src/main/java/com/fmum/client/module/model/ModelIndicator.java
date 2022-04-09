@@ -1,6 +1,5 @@
 package com.fmum.client.module.model;
 
-import com.fmum.client.FMUMClient;
 import com.fmum.client.ResourceManager;
 import com.fmum.client.model.ModelMeshBased;
 import com.fmum.common.util.TBModelMeshBuilder;
@@ -23,7 +22,7 @@ public final class ModelIndicator extends ModelMeshBased
 	@Override
 	public void render()
 	{
-		FMUMClient.mc.renderEngine.bindTexture(ResourceManager.TEXTURE_GREEN);
+		bindTexture(ResourceManager.TEXTURE_GREEN);
 		super.render();
 	}
 }

@@ -1,4 +1,6 @@
-package com.fmum.common.type;
+package com.fmum.common.paintjob;
+
+import com.fmum.common.type.ItemInfo;
 
 import net.minecraft.item.ItemStack;
 

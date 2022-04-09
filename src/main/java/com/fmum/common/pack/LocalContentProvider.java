@@ -94,7 +94,7 @@ public abstract class LocalContentProvider implements FMUMContentProvider
 	 */
 	protected void loadClassBasedTyper(Messager sourceTrace, String... classPathFragments)
 	{
-		try { ((TypeInfo)FMUM.tryInstantiate(classPathFragments)).noticeProvider(this); }
+		try { ((TypeInfo)FMUM.tryInstantiate(classPathFragments)).notifyProvider(this); }
 		catch(Exception e)
 		{
 			FMUM.log.error(

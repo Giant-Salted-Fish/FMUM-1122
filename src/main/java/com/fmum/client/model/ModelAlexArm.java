@@ -1,6 +1,5 @@
 package com.fmum.client.model;
 
-import com.fmum.client.FMUMClient;
 import com.fmum.common.util.TBModelMeshBuilder;
 
 import net.minecraft.util.ResourceLocation;
@@ -38,7 +37,7 @@ public final class ModelAlexArm extends ModelMeshBased
 	public void render()
 	{
 		// TODO: do not bind texture cause player may have customized skin
-		FMUMClient.mc.renderEngine.bindTexture(TEXTURE);
+		bindTexture(TEXTURE);
 		super.render();
 	}
 }

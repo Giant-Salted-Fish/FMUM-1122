@@ -8,7 +8,7 @@ import com.fmum.common.FMUM;
 import com.fmum.common.type.TypeInfo;
 import com.fmum.common.util.MotionTendencyBased;
 import com.fmum.common.util.CoordSystem;
-import com.fmum.common.util.Mather;
+import com.fmum.common.util.Util;
 import com.fmum.common.util.MotionTracks;
 import com.fmum.common.util.Vec3;
 
@@ -120,13 +120,13 @@ public class AnimatorCamControl extends Animator
 			
 			Vec3 v = offAsix.curPos;
 			v.trans(0D, changeYaw, changePitch);
-			v.z = Mather.clamp(v.z, pitchLimitMin, pitchLimitMax);
+			v.z = Util.clamp(v.z, pitchLimitMin, pitchLimitMax);
 			eyeRot.z += v.z;
 			
 			// Use updated pitch value to calculate yaw limit to avoid bobbing
 			double yawLimit = this.headRotYawLimitBase
 				+ this.headRotYawLimitRange * (90D - Math.abs(eyeRot.z)) / 90D;
-			v.y = Mather.clamp(v.y, -yawLimit, yawLimit);
+			v.y = Util.clamp(v.y, -yawLimit, yawLimit);
 			eyeRot.y += v.y;
 			
 			eyeRot.x += v.x;
@@ -140,7 +140,7 @@ public class AnimatorCamControl extends Animator
 		else
 		{
 			actual.trans(0D, changeYaw, changePitch);
-			actual.z = Mather.clamp(actual.z, -90D, 90D);
+			actual.z = Util.clamp(actual.z, -90D, 90D);
 
 			eyeRot.set(actual);
 			this.eyeOffAxis.getSmoothedPos(vec, smoother);
@@ -149,7 +149,7 @@ public class AnimatorCamControl extends Animator
 		
 		this.camOffAxis.getSmoothedPos(vec, smoother);
 		eyeRot.trans(vec);
-		eyeRot.z = Mather.clamp(eyeRot.z, -90D, 90D);
+		eyeRot.z = Util.clamp(eyeRot.z, -90D, 90D);
 		
 		setRenderCamRoll((float)eyeRot.x);
 		setRenderCamYaw((float)eyeRot.y + 180F);

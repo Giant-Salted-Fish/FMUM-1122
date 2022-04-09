@@ -120,6 +120,31 @@ public class Vec3
 	
 	public Vec3 normalize() { return this.scale(1D / this.length()); }
 	
+	/**
+	 * @param v Another vector that has the same origin
+	 * @return Angle between this vector and the given vector in radians
+	 */
+	public final double angle(Vec3 v) {
+		return Math.acos(this.dot(v) / this.length() / v.length());
+	}
+	
+	public final double solidAngle(Vec3 v1, Vec3 v2)
+	{
+		double a = this.angle(v1);
+		double b = this.angle(v2);
+		double c = v1.angle(v2);
+		double s = (a + b + c) / 2D;
+		
+		return 4D * Math.atan(
+			Math.sqrt(
+				Math.tan(s / 2)
+					* Math.tan((s - a) / 2)
+					* Math.tan((s - b) / 2)
+					* Math.tan((s - c) / 2)
+			)
+		);
+	}
+	
 	public final double dot(Vec3 v) { return this.x * v.x + this.y * v.y + this.z * v.z; }
 	
 	public final Vec3 cross(Vec3 v)

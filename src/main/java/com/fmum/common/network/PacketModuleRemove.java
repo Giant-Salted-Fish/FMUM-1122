@@ -38,23 +38,21 @@ public final class PacketModuleRemove extends DataModuleLoc
 			return;
 		}
 		
-		int index = this.loc[this.loc.length - 2];
-		if(index >= info.type.slots.length)
+		NBTTagList tag = info.tag;
+		int slot = 0xFF & this.loc[this.loc.length - 2];
+		int index = 0xFF & this.loc[this.loc.length - 1];
+		if(info.tryMoveTo(slot, index) == null)
 		{
 			// Proper log
 			return;
 		}
 		
-		NBTTagList tag = (NBTTagList)info.tag.get(1 + index);
-		index = this.loc[this.loc.length - 1];
-		if(index >= tag.tagCount())
-		{
-			// Proper log
-			return;
-		}
-		
-		tag = (NBTTagList)tag.removeTag(index);
-		final ItemStack removed = new ItemStack(TagModular.getType(tag).item);
+		tag = (NBTTagList)((NBTTagList)tag.get(1 + slot)).removeTag(index);
+		final ItemStack removed = new ItemStack(
+			TagModular.getType(tag).item,
+			1,
+			TagModular.getDam(tag)
+		);
 		removed.setTagCompound(new NBTTagCompound());
 		removed.getTagCompound().setTag(TagModular.TAG, tag);
 		

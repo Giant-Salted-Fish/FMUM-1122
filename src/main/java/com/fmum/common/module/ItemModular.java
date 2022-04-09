@@ -4,7 +4,7 @@ import com.fmum.client.FMUMClient;
 import com.fmum.client.KeyManager.Key;
 import com.fmum.client.module.OpModification;
 import com.fmum.common.network.PacketModuleTagInit;
-import com.fmum.common.type.ItemPaintable;
+import com.fmum.common.paintjob.ItemPaintable;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;

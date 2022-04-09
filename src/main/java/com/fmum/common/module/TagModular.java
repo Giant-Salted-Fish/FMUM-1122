@@ -75,8 +75,12 @@ public abstract class TagModular
 	
 	public static int getDam(int[] states) { return states[ID_DAM] << 16 >>> 16; }
 	
+	public static void setDam(int[] states, int dam) {
+		states[ID_DAM] = states[ID_DAM] & 0xFFFF0000 | dam & 0xFFFF;
+	}
+	
 	public static void setIdDam(int[] states, int id, int dam) {
-		states[ID_DAM] = id << 16 | dam << 16 >>> 16;
+		states[ID_DAM] = id << 16 | dam & 0xFFFF;
 	}
 	
 	public static float getState(int[] states, int i) {

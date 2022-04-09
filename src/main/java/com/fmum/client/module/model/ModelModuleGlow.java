@@ -4,20 +4,20 @@ import java.util.function.Consumer;
 
 import com.fmum.common.util.Mesh;
 
-public class ModelGlow extends ModelModular
+public class ModelModuleGlow extends ModelModular
 {
 	public static final byte
 		GLOW = 0,
 		NORM = 1;
 	
-	public ModelGlow() { }
+	public ModelModuleGlow() { }
 	
 	/**
 	 * First input mesh will glow in the night. Rest will not.
 	 */
-	public ModelGlow(Mesh... meshes) { this.meshes = meshes; }
+	public ModelModuleGlow(Mesh... meshes) { this.meshes = meshes; }
 	
-	public ModelGlow(Consumer<ModelGlow> initializer) { initializer.accept(this); }
+	public ModelModuleGlow(Consumer<ModelModuleGlow> initializer) { initializer.accept(this); }
 	
 	@Override
 	public void render()
@@ -30,7 +30,7 @@ public class ModelGlow extends ModelModular
 	}
 	
 	@Override
-	public void renderSelected()
+	public void renderHighLighted()
 	{
 		glowOn();
 		super.render();

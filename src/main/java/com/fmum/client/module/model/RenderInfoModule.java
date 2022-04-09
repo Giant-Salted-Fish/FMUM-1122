@@ -2,12 +2,11 @@ package com.fmum.client.module.model;
 
 import org.lwjgl.opengl.GL11;
 
-import com.fmum.client.FMUMClient;
-import com.fmum.client.ResourceManager;
 import com.fmum.client.module.OpModification;
 import com.fmum.common.module.InfoModule;
 import com.fmum.common.module.ItemModular;
 import com.fmum.common.module.Slot;
+import com.fmum.common.module.TagModular;
 import com.fmum.common.module.TypeModular;
 import com.fmum.common.util.CoordSystem;
 import com.fmum.common.util.ObjPool;
@@ -22,15 +21,10 @@ public class RenderInfoModule extends InfoModule
 	 
 	public void render()
 	{
-		// Apply transform
+		// Do not forget to apply transform
 		this.setupTransform();
 		
-		double scale = this.type.modelScale;
-		GL11.glScaled(scale, scale, scale);
-		
-		// Bind texture and render
-		FMUMClient.mc.renderEngine.bindTexture(type.getTexture(this.tag));
-		this.type.model.render();
+		((ModelModular)this.type.model).renderModule(this.tag, this.type);
 	}
 	
 	public void renderModifying(OpModification modify, int thisIndex)
@@ -41,32 +35,28 @@ public class RenderInfoModule extends InfoModule
 			this.render();
 			return;
 		}
-
-		// Right index, render it in green if is selected
-		final boolean selected = modify.selected();
-		final boolean nonPrimaySelected = modify.nonPrimarySelected();
-		final boolean paintMode = modify.isPaintMode();
 		
 		this.setupTransform();
 		
 		// Render indicator or preview module if not selected
-		if(!selected)
+		if(!modify.selected())
 		{
 			GL11.glPushMatrix();
 			{
-				final Slot slot = this.type.slots[modify.loc[modify.locLen - 2]];
+				final Slot slot = this.type.slots[0xFF & modify.loc[modify.locLen - 2]];
 				GL11.glTranslated(slot.x, slot.y, slot.z);
 				GL11.glRotated(slot.rotX, 1D, 0D, 0D);
 				
-				FMUMClient.mc.renderEngine.bindTexture(ResourceManager.TEXTURE_GREEN);
-				
 				if(modify.previewInvSlot != -1)
 				{
-					TypeModular typ = ((ItemModular)modify.previewStack.getItem()).getType();
+					final TypeModular typ = ((ItemModular)modify.previewStack.getItem()).getType();
 					GL11.glTranslated(typ.getPos(modify.step, modify.offset, slot.stepLen), 0D, 0D);
-					double scale = typ.modelScale;
-					GL11.glScaled(scale, scale, scale);
-					((ModelModular)typ.model).renderSelected();
+					
+					((ModelModular)typ.model).renderPreview(
+						TagModular.getTag(modify.previewStack),
+						typ,
+						modify
+					);
 				}
 				else
 				{
@@ -77,21 +67,8 @@ public class RenderInfoModule extends InfoModule
 			GL11.glPopMatrix();
 		}
 		
-		FMUMClient.mc.renderEngine.bindTexture(
-			selected
-			? (
-				paintMode
-				? this.type.getTexture(modify.dam)
-				: nonPrimaySelected ? ResourceManager.TEXTURE_GREEN : this.type.getTexture(this.tag)
-			)
-			: this.type.getTexture(this.tag)
-		);
-		
-		double scale = this.type.modelScale;
-		GL11.glScaled(scale, scale, scale);
-		if(nonPrimaySelected || paintMode)
-			((ModelModular)this.type.model).renderSelected();
-		else this.type.model.render();
+		// Render this module
+		((ModelModular)this.type.model).renderModifyFocused(this.tag, this.type, modify);
 	}
 	
 	/**

@@ -90,7 +90,7 @@ public class AnimatorGun extends AnimatorCamControl
 		
 		// Prepare values
 		final EntityPlayerSP player = getPlayer();
-		final boolean aiming = Key.AIM_HOLD.down();
+		final boolean aiming = Key.AIM_HOLD.down;
 		final boolean crouching = player.isSneaking();
 		final boolean sprinting = player.isSprinting();
 		final ModelGun model = (ModelGun)type.model;

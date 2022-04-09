@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.Logger;
 
 import com.fmum.common.network.PacketHandler;
+import com.fmum.common.util.Util;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.config.Configuration;
@@ -149,7 +150,7 @@ public final class FMUM
 	 */
 	public static Object tryInstantiate(String... pathFragments)
 	{
-		pathFragments[0] = spliceClassPath(pathFragments);
+		pathFragments[0] = Util.spliceClassPath(pathFragments);
 		try
 		{
 			return FMUMClassLoader.INSTANCE.loadClass(
@@ -160,31 +161,5 @@ public final class FMUM
 			FMUM.log.error(proxy.format("fmum.errorinstantiating", pathFragments[0]), e);
 		}
 		return null;
-	}
-	
-	public static String spliceClassPath(String... pathFragments)
-	{
-		String classPath = pathFragments[pathFragments.length - 1];
-		for(
-			int i = pathFragments.length - 1;
-			--i >= 0;
-			classPath = pathFragments[i] + "." + classPath
-		);
-		return(
-			classPath.endsWith(".class")
-			? classPath.substring(0, classPath.length() - ".class".length())
-			: classPath
-		);
-	}
-	
-	public static String splice(String[] split, int head) {
-		return splice(split, head, split.length);
-	}
-	
-	public static String splice(String[] split, int head, int tail)
-	{
-		String s = "";
-		while(--tail >= head) s = split[tail] + " " + s;
-		return s;
 	}
 }

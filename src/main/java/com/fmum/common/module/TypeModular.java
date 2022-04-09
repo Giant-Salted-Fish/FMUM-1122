@@ -2,9 +2,8 @@ package com.fmum.common.module;
 
 import java.util.HashMap;
 
-import com.fmum.client.FMUMClient;
-import com.fmum.client.ResourceManager;
-import com.fmum.common.type.TypePaintable;
+import com.fmum.common.CommonProxy;
+import com.fmum.common.paintjob.TypePaintable;
 import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 import com.fmum.common.util.CoordSystem;
 
@@ -78,6 +77,18 @@ public abstract class TypeModular extends TypePaintable
 	 */
 	public double getPos(int step, int offset, double stepLen) {
 		return step * stepLen + this.offsets[offset];
+	}
+	
+	/**
+	 * @return {@code true} if number of module installed is below the maximum of the slot
+	 */
+	public final boolean availableForInstall(NBTTagList tag, int slot)
+	{
+		int numInstalled = ((NBTTagList)tag.get(1 + slot)).tagCount();
+		return(
+			numInstalled < this.slots[slot].maxCanInstall
+			&& numInstalled < CommonProxy.maxCanInstall
+		);
 	}
 	
 	/**
@@ -215,13 +226,13 @@ public abstract class TypeModular extends TypePaintable
 		CoordSystem.pool.back(moduleSys);
 	}
 	
-	public final int getStreamIndex(NBTTagList tag, byte[] location, int len, int cursor)
+	public final int getStreamIndex(NBTTagList tag, byte[] loc, int len, int cursor)
 	{
 		if(cursor == len) return 0;
 		
 		int index = 1;
-		int tarSlot = location[cursor];
-		int tarModule = location[cursor + 1];
+		int tarSlot = 0xFF & loc[cursor];
+		int tarModule = 0xFF & loc[cursor + 1];
 		
 		NBTTagList slotTag, moduleTag;
 		for(int i = this.slots.length; --i >= 0; )
@@ -235,7 +246,7 @@ public abstract class TypeModular extends TypePaintable
 					moduleTag = (NBTTagList)slotTag.get(j)
 				);
 				if(i == tarSlot && j == tarModule)
-					return index + type.getStreamIndex(moduleTag, location, len, cursor + 2);
+					return index + type.getStreamIndex(moduleTag, loc, len, cursor + 2);
 				index += type.count(moduleTag);
 			}
 		
@@ -270,11 +281,7 @@ public abstract class TypeModular extends TypePaintable
 		
 		// Write default states
 		TagModular.setIdDam(states, Item.getIdFromItem(this.item), dam);
-		if(step != 0)
-		{
-			TagModular.setStep(states, step);
-			FMUMClient.addChatMsg("Get " + TagModular.getStep(states));
-		}
+		TagModular.setStep(states, step);
 		TagModular.setOffset(states, offset);
 		
 		// Append slot tag
@@ -283,7 +290,7 @@ public abstract class TypeModular extends TypePaintable
 	}
 	
 	public final ResourceLocation getTexture(NBTTagList tag) {
-		return ResourceManager.getTexture(this.paintjobs.get(TagModular.getDam(tag)).texture);
+		return this.getTexture(TagModular.getDam(tag));
 	}
 	
 	/**

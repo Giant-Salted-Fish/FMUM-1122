@@ -7,7 +7,7 @@ import com.fmum.client.gun.model.ModelGun;
 import com.fmum.client.gun.model.ModelGunBolt;
 import com.fmum.client.gun.model.ModelMag;
 import com.fmum.client.model.Model;
-import com.fmum.client.module.model.ModelGlow;
+import com.fmum.client.module.model.ModelModuleGlow;
 import com.fmum.client.module.model.ModelModular;
 import com.fmum.common.util.Mesh;
 import com.fmum.common.util.ObjRepository;
@@ -194,7 +194,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		}
 	);
 	
-	private static final ModelGlow CICIS9_REAR_SIGHT = new ModelGlow(
+	private static final ModelModuleGlow CICIS9_REAR_SIGHT = new ModelModuleGlow(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(1.5F, -2F, 1.1F, -1.01F, -8.4F, 0F, 0F, 0F, 0F, 1, 1, 1, 225, 1, 0F, -0.4F, 0F, 0F, -0.4F, 0F, 0F, 0F, -0.6F, 0F, 0F, -0.6F, 0F, -0.2F, -0.4F, 0F, -0.2F, -0.4F, 0F, -0.6F, -0.2F, 0F, -0.6F, -0.2F)
 			.addShapeBox(1.5F, -2F, -1.9F, -1.01F, -8.4F, 0F, 0F, 0F, 0F, 1, 1, 1, 233, 1, 0F, -0.4F, 0F, 0F, -0.4F, 0F, 0F, 0F, -0.6F, 0F, 0F, -0.6F, 0F, -0.2F, -0.4F, 0F, -0.2F, -0.4F, 0F, -0.6F, -0.2F, 0F, -0.6F, -0.2F)
@@ -239,7 +239,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGlow CICIS9_FRONT_SIGHT = new ModelGlow(
+	private static final ModelModuleGlow CICIS9_FRONT_SIGHT = new ModelModuleGlow(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(0.5F, -2F, -0.5F, 0.99F, -8F, 0F, 0F, 0F, 0F, 1, 2, 1, 393, 1, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 		.quickBuild(),
@@ -261,7 +261,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGlow CICIS2_REAR_SIGHT = new ModelGlow(
+	private static final ModelModuleGlow CICIS2_REAR_SIGHT = new ModelModuleGlow(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-5.5F, -4.5F, -1F, -0.51F, -6.01F, -0.5F, 0F, 0F, 0F, 1, 1, 1, 337, 57, 0F, -0.25F, 0F, 0F, -0.25F, 0F, 0F, -0.25F, -0.5F, 0F, -0.25F, -0.5F, 0F, -0.25F, 0F, 0F, -0.25F, 0F, 0F, -0.25F, -0.5F, 0F, -0.25F, -0.5F)
 			.addShapeBox(-5.5F, -4.5F, 1F, -0.51F, -6.01F, -0.5F, 0F, 0F, 0F, 1, 1, 1, 343, 57, 0F, -0.25F, -0.5F, 0F, -0.25F, -0.5F, 0F, -0.25F, 0F, 0F, -0.25F, 0F, 0F, -0.25F, -0.5F, 0F, -0.25F, -0.5F, 0F, -0.25F, 0F, 0F, -0.25F, 0F)
@@ -332,7 +332,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGlow CICIS2_FRONT_SIGHT = new ModelGlow(
+	private static final ModelModuleGlow CICIS2_FRONT_SIGHT = new ModelModuleGlow(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-1.25F, -2F, -0.5F, -0.51F, -8F, 0F, 0F, 0F, 0F, 1, 2, 1, 321, 57, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 		.quickBuild(),
@@ -359,7 +359,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGlow CICIS4_FRONT_SIGHT = new ModelGlow(
+	private static final ModelModuleGlow CICIS4_FRONT_SIGHT = new ModelModuleGlow(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(1.5F, -2F, -0.5F, -0.01F, -8F, 0F, 0F, 0F, 0F, 1, 2, 1, 169, 49, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 		.quickBuild(),
@@ -382,7 +382,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGlow CICIS4_REAR_SIGHT = new ModelGlow(
+	private static final ModelModuleGlow CICIS4_REAR_SIGHT = new ModelModuleGlow(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-1.5F, -2.5F, 0F, -1.01F, -7.9F, 1.1F, 0F, 0F, 0F, 1, 1, 1, 233, 33, 0F, -0.4F, 0F, 0F, -0.4F, 0F, 0F, 0F, -0.6F, 0F, 0F, -0.6F, 0F, -0.2F, -0.4F, 0F, -0.2F, -0.4F, 0F, -0.6F, -0.2F, 0F, -0.6F, -0.2F)
 			.addShapeBox(-1.5F, -2.5F, 0F, -1.01F, -7.9F, -1.9F, 0F, 0F, 0F, 1, 1, 1, 505, 33, 0F, -0.4F, 0F, 0F, -0.4F, 0F, 0F, 0F, -0.6F, 0F, 0F, -0.6F, 0F, -0.2F, -0.4F, 0F, -0.2F, -0.4F, 0F, -0.6F, -0.2F, 0F, -0.6F, -0.2F)
@@ -1186,7 +1186,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGlow HK416_FRONT_SIGHT_FLODED = new ModelGlow(
+	private static final ModelModuleGlow HK416_FRONT_SIGHT_FLODED = new ModelModuleGlow(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-0.00999999999999801F, 0F, -0.5F, -0.5F, -16.5F, 0F, 0F, 0F, -1.57079633F, 1, 2, 1, 25, 5, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 		.quickBuild(),
@@ -1213,7 +1213,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild()
 	);
 	
-	private static final ModelGlow HK416_FRONT_SIGHT = new ModelGlow(
+	private static final ModelModuleGlow HK416_FRONT_SIGHT = new ModelModuleGlow(
 		new TBModelMeshBuilder(512, 512)
 			.addShapeBox(-0.00999999999999801F, 0F, -0.5F, -0.5F, -16.5F, 0F, 0F, 0F, 0F, 1, 2, 1, 25, 5, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
 		.quickBuild(),
