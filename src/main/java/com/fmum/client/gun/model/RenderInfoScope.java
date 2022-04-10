@@ -4,8 +4,6 @@ import com.fmum.common.util.ObjPool;
 
 public class RenderInfoScope extends RenderInfoAimable
 {
-	public static final ObjPool<RenderInfoScope> pool = new ObjPool<>(() -> new RenderInfoScope());
-	
 	/**
 	 * A pool that buffers scope eyepiece textures
 	 */
@@ -13,8 +11,14 @@ public class RenderInfoScope extends RenderInfoAimable
 		() -> 1 // FIXME: initialize a texture
 	);
 	
+	private static final ObjPool<RenderInfoScope> pool = new ObjPool<>(() -> new RenderInfoScope());
+	
 	public double scopeAlpha = 0D;
 	public int scopeTexture = 0;
+	
+	protected RenderInfoScope() { }
+	
+	public static RenderInfoScope get() { return pool.poll(); }
 	
 	@Override
 	public void release()

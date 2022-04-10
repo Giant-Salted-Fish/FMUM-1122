@@ -26,7 +26,7 @@ import net.minecraft.util.MouseHelper;
 
 public class ModelModular extends ModelMeshBased
 {
-	protected static final CoordSystem renderSys = new CoordSystem();
+	protected static final CoordSystem renderSys = CoordSystem.get();
 	
 	/**
 	 * Render info queue
@@ -35,7 +35,7 @@ public class ModelModular extends ModelMeshBased
 	
 	protected static int streamIndex = 0;
 	
-	public final Vec3 modificationPos = new Vec3(20D / 16D, -5D / 16D, 0D);
+	public final Vec3 modificationPos = Vec3.get(20D / 16D, -5D / 16D, 0D);
 	
 	public ModelModular() { }
 	
@@ -232,7 +232,7 @@ public class ModelModular extends ModelMeshBased
 	// TODO: override in aimable and scope model
 	public RenderInfoModule prepareRenderInfo(NBTTagList tag, TypeModular type, CoordSystem sys)
 	{
-		RenderInfoModule info = RenderInfoModule.pool.poll();
+		RenderInfoModule info = RenderInfoModule.get();
 		info.tag = tag;
 		info.type = type;
 		info.sys.set(sys);

@@ -6,16 +6,20 @@ import com.fmum.common.util.Vec3;
 
 public class RenderInfoAimable extends RenderInfoModule implements Comparable<RenderInfoAimable>
 {
-	public static final ObjPool<RenderInfoAimable>
+	private static final ObjPool<RenderInfoAimable>
 		pool = new ObjPool<>(() -> new RenderInfoAimable());
 	
-	public final Vec3 reticleRefPos = new Vec3(4096D, 0D, 0D);
+	public final Vec3 reticleRefPos = Vec3.get(4096D, 0D, 0D);
+	
+	protected RenderInfoAimable() { }
+	
+	public static RenderInfoAimable get() { return pool.poll(); }
 	
 	@Override
 	public void release() { pool.back(this); }
 	
 	@Override
 	public int compareTo(RenderInfoAimable a) {
-		return 0; // TODO
+		return 0; // FIXME: sights with lower x coordinate sure be ahead in queue
 	}
 }

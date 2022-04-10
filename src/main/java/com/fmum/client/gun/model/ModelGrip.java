@@ -12,7 +12,7 @@ import com.fmum.common.util.Vec3;
 
 public class ModelGrip extends ModelModular implements ModelGrable
 {
-	public final Vec3 grabPos = new Vec3(0D, -5D / 16D, 0D);
+	public final Vec3 grabPos = Vec3.get(0D, -5D / 16D, 0D);
 	
 	public double grabHandRot = 0D;
 	

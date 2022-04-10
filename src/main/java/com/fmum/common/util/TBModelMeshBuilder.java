@@ -124,8 +124,8 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 		float x6, float y6, float z6,
 		float x7, float y7, float z7
 	) {
-		CoordSystem sys = CoordSystem.pool.poll();
-		Vec3f pos = Vec3f.pool.poll();
+		CoordSystem sys = CoordSystem.get();
+		Vec3f pos = Vec3f.get();
 
 		// Note that coordinate y, z are flipped in ToolBox
 		sys.setDefault();
@@ -134,14 +134,14 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 		pos.set(posX, -posY, -posZ);
 		
 		// Setup 8 corners
-		Vec3f ver0 = Vec3f.pool.poll().set(0F - x0, 0F + y0, 0F + z0);
-		Vec3f ver1 = Vec3f.pool.poll().set(lenX + x1, 0F + y1, 0F + z1);
-		Vec3f ver2 = Vec3f.pool.poll().set(lenX + x2, 0F + y2, -lenZ - z2);
-		Vec3f ver3 = Vec3f.pool.poll().set(0F - x3, 0F + y3, -lenZ - z3);
-		Vec3f ver4 = Vec3f.pool.poll().set(0F - x4, -lenY - y4, 0F + z4);
-		Vec3f ver5 = Vec3f.pool.poll().set(lenX + x5, -lenY - y5, 0F + z5);
-		Vec3f ver6 = Vec3f.pool.poll().set(lenX + x6, -lenY - y6, -lenZ - z6);
-		Vec3f ver7 = Vec3f.pool.poll().set(0F - x7, -lenY - y7, -lenZ - z7);
+		Vec3f ver0 = Vec3f.get(0F - x0, 0F + y0, 0F + z0);
+		Vec3f ver1 = Vec3f.get(lenX + x1, 0F + y1, 0F + z1);
+		Vec3f ver2 = Vec3f.get(lenX + x2, 0F + y2, -lenZ - z2);
+		Vec3f ver3 = Vec3f.get(0F - x3, 0F + y3, -lenZ - z3);
+		Vec3f ver4 = Vec3f.get(0F - x4, -lenY - y4, 0F + z4);
+		Vec3f ver5 = Vec3f.get(lenX + x5, -lenY - y5, 0F + z5);
+		Vec3f ver6 = Vec3f.get(lenX + x6, -lenY - y6, -lenZ - z6);
+		Vec3f ver7 = Vec3f.get(0F - x7, -lenY - y7, -lenZ - z7);
 		sys.apply(ver0, ver0);
 		sys.apply(ver1, ver1);
 		sys.apply(ver2, ver2);
@@ -196,16 +196,16 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 		// Do not forget to increase index base
 		this.indexBase += 24;
 		
-		Vec3f.pool.back(ver7);
-		Vec3f.pool.back(ver6);
-		Vec3f.pool.back(ver5);
-		Vec3f.pool.back(ver4);
-		Vec3f.pool.back(ver3);
-		Vec3f.pool.back(ver2);
-		Vec3f.pool.back(ver1);
-		Vec3f.pool.back(ver0);
-		Vec3f.pool.back(pos);
-		CoordSystem.pool.back(sys);
+		ver7.release();
+		ver6.release();
+		ver5.release();
+		ver4.release();
+		ver3.release();
+		ver2.release();
+		ver1.release();
+		ver0.release();
+		pos.release();
+		sys.release();
 		return this;
 	}
 	
@@ -251,9 +251,9 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 	public final TBModelMeshBuilder genNormalForQuads()
 	{
 		final Vec3f
-			norm = Vec3f.pool.poll(),
-			vec0 = Vec3f.pool.poll(),
-			vec1 = Vec3f.pool.poll();
+			norm = Vec3f.get(),
+			vec0 = Vec3f.get(),
+			vec1 = Vec3f.get();
 		final ArrayList<Vertex> vertices = this.vertices;
 		final ArrayList<Integer> indices = this.indices;
 		
@@ -289,9 +289,9 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 			}
 		}
 		
-		Vec3f.pool.back(vec1);
-		Vec3f.pool.back(vec0);
-		Vec3f.pool.back(norm);
+		vec1.release();
+		vec0.release();
+		norm.release();
 		return this;
 	}
 	

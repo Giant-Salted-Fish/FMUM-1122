@@ -5,29 +5,21 @@ package com.fmum.common.util;
  * 
  * @author Giant_Salted_Fish
  */
-public class Vec3
+public class Vec3 implements Releasable
 {
-	public static final ObjPool<Vec3> pool = new ObjPool<Vec3>(() -> new Vec3());
+	private static final ObjPool<Vec3> pool = new ObjPool<Vec3>(() -> new Vec3());
 	
 	public double x, y, z;
 	
-	public Vec3() { this(0D); }
+	protected Vec3() { }
 	
-	public Vec3(double a) { this.x = this.y = this.z = a; }
+	public static Vec3 get() { return pool.poll(); }
 	
-	public Vec3(double x, double y, double z)
-	{
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
+	public static Vec3 get(double a) { return pool.poll().set(a); }
 	
-	public Vec3(Vec3 v)
-	{
-		this.x = v.x;
-		this.y = v.y;
-		this.z = v.z;
-	}
+	public static Vec3 get(double x, double y, double z) { return pool.poll().set(x, y, z); }
+	
+	public static Vec3 get(Vec3 v) { return pool.poll().set(v); }
 	
 	public Vec3 set(double a)
 	{
@@ -170,4 +162,7 @@ public class Vec3
 	
 	@Override
 	public String toString() { return "(" + this.x + ", " + this.y + ", " + this.z + ")"; }
+	
+	@Override
+	public void release() { pool.back(this); }
 }

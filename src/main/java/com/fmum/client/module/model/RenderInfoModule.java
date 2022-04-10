@@ -14,11 +14,15 @@ import com.fmum.common.util.Vec3;
 
 public class RenderInfoModule extends InfoModule
 {
-	public static final ObjPool<RenderInfoModule>
+	private static final ObjPool<RenderInfoModule>
 		pool = new ObjPool<>(() -> new RenderInfoModule());
 	
-	protected static final Vec3 vec = new Vec3();
-	 
+	protected static final Vec3 vec = Vec3.get();
+	
+	protected RenderInfoModule() { }
+	
+	public static RenderInfoModule get() { return pool.poll(); }
+	
 	public void render()
 	{
 		// Do not forget to apply transform
@@ -74,6 +78,7 @@ public class RenderInfoModule extends InfoModule
 	/**
 	 * Called when this info instance is released
 	 */
+	@Override
 	public void release() { pool.back(this); }
 	
 	protected final void setupTransform()

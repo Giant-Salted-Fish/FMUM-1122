@@ -242,8 +242,8 @@ public final class Mesh implements AutoCloseable
 		{
 			// Borrow two vectors for convenient operation
 			final Vec3f
-				vec0 = Vec3f.pool.poll(),
-				vec1 = Vec3f.pool.poll();
+				vec0 = Vec3f.get(),
+				vec1 = Vec3f.get();
 			
 			if(this.indices.size() > 0)
 				for(int i = this.indices.size(); i > 0; i -= 3)
@@ -291,8 +291,8 @@ public final class Mesh implements AutoCloseable
 			}
 			
 			// Do not forget to return the vectors
-			Vec3f.pool.back(vec0);
-			Vec3f.pool.back(vec1);
+			vec0.release();
+			vec1.release();
 			
 			return this;
 		}

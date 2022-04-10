@@ -1,19 +1,25 @@
 package com.fmum.common.module;
 
 import com.fmum.common.util.CoordSystem;
+import com.fmum.common.util.ObjPool;
+import com.fmum.common.util.Releasable;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagList;
 
-public class InfoModule
+public class InfoModule implements Releasable
 {
+	private static final ObjPool<InfoModule> pool = new ObjPool<>(() -> new InfoModule());
+	
 	public NBTTagList tag = null;
 	
 	public TypeModular type = null;
 	
-	public CoordSystem sys = new CoordSystem();
+	public final CoordSystem sys = CoordSystem.get();
 	
-	public InfoModule() { }
+	protected InfoModule() { }
+	
+	public static InfoModule get() { return pool.poll(); }
 	
 	public InfoModule(ItemStack stack)
 	{
@@ -118,4 +124,7 @@ public class InfoModule
 		this.sys.submitRot();
 		return this;
 	}
+	
+	@Override
+	public void release() { pool.back(this); }
 }

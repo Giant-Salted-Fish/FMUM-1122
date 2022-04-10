@@ -51,7 +51,7 @@ public final class OpModification extends OperationProgressive
 		cancelKeyDown = false,
 		toggleKeyDown = false;
 	
-	private final InfoModule info = new InfoModule();
+	private final InfoModule info = InfoModule.get();
 	
 	public void onConfigSync() { this.loc = new byte[CommonProxy.maxLocLen]; }
 	

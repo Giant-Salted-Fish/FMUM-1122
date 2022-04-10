@@ -13,9 +13,9 @@ import net.minecraft.util.MouseHelper;
 
 public abstract class Animator
 {
-	protected static final CoordSystem sys = new CoordSystem();
+	protected static final CoordSystem sys = CoordSystem.get();
 	
-	protected static final Vec3 vec = new Vec3();
+	protected static final Vec3 vec = Vec3.get();
 	
 	// TODO: remove this maybe?
 	public void launchAnimation(Animation animation) { }

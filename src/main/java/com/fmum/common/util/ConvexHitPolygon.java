@@ -9,8 +9,8 @@ public final class ConvexHitPolygon
 	public final Vec3[] vertices;
 	
 	protected final Vec3
-		v0 = new Vec3(),
-		v1 = new Vec3();
+		v0 = Vec3.get(),
+		v1 = Vec3.get();
 	
 	public ConvexHitPolygon(Vec3... vertices) { this.vertices = vertices; }
 	
@@ -32,5 +32,29 @@ public final class ConvexHitPolygon
 		}
 		
 		return Math.abs(Math.PI * 2 - angle) <= ERROR;
+	}
+	
+	public boolean hitInside(
+		double posX, double posY, double posZ,
+		double directX, double directY, double directZ
+	) {
+		final Vec3[] verts = this.vertices;
+		this.v0.set(verts[0]).sub(verts[1]);
+		this.v1.set(verts[2]).sub(verts[1]);
+		this.v1.cross(v0);
+		
+		this.v0.set(verts[0]);
+		Vec3 point = Vec3.get();
+		Util.getLinePlaneIntersection(
+			posX, posY, posZ,
+			directX, directY, directZ,
+			this.v0.x, this.v0.y, this.v0.z,
+			this.v1.x, this.v1.y, this.v1.z,
+			point
+		);
+		
+		boolean ret = this.isInside(point);
+		point.release();
+		return ret;
 	}
 }

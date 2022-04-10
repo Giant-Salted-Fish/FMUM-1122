@@ -7,9 +7,9 @@ package com.fmum.common.util;
  * 
  * @author Giant_Salted_Fish
  */
-public final class CoordSystem
+public final class CoordSystem implements Releasable
 {
-	public static final ObjPool<CoordSystem> pool = new ObjPool<>(() -> new CoordSystem());
+	private static final ObjPool<CoordSystem> pool = new ObjPool<>(() -> new CoordSystem());
 	
 	public static final byte
 		X = 0,
@@ -37,6 +37,10 @@ public final class CoordSystem
 	 * 18-20: z sub-rotate vector
 	 */
 	public final double[] vec = new double[VEC_LEN];
+	
+	private CoordSystem() { }
+	
+	public static CoordSystem get() { return pool.poll(); }
 	
 	/**
 	 * Set offset vector as zero vector. Load identity matrix for normal vectors and sub-rotate
@@ -543,6 +547,9 @@ public final class CoordSystem
 			+ this.vec[OFFSET + Z] + ")]"
 		);
 	}
+	
+	@Override
+	public void release() { pool.back(this); }
 	
 	private void rot(double amount, byte along, byte base)
 	{

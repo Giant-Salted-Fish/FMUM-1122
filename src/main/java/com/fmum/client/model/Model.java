@@ -25,8 +25,8 @@ public abstract class Model extends ModelBase
 	/**
 	 * Buffered instances for convenient operations
 	 */
-	protected static final CoordSystem sys = new CoordSystem();
-	protected static final Vec3 vec = new Vec3();
+	protected static final CoordSystem sys = CoordSystem.get();
+	protected static final Vec3 vec = Vec3.get();
 	
 	/**
 	 * Partial tick time. This could be used widely hence it is set as a static variable to avoid

@@ -24,11 +24,11 @@ public class AnimatorGun extends AnimatorCamControl
 {
 	public static final AnimatorGun INSTANCE = new AnimatorGun();
 	
-	protected static final Vec3 prevPlayerRot = new Vec3();
+	protected static final Vec3 prevPlayerRot = Vec3.get();
 	
 	protected static final InfoModule
-		leftHandGrabbing = new InfoModule(),
-		rightHandGrabbing = new InfoModule();
+		leftHandGrabbing = InfoModule.get(),
+		rightHandGrabbing = InfoModule.get();
 	
 	protected static double breathCycle = 0D;
 	

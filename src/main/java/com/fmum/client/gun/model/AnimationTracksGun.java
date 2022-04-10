@@ -21,7 +21,7 @@ public class AnimationTracksGun implements AnimationGun
 	
 	public Animation[] tracks = DEF_TRACKS;
 	
-	protected final Vec3 vec = new Vec3();
+	protected final Vec3 vec = Vec3.get();
 	
 	public AnimationTracksGun(int numTracks)
 	{

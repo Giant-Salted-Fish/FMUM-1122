@@ -189,7 +189,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 		.quickBuild(),
 		m -> {
 			m.followerPos = new Vec3[] {
-				new Vec3(0.5D / 16D, 0D, 0D)
+				Vec3.get(0.5D / 16D, 0D, 0D)
 			};
 		}
 	);

@@ -192,8 +192,8 @@ public abstract class TypeModular extends TypePaintable
 		if(this.slots.length == 0) return;
 		
 		// Fetch coordinate systems
-		final CoordSystem moduleSys = CoordSystem.pool.poll();
-		final CoordSystem slotSys = CoordSystem.pool.poll();
+		final CoordSystem moduleSys = CoordSystem.get();
+		final CoordSystem slotSys = CoordSystem.get();
 		
 		// Go through each slot
 		for(int i = this.slots.length; --i >= 0; )
@@ -222,8 +222,8 @@ public abstract class TypeModular extends TypePaintable
 			}
 		}
 		
-		CoordSystem.pool.back(slotSys);
-		CoordSystem.pool.back(moduleSys);
+		slotSys.release();
+		moduleSys.release();
 	}
 	
 	public final int getStreamIndex(NBTTagList tag, byte[] loc, int len, int cursor)

@@ -26,9 +26,9 @@ import net.minecraft.util.MouseHelper;
 public class ModelGun extends ModelGrip
 {
 	/**
-	 * Buffered systems for rendering
+	 * FIXME: remove this? Buffered systems for rendering
 	 */
-	protected static final CoordSystem gunSys = new CoordSystem();
+	protected static final CoordSystem gunSys = CoordSystem.get();
 	
 	protected static final TreeSet<RenderInfoAimable> aimableQueue = new TreeSet<>();
 	
@@ -41,40 +41,40 @@ public class ModelGun extends ModelGrip
 //		shoulderOffsetY = -1D / 16D;
 	
 	public final Vec3
-		holdPos = new Vec3(87.5D / 160D, -72D / 160D, 14D / 160D),
-		holdRot = new Vec3(-5D, 0D, 0D),
-		aimPos = new Vec3(81.5D / 160D, -64D / 160D, 0D),
-		aimRot = new Vec3(),
-		crouchPos = new Vec3(87.5D / 160D, -64D / 160D, 28D / 160D),
-		crouchRot = new Vec3(-45D, 0D, 0D),
-		sprintPos = new Vec3(81.5D / 160D, -96D / 160D, -5D / 160D),
-		sprintRot = new Vec3(-25D, 27.5D, -20D);
+		holdPos = Vec3.get(87.5D / 160D, -72D / 160D, 14D / 160D),
+		holdRot = Vec3.get(-5D, 0D, 0D),
+		aimPos = Vec3.get(81.5D / 160D, -64D / 160D, 0D),
+		aimRot = Vec3.get(),
+		crouchPos = Vec3.get(87.5D / 160D, -64D / 160D, 28D / 160D),
+		crouchRot = Vec3.get(-45D, 0D, 0D),
+		sprintPos = Vec3.get(81.5D / 160D, -96D / 160D, -5D / 160D),
+		sprintRot = Vec3.get(-25D, 27.5D, -20D);
 	
 	public final Vec3
-		holdMoveOffset = new Vec3(-0.5D / 16D, -1.5D / 16D, 0D),
-		aimMoveOffset = new Vec3(-0.5D / 16D, 0D, 0D),
-		crouchMoveOffset = new Vec3(this.holdMoveOffset),
-		sprintMoveOffset = new Vec3(this.holdMoveOffset);
+		holdMoveOffset = Vec3.get(-0.5D / 16D, -1.5D / 16D, 0D),
+		aimMoveOffset = Vec3.get(-0.5D / 16D, 0D, 0D),
+		crouchMoveOffset = Vec3.get(this.holdMoveOffset),
+		sprintMoveOffset = Vec3.get(this.holdMoveOffset);
 	
 	public final Vec3
-		holdShoulderOffset = new Vec3(0.001D, 0.0005D, 0D),
-		aimShoulderOffset = new Vec3(0.0005D, 0D, 0D),
-		crouchShoulderOffset = new Vec3(this.holdShoulderOffset),
-		sprintShoulderOffset = new Vec3(this.holdShoulderOffset);
+		holdShoulderOffset = Vec3.get(0.001D, 0.0005D, 0D),
+		aimShoulderOffset = Vec3.get(0.0005D, 0D, 0D),
+		crouchShoulderOffset = Vec3.get(this.holdShoulderOffset),
+		sprintShoulderOffset = Vec3.get(this.holdShoulderOffset);
 	
 	public double
 		breathCycleBase = 0.75D / 16D,
 		breathCycleIncr = 0.75D / 16D;
 	
 	public final Vec3
-		breathAmpltCamBase = new Vec3(0D, 5D / 16D, 5D / 16D),
-		breathAmpltCamIncr = new Vec3(0D, 0D, 0D);
+		breathAmpltCamBase = Vec3.get(0D, 5D / 16D, 5D / 16D),
+		breathAmpltCamIncr = Vec3.get(0D, 0D, 0D);
 	
 	public final Vec3
-		breathAmpltGunBase_P = new Vec3(0D, 0D, 0D),
-		breathAmpltGunIncr_P = new Vec3(0D, 0D, 0D),
-		breathAmpltGunBase_R = new Vec3(-5D / 16D, -5D / 16D, -5D / 16D),
-		breathAmpltGunIncr_R = new Vec3(0D, 0D, 0D);
+		breathAmpltGunBase_P = Vec3.get(0D, 0D, 0D),
+		breathAmpltGunIncr_P = Vec3.get(0D, 0D, 0D),
+		breathAmpltGunBase_R = Vec3.get(-5D / 16D, -5D / 16D, -5D / 16D),
+		breathAmpltGunIncr_R = Vec3.get(0D, 0D, 0D);
 	
 	public double
 		dropCycle = AnimatorCamControl.dropCycle,
@@ -99,34 +99,34 @@ public class ModelGun extends ModelGrip
 		walkCycle = Math.PI * 0.6D,
 		crouchWalkCycle = Math.PI;
 	
-	public final Vec3 motionAmpltCam = new Vec3(-7.5D, 7.5D, -10D);
+	public final Vec3 motionAmpltCam = Vec3.get(-7.5D, 7.5D, -10D);
 	
 	public final Vec3
-		walkAmpltCam = new Vec3(-3D, 1.5D, 3D),
-		sprintAmpltCam = new Vec3(-3D, 1.5D, 3D);
+		walkAmpltCam = Vec3.get(-3D, 1.5D, 3D),
+		sprintAmpltCam = Vec3.get(-3D, 1.5D, 3D);
 	
 	public final Vec3
-		walkAmpltGun_P = new Vec3(0D, 0.05D, 0.05D),
-		walkAmpltGun_R = new Vec3(-15D, 0D, 5D),
-		sprintAmpltGun_P = new Vec3(0D, 0.16D * 1.75D, 0.1D * 1.5D),
-		sprintAmpltGun_R = new Vec3(-30D, -15D * 1.125D, 15D * 1.125D);
+		walkAmpltGun_P = Vec3.get(0D, 0.05D, 0.05D),
+		walkAmpltGun_R = Vec3.get(-15D, 0D, 5D),
+		sprintAmpltGun_P = Vec3.get(0D, 0.16D * 1.75D, 0.1D * 1.5D),
+		sprintAmpltGun_R = Vec3.get(-30D, -15D * 1.125D, 15D * 1.125D);
 	
 	public final Vec3
-		walkAmpltCompensationGun_P = new Vec3(-0.15D, 0D, -0.15D),
-		sprintAmpltCompensationGun_P = new Vec3(-0.3D, 0D, -0.3D);
+		walkAmpltCompensationGun_P = Vec3.get(-0.15D, 0D, -0.15D),
+		sprintAmpltCompensationGun_P = Vec3.get(-0.3D, 0D, -0.3D);
 	
 	public final Vec3
-		smoothViewRot_P = new Vec3(0D, 0.001D, -0.001D),
-		smoothViewRot_R = new Vec3(0.15D, -0.15D, -0.2D);
+		smoothViewRot_P = Vec3.get(0D, 0.001D, -0.001D),
+		smoothViewRot_R = Vec3.get(0.15D, -0.15D, -0.2D);
 	
 	public final Vec3
-		smoothMotion_P = new Vec3(-0.2D, -0.2D, -0.1D),
-		smoothMotion_R = new Vec3(-25D, -15D, -15D);
+		smoothMotion_P = Vec3.get(-0.2D, -0.2D, -0.1D),
+		smoothMotion_R = Vec3.get(-25D, -15D, -15D);
 	
 	/**
 	 * For right hand/arm
 	 */
-	public final Vec3 grabPos_R = new Vec3();
+	public final Vec3 grabPos_R = Vec3.get();
 	public double grabHandRot_R = 0D;
 	public double grabArmRot_R = 0D;
 	
@@ -139,7 +139,7 @@ public class ModelGun extends ModelGrip
 	@Override
 	public RenderInfoModule prepareRenderInfo(NBTTagList tag, TypeModular type, CoordSystem sys)
 	{
-		RenderInfoAimable info = RenderInfoAimable.pool.poll();
+		RenderInfoAimable info = RenderInfoAimable.get();
 		info.tag = tag;
 		info.type = type;
 		info.sys.set(sys);

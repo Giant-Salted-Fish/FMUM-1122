@@ -5,14 +5,20 @@ package com.fmum.common.util;
  * 
  * @author Giant_Salted_Fish
  */
-public class Vec3f
+public class Vec3f implements Releasable
 {
-	public static final ObjPool<Vec3f> pool = new ObjPool<Vec3f>(() -> new Vec3f());
+	private static final ObjPool<Vec3f> pool = new ObjPool<Vec3f>(() -> new Vec3f());
 	
 	public float
 		x = 0F,
 		y = 0F,
 		z = 0F;
+	
+	protected Vec3f() { }
+	
+	public static Vec3f get() { return pool.poll(); }
+	
+	public static Vec3f get(float x, float y, float z) { return pool.poll().set(x, y, z); }
 	
 	public final Vec3f set(float a)
 	{
@@ -94,4 +100,7 @@ public class Vec3f
 	
 	@Override
 	public boolean equals(Object o) { return o instanceof Vec3f && this.equals((Vec3f)o); }
+	
+	@Override
+	public void release() { pool.back(this); }
 }

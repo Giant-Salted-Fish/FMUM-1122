@@ -14,7 +14,7 @@ public class ModelMag extends ModelModular
 		FOLLOWER = 0,
 		MAG = 1;
 	
-	protected static final Vec3[] DEF_POS_ROT = { new Vec3(0D) };
+	protected static final Vec3[] DEF_POS_ROT = { Vec3.get(0D) };
 	
 	public Vec3[] followerPos = DEF_POS_ROT;
 	

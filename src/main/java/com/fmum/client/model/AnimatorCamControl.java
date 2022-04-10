@@ -23,11 +23,11 @@ public class AnimatorCamControl extends Animator
 	/**
 	 * @note This value is not real-time
 	 */
-	protected static final Vec3 prevCamPos = new Vec3();
+	protected static final Vec3 prevCamPos = Vec3.get();
 	
 	protected static final Vec3
-		camVelocity = new Vec3(),
-		prevCamVelocity = new Vec3();
+		camVelocity = Vec3.get(),
+		prevCamVelocity = Vec3.get();
 	
 	// TODO: read from config
 	public static double
@@ -47,11 +47,11 @@ public class AnimatorCamControl extends Animator
 	 * Player's actual rotation when rendering scope glass texture. Note that x value should be 0D
 	 * if is not tilting the body.
 	 */
-	public final Vec3 actualPlayerRot = new Vec3();
+	public final Vec3 actualPlayerRot = Vec3.get();
 	
 	public final Vec3
-		renderCamPos = new Vec3(),
-		renderCamRot = new Vec3();
+		renderCamPos = Vec3.get(),
+		renderCamRot = Vec3.get();
 	
 	/**
 	 * Used to save the off-axis angle when {@link Key#lookAroundActivated()} is {@code true}
@@ -73,8 +73,8 @@ public class AnimatorCamControl extends Animator
 		headRotYawLimitRange = 80F;
 	
 	public final Vec3
-		renderPos = new Vec3(),
-		renderRot = new Vec3();
+		renderPos = Vec3.get(),
+		renderRot = Vec3.get();
 	
 	// TODO: camera effects update in itemTick
 	
