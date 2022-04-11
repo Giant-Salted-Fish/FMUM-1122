@@ -8,6 +8,20 @@ public abstract class Util
 		return value < min ? min : value > max ? max : value;
 	}
 	
+	public static void intersectionOfLineAndPlane(
+		Vec3 lineOrigin, Vec3 lineDirection,
+		Vec3 planeOrigin, Vec3 planeNormal,
+		Vec3 dst
+	) {
+		getLinePlaneIntersection(
+			lineOrigin.x, lineOrigin.y, lineOrigin.z,
+			lineDirection.x, lineDirection.y, lineDirection.z,
+			planeOrigin.x, planeOrigin.y, planeOrigin.z,
+			planeNormal.x, planeNormal.y, planeNormal.z,
+			dst
+		);
+	}
+	
 	/**
 	 * Get intersection of the given line and plane
 	 * 
@@ -37,6 +51,15 @@ public abstract class Util
 			a1 + A1 * a2,
 			b1 + B1 * a2,
 			c1 + C1 * a2
+		);
+	}
+	
+	public static boolean inBoxSpace(Vec3 v0, Vec3 v1, Vec3 point)
+	{
+		return(
+			(point.x >= v0.x ? point.x <= v1.x : point.x >= v1.x)
+			&& (point.y >= v0.y ? point.y <= v1.y : point.y >= v1.y)
+			&& (point.z >= v0.z ? point.z <= v1.z : point.z >= v1.z)
 		);
 	}
 	

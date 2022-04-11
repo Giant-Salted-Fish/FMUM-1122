@@ -1,6 +1,8 @@
 package com.fmum.common.module;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.fmum.common.CommonProxy;
 import com.fmum.common.paintjob.TypePaintable;
@@ -32,17 +34,43 @@ public abstract class TypeModular extends TypePaintable
 			"DefaultModules",
 			(s, t) -> (t.defaultModules = new DefaultModules(t.name)).parse(s, 1)
 		);
+		parser.addKeyword(
+			"BigHitbox",
+			(s, t) -> {
+				if(t.bigHitbox == TypeModular.DEF_HITBOXES)
+					t.bigHitbox = new LinkedList<>();
+				for(int i = 1; i < s.length; ++i)
+					if("[".equals(s[i]))
+						t.bigHitbox.add(Hitbox.parse(s, i));
+			}
+		);
+		parser.addKeyword(
+			"Hitbox",
+			(s, t) -> {
+				if(t.hitbox == TypeModular.DEF_HITBOXES)
+					t.hitbox = new LinkedList<>();
+				for(int i = 1; i < s.length; ++i)
+					if("[".equals(s[i]))
+						t.hitbox.add(Hitbox.parse(s, i));
+			}
+		);
 	}
 	
 	protected static final DefaultModules DEF_DEF_MODULES = new DefaultModules(null);
 	
 	protected static final double[] DEF_OFFSETS = { 0D };
 	
+	protected static final LinkedList<Hitbox> DEF_HITBOXES = new LinkedList<>();
+	
 	public double[] offsets = DEF_OFFSETS;
 	
 	public Slot[] slots = Slot.DEF_SLOTS;
 	
 	public DefaultModules defaultModules = DEF_DEF_MODULES;
+	
+	public List<Hitbox>
+		bigHitbox = DEF_HITBOXES,
+		hitbox = DEF_HITBOXES;
 	
 	protected TypeModular(String name) { super(name); }
 	

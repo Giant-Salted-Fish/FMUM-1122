@@ -165,4 +165,14 @@ public class Vec3 implements Releasable
 	
 	@Override
 	public void release() { pool.back(this); }
+	
+	public static Vec3 parse(String text)
+	{
+		String[] split = text.split(",");
+		return get(
+			Double.parseDouble(split[0].substring(1)),
+			Double.parseDouble(split[1]),
+			Double.parseDouble(split[2].substring(0, split[2].length() - 1))
+		);
+	}
 }
