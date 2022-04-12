@@ -54,7 +54,7 @@ public class RenderInfoModule extends InfoModule
 				if(modify.previewInvSlot != -1)
 				{
 					final TypeModular typ = ((ItemModular)modify.previewStack.getItem()).getType();
-					GL11.glTranslated(typ.getPos(modify.step, modify.offset, slot.stepLen), 0D, 0D);
+					GL11.glTranslated(typ.getPosX(modify.step, modify.offset, slot.stepLen), 0D, 0D);
 					
 					((ModelModular)typ.model).renderPreview(
 						TagModular.getTag(modify.previewStack),

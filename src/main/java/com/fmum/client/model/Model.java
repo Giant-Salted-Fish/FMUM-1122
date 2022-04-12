@@ -93,7 +93,7 @@ public abstract class Model extends ModelBase
 	public void renderItem(ItemStack stack, TypeInfo type)
 	{
 		bindTexture(type.getTexture(stack));
-		final double scale = type.modelScale;
+		final double scale = type.scale;
 		GL11.glScaled(scale, scale, scale);
 		this.render();
 	}

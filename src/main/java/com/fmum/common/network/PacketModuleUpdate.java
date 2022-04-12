@@ -46,7 +46,8 @@ public final class PacketModuleUpdate extends DataModuleLocEx
 				return;
 			}
 			
-			final InfoModule info = new InfoModule(stack);
+			// TODO: release info maybe?
+			final InfoModule info = InfoModule.get(stack);
 			if(info.tryMoveTo(this.loc, this.loc.length - 2) == null)
 			{
 				// Proper log
@@ -72,7 +73,8 @@ public final class PacketModuleUpdate extends DataModuleLocEx
 		}
 		case OFFSET:
 		case PAINT:
-			final InfoModule info = new InfoModule(stack);
+			// TODO: release info maybe?
+			final InfoModule info = InfoModule.get(stack);
 			if(info.tryMoveTo(this.loc, this.loc.length) == null)
 			{
 				// Proper log

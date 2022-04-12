@@ -261,11 +261,11 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 		{
 			norm.set(0F);
 			
-			for(int j = 6; (j -= 3) >= 0; )
+			for(int j = 6; j > 0; j -= 3)
 			{
-				Vertex vert0 = vertices.get(indices.get(i + j + 0));
-				Vertex vert1 = vertices.get(indices.get(i + j + 1));
-				Vertex vert2 = vertices.get(indices.get(i + j + 2));
+				Vertex vert0 = vertices.get(indices.get(i + j - 1));
+				Vertex vert1 = vertices.get(indices.get(i + j - 2));
+				Vertex vert2 = vertices.get(indices.get(i + j - 3));
 				
 				if(vert0.equals(vert1) || vert1.equals(vert2) || vert2.equals(vert0))
 					continue;
@@ -280,7 +280,7 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 				else norm.set(vec0);
 			}
 			
-			for(int j = 6; --j >= 0; )
+			for(int j = 6; j-- > 0; )
 			{
 				Vertex vert = vertices.get(indices.get(i + j));
 				vert.normX = norm.x;

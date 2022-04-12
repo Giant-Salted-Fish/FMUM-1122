@@ -1,8 +1,8 @@
 package com.fmum.common.module;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+
+import javax.annotation.Nullable;
 
 import com.fmum.common.CommonProxy;
 import com.fmum.common.paintjob.TypePaintable;
@@ -10,6 +10,7 @@ import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
 import com.fmum.common.util.CoordSystem;
 
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
@@ -34,43 +35,29 @@ public abstract class TypeModular extends TypePaintable
 			"DefaultModules",
 			(s, t) -> (t.defaultModules = new DefaultModules(t.name)).parse(s, 1)
 		);
-		parser.addKeyword(
-			"BigHitbox",
-			(s, t) -> {
-				if(t.bigHitbox == TypeModular.DEF_HITBOXES)
-					t.bigHitbox = new LinkedList<>();
-				for(int i = 1; i < s.length; ++i)
-					if("[".equals(s[i]))
-						t.bigHitbox.add(Hitbox.parse(s, i));
-			}
-		);
-		parser.addKeyword(
-			"Hitbox",
-			(s, t) -> {
-				if(t.hitbox == TypeModular.DEF_HITBOXES)
-					t.hitbox = new LinkedList<>();
-				for(int i = 1; i < s.length; ++i)
-					if("[".equals(s[i]))
-						t.hitbox.add(Hitbox.parse(s, i));
-			}
-		);
+		parser.addKeyword("BigHitbox", (s, t) -> t.parseHitbox(s, 0));
+		parser.addKeyword("Hitbox", (s, t) -> t.parseHitbox(s, 1));
 	}
 	
-	protected static final DefaultModules DEF_DEF_MODULES = new DefaultModules(null);
+	public static final Slot[] DEF_SLOTS = { };
 	
 	protected static final double[] DEF_OFFSETS = { 0D };
 	
-	protected static final LinkedList<Hitbox> DEF_HITBOXES = new LinkedList<>();
+	protected static final DefaultModules DEF_DEF_MODULES = new DefaultModules(null);
+	
+	protected static final Hitboxes DEF_HITBOXES = new Hitboxes();
+	
+	public Slot[] slots = DEF_SLOTS;
 	
 	public double[] offsets = DEF_OFFSETS;
 	
-	public Slot[] slots = Slot.DEF_SLOTS;
-	
 	public DefaultModules defaultModules = DEF_DEF_MODULES;
 	
-	public List<Hitbox>
-		bigHitbox = DEF_HITBOXES,
-		hitbox = DEF_HITBOXES;
+	/**
+	 * <pre> 0 = big(raw) hit box
+	 * 1 = delicate hit box</pre>
+	 */
+	public Hitboxes[] hitbox = { DEF_HITBOXES, DEF_HITBOXES };
 	
 	protected TypeModular(String name) { super(name); }
 	
@@ -80,10 +67,20 @@ public abstract class TypeModular extends TypePaintable
 		super.postParse();
 		
 		// Do not forget to apply the model scale
-		// Notice that the default offset is 0D, hence scaling it will not change anything
-		for(int i = this.offsets.length; --i >= 0; this.offsets[i] *= this.modelScale);
 		for(Slot slot : this.slots)
-			slot.scale(this.modelScale);
+			slot.scale(this.scale);
+		for(int i = this.offsets.length; i-- > 0; this.offsets[i] *= this.scale);
+		
+		int i = this.hitbox.length - 1;
+		if(this.hitbox[i] != DEF_HITBOXES)
+		{
+			this.hitbox[i].scale(this.scale);
+			
+			while(i-- > 0)
+				if(this.hitbox[i] == DEF_HITBOXES)
+					this.hitbox[i] = this.hitbox[i + 1];
+				else this.hitbox[i].scale(this.scale);
+		}
 		
 		modules.put(this.name, this);
 	}
@@ -93,17 +90,17 @@ public abstract class TypeModular extends TypePaintable
 	 * @param stepLen Step length of the slot rail of the super module
 	 * @return Install position shift
 	 */
-	public double getPos(int[] states, double stepLen) {
-		return TagModular.getStep(states) * stepLen + this.offsets[TagModular.getOffset(states)];
+	public final double getPosX(int[] states, double stepLen) {
+		return this.getPosX(TagModular.getStep(states), TagModular.getOffset(states), stepLen);
 	}
 	
 	/**
 	 * Used in modification mode where this module is still in preview mode and not yet been
 	 * installed
 	 * 
-	 * @see #getPos(int[], double)
+	 * @see #getPosX(int[], double)
 	 */
-	public double getPos(int step, int offset, double stepLen) {
+	public double getPosX(int step, int offset, double stepLen) {
 		return step * stepLen + this.offsets[offset];
 	}
 	
@@ -119,14 +116,33 @@ public abstract class TypeModular extends TypePaintable
 		);
 	}
 	
+	public boolean checkPreviewConflict(
+		NBTTagList thisTag,
+		CoordSystem installPos,
+		ItemStack toInstall
+	) {
+		final HitboxTesters
+			baseHitboxes = HitboxTesters.get(thisTag, this),
+			installeeHitboxes = HitboxTesters.get(
+				TagModular.getTag(toInstall),
+				((ItemModular)toInstall.getItem()).getType(),
+				installPos
+			);
+		
+		boolean ret = baseHitboxes.conflictWith(installeeHitboxes);
+		baseHitboxes.release();
+		installeeHitboxes.release();
+		return ret;
+	}
+	
 	/**
 	 * @param tag Tag of this module
-	 * @return Number nodes in the deepest path including this node 
+	 * @return Number of nodes in the deepest path including this node 
 	 */
-	public final int getNodeDepth(NBTTagList tag)
+	public final int getDeepestPathNodeCount(NBTTagList tag)
 	{
 		int max = 1;
-		for(int i = this.slots.length; --i >= 0; )
+		for(int i = this.slots.length; i-- > 0; )
 		{
 			NBTTagList slotTag = (NBTTagList)tag.get(1 + i);
 			int j = slotTag.tagCount();
@@ -135,7 +151,10 @@ public abstract class TypeModular extends TypePaintable
 			while(--j >= 0)
 			{
 				NBTTagList moduleTag = (NBTTagList)slotTag.get(j);
-				max = Math.max(max, 1 + TagModular.getType(moduleTag).getNodeDepth(moduleTag));
+				max = Math.max(
+					max,
+					1 + TagModular.getType(moduleTag).getDeepestPathNodeCount(moduleTag)
+				);
 			}
 		}
 		return max;
@@ -144,61 +163,17 @@ public abstract class TypeModular extends TypePaintable
 	public boolean stream(NBTTagList tag, ModuleVisitor visitor)
 	{
 		// Visit this module
-		if(visitor.visit(tag, this)) return true;
+		if(visitor.visit(tag, this, null)) return true;
 		
 		// Visit each module installed on this module
 		NBTTagList slotTag, moduleTag;
-		for(int i = this.slots.length; --i >= 0; )
-			for(int j = (slotTag = (NBTTagList)tag.get(1 + i)).tagCount(); --j >= 0; )
+		for(int i = this.slots.length; i-- > 0; )
+			for(int j = (slotTag = (NBTTagList)tag.get(1 + i)).tagCount(); j-- > 0; )
 				if(
 					TagModular.getType(
 						moduleTag = (NBTTagList)slotTag.get(j)
 					).stream(moduleTag, visitor)
 				) return true;
-		
-		return false;
-	}
-	
-	public boolean stream(
-		NBTTagList tag,
-		double x, double y, double z,
-		double rotX,
-		ModulePosRotVisitor visitor
-	) {
-		// Prepare sin and cos value
-		double sin = Math.toRadians(rotX);
-		double cos = Math.cos(sin);
-		sin = Math.sin(sin);
-		
-		// Visit this module
-		if(visitor.visit(tag, this, x, y, z, sin, cos, rotX)) return true;
-		
-		// Go through each slot
-		for(int i = this.slots.length; --i >= 0; )
-		{
-			Slot slot = this.slots[i];
-			double ax = x + slot.x;
-			double ay = y + slot.y * cos - slot.z * sin;
-			double az = z + slot.y * sin + slot.z * cos;
-			double arotX = rotX + slot.rotX;
-			
-			// Go through each module installed on this slot
-			NBTTagList slotTag = (NBTTagList)tag.get(1 + i);
-			for(int j = slotTag.tagCount(); --j >= 0; )
-			{
-				NBTTagList moduleTag = (NBTTagList)slotTag.get(j);
-				int[] states = TagModular.getStates(moduleTag);
-				TypeModular type = TagModular.getType(states);
-				if(
-					type.stream(
-						moduleTag,
-						ax + type.getPos(states, slot.stepLen), ay, az,
-						arotX,
-						visitor
-					)
-				) return true;
-			}
-		}
 		
 		return false;
 	}
@@ -211,7 +186,7 @@ public abstract class TypeModular extends TypePaintable
 	 * @param thisSys Coordinate system that this module is positioned in
 	 * @param visitor Visitor to visit each module
 	 */
-	public final void stream(NBTTagList tag, CoordSystem thisSys, RenderInfoVisitor visitor)
+	public final void stream(NBTTagList tag, CoordSystem thisSys, ModuleVisitor visitor)
 	{
 		// Visit this module
 		visitor.visit(tag, this, thisSys);
@@ -224,7 +199,7 @@ public abstract class TypeModular extends TypePaintable
 		final CoordSystem slotSys = CoordSystem.get();
 		
 		// Go through each slot
-		for(int i = this.slots.length; --i >= 0; )
+		for(int i = this.slots.length; i-- > 0; )
 		{
 			// Check if there exists some installed modules
 			NBTTagList slotTag = (NBTTagList)tag.get(1 + i);
@@ -238,14 +213,14 @@ public abstract class TypeModular extends TypePaintable
 				slotSys.rot(slot.rotX, CoordSystem.X);
 			slotSys.submitRot();
 			
-			for(int j = slotTag.tagCount(); --j >= 0; )
+			for(int j = slotTag.tagCount(); j-- > 0; )
 			{
 				NBTTagList moduleTag = (NBTTagList)slotTag.get(j);
 				int[] states = TagModular.getStates(moduleTag);
 				TypeModular moduleType = TagModular.getType(states);
 				
 				moduleSys.set(slotSys);
-				moduleSys.trans(moduleType.getPos(states, slot.stepLen), CoordSystem.NORM_X);
+				moduleSys.trans(moduleType.getPosX(states, slot.stepLen), CoordSystem.NORM_X);
 				moduleType.stream(moduleTag, moduleSys, visitor);
 			}
 		}
@@ -263,7 +238,7 @@ public abstract class TypeModular extends TypePaintable
 		int tarModule = 0xFF & loc[cursor + 1];
 		
 		NBTTagList slotTag, moduleTag;
-		for(int i = this.slots.length; --i >= 0; )
+		for(int i = this.slots.length; i-- > 0; )
 			for(
 				int j = (
 					slotTag = (NBTTagList)tag.get(1 + i)
@@ -313,7 +288,7 @@ public abstract class TypeModular extends TypePaintable
 		TagModular.setOffset(states, offset);
 		
 		// Append slot tag
-		for(int i = this.slots.length; --i >= 0; tag.appendTag(new NBTTagList()));
+		for(int i = this.slots.length; i-- > 0; tag.appendTag(new NBTTagList()));
 		return tag;
 	}
 	
@@ -338,7 +313,7 @@ public abstract class TypeModular extends TypePaintable
 		int count = 1;
 		
 		NBTTagList slotTag, moduleTag;
-		for(int i = this.slots.length; --i >= 0; )
+		for(int i = this.slots.length; i-- > 0; )
 			for(
 				int j = (
 					slotTag = (NBTTagList)tag.get(1 + i)
@@ -350,28 +325,20 @@ public abstract class TypeModular extends TypePaintable
 		return count;
 	}
 	
-	@FunctionalInterface
-	public static interface ModuleVisitor {
-		public boolean visit(NBTTagList tag, TypeModular type);
-	}
-	
-	@FunctionalInterface
-	public static interface ModulePosRotVisitor
+	protected void parseHitbox(String[] split, int index)
 	{
-		public boolean visit(
-			NBTTagList tag,
-			TypeModular type,
-			double x, double y, double z,
-			double sin, double cos,
-			double rotX
-		);
+		(
+			this.hitbox[index] == DEF_HITBOXES
+			? this.hitbox[index] = new Hitboxes()
+			: this.hitbox[index]
+		).parse(split, 1);
 	}
 	
 	@FunctionalInterface
-	public static interface RenderInfoVisitor
+	public static interface ModuleVisitor
 	{
 		/**
-		 * See {@link TypeModular#stream(RenderInfoVisitor, NBTTagList, CoordSystem)}
+		 * See {@link TypeModular#stream(ModuleVisitor, NBTTagList, CoordSystem)}
 		 * 
 		 * @param tag Tag of this module
 		 * @param typ Type of this module
@@ -379,8 +346,9 @@ public abstract class TypeModular extends TypePaintable
 		 *     Position of this module. Note that this is just a buffer and it is likely to be
 		 *     changed in the future. If you want to keep it please fetch a {@link CoordSystem}
 		 *     instance and copy the value of this system to it. Changing position of this system
-		 *     will have effect on all attachments installed on it.
+		 *     will have effect on all modules installed on it.
+		 * @return {@code true} if should stop further streaming
 		 */
-		public void visit(NBTTagList tag, TypeModular typ, CoordSystem sys);
+		public boolean visit(NBTTagList tag, TypeModular typ, @Nullable CoordSystem sys);
 	}
 }

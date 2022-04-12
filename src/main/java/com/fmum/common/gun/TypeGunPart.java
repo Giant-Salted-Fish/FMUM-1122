@@ -58,7 +58,7 @@ public abstract class TypeGunPart extends TypeModular
 		super.postParse();
 		
 		// Do not forget to apply model scale
-		this.aimCenterY *= this.modelScale;
-		this.aimCenterZ *= this.modelScale;
+		this.aimCenterY *= this.scale;
+		this.aimCenterZ *= this.scale;
 	}
 }

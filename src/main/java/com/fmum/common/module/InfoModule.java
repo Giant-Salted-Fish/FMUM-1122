@@ -21,10 +21,13 @@ public class InfoModule implements Releasable
 	
 	public static InfoModule get() { return pool.poll(); }
 	
-	public InfoModule(ItemStack stack)
+	public static InfoModule get(ItemStack stack) { return get().setDefault(stack); }
+	
+	public void set(InfoModule src)
 	{
-		this.tag = TagModular.getTag(stack);
-		this.type = ((ItemModular)stack.getItem()).getType();
+		this.tag = src.tag;
+		this.type = src.type;
+		this.sys.set(src.sys);
 	}
 	
 	public final InfoModule setDefault(ItemStack stack) {
@@ -74,7 +77,7 @@ public class InfoModule implements Releasable
 		this.sys.trans(
 			s.x + (
 				this.type = TagModular.getType(states)
-			).getPos(states, s.stepLen),
+			).getPosX(states, s.stepLen),
 			s.y,
 			s.z
 		);
@@ -116,7 +119,7 @@ public class InfoModule implements Releasable
 		this.sys.trans(
 			s.x + (
 				this.type = TagModular.getType(states)
-			).getPos(states, s.stepLen),
+			).getPosX(states, s.stepLen),
 			s.y,
 			s.z
 		);

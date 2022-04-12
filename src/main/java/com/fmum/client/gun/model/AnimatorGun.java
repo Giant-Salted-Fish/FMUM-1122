@@ -284,6 +284,7 @@ public class AnimatorGun extends AnimatorCamControl
 					info.type = typ;
 					info.sys.set(sys);
 				}
+				return false;
 			}
 		);
 		

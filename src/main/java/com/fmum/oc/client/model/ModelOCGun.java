@@ -28,7 +28,7 @@ public class ModelOCGun extends ModelGun implements ObjRepository<Model>
 	public ModelOCGun(int numFireMode, Consumer<ModelOCGun> initializer)
 	{
 		this.meshes = new Mesh[FIRE_MODE + numFireMode];
-		for(int i = this.meshes.length; --i >= 0; this.meshes[i] = Mesh.NONE);
+		for(int i = this.meshes.length; i-- > 0; this.meshes[i] = Mesh.NONE);
 		
 		initializer.accept(this);
 	}

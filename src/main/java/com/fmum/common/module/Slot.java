@@ -12,11 +12,6 @@ import com.fmum.common.util.Vec3;
 public final class Slot extends Vec3
 {
 	/**
-	 * A fix instance that can be used as the initializer value
-	 */
-	public static final Slot[] DEF_SLOTS = { };
-	
-	/**
 	 * Orientation of this slot. Its the rotation along x-axis.
 	 */
 	public double rotX = 0D;

@@ -14,7 +14,7 @@ import com.fmum.client.module.OpModification;
 import com.fmum.common.module.Slot;
 import com.fmum.common.module.TagModular;
 import com.fmum.common.module.TypeModular;
-import com.fmum.common.module.TypeModular.RenderInfoVisitor;
+import com.fmum.common.module.TypeModular.ModuleVisitor;
 import com.fmum.common.type.TypeInfo;
 import com.fmum.common.util.CoordSystem;
 import com.fmum.common.util.Mesh;
@@ -46,7 +46,7 @@ public class ModelModular extends ModelMeshBased
 	public void renderModule(NBTTagList tag, TypeModular type)
 	{
 		bindTexture(type.getTexture(tag));
-		final double scale = type.modelScale;
+		final double scale = type.scale;
 		GL11.glScaled(scale, scale, scale);
 		this.render();
 	}
@@ -70,7 +70,7 @@ public class ModelModular extends ModelMeshBased
 			: type.getTexture(tag)
 		);
 		
-		final double scale = type.modelScale;
+		final double scale = type.scale;
 		GL11.glScaled(scale, scale, scale);
 		if(nonPrimarySelected || paintMode)
 			this.renderHighLighted();
@@ -98,7 +98,7 @@ public class ModelModular extends ModelMeshBased
 					GL11.glPushMatrix();
 					{
 						GL11.glTranslated(
-							moduleType.getPos(TagModular.getStates(moduleTag), slot.stepLen),
+							moduleType.getPosX(TagModular.getStates(moduleTag), slot.stepLen),
 							0D,
 							0D
 						);
@@ -115,7 +115,7 @@ public class ModelModular extends ModelMeshBased
 		}
 		
 		bindTexture(modify.valid ? ResourceManager.TEXTURE_GREEN : ResourceManager.TEXTURE_RED);
-		final double scale = type.modelScale;
+		final double scale = type.scale;
 		GL11.glScaled(scale, scale, scale);
 		this.renderHighLighted();
 	}
@@ -252,7 +252,7 @@ public class ModelModular extends ModelMeshBased
 	
 	protected void setStreamIndex(int index) { streamIndex = index; }
 	
-	protected RenderInfoVisitor getModifyingVisitor()
+	protected ModuleVisitor getModifyingVisitor()
 	{
 		return (tag, typ, sys) -> {
 			// Check stream index
@@ -265,8 +265,8 @@ public class ModelModular extends ModelMeshBased
 					0xFF & modify.loc[modify.locLen - 2]
 				].stepLen;
 				sys.trans(
-					typ.getPos(modify.step, modify.offset, stepLen)
-						- typ.getPos(states, stepLen),
+					typ.getPosX(modify.step, modify.offset, stepLen)
+						- typ.getPosX(states, stepLen),
 					CoordSystem.NORM_X
 				);
 			}
@@ -278,15 +278,17 @@ public class ModelModular extends ModelMeshBased
 			this.getInfoQueue().add(
 				((ModelModular)typ.model).prepareRenderInfo(tag, typ, sys)
 			);
+			return false;
 		};
 	}
 	
-	protected RenderInfoVisitor getVisitor()
+	protected ModuleVisitor getVisitor()
 	{
 		return (tag, typ, sys) -> {
 			this.getInfoQueue().add(
 				((ModelModular)typ.model).prepareRenderInfo(tag, typ, sys)
 			);
+			return false;
 		};
 	}
 	

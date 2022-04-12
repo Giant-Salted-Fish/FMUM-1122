@@ -44,13 +44,14 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 		parser.addKeyword("CreativeTab", (s, t) -> t.creativeTab = s[1]);
 		
 		// Visual
+		parser.addKeyword("Scale", (s, t) -> t.scale = Double.parseDouble(s[1]));
 		parser.addKeyword(
 			"Model",
 			(s, t) -> {
 				switch(s.length)
 				{
-				case 4: t.texture = s[3];
-				case 3: t.modelScale = Double.parseDouble(s[2]);
+				case 4: t.scale = Double.parseDouble(s[2]);
+				case 3: t.texture = s[3];
 				default: t.modelPath = s[1];
 				}
 			}
@@ -104,7 +105,7 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 	/**
 	 * Scale that should be applied when rendering this model
 	 */
-	public double modelScale = 1D;
+	public double scale = 1D;
 	
 	protected TypeInfo(String name) { super(name); }
 	

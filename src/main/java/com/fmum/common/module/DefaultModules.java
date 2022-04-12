@@ -100,7 +100,7 @@ public final class DefaultModules
 	public void writeToTag(NBTTagList tag)
 	{
 		// Go through each slot
-		for(int i = this.slots.size(); --i >= 0; )
+		for(int i = this.slots.size(); i-- > 0; )
 		{
 			// Only add module tag if has default modules on this slot
 			if(this.slots.get(i).size() == 0) continue;

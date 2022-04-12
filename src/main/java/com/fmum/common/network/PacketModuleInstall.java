@@ -6,6 +6,7 @@ import com.fmum.common.module.ItemModular;
 import com.fmum.common.module.Slot;
 import com.fmum.common.module.TagModular;
 import com.fmum.common.module.TypeModular;
+import com.fmum.common.util.CoordSystem;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -54,7 +55,7 @@ public final class PacketModuleInstall extends DataModuleLocEx
 		final TypeModular typeInstallee = ((ItemModular)installee.getItem()).getType();
 		final NBTTagList tagInstallee = TagModular.getTag(installee);
 		if(
-			this.loc.length + (typeInstallee.getNodeDepth(tagInstallee) - 1 << 1)
+			this.loc.length + (typeInstallee.getDeepestPathNodeCount(tagInstallee) - 1 << 1)
 				> CommonProxy.maxLocLen
 		) {
 			// Proper log
@@ -67,7 +68,8 @@ public final class PacketModuleInstall extends DataModuleLocEx
 			return;
 		}
 		
-		final InfoModule base = new InfoModule(stack);
+		// TODO: release base maybe?
+		final InfoModule base = InfoModule.get(stack);
 		if(base.tryMoveTo(this.loc, this.loc.length - 2) == null)
 		{
 			// Proper log
@@ -103,8 +105,27 @@ public final class PacketModuleInstall extends DataModuleLocEx
 			return;
 		}
 		
-		// TODO: hitbox test
+		// Hit box test
+		final CoordSystem installPos = CoordSystem.get().set(base.sys);
+		installPos.trans(
+			slot.x + typeInstallee.getPosX(step, offset, slot.stepLen),
+			slot.y,
+			slot.z
+		);
+		installPos.rot(slot.rotX, CoordSystem.Y);
+		installPos.submitRot();
 		
+		boolean conflict = ((ItemModular)stack.getItem()).getType().checkPreviewConflict(
+			TagModular.getTag(stack),
+			installPos,
+			installee
+		);
+		installPos.release();
+		if(conflict)
+		{
+			// Proper log
+			return;
+		}
 		
 		// Test complete! Setup position and install it!
 		int[] states = TagModular.getStates(tagInstallee);

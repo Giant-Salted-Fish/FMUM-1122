@@ -31,7 +31,8 @@ public final class PacketModuleRemove extends DataModuleLoc
 			return;
 		}
 		
-		final InfoModule info = new InfoModule(stack);
+		// TODO: release info maybe?
+		final InfoModule info = InfoModule.get(stack);
 		if(info.tryMoveTo(this.loc, this.loc.length - 2) == null)
 		{
 			// Proper log

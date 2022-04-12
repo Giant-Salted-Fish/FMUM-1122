@@ -26,6 +26,9 @@ public abstract class TagModular
 		ID_DAM = 0,
 		FLAG = 1;
 	
+	public static final byte
+		FLAG_AVOID_HITBOX_TEST = 1;
+	
 	/**
 	 * TODO:
 	 */

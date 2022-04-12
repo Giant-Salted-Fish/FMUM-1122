@@ -55,7 +55,7 @@ public abstract class TypePaintable extends TypeInfo
 	@Override
 	public void onModelRegister(ModelRegistryEvent evt)
 	{
-		for(int i = this.paintjobs.size(); --i >= 0; )
+		for(int i = this.paintjobs.size(); i-- > 0; )
 		{
 			final ResourceLocation resLoc = new ResourceLocation(
 				FMUM.MODID,
