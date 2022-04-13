@@ -5,7 +5,6 @@ import com.fmum.client.KeyManager.Key;
 import com.fmum.client.OperationProgressive;
 import com.fmum.client.gun.model.AnimationTracksGun;
 import com.fmum.common.module.TagModular;
-import com.fmum.common.network.PacketModuleTagInit;
 import com.fmum.common.type.ItemHoldable;
 
 import net.minecraft.entity.Entity;
@@ -56,11 +55,7 @@ public final class ItemGun extends ItemHoldable implements ItemAmmoContainer
 	@SideOnly(Side.CLIENT)
 	public void tick(ItemStack stack)
 	{
-		if(!TagModular.validateTag(stack))
-		{
-			FMUMClient.netHandler.sendToServer(new PacketModuleTagInit());
-			return;
-		}
+		if(!TagModular.validateTag(stack)) return;
 		
 		// TODO: ton of tick task
 		

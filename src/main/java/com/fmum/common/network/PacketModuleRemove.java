@@ -25,6 +25,9 @@ public final class PacketModuleRemove extends DataModuleLoc
 			return;
 		}
 		
+		if(!TagModular.validateTag(stack))
+			TagModular.setupTag(stack);
+		
 		if(this.loc.length == 0)
 		{
 			// Proper log

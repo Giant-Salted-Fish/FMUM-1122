@@ -34,6 +34,9 @@ public final class PacketModuleUpdate extends DataModuleLocEx
 			return;
 		}
 		
+		if(!TagModular.validateTag(stack))
+			TagModular.setupTag(stack);
+		
 		int op = this.assist >>> 16;
 		int value = 0xFFFF & this.assist;
 		switch(op)

@@ -125,13 +125,12 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 		float x7, float y7, float z7
 	) {
 		CoordSystem sys = CoordSystem.get();
-		Vec3f pos = Vec3f.get();
 
 		// Note that coordinate y, z are flipped in ToolBox
 		sys.setDefault();
+		sys.globalTrans(posX, -posY, -posZ);
 		sys.globalRot(rotX * TO_DEGREES, rotY * TO_DEGREES, rotZ * TO_DEGREES);
 		sys.trans(offX, -offY, -offZ);
-		pos.set(posX, -posY, -posZ);
 		
 		// Setup 8 corners
 		Vec3f ver0 = Vec3f.get(0F - x0, 0F + y0, 0F + z0);
@@ -152,45 +151,45 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 		sys.apply(ver7, ver7);
 		
 		/// X-back ///
-		this.add(pos, ver0, texU + lenZ, texV + lenZ);								// Top-right
-		this.add(pos, ver4, texU + lenZ, texV + lenZ + lenY);						// Bottom-right
-		this.add(pos, ver7, texU, texV + lenZ + lenY);								// Bottom-left
-		this.add(pos, ver3, texU, texV + lenZ);										// Top-left
+		this.add(ver0, texU + lenZ, texV + lenZ);								// Top-right
+		this.add(ver4, texU + lenZ, texV + lenZ + lenY);						// Bottom-right
+		this.add(ver7, texU, texV + lenZ + lenY);								// Bottom-left
+		this.add(ver3, texU, texV + lenZ);										// Top-left
 		this.addIndices(0);
 		
 		/// X-front ///
-		this.add(pos, ver2, texU + lenZ + lenX + lenZ, texV + lenZ);				// Top-right
-		this.add(pos, ver6, texU + lenZ + lenX + lenZ, texV + lenZ + lenY);			// Bottom-right
-		this.add(pos, ver5, texU + lenZ + lenX, texV + lenZ + lenY);				// Bottom-left
-		this.add(pos, ver1, texU + lenZ + lenX, texV + lenZ);						// Top-left
+		this.add(ver2, texU + lenZ + lenX + lenZ, texV + lenZ);					// Top-right
+		this.add(ver6, texU + lenZ + lenX + lenZ, texV + lenZ + lenY);			// Bottom-right
+		this.add(ver5, texU + lenZ + lenX, texV + lenZ + lenY);					// Bottom-left
+		this.add(ver1, texU + lenZ + lenX, texV + lenZ);						// Top-left
 		this.addIndices(4);
 		
 		/// Z-back ///
-		this.add(pos, ver1, texU + lenZ + lenX, texV + lenZ);						// Top-right
-		this.add(pos, ver5, texU + lenZ + lenX, texV + lenZ + lenY);				// Bottom-right
-		this.add(pos, ver4, texU + lenZ, texV + lenZ + lenY);						// Bottom-left
-		this.add(pos, ver0, texU + lenZ, texV + lenZ);								// Top-left
+		this.add(ver1, texU + lenZ + lenX, texV + lenZ);						// Top-right
+		this.add(ver5, texU + lenZ + lenX, texV + lenZ + lenY);					// Bottom-right
+		this.add(ver4, texU + lenZ, texV + lenZ + lenY);						// Bottom-left
+		this.add(ver0, texU + lenZ, texV + lenZ);								// Top-left
 		this.addIndices(8);
 		
 		/// Z-front ///
-		this.add(pos, ver3, texU + lenZ + lenX + lenZ + lenX, texV + lenZ);			// Top-right
-		this.add(pos, ver7, texU + lenZ + lenX + lenZ + lenX, texV + lenZ + lenY);	// Bottom-right
-		this.add(pos, ver6, texU + lenZ + lenX + lenZ, texV + lenZ + lenY);			// Bottom-left
-		this.add(pos, ver2, texU + lenZ + lenX + lenZ, texV + lenZ);				// Top-left
+		this.add(ver3, texU + lenZ + lenX + lenZ + lenX, texV + lenZ);			// Top-right
+		this.add(ver7, texU + lenZ + lenX + lenZ + lenX, texV + lenZ + lenY);	// Bottom-right
+		this.add(ver6, texU + lenZ + lenX + lenZ, texV + lenZ + lenY);			// Bottom-left
+		this.add(ver2, texU + lenZ + lenX + lenZ, texV + lenZ);					// Top-left
 		this.addIndices(12);
 		
 		/// Y-back ///
-		this.add(pos, ver0, texU + lenZ, texV + lenZ);								// Bottom-right
-		this.add(pos, ver3, texU + lenZ, texV);										// Bottom-left
-		this.add(pos, ver2, texU + lenZ + lenX, texV);								// Top-left
-		this.add(pos, ver1, texU + lenZ + lenX, texV + lenZ);						// Top-right
+		this.add(ver0, texU + lenZ, texV + lenZ);								// Bottom-right
+		this.add(ver3, texU + lenZ, texV);										// Bottom-left
+		this.add(ver2, texU + lenZ + lenX, texV);								// Top-left
+		this.add(ver1, texU + lenZ + lenX, texV + lenZ);						// Top-right
 		this.addIndices(16);
 		
 		/// Y-front ///
-		this.add(pos, ver5, texU + lenZ + lenX + lenX, texV);						// Bottom-right
-		this.add(pos, ver6, texU + lenZ + lenX + lenX, texV + lenZ);				// Bottom-left
-		this.add(pos, ver7, texU + lenZ + lenX, texV + lenZ);						// Top-left
-		this.add(pos, ver4, texU + lenZ + lenX, texV);								// Top-right
+		this.add(ver5, texU + lenZ + lenX + lenX, texV);						// Bottom-right
+		this.add(ver6, texU + lenZ + lenX + lenX, texV + lenZ);					// Bottom-left
+		this.add(ver7, texU + lenZ + lenX, texV + lenZ);						// Top-left
+		this.add(ver4, texU + lenZ + lenX, texV);								// Top-right
 		this.addIndices(20);
 		
 		// Do not forget to increase index base
@@ -204,7 +203,6 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 		ver2.release();
 		ver1.release();
 		ver0.release();
-		pos.release();
 		sys.release();
 		return this;
 	}
@@ -231,10 +229,10 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 //		return this;
 //	}
 	
-	public TBModelMeshBuilder add(Vec3f pos, Vec3f offset, int u, int v)
+	public TBModelMeshBuilder add(Vec3f vertex, int u, int v)
 	{
 		this.add(
-			pos.x + offset.x, pos.y + offset.y, pos.z + offset.z,
+			vertex.x, vertex.y, vertex.z,
 			u / this.textureX, v / this.textureY
 		);
 		return this;
@@ -263,9 +261,9 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 			
 			for(int j = 6; j > 0; j -= 3)
 			{
-				Vertex vert0 = vertices.get(indices.get(i + j - 1));
+				Vertex vert0 = vertices.get(indices.get(i + j - 3));
 				Vertex vert1 = vertices.get(indices.get(i + j - 2));
-				Vertex vert2 = vertices.get(indices.get(i + j - 3));
+				Vertex vert2 = vertices.get(indices.get(i + j - 1));
 				
 				if(vert0.equals(vert1) || vert1.equals(vert2) || vert2.equals(vert0))
 					continue;

@@ -2,6 +2,6 @@ Name hk416buffertube H&K416 Buffer Tube
 Category arbuffertube
 CreativeTab oc
 
-Model com.fmum.oc.client.model.ModelOCGun:HK416BufferTube 0.1 skins/hk416d10rs.png
+Model com.fmum.oc.client.model.ModelOCGun:HK416BufferTube skins/hk416d10rs.png 0.1
 
 Slots -54.5 0 0 0 6 5 C[ arstock ]

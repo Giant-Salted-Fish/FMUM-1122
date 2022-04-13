@@ -117,15 +117,15 @@ public abstract class TypeModular extends TypePaintable
 	}
 	
 	public boolean checkPreviewConflict(
-		NBTTagList thisTag,
+		NBTTagList tagThis,
 		CoordSystem installPos,
-		ItemStack toInstall
+		ItemStack stackInstallee
 	) {
 		final HitboxTesters
-			baseHitboxes = HitboxTesters.get(thisTag, this),
+			baseHitboxes = HitboxTesters.get(tagThis, this),
 			installeeHitboxes = HitboxTesters.get(
-				TagModular.getTag(toInstall),
-				((ItemModular)toInstall.getItem()).getType(),
+				TagModular.getTag(stackInstallee),
+				((ItemModular)stackInstallee.getItem()).getType(),
 				installPos
 			);
 		

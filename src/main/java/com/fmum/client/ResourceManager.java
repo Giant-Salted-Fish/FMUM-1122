@@ -20,6 +20,8 @@ public abstract class ResourceManager
 		TEXTURE_GREEN = getTexture(RECOMMENDED_TEXTURE_FOLDER + "0x00ff00.png"),
 		TEXTURE_BLUE = getTexture(RECOMMENDED_TEXTURE_FOLDER + "0x0000ff.png");
 	
+	private ResourceManager() { }
+	
 	public static ResourceLocation getTexture(String path)
 	{
 		ResourceLocation loc = textures.get(path);

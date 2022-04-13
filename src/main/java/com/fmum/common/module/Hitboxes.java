@@ -43,7 +43,7 @@ public final class Hitboxes
 	{
 		while(cursor < split.length && "[".equals(split[cursor]))
 		{
-			for(int i = 0; ++i < 9; this.add(Vec3.parse(split[cursor + i])));
+			for(int i = 0; ++i < 9; this.add(Vec3.parse(split[cursor + i]).scale(1D / 16D)));
 			cursor += 10;
 		}
 		return this;

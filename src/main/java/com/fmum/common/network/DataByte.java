@@ -3,21 +3,21 @@ package com.fmum.common.network;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
-public abstract class DataOpCode implements FMUMPacket
+public abstract class DataByte implements FMUMPacket
 {
-	protected byte opCode;
+	protected byte valueByte;
 	
-	public DataOpCode() { }
+	public DataByte() { }
 	
-	public DataOpCode(byte opCode) { this.opCode = opCode; }
+	public DataByte(byte val) { this.valueByte = val; }
 	
 	@Override
 	public void encodeInto(ChannelHandlerContext ctx, ByteBuf data) {
-		data.writeByte(this.opCode);
+		data.writeByte(this.valueByte);
 	}
 	
 	@Override
 	public void decodeInto(ChannelHandlerContext ctx, ByteBuf data) {
-		this.opCode = data.readByte();
+		this.valueByte = data.readByte();
 	}
 }

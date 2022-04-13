@@ -57,10 +57,78 @@ public abstract class KeyManager
 	 */
 	public static final LinkedList<Key> inCoKeys = new LinkedList<>();
 	
-	/** TODO: validate necessary?
-	 * Keys that will never update. They will be referenced independently.
-	 */
-//	public static final LinkedList<Key> independentKeys = new LinkedList<>();
+	private KeyManager() { }
+	
+	public static void enterGUIControls() {
+		for(Key k : Key.values()) if(k.keyBind != null) k.keyBind.setKeyCode(k.keyCode);
+	}
+	
+	public static void quitGUIControls()
+	{
+		boolean needSyncOptions = false;
+		for(Key k : Key.values())
+		{
+			if(k.keyCode != k.keyBind.getKeyCode())
+			{
+				k.keyCode = k.keyBind.getKeyCode();
+				needSyncOptions = true;
+			}
+			k.keyBind.setKeyCode(Keyboard.KEY_NONE);
+		}
+		KeyBinding.resetKeyBindingArrayAndHash();
+		
+		if(needSyncOptions) saveTo(ClientProxy.keyBindsFile);
+	}
+	
+	public static void saveTo(File file)
+	{
+		try(BufferedWriter out = new BufferedWriter(new FileWriter(file)))
+		{
+			for(Key k : Key.values())
+			{
+				out.write(k.name() + ":" + k.keyCode);
+				out.newLine();
+			}
+		}
+		catch(IOException e) { FMUM.log.error(I18n.format("fmum.errorsavingkeybinds"), e); }
+	}
+	
+	public static void readFrom(File file)
+	{
+		try(BufferedReader in = new BufferedReader(new FileReader(file)))
+		{
+			for(String l; (l = in.readLine()) != null; )
+			{
+				final int i = l.indexOf(':');
+				try
+				{
+					Enum.valueOf(
+						Key.class,
+						l.substring(0, i)
+					).keyCode = Integer.parseInt(l.substring(i + 1));
+				}
+				catch(NumberFormatException e) {
+					FMUM.log.error(I18n.format("fmum.keycodeformaterror", l));
+				}
+				catch(IllegalArgumentException e) {
+					FMUM.log.error(I18n.format("fmum.unrecognizedkeybind", l));
+				}
+			}
+		}
+		catch(IOException e) { FMUM.log.error(I18n.format("fmum.errorreadingkeybinds"), e); }
+	}
+	
+	public static boolean keyDown(int keyCode)
+	{
+		return(
+			keyCode != Keyboard.KEY_NONE
+			&& (
+				keyCode < 0
+				? Mouse.isButtonDown(keyCode + 100)
+				: Keyboard.isKeyDown(keyCode)
+			)
+		);
+	}
 	
 	public enum Key
 	{
@@ -227,76 +295,5 @@ public abstract class KeyManager
 		public static boolean lookAroundActivated() {
 			return (CO.down ? CO_LOOK_AROUND : LOOK_AROUND).down;
 		}
-	}
-	
-	public static void enterGUIControls() {
-		for(Key k : Key.values()) if(k.keyBind != null) k.keyBind.setKeyCode(k.keyCode);
-	}
-	
-	public static void quitGUIControls()
-	{
-		boolean needSyncOptions = false;
-		for(Key k : Key.values())
-		{
-			if(k.keyCode != k.keyBind.getKeyCode())
-			{
-				k.keyCode = k.keyBind.getKeyCode();
-				needSyncOptions = true;
-			}
-			k.keyBind.setKeyCode(Keyboard.KEY_NONE);
-		}
-		KeyBinding.resetKeyBindingArrayAndHash();
-		
-		if(needSyncOptions) saveTo(ClientProxy.keyBindsFile);
-	}
-	
-	public static void saveTo(File file)
-	{
-		try(BufferedWriter out = new BufferedWriter(new FileWriter(file)))
-		{
-			for(Key k : Key.values())
-			{
-				out.write(k.name() + ":" + k.keyCode);
-				out.newLine();
-			}
-		}
-		catch(IOException e) { FMUM.log.error(I18n.format("fmum.errorsavingkeybinds"), e); }
-	}
-	
-	public static void readFrom(File file)
-	{
-		try(BufferedReader in = new BufferedReader(new FileReader(file)))
-		{
-			for(String l; (l = in.readLine()) != null; )
-			{
-				final int i = l.indexOf(':');
-				try
-				{
-					Enum.valueOf(
-						Key.class,
-						l.substring(0, i)
-					).keyCode = Integer.parseInt(l.substring(i + 1));
-				}
-				catch(NumberFormatException e) {
-					FMUM.log.error(I18n.format("fmum.keycodeformaterror", l));
-				}
-				catch(IllegalArgumentException e) {
-					FMUM.log.error(I18n.format("fmum.unrecognizedkeybind", l));
-				}
-			}
-		}
-		catch(IOException e) { FMUM.log.error(I18n.format("fmum.errorreadingkeybinds"), e); }
-	}
-	
-	public static boolean keyDown(int keyCode)
-	{
-		return(
-			keyCode != Keyboard.KEY_NONE
-			&& (
-				keyCode < 0
-				? Mouse.isButtonDown(keyCode + 100)
-				: Keyboard.isKeyDown(keyCode)
-			)
-		);
 	}
 }

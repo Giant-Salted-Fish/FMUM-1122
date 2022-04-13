@@ -2,7 +2,7 @@ Name hk416145handguard H&K416 14.5" Handguard
 Category hk416handguard
 CreativeTab oc
 
-Model com.fmum.oc.client.model.ModelOCGun:HK416145Handguard 0.1 skins/hk416d10rs.png
+Model com.fmum.oc.client.model.ModelOCGun:HK416145Handguard skins/hk416d10rs.png 0.1
 
 LeftHandPriority 0
 Slots 2 11 0 0 4 15 8 C[ pra ] | 76 11 0 0 4 5 8 C[ pra ] | 3 -9 0 180 4 23 8 C[ pra ] | 4 0 -9 -90 4 23 8 C[ pra ] | 4 0 9 90 4 23 8 C[ pra ]

@@ -6,6 +6,7 @@ import com.fmum.client.module.OpModification;
 import com.fmum.common.network.PacketModuleTagInit;
 import com.fmum.common.paintjob.ItemPaintable;
 
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -16,12 +17,10 @@ public interface ItemModular extends ItemPaintable
 	public TypeModular getType();
 	
 	@Override
-	@SideOnly(Side.CLIENT)
-	default void tick(ItemStack stack)
+	default void invTick(ItemStack stack, IInventory inv, int slot)
 	{
-		if(TagModular.validateTag(stack))
-			ItemPaintable.super.tick(stack);
-		else FMUMClient.netHandler.sendToServer(new PacketModuleTagInit());
+		if(!TagModular.validateTag(stack))
+			FMUMClient.netHandler.sendToServer(new PacketModuleTagInit(slot));
 	}
 	
 	@Override

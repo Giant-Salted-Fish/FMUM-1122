@@ -3,6 +3,7 @@ package com.fmum.common.type;
 import com.fmum.client.KeyManager.Key;
 import com.fmum.client.model.ModelDebugBox;
 
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MouseHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -62,6 +63,9 @@ public interface ItemInfo
 	 */
 	@SideOnly(Side.CLIENT)
 	default public void onTakeOut(ItemStack stack) { }
+	
+	@SideOnly(Side.CLIENT)
+	default public void invTick(ItemStack stack, IInventory inv, int slot) { }
 	
 	/**
 	 * Called when player is holding this item. In default it ticks the model and return

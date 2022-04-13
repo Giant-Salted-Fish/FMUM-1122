@@ -2,6 +2,6 @@ Name hk416receiverendplate H&K416 Receiver End Plate
 Category arreceiverendplate
 CreativeTab oc
 
-Model com.fmum.oc.client.model.ModelOCGun:HK416ReceiverEndPlate 0.1 skins/hk416d10rs.png
+Model com.fmum.oc.client.model.ModelOCGun:HK416ReceiverEndPlate skins/hk416d10rs.png 0.1
 
 Slots -0.5 7.5 C[ arreceiverextensionnut ]

@@ -50,8 +50,8 @@ public abstract class TypeInfo extends ItemVariant implements RequireItemRegiste
 			(s, t) -> {
 				switch(s.length)
 				{
-				case 4: t.scale = Double.parseDouble(s[2]);
-				case 3: t.texture = s[3];
+				case 4: t.scale = Double.parseDouble(s[3]);
+				case 3: t.texture = s[2];
 				default: t.modelPath = s[1];
 				}
 			}

@@ -2,7 +2,7 @@ Name cicis9rearsight CIC IS-9 Rear Sight
 Category pra
 CreativeTab oc
 
-Model com.fmum.oc.client.model.ModelOCGun:CICIS9RearSight 0.1 skins/ironsights.png
+Model com.fmum.oc.client.model.ModelOCGun:CICIS9RearSight skins/ironsights.png 0.1
 Paintjob cicis9rearsight-tritiumgreen skins/ironsights-tritiumgreen.png
 Paintjob cicis9rearsight-tritiumred skins/ironsights-tritiumred.png
 Paintjob cicis9rearsight-tritiumwhite skins/ironsights-tritiumwhite.png

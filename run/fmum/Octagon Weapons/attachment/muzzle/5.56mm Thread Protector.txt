@@ -2,4 +2,4 @@ Name 556mmthreadprotector 5.56mm Thread Protector
 Category 556mmmuzzle
 CreativeTab oc
 
-Model com.fmum.oc.client.model.ModelOCGun:556mmThreadProtector 0.1 skins/hk416d10rs.png
+Model com.fmum.oc.client.model.ModelOCGun:556mmThreadProtector skins/hk416d10rs.png 0.1

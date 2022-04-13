@@ -30,6 +30,9 @@ public final class PacketModuleInstall extends DataModuleLocEx
 			return;
 		}
 		
+		if(!TagModular.validateTag(stack))
+			TagModular.setupTag(stack);
+		
 		if(this.loc.length == 0)
 		{
 			// Proper log
@@ -47,7 +50,6 @@ public final class PacketModuleInstall extends DataModuleLocEx
 			return;
 		}
 		
-		// Module to install may never appear in player's hand, hence check if it's tag is ready
 		if(!TagModular.validateTag(installee))
 			TagModular.setupTag(installee);
 		

@@ -6,12 +6,16 @@ import com.fmum.common.module.TagModular;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 
-public final class PacketModuleTagInit implements FMUMPacket
+public final class PacketModuleTagInit extends DataByte
 {
+	public PacketModuleTagInit() { }
+	
+	public PacketModuleTagInit(int invSlot) { super((byte)invSlot); }
+	
 	@Override
 	public void handleServerSide(EntityPlayerMP player)
 	{
-		ItemStack stack = player.inventory.getCurrentItem();
+		ItemStack stack = player.inventory.getStackInSlot(this.valueByte);
 		if(!(stack.getItem() instanceof ItemModular))
 		{
 			// TODO: proper record

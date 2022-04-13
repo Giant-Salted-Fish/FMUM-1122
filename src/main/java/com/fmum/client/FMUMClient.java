@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiOptions;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MouseHelper;
 import net.minecraft.util.text.TextComponentString;
@@ -226,6 +227,20 @@ public abstract class FMUMClient
 		
 		tl = tr = tu = td = te = tq = false;
 		/** for test */
+		
+		// Go through the items in player's inventory
+		IInventory inv = player.inventory;
+		for(int i = inv.getSizeInventory(); i-- > 0; )
+		{
+			ItemStack stack = inv.getStackInSlot(i);
+			if(!(stack.getItem() instanceof ItemInfo)) continue;
+			
+			ItemInfo item = (ItemInfo)stack.getItem();
+			item.invTick(stack, inv, i);
+			
+			// TODO: weight and volume
+		}
+		
 		
 		ItemStack stack = player.inventory.getCurrentItem();
 		ItemInfo item = (

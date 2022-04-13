@@ -2,6 +2,6 @@ Name hk416145barrel H&K416 14.5" Barrel
 Category hk416barrel
 CreativeTab oc
 
-Model com.fmum.oc.client.model.ModelOCGun:HK416145Barrel 0.1 skins/hk416d10rs.png
+Model com.fmum.oc.client.model.ModelOCGun:HK416145Barrel skins/hk416d10rs.png 0.1
 
 Slots 100 C[ 556mmmuzzle ] | 49 C[ hk416gasblock ]

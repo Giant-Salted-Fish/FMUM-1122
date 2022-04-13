@@ -2,4 +2,4 @@ Name hk416dustcoverclosed H&K416 Dust Cover-Closed
 Category ardustcover
 CreativeTab oc
 
-Model com.fmum.oc.client.model.ModelOCGun:HK416DustCoverClosed 0.1 skins/hk416d10rs.png
+Model com.fmum.oc.client.model.ModelOCGun:HK416DustCoverClosed skins/hk416d10rs.png 0.1

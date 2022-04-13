@@ -2,6 +2,6 @@ Name hk416barrelnut H&K416 Barrel Nut
 Category hk416barrelnut
 CreativeTab oc
 
-Model com.fmum.oc.client.model.ModelOCGun:HK416BarrelNut 0.1 skins/hk416d10rs.png
+Model com.fmum.oc.client.model.ModelOCGun:HK416BarrelNut skins/hk416d10rs.png 0.1
 
 Slots C[ hk416handguard ]
