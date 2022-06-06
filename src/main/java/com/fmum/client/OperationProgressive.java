@@ -9,8 +9,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * 
  * @author Giant_Salted_Fish
  */
-@SideOnly(Side.CLIENT)
-public abstract class OperationProgressive extends Operation
+@SideOnly( Side.CLIENT )
+public abstract class OperationProgressive implements Operation
 {
 	public double progress = 0D;
 	public double prevProgress = 0D;
@@ -18,22 +18,28 @@ public abstract class OperationProgressive extends Operation
 	public double progressor = 1D / 16D;
 	
 	@Override
-	public final double getProgress() { return this.progress; }
+	public double progress() { return this.progress; }
 	
 	@Override
-	public final double getSmoothedProgress(float smoother) {
-		return Math.min(1D, this.prevProgress + (this.progress - this.prevProgress) * smoother);
-	} // TODO: remove Math.min when it is acceptable maybe?
+	public double smoothedProgress( float smoother ) {
+		return Math.min( 1D, this.prevProgress + ( this.progress - this.prevProgress ) * smoother );
+	}
 	
 	@Override
-	protected void launch(ItemStack stack) { this.prevProgress = this.progress = 0D; }
+	public Operation launch( ItemStack stack )
+	{
+		this.prevProgress
+			= this.progress
+			= 0D;
+		return this;
+	}
 	
 	@Override
-	protected boolean tick(ItemStack stack)
+	public Operation tick( ItemStack stack )
 	{
 		this.prevProgress = this.progress;
-		if((this.progress += this.progressor) > 1D)
+		if( ( this.progress += this.progressor ) > 1D )
 			this.progress = 1D;
-		return this.prevProgress >= 1D;
+		return this.prevProgress >= 1D ? NONE : this;
 	}
 }

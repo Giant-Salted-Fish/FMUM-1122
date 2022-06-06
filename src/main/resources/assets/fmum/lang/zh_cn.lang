@@ -2,38 +2,35 @@
 
 # 加载时日志
 fmum.onpreinitialization=正在预初始化 FMUM...
-fmum.packfoldercreated=创建内容包文件夹 <%s>
 fmum.preinitializationcomplete=FMUM 预初始化完成 \
 fmum.oninitialization=正在初始化 FMUM...
 fmum.initializationcomplete=FMUM 初始化完成 \
 fmum.onpostinitialization=正在后初始化 FMUM...
 fmum.postinitializationcomplete=FMUM 后初始化完成 \
-fmum.openglversiontoolow=您的 OpenGL 版本过低，最低要求 OpenGL3.0。请考虑更新显卡驱动或更换显卡。
-fmum.unrecognizedcontentpackfiletype=文件 <%s> 不属于可接受的内容包文件类型{ <文件夹>, <.jar>, <.zip> }
-fmum.erroraddingclasspath=为 <%s> 注册Class加载路径时遇到了问题 相关内容包内容可能会无法加载
-fmum.unrecognizedtypefiletype=类型描述文件 <%s> 不属于可接受的文件类型{ <.txt>, <.class> }
-fmum.detectcontentpack=检测到可解析的内容包 <%s>
+fmum.openglversiontoolow=您的 OpenGL 版本过低，最低要求 OpenGL3.0。请更换显卡或更新显卡驱动。
+fmum.packfoldercreated=创建内容包文件夹 <%s>
+fmum.unknowncontentpackfiletype=文件 <%s> 不属于可接受的内容包文件类型{ <文件夹>, <.jar>, <.zip> }
+fmum.detectcontentpack=检测到可加载的内容包 <%s>
 fmum.preloadcontentpack=预加载内容包 <%s>
 fmum.loadedcontentpack=内容包 %s 加载完成
-fmum.failedtoinstantiateitemtyper=物品类型构造器 <%s> 调用失败，该种错误通常不应该出现
-fmum.ioerrorreadingfrom=读取源 <%s> 时遇到 IO 错误
-fmum.unknowntypefilekeyword=类型文件 <%2$s> 中使用了未知的关键字 <%1$s>
-fmum.errorparsingtypefile=解析类型文件 <%2$s> 中的关键字 <%1$s> 时遇到错误
-fmum.keywordargnumnotenough=关键字参数不足，需要 %s，提供 %s
-fmum.toomanykeywordargs=关键字参数过多
-fmum.modelnotfoundinrepositroy=无法从模型仓库 <%2$s> 中获取指定的模型 <%1$s>
-fmum.errorloadingmodel=加载模型 <%s> 时遇到错误
-fmum.errorloadingclassbasedtyper=加载基于class的类型文件 <%s> 时遇到错误
-fmum.failtofetchcreativetab=找不到名为 <%s> 的创造栏，<%s> 将被分配至默认创造栏下
+fmum.ioerror=读取源 <%s> 时遇到 IO 错误
+fmum.unknownfiletype=无法识别的文件类型 <%s>
+fmum.errorinstantiating=尝试实例化 <%s> 时遇到错误
+fmum.errorloadingclassbasedtype=加载基于class的类型文件 <%s> 时遇到错误
+fmum.erroraddingclasspath=为 <%s> 注册Class加载路径时遇到了问题 相关内容包内容可能会无法加载
+fmum.duplicatemetaregistration=重复的元注册 %s : %s
+fmum.failtofindpaintjobinjecttarget=找不到外部皮肤 <%s> 指定的注入目标 <%s>
+fmum.failtofindiconitemfortab=找不到图标物品 <%s>，创造栏 <%s> 的图标已被重置为默认设置
+
 fmum.onitemregistration=正在为 FMUM 内容包注册物品...
 fmum.itemregistrationcomplete=物品注册已完成 共计 %s 个
 fmum.onmodelregistration=正在为 FMUM 内容包注册模型...
 fmum.modelregistrationcomplete=模型注册已完成 共计 %s 个
-fmum.failtofindiconitemfortab=找不到图标物品 <%s>，创造栏 <%s> 的图标已被重置为默认设置
-fmum.failtoinjectexpaintjob=找不到外部皮肤 <%s> 指定的注入目标 <%s>
+
 fmum.infoactivedpacks=已就绪的 FMUM 内容包 %s 个
-fmum.activedpackinfo=- %s by %s
-fmum.errorinstantiating=尝试实例化 <%s> 时遇到错误
+fmum.activedpackinfo=- %s 来自 %s
+
+fmum.keyupdategroupnotfound=无法为自定义按键 <%2$s> 找到触发组 <%1$s>
 fmum.errorcreatingkeybindsfile=创建按键绑定文件时出现错误，FMUM 按键绑定设置可能会不同步
 fmum.errorsavingkeybinds=存储按键绑定时出现错误，FMUM 按键绑定设置可能会不同步
 fmum.errorreadingkeybinds=读取按键绑定时出现错误，FMUM 按键绑定设置可能会不同步
@@ -41,49 +38,43 @@ fmum.keycodeformaterror=按键编号格式错误 <%s>
 fmum.unrecognizedkeybind=按键绑定 <%s> 不存在
 
 # 运行时日志
-fmum.defaultmodulenotfound=未能找到默认模块 <%s>
-
-# 网络
 fmum.unhandledpackets=未被处理的网络包 <%s>，来自 <%s>
 fmum.unhandledpacketc=未被处理的网络包 <%s>
-fmum.unhandleditemoppackets=未被处理的物品操作网络包 <%s:%s>，来自 <%s>
-fmum.unhandleditemoppacketc=未被处理的物品操作网络包 <%s:%s>
 
 # 内容包摘要
-pack.authormissing=未知的内容包作者
-pack.descriptionmissing=关于此内容包的描述未被提供
+fmum.pack=FMUM 默认内容包
+fmum.author=一条大大的咸鱼
+fmum.description=FMUM 所提供的默认内容
+fmum.authormissing=未知作者
+fmum.descriptionmissing=描述未被提供
 
 # 创造模式物品栏
 itemGroup.fmum=FMUM 默认组
 
+# 物品
+item.undefined.name=未知物品
+
 # 物品提示框
-tooltip.descriptionmissing=关于此物品描述未被提供
-tooltip.providerinfo=来自 %s by %s
 
 # 游戏内消息
-msg.fmum.manualmodeon=手动模式启动
-msg.fmum.manualmodeoff=手动模式关闭
-msg.fmum.modifymodeonslot=切换至导轨改装模式
-msg.fmum.modifymodeonmodule=切换至模块改装模式
-msg.fmum.modifymodepaintjob=切换至皮肤改装模式
-msg.fmum.reachmaxlayer=已经抵达当前最大模块层数限制：%s
-msg.fmum.promptconfigmaxlayers=更改 config 中的 maxLayers 参数以获得更大的改装层数限制
 
 # 按键绑定
 keycategory.fmum.gun=FMUM 枪械
-key.fmum.pulltrigger=扣扳机
+key.fmum.fire=开火
 key.fmum.aimhold=按住瞄准
 key.fmum.aimtoggle=切换瞄准
 key.fmum.togglemanual=启动/关闭手动模式
 key.fmum.lookaround=环视
 key.fmum.viewweapon=检视武器
 key.fmum.togglemodify=进入/退出改装模式
+
 keycategory.fmum.assist=FMUM 辅助
 key.fmum.co=组合键
 key.fmum.cotogglemanual=启动/关闭手动模式组合键
 key.fmum.colookaround=环视组合键
 key.fmum.coviewweapon=检视武器组合键
 key.fmum.cotogglemodify=进入/退出改装模式组合键
+
 keycategory.fmum.modification=FMUM 改装
 key.fmum.selectup=选择向上
 key.fmum.selectdown=选择向下

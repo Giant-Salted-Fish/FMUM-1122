@@ -6,14 +6,13 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import com.fmum.common.FMUM;
-import com.fmum.common.pack.FMUMCreativeTab.IconBasedTab;
-import com.fmum.common.type.EnumType;
-import com.fmum.common.type.ItemVariant;
-import com.fmum.common.type.TypeTextParser.LocalTypeFileParser;
+import com.fmum.common.meta.EnumMeta;
+import com.fmum.common.meta.MetaBase;
+import com.fmum.common.util.LocalAttrParser;
 import com.fmum.common.util.Messager;
 
 /**
- * Abstraction of the packs that provide content
+ * Content packs that are in form of folder in {@link FMUM#packDirName}
  * 
  * @author Giant_Salted_Fish
  */
@@ -22,75 +21,64 @@ public final class FolderContentPack extends LocalContentProvider
 	/**
 	 * Parser that is currently used to parse plain type file
 	 */
-	protected LocalTypeFileParser<? extends ItemVariant> curParser = null;
+	protected LocalAttrParser< ? extends MetaBase > curParser = null;
 	
-	public FolderContentPack(File dir) { super(dir); }
+	public FolderContentPack( File dir ) { super( dir ); }
 	
 	@Override
-	public void loadContents()
+	public void loadContent()
 	{
 		// Read pack info
-		File infoFile = new File(this.source, ContentProviderSourceInfo.RECOMMENDED_INFO_FILE_NAME);
-		Messager sourceTrace = () -> this.source.getName() + "." + infoFile.getName();
-		if(infoFile.exists())
-			try(BufferedReader in = new BufferedReader(new FileReader(infoFile))) {
-				this.parseInfo(in, sourceTrace);
+		final File info = new File( this.source, ContentPackInfo.RECOMMENDED_FILE_NAME );
+		final Messager sourceTrace = () -> this.source.getName() + "." + info.getName();
+		if( info.exists() )
+			try( BufferedReader in = new BufferedReader( new FileReader( info ) ) ) {
+				this.parseInfo( in, sourceTrace );
 			}
-			catch(IOException e) { printIOError(sourceTrace.message(), e); }
+			catch( IOException e ) { this.printIOError( sourceTrace.message(), e ); }
 		
-		// Check each type folder
-		for(EnumType type : EnumType.values())
+		// Iterate through each type folder
+		for( EnumMeta type : EnumMeta.values() )
 		{
-			File typeDir = new File(this.source, type.recommendedSourceDirName);
-			if(!typeDir.exists() || !typeDir.isDirectory()) continue;
+			final File dir = new File( this.source, type.recommendedSourceDirName );
+			if( !dir.exists() || !dir.isDirectory() ) continue;
 			
 			// Set parser before processing type files
 			this.curParser = type.parser;
-			iterateTypeFiles(
-				typeDir,
-				(typeFile, superClassPath) -> {
+			this.iterateTypeFiles(
+				dir,
+				( typeFile, superClassPath ) -> {
 					final String fName = typeFile.getName();
 					final Messager fileTrace
-						= () -> this.getSourceName() + "." + superClassPath + "." + fName;
+						= () -> this.sourceName() + "." + superClassPath + "." + fName;
 					
-					if(fName.endsWith(".txt"))
+					MetaBase meta = null;
+					if( fName.endsWith( ".txt" ) )
 						try
 						{
-							this.curParser.parse(
+							meta = this.curParser.parse(
 								typeFile,
-								fName.substring(0, fName.length() - ".txt".length()),
+								fName.substring( 0, fName.length() - ".txt".length() ),
 								fileTrace
-							).notifyProvider(this).postParse();
+							);
 						}
-						catch(IOException e) { printIOError(fileTrace.message(), e); }
-					// Load typer by class file
-					else if(fName.endsWith(".class"))
-						this.loadClassBasedTyper(fileTrace, superClassPath, fName);
-					else printUnrecognizedType(fileTrace.message());
+						catch( IOException e ) { this.printIOError( fileTrace.message(), e ); }
+					
+					// Load type from class file
+					else if( fName.endsWith( ".class" ) )
+						meta = this.loadClassBasedMeta( fileTrace, superClassPath, fName );
+					else this.printUnknownFileType( fileTrace.message() );
+					
+					if( meta != null )
+					{
+						meta.$provider( this );
+						meta.onPostInit();
+					}
+					
+					// Always go through next file
 					return false;
 				}
 			);
 		}
-		
-		// Load creative tabs if has
-		File tabDir = new File(this.source, FMUMCreativeTab.RECOMMENDED_SOURCE_DIR_NAME);
-		if(!tabDir.exists() || !tabDir.isDirectory()) return;
-		
-		iterateTypeFiles(
-			tabDir,
-			(tabFile, superClassPath) -> {
-				final String fName = tabFile.getName();
-				final Messager st = () -> this.getSourceName() + ":" + superClassPath + "." + fName;
-				
-				// Create a tab in name of the file name if it is the not class based tab
-				if(!fName.endsWith(".class"))
-					try { IconBasedTab.parser.parse(tabFile, fName, st); }
-					catch(IOException e) { printIOError(st.message(), e); }
-				
-				else FMUM.tryInstantiate(superClassPath, fName);
-				
-				return false;
-			}
-		);
 	}
 }

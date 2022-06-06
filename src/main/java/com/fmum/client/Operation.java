@@ -1,56 +1,65 @@
 package com.fmum.client;
 
+import com.fmum.common.Meta;
+
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly(Side.CLIENT)
-public class Operation
+@SideOnly( Side.CLIENT )
+public interface Operation extends Meta
 {
-	public static final Operation NONE = new Operation();
-	
-	public double getProgress() { return this.getSmoothedProgress(1F); }
-	
-	public double getSmoothedProgress(float smoother) { return 1D; }
-	
 	/**
-	 * Tick this operation
-	 * 
-	 * @param stack Current holding stack
-	 * @return {@code true} if this operation has complete and should exit
+	 * Default operation instance that simply do nothing
 	 */
-	protected boolean tick(ItemStack stack) { return false; }
+	public static final Operation NONE = new Operation() { };
+	
+	public default double progress() { return 1D; }
+	
+	public default double smoothedProgress( float smoother ) { return 1D; }
 	
 	/**
 	 * Launch this operation with given holding stack
 	 * 
 	 * @param stack ItemStack that the player is currently holding
+	 * @return {@code this}
 	 */
-	protected void launch(ItemStack stack) { }
+	public default Operation launch( ItemStack stack ) { return this; }
 	
 	/**
-	 * A new operation is arriving, check if this operation volunteer to terminate itself so the
-	 * new operation can execute immediately
+	 * Tick this operation
+	 * 
+	 * @param stack Current holding stack
+	 * @return {@link #NONE} if this operation has complete. {@code this} otherwise.
+	 */
+	public default Operation tick( ItemStack stack ) { return this; }
+	
+	/**
+	 * A new operation is arriving. Call {@link #launch(ItemStack)} on the given {@link Operation}
+	 * with given {@link ItemStack} if this operation should terminate its execution to let the new
+	 * operation to run.
 	 * 
 	 * @param op New operation
-	 * @return {@code true} if this operation abandon its execution and let new operation to run
+	 * @return {@link Operation} that should be execute after this call
 	 */
-	protected boolean encounter(Operation op) { return true; }
+	public default Operation onNewOpLaunch( Operation op, ItemStack stack ) {
+		return op.launch( stack );
+	}
 	
 	/**
 	 * Called when player switch to a new holding item
 	 * 
 	 * @param stack New holding item
-	 * @return {@code true} if should give up execution of this operation
+	 * @return {@link #NONE} if this operation should terminate on item switch
 	 */
-	protected boolean switchItem(ItemStack stack) { return true; }
+	public default Operation onHoldingItemChange( ItemStack stack ) { return NONE; }
 	
 	/**
-	 * @return {@code true} if should kill this operation on GUI change
+	 * @return {@link #NONE} if this operation should terminate on GUI change
 	 */
-	protected boolean onGUIChange(GuiScreen gui) { return true; }
+	public default Operation onGUIChange( GuiScreen gui ) { return NONE; }
 	
-	protected static EntityPlayerSP getPlayer() { return FMUMClient.mc.player; }
+	public default EntityPlayerSP getPlayer() { return FMUMClient.mc.player; }
 }

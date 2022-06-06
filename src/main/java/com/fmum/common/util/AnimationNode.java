@@ -8,13 +8,13 @@ public class AnimationNode implements Animation
 	
 	public AnimationNode() { }
 	
-	public AnimationNode(double x, double y, double z, double time)
+	public AnimationNode( double x, double y, double z, double time )
 	{
 		this.pos.set(x, y, z);
 		this.time = time;
 	}
 	
-	public AnimationNode(AnimationNode src, double time)
+	public AnimationNode( AnimationNode src, double time )
 	{
 		this.pos.set(src.pos);
 		this.time = time;

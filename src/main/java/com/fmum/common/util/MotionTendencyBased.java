@@ -14,7 +14,7 @@ public class MotionTendencyBased extends MotionTendency
 	
 	public double forceMult;
 	
-	public MotionTendencyBased(double speedFactor, double maxForce, double forceMult)
+	public MotionTendencyBased( double speedFactor, double maxForce, double forceMult )
 	{
 		this.speedFactor = speedFactor;
 		this.maxForce = maxForce;
@@ -22,10 +22,10 @@ public class MotionTendencyBased extends MotionTendency
 	}
 	
 	@Override
-	public void update() { super.update(this.speedFactor, this.maxForce, this.forceMult); }
+	public void update() { super.update( this.speedFactor, this.maxForce, this.forceMult ); }
 	
 	@Override
-	public void update(double speedFactor, double maxForce, double forceMult)
+	public void update( double speedFactor, double maxForce, double forceMult )
 	{
 		super.update(
 			this.speedFactor * speedFactor,

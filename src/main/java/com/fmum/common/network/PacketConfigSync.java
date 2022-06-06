@@ -1,32 +1,27 @@
 package com.fmum.common.network;
 
-import com.fmum.client.module.OpModification;
-import com.fmum.common.CommonProxy;
+import com.fmum.common.FMUM;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-public final class PacketConfigSync implements FMUMPacket
+public final class PacketConfigSync implements Packet
 {
 	@Override
-	public void encodeInto(ChannelHandlerContext ctx, ByteBuf data)
+	public void encodeInto( ChannelHandlerContext ctx, ByteBuf data )
 	{
-		data.writeShort(CommonProxy.maxLocLen);
+		final FMUM mod = FMUM.MOD;
+		
+		data.writeByte( mod.maxLocLen >>> 1 );
+		data.writeByte( mod.maxCanInstall );
 	}
 	
 	@Override
-	public void decodeInto(ChannelHandlerContext ctx, ByteBuf data)
+	public void decodeInto( ChannelHandlerContext ctx, ByteBuf data )
 	{
-		CommonProxy.maxLocLen = data.readShort();
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void handleClientSide(EntityPlayerSP player)
-	{
-		OpModification.INSTANCE.onConfigSync();
+		final FMUM mod = FMUM.MOD;
+		
+		mod.maxLocLen = ( 0xFF & data.readByte() ) << 1;
+		mod.maxCanInstall = 0xFF & data.readByte();
 	}
 }

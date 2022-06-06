@@ -4,83 +4,81 @@ import java.io.File;
 import java.io.IOException;
 import java.util.TreeMap;
 
-import com.fmum.common.FMUM;
-import com.fmum.common.pack.FMUMCreativeTab.IconBasedTab;
-import com.fmum.common.type.EnumType;
+import com.fmum.common.meta.EnumMeta;
+import com.fmum.common.meta.MetaBase;
 import com.fmum.common.util.Messager;
 
+/**
+ * For content packs that are packed into .zip or .jar file.
+ * 
+ * @author Giant_Salted_Fish
+ */
 public final class ZipContentPack extends LocalContentProvider
 {
-	private static final TreeMap<String, EnumType> entryTypeMap = new TreeMap<>();
+	private static final TreeMap< String, EnumMeta > TYPE_MAP = new TreeMap<>();
 	static
 	{
-		for(EnumType t : EnumType.values())
-			entryTypeMap.put(t.recommendedSourceDirName, t);
+		for( EnumMeta type : EnumMeta.values() )
+			TYPE_MAP.put( type.recommendedSourceDirName, type );
 	}
 	
-	public ZipContentPack(File zip) { super(zip); }
+	public ZipContentPack( File zip ) { super( zip ); }
 	
 	@Override
-	public void loadContents()
+	public void loadContent()
 	{
 		// Load pack info
-		iterateTypeZipEntries(
+		this.iterateZipEntries(
 			this.source,
-			(entry, in) -> {
-				if(!ContentProviderSourceInfo.RECOMMENDED_INFO_FILE_NAME.equals(entry.getName()))
+			( entry, in ) -> {
+				if( !ContentPackInfo.RECOMMENDED_FILE_NAME.equals( entry.getName() ) )
 					return false;
 				
-				this.parseInfo(in, () -> this.getSourceName() + ":" + entry.getName());
+				this.parseInfo( in, () -> this.sourceName() + ":" + entry.getName() );
 				return true;
 			}
 		);
 		
 		// Load contents
-		iterateTypeZipEntries(
+		this.iterateZipEntries(
 			this.source,
-			(entry, in) -> {
+			( entry, in ) -> {
 				// Skip folders
-				if(entry.isDirectory()) return false;
+				if( entry.isDirectory() ) return false;
 				
-				// Ignore the entry if it is not in a type folder
+				// Ignore entries that are not in a type folder
 				final String entryName = entry.getName();
-				final int i = entryName.indexOf('/');
-				if(i < 0) return false;
+				final int i = entryName.indexOf( '/' );
+				if( i < 0 ) return false;
 				
-				final String fName = entryName.substring(entryName.lastIndexOf('/') + 1);
-				final Messager sourceTrace = () -> this.getSourceName() + ":" + entryName;
+				// Skip if the folder name does not corresponds to a meta type
+				EnumMeta type = TYPE_MAP.get( entryName.substring( 0, i ) );
+				if( type == null ) return false;
 				
-				EnumType type = entryTypeMap.get(entryName.substring(0, i));
-				if(type == null)
-				{
-					// Not a normal type, check if it is creative tab
-					if(entryName.substring(i).equals(FMUMCreativeTab.RECOMMENDED_SOURCE_DIR_NAME))
-					{
-						if(entryName.endsWith(".class"))
-							FMUM.tryInstantiate(entryName.replace('/', '.'));
-						
-						// Create a tab in name of the file name
-						else try { IconBasedTab.parser.parse(in, fName, sourceTrace); }
-						catch(IOException e) { printIOError(sourceTrace.message(), e); }
-					}
-					
-					return false;
-				}
+				final String fName = entryName.substring( entryName.lastIndexOf( '/' ) + 1);
+				final Messager sourceTrace = () -> this.sourceName() + ":" + entryName;
 				
-				// Load typer based on file type
-				if(entryName.endsWith(".txt"))
+				// Load type by file type
+				MetaBase meta = null;
+				if( entryName.endsWith( ".txt" ) )
 					try
 					{
-						type.parser.parse(
+						meta = type.parser.parse(
 							in,
-							fName.substring(0, fName.length() - ".txt".length()),
+							fName.substring( 0, fName.length() - ".txt".length() ),
 							sourceTrace
-						).notifyProvider(this).postParse();
+						);
 					}
-					catch(IOException e) { printIOError(sourceTrace.message(), e); }
-				else if(entryName.endsWith(".class"))
-					this.loadClassBasedTyper(sourceTrace, entryName.replace('/', '.'));
-				else printUnrecognizedType(sourceTrace.message());
+					catch( IOException e ) { this.printIOError( sourceTrace.message(), e ); }
+				else if( entryName.endsWith( ".class" ) )
+					meta = this.loadClassBasedMeta( sourceTrace, entryName.replace( '/', '.' ) );
+				else this.printUnknownFileType( sourceTrace.message() );
+				
+				if( meta != null )
+				{
+					meta.$provider( this );
+					meta.onPostInit();
+				}
 				
 				return false;
 			}

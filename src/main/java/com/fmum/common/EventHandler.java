@@ -1,55 +1,44 @@
 package com.fmum.common;
 
-import java.util.LinkedList;
+import java.util.Collection;
 
+import com.fmum.common.Launcher.AutowireLogger;
+import com.fmum.common.item.MetaItem;
 import com.fmum.common.network.PacketConfigSync;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
-import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.registries.IForgeRegistry;
 
-@EventBusSubscriber(modid = FMUM.MODID)
+@EventBusSubscriber( modid = FMUM.MODID )
 public abstract class EventHandler
 {
-	public static final LinkedList<RequireItemRegister>
-	itemsWaitForRegistration = new LinkedList<>();
+	private static final AutowireLogger log = new AutowireLogger() { };
 	
 	private EventHandler() { }
 	
 	@SubscribeEvent
-	public static void onItemRegister(RegistryEvent.Register<Item> evt)
+	public static void onItemRegister( RegistryEvent.Register< Item > evt )
 	{
-		FMUM.log.info(FMUM.proxy.format("fmum.onitemregistration"));
+		log.log().info( log.format( "fmum.onitemregistration" ) );
 		
-		final IForgeRegistry<Item> registry = evt.getRegistry();
-		for(RequireItemRegister rir : itemsWaitForRegistration)
-			rir.onItemRegister(registry);
+		final Collection< MetaItem > values = MetaItem.regis.values();
+		for( MetaItem meta : values )
+			meta.onItemRegister( evt );
 		
-		FMUM.log.info(
-			FMUM.proxy.format(
+		log.log().info(
+			log.format(
 				"fmum.itemregistrationcomplete",
-				Integer.toString(itemsWaitForRegistration.size())
+				Integer.toString( values.size() )
 			)
 		);
 	}
 	
-	public static interface RequireItemRegister
-	{
-		public void onItemRegister(IForgeRegistry<Item> registry);
-		
-		@SideOnly(Side.CLIENT)
-		public void onModelRegister(ModelRegistryEvent evt);
-	}
-	
 	@SubscribeEvent
-	public static void onPlayerLogin(PlayerLoggedInEvent evt) {
-		FMUM.netHandler.sendTo(new PacketConfigSync(), (EntityPlayerMP)evt.player);
+	public static void onPlayerLogin( PlayerLoggedInEvent evt ) {
+		FMUM.net.sendTo( new PacketConfigSync(), ( EntityPlayerMP ) evt.player );
 	}
 }

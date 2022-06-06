@@ -1,0 +1,71 @@
+# By Giant_Salted_Fish
+
+# Loading phase log
+fmum.preloadcontentpack=Pre-load content pack <%s>
+fmum.loadedcontentpack=Loaded content pack <%s>
+fmum.errorparsingtypefile=Failed to parse keyword <%s> in type file <%s>
+fmum.unknowntypefilekeyword=Unknown type file keyword <%s> present in <%s>
+fmum.toomanykeywordargs=Too many keyword arguments
+fmum.keywordargnumnotenough=Keyword arguments not enough: %s at least, %s supplied.
+fmum.modelnotfoundinrepositroy=Model <%s> does not exist in specified model repository <%s>
+fmum.errorloadingmodel=A error has occurred while loading model <%s>
+fmum.failtofetchcreativetab=Failed to find creative tab <%s> for <%s>. It will be assigned into default creative tab.
+fmum.onitemregistration=Registering items for FMUM content packs...
+fmum.itemregistrationcomplete=Item registration complete. %s items registered.
+fmum.onmodelregistration=Registering models for FMUM content packs...
+fmum.modelregistrationcomplete=Model registration complete. %s models registered.
+fmum.infoactivedpacks=Total %s content pack activated
+fmum.activedpackinfo=- %s MADE BY %s
+fmum.errorcreatingkeybindsfile=A error has occurred while attempting to create key binds file
+
+# Gaming phase log
+fmum.defaultmodulenotfound=Can not find default module <%s>
+
+# Network
+fmum.unhandleditemoppackets=Receive unrecognized item operation packet <%s:%s> from <%s>
+fmum.unhandleditemoppacketc=Receive unrecognized item operation packet <%s:%s>
+
+# Content pack info
+pack.namemissing=Unknown Content Pack
+pack.authormissing=Unknown author
+pack.descriptionmissing=Description not provided
+
+# Creative tab
+itemGroup.fmum=FMUM Default Group
+
+# Item tooltip
+tooltip.descriptionmissing=Description not provided
+tooltip.providerinfo=From %s by %s
+
+# In game message
+msg.fmum.manualmodeon=Manual mode enabled
+msg.fmum.manualmodeoff=Manual mode disabled
+msg.fmum.modifymodeonslot=Switch to "ON SLOT" mode
+msg.fmum.modifymodeonmodule=Switch to "ON MODULE" mode
+msg.fmum.modifymodepaintjob=Switch to "PAINTJOB" mode
+
+# Key binds
+keycategory.fmum.gun=FMUM Guns
+key.fmum.pulltrigger=Pull Trigger
+key.fmum.aimhold=Aim Hold
+key.fmum.aimtoggle=Aim Toggle
+key.fmum.togglemanual=Toggle Manual Mode
+key.fmum.lookaround=Look Around
+key.fmum.viewweapon=View Weapon
+key.fmum.togglemodify=Toggle Modify Mode
+
+keycategory.fmum.assist=FMUM Assist
+key.fmum.co=Co-Key
+key.fmum.cotogglemanual=Toggle Manual Mode Co-Key
+key.fmum.colookaround=Look Around Co-Key
+key.fmum.coviewweapon=View Weapon Co-Key
+key.fmum.cotogglemodify=Toggle Modify Mode Co-Key
+
+keycategory.fmum.modification=FMUM Modification
+key.fmum.selectup=Select Up
+key.fmum.selectdown=Select Down
+key.fmum.selectleft=Select Left
+key.fmum.selectright=Select Right
+key.fmum.selectconfirm=Select Confirm
+key.fmum.selectcancel=Select Cancel
+key.fmum.selecttoggle=Select Toggle

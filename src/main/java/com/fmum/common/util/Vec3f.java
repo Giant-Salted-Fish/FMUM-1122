@@ -7,7 +7,7 @@ package com.fmum.common.util;
  */
 public class Vec3f implements Releasable
 {
-	private static final ObjPool<Vec3f> pool = new ObjPool<Vec3f>(() -> new Vec3f());
+	private static final ObjPool< Vec3f > pool = new ObjPool<>( () -> new Vec3f() );
 	
 	public float
 		x = 0F,
@@ -18,9 +18,9 @@ public class Vec3f implements Releasable
 	
 	public static Vec3f get() { return pool.poll(); }
 	
-	public static Vec3f get(float x, float y, float z) { return pool.poll().set(x, y, z); }
+	public static Vec3f get( float x, float y, float z ) { return pool.poll().set( x, y, z ); }
 	
-	public final Vec3f set(float a)
+	public final Vec3f set( float a )
 	{
 		this.x
 			= this.y
@@ -29,7 +29,7 @@ public class Vec3f implements Releasable
 		return this;
 	}
 	
-	public final Vec3f set(float x, float y, float z)
+	public final Vec3f set( float x, float y, float z )
 	{
 		this.x = x;
 		this.y = y;
@@ -37,7 +37,7 @@ public class Vec3f implements Releasable
 		return this;
 	}
 	
-	public final Vec3f set(Vec3f v)
+	public final Vec3f set( Vec3f v )
 	{
 		this.x = v.x;
 		this.y = v.y;
@@ -45,7 +45,7 @@ public class Vec3f implements Releasable
 		return this;
 	}
 	
-	public final Vec3f trans(Vec3f v)
+	public final Vec3f trans( Vec3f v )
 	{
 		this.x += v.x;
 		this.y += v.y;
@@ -53,7 +53,7 @@ public class Vec3f implements Releasable
 		return this;
 	}
 	
-	public final Vec3f sub(Vec3f v)
+	public final Vec3f sub( Vec3f v )
 	{
 		this.x -= v.x;
 		this.y -= v.y;
@@ -61,7 +61,7 @@ public class Vec3f implements Releasable
 		return this;
 	}
 	
-	public final Vec3f scale(float s)
+	public final Vec3f scale( float s )
 	{
 		this.x *= s;
 		this.y *= s;
@@ -69,7 +69,7 @@ public class Vec3f implements Releasable
 		return this;
 	}
 	
-	public final Vec3f flip(boolean x, boolean y, boolean z)
+	public final Vec3f flip( boolean x, boolean y, boolean z )
 	{
 		this.x = x ? -this.x : this.x;
 		this.y = y ? -this.y : this.y;
@@ -77,7 +77,7 @@ public class Vec3f implements Releasable
 		return this;
 	}
 	
-	public final Vec3f cross(Vec3f v)
+	public final Vec3f cross( Vec3f v )
 	{
 		float x = this.y * v.z - this.z * v.y;
 		float y = this.z * v.x - this.x * v.z;
@@ -90,17 +90,19 @@ public class Vec3f implements Releasable
 	public final Vec3f normalize()
 	{
 		return this.scale(
-			1F / (float)Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z)
+			1F / ( float ) Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z )
 		);
 	}
 	
 	public boolean nonZero() { return this.x != 0F || this.y != 0F || this.z != 0F; }
 	
-	public final boolean equals(Vec3f v) { return this.x == v.x && this.y == v.y && this.z == v.z; }
+	public final boolean equals( Vec3f v ) {
+		return this.x == v.x && this.y == v.y && this.z == v.z;
+	}
 	
 	@Override
-	public boolean equals(Object o) { return o instanceof Vec3f && this.equals((Vec3f)o); }
+	public boolean equals( Object o ) { return o instanceof Vec3f && this.equals( ( Vec3f ) o ); }
 	
 	@Override
-	public void release() { pool.back(this); }
+	public void release() { pool.back( this ); }
 }

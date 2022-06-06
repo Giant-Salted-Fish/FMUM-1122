@@ -11,35 +11,35 @@ import java.util.List;
  * 
  * @author Giant_Salted_Fish
  */
-public final class ObjPool<T>
+public final class ObjPool< T >
 {
-	private final List<T> pool;
-	private final ObjFactory<T> factory;
-	private final Recycler<T> recycler;
+	private final List< T > pool;
+	private final ObjFactory< T > factory;
+	private final Recycler< T > recycler;
 	
 	/**
 	 * In default it uses a synchronized {@link ArrayList} as pool which guarantee the thread safe
 	 * 
 	 * @param factory Instance factory which provides instance when there is none left in pool
 	 */
-	public ObjPool(ObjFactory<T> factory)
+	public ObjPool( ObjFactory< T > factory )
 	{
 		this(
 			factory,
-			(instance, pool) -> { if(pool.size() < 64) pool.add(instance); }
+			( instance, pool ) -> { if( pool.size() < 64 ) pool.add( instance ); }
 		);
 	}
 	
-	public ObjPool(ObjFactory<T> factory, Recycler<T> recycler)
+	public ObjPool( ObjFactory< T > factory, Recycler< T > recycler )
 	{
 		this(
-			Collections.synchronizedList(new ArrayList<>()),
+			Collections.synchronizedList( new ArrayList<>() ),
 			factory,
 			recycler
 		);
 	}
 	
-	public ObjPool(List<T> pool, ObjFactory<T> factory, Recycler<T> recycler)
+	public ObjPool( List< T > pool, ObjFactory< T > factory, Recycler< T > recycler )
 	{
 		this.pool = pool;
 		this.factory = factory;
@@ -50,13 +50,13 @@ public final class ObjPool<T>
 	{
 		return (
 			this.pool.size() > 0
-			? this.pool.remove(this.pool.size() - 1)
+			? this.pool.remove( this.pool.size() - 1 )
 			: this.factory.produce()
 		);
 	}
 	
-	public void back(T instance) { this.recycler.recycle(instance, this.pool); }
+	public void back( T instance ) { this.recycler.recycle( instance, this.pool ); }
 	
 	@FunctionalInterface
-	public static interface Recycler<T> { public void recycle(T instance, List<T> pool); }
+	public static interface Recycler< T > { public void recycle( T instance, List< T > pool ); }
 }

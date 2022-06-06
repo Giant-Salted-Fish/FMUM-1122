@@ -1,14 +1,16 @@
 package com.fmum.client;
 
+import java.util.Collection;
+
 import org.lwjgl.opengl.GL11;
 
-import com.fmum.client.KeyManager.Key;
-import com.fmum.client.model.Model;
-import com.fmum.common.EventHandler;
-import com.fmum.common.EventHandler.RequireItemRegister;
+import com.fmum.client.input.InputHandler;
+import com.fmum.client.input.MetaKeyBind;
 import com.fmum.common.FMUM;
-import com.fmum.common.type.ItemInfo;
-import com.fmum.common.type.TypeInfo;
+import com.fmum.common.Launcher.AutowireLogger;
+import com.fmum.common.item.HostItem;
+import com.fmum.common.item.MetaItem;
+import com.fmum.common.meta.MetaBase;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -27,6 +29,7 @@ import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -41,82 +44,85 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly(Side.CLIENT)
-@EventBusSubscriber(value = Side.CLIENT, modid = FMUM.MODID)
+@SideOnly( Side.CLIENT )
+@EventBusSubscriber( modid = FMUM.MODID ) // , value = Side.CLIENT
 public abstract class EventHandlerClient
 {
+	private static final AutowireLogger log = new AutowireLogger() { };
+	
 	public static float
-		renderCamRoll = 0F,
-		renderCamYaw = 0F,
-		renderCamPitch = 0F;
+		camRoll = 0F,
+		camYaw = 0F,
+		camPitch = 0F;
+	
+	/**
+	 * Partial tick time for smoothing between ticks in rendering
+	 */
+	public static float renderTickTime = 0F;
 	
 	private EventHandlerClient() { }
 	
 	@SubscribeEvent
-	public static void onModelRegister(ModelRegistryEvent evt)
+	public static void onModelRegister( ModelRegistryEvent evt )
 	{
-		FMUM.log.info(I18n.format("fmum.onmodelregistration"));
+		log.log().info( I18n.format( "fmum.onmodelregistration" ) );
 		
-		for(RequireItemRegister rir : EventHandler.itemsWaitForRegistration)
-			rir.onModelRegister(evt);
+		final Collection< MetaItem > values = MetaItem.regis.values();
+		for( MetaItem meta : values )
+			meta.onModelRegister( evt );
 		
-		FMUM.log.info(
+		log.log().info(
 			I18n.format(
 				"fmum.modelregistrationcomplete",
-				Integer.toString(EventHandler.itemsWaitForRegistration.size())
+				Integer.toString( values.size() )
 			)
 		);
-		EventHandler.itemsWaitForRegistration.clear();
 	}
 	
 	@SubscribeEvent
-	public static void onTick(ClientTickEvent evt)
+	public static void onClientTick( ClientTickEvent evt )
 	{
-		switch(evt.phase)
+		switch( evt.phase )
 		{
 		case START:
 			break;
-		case END:
-			FMUMClient.tick();
+		default: FMUMClient.MOD.tick();
 		}
 	}
 	
 	@SubscribeEvent
-	public static void onGameOverlayRender(RenderGameOverlayEvent evt)
+	public static void onGameOverlayRender( RenderGameOverlayEvent evt )
 	{
-		switch(evt.getType())
+		switch( evt.getType() )
 		{
 		case CROSSHAIRS:
-			ItemStack stack = FMUM.mc.player.inventory.getCurrentItem();
-			if(
-				stack.getItem() instanceof ItemInfo
-				&& ((ItemInfo)stack.getItem()).disableCrosshair()
-			) evt.setCanceled(true);
-			return;
+			evt.setCanceled( HostItem.getMeta(
+				FMUMClient.mc.player.inventory.getCurrentItem()
+			).disableCrosshair() );
+			break;
 		default:;
 		}
 	}
 	
 	/**
-	 * Update partial tick time for after later rendering
+	 * Update partial tick time for after rendering
 	 */
-	@SubscribeEvent
-	public static void onRenderTick(RenderTickEvent evt) {
-		if(evt.phase == Phase.START) Model.smoother = evt.renderTickTime;
+	public static void onRenderTick( RenderTickEvent evt ) {
+		if( evt.phase == Phase.START ) renderTickTime = evt.renderTickTime;
 	}
 	
 	@SubscribeEvent
-	public static void onHandRender(RenderHandEvent evt)
+	public static void onHandRender( RenderHandEvent evt )
 	{
 		// Check condition to fall back to original render method
 		final Minecraft mc = FMUMClient.mc;
-		final GameSettings settings = mc.gameSettings;
+		final GameSettings settings = FMUMClient.settings;
 		final Entity renderViewEntity = mc.getRenderViewEntity();
 		if(
 			settings.thirdPersonView != 0
 			|| (
 				renderViewEntity instanceof EntityLivingBase
-				&& ((EntityLivingBase)renderViewEntity).isPlayerSleeping()
+				&& ( ( EntityLivingBase ) renderViewEntity ).isPlayerSleeping()
 			)
 			|| settings.hideGUI
 			|| mc.playerController.isSpectator()
@@ -126,7 +132,11 @@ public abstract class EventHandlerClient
 		final EntityPlayerSP player = mc.player;
 		ItemStack stack = player.inventory.getCurrentItem();
 		Item item = stack.getItem();
-		if(!(item instanceof ItemInfo)) return;
+		if( !( item instanceof HostItem ) ) return;
+		
+		MetaItem meta = ( ( HostItem ) item ).meta();
+		// TODO: off-hand
+		// TODO: call a render method here to render parts that does not interact with light
 		
 		// Holding one, do customized rendering
 		final EntityRenderer entityRenderer = mc.entityRenderer;
@@ -135,11 +145,11 @@ public abstract class EventHandlerClient
 		/// Key lighting codes copied from {@link ItemRenderer#renderItemInFirstPerson(float)}
 		// {@link ItemRenderer#rotateArroundXAndY(float, float)}
 		GL11.glPushMatrix();
-		GL11.glRotated(renderCamPitch, 1D, 0D, 0D); // player.rotationPitch
-		GL11.glRotated(renderCamYaw, 0D, 1D, 0D);   // player.rotationYaw
+		GL11.glRotatef( camPitch, 1F, 0F, 0F ); // player.rotationPitch
+		GL11.glRotatef( camYaw, 0F, 1F, 0F );   // player.rotationYaw
 		RenderHelper.enableStandardItemLighting();
 		GL11.glPopMatrix();
-		
+
 		// {@link ItemRenderer#setLightmap()}
 		int light = mc.world.getCombinedLight(
 			new BlockPos(
@@ -162,7 +172,7 @@ public abstract class EventHandlerClient
 		
 		// Outer layer has pushed a matrix, hence not push matrix needed here
 //		GlStateManager.disableCull();
-		((ItemInfo)stack.getItem()).renderFP(stack);
+		meta.renderFP( stack );
 		
 		GlStateManager.disableRescaleNormal();
 		RenderHelper.disableStandardItemLighting();
@@ -170,9 +180,9 @@ public abstract class EventHandlerClient
 		// Do not forget to disable light map
 		entityRenderer.disableLightmap();
 		
-		// Cancel event if no native item to render in off-hand to render
-		if(player.inventory.offHandInventory.get(0).isEmpty())
-			evt.setCanceled(true);
+		// Cancel event if no native item render in off-hand
+		if( player.inventory.offHandInventory.get( 0 ).isEmpty() )
+			evt.setCanceled( true );
 	}
 	
 	/**
@@ -181,21 +191,21 @@ public abstract class EventHandlerClient
 	 * just cancel the rendering for {@link FMUM} item.
 	 */
 	@SubscribeEvent
-	public static void onSpecificHandRender(RenderSpecificHandEvent evt) {
-		if(evt.getItemStack().getItem() instanceof ItemInfo) evt.setCanceled(true);
+	public static void onSpecificHandRender( RenderSpecificHandEvent evt ) {
+		if( evt.getItemStack().getItem() instanceof HostItem ) evt.setCanceled( true );
 	}
 	
 	/**
 	 * Disable dynamic fov
 	 */
 	@SubscribeEvent
-	public static void onFOVUpdate(FOVUpdateEvent evt) { evt.setNewfov(1F); }
+	public static void onFOVUpdate( FOVUpdateEvent evt ) { evt.setNewfov(1F); }
 	
 	/**
 	 * TODO: Apply fov modification here for scope glass texture rendering
 	 */
 	@SubscribeEvent
-	public static void onFOVModify(FOVModifier evt)
+	public static void onFOVModify( FOVModifier evt )
 	{
 		
 	}
@@ -204,11 +214,11 @@ public abstract class EventHandlerClient
 	 * Apply camera roll
 	 */
 	@SubscribeEvent
-	public static void onCameraSetup(CameraSetup evt)
+	public static void onCameraSetup( CameraSetup evt )
 	{
-		evt.setRoll(renderCamRoll);
-		evt.setYaw(renderCamYaw);
-		evt.setPitch(renderCamPitch);
+		evt.setRoll( camRoll );
+		evt.setYaw( camYaw );
+		evt.setPitch( camPitch );
 	}
 	
 	@SubscribeEvent
@@ -219,32 +229,44 @@ public abstract class EventHandlerClient
 //		ModelFNMK20SSR.INSTANCE.render();
 	}
 	
-	/**
-	 * @see KeyManager
-	 */
 	@SubscribeEvent
-	public static void onInput(InputEvent evt)
+	public static void onMouseInput( MouseEvent evt )
 	{
-		// Avoid key input if yet not enter a world or a GUI is activated
-		if(FMUMClient.mc.player == null || FMUMClient.mc.currentScreen != null) return;
+		int dWheel = evt.getDwheel();
+		if( dWheel != 0 ) return;
 		
-		// Update keys upon condition
-		for(Key k : KeyManager.primaryKeys) k.update();
-		for(Key k : Key.CO.down ? KeyManager.coKeys : KeyManager.inCoKeys) k.update();
+		ItemStack stack = FMUMClient.MOD.prevStack;
+		evt.setCanceled( HostItem.getMeta( stack ).onMouseWheelInput( stack, dWheel ) );
+	}
+	
+	/** 
+	 * @see InputHandler
+	 */
+	public static void onInput( InputEvent evt )
+	{
+		// Avoid key input if yet not enter a world or a GUI is actived
+		if( FMUMClient.mc.player == null || FMUMClient.mc.currentScreen != null )
+			return;
+		
+		// Update keys
+		for( MetaKeyBind key : InputHandler.globalKeys ) key.update();
+		for( MetaKeyBind key : InputHandler.CO.down ? InputHandler.coKeys : InputHandler.incoKeys )
+			key.update();
 	}
 	
 	private static boolean modelCompiled = false;
 	/**
-	 * 3D models will be built client side on world load if have not built
+	 * 3D models will be build client side on the first time of the world load
 	 */
 	@SubscribeEvent
-	public static void onWorldLoad(WorldEvent.Load evt)
+	public static void onWorldLoad( WorldEvent.Load evt )
 	{
 		// Avoid model compile on player local server
-		if(!evt.getWorld().isRemote || modelCompiled) return;
+		if( !evt.getWorld().isRemote || modelCompiled )
+			return;
 		
-		for(TypeInfo t : TypeInfo.types.values())
-			t.loadModel();
+		for( MetaBase meta : MetaBase.regis.values() )
+			meta.onModelLoad();
 		modelCompiled = true;
 	}
 }
