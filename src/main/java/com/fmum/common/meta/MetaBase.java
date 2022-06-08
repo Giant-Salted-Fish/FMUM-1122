@@ -59,7 +59,10 @@ public interface MetaBase extends Meta, AutowireLogger
 	}
 	
 	/**
-	 * Called when the first time the player enters a world to load model for rendering
+	 * Called when the time you should load your model for rendering. It is delayed to the first
+	 * time the player enters a world for the reason that at any initialization stage provided by
+	 * {@link MinecraftForge} building a VBO can cause problem hence it is delayed to the world
+	 * load. </p>
 	 * 
 	 * @see TODO: loader function
 	 */
@@ -104,6 +107,8 @@ public interface MetaBase extends Meta, AutowireLogger
 	
 	@SideOnly( Side.CLIENT )
 	public default void render() { }
+	
+	public default double modelScale() { return 1D; }
 	
 	public default EnumMeta enumMeta() { return EnumMeta.GENERAL; }
 	

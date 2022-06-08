@@ -25,7 +25,7 @@ public interface MetaCreativeTab extends MetaBase
 	{
 		MetaBase.super.regisPostInitHandler( tasks );
 		
-		tasks.add( () -> regis.put( this.name(), this ) );
+		tasks.add( () -> this.regisTo( this, regis ) );
 	}
 	
 	@Override

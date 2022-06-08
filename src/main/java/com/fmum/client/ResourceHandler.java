@@ -16,9 +16,9 @@ public abstract class ResourceHandler
 	public static final String RECOMMENDED_TEXTURE_FOLDER = "skins/";
 	
 	public static final ResourceLocation
-		TEXTURE_RED = getTexture( getTexturePath( "0xff0000" ) ),
-		TEXTURE_GREEN = getTexture( getTexturePath( "0x00ff00" ) ),
-		TEXTURE_BLUE = getTexture( getTexturePath( "0x0000ff" ) );
+		TEXTURE_RED = getTexture( formatTexturePath( "0xff0000" ) ),
+		TEXTURE_GREEN = getTexture( formatTexturePath( "0x00ff00" ) ),
+		TEXTURE_BLUE = getTexture( formatTexturePath( "0x0000ff" ) );
 	
 	private ResourceHandler() { }
 	
@@ -36,7 +36,7 @@ public abstract class ResourceHandler
 	/**
 	 * @return Name with {@value #RECOMMENDED_TEXTURE_FOLDER} in front of and ".png" behind
 	 */
-	public static String getTexturePath( String name ) {
+	public static String formatTexturePath( String name ) {
 		return RECOMMENDED_TEXTURE_FOLDER + name + ".png";
 	}
 }

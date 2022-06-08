@@ -6,12 +6,16 @@ import java.util.Set;
 
 import com.fmum.common.FMUM;
 import com.fmum.common.meta.MetaBase;
+import com.fmum.common.module.PreInstalledModules;
+import com.fmum.common.module.PreInstalledOnRail;
 import com.fmum.common.module.MetaModular;
+import com.fmum.common.module.ModuleSlot;
+import com.fmum.common.module.RailSlot;
 import com.fmum.common.paintjob.MetaPaintable;
 import com.fmum.common.util.LocalAttrParser;
 
 /**
- * Base for common {@link FMUM} items. They are modular and can be painted.
+ * Base for common {@link FMUM} items. They are modular and support paintjob.
  * 
  * @author Giant_Salted_Fish
  */
@@ -21,8 +25,23 @@ public abstract class TypeItemCustomizable extends TypeItem implements MetaModul
 		parser = new LocalAttrParser<>( TypeItem.parser );
 	static
 	{
+		parser.addKeyword( "Slots", ( s, t ) -> t.slots = RailSlot.parse( s, 1 ) );
+		parser.addKeyword(
+			"DefModules",
+			( s, t ) -> {
+				PreInstalledOnRail modules = new PreInstalledOnRail( t.name );
+				modules.parse( s, 1 );
+				t.defModules = modules;
+			}
+		);
+		
+		// TODO: hit box
 		
 	}
+	
+	public ModuleSlot[] slots = DEF_SLOTS;
+	
+	public PreInstalledModules defModules = DEF_DEF_MODULES;
 	
 	// TODO: maybe a better initial capacity?
 	public ArrayList< MetaBase > paintjobs = new ArrayList<>( 1 );

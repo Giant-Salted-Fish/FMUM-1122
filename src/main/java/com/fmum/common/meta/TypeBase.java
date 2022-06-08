@@ -65,6 +65,12 @@ public abstract class TypeBase implements MetaBase
 	}
 	
 	@Override
+	public int hashCode() {	return this.name.hashCode(); }
+	
+	@Override
+	public boolean equals( Object obj ) { return this.name.equals( obj ); }
+	
+	@Override
 	public String toString() { return this.identifier(); }
 	
 	protected static TreeMap< String, Integer > parseMaterial( String[] split, int cursor )

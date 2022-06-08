@@ -13,6 +13,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.MouseHelper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -81,8 +82,7 @@ public interface MetaItem extends MetaBase
 		);
 	}
 	
-	@SideOnly( Side.CLIENT )
-	public default void renderFP( ItemStack stack ) { }
+	public default boolean nbtBroken( ItemStack stack ) { return false; }
 	
 	public default String description( ItemStack stack ) { return this.description(); }
 	
@@ -159,6 +159,12 @@ public interface MetaItem extends MetaBase
 	public default String translationKey() {
 		return TRANSLATION_PREFIX + this.name() + TRANSLATION_SUFFIX;
 	}
+	
+	@SideOnly( Side.CLIENT )
+	public default void onRenderTick( ItemStack stack, MouseHelper mouse ) { }
+	
+	@SideOnly( Side.CLIENT )
+	public default void renderFP( ItemStack stack ) { }
 	
 	public static MetaItem get( String name ) { return regis.get( name ); }
 }

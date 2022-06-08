@@ -9,7 +9,7 @@ import com.fmum.common.weapon.MetaAmmoContainer;
 
 /**
  * Abstract of any part of a gun, including gun parts, magazines and attachments. They should be
- * modular and can be paint
+ * modular and can be paint.
  * 
  * @author Giant_Salted_Fish
  */

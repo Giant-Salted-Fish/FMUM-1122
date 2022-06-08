@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import javax.annotation.Nullable;
+
 import org.lwjgl.opengl.GLContext;
 
 import com.fmum.client.input.InputHandler;
@@ -23,6 +25,8 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.MouseHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -70,9 +74,22 @@ public final class FMUMClient extends FMUM
 	public MetaItem prevMeta = MetaItem.NONE;
 	
 	/**
-	 * Operation that is executing
+	 * Operation that is executing. Call {@link #launchOp(Operation, ItemStack)} rather than
+	 * directly set this field if you want to launch a new operation.  
 	 */
 	public Operation operating = Operation.NONE;
+	
+	protected final MouseHelper MOUSE_HELPER_PROXY = new MouseHelper()
+	{
+		@Override
+		public void mouseXYChange()
+		{
+			super.mouseXYChange();
+			
+			// Call render tick and do pre-render
+			FMUMClient.this.prevMeta.onRenderTick( FMUMClient.this.prevStack, this );
+		}
+	};
 	
 	@Override
 	public void checkOpenGLCapability()
@@ -120,6 +137,12 @@ public final class FMUMClient extends FMUM
 		);
 		container.bindMetadata( MetadataCollection.from( null, "" ) );
 		FMLClientHandler.instance().addModAsResource( container );
+	}
+	
+	@Nullable
+	@Override
+	public ResourceLocation loadTexture( String path ) {
+		return ResourceHandler.getTexture( path );
 	}
 	
 	@Override
@@ -200,6 +223,9 @@ public final class FMUMClient extends FMUM
 		// Tick item and current operation TODO: figure out which one is better to be the first
 		meta.onHandTick( stack );
 		this.operating = this.operating.tick( stack );
+		
+		// Ensure mouse helper(Mods like Flan's Mod may change mouse help in certain conditions)
+		mc.mouseHelper = this.MOUSE_HELPER_PROXY;
 	}
 	
 	@Override
@@ -231,7 +257,7 @@ public final class FMUMClient extends FMUM
 	 * @return Executing operation after this call
 	 */
 	public Operation launchOp( Operation op, ItemStack stack ) {
-		return ( this.operating = this.operating.onNewOpLaunch( op, stack ) );
+		return this.operating = this.operating.onNewOpLaunch( op, stack );
 	}
 	
 	public static void addPromptMsg( String... msg ) {

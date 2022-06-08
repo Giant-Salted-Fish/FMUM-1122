@@ -8,6 +8,8 @@ import java.util.Random;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import com.fmum.common.Launcher.AutowireLogger;
 import com.fmum.common.meta.MetaBase;
 import com.fmum.common.pack.ContentProvider;
@@ -16,6 +18,7 @@ import com.fmum.common.pack.TypeCreativeTab;
 import com.fmum.common.pack.ZipContentPack;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -173,12 +176,16 @@ public class FMUM extends Launcher implements ContentProvider, AutowireLogger
 		}
 	}
 	
+	@Nullable
+	public ResourceLocation loadTexture( String path ) { return null; }
+	
 	/**
 	 * This localize the message based on the physical game side. Use this for localization if the
 	 * message could be print in both side.
 	 * 
 	 * @see net.minecraft.client.resources.I18n#format(String, Object...)
 	 */
+	@Override
 	public String format( String translateKey, Object... parameters )
 	{
 		String format = this.localization.get( translateKey );

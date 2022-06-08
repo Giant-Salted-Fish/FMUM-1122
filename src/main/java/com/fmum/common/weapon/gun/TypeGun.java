@@ -3,6 +3,7 @@ package com.fmum.common.weapon.gun;
 import java.util.Set;
 
 import com.fmum.common.item.TypeItemCustomizable;
+import com.fmum.common.module.ModuleSlot;
 import com.fmum.common.util.LocalAttrParser;
 
 public class TypeGun extends TypeItemCustomizable implements MetaGun

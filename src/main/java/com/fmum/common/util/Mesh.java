@@ -28,11 +28,6 @@ public final class Mesh implements AutoCloseable
 	 */
 	public static final Mesh NONE = new Mesh();
 	
-	/**
-	 * A fixed instance that can be used as the initializer value
-	 */
-	public static final Mesh[] DEF_MESHES = { };
-	
 	public int vao = -1;
 	
 	/**
