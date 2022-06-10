@@ -1,4 +1,4 @@
-package com.fmum.common.weapon.gun;
+package com.fmum.common.gun;
 
 import com.fmum.common.item.ItemBase;
 

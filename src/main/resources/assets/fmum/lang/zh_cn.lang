@@ -57,6 +57,9 @@ item.undefined.name=未知物品
 # 物品提示框
 
 # 游戏内消息
+msg.modifymodeonslot=切换至导轨改装模式
+msg.modifymodeonmodule=切换至模块改装模式
+msg.modifymodepaintjob=切换至皮肤改装模式
 
 # 按键绑定
 keycategory.fmum.gun=FMUM 枪械

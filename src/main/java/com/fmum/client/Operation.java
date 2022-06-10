@@ -1,5 +1,6 @@
 package com.fmum.client;
 
+import com.fmum.common.FMUM;
 import com.fmum.common.Meta;
 
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -62,4 +63,10 @@ public interface Operation extends Meta
 	public default Operation onGUIChange( GuiScreen gui ) { return NONE; }
 	
 	public default EntityPlayerSP getPlayer() { return FMUMClient.mc.player; }
+	
+	@Override
+	public default String name() { return this.getClass().getCanonicalName(); }
+	
+	@Override
+	public default String author() { return FMUM.AUTHOR; }
 }

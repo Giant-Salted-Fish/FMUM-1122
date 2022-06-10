@@ -57,6 +57,9 @@ item.undefined.name=Unknown Item
 # Item tooltip
 
 # In game message
+msg.modifymodeonslot=Switch to "ON SLOT" mode
+msg.modifymodeonmodule=Switch to "ON MODULE" mode
+msg.modifymodepaintjob=Switch to "PAINTJOB" mode
 
 # Key binds
 keycategory.fmum.gun=FMUM Guns

@@ -1,4 +1,4 @@
-package com.fmum.common.weapon.gun;
+package com.fmum.common.gun;
 
 import java.util.Set;
 
@@ -15,7 +15,10 @@ import net.minecraft.nbt.NBTTagList;
  * 
  * <p> It needs one {@code int} to store install step and offset. </p>
  * <pre>
- * FIXME: assign offset, step and flag
+ *  4      8      4          16
+ * 0000 00000000 0000 0000000000000000
+ *  |      |      |          |
+ * offset step   flag    undefined
  * </pre>
  * 
  * @author Giant_Salted_Fish
@@ -94,8 +97,19 @@ public abstract class TypeGunPart extends TypeItemCustomizable implements MetaGu
 	}
 	
 	@Override
-	public void applyTransform( ModuleSlot slot, NBTTagList tag, CoordSystem dst ) {
-		dst.trans( slot.posStepX() * 0, CoordSystem.NORM_X ); // FIXME
+	public int dataArraySize() { return super.dataArraySize() + 1; }
+	
+	@Override
+	public void applyTransform( ModuleSlot slot, NBTTagList tag, CoordSystem dst )
+	{
+		dst.trans(
+			slot.posStepX() * (
+				( ( NBTTagList ) tag.get( 0 ) ).getIntArrayAt( 0 )[
+					super.dataArraySize()
+				] >>> 16 & 0xFF
+			),
+			CoordSystem.NORM_X
+		);
 	}
 	
 	@Override

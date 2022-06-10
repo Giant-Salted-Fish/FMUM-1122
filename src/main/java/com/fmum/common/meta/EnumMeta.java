@@ -3,10 +3,10 @@ package com.fmum.common.meta;
 import com.fmum.client.input.TypeKeyBind;
 import com.fmum.client.input.TypeSpKeyBind;
 import com.fmum.common.FMUM;
+import com.fmum.common.gun.TypeGun;
 import com.fmum.common.pack.TypeCreativeTab;
 import com.fmum.common.paintjob.TypeExternalPaintjob;
 import com.fmum.common.util.LocalAttrParser;
-import com.fmum.common.weapon.gun.TypeGun;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

@@ -34,6 +34,11 @@ import net.minecraft.nbt.NBTTagList;
  *        id             damage
  * </pre>
  * 
+ * <p> Notice that the default way of assigning id for the {@link MetaModular} is to use the hash of
+ * its name and discard the high 16 bits of it. Hence changing the name of a module could cause
+ * problem and it is recommended to not change the name unless it is necessary when you are running
+ * a server or playing with a save that you do not want it to break. </p>
+ * 
  * @see ModuleSlot
  * @author Giant_Salted_Fish
  */
@@ -97,7 +102,7 @@ public interface MetaModular extends MetaGrouped
 	public default NBTTagList genTag( int dam )
 	{
 		// Initialize data
-		final int[] data = new int[ this.dataSize() ];
+		final int[] data = new int[ this.dataArraySize() ];
 		data[ 0 ] = ( this.id() << 16 ) + ( 0xFFFF & dam );
 		
 		// Create tag and data tag
@@ -119,7 +124,7 @@ public interface MetaModular extends MetaGrouped
 	 * 
 	 * @return The length of the data {@code int} array
 	 */
-	public default int dataSize() { return 1; }
+	public default int dataArraySize() { return 1; }
 	
 	public default PreInstalledModules defModules() { return DEF_DEF_MODULES; }
 	

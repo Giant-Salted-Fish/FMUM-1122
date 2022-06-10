@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import com.fmum.client.model.Renderable;
-import com.fmum.common.item.MetaItem;
+import com.fmum.common.module.MetaModular;
 import com.fmum.common.util.Releasable;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MouseHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+@SideOnly( Side.CLIENT )
 public interface RenderableModular extends Renderable
 {
 	/**
@@ -17,7 +20,7 @@ public interface RenderableModular extends Renderable
 	 */
 	public static final ArrayList< Releasable > infoQueue = new ArrayList<>();
 	
-	public default void onRenderTick( NBTTagCompound tag, MetaItem meta, MouseHelper mouse )
+	public default void onRenderTick( NBTTagCompound tag, MetaModular meta, MouseHelper mouse )
 	{
 		final Collection< Releasable > infoQueue = this.infoQueue();
 		
@@ -34,11 +37,11 @@ public interface RenderableModular extends Renderable
 		// FIXME
 		
 		// Apply view translation if is in modification mode
-//		if( this.operating() == )
+		if( this.operating() == OpModification.INSTANCE )
 		{
 			
 		}
-//		else
+		else
 		{
 			// Apply animation controlled by animator
 			

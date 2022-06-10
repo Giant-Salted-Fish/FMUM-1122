@@ -4,6 +4,10 @@ import java.util.Set;
 
 import com.fmum.common.util.LocalAttrParser;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
+@SideOnly( Side.CLIENT )
 public class TypeSpKeyBind extends TypeKeyBind
 {
 	public static final LocalAttrParser< TypeSpKeyBind >

@@ -82,8 +82,6 @@ public interface MetaItem extends MetaBase
 		);
 	}
 	
-	public default boolean nbtBroken( ItemStack stack ) { return false; }
-	
 	public default String description( ItemStack stack ) { return this.description(); }
 	
 	/**

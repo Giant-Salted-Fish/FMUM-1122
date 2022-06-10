@@ -10,7 +10,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @author Giant_Salted_Fish
  */
 @SideOnly( Side.CLIENT )
-public abstract class OperationProgressive implements Operation
+public abstract class OpProgressive implements Operation
 {
 	public double progress = 0D;
 	public double prevProgress = 0D;

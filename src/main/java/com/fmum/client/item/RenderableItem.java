@@ -12,7 +12,10 @@ import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MouseHelper;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+@SideOnly( Side.CLIENT )
 public interface RenderableItem extends Renderable
 {
 	public default void onRenderTick( ItemStack stack, MetaItem meta, MouseHelper mouse )

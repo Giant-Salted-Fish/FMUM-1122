@@ -1,4 +1,4 @@
-package com.fmum.common.weapon.gun;
+package com.fmum.common.gun;
 
 import java.util.Set;
 

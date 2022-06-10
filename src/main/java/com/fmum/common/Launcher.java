@@ -40,6 +40,8 @@ public class Launcher
 	 */
 	public static final String MOD_NAME = "Flan's Mod Ultimate 1.1 Modified";
 	
+	public static final String AUTHOR = "fmum.author";
+	
 	/**
 	 * Network handler
 	 */

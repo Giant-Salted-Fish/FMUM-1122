@@ -69,7 +69,7 @@ public class FMUM extends Launcher implements ContentProvider, AutowireLogger
 	public String packDirName = MODID;
 	
 	/**
-	 * Max layers of the modules x 2(0-255 x 2 = 0-510)
+	 * Max layers of the modules times 2(0-255 x 2 = 0-510)
 	 */
 	public int maxLocLen = 16;
 	
@@ -196,7 +196,7 @@ public class FMUM extends Launcher implements ContentProvider, AutowireLogger
 	public String name() { return "fmum.pack"; }
 	
 	@Override
-	public String author() { return "fmum.author"; }
+	public String author() { return AUTHOR; }
 	
 	@Override
 	public String description() { return "fmum.description"; }

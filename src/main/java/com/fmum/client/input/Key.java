@@ -2,12 +2,16 @@ package com.fmum.client.input;
 
 import com.fmum.common.FMUM;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 /**
  * A list of all names of the keys that provided by {@link FMUM} in default. You can switch the name
  * of the key to response by input.
  * 
  * @author Giant_Salted_Fish
  */
+@SideOnly( Side.CLIENT )
 public abstract class Key
 {
 	/**
