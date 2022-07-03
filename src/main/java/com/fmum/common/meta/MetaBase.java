@@ -100,7 +100,7 @@ public interface MetaBase extends Meta, AutowireLogger
 	public default String author() { return this.provider().author(); }
 	
 	@SideOnly( Side.CLIENT )
-	public default String translationKey() { return this.name(); }
+	public default String unlocalizedName() { return this.name(); }
 	
 	@SideOnly( Side.CLIENT )
 	public default ResourceLocation texture() { return ResourceHandler.TEXTURE_GREEN; }

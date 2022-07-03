@@ -150,11 +150,11 @@ public interface MetaItem extends MetaBase
 	public default void onKeyInput( ItemStack stack, MetaKeyBind key ) { }
 	
 	@SideOnly( Side.CLIENT )
-	public default String translationKey( ItemStack stack ) { return this.translationKey(); }
+	public default String unlocalizedName( ItemStack stack ) { return this.unlocalizedName(); }
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public default String translationKey() {
+	public default String unlocalizedName() {
 		return TRANSLATION_PREFIX + this.name() + TRANSLATION_SUFFIX;
 	}
 	

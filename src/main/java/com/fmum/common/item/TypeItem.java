@@ -68,7 +68,7 @@ public abstract class TypeItem extends TypeTextured implements MetaItem
 	{
 		this.item = item;
 		item.setRegistryName( this.name );
-		item.setTranslationKey( this.name );
+		item.setUnlocalizedName( this.name );
 		item.setMaxStackSize( maxStackSize );
 		item.setMaxDamage( maxDamage );
 		

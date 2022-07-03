@@ -106,7 +106,7 @@ public final class FMUMClient extends FMUM
 		{
 			try { this.keyBindsFile.createNewFile(); }
 			catch( IOException e ) {
-				this.log().error( I18n.format( "fmum.errorcreatingkeybindsfile" ) );
+				log.error( I18n.format( "fmum.errorcreatingkeybindsfile" ) );
 			}
 			InputHandler.saveTo( this.keyBindsFile );
 		}

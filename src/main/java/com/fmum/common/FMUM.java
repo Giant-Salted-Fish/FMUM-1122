@@ -78,7 +78,7 @@ public class FMUM extends Launcher implements ContentProvider, AutowireLogger
 	 */
 	public int maxCanInstall = 5;
 	
-	protected static final Pattern SUFFIX_ZIP_JAR = Pattern.compile("(.+)\\.(zip|jar)$");
+	protected static final Pattern SUFFIX_ZIP_JAR = Pattern.compile( "(.+)\\.(zip|jar)$" );
 	
 	/**
 	 * For server side localization only
@@ -118,7 +118,7 @@ public class FMUM extends Launcher implements ContentProvider, AutowireLogger
 		if( !packDir.exists() )
 		{
 			packDir.mkdirs();
-			this.log().info( this.format( "fmum.packfoldercreated", this.packDirName ) );
+			log.info( this.format( "fmum.packfoldercreated", this.packDirName ) );
 		}
 		
 		// Find all content packs and load them
@@ -172,7 +172,7 @@ public class FMUM extends Launcher implements ContentProvider, AutowireLogger
 	{
 		try { FMUMClassLoader.INSTANCE.addURL( source.toURI().toURL() ); }
 		catch( MalformedURLException e ) {
-			this.log().error( this.format( "fmum.erroraddingclasspath", source.getName() ), e );
+			log.error( this.format( "fmum.erroraddingclasspath", source.getName() ), e );
 		}
 	}
 	

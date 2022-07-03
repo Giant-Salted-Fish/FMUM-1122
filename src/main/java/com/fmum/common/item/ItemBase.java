@@ -38,7 +38,9 @@ public class ItemBase< T extends MetaItem > extends Item implements HostItem
 	) { return this.meta.canDestroyBlockInCreative( world, pos, stack, player ); }
 	
 	@Override
-	public String getTranslationKey( ItemStack stack ) { return this.meta.translationKey( stack ); }
+	public String getUnlocalizedName( ItemStack stack ) {
+		return this.meta.unlocalizedName( stack );
+	}
 	
 	// TODO
 //	@Override

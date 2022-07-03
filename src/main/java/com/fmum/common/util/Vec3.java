@@ -23,10 +23,7 @@ public class Vec3 implements Releasable
 	
 	public Vec3 set( double a )
 	{
-		this.x
-			= this.y
-			= this.z
-			= a;
+		this.x = this.y = this.z = a;
 		return this;
 	}
 	
@@ -110,7 +107,7 @@ public class Vec3 implements Releasable
 		return this;
 	}
 	
-	public Vec3 normalize() { return this.scale( 1D / this.length() ); }
+	public final Vec3 normalize() { return this.scale( 1D / this.length() ); }
 	
 	/**
 	 * @param v Another vector that has the same origin
@@ -143,7 +140,8 @@ public class Vec3 implements Releasable
 	{
 		double x = this.y * v.z - this.z * v.y;
 		double y = this.z * v.x - this.x * v.z;
-		this.z = this.x * v.y - this.y * v.x;
+		this.z   = this.x * v.y - this.y * v.x;
+		
 		this.y = y;
 		this.x = x;
 		return this;

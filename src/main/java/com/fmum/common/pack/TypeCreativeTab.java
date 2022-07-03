@@ -98,7 +98,7 @@ public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public ItemStack createIcon()
+	public ItemStack getTabIconItem()
 	{
 		// Check if it requires an item defined in FMUM
 		MetaItem type = MetaItem.get( this.iconItem );

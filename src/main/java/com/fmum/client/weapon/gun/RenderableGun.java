@@ -16,7 +16,7 @@ public interface RenderableGun extends RenderableItem, RenderableModular
 	public default void onRenderTick( ItemStack stack, MetaItem meta, MouseHelper mouse )
 	{
 		RenderableItem.super.onRenderTick( stack, meta, mouse );
-		this.onRenderTick( stack.getTagCompound(), meta, mouse );
+//		this.onRenderTick( stack.getTagCompound(), meta, mouse );
 		
 		
 	}
