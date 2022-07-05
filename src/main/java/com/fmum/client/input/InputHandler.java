@@ -16,7 +16,7 @@ import org.lwjgl.input.Mouse;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.common.FMUM;
-import com.fmum.common.Launcher.AutowireLogger;
+import com.fmum.common.ModWrapper.AutowireLogger;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
@@ -28,6 +28,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * {@link Keyboard#KEY_NONE} during game to avoid key binding conflict. They will be set back when
  * settings GUI is launched.
  * 
+ * @see Key
  * @see TypeKeyBind
  * @author Giant_Salted_Fish
  */
@@ -262,7 +263,7 @@ public abstract class InputHandler
 	}
 	
 	/**
-	 * Check if key of given key code is being pressed or not. Switch mouse button if key code is
+	 * Check if key of given key code is being pressed or not. Check mouse button if key code is
 	 * negative.
 	 * 
 	 * @param keyCode Key code to test. Negative number means a mouse button.
@@ -280,6 +281,13 @@ public abstract class InputHandler
 		);
 	}
 	
+	/**
+	 * Bind a given key to the specified trigger channel
+	 * 
+	 * @param channel Trigger channel to bind. One of { "GLOBAL", "NORMAL", "ASSIST" }.
+	 * @param keyBind Key bind to register
+	 * @return {@code false} if registration has failed
+	 */
 	public static boolean regis( String channel, MetaKeyBind keyBind )
 	{
 		switch( channel )

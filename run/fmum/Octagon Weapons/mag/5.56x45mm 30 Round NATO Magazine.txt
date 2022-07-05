@@ -1,5 +1,0 @@
-Name 556x45mm30roundmag 5.56x45mm 30 Round NATO Magazine
-Category 556x45mmmag
-CreativeTab oc
-
-Model com.fmum.oc.client.model.ModelOCGun:556x45mm30RoundMag skins/hk416d10rs.png 0.1

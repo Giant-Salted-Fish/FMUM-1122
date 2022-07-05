@@ -1,6 +1,6 @@
 package com.fmum.common.paintjob;
 
-import java.util.Set;
+import java.util.Map;
 import java.util.TreeSet;
 
 import com.fmum.common.meta.EnumMeta;
@@ -17,26 +17,17 @@ public interface MetaExternalPaintjob extends MetaBase
 	public static final TreeSet< MetaExternalPaintjob > waitInjection = new TreeSet<>();
 	
 	@Override
-	public default void regisPostInitHandler( Set< Runnable > tasks )
-	{
+	public default void regisPostInitHandler( Map< String, Runnable > tasks ) {
 		MetaBase.super.regisPostInitHandler( tasks );
-		
-		tasks.add( () -> waitInjection.add( this ) );
 	}
 	
 	@Override
-	public default void regisPostLoadHandler( Set< Runnable > tasks )
+	public default void regisPostLoadHandler( Map< String, Runnable > tasks )
 	{
 		MetaBase.super.regisPostLoadHandler( tasks );
 		
-		// Inject all paint jobs if have not yet
-		tasks.add( () -> {
-			if( waitInjection.isEmpty() ) return;
-			
-			for( MetaExternalPaintjob paintjob : waitInjection )
-				paintjob.inject();
-			waitInjection.clear();
-		} );
+		// Inject this paintjob
+		tasks.put( "INJECT_PAINTJOB", () -> this.inject() );
 	}
 	
 	public default void inject()

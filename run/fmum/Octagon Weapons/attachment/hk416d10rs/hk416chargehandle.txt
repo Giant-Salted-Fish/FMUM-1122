@@ -1,0 +1,4 @@
+Category archargehandle
+CreativeTab oc
+
+Model com.fmum.oc.client.model.ModelOCGun:HK416ChargeHandle skins/hk416d10rs.png 0.1

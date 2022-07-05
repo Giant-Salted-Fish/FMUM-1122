@@ -1,8 +1,9 @@
 package com.fmum.client.input;
 
-import java.util.Set;
+import java.util.Map;
 import java.util.TreeMap;
 
+import com.fmum.common.FMUM;
 import com.fmum.common.meta.MetaGrouped;
 
 import net.minecraft.client.settings.KeyBinding;
@@ -15,11 +16,16 @@ public interface MetaKeyBind extends MetaGrouped
 	public static final TreeMap< String, MetaKeyBind > regis = new TreeMap<>();
 	
 	@Override
-	public default void regisPostInitHandler( Set< Runnable > tasks )
+	public default void regisPostInitHandler( Map< String, Runnable > tasks )
 	{
 		MetaGrouped.super.regisPostInitHandler( tasks );
 		
-		tasks.add( () -> this.regisTo( this, regis ) );
+		tasks.put( "REGIS_KEY_BIND", () -> this.regisTo( this, regis ) );
+	}
+	
+	@Override
+	default void regisPostLoadHandler( Map< String, Runnable > tasks ) {
+		MetaGrouped.super.regisPostLoadHandler( tasks );
 	}
 	
 	/**

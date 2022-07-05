@@ -10,7 +10,7 @@ import java.util.zip.ZipInputStream;
 
 import com.fmum.common.FMUM;
 import com.fmum.common.FMUMClassLoader;
-import com.fmum.common.Launcher.AutowireLogger;
+import com.fmum.common.ModWrapper.AutowireLogger;
 import com.fmum.common.meta.MetaBase;
 import com.fmum.common.util.Messager;
 

@@ -1,8 +1,9 @@
 package com.fmum.common.pack;
 
-import java.util.Set;
+import java.util.Map;
 
 import com.fmum.client.ResourceHandler;
+import com.fmum.common.FMUM;
 import com.fmum.common.item.MetaItem;
 import com.fmum.common.meta.EnumMeta;
 import com.fmum.common.util.LocalAttrParser;
@@ -74,19 +75,22 @@ public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 	}
 	
 	@Override
-	public void regisPostInitHandler( Set< Runnable > tasks )
+	public void regisPostInitHandler( Map< String, Runnable > tasks )
 	{
 		MetaCreativeTab.super.regisPostInitHandler( tasks );
 		
 		// Setup background image
-		tasks.add( () -> {
-			if( this.backgroundImage == null )
-				this.backgroundImage = ResourceHandler.getTexture( this.getBackgroundImageName() );
-		} );
+		tasks.put(
+			"INIT_BG_IMG",
+			() -> {
+				if( this.backgroundImage == null )
+					this.backgroundImage = ResourceHandler.getTexture( this.getBackgroundImageName() );
+			}
+		);
 	}
 	
 	@Override
-	public void regisPostLoadHandler( Set< Runnable > tasks ) {
+	public void regisPostLoadHandler( Map< String, Runnable > tasks ) {
 		MetaCreativeTab.super.regisPostLoadHandler( tasks );
 	}
 	

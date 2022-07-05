@@ -1,6 +1,6 @@
 package com.fmum.common.paintjob;
 
-import java.util.Set;
+import java.util.Map;
 
 import com.fmum.common.meta.TypeTextured;
 import com.fmum.common.util.LocalAttrParser;
@@ -16,14 +16,14 @@ public class TypeExternalPaintjob extends TypeTextured implements MetaExternalPa
 	public TypeExternalPaintjob( String name ) { super( name ); }
 	
 	@Override
-	public void regisPostInitHandler( Set< Runnable > tasks )
+	public void regisPostInitHandler( Map< String, Runnable > tasks )
 	{
 		super.regisPostInitHandler( tasks );
 		MetaExternalPaintjob.super.regisPostInitHandler( tasks );
 	}
 	
 	@Override
-	public void regisPostLoadHandler( Set< Runnable > tasks )
+	public void regisPostLoadHandler( Map< String, Runnable > tasks )
 	{
 		super.regisPostLoadHandler( tasks );
 		MetaExternalPaintjob.super.regisPostLoadHandler( tasks );

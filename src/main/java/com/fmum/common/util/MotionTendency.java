@@ -8,16 +8,16 @@ package com.fmum.common.util;
 public class MotionTendency
 {
 	public final Vec3
-		tarPos = Vec3.get(),
-		curPos = Vec3.get(),
-		prevPos = Vec3.get();
+		tarPos = Vec3.locate(),
+		curPos = Vec3.locate(),
+		prevPos = Vec3.locate();
 	
-	public final Vec3 velocity = Vec3.get();
+	public final Vec3 velocity = Vec3.locate();
 	
 	/**
 	 * Buffered vector for convenient vector operation
 	 */
-	protected final Vec3 vec = Vec3.get();
+	protected final Vec3 vec = Vec3.locate();
 	
 	public void update() { this.update( 0.4D, 4.25D, 1D ); }
 	

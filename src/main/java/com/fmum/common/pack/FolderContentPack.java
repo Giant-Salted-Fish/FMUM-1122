@@ -63,6 +63,7 @@ public final class FolderContentPack extends LocalContentProvider
 							);
 						}
 						catch( IOException e ) { this.printIOError( fileTrace.message(), e ); }
+						catch( Exception e ) { e.printStackTrace(); }
 					
 					// Load type from class file
 					else if( fName.endsWith( ".class" ) )

@@ -1,0 +1,7 @@
+Category pra
+CreativeTab oc
+
+Model com.fmum.oc.client.model.ModelOCGun:CICIS4RearSight skins/ironsights.png 0.1
+Paintjob cicis4rearsight-tritiumgreen skins/ironsights-tritiumgreen.png
+Paintjob cicis4rearsight-tritiumred skins/ironsights-tritiumred.png
+Paintjob cicis4rearsight-tritiumwhite skins/ironsights-tritiumwhite.png

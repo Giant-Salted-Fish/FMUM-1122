@@ -1,6 +1,6 @@
 package com.fmum.common.gun;
 
-import java.util.Set;
+import java.util.Map;
 
 /**
  * Magazines that can be used by a gun
@@ -10,12 +10,12 @@ import java.util.Set;
 public interface MetaMag extends MetaGunPart
 {
 	@Override
-	public default void regisPostInitHandler( Set< Runnable > tasks ) {
+	public default void regisPostInitHandler( Map< String, Runnable > tasks ) {
 		MetaGunPart.super.regisPostInitHandler( tasks );
 	}
 	
 	@Override
-	public default void regisPostLoadHandler( Set< Runnable > tasks ) {
+	public default void regisPostLoadHandler( Map< String, Runnable > tasks ) {
 		MetaGunPart.super.regisPostLoadHandler( tasks );
 	}
 }

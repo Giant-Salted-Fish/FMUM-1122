@@ -68,5 +68,5 @@ public interface Operation extends Meta
 	public default String name() { return this.getClass().getCanonicalName(); }
 	
 	@Override
-	public default String author() { return FMUM.AUTHOR; }
+	public default String author() { return FMUM.MOD.author(); }
 }

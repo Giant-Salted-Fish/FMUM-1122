@@ -1,7 +1,5 @@
 package com.fmum.common.meta;
 
-import java.util.Set;
-
 import com.fmum.common.FMUM;
 import com.fmum.common.util.LocalAttrParser;
 
@@ -24,11 +22,6 @@ public class TypeTextured extends TypeBase
 	public ResourceLocation texture = FMUM.MOD.loadTexture( "skins/0x00ff00.png" );
 	
 	public TypeTextured( String name ) { super( name ); }
-	
-	@Override
-	public void regisPostLoadHandler( Set< Runnable > tasks ) {
-		super.regisPostLoadHandler( tasks );
-	}
 	
 	@Override
 	public double modelScale() { return this.modelScale; }

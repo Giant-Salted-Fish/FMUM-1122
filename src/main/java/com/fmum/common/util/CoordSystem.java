@@ -3,7 +3,7 @@ package com.fmum.common.util;
 import org.lwjgl.opengl.GL11;
 
 /**
- * A kind of hacky version of matrix4 with all transformations changed to circular functions. Can be
+ * A kind of hack version of matrix4 with all transformations changed to circular functions. Can be
  * used to track coordinates in 3D space(usually used to track the position transformed by OpenGL
  * translate and rotate functions).
  * 
@@ -42,7 +42,7 @@ public final class CoordSystem implements Releasable
 	
 	private CoordSystem() { }
 	
-	public static CoordSystem get() { return pool.poll(); }
+	public static CoordSystem locate() { return pool.poll(); }
 	
 	/**
 	 * Set offset vector as zero vector. Load identity matrix for normal vectors and sub-rotate

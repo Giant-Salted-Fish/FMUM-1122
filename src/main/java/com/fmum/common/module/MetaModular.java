@@ -1,7 +1,7 @@
 package com.fmum.common.module;
 
 import java.util.HashMap;
-import java.util.Set;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -48,6 +48,9 @@ public interface MetaModular extends MetaGrouped
 	
 	public static final BiMap< Integer, MetaModular > idMapping = HashBiMap.create();
 	
+	/**
+	 * Key that maps to the data for the modular in NBT tag
+	 */
 	public static final String TAG = "0";
 	
 	public static final double[] DEF_OFFSETS = { 0D };
@@ -57,14 +60,15 @@ public interface MetaModular extends MetaGrouped
 	public static final PreInstalledModules DEF_DEF_MODULES = new PreInstalledOnRail( null );
 	
 	@Override
-	public default void regisPostInitHandler( Set< Runnable > tasks )
+	public default void regisPostInitHandler( Map< String, Runnable > tasks )
 	{
 		MetaGrouped.super.regisPostInitHandler( tasks );
 		
-		tasks.add( () -> this.regisTo( this, regis ) );
+		tasks.put( "REGIS_MODULE", () -> this.regisTo( this, regis ) );
 		
 		// Register it into id map. In default uses the hash value of its name.
-		tasks.add(
+		tasks.put(
+			"GEN_MODULE_ID",
 			() -> {
 				// Keep to add prefix '_' until we find a id that is not conflict
 				String name = this.name();
@@ -80,15 +84,22 @@ public interface MetaModular extends MetaGrouped
 		);
 		
 		// Apply model scale to slots and hit boxes
-		tasks.add( () -> {
-			for( int i = this.numSlots(); i-- > 0; this.slot( i ).rescale( this.modelScale() ) );
-			
-			// TODO: scale the hit box
-		} );
+		tasks.put(
+			"RESCALE_MODULE",
+			() -> {
+				for(
+					int i = this.numSlots();
+					i-- > 0;
+					this.slot( i ).rescale( this.modelScale() / 16D )
+				);
+				
+				// TODO: scale the hit box
+			}
+		);
 	}
 	
 	@Override
-	public default void regisPostLoadHandler( Set< Runnable > tasks ) {
+	public default void regisPostLoadHandler( Map< String, Runnable > tasks ) {
 		MetaGrouped.super.regisPostLoadHandler( tasks );
 	}
 	
@@ -128,11 +139,7 @@ public interface MetaModular extends MetaGrouped
 	
 	public default PreInstalledModules defModules() { return DEF_DEF_MODULES; }
 	
-	public default void updatePosStepX( NBTTagList tag, int step ) { }
-	
-	public default void updatePosStepY( NBTTagList tag, int step ) { }
-	
-	public default void updatePosStepZ( NBTTagList tag, int step ) { }
+	public default void updateStep( NBTTagList tag, int step ) { }
 	
 	public default void updateOffset( NBTTagList tag, int offset ) { }
 	
@@ -179,8 +186,8 @@ public interface MetaModular extends MetaGrouped
 		if( i == 0) return;
 		
 		// Fetch coordinate systems
-		final CoordSystem moduleSys = CoordSystem.get();
-		final CoordSystem slotSys = CoordSystem.get();
+		final CoordSystem moduleSys = CoordSystem.locate();
+		final CoordSystem slotSys = CoordSystem.locate();
 		
 		// Go through each slot
 		while( i-- > 0 )

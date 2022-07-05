@@ -1,7 +1,0 @@
-Name hk416d10rs H&K416 D10RS
-CreativeTab oc
-
-Model com.fmum.oc.client.model.ModelOCGun:HK416LowerReceiver skins/hk416d10rs.png 0.1
-
-Slots -16.5 40 C[ 556x45mmmag ] | -44 36.5 C[ hk416upperreceiver ] | -49 43 C[ arbuffertube ] | -52.5 35.5 C[ arreceiverendplate ] | -34 28 0 180 C[ arpistolgrip ]
-DefaultModules 556x45mm30roundmag | hk416upperreceiver [ cicis4rearsight 1 0 1 | hk416barrelextension [ hk416145barrel [ 556mmthreadprotector | hk416gasblock [ hk416frontsight 0 0 1 | hk416piston ] ] ] | hk416barrelnut [ hk416handguard [ | | cicsn1handstop 8 ] ] | hk416pistonguide | hk416bolt | hk416chargehandle | hk416dustcover ] | hk416buffertube [ lmtstock 3 [ lmtstockbuttpad ] ] | hk416receiverendplate [ hk416receiverextensionnut ] | hk416pistolgrip

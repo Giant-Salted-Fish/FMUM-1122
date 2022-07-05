@@ -19,7 +19,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public enum EnumMeta
 {
 	/**
-	 * If not specified, this will be the default. For third party extension.
+	 * If not specified, this will be the default. For third party extension use.
 	 * 
 	 * @see TypeMeta
 	 */
@@ -42,23 +42,23 @@ public enum EnumMeta
 	/**
 	 * Gun attachments
 	 * 
-	 * @see TODO
+	 * @see TODO: add attachment parser
 	 */
-	ATTACHMENT( "attachment", null ),
+//	ATTACHMENT( "attachment", null ),
 	
 	/**
 	 * Gun magazines
 	 * 
-	 * @see TODO
+	 * @see TODO: add magazine parser
 	 */
-	MAG( "mag", null ),
+//	MAG( "mag", null ),
 	
 	/**
 	 * External paintjobs that will be inject into {@link TypePaintable} in post load phase
 	 * 
 	 * @see TypeExternalPaintjob
 	 */
-	EX_PAINTJOB( "expaintjob", null ),
+	EX_PAINTJOB( "expaintjob", TypeExternalPaintjob.parser ),
 	
 	/**
 	 * Key binds that specified by content pack

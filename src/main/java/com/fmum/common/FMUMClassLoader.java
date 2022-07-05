@@ -4,7 +4,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
 
-import com.fmum.common.Launcher.AutowireLogger;
+import com.fmum.common.ModWrapper.AutowireLogger;
 import com.fmum.common.util.Util;
 
 public final class FMUMClassLoader extends URLClassLoader implements AutowireLogger

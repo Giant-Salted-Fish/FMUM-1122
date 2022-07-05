@@ -241,8 +241,8 @@ public final class Mesh implements AutoCloseable
 		{
 			// Borrow two vectors for convenient operation
 			final Vec3f
-				vec0 = Vec3f.get(),
-				vec1 = Vec3f.get();
+				vec0 = Vec3f.locate(),
+				vec1 = Vec3f.locate();
 			
 			if( this.indices.size() > 0 )
 				for( int i = this.indices.size(); i > 0; i -= 3 )

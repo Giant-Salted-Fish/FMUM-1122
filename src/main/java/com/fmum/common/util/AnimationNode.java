@@ -2,7 +2,7 @@ package com.fmum.common.util;
 
 public class AnimationNode implements Animation
 {
-	public final Vec3 pos = Vec3.get();
+	public final Vec3 pos = Vec3.locate();
 	
 	public double time = 0D;
 	

@@ -16,9 +16,9 @@ public class Vec3f implements Releasable
 	
 	protected Vec3f() { }
 	
-	public static Vec3f get() { return pool.poll(); }
+	public static Vec3f locate() { return pool.poll(); }
 	
-	public static Vec3f get( float x, float y, float z ) { return pool.poll().set( x, y, z ); }
+	public static Vec3f locate( float x, float y, float z ) { return pool.poll().set( x, y, z ); }
 	
 	public final Vec3f set( float a )
 	{

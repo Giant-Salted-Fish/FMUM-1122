@@ -33,7 +33,7 @@ public interface ParserFunc< T >
 		private static final long serialVersionUID = 4158902466919166241L;
 		
 		public KeywordFormatException( String keyword, String source, Throwable cause ) {
-			super( "Error parsing keyword <" + keyword + "> from <" + source + ">" );
+			super( "Error parsing keyword <" + keyword + "> from <" + source + ">", cause );
 		}
 		
 		public KeywordFormatException( String msg, Throwable cause ) { super( msg, cause ); }

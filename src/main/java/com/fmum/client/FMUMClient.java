@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GLContext;
 
 import com.fmum.client.input.InputHandler;
 import com.fmum.common.FMUM;
-import com.fmum.common.Launcher;
+import com.fmum.common.ModWrapper;
 import com.fmum.common.item.HostItem;
 import com.fmum.common.item.MetaItem;
 import com.fmum.common.util.Messager;
@@ -40,7 +40,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public final class FMUMClient extends FMUM
 {
-	public static final FMUMClient MOD = ( FMUMClient ) FMUM.MOD;
+	public static FMUMClient MOD; { MOD = this; }
 	
 	public static final int FMUM_CHAT_ID_BASE = 'F' + 'M' + 'U' + 'M';
 	
@@ -127,7 +127,7 @@ public final class FMUMClient extends FMUM
 		descriptor.put( "name", FMUM.MOD_NAME + ":" + source.getName() );
 		descriptor.put( "version", "1" );
 		FMLModContainer container = new FMLModContainer(
-			Launcher.class.getCanonicalName(),
+			ModWrapper.class.getCanonicalName(),
 			new ModCandidate(
 				source,
 				source,

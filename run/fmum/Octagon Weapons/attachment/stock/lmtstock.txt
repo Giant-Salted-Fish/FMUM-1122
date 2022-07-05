@@ -1,0 +1,6 @@
+Category arstock
+CreativeTab oc
+
+Model com.fmum.oc.client.model.ModelOCGun:LMTStock skins/hk416d10rs.png 0.1
+
+Slots -33.5 C[ lmtstockbuttpad ]

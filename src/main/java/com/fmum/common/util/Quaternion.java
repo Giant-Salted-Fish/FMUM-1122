@@ -1,11 +1,12 @@
 package com.fmum.common.util;
 
 /**
- * An implementation of quaternion that simply adds a real part for the {@link Vec3}
+ * This implementation of quaternion just simply adds a real part to the {@link Vec3}, which means
+ * you can still use it as a pure {@link Vec3} object
  * 
  * @author Giant_Salted_Fish
  */
-public class Quaternion extends Vec3
+public final class Quaternion extends Vec3
 {
 	private static final ObjPool< Quaternion > pool = new ObjPool<>( () -> new Quaternion() );
 	
@@ -13,13 +14,35 @@ public class Quaternion extends Vec3
 	
 	protected Quaternion() { }
 	
-	public static Quaternion get() { return pool.poll(); }
+	public static Quaternion locate() { return pool.poll(); }
 	
-	public static Vec3 get( double a ) { return pool.poll().set( a ); }
+	public static Quaternion locate( double a )
+	{
+		Quaternion q = pool.poll();
+		q.set( a );
+		return q;
+	}
 	
-	public static Vec3 get( double x, double y, double z ) { return pool.poll().set( x, y, z ); }
+	public static Quaternion locate( double x, double y, double z )
+	{
+		Quaternion q = pool.poll();
+		q.set( x, y, z );
+		return q;
+	}
 	
-	public static Vec3 get( Vec3 v ) { return pool.poll().set( v ); }
+	public static Quaternion locate( Vec3 v )
+	{
+		Quaternion q = pool.poll();
+		q.set( v );
+		return q;
+	}
+	
+	public static Quaternion locate( Quaternion q )
+	{
+		Quaternion Q = pool.poll();
+		Q.set( Q );
+		return Q;
+	}
 	
 	@Override
 	public Vec3 set( double a )
@@ -106,6 +129,13 @@ public class Quaternion extends Vec3
 		return this.x * q.x + this.y * q.y + this.z * q.z + this.r * q.r;
 	}
 	
+	/**
+	 * This method will do a left multiplication for this quaternion with given quaternion and save
+	 * the result into this quaternion
+	 * 
+	 * @param q Left hand side quaternion
+	 * @return {@code this}
+	 */
 	public final Quaternion mult( Quaternion q )
 	{
 		double r = this.r * q.r - this.x * q.x - this.y * q.y - this.z * q.z;

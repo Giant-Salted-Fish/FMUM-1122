@@ -1,6 +1,6 @@
 package com.fmum.client.input;
 
-import java.util.Set;
+import java.util.Map;
 
 import org.lwjgl.input.Keyboard;
 
@@ -70,11 +70,13 @@ public class TypeKeyBind extends TypeBase implements MetaKeyBind
 	}
 	
 	@Override
-	public void regisPostInitHandler( Set< Runnable > tasks )
+	public void regisPostInitHandler( Map< String, Runnable > tasks )
 	{
 		super.regisPostInitHandler( tasks );
+		MetaKeyBind.super.regisPostInitHandler( tasks );
 		
-		tasks.add(
+		tasks.put(
+			"REGIS_KEY_BINDING",
 			() -> {
 				ClientRegistry.registerKeyBinding(
 					this.keyBind = new KeyBinding(
@@ -85,6 +87,13 @@ public class TypeKeyBind extends TypeBase implements MetaKeyBind
 				);
 			}
 		);
+	}
+	
+	@Override
+	public void regisPostLoadHandler( Map< String, Runnable > tasks )
+	{
+		super.regisPostLoadHandler( tasks );
+		MetaKeyBind.super.regisPostLoadHandler( tasks );
 	}
 	
 	@Override

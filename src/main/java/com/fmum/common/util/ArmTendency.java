@@ -8,8 +8,8 @@ public class ArmTendency
 	 */
 	public static final double RECOMMENDED_ARM_LENGTH = 10D / 16D;
 	
-	protected static final CoordSystem sys = CoordSystem.get();
-	protected static final Vec3 vec = Vec3.get();
+	protected static final CoordSystem sys = CoordSystem.locate();
+	protected static final Vec3 vec = Vec3.locate();
 	
 	/**
 	 * Length of upper arm
@@ -31,8 +31,8 @@ public class ArmTendency
 		armRotX = new MotionTendencyBased( 0.4D, 4.25D, 1D );
 	
 	public final Vec3
-		handRot = Vec3.get(),
-		prevHandRot = Vec3.get();
+		handRot = Vec3.locate(),
+		prevHandRot = Vec3.locate();
 	
 //	public final Vec3 elbowPos = Vec3.get();
 	

@@ -1,3 +1,0 @@
-Name cicis9frontsight-tritiumpink CIC IS-9 Front Sight - Tritium Pink
-Texture skins/ironsights-tritiumpink.png
-Target cicis9frontsight

@@ -85,7 +85,7 @@ public final class OpModification extends OpProgressive
 		final byte[] loc = this.loc;
 		final int locLen = this.locLen;
 		
-		// TODO Get base module that is currently on
+		// TODO: get base module that is currently on
 		
 		// One tick is done, clear key input
 		this.clearInputStates();

@@ -1,6 +1,6 @@
 package com.fmum.common.gun;
 
-import java.util.Set;
+import java.util.Map;
 
 import com.fmum.common.item.TypeItemCustomizable;
 import com.fmum.common.util.LocalAttrParser;
@@ -17,14 +17,14 @@ public class TypeGun extends TypeItemCustomizable implements MetaGun
 	public TypeGun( String name ) { super( name ); }
 	
 	@Override
-	public void regisPostInitHandler( Set< Runnable > tasks )
+	public void regisPostInitHandler( Map< String, Runnable > tasks )
 	{
 		super.regisPostInitHandler( tasks );
 		MetaGun.super.regisPostInitHandler( tasks );
 	}
 	
 	@Override
-	public void regisPostLoadHandler( Set< Runnable > tasks )
+	public void regisPostLoadHandler( Map< String, Runnable > tasks )
 	{
 		super.regisPostLoadHandler( tasks );
 		MetaGun.super.regisPostLoadHandler( tasks );

@@ -1,8 +1,0 @@
-Name hk416frontsight H&K416 Front Sight
-Category hk416frontsight
-CreativeTab oc
-
-Model com.fmum.oc.client.model.ModelOCGun:HK416FrontSight skins/ironsights.png 0.1
-Paintjob hk416frontsight-tritiumgreen skins/ironsights-tritiumgreen.png
-Paintjob hk416frontsight-tritiumred skins/ironsights-tritiumred.png
-Paintjob hk416frontsight-tritiumwhite skins/ironsights-tritiumwhite.png

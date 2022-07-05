@@ -7,7 +7,7 @@ import org.lwjgl.opengl.GL11;
 import com.fmum.client.input.InputHandler;
 import com.fmum.client.input.MetaKeyBind;
 import com.fmum.common.FMUM;
-import com.fmum.common.Launcher.AutowireLogger;
+import com.fmum.common.ModWrapper.AutowireLogger;
 import com.fmum.common.item.HostItem;
 import com.fmum.common.item.MetaItem;
 import com.fmum.common.meta.MetaBase;
@@ -86,12 +86,12 @@ public abstract class EventHandlerClient
 		{
 		case START:
 			break;
-		default: FMUMClient.MOD.tick();
+		default: FMUMClient.MOD.tick(); // TODO: maybe move tick to common
 		}
 	}
 	
 	@SubscribeEvent
-	public static void onGameOverlayRender( RenderGameOverlayEvent evt )
+	public static void onGameOverlayRender( RenderGameOverlayEvent.Pre evt )
 	{
 		switch( evt.getType() )
 		{
@@ -216,9 +216,9 @@ public abstract class EventHandlerClient
 	@SubscribeEvent
 	public static void onCameraSetup( CameraSetup evt )
 	{
-		evt.setRoll( camRoll );
-		evt.setYaw( camYaw );
-		evt.setPitch( camPitch );
+//		evt.setRoll( camRoll );
+//		evt.setYaw( camYaw );
+//		evt.setPitch( camPitch );
 	}
 	
 	@SubscribeEvent

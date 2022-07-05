@@ -1,0 +1,6 @@
+Category hk416barrelnut
+CreativeTab oc
+
+Model com.fmum.oc.client.model.ModelOCGun:HK416BarrelNut skins/hk416d10rs.png 0.1
+
+Slots C[ hk416handguard ]

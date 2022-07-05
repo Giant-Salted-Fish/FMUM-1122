@@ -9,9 +9,9 @@ public final class ConvexHitPolygon
 	public final Vec3[] vertices;
 	
 	protected final Vec3
-		v0 = Vec3.get(),
-		v1 = Vec3.get(),
-		v2 = Vec3.get();
+		v0 = Vec3.locate(),
+		v1 = Vec3.locate(),
+		v2 = Vec3.locate();
 	
 	public ConvexHitPolygon( Vec3... vertices ) { this.vertices = vertices; }
 	

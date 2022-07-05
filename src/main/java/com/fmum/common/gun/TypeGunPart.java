@@ -1,6 +1,6 @@
 package com.fmum.common.gun;
 
-import java.util.Set;
+import java.util.Map;
 
 import com.fmum.common.item.TypeItemCustomizable;
 import com.fmum.common.module.ModuleSlot;
@@ -40,7 +40,7 @@ public abstract class TypeGunPart extends TypeItemCustomizable implements MetaGu
 		parser.addKeyword(
 			"AimCenter",
 			( s, t ) -> {
-				t.aimCenter = Vec3.get( 0D );
+				t.aimCenter = Vec3.locate( 0D );
 				switch( s.length )
 				{
 				case 4: t.aimCenter.z = Double.parseDouble( s[ 3 ] );
@@ -59,7 +59,7 @@ public abstract class TypeGunPart extends TypeItemCustomizable implements MetaGu
 		);
 	}
 	
-	protected static final Vec3 DEF_AIM_CENTER = Vec3.get( 0D );
+	protected static final Vec3 DEF_AIM_CENTER = Vec3.locate( 0D );
 	
 	public double[] offsets = DEF_OFFSETS;
 	
@@ -75,22 +75,25 @@ public abstract class TypeGunPart extends TypeItemCustomizable implements MetaGu
 	public TypeGunPart( String name ) { super( name ); }
 	
 	@Override
-	public void regisPostInitHandler( Set< Runnable > tasks )
+	public void regisPostInitHandler( Map< String, Runnable > tasks )
 	{
 		super.regisPostInitHandler( tasks );
 		MetaGunPart.super.regisPostInitHandler( tasks );
 		
 		// Do not forget to apply model scale
-		tasks.add( () -> {
-			// Default offset is 0D hence multiply it with any scale will not change it
-			for( int i = this.offsets.length; i-- > 0; this.offsets[ i ] *= this.modelScale );
-			
-			this.aimCenter.scale( this.modelScale );
-		} );
+		tasks.put(
+			"RESCALE_GUN",
+			() -> {
+				// Default offset is 0D hence multiply it with any scale will not change it
+				for( int i = this.offsets.length; i-- > 0; this.offsets[ i ] *= this.modelScale );
+				
+				this.aimCenter.scale( this.modelScale );
+			}
+		);
 	}
 	
 	@Override
-	public void regisPostLoadHandler( Set< Runnable > tasks )
+	public void regisPostLoadHandler( Map< String, Runnable > tasks )
 	{
 		super.regisPostLoadHandler( tasks );
 		MetaGunPart.super.regisPostLoadHandler( tasks );

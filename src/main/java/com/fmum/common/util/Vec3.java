@@ -13,13 +13,13 @@ public class Vec3 implements Releasable
 	
 	protected Vec3() { }
 	
-	public static Vec3 get() { return pool.poll(); }
+	public static Vec3 locate() { return pool.poll(); }
 	
-	public static Vec3 get( double a ) { return pool.poll().set( a ); }
+	public static Vec3 locate( double a ) { return pool.poll().set( a ); }
 	
-	public static Vec3 get( double x, double y, double z ) { return pool.poll().set( x, y, z ); }
+	public static Vec3 locate( double x, double y, double z ) { return pool.poll().set( x, y, z ); }
 	
-	public static Vec3 get( Vec3 v ) { return pool.poll().set( v ); }
+	public static Vec3 locate( Vec3 v ) { return pool.poll().set( v ); }
 	
 	public Vec3 set( double a )
 	{
@@ -167,9 +167,9 @@ public class Vec3 implements Releasable
 	public static Vec3 parse( String text )
 	{
 		String[] split = text.split( "," );
-		return get(
+		return locate(
 			Double.parseDouble( split[ 0 ].substring( 1 ) ),
-			Double.parseDouble( split[ 1 ]),
+			Double.parseDouble( split[ 1 ] ),
 			Double.parseDouble( split[ 2 ].substring( 0, split[ 2 ].length() - 1 ) )
 		);
 	}

@@ -1,0 +1,6 @@
+Category hk416upperreceiver
+CreativeTab oc
+
+Model com.fmum.oc.client.model.ModelOCGun:HK416UpperReceiver skins/hk416d10rs.png 0.1
+
+Slots 8 17.5 0 0 4 9 8 C[ pra ] | 56 6.5 C[ hk416barrelextension ] | 50 6.5 C[ hk416barrelnut ] | 50 12.5 C[ hk416pistonguide ] | 47 6.5 C[ hk416bolt ] | 0 12 C[ archargehandle ] | 35 4 5 C[ ardustcover ]

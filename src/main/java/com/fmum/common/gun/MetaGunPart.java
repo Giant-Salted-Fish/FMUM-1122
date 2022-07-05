@@ -1,6 +1,6 @@
 package com.fmum.common.gun;
 
-import java.util.Set;
+import java.util.Map;
 
 import com.fmum.common.item.MetaItem;
 import com.fmum.common.module.MetaModular;
@@ -16,7 +16,7 @@ import com.fmum.common.weapon.MetaAmmoContainer;
 public interface MetaGunPart extends MetaItem, MetaModular, MetaPaintable, MetaAmmoContainer
 {
 	@Override
-	public default void regisPostInitHandler( Set< Runnable > tasks )
+	public default void regisPostInitHandler( Map< String, Runnable > tasks )
 	{
 		MetaItem.super.regisPostInitHandler( tasks );
 		MetaModular.super.regisPostInitHandler( tasks );
@@ -25,7 +25,7 @@ public interface MetaGunPart extends MetaItem, MetaModular, MetaPaintable, MetaA
 	}
 	
 	@Override
-	public default void regisPostLoadHandler( Set< Runnable > tasks )
+	public default void regisPostLoadHandler( Map< String, Runnable > tasks )
 	{
 		MetaItem.super.regisPostLoadHandler( tasks );
 		MetaModular.super.regisPostLoadHandler( tasks );

@@ -1,6 +1,6 @@
 package com.fmum.common.item;
 
-import java.util.Set;
+import java.util.Map;
 
 import com.fmum.common.FMUM;
 import com.fmum.common.meta.TypeTextured;
@@ -31,16 +31,16 @@ public abstract class TypeItem extends TypeTextured implements MetaItem
 	public TypeItem( String name ) { super( name ); }
 	
 	@Override
-	public void regisPostInitHandler( Set< Runnable > tasks )
+	public void regisPostInitHandler( Map< String, Runnable > tasks )
 	{
 		super.regisPostInitHandler( tasks );
 		MetaItem.super.regisPostInitHandler( tasks );
 		
-		tasks.add( () -> this.setupItem() );
+		tasks.put( "SETUP_ITEM", () -> this.setupItem() );
 	}
 	
 	@Override
-	public void regisPostLoadHandler( Set< Runnable > tasks )
+	public void regisPostLoadHandler( Map< String, Runnable > tasks )
 	{
 		super.regisPostLoadHandler( tasks );
 		MetaItem.super.regisPostLoadHandler( tasks );

@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
-import com.fmum.common.Launcher.AutowireLogger;
+import com.fmum.common.ModWrapper.AutowireLogger;
 import com.fmum.common.meta.MetaBase;
 import com.fmum.common.pack.ContentProvider;
 import com.fmum.common.pack.FolderContentPack;
@@ -34,7 +34,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  *     jamioflan, FlansGames, W44, vinidamiani126, and everyone who else contributed to Flan's Mod.
  *     It is a mod that inspired me so mush ^_^
  */
-public class FMUM extends Launcher implements ContentProvider, AutowireLogger
+public class FMUM extends ModWrapper implements ContentProvider, AutowireLogger
 {
 	/**
 	 * Universal randomizer
@@ -64,7 +64,7 @@ public class FMUM extends Launcher implements ContentProvider, AutowireLogger
 	
 	/**
 	 * Name of the folder that contains content packs to be loaded. In default is
-	 * {@link Launcher#MODID}.
+	 * {@link ModWrapper#MODID}.
 	 */
 	public String packDirName = MODID;
 	
@@ -196,7 +196,7 @@ public class FMUM extends Launcher implements ContentProvider, AutowireLogger
 	public String name() { return "fmum.pack"; }
 	
 	@Override
-	public String author() { return AUTHOR; }
+	public String author() { return "fmum.author"; }
 	
 	@Override
 	public String description() { return "fmum.description"; }

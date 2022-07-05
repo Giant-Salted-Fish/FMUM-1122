@@ -42,7 +42,7 @@ public class ItemBase< T extends MetaItem > extends Item implements HostItem
 		return this.meta.unlocalizedName( stack );
 	}
 	
-	// TODO
+	// TODO: check if update method here is required
 //	@Override
 //	public void onUpdate(
 //		ItemStack stack,
@@ -68,5 +68,5 @@ public class ItemBase< T extends MetaItem > extends Item implements HostItem
 	) { this.meta.addInformation( stack, worldIn, tooltip, flagIn ); }
 	
 	@Override
-	public final String getCreatorModId(ItemStack itemStack) { return FMUM.MODID; }
+	public final String getCreatorModId( ItemStack itemStack ) { return FMUM.MODID; }
 }

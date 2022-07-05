@@ -1,7 +1,0 @@
-Name hk416barrelextension H&K416 Barrel Extension
-Category hk416barrelextension
-CreativeTab oc
-
-Model com.fmum.oc.client.model.ModelOCGun:HK416BarrelExtension skins/hk416d10rs.png 0.1
-
-Slots 1 C[ hk416barrel ]

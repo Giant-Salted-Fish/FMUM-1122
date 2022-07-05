@@ -1,5 +1,0 @@
-Name hk416receiverextensionnut H&K416 Receiver Extension Nut
-Category arreceiverextensionnut
-CreativeTab oc
-
-Model com.fmum.oc.client.model.ModelOCGun:HK416ReceiverExtensionNut skins/hk416d10rs.png 0.1

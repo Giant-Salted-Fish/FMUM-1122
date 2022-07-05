@@ -1,0 +1,2 @@
+Texture skins/ironsights-tritiumpink.png
+Target cicis9frontsight

@@ -2,7 +2,7 @@ package com.fmum.common.paintjob;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -26,15 +26,15 @@ public interface MetaPaintable extends MetaBase
 	public static final HashMap< String, MetaPaintable > regis= new HashMap<>();
 	
 	@Override
-	public default void regisPostInitHandler( Set< Runnable > tasks )
+	public default void regisPostInitHandler( Map< String, Runnable > tasks )
 	{
 		MetaBase.super.regisPostInitHandler( tasks );
 		
-		tasks.add( () -> this.regisTo( this, regis ) );
+		tasks.put( "REGIS_PAINTABLE", () -> this.regisTo( this, regis ) );
 	}
 	
 	@Override
-	public default void regisPostLoadHandler( Set< Runnable > tasks ) {
+	public default void regisPostLoadHandler( Map< String, Runnable > tasks ) {
 		MetaBase.super.regisPostLoadHandler( tasks );
 	}
 	

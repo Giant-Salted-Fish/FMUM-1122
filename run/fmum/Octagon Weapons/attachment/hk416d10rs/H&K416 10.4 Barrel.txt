@@ -1,7 +1,0 @@
-Name hk416104barrel H&K416 10.4" Barrel
-Category hk416barrel
-CreativeTab oc
-
-Model com.fmum.oc.client.model.ModelOCGun:HK416104Barrel skins/hk416d10rs.png 0.1
-
-Slots 69 C[ 556mmmuzzle ] | 49 C[ hk416gasblock ]

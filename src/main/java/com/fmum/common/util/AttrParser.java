@@ -61,10 +61,8 @@ public abstract class AttrParser< T > implements ParserFunc< T >
 			&& ( parser = this.superParser ) == null
 			&& ( parser = this.defaultParser() ) == null
 		) throw new UnknownKeywordException( split[ 0 ], sourceTrace.message() );
-		else try { parser.parse( split, dst, sourceTrace ); }
-		catch( Exception e ) {
-			throw new KeywordFormatException( split[ 0 ], sourceTrace.message(), e );
-		}
+		
+		parser.parse( split, dst, sourceTrace );
 	}
 	
 	@Override

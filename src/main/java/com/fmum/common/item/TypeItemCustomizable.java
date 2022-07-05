@@ -2,6 +2,7 @@ package com.fmum.common.item;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.fmum.common.FMUM;
@@ -55,7 +56,7 @@ public abstract class TypeItemCustomizable extends TypeItem implements MetaModul
 	}
 	
 	@Override
-	public void regisPostInitHandler( Set< Runnable > tasks )
+	public void regisPostInitHandler( Map< String, Runnable > tasks )
 	{
 		super.regisPostInitHandler( tasks );
 		MetaModular.super.regisPostInitHandler( tasks );
@@ -63,7 +64,7 @@ public abstract class TypeItemCustomizable extends TypeItem implements MetaModul
 	}
 	
 	@Override
-	public void regisPostLoadHandler( Set< Runnable > tasks )
+	public void regisPostLoadHandler( Map< String, Runnable > tasks )
 	{
 		super.regisPostLoadHandler( tasks );
 		MetaModular.super.regisPostLoadHandler( tasks );

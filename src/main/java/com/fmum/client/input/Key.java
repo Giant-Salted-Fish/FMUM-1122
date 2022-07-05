@@ -7,17 +7,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * A list of all names of the keys that provided by {@link FMUM} in default. You can switch the name
- * of the key to response by input.
+ * of the key to response upon input.
  * 
+ * @see InputHandler
  * @author Giant_Salted_Fish
  */
 @SideOnly( Side.CLIENT )
 public abstract class Key
 {
 	/**
-	 * Names of the keys in {@link FMUM}
-	 * 
-	 * @see Key
+	 * Name of the keys for test. They will be removed in release build.
 	 */
 	public static final String
 		TEST_UP = "testup",
@@ -26,8 +25,12 @@ public abstract class Key
 		TEST_RIGHT = "testright",
 		TEST_ENTER = "testenter",
 		TEST_QUIT = "testquit",
-		DEBUG = "debug",
-		
+		DEBUG = "debug";
+	
+	/**
+	 * Name of the keys that {@link FMUM} provides by default
+	 */
+	public static final String
 		FIRE = "fire",
 		AIM_HOLD = "aimhold",
 		AIM_TOGGLE = "aimtoggle",

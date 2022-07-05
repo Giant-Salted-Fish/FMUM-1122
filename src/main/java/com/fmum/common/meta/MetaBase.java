@@ -3,15 +3,16 @@ package com.fmum.common.meta;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import com.fmum.client.ResourceHandler;
 import com.fmum.common.FMUM;
-import com.fmum.common.Launcher.AutowireLogger;
 import com.fmum.common.Meta;
+import com.fmum.common.ModWrapper.AutowireLogger;
 import com.fmum.common.pack.ContentProvider;
 
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -36,9 +37,9 @@ public interface MetaBase extends Meta, AutowireLogger
 	 */
 	public default void onPostInit()
 	{
-		final TreeSet< Runnable > tasks = new TreeSet<>();
+		final TreeMap< String, Runnable > tasks = new TreeMap<>();
 		this.regisPostInitHandler( tasks );
-		for( Runnable task : tasks )
+		for( Runnable task : tasks.values() )
 			task.run();
 	}
 	
@@ -52,9 +53,9 @@ public interface MetaBase extends Meta, AutowireLogger
 	 */
 	public default void onPostLoad()
 	{
-		final TreeSet< Runnable > tasks = new TreeSet<>();
+		final TreeMap< String, Runnable > tasks = new TreeMap<>();
 		this.regisPostLoadHandler( tasks );
-		for( Runnable task : tasks )
+		for( Runnable task : tasks.values() )
 			task.run();
 	}
 	
@@ -77,8 +78,8 @@ public interface MetaBase extends Meta, AutowireLogger
 	 * @see #onPostInit()
 	 * @param tasks Add your task into this set
 	 */
-	public default void regisPostInitHandler( Set< Runnable > tasks ) {
-		tasks.add( () -> this.regisTo( this, regis ) );
+	public default void regisPostInitHandler( Map< String, Runnable > tasks ) {
+		tasks.put( "REGIS_BASE", () -> this.regisTo( this, regis ) );
 	}
 	
 	/**
@@ -87,7 +88,7 @@ public interface MetaBase extends Meta, AutowireLogger
 	 * @see #onPostLoad()
 	 * @param tasks Add your task into this set
 	 */
-	public default void regisPostLoadHandler( Set< Runnable > tasks ) { }
+	public default void regisPostLoadHandler( Map< String, Runnable > tasks ) { }
 	
 	public default ContentProvider provider() { return FMUM.MOD; }
 	
@@ -124,7 +125,7 @@ public interface MetaBase extends Meta, AutowireLogger
 	public default < V extends MetaBase > void regisTo( V tar, Map< String, V > dest )
 	{
 		final MetaBase meta = dest.put( tar.name(), tar );
-		if( meta != null && meta != tar )
+		if( meta != null )
 			this.log().warn( this.format(
 				"fmum.duplicatemetaregistration",
 				meta.toString(),

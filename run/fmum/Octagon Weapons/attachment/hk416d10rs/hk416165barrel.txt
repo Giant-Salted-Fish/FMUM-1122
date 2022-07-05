@@ -1,0 +1,6 @@
+Category hk416barrel
+CreativeTab oc
+
+Model com.fmum.oc.client.model.ModelOCGun:HK416165Barrel skins/hk416d10rs.png 0.1
+
+Slots 115 C[ 556mmmuzzle ] | 49 C[ hk416gasblock ]

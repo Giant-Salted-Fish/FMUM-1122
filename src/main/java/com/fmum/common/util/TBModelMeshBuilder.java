@@ -124,7 +124,7 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 		float x6, float y6, float z6,
 		float x7, float y7, float z7
 	) {
-		CoordSystem sys = CoordSystem.get();
+		CoordSystem sys = CoordSystem.locate();
 
 		// Note that coordinate y, z are flipped in ToolBox
 		sys.setDefault();
@@ -133,14 +133,14 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 		sys.trans( offX, -offY, -offZ );
 		
 		// Setup 8 corners
-		Vec3f ver0 = Vec3f.get( 0F - x0, 0F + y0, 0F + z0 );
-		Vec3f ver1 = Vec3f.get( lenX + x1, 0F + y1, 0F + z1 );
-		Vec3f ver2 = Vec3f.get( lenX + x2, 0F + y2, -lenZ - z2 );
-		Vec3f ver3 = Vec3f.get( 0F - x3, 0F + y3, -lenZ - z3 );
-		Vec3f ver4 = Vec3f.get( 0F - x4, -lenY - y4, 0F + z4 );
-		Vec3f ver5 = Vec3f.get( lenX + x5, -lenY - y5, 0F + z5 );
-		Vec3f ver6 = Vec3f.get( lenX + x6, -lenY - y6, -lenZ - z6 );
-		Vec3f ver7 = Vec3f.get( 0F - x7, -lenY - y7, -lenZ - z7 );
+		Vec3f ver0 = Vec3f.locate( 0F - x0, 0F + y0, 0F + z0 );
+		Vec3f ver1 = Vec3f.locate( lenX + x1, 0F + y1, 0F + z1 );
+		Vec3f ver2 = Vec3f.locate( lenX + x2, 0F + y2, -lenZ - z2 );
+		Vec3f ver3 = Vec3f.locate( 0F - x3, 0F + y3, -lenZ - z3 );
+		Vec3f ver4 = Vec3f.locate( 0F - x4, -lenY - y4, 0F + z4 );
+		Vec3f ver5 = Vec3f.locate( lenX + x5, -lenY - y5, 0F + z5 );
+		Vec3f ver6 = Vec3f.locate( lenX + x6, -lenY - y6, -lenZ - z6 );
+		Vec3f ver7 = Vec3f.locate( 0F - x7, -lenY - y7, -lenZ - z7 );
 		sys.apply( ver0, ver0 );
 		sys.apply( ver1, ver1 );
 		sys.apply( ver2, ver2 );
@@ -249,9 +249,9 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 	public final TBModelMeshBuilder genNormalForQuads()
 	{
 		final Vec3f
-			norm = Vec3f.get(),
-			vec0 = Vec3f.get(),
-			vec1 = Vec3f.get();
+			norm = Vec3f.locate(),
+			vec0 = Vec3f.locate(),
+			vec1 = Vec3f.locate();
 		final ArrayList<Vertex> vertices = this.vertices;
 		final ArrayList<Integer> indices = this.indices;
 		

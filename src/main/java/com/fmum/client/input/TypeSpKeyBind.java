@@ -1,6 +1,6 @@
 package com.fmum.client.input;
 
-import java.util.Set;
+import java.util.Map;
 
 import com.fmum.common.util.LocalAttrParser;
 
@@ -19,10 +19,10 @@ public class TypeSpKeyBind extends TypeKeyBind
 	public TypeSpKeyBind( String name ) { super( name ); }
 	
 	@Override
-	public void regisPostInitHandler( Set< Runnable > tasks )
+	public void regisPostInitHandler( Map< String, Runnable > tasks )
 	{
 		super.regisPostInitHandler( tasks );
 		
-		tasks.add( () -> InputHandler.regis( this.updateStrategy, this ) );
+		tasks.put( "LOC_UPDATE_CHANNEL", () -> InputHandler.regis( this.updateStrategy, this ) );
 	}
 }

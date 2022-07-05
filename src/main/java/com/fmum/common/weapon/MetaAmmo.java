@@ -1,6 +1,6 @@
 package com.fmum.common.weapon;
 
-import java.util.Set;
+import java.util.Map;
 
 import com.fmum.common.meta.MetaGrouped;
 
@@ -12,12 +12,12 @@ import com.fmum.common.meta.MetaGrouped;
 public interface MetaAmmo extends MetaGrouped
 {
 	@Override
-	public default void regisPostInitHandler( Set< Runnable > tasks ) {
+	public default void regisPostInitHandler( Map< String, Runnable > tasks ) {
 		MetaGrouped.super.regisPostInitHandler( tasks );
 	}
 	
 	@Override
-	public default void regisPostLoadHandler( Set< Runnable > tasks ) {
+	public default void regisPostLoadHandler( Map< String, Runnable > tasks ) {
 		MetaGrouped.super.regisPostLoadHandler( tasks );
 	}
 }

@@ -1,8 +1,0 @@
-Name hk416handguard H&K416 Handguard
-Category hk416handguard
-CreativeTab oc
-
-Model com.fmum.oc.client.model.ModelOCGun:HK416Handguard skins/hk416d10rs.png 0.1
-
-LeftHandPriority 0
-Slots 2 11 0 0 4 14 8 C[ pra ] | 3 -9 0 180 4 14 8 C[ pra ] | 4 0 -9 -90 4 14 8 C[ pra ] | 4 0 9 90 4 14 8 C[ pra ]

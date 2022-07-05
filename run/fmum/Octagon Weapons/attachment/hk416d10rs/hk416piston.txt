@@ -1,0 +1,4 @@
+Category hk416piston
+CreativeTab oc
+
+Model com.fmum.oc.client.model.ModelOCGun:HK416Piston skins/hk416d10rs.png 0.1
