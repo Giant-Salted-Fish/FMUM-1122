@@ -1,7 +1,6 @@
 package com.fmum.common.paintjob;
 
 import java.util.Map;
-import java.util.TreeSet;
 
 import com.fmum.common.meta.EnumMeta;
 import com.fmum.common.meta.MetaBase;
@@ -14,8 +13,6 @@ import com.fmum.common.meta.MetaBase;
  */
 public interface MetaExternalPaintjob extends MetaBase
 {
-	public static final TreeSet< MetaExternalPaintjob > waitInjection = new TreeSet<>();
-	
 	@Override
 	public default void regisPostInitHandler( Map< String, Runnable > tasks ) {
 		MetaBase.super.regisPostInitHandler( tasks );

@@ -14,57 +14,79 @@ import javax.annotation.Nullable;
  */
 public abstract class AttrParser< T > implements ParserFunc< T >
 {
-	public final HashMap< String, ParserFunc< T > > parsers = new HashMap<>();
-	
 	protected final AttrParser< ? super T > superParser;
+	
+	protected final HashMap< String, ParserFunc< T > > parsers = new HashMap<>();
 	
 	/**
 	 * @param superParser Parent parser. {@code null} if it is a root parser.
 	 */
-	protected AttrParser( @Nullable AttrParser< ? super T > superParser ) {
+	public AttrParser( @Nullable AttrParser< ? super T > superParser ) {
 		this.superParser = superParser;
 	}
 	
-	public T parse( List< String > text, T dst, Messager sourceTrace )
+	/**
+	 * Parse the given text
+	 * 
+	 * @param txt Text to parse
+	 * @param dst Destination
+	 * @param sourceTrace Used for error trace
+	 * @return {@code dst} with attributes set
+	 * @throws
+	 *     Exception If it is severe enough that could not be handled by
+	 *     {@link #handleExcept(Exception, Messager)}
+	 */
+	public T parse( List< String > txt, T dst, Messager sourceTrace ) throws Exception
 	{
-		for( String line : text )
+		for( String line : txt )
 		{
 			// Skip empty lines and comments
 			int i = Math.min( line.indexOf( '#' ), line.indexOf( "//" ) );
 			if( ( line = i < 0 ? line : line.substring( 0, i ).trim() ).length() > 0 )
-				this.parse( line.split( " " ), dst, sourceTrace );
+				try { this.parse( line.split( " " ), dst ); }
+				catch( Exception e ) { this.handleExcept( e, sourceTrace ); }
 		}
 		
 		return dst;
 	}
 	
-	public ParserFunc< T > addKeyword( String key, ParserFunc< T > parser ) {
-		return this.parsers.put( key, parser );
-	}
-	
-	public ParserFunc< T > removeKeyParser( String key ) { return this.parsers.remove( key ); }
-	
-	/**
-	 * This parser will be used when the parser of the keyword is not found. Throws
-	 * {@link UnknownKeywordException} if it is {@code null}.
-	 */
-	@Nullable
-	public ParserFunc< T > defaultParser() { return null; }
-	
 	@Override
-	public void parse( String[] split, T dst, Messager sourceTrace )
-		throws UnknownKeywordException, KeywordFormatException
+	public void parse( String[] split, T dst )
+		throws UnknownKeywordException, KeywordFormatException, Exception
 	{
 		ParserFunc< ? super T > parser = this.parsers.get( split[ 0 ] );
 		if(
 			parser == null
 			&& ( parser = this.superParser ) == null
 			&& ( parser = this.defaultParser() ) == null
-		) throw new UnknownKeywordException( split[ 0 ], sourceTrace.message() );
+		) throw new UnknownKeywordException( split[ 0 ] );
 		
-		parser.parse( split, dst, sourceTrace );
+		parser.parse( split, dst );
 	}
 	
-	@Override
-	public void parse( String[] split, T dst ) { }
+	public ParserFunc< T > addKeyword( String key, ParserFunc< T > parser ) {
+		return this.parsers.put( key, parser );
+	}
+	
+	public ParserFunc< T > removeKeyword( String key ) { return this.parsers.remove( key ); }
+	
+	/**
+	 * This parser will be used when the parser of the keyword is not found. Throws
+	 * {@link UnknownKeywordException} if it is {@code null}.
+	 */
+	@Nullable
+	protected ParserFunc< T > defaultParser() { return null; }
+	
+	/**
+	 * Default exception handler. It simply prints the error and continue the parse.
+	 * 
+	 * @param e Exception to be handle
+	 * @param sourceTrace Provides the source of the text that is parsing
+	 * @throws Exception If the exception can not be handled by this {@link AttrParser}
+	 */
+	protected void handleExcept( Exception e, Messager sourceTrace ) throws Exception
+	{
+		System.err.println( "An erroc has occurred while parsing <" + sourceTrace + ">" );
+		e.printStackTrace();
+	}
 }

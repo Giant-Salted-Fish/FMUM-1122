@@ -6,7 +6,7 @@ import org.lwjgl.input.Keyboard;
 
 import com.fmum.common.meta.EnumMeta;
 import com.fmum.common.meta.TypeBase;
-import com.fmum.common.util.LocalAttrParser;
+import com.fmum.common.pack.TypeParser;
 
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -16,7 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public class TypeKeyBind extends TypeBase implements MetaKeyBind
 {
-	public static final LocalAttrParser< TypeKeyBind > parser = new LocalAttrParser<>( null );
+	public static final TypeParser< TypeKeyBind > parser = new TypeParser<>( null );
 	static
 	{
 		parser.addKeyword( "Name", ( s, t ) -> t.name = s[ 1 ] );

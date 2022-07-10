@@ -13,12 +13,15 @@ fmum.unknowncontentpackfiletype=<%s> is not of valid content pack file type. Req
 fmum.detectcontentpack=Detect content pack <%s>
 fmum.preloadcontentpack=Pre-load content pack <%s>
 fmum.loadedcontentpack=Loaded content pack <%s>
-fmum.ioerror=An IO error has occurred while attempting to read from <%s>
 fmum.unknownfiletype=Unrecognized file type <%s>
+fmum.ioerror=An IO error has occurred while attempting to read from <%s>
+fmum.unexpectederror=An unexpected error has occurred while handling <%s>
+fmum.errorparsingtype=An error has occurred while parsing <%s>
 fmum.errorinstantiating=An error has occurred while trying to instantiate <%s>
 fmum.errorloadingclassbasedtype=An error has occurred while loading class based type file <%s>
 fmum.erroraddingclasspath=Failed to register class path for <%s>. Contents in relevant pack could be inaccessible.
 fmum.duplicatemetaregistration=Find duplicate meta registration %s : %s
+fmum.failtofindcreativetab=Can not find creative tab <%s> for item <%s>
 fmum.failtofindpaintjobinjecttarget=Failed to inject external paintjob <%s>: target <%s> was not found
 fmum.failtofindiconitemfortab=Failed to find icon item <%s> for creative tab <%s>
 
@@ -27,8 +30,8 @@ fmum.itemregistrationcomplete=Item registration complete. %s items registered.
 fmum.onmodelregistration=Registering models for FMUM content packs...
 fmum.modelregistrationcomplete=Model registration complete. %s models registered.
 
-fmum.infoactivedpacks=Total %s content pack activated
-fmum.activedpackinfo=- %s by %s
+fmum.infoactivedpacks=%s content pack(s) ready for the play
+fmum.activedpackinfo=    - %s by %s
 
 fmum.keyupdategroupnotfound=Can not find key update group <%s> for key bind <%s>
 fmum.errorcreatingkeybindsfile=A error has occurred while attempting to create key binds file

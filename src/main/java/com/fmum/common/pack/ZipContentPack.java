@@ -70,7 +70,7 @@ public final class ZipContentPack extends LocalContentProvider
 						);
 					}
 					catch( IOException e ) { this.printIOError( sourceTrace.message(), e ); }
-					catch( Exception e ) { e.printStackTrace(); }
+					catch( Exception e ) { this.printUnexpectedError( sourceTrace.message(), e ); }
 				else if( entryName.endsWith( ".class" ) )
 					meta = this.loadClassBasedMeta( sourceTrace, entryName.replace( '/', '.' ) );
 				else this.printUnknownFileType( sourceTrace.message() );

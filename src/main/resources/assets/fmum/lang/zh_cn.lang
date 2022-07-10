@@ -13,12 +13,15 @@ fmum.unknowncontentpackfiletype=文件 <%s> 不属于可接受的内容包文件
 fmum.detectcontentpack=检测到可加载的内容包 <%s>
 fmum.preloadcontentpack=预加载内容包 <%s>
 fmum.loadedcontentpack=内容包 %s 加载完成
-fmum.ioerror=读取源 <%s> 时遇到 IO 错误
 fmum.unknownfiletype=无法识别的文件类型 <%s>
+fmum.ioerror=读取源 <%s> 时遇到 IO 错误
+fmum.unexpectederror=处理 <%s> 遇到意外错误
+fmum.errorparsingtype=解析 <%s> 时遇到错误
 fmum.errorinstantiating=尝试实例化 <%s> 时遇到错误
 fmum.errorloadingclassbasedtype=加载基于class的类型文件 <%s> 时遇到错误
 fmum.erroraddingclasspath=为 <%s> 注册Class加载路径时遇到了问题 相关内容包内容可能会无法加载
 fmum.duplicatemetaregistration=重复的元注册 %s : %s
+fmum.failtofindcreativetab=找不到 <%2$s> 指定的创造模式物品栏 <%1$s>
 fmum.failtofindpaintjobinjecttarget=找不到外部皮肤 <%s> 指定的注入目标 <%s>
 fmum.failtofindiconitemfortab=找不到图标物品 <%s>，创造栏 <%s> 的图标已被重置为默认设置
 
@@ -27,8 +30,8 @@ fmum.itemregistrationcomplete=物品注册已完成 共计 %s 个
 fmum.onmodelregistration=正在为 FMUM 内容包注册模型...
 fmum.modelregistrationcomplete=模型注册已完成 共计 %s 个
 
-fmum.infoactivedpacks=已就绪的 FMUM 内容包 %s 个
-fmum.activedpackinfo=- %s 来自 %s
+fmum.infoactivedpacks=共 %s 个已就绪的 FMUM 内容包
+fmum.activedpackinfo=    - %s 来自 %s
 
 fmum.keyupdategroupnotfound=无法为自定义按键 <%2$s> 找到触发组 <%1$s>
 fmum.errorcreatingkeybindsfile=创建按键绑定文件时出现错误，FMUM 按键绑定设置可能会不同步

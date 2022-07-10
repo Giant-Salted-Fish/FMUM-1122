@@ -76,7 +76,7 @@ public interface MetaItem extends MetaBase
 			this.item(),
 			0,
 			new ModelResourceLocation(
-				this.item().getRegistryName(), // modid + name
+				this.item().getRegistryName(), // modid + ":" + name
 				"inventory"
 			)
 		);

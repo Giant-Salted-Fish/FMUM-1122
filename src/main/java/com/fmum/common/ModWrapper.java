@@ -26,7 +26,7 @@ import net.minecraftforge.fml.relauncher.Side;
 @Mod(
 	modid = FMUM.MODID,
 	name = FMUM.MOD_NAME,
-	version = "@VERSION@"
+	version = FMUM.MOD_VERSION
 //	, guiFactory = "com.fmum.client.gui.config.ModGuiFactory"
 //	, clientSideOnly = true
 )
@@ -42,11 +42,14 @@ public class ModWrapper
 	 */
 	public static final String MOD_NAME = "Flan's Mod Ultimate 1.1 Modified";
 	
+	public static final String MOD_VERSION = "2.0";
+	
 	/**
 	 * Network handler
 	 */
 	public static final PacketHandler net = new PacketHandler();
 	
+	private static final String COMMON_PROXY = FMUM.class.getName();
 	/**
 	 * Although this is the class with {@link Mod} annotation, it actually behaves more like a
 	 * wrapped launcher of the real mod instance which is referred by {@link #MOD}
@@ -58,7 +61,7 @@ public class ModWrapper
 	 * Actual mod instance. Implemented differ by side.
 	 */
 	@SidedProxy(
-		serverSide = "com.fmum.common.FMUM",
+		serverSide = COMMON_PROXY,
 		clientSide = "com.fmum.client.FMUMClient"
 	)
 	public static FMUM MOD;
@@ -121,6 +124,7 @@ public class ModWrapper
 		
 		net.postInit();
 		
+		// FIXME: better initialize keys before we load custom keys
 		MOD.loadKeyBinds();
 		
 		log.info( MOD.format( "fmum.postinitializationcomplete" ) );

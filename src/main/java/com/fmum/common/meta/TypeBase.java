@@ -4,7 +4,7 @@ import java.util.TreeMap;
 
 import com.fmum.common.FMUM;
 import com.fmum.common.pack.ContentProvider;
-import com.fmum.common.util.LocalAttrParser;
+import com.fmum.common.pack.TypeParser;
 import com.fmum.common.util.Util;
 
 /**
@@ -14,7 +14,7 @@ import com.fmum.common.util.Util;
  */
 public abstract class TypeBase implements MetaBase
 {
-	public static final LocalAttrParser< TypeBase > parser = new LocalAttrParser<>( null );
+	public static final TypeParser< TypeBase > parser = new TypeParser<>( null );
 	static
 	{
 		parser.addKeyword( "Name", ( s, t ) -> { t.name = s[ 1 ]; } );

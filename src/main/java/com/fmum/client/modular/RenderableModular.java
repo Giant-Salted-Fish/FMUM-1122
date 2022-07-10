@@ -34,7 +34,7 @@ public interface RenderableModular extends Renderable
 		
 		// Position module into shoulder coordinate system
 		final float smoother = this.smoother();
-		// FIXME
+		// FIXME: ton of stuff for rendering
 		
 		// Apply view translation if is in modification mode
 		if( this.operating() == OpModification.INSTANCE )

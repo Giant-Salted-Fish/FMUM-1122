@@ -3,12 +3,12 @@ package com.fmum.common.paintjob;
 import java.util.Map;
 
 import com.fmum.common.meta.TypeTextured;
-import com.fmum.common.util.LocalAttrParser;
+import com.fmum.common.pack.TypeParser;
 
 public class TypeExternalPaintjob extends TypeTextured implements MetaExternalPaintjob
 {
-	public static final LocalAttrParser< TypeExternalPaintjob >
-		parser = new LocalAttrParser<>( TypeExternalPaintjob.class, TypeTextured.parser );
+	public static final TypeParser< TypeExternalPaintjob >
+		parser = new TypeParser<>( TypeExternalPaintjob.class, TypeTextured.parser );
 	static { parser.addKeyword( "Target", ( s, t ) -> t.injectTarget = s[ 1 ] ); }
 	
 	public String injectTarget = "unspecified";

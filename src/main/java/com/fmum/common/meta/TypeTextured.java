@@ -1,7 +1,7 @@
 package com.fmum.common.meta;
 
 import com.fmum.common.FMUM;
-import com.fmum.common.util.LocalAttrParser;
+import com.fmum.common.pack.TypeParser;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -9,8 +9,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class TypeTextured extends TypeBase
 {
-	public static final LocalAttrParser< TypeTextured >
-		parser = new LocalAttrParser<>( TypeBase.parser );
+	public static final TypeParser< TypeTextured >
+		parser = new TypeParser<>( TypeBase.parser );
 	static
 	{
 		parser.addKeyword( "ModelScale", ( s, t ) -> t.modelScale = Double.parseDouble( s[ 1 ] ) );

@@ -6,7 +6,6 @@ import com.fmum.client.ResourceHandler;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.MetaItem;
 import com.fmum.common.meta.EnumMeta;
-import com.fmum.common.util.LocalAttrParser;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
@@ -26,8 +25,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 {
-	public static final LocalAttrParser< TypeCreativeTab >
-		parser = new LocalAttrParser< TypeCreativeTab >( TypeCreativeTab.class, null );
+	public static final TypeParser< TypeCreativeTab >
+		parser = new TypeParser< TypeCreativeTab >( TypeCreativeTab.class, null );
 	static
 	{
 		parser.addKeyword(

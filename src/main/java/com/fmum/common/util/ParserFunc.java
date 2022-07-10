@@ -4,18 +4,16 @@ package com.fmum.common.util;
 public interface ParserFunc< T >
 {
 	/**
-	 * Parse input split
+	 * Parse input string split
 	 * 
 	 * @param split String split
-	 * @param dst Destination 
-	 * @param sourceTrace Used in error print
+	 * @param dst Destination
 	 * @throws UnknownKeywordException If the keyword is unrecognized
 	 * @throws KeywordFormatException If the format is invalid
+	 * @throws Exception For any other case
 	 */
-	public default void parse( String[] split, T dst, Messager sourceTrace )
-		throws UnknownKeywordException, KeywordFormatException { this.parse( split, dst ); }
-	
-	public void parse( String[] split, T dst );
+	public void parse( String[] split, T dst )
+		throws UnknownKeywordException, KeywordFormatException, Exception;
 	
 	public static class UnknownKeywordException extends RuntimeException
 	{

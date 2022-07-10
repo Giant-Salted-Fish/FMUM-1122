@@ -3,17 +3,16 @@ package com.fmum.common.item;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.fmum.common.FMUM;
 import com.fmum.common.meta.MetaBase;
-import com.fmum.common.module.PreInstalledModules;
-import com.fmum.common.module.PreInstalledOnRail;
 import com.fmum.common.module.MetaModular;
 import com.fmum.common.module.ModuleSlot;
+import com.fmum.common.module.PreInstalledModules;
+import com.fmum.common.module.PreInstalledOnRail;
 import com.fmum.common.module.RailSlot;
+import com.fmum.common.pack.TypeParser;
 import com.fmum.common.paintjob.MetaPaintable;
-import com.fmum.common.util.LocalAttrParser;
 
 /**
  * Base for common {@link FMUM} items. They are modular and support paintjob.
@@ -22,8 +21,8 @@ import com.fmum.common.util.LocalAttrParser;
  */
 public abstract class TypeItemCustomizable extends TypeItem implements MetaModular, MetaPaintable
 {
-	public static final LocalAttrParser< TypeItemCustomizable >
-		parser = new LocalAttrParser<>( TypeItem.parser );
+	public static final TypeParser< TypeItemCustomizable >
+		parser = new TypeParser<>( TypeItem.parser );
 	static
 	{
 		parser.addKeyword( "Slots", ( s, t ) -> t.slots = RailSlot.parse( s, 1 ) );

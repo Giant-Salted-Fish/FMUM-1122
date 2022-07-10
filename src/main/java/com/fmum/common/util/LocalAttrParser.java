@@ -19,9 +19,7 @@ import javax.annotation.Nullable;
  */
 public class LocalAttrParser< T > extends AttrParser< T >
 {
-	protected final Constructor< T > constructor;
-	
-	protected final ParseTargetInstantiator< T > instantiator;
+	protected final Instantiator< T > instantiator;
 	
 	/**
 	 * @param superParser Parent parser. {@code null} if it is the root parser.
@@ -45,7 +43,25 @@ public class LocalAttrParser< T > extends AttrParser< T >
 	) {
 		super( superParser );
 		
-		try { this.constructor = dstClass.getConstructor( String.class ); }
+		try
+		{
+			final Constructor< T > constructor = dstClass.getConstructor( String.class );
+			
+			this.instantiator = name -> {
+				try{ return constructor.newInstance( name ); }
+				catch(
+					InstantiationException
+					| IllegalAccessException
+					| IllegalArgumentException
+					| InvocationTargetException e
+				) {
+					throw new RuntimeException(
+						"Failed to instantiate <" + constructor.getName() + ">",
+						e
+					);
+				}
+			};
+		}
 		catch( NoSuchMethodException | SecurityException e )
 		{
 			throw new RuntimeException(
@@ -53,34 +69,46 @@ public class LocalAttrParser< T > extends AttrParser< T >
 				e
 			);
 		}
-		
-		this.instantiator = name -> {
-			try{ return this.constructor.newInstance( name ); }
-			catch(
-				InstantiationException
-				| IllegalAccessException
-				| IllegalArgumentException
-				| InvocationTargetException e
-			) {
-				throw new RuntimeException(
-					"Failed to instantiate <" + this.constructor.getName() + ">",
-					e
-				);
-			}
-		};
 	}
 	
 	public LocalAttrParser(
 		@Nullable AttrParser< ? super T > superParser,
-		@Nullable ParseTargetInstantiator< T > instantiator
+		@Nullable Instantiator< T > instantiator
 	) {
 		super( superParser );
 		
-		this.constructor = null;
 		this.instantiator = instantiator;
 	}
 	
-	public T parse( BufferedReader textInput, T dst, Messager sourceTrace ) throws IOException
+	public T parse( File textFile, String sourceName, Messager sourceTrace )
+		throws IOException, Exception
+	{
+		return this.parse(
+			textFile,
+			this.instantiator.instantiate( sourceName ),
+			sourceTrace
+		);
+	}
+	
+	public T parse( BufferedReader textInput, String sourceName, Messager sourceTrace )
+		throws IOException, Exception
+	{
+		return this.parse(
+			textInput,
+			this.instantiator.instantiate( sourceName ),
+			sourceTrace
+		);
+	}
+	
+	public T parse( File textFile, T dst, Messager sourceTrace ) throws IOException, Exception
+	{
+		try( BufferedReader in = new BufferedReader( new FileReader( textFile ) ) ) {
+			return this.parse( in, dst, sourceTrace );
+		} catch( IOException e ) { throw e; }
+	}
+	
+	public T parse( BufferedReader textInput, T dst, Messager sourceTrace )
+		throws IOException, Exception
 	{
 		// Read all lines from text file
 		final LinkedList< String > lines = new LinkedList<>();
@@ -90,34 +118,6 @@ public class LocalAttrParser< T > extends AttrParser< T >
 		return this.parse( lines, dst, sourceTrace );
 	}
 	
-	public T parse( BufferedReader textInput, String sourceName, Messager sourceTrace )
-		throws IOException
-	{
-		return this.parse(
-			textInput,
-			this.instantiator.instantiate( sourceName ),
-			sourceTrace
-		);
-	}
-	
-	public T parse( File textFile, T dst, Messager sourceTrace ) throws IOException
-	{
-		try( BufferedReader in = new BufferedReader( new FileReader( textFile ) ) ) {
-			return this.parse( in, dst, sourceTrace );
-		} catch( IOException e ) { throw e; }
-	}
-	
-	public T parse( File textFile, String sourceName, Messager sourceTrace ) throws IOException
-	{
-		return this.parse(
-			textFile,
-			this.instantiator.instantiate( sourceName ),
-			sourceTrace
-		);
-	}
-	
 	@FunctionalInterface
-	public static interface ParseTargetInstantiator< T > {
-		public T instantiate( String name );
-	}
+	public static interface Instantiator< T > { public T instantiate( String name ); }
 }

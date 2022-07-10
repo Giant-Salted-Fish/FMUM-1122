@@ -57,6 +57,7 @@ public abstract class LocalContentProvider implements ContentProvider, AutowireL
 	{
 		try { ContentPackInfo.parser.parse( textInput, this.info, sourceTrace ); }
 		catch( IOException e ) { this.printIOError( sourceTrace.message(), e ); }
+		catch( Exception e ) { this.printUnexpectedError( sourceTrace.message(), e ); }
 	}
 	
 	protected boolean iterateTypeFiles( File dir, FileConsumer processor ) {
@@ -112,12 +113,16 @@ public abstract class LocalContentProvider implements ContentProvider, AutowireL
 		return null;
 	}
 	
+	protected void printUnknownFileType( String sourceTrace ) {
+		this.log().error( this.format( "fmum.unknownfiletype", sourceTrace ) );
+	}
+	
 	protected void printIOError( String sourceTrace, IOException e ) {
 		this.log().error( this.format( "fmum.ioerror", sourceTrace ), e );
 	}
 	
-	protected void printUnknownFileType( String sourceTrace ) {
-		this.log().error( this.format( "fmum.unknownfiletype", sourceTrace ) );
+	protected void printUnexpectedError( String sourceTrace, Exception e ) {
+		this.log().error( this.format( "fmum.unexpectederror", sourceTrace ), e );
 	}
 	
 	/**

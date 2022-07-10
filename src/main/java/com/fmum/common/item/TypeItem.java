@@ -5,14 +5,14 @@ import java.util.Map;
 import com.fmum.common.FMUM;
 import com.fmum.common.meta.TypeTextured;
 import com.fmum.common.pack.MetaCreativeTab;
-import com.fmum.common.util.LocalAttrParser;
+import com.fmum.common.pack.TypeParser;
 
 import net.minecraft.item.Item;
 
 public abstract class TypeItem extends TypeTextured implements MetaItem
 {
-	public static final LocalAttrParser< TypeItem >
-		parser = new LocalAttrParser<>( TypeTextured.parser );
+	public static final TypeParser< TypeItem >
+		parser = new TypeParser<>( TypeTextured.parser );
 	static
 	{
 		parser.addKeyword( "CreativeTab", ( s, t ) -> t.creativeTab = s[ 1 ] );
@@ -77,7 +77,7 @@ public abstract class TypeItem extends TypeTextured implements MetaItem
 		if( tab == null )
 		{
 			this.log().error(
-				this.format( "fmum.failtofetchcreativetab", this.creativeTab, this.toString() )
+				this.format( "fmum.failtofindcreativetab", this.creativeTab, this.toString() )
 			);
 			tab = FMUM.tab;
 		}

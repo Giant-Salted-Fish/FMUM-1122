@@ -18,11 +18,6 @@ import com.fmum.common.util.Messager;
  */
 public final class FolderContentPack extends LocalContentProvider
 {
-	/**
-	 * Parser that is currently used to parse plain type file
-	 */
-	protected LocalAttrParser< ? extends MetaBase > curParser = null;
-	
 	public FolderContentPack( File dir ) { super( dir ); }
 	
 	@Override
@@ -30,12 +25,12 @@ public final class FolderContentPack extends LocalContentProvider
 	{
 		// Read pack info
 		final File info = new File( this.source, ContentPackInfo.RECOMMENDED_FILE_NAME );
-		final Messager sourceTrace = () -> this.source.getName() + "." + info.getName();
+		final Messager infoTrace = () -> this.source.getName() + "." + info.getName();
 		if( info.exists() )
 			try( BufferedReader in = new BufferedReader( new FileReader( info ) ) ) {
-				this.parseInfo( in, sourceTrace );
+				this.parseInfo( in, infoTrace );
 			}
-			catch( IOException e ) { this.printIOError( sourceTrace.message(), e ); }
+			catch( IOException e ) { this.printIOError( infoTrace.message(), e ); }
 		
 		// Iterate through each type folder
 		for( EnumMeta type : EnumMeta.values() )
@@ -44,31 +39,33 @@ public final class FolderContentPack extends LocalContentProvider
 			if( !dir.exists() || !dir.isDirectory() ) continue;
 			
 			// Set parser before processing type files
-			this.curParser = type.parser;
+			final LocalAttrParser< ? extends MetaBase > parser = type.parser;
 			this.iterateTypeFiles(
 				dir,
 				( typeFile, superClassPath ) -> {
 					final String fName = typeFile.getName();
-					final Messager fileTrace
+					final Messager sourceTrace
 						= () -> this.sourceName() + "." + superClassPath + "." + fName;
 					
 					MetaBase meta = null;
 					if( fName.endsWith( ".txt" ) )
 						try
 						{
-							meta = this.curParser.parse(
+							meta = parser.parse(
 								typeFile,
 								fName.substring( 0, fName.length() - ".txt".length() ),
-								fileTrace
+								sourceTrace
 							);
 						}
-						catch( IOException e ) { this.printIOError( fileTrace.message(), e ); }
-						catch( Exception e ) { e.printStackTrace(); }
+						catch( IOException e ) { this.printIOError( sourceTrace.message(), e ); }
+						catch( Exception e ) {
+							this.printUnexpectedError( sourceTrace.message(), e );
+						}
 					
 					// Load type from class file
 					else if( fName.endsWith( ".class" ) )
-						meta = this.loadClassBasedMeta( fileTrace, superClassPath, fName );
-					else this.printUnknownFileType( fileTrace.message() );
+						meta = this.loadClassBasedMeta( sourceTrace, superClassPath, fName );
+					else this.printUnknownFileType( sourceTrace.message() );
 					
 					if( meta != null )
 					{

@@ -4,8 +4,8 @@ import java.util.Map;
 
 import com.fmum.common.item.TypeItemCustomizable;
 import com.fmum.common.module.ModuleSlot;
+import com.fmum.common.pack.TypeParser;
 import com.fmum.common.util.CoordSystem;
-import com.fmum.common.util.LocalAttrParser;
 import com.fmum.common.util.Vec3;
 
 import net.minecraft.nbt.NBTTagList;
@@ -25,8 +25,8 @@ import net.minecraft.nbt.NBTTagList;
  */
 public abstract class TypeGunPart extends TypeItemCustomizable implements MetaGunPart
 {
-	public static final LocalAttrParser< TypeGunPart >
-		parser = new LocalAttrParser<>( TypeItemCustomizable.parser );
+	public static final TypeParser< TypeGunPart >
+		parser = new TypeParser<>( TypeItemCustomizable.parser );
 	static
 	{
 		parser.addKeyword(

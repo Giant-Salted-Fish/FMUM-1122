@@ -1,7 +1,6 @@
 package com.fmum.common.pack;
 
 import com.fmum.common.Meta;
-import com.fmum.common.util.LocalAttrParser;
 import com.fmum.common.util.Util;
 
 /**
@@ -13,8 +12,8 @@ public class ContentPackInfo
 {
 	public static final String RECOMMENDED_FILE_NAME = "pack.txt";
 	
-	public static final LocalAttrParser< ContentPackInfo >
-		parser = new LocalAttrParser<>( ContentPackInfo.class, null );
+	public static final TypeParser< ContentPackInfo >
+		parser = new TypeParser<>( ContentPackInfo.class, null );
 	static
 	{
 		parser.addKeyword( "Name", ( s, d ) -> d.name = s[ 1 ] );

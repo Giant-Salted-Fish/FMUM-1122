@@ -149,6 +149,7 @@ public class PacketHandler extends MessageToMessageCodec<FMLProxyPacket, Packet>
 					NetworkRegistry.NET_HANDLER
 				).get() ).player
 			);
+		default:;
 		}
 	}
 	
@@ -157,11 +158,11 @@ public class PacketHandler extends MessageToMessageCodec<FMLProxyPacket, Packet>
 		this.channels = NetworkRegistry.INSTANCE.newChannel( FMUM.MODID, this );
 		
 		// Register packets
-//		this.registerPacket(PacketConfigSync.class);
-//		this.registerPacket(PacketModuleTagInit.class);
-//		this.registerPacket(PacketModuleInstall.class);
-//		this.registerPacket(PacketModuleRemove.class);
-//		this.registerPacket(PacketModuleUpdate.class);
+//		this.registerPacket( PacketConfigSync.class );
+//		this.registerPacket( PacketModuleTagInit.class );
+//		this.registerPacket( PacketModuleInstall.class );
+//		this.registerPacket( PacketModuleRemove.class );
+//		this.registerPacket( PacketModuleUpdate.class );
 	}
 	
 	public void postInit() { this.modInitialized = true; }

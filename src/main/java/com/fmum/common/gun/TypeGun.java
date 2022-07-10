@@ -3,12 +3,12 @@ package com.fmum.common.gun;
 import java.util.Map;
 
 import com.fmum.common.item.TypeItemCustomizable;
-import com.fmum.common.util.LocalAttrParser;
+import com.fmum.common.pack.TypeParser;
 
 public class TypeGun extends TypeItemCustomizable implements MetaGun
 {
-	public static final LocalAttrParser< TypeGun >
-		parser = new LocalAttrParser<>( TypeGun.class, TypeItemCustomizable.parser );
+	public static final TypeParser< TypeGun >
+		parser = new TypeParser<>( TypeGun.class, TypeItemCustomizable.parser );
 	static
 	{
 		
