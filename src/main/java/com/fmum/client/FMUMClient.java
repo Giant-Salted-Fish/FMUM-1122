@@ -28,6 +28,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.MouseHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.client.resource.VanillaResourceType;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLModContainer;
@@ -99,6 +100,21 @@ public final class FMUMClient extends FMUM
 	}
 	
 	@Override
+	public void loadContentPacks()
+	{
+		super.loadContentPacks();
+		
+		// Force resource reload to load resources in content packs
+		// TODO: maybe check if is only mod based content pack loaded
+		FMLClientHandler.instance().refreshResources(
+			VanillaResourceType.MODELS,
+			VanillaResourceType.TEXTURES,
+			VanillaResourceType.SOUNDS,
+			VanillaResourceType.LANGUAGES
+		);
+	}
+	
+	@Override
 	public void loadKeyBinds()
 	{
 		// Create key bind file if not exist
@@ -127,7 +143,7 @@ public final class FMUMClient extends FMUM
 		descriptor.put( "name", FMUM.MOD_NAME + ":" + source.getName() );
 		descriptor.put( "version", "1" );
 		FMLModContainer container = new FMLModContainer(
-			ModWrapper.class.getCanonicalName(),
+			ModWrapper.class.getName(),
 			new ModCandidate(
 				source,
 				source,
@@ -244,14 +260,14 @@ public final class FMUMClient extends FMUM
 				"keyBindsFile",
 				CATEGORY,
 				"config/fmumoptions.txt",
-				"File name where FMUM will save key binds to"
+				"Name of the file where FMUM will save key binds to"
 			)
 		);
 	}
 	
 	/**
 	 * Try to launch a new operation
-	 * 
+	 * TODO: move this method to right place
 	 * @param op New operation to launch
 	 * @param stack Item stack that the new operation works on
 	 * @return Executing operation after this call

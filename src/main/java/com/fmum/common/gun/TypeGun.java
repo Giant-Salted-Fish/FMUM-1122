@@ -3,6 +3,7 @@ package com.fmum.common.gun;
 import java.util.Map;
 
 import com.fmum.common.item.TypeItemCustomizable;
+import com.fmum.common.meta.EnumMeta;
 import com.fmum.common.pack.TypeParser;
 
 public class TypeGun extends TypeItemCustomizable implements MetaGun
@@ -31,5 +32,8 @@ public class TypeGun extends TypeItemCustomizable implements MetaGun
 	}
 	
 	@Override
-	protected void setupItem() { this.withItem( new ItemGunBase( this ) ); }
+	public EnumMeta enumMeta() { return EnumMeta.GUN; }
+	
+	@Override
+	protected void createItem() { this.withItem( new ItemGunBase( this ) ); }
 }

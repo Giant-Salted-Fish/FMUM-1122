@@ -154,9 +154,7 @@ public interface MetaItem extends MetaBase
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public default String unlocalizedName() {
-		return TRANSLATION_PREFIX + this.name() + TRANSLATION_SUFFIX;
-	}
+	public default String unlocalizedName() { return TRANSLATION_PREFIX + this.name(); }
 	
 	@SideOnly( Side.CLIENT )
 	public default void onRenderTick( ItemStack stack, MouseHelper mouse ) { }

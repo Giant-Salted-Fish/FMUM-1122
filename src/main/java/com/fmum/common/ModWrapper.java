@@ -49,7 +49,6 @@ public class ModWrapper
 	 */
 	public static final PacketHandler net = new PacketHandler();
 	
-	private static final String COMMON_PROXY = FMUM.class.getName();
 	/**
 	 * Although this is the class with {@link Mod} annotation, it actually behaves more like a
 	 * wrapped launcher of the real mod instance which is referred by {@link #MOD}
@@ -61,7 +60,7 @@ public class ModWrapper
 	 * Actual mod instance. Implemented differ by side.
 	 */
 	@SidedProxy(
-		serverSide = COMMON_PROXY,
+		serverSide = "com.fmum.common.FMUM",
 		clientSide = "com.fmum.client.FMUMClient"
 	)
 	public static FMUM MOD;

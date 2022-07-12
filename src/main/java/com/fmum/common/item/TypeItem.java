@@ -20,6 +20,8 @@ public abstract class TypeItem extends TypeTextured implements MetaItem
 	
 	/**
 	 * Corresponding {@link Item} to this type. Usually set on item registration.
+	 * 
+	 * @see #createItem()
 	 */
 	public Item item = null;
 	
@@ -36,7 +38,7 @@ public abstract class TypeItem extends TypeTextured implements MetaItem
 		super.regisPostInitHandler( tasks );
 		MetaItem.super.regisPostInitHandler( tasks );
 		
-		tasks.put( "SETUP_ITEM", () -> this.setupItem() );
+		tasks.put( "SETUP_ITEM", () -> this.createItem() );
 	}
 	
 	@Override
@@ -44,12 +46,33 @@ public abstract class TypeItem extends TypeTextured implements MetaItem
 	{
 		super.regisPostLoadHandler( tasks );
 		MetaItem.super.regisPostLoadHandler( tasks );
+		
+		// Locate creative tab and set it for item here as the customized creative may not be \
+		// loaded right after the parse of the type item
+		tasks.put(
+			"SETTLE_TAB",
+			() -> {
+				// Try set required creative tab
+				MetaCreativeTab tab = MetaCreativeTab.get( this.creativeTab );
+				if( tab == null )
+				{
+					this.log().error( this.format(
+						"fmum.failtofindcreativetab",
+						this.creativeTab,
+						this.toString()
+					) );
+					tab = FMUM.tab;
+				}
+				this.item.setCreativeTab( tab.creativeTab() );
+				tab.itemSettleIn( this.item );
+			}
+		);
 	}
 	
 	@Override
 	public Item item() { return this.item; }
 	
-	protected abstract void setupItem();
+	protected abstract void createItem();
 	
 	/**
 	 * Call {@link #withItem(Item, int, int)} with parameter list {@code (item, 1, 0)}
@@ -71,17 +94,5 @@ public abstract class TypeItem extends TypeTextured implements MetaItem
 		item.setUnlocalizedName( this.name );
 		item.setMaxStackSize( maxStackSize );
 		item.setMaxDamage( maxDamage );
-		
-		// Try set required creative tab
-		MetaCreativeTab tab = MetaCreativeTab.get( this.creativeTab );
-		if( tab == null )
-		{
-			this.log().error(
-				this.format( "fmum.failtofindcreativetab", this.creativeTab, this.toString() )
-			);
-			tab = FMUM.tab;
-		}
-		item.setCreativeTab( tab.creativeTab() );
-		tab.itemSettleIn( item );
 	}
 }
