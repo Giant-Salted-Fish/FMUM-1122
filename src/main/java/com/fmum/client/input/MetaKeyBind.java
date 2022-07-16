@@ -7,10 +7,7 @@ import com.fmum.common.FMUM;
 import com.fmum.common.meta.MetaGrouped;
 
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly( Side.CLIENT )
 public interface MetaKeyBind extends MetaGrouped
 {
 	public static final TreeMap< String, MetaKeyBind > regis = new TreeMap<>();

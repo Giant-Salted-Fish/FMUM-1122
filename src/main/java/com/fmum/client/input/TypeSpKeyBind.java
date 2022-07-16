@@ -4,10 +4,6 @@ import java.util.Map;
 
 import com.fmum.common.pack.TypeParser;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
-@SideOnly( Side.CLIENT )
 public class TypeSpKeyBind extends TypeKeyBind
 {
 	public static final TypeParser< TypeSpKeyBind >

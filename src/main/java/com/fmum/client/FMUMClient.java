@@ -12,11 +12,12 @@ import org.lwjgl.opengl.GLContext;
 import com.fmum.client.input.InputHandler;
 import com.fmum.common.FMUM;
 import com.fmum.common.ModWrapper;
-import com.fmum.common.item.HostItem;
+import com.fmum.common.item.MetaHostItem;
 import com.fmum.common.item.MetaItem;
 import com.fmum.common.util.Messager;
 import com.fmum.common.util.Vec3;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiControls;
 import net.minecraft.client.gui.GuiOptions;
@@ -48,6 +49,7 @@ public final class FMUMClient extends FMUM
 	/**
 	 * Easy referencing
 	 */
+	public static final Minecraft mc = Minecraft.getMinecraft();
 	public static final GameSettings settings = mc.gameSettings;
 	
 	public float oriMouseSensi = settings.mouseSensitivity;
@@ -133,6 +135,12 @@ public final class FMUMClient extends FMUM
 	}
 	
 	@Override
+	public Side side() { return Side.CLIENT; }
+	
+	@Override
+	public boolean isClient() { return true; }
+	
+	@Override
 	public void regisLocalResource( File source )
 	{
 		super.regisLocalResource( source );
@@ -208,17 +216,17 @@ public final class FMUMClient extends FMUM
 		for( int i = inv.getSizeInventory(); i-- > 0; )
 		{
 			ItemStack stack = inv.getStackInSlot( i );
-			if( !( stack.getItem() instanceof HostItem ) ) continue;
+			if( !( stack.getItem() instanceof MetaHostItem ) ) continue;
 			// TODO: maybe count the weight of traditional items via a map
 			
-			MetaItem meta = ( ( HostItem ) stack.getItem() ).meta();
+			MetaItem meta = ( ( MetaHostItem ) stack.getItem() ).meta();
 			meta.onInvTick( stack, inv, i );
 			
 			// TODO: weight and volume
 		}
 		
 		ItemStack stack = player.inventory.getCurrentItem();
-		MetaItem meta = HostItem.getMeta( stack );
+		MetaItem meta = MetaHostItem.getMeta( stack );
 		
 		// Check if item holding has changed
 		if( player.inventory.currentItem != this.prevSlot || stack != this.prevStack )
@@ -226,7 +234,7 @@ public final class FMUMClient extends FMUM
 			settings.viewBobbing = this.oriViewBobbing && meta.allowViewBobbing();
 			
 			// Fire callback functions
-			HostItem.getMeta( this.prevStack ).onPutAway( stack );
+			MetaHostItem.getMeta( this.prevStack ).onPutAway( stack );
 			this.operating = this.operating.onHoldingItemChange( stack );
 			meta.onTakeOut( stack );
 			

@@ -1,13 +1,10 @@
-package com.fmum.client.model;
+package com.fmum.client.render;
 
 import com.fmum.common.item.MetaItem;
 import com.fmum.common.util.Animation;
 
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly( Side.CLIENT )
 public interface Animator
 {
 	// TODO: remove this maybe?

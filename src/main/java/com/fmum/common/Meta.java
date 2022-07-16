@@ -14,7 +14,7 @@ public interface Meta extends Comparable< Meta >
 	public static final String DESCRIPTION_MISSING = "fmum.descriptionmissing";
 	
 	/**
-	 * @return Name of this meta. Usually can be used to find this meta.
+	 * @return Name of this meta. Should not be {@code null} and can be used to find this meta.
 	 */
 	public default String name() { return "undefined"; }
 	

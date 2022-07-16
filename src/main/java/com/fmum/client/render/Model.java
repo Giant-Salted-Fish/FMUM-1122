@@ -1,6 +1,4 @@
-package com.fmum.client.model;
-
-import java.util.function.Consumer;
+package com.fmum.client.render;
 
 import org.lwjgl.opengl.GL11;
 
@@ -8,11 +6,8 @@ import com.fmum.common.util.Mesh;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly( Side.CLIENT )
-public class Model extends ModelBase implements Renderable
+public abstract class Model extends ModelBase implements Renderable
 {
 	/**
 	 * A fixed instance that can be used as the initializer value
@@ -25,7 +20,7 @@ public class Model extends ModelBase implements Renderable
 	
 	public Model( Mesh... meshes ) { this.meshes = meshes; }
 	
-	public Model( Consumer< Model > initializer ) { initializer.accept( this ); }
+//	public Model( Consumer< Model > initializer ) { initializer.accept( this ); }
 	
 	@Override
 	public void render() { for( Mesh m : this.meshes ) m.render(); }

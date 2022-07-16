@@ -37,7 +37,7 @@ public interface MetaItem extends MetaBase
 		TRANSLATION_SUFFIX = ".name";
 	
 	/**
-	 * A default item that "do nothing"
+	 * A default meta item that simply "do nothing"
 	 */
 	public static final MetaItem NONE = new MetaItem()
 	{
@@ -156,11 +156,24 @@ public interface MetaItem extends MetaBase
 	@SideOnly( Side.CLIENT )
 	public default String unlocalizedName() { return TRANSLATION_PREFIX + this.name(); }
 	
+	/**
+	 * Render tick is not the actual time that you should render your models. It is just a method
+	 * call that just before the actual render that allows you to update states that should update
+	 * in every frame.
+	 * 
+	 * @param stack Item stack that the player is holding
+	 * @param mouse Mouse controller where you can retrieve updated player rotation from
+	 */
 	@SideOnly( Side.CLIENT )
 	public default void onRenderTick( ItemStack stack, MouseHelper mouse ) { }
 	
+	/**
+	 * Called to render this item in player's hand
+	 * 
+	 * @param stack Corresponding stack to this meta
+	 */
 	@SideOnly( Side.CLIENT )
-	public default void renderFP( ItemStack stack ) { }
+	public default void onRenderInHand( ItemStack stack ) { }
 	
 	public static MetaItem get( String name ) { return regis.get( name ); }
 }

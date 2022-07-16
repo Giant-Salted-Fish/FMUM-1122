@@ -1,12 +1,12 @@
 package com.fmum.common.item;
 
-import com.fmum.common.Host;
+import com.fmum.common.MetaHost;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 @FunctionalInterface
-public interface HostItem extends Host
+public interface MetaHostItem extends MetaHost
 {
 	@Override
 	public MetaItem meta();
@@ -14,6 +14,6 @@ public interface HostItem extends Host
 	public static MetaItem getMeta( ItemStack stack )
 	{
 		final Item item = stack.getItem();
-		return item instanceof HostItem ? ( ( HostItem ) item ).meta() : MetaItem.NONE;
+		return item instanceof MetaHostItem ? ( ( MetaHostItem ) item ).meta() : MetaItem.NONE;
 	}
 }

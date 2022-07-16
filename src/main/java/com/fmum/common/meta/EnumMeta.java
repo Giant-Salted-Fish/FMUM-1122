@@ -8,9 +8,6 @@ import com.fmum.common.pack.TypeCreativeTab;
 import com.fmum.common.paintjob.TypeExternalPaintjob;
 import com.fmum.common.util.LocalAttrParser;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 /**
  * Meta types that are supported by {@link FMUM} framework(leaf derived class of {@link MetaBase})
  * 
@@ -65,7 +62,6 @@ public enum EnumMeta
 	 * 
 	 * @see TypeKeyBind
 	 */
-	@SideOnly( Side.CLIENT )
 	KEY_BIND( "keybind", TypeSpKeyBind.parser );
 	
 	public final String recommendedSourceDirName;

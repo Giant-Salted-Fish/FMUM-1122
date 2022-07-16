@@ -10,10 +10,7 @@ import com.fmum.common.pack.TypeParser;
 
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly( Side.CLIENT )
 public class TypeKeyBind extends TypeBase implements MetaKeyBind
 {
 	public static final TypeParser< TypeKeyBind > parser = new TypeParser<>( null );

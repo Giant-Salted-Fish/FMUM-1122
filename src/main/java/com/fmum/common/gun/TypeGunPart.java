@@ -2,6 +2,7 @@ package com.fmum.common.gun;
 
 import java.util.Map;
 
+import com.fmum.client.item.RenderableItem;
 import com.fmum.common.item.TypeItemCustomizable;
 import com.fmum.common.module.ModuleSlot;
 import com.fmum.common.pack.TypeParser;
@@ -23,9 +24,11 @@ import net.minecraft.nbt.NBTTagList;
  * 
  * @author Giant_Salted_Fish
  */
-public abstract class TypeGunPart extends TypeItemCustomizable implements MetaGunPart
+// FIXME: replace RenderableItem
+public abstract class TypeGunPart< T extends RenderableItem > extends TypeItemCustomizable< T >
+	implements MetaGunPart
 {
-	public static final TypeParser< TypeGunPart >
+	public static final TypeParser< TypeGunPart< ? > >
 		parser = new TypeParser<>( TypeItemCustomizable.parser );
 	static
 	{

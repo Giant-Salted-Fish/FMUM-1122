@@ -2,17 +2,23 @@ package com.fmum.common.item;
 
 import java.util.Map;
 
+import com.fmum.client.item.RenderableItem;
 import com.fmum.common.FMUM;
-import com.fmum.common.meta.TypeTextured;
+import com.fmum.common.meta.TypeRenderable;
 import com.fmum.common.pack.MetaCreativeTab;
 import com.fmum.common.pack.TypeParser;
 
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.MouseHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class TypeItem extends TypeTextured implements MetaItem
+public abstract class TypeItem< T extends RenderableItem > extends TypeRenderable< T >
+	implements MetaItem
 {
-	public static final TypeParser< TypeItem >
-		parser = new TypeParser<>( TypeTextured.parser );
+	public static final TypeParser< TypeItem< ? > >
+		parser = new TypeParser<>( TypeRenderable.parser );
 	static
 	{
 		parser.addKeyword( "CreativeTab", ( s, t ) -> t.creativeTab = s[ 1 ] );
@@ -28,7 +34,7 @@ public abstract class TypeItem extends TypeTextured implements MetaItem
 	/**
 	 * Creative tab where this item will be displayed in
 	 */
-	public String creativeTab = FMUM.tab.getTabLabel();
+	public String creativeTab = FMUM.tab.name();
 	
 	public TypeItem( String name ) { super( name ); }
 	
@@ -38,6 +44,10 @@ public abstract class TypeItem extends TypeTextured implements MetaItem
 		super.regisPostInitHandler( tasks );
 		MetaItem.super.regisPostInitHandler( tasks );
 		
+		// Usually delaying the item creation to post load phase will not cause a problem. Here \
+		// setting it at post initialization is to guarantee the completeness of the meta at post \
+		// load phase. In this case any meta that wants the item of another meta will not get null \
+		// as return.
 		tasks.put( "SETUP_ITEM", () -> this.createItem() );
 	}
 	
@@ -72,12 +82,18 @@ public abstract class TypeItem extends TypeTextured implements MetaItem
 	@Override
 	public Item item() { return this.item; }
 	
-	protected abstract void createItem();
+	@Override
+	public void onRenderTick( ItemStack stack, MouseHelper mouse ) {
+		this.model.onRenderTick( stack, MetaHostItem.getMeta( stack ), mouse );
+	}
 	
-	/**
-	 * Call {@link #withItem(Item, int, int)} with parameter list {@code (item, 1, 0)}
-	 */
-	protected final void withItem( Item item ) { this.withItem( item, 1, 0 ); }
+	@Override
+	@SideOnly( Side.CLIENT )
+	public void onRenderInHand( ItemStack stack ) {
+		this.model.renderInHand( stack, this );
+	}
+	
+	protected abstract void createItem();
 	
 	/**
 	 * Helper method that initializes the given item and binds it to this type

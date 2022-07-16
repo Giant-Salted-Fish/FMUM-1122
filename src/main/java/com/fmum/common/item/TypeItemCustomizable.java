@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.fmum.client.item.RenderableItem;
 import com.fmum.common.FMUM;
 import com.fmum.common.meta.MetaBase;
 import com.fmum.common.module.MetaModular;
@@ -19,9 +20,11 @@ import com.fmum.common.paintjob.MetaPaintable;
  * 
  * @author Giant_Salted_Fish
  */
-public abstract class TypeItemCustomizable extends TypeItem implements MetaModular, MetaPaintable
+// FIXME: replace RenderableItem
+public abstract class TypeItemCustomizable< T extends RenderableItem > extends TypeItem< T >
+	implements MetaModular, MetaPaintable
 {
-	public static final TypeParser< TypeItemCustomizable >
+	public static final TypeParser< TypeItemCustomizable< ? > >
 		parser = new TypeParser<>( TypeItem.parser );
 	static
 	{

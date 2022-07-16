@@ -1,14 +1,11 @@
-package com.fmum.client.model;
+package com.fmum.client.render;
 
 import com.fmum.client.EventHandlerClient;
 import com.fmum.client.FMUMClient;
 import com.fmum.client.Operation;
 
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly( Side.CLIENT )
 public interface Renderable
 {
 	/**
@@ -24,6 +21,7 @@ public interface Renderable
 	 * 
 	 * <p> Notice that calling glow twice could cause unexpected light problem. Hence it is
 	 * recommended to override this method if you used {@link #glowOn()} or {@link #glowOn(int)}
+	 * </p>
 	 */
 	public default void renderHighLighted()
 	{

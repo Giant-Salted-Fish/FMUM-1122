@@ -4,18 +4,16 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.client.model.Renderable;
+import com.fmum.client.render.Renderable;
 import com.fmum.common.item.MetaItem;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MouseHelper;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly( Side.CLIENT )
 public interface RenderableItem extends Renderable
 {
 	public default void onRenderTick( ItemStack stack, MetaItem meta, MouseHelper mouse )
@@ -26,7 +24,7 @@ public interface RenderableItem extends Renderable
 	/**
 	 * Render this model in first person view. Note that x and z axis are swapped in default.
 	 */
-	public default void renderFP( ItemStack stack, MetaItem meta )
+	public default void renderInHand( ItemStack stack, MetaItem meta )
 	{
 		// Re-setup projection matrix
 		GL11.glMatrixMode( GL11.GL_PROJECTION );
@@ -50,7 +48,7 @@ public interface RenderableItem extends Renderable
 		GL11.glRotated( d[ 3 ], 1D, 0D, 0D );
 		/** for test */
 		
-		this.doRenderFP( stack, meta );
+		this.doRenderInHand( stack, meta );
 	}
 	
 	/**
@@ -58,7 +56,7 @@ public interface RenderableItem extends Renderable
 	 * called in any context. It is recommended to simply render your model in this method to ensure
 	 * the compatibility.
 	 */
-	public default void doRenderFP( ItemStack stack, MetaItem meta ) { this.render(); }
+	public default void doRenderInHand( ItemStack stack, MetaItem meta ) { this.render(); }
 	
 	/**
 	 * Copied from {@link EntityRenderer#getFOVModifier(float, boolean)}

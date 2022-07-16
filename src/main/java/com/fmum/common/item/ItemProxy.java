@@ -14,15 +14,15 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * Proxy the item and pass all to bounden type to handle
+ * Proxy the item and pass all essential method call to bounden meta
  * 
  * @author Giant_Salted_Fish
  */
-public class ItemBase< T extends MetaItem > extends Item implements HostItem
+public class ItemProxy< T extends MetaItem > extends Item implements MetaHostItem
 {
 	public final T meta;
 	
-	public ItemBase( T meta ) { this.meta = meta; }
+	public ItemProxy( T meta ) { this.meta = meta; }
 	
 	@Override
 	public T meta() { return this.meta; }

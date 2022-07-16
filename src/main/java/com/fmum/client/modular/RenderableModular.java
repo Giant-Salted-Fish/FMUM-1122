@@ -3,16 +3,13 @@ package com.fmum.client.modular;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.fmum.client.model.Renderable;
+import com.fmum.client.render.Renderable;
 import com.fmum.common.module.MetaModular;
 import com.fmum.common.util.Releasable;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MouseHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly( Side.CLIENT )
 public interface RenderableModular extends Renderable
 {
 	/**

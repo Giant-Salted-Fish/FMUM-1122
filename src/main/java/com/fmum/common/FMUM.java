@@ -17,9 +17,9 @@ import com.fmum.common.pack.FolderContentPack;
 import com.fmum.common.pack.TypeCreativeTab;
 import com.fmum.common.pack.ZipContentPack;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -41,10 +41,7 @@ public class FMUM extends ModWrapper implements ContentProvider, AutowireLogger
 	 */
 	public static final Random rand = new Random();
 	
-	/**
-	 * Easy referencing
-	 */
-	public static final Minecraft mc = Minecraft.getMinecraft();
+//	MinecraftServer server = MinecraftServer.main( p_main_0_ );
 	
 	/**
 	 * All content packs loaded by {@link FMUM}
@@ -167,6 +164,13 @@ public class FMUM extends ModWrapper implements ContentProvider, AutowireLogger
 	 * Called for client side to trigger key lazy load
 	 */
 	public void loadKeyBinds() { }
+	
+	public Side side() { return Side.SERVER; }
+	
+	/**
+	 * @return {@code true} if {@link FMLCommonHandler#getSide()} returns {@link Side#CLIENT}
+	 */
+	public boolean isClient() { return false; }
 	
 	public void regisLocalResource( File source )
 	{

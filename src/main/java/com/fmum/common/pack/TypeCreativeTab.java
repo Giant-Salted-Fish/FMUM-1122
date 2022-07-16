@@ -52,7 +52,6 @@ public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 		parser.addKeyword( "NoScrollBar", ( s, t ) -> t.setNoScrollbar() );
 	}
 	
-	@SideOnly( Side.CLIENT )
 	protected static final ItemStack DEF_ICON_STACK = new ItemStack( Blocks.WOOL, 1, 10 );
 	
 	// TODO: change this to a valid item name
@@ -66,11 +65,20 @@ public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 	 */
 	public ResourceLocation backgroundImage;
 	
+	/**
+	 * {@link CreativeTabs#getTabLabel()} is client side only hence this is needed on server side to
+	 * provide name
+	 */
+	@SideOnly( Side.SERVER )
+	protected String name;
+	
 	public TypeCreativeTab( String label )
 	{
 		super( label );
 		
-		this.backgroundImage = super.getBackgroundImage();
+		if( FMUM.MOD.isClient() )
+			this.backgroundImage = super.getBackgroundImage();
+		else this.name = label;
 	}
 	
 	@Override
@@ -80,7 +88,7 @@ public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 		
 		// Setup background image
 		tasks.put(
-			"INIT_BG_IMG",
+			"SETUP_BG_IMG",
 			() -> {
 				if( this.backgroundImage == null )
 					this.backgroundImage = ResourceHandler.getTexture( this.getBackgroundImageName() );
@@ -96,8 +104,9 @@ public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 	@Override
 	public CreativeTabs creativeTab() { return this; }
 	
+	// FIXME: getTabLabel is side only!
 	@Override
-	public String name() { return this.getTabLabel(); }
+	public String name() { return FMUM.MOD.isClient() ? this.getTabLabel() : this.name; }
 	
 	@Override
 	@SideOnly( Side.CLIENT )

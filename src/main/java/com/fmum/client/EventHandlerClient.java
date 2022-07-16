@@ -8,7 +8,7 @@ import com.fmum.client.input.InputHandler;
 import com.fmum.client.input.MetaKeyBind;
 import com.fmum.common.FMUM;
 import com.fmum.common.ModWrapper.AutowireLogger;
-import com.fmum.common.item.HostItem;
+import com.fmum.common.item.MetaHostItem;
 import com.fmum.common.item.MetaItem;
 import com.fmum.common.meta.MetaBase;
 
@@ -45,7 +45,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-@EventBusSubscriber( modid = FMUM.MODID ) // , value = Side.CLIENT
+@EventBusSubscriber( modid = FMUM.MODID, value = Side.CLIENT )
 public abstract class EventHandlerClient
 {
 	private static final AutowireLogger log = new AutowireLogger() { };
@@ -96,7 +96,7 @@ public abstract class EventHandlerClient
 		switch( evt.getType() )
 		{
 		case CROSSHAIRS:
-			evt.setCanceled( HostItem.getMeta(
+			evt.setCanceled( MetaHostItem.getMeta(
 				FMUMClient.mc.player.inventory.getCurrentItem()
 			).disableCrosshair() );
 			break;
@@ -132,9 +132,9 @@ public abstract class EventHandlerClient
 		final EntityPlayerSP player = mc.player;
 		ItemStack stack = player.inventory.getCurrentItem();
 		Item item = stack.getItem();
-		if( !( item instanceof HostItem ) ) return;
+		if( !( item instanceof MetaHostItem ) ) return;
 		
-		MetaItem meta = ( ( HostItem ) item ).meta();
+		MetaItem meta = ( ( MetaHostItem ) item ).meta();
 		// TODO: off-hand
 		// TODO: call a render method here to render parts that does not interact with light
 		
@@ -172,7 +172,7 @@ public abstract class EventHandlerClient
 		
 		// Outer layer has pushed a matrix, hence not push matrix needed here
 //		GlStateManager.disableCull();
-		meta.renderFP( stack );
+		meta.onRenderInHand( stack );
 		
 		GlStateManager.disableRescaleNormal();
 		RenderHelper.disableStandardItemLighting();
@@ -181,8 +181,7 @@ public abstract class EventHandlerClient
 		entityRenderer.disableLightmap();
 		
 		// Cancel event if no native item render in off-hand
-		if( player.inventory.offHandInventory.get( 0 ).isEmpty() )
-			evt.setCanceled( true );
+		evt.setCanceled( player.inventory.offHandInventory.get( 0 ).isEmpty() );
 	}
 	
 	/**
@@ -192,7 +191,7 @@ public abstract class EventHandlerClient
 	 */
 	@SubscribeEvent
 	public static void onSpecificHandRender( RenderSpecificHandEvent evt ) {
-		if( evt.getItemStack().getItem() instanceof HostItem ) evt.setCanceled( true );
+		if( evt.getItemStack().getItem() instanceof MetaHostItem ) evt.setCanceled( true );
 	}
 	
 	/**
@@ -236,7 +235,7 @@ public abstract class EventHandlerClient
 		if( dWheel != 0 ) return;
 		
 		ItemStack stack = FMUMClient.MOD.prevStack;
-		evt.setCanceled( HostItem.getMeta( stack ).onMouseWheelInput( stack, dWheel ) );
+		evt.setCanceled( MetaHostItem.getMeta( stack ).onMouseWheelInput( stack, dWheel ) );
 	}
 	
 	/** 
