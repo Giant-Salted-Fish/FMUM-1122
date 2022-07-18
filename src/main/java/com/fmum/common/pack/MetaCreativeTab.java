@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fmum.common.FMUM;
+import com.fmum.common.meta.EnumMeta;
 import com.fmum.common.meta.MetaBase;
 
 import net.minecraft.creativetab.CreativeTabs;
@@ -42,6 +43,9 @@ public interface MetaCreativeTab extends MetaBase
 	 * @param item Item wants to settle in
 	 */
 	public default void itemSettleIn( Item item ) { }
+	
+	@Override
+	public default EnumMeta enumMeta() { return EnumMeta.TAB; }
 	
 	public static MetaCreativeTab get( String name ) { return regis.get( name ); }
 }

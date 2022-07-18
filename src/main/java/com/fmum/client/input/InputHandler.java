@@ -15,8 +15,8 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import com.fmum.client.FMUMClient;
+import com.fmum.common.AutowireLogger;
 import com.fmum.common.FMUM;
-import com.fmum.common.ModWrapper.AutowireLogger;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
@@ -308,9 +308,9 @@ public abstract class InputHandler
 		default:
 			log.log().error(
 				I18n.format(
-					"fmum.keyupdategroupnotfound",
-					channel,
-					keyBind.toString()
+					"fmum.cannotfoundkeyupdategroup",
+					keyBind.toString(),
+					channel
 				)
 			);
 			return false;

@@ -2,47 +2,51 @@
 
 # 加载时日志
 fmum.onpreinitialization=正在预初始化 FMUM...
-fmum.preinitializationcomplete=FMUM 预初始化完成 \
-fmum.oninitialization=正在初始化 FMUM...
-fmum.initializationcomplete=FMUM 初始化完成 \
-fmum.onpostinitialization=正在后初始化 FMUM...
-fmum.postinitializationcomplete=FMUM 后初始化完成 \
-fmum.openglversiontoolow=您的 OpenGL 版本过低，最低要求 OpenGL3.0。请更换显卡或更新显卡驱动。
-fmum.packfoldercreated=创建内容包文件夹 <%s>
-fmum.unknowncontentpackfiletype=文件 <%s> 不属于可接受的内容包文件类型{ <文件夹>, <.jar>, <.zip> }
-fmum.detectcontentpack=检测到可加载的内容包 <%s>
-fmum.preloadcontentpack=预加载内容包 <%s>
-fmum.loadedcontentpack=内容包 %s 加载完成
-fmum.unknownfiletype=无法识别的文件类型 <%s>
-fmum.ioerror=读取源 <%s> 时遇到 IO 错误
-fmum.unexpectederror=处理 <%s> 遇到意外错误
-fmum.errorparsingtype=解析 <%s> 时遇到错误
-fmum.errorinstantiating=尝试实例化 <%s> 时遇到错误
-fmum.errorloadingclassbasedtype=加载基于class的类型文件 <%s> 时遇到错误
+fmum.openglversiontoolow=您的 OpenGL 版本过低，最低要求为 OpenGL3.0。请考虑更新显卡驱动或更换显卡。
+fmum.loadconfig=正在加载 FMUM 配置文件...
+fmum.packfoldercreated=已为您创建内容包文件夹 %s，在网络上找一些适配 FMUM 的内容包放入其中吧！
+fmum.unknowncontentpackfiletype=无法加载内容包 %s。FMUM 仅支持以下 { <文件夹>, <.jar>, <.zip> } 三种类型的内容包。
+fmum.detectcontentpack=发现可加载的内容包 %s
 fmum.erroraddingclasspath=为 <%s> 注册Class加载路径时遇到了问题 相关内容包内容可能会无法加载
+fmum.loadcontentpack=正在加载内容包 %s ...
+fmum.unknownfiletype=文件 %s 不是受支持的文件类型
+fmum.ioerror=读取源 %s 时遇到 IO 错误
+fmum.unexpectederror=处理 %s 遇到意外错误
+fmum.errorparsingtype=解析 %s 时遇到错误
+fmum.errorinstantiating=尝试实例化 %s 时遇到错误
+fmum.errorloadingclassbasedtype=加载基于class的类型文件 %s 时遇到错误
 fmum.duplicatemetaregistration=重复的元注册 %s : %s
-fmum.failtofindcreativetab=找不到 <%2$s> 指定的创造模式物品栏 <%1$s>
-fmum.failtofindpaintjobinjecttarget=找不到外部皮肤 <%s> 指定的注入目标 <%s>
-fmum.failtofindiconitemfortab=找不到图标物品 <%s>，创造栏 <%s> 的图标已被重置为默认设置
+fmum.cannotfindcreativetab=找不到 %s 所指定的创造模式物品栏 %s
+fmum.cannotfindpaintjobinjecttarget=找不到外部皮肤 %s 指定的注入目标 %s
+fmum.preinitializationcomplete=FMUM 预初始化完成 \
 
-fmum.onitemregistration=正在为 FMUM 内容包注册物品...
+fmum.onitemregistration=正在为 FMUM 所属的内容包注册物品...
 fmum.itemregistrationcomplete=物品注册已完成 共计 %s 个
-fmum.onmodelregistration=正在为 FMUM 内容包注册模型...
+fmum.onmodelregistration=正在为 FMUM 所属的内容包注册模型...
 fmum.modelregistrationcomplete=模型注册已完成 共计 %s 个
 
-fmum.infoactivedpacks=共 %s 个已就绪的 FMUM 内容包
-fmum.activedpackinfo=    - %s 来自 %s
+fmum.oninitialization=正在初始化 FMUM...
+fmum.initializationcomplete=FMUM 初始化完成 \
+fmum.infoactivatedpacks=共 %s 个已就绪的 FMUM 内容包
+fmum.activatedpackinfo=    - %s 来自 %s
 
-fmum.keyupdategroupnotfound=无法为自定义按键 <%2$s> 找到触发组 <%1$s>
+fmum.onpostinitialization=正在后初始化 FMUM...
+fmum.cannotfoundkeyupdategroup=无法找到自定义按键 %s 所要求的触发组 %s
 fmum.errorcreatingkeybindsfile=创建按键绑定文件时出现错误，FMUM 按键绑定设置可能会不同步
 fmum.errorsavingkeybinds=存储按键绑定时出现错误，FMUM 按键绑定设置可能会不同步
 fmum.errorreadingkeybinds=读取按键绑定时出现错误，FMUM 按键绑定设置可能会不同步
-fmum.keycodeformaterror=按键编号格式错误 <%s>
-fmum.unrecognizedkeybind=按键绑定 <%s> 不存在
+fmum.keycodeformaterror=按键编号格式错误 %s
+fmum.unrecognizedkeybind=按键绑定 %s 不存在
+fmum.postinitializationcomplete=FMUM 后初始化完成 \
 
 # 运行时日志
-fmum.unhandledpackets=未被处理的网络包 <%s>，来自 <%s>
-fmum.unhandledpacketc=未被处理的网络包 <%s>
+fmum.modelnotfoundinrepositroy=无法从模型仓库 %2$s 中获取指定的模型 %1$s
+fmum.errorloadingmodel=加载模型 %s 时遇到错误
+
+fmum.cannotfindiconitemfortab=找不到创造栏 %s 所指定的图标物品 %s
+
+fmum.unhandledpackets=无法识别来自 %2$s 的客户端网络包 %1$s
+fmum.unhandledpacketc=无法识别的服务端网络包 %s
 
 # 内容包摘要
 fmum.pack=FMUM 默认内容包

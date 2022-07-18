@@ -6,8 +6,9 @@ import org.lwjgl.opengl.GL11;
 
 import com.fmum.client.input.InputHandler;
 import com.fmum.client.input.MetaKeyBind;
+import com.fmum.client.render.ModelDebugBox;
+import com.fmum.common.AutowireLogger;
 import com.fmum.common.FMUM;
-import com.fmum.common.ModWrapper.AutowireLogger;
 import com.fmum.common.item.MetaHostItem;
 import com.fmum.common.item.MetaItem;
 import com.fmum.common.meta.MetaBase;
@@ -191,7 +192,7 @@ public abstract class EventHandlerClient
 	 */
 	@SubscribeEvent
 	public static void onSpecificHandRender( RenderSpecificHandEvent evt ) {
-		if( evt.getItemStack().getItem() instanceof MetaHostItem ) evt.setCanceled( true );
+		evt.setCanceled( evt.getItemStack().getItem() instanceof MetaHostItem );
 	}
 	
 	/**
@@ -226,6 +227,7 @@ public abstract class EventHandlerClient
 //		GlStateManager.disableCull();
 //		FMUMClient.mc.renderEngine.bindTexture(ResourceManager.getTexture("skins/fnmk20ssr-desertyellow.png"));
 //		ModelFNMK20SSR.INSTANCE.render();
+		ModelDebugBox.INSTANCE.render();
 	}
 	
 	@SubscribeEvent

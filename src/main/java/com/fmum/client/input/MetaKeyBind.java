@@ -4,10 +4,14 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.fmum.common.FMUM;
+import com.fmum.common.meta.EnumMeta;
 import com.fmum.common.meta.MetaGrouped;
 
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+@SideOnly( Side.CLIENT )
 public interface MetaKeyBind extends MetaGrouped
 {
 	public static final TreeMap< String, MetaKeyBind > regis = new TreeMap<>();
@@ -85,4 +89,7 @@ public interface MetaKeyBind extends MetaGrouped
 	 * although it is the recommended practice. </p>
 	 */
 	public default void fire() { }
+	
+	@Override
+	public default EnumMeta enumMeta() { return EnumMeta.KEY_BIND; }
 }

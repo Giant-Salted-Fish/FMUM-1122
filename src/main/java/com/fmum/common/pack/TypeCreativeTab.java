@@ -2,10 +2,8 @@ package com.fmum.common.pack;
 
 import java.util.Map;
 
-import com.fmum.client.ResourceHandler;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.MetaItem;
-import com.fmum.common.meta.EnumMeta;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
@@ -26,10 +24,18 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 {
 	public static final TypeParser< TypeCreativeTab >
-		parser = new TypeParser< TypeCreativeTab >( TypeCreativeTab.class, null );
+		parser = new TypeParser<>( TypeCreativeTab.class, null );
 	static
 	{
-		parser.addKeyword(
+		parser.addKeyword( "NoTitle", ( s, t ) -> t.setNoTitle() );
+		parser.addKeyword( "NoScrollBar", ( s, t ) -> t.setNoScrollbar() );
+	}
+	
+	public static final TypeParser< TypeCreativeTab >
+		parserClient = new TypeParser<>( TypeCreativeTab.class, parser );
+	static
+	{
+		parserClient.addKeyword(
 			"IconItem",
 			( s, t ) -> {
 				t.iconItem = s[ 1 ];
@@ -38,8 +44,11 @@ public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 				t.iconItemDam = Short.parseShort( s[ 2 ] );
 			}
 		);
-		parser.addKeyword( "IconItemDam", ( s, t ) -> t.iconItemDam = Short.parseShort( s[ 1 ] ) );
-		parser.addKeyword(
+		parserClient.addKeyword(
+			"IconItemDam",
+			( s, t ) -> t.iconItemDam = Short.parseShort( s[ 1 ] )
+		);
+		parserClient.addKeyword(
 			"BackgroundImage",
 			( s, t ) -> {
 				t.setBackgroundImageName( s[ 1 ] );
@@ -48,22 +57,27 @@ public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 				t.backgroundImage = null;
 			}
 		);
-		parser.addKeyword( "NoTitle", ( s, t ) -> t.setNoTitle() );
-		parser.addKeyword( "NoScrollBar", ( s, t ) -> t.setNoScrollbar() );
 	}
 	
-	protected static final ItemStack DEF_ICON_STACK = new ItemStack( Blocks.WOOL, 1, 10 );
-	
-	// TODO: change this to a valid item name
-	// TODO: maybe set to side only?
-	public String iconItem = "undefined";
-	
-	public short iconItemDam = 0;
-	
 	/**
-	 * Background image used for this creative tab
+	 * Icon item that will appear if the require item can not be found. In default is the purple
+	 * wool block.
 	 */
-	public ResourceLocation backgroundImage;
+	@SideOnly( Side.CLIENT )
+	protected static ItemStack defIcon;
+	
+	@SideOnly( Side.CLIENT )
+	protected static String defIconItem;
+	
+	@SideOnly( Side.CLIENT )
+	protected static short defIconDam;
+	
+	static { if( FMUM.MOD.isClient() )
+	{
+		defIcon = new ItemStack( Blocks.WOOL, 1, 10 );
+		defIconItem = defIcon.getItem().getRegistryName().toString();
+		defIconDam = ( short ) defIcon.getItemDamage();
+	} }
 	
 	/**
 	 * {@link CreativeTabs#getTabLabel()} is client side only hence this is needed on server side to
@@ -72,12 +86,28 @@ public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 	@SideOnly( Side.SERVER )
 	protected String name;
 	
+	@SideOnly( Side.CLIENT )
+	public String iconItem;
+	
+	@SideOnly( Side.CLIENT )
+	public short iconItemDam;
+	
+	/**
+	 * Background image used for this creative tab
+	 */
+	@SideOnly( Side.CLIENT )
+	public ResourceLocation backgroundImage;
+	
 	public TypeCreativeTab( String label )
 	{
 		super( label );
 		
 		if( FMUM.MOD.isClient() )
+		{
+			this.iconItem = defIconItem;
+			this.iconItemDam = defIconDam;
 			this.backgroundImage = super.getBackgroundImage();
+		}
 		else this.name = label;
 	}
 	
@@ -90,8 +120,9 @@ public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 		tasks.put(
 			"SETUP_BG_IMG",
 			() -> {
-				if( this.backgroundImage == null )
-					this.backgroundImage = ResourceHandler.getTexture( this.getBackgroundImageName() );
+				// TODO: look up side issue
+//				if( this.backgroundImage == null )
+//					this.backgroundImage = ResourceManager.getTexture( this.getBackgroundImageName() );
 			}
 		);
 	}
@@ -104,7 +135,6 @@ public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 	@Override
 	public CreativeTabs creativeTab() { return this; }
 	
-	// FIXME: getTabLabel is side only!
 	@Override
 	public String name() { return FMUM.MOD.isClient() ? this.getTabLabel() : this.name; }
 	
@@ -112,21 +142,17 @@ public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 	@SideOnly( Side.CLIENT )
 	public ItemStack getTabIconItem()
 	{
-		// Check if it requires an item defined in FMUM
+		// Check if required item is defined in FMUM
 		MetaItem type = MetaItem.get( this.iconItem );
 		Item item = type != null ? type.item() : Item.getByNameOrId( this.iconItem );
 		if( item != null ) return new ItemStack( item, 1, this.iconItemDam );
 		
-		this.log().error(
-			I18n.format(
-				"fmum.failtofindiconitemfortab",
-				this.iconItem,
-				this.getTabLabel()
-			)
-		);
-		
-		// Return a purple wool to indicate a fault
-		return DEF_ICON_STACK;
+		this.log().error( I18n.format(
+			"fmum.cannotfindtabiconitem",
+			this.getTabLabel(),
+			this.iconItem
+		) );
+		return defIcon;
 	}
 	
 	@Override
@@ -136,9 +162,6 @@ public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 	@Override
 	@SideOnly( Side.CLIENT )
 	public ResourceLocation texture() { return this.backgroundImage; }
-	
-	@Override
-	public EnumMeta enumMeta() { return EnumMeta.TAB; }
 	
 	@Override
 	public String toString() { return this.identifier(); }

@@ -5,12 +5,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.fmum.client.ResourceHandler;
+import com.fmum.client.ResourceManager;
+import com.fmum.common.AutowireLogger;
 import com.fmum.common.FMUM;
 import com.fmum.common.Meta;
-import com.fmum.common.ModWrapper.AutowireLogger;
+import com.fmum.common.item.MetaItem;
 import com.fmum.common.pack.ContentProvider;
 
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
@@ -60,10 +62,9 @@ public interface MetaBase extends Meta, AutowireLogger
 	}
 	
 	/**
-	 * Called when the time you should load your model for rendering. It is delayed to the first
-	 * time the player enters a world for the reason that at any initialization stage provided by
-	 * {@link MinecraftForge} building a VBO can cause problem hence it is delayed to the world
-	 * load. </p>
+	 * Called when the time you should load your model for rendering. It is delayed till the first
+	 * time the player enters a world as building a VBO at any initialization phase provided by
+	 * {@link MinecraftForge} could cause display problems.
 	 * 
 	 * @see TODO: loader function
 	 */
@@ -100,18 +101,21 @@ public interface MetaBase extends Meta, AutowireLogger
 	@Override
 	public default String author() { return this.provider().author(); }
 	
-	@SideOnly( Side.CLIENT )
+	/**
+	 * This method is not side only as some meta requires it in both side. For example
+	 * {@link MetaItem#unlocalizedName(ItemStack)}.
+	 */
 	public default String unlocalizedName() { return this.name(); }
 	
 	@SideOnly( Side.CLIENT )
-	public default ResourceLocation texture() { return ResourceHandler.TEXTURE_GREEN; }
+	public default ResourceLocation texture() { return ResourceManager.TEXTURE_GREEN; }
 	
 	@SideOnly( Side.CLIENT )
 	public default void render() { }
 	
 	public default double modelScale() { return 1D; }
 	
-	public default EnumMeta enumMeta() { return EnumMeta.GENERAL; }
+	public default EnumMeta enumMeta() { return EnumMeta.OTHER; }
 	
 	/**
 	 * @return
@@ -119,7 +123,7 @@ public interface MetaBase extends Meta, AutowireLogger
 	 *     debug.
 	 */
 	public default String identifier() {
-		return this.enumMeta() + "<" + this.provider().name() + ":" + this.name() + ">";
+		return "(" + this.enumMeta() + ")" + this.provider().name() + ":" + this.name();
 	}
 	
 	public default < V extends MetaBase > void regisTo( V tar, Map< String, V > dest )

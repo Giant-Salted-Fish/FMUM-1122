@@ -2,7 +2,6 @@ package com.fmum.common;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.TreeMap;
@@ -10,18 +9,27 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
-import com.fmum.common.ModWrapper.AutowireLogger;
+import org.apache.logging.log4j.Logger;
+
+import com.fmum.client.render.ModelRepository;
+import com.fmum.client.render.Renderable;
 import com.fmum.common.meta.MetaBase;
+import com.fmum.common.network.PacketHandler;
 import com.fmum.common.pack.ContentProvider;
 import com.fmum.common.pack.FolderContentPack;
+import com.fmum.common.pack.MetaCreativeTab;
 import com.fmum.common.pack.TypeCreativeTab;
 import com.fmum.common.pack.ZipContentPack;
 
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * A weapon framework based on Flan's Mod and mainly focus on highly customizable guns. Modules for
@@ -32,7 +40,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @author Giant_Salted_Fish
  * @credit
  *     jamioflan, FlansGames, W44, vinidamiani126, and everyone who else contributed to Flan's Mod.
- *     It is a mod that inspired me so mush ^_^
+ *     It is a mod that inspired me so much ^_^
  */
 public class FMUM extends ModWrapper implements ContentProvider, AutowireLogger
 {
@@ -44,11 +52,14 @@ public class FMUM extends ModWrapper implements ContentProvider, AutowireLogger
 //	MinecraftServer server = MinecraftServer.main( p_main_0_ );
 	
 	/**
+	 * Network handler
+	 */
+	public static final PacketHandler net = new PacketHandler();
+	
+	/**
 	 * All content packs loaded by {@link FMUM}
 	 */
 	public static final TreeMap< String, ContentProvider > contentProviders = new TreeMap<>();
-	
-	public static final TypeCreativeTab tab = new TypeCreativeTab( MODID );
 	
 	/**
 	 * Debug mode flag. Should be finalized in release version. Call {@link #toggleDebug()} instead
@@ -58,6 +69,22 @@ public class FMUM extends ModWrapper implements ContentProvider, AutowireLogger
 	public static boolean toggleDebug() {
 		return debug = !debug;
 	}
+	
+	/**
+	 * Default logger for {@link FMUM}. Set by {@link #onPreInit(FMLPreInitializationEvent)}. Can be
+	 * acquired via {@link AutowireLogger}.
+	 */
+	protected static Logger log = null;
+	
+	/**
+	 * @see #defCreativeTab()
+	 */
+	protected static TypeCreativeTab defTab = null;
+	
+	/**
+	 * @see #hideCreativeTab()
+	 */
+	protected static MetaCreativeTab hideTab = null;
 	
 	/**
 	 * Name of the folder that contains content packs to be loaded. In default is
@@ -75,38 +102,110 @@ public class FMUM extends ModWrapper implements ContentProvider, AutowireLogger
 	 */
 	public int maxCanInstall = 5;
 	
-	protected static final Pattern SUFFIX_ZIP_JAR = Pattern.compile( "(.+)\\.(zip|jar)$" );
-	
 	/**
-	 * For server side localization only
+	 * ".minecraft/" folder. Obtained in {@link #onPreInit(FMLPreInitializationEvent)}.
 	 */
-	@SideOnly( Side.SERVER )
-	private HashMap<String, String> localization;
+	protected File mcDir = null;
 	
-	public final void loadConfig( Configuration config )
+	@Override
+	public final void onPreInit( FMLPreInitializationEvent evt )
 	{
-		// Load localization file for server side
-		this.loadLocalizationFile(
-			config.getString(
-				"localizationFile",
-				"Server Only",
-				"en_us.lang",
-				"Server side localization file"
-			)
-		);
+		// Get logger
+		log = evt.getModLog();
+		log.info( this.format( "fmum.onpreinitialization" ) );
 		
-		// Parse configuration
-		this.parseConfig( config );
+		// Setup default creative tab and hide creative tab
+		( defTab = new TypeCreativeTab( MODID ) ).regisTo( defTab, MetaCreativeTab.regis );
+		( hideTab = new MetaCreativeTab() {
+			@Override
+			public String name() { return "hide"; }
+			
+			@Override
+			public CreativeTabs creativeTab() { return null; }
+			
+			@Override
+			public String toString() { return this.identifier(); }
+		} ).regisTo( hideTab, MetaCreativeTab.regis );
 		
-		// Save configuration file if has changed
-		if( config.hasChanged() )
-			config.save();
+		// Get ".minecraft/" folder
+		this.mcDir = evt.getModConfigurationDirectory().getParentFile();
+		
+		// Check OpenGL capability
+		this.checkOpenGLCapability();
+		
+		// Parse configuration settings
+		this.loadConfig( new Configuration( evt.getSuggestedConfigurationFile() ) );
+		
+		// Load content packs
+		this.loadContentPacks();
+		
+		log.info( this.format( "fmum.preinitializationcomplete" ) );
+	}
+	
+	@Override
+	public final void onInit( FMLInitializationEvent evt )
+	{
+		log.info( this.format( "fmum.oninitialization" ) );
+		
+		net.init();
+		
+		log.info( this.format( "fmum.initializationcomplete" ) );
+		
+		this.infoInitComplete();
+	}
+	
+	@Override
+	public final void onPostInit( FMLPostInitializationEvent evt )
+	{
+		log.info( this.format( "fmum.onpostinitialization" ) );
+		
+		net.postInit();
+		
+		// FIXME: better initialize keys before we load custom keys
+		this.loadKeyBinds();
+		
+		log.info( this.format( "fmum.postinitializationcomplete" ) );
 	}
 	
 	/**
 	 * Client side only to check if the OpenGL version satisfies the requirement
 	 */
 	public void checkOpenGLCapability() { }
+	
+	public void loadConfig( Configuration config )
+	{
+		log.info( this.format( "fmum.loadconfig" ) );
+		
+		// Parse common configuration
+		final String CATEGORY = "Common";
+		
+		this.packDirName = config.getString(
+			"contentPackFolder",
+			CATEGORY,
+			this.packDirName,
+			"Content pack folder name where FMUM will load content packs from"
+		);
+		this.maxLocLen = config.getInt(
+			"maxLayers",
+			CATEGORY,
+			this.maxLocLen >>> 1,
+			1,
+			255,
+			"Max layers of modules can be installed on a base module"
+		) << 1;
+		this.maxCanInstall = config.getInt(
+			"maxCanInstall",
+			CATEGORY,
+			this.maxCanInstall,
+			1,
+			254,
+			"Max number of modules that can be installed in a single slot"
+		);
+		
+		// Save configuration file if has changed TODO: check if this is needed
+//		if( config.hasChanged() )
+//			config.save();
+	}
 	
 	public void loadContentPacks()
 	{
@@ -118,6 +217,9 @@ public class FMUM extends ModWrapper implements ContentProvider, AutowireLogger
 			log.info( this.format( "fmum.packfoldercreated", this.packDirName ) );
 		}
 		
+		// Compile a regex to match the supported content pack file types
+		final Pattern packPattern = Pattern.compile( "(.+)\\.(zip|jar)$" );
+		
 		// Find all content packs and load them
 		final LinkedList< ContentProvider > providers = new LinkedList<>();
 		for( File file : packDir.listFiles() )
@@ -125,7 +227,7 @@ public class FMUM extends ModWrapper implements ContentProvider, AutowireLogger
 			ContentProvider provider;
 			if( file.isDirectory() )
 				provider = new FolderContentPack( file );
-			else if( SUFFIX_ZIP_JAR.matcher( file.getName() ).matches() )
+			else if( packPattern.matcher( file.getName() ).matches() )
 				provider = new ZipContentPack( file );
 			else
 			{
@@ -144,15 +246,12 @@ public class FMUM extends ModWrapper implements ContentProvider, AutowireLogger
 		
 		// Load content packs!
 		for( ContentProvider p : providers )
-		{
 			p.prepareLoad();
-			log.info( this.format( "fmum.preloadcontentpack", p.sourceName() ) );
-		}
 		for( ContentProvider p : providers )
 		{
+			log.info( this.format( "fmum.loadcontentpack", p.sourceName() ) );
 			p.loadContent();
 			contentProviders.put( p.name(), p );
-			log.info( this.format( "fmum.loadedcontentpack", p.sourceName() ) );
 		}
 		
 		// Fire post load event
@@ -164,13 +263,6 @@ public class FMUM extends ModWrapper implements ContentProvider, AutowireLogger
 	 * Called for client side to trigger key lazy load
 	 */
 	public void loadKeyBinds() { }
-	
-	public Side side() { return Side.SERVER; }
-	
-	/**
-	 * @return {@code true} if {@link FMLCommonHandler#getSide()} returns {@link Side#CLIENT}
-	 */
-	public boolean isClient() { return false; }
 	
 	public void regisLocalResource( File source )
 	{
@@ -184,16 +276,33 @@ public class FMUM extends ModWrapper implements ContentProvider, AutowireLogger
 	public ResourceLocation loadTexture( String path ) { return null; }
 	
 	/**
-	 * This localize the message based on the physical game side. Use this for localization if the
-	 * message could be print in both side.
+	 * In default server side will not load models. But it is reserved as a capability that once
+	 * someday in the future the data in models will be needed then this will still work.
+	 * 
+	 * @param
+	 *     path Path of the model. Format is {@code repoName + ":" + modelName}. If {@code repoName}
+	 *     does not present then {@code modelName} should be the class path of the model to load. As
+	 *     for {@code repoName} see {@link ModelRepository}
+	 */
+	public Renderable loadModel( String path ) { return null; }
+	
+	public final MetaCreativeTab defCreativeTab() { return defTab; }
+	
+	public final MetaCreativeTab hideCreativeTab() { return hideTab; }
+	
+	public Side side() { return Side.SERVER; }
+	
+	public boolean isClient() { return false; }
+	
+	/**
+	 * This localize the message based on the physical side. Use this for localization if the
+	 * message will should in both client side and server side.
 	 * 
 	 * @see net.minecraft.client.resources.I18n#format(String, Object...)
 	 */
 	@Override
-	public String format( String translateKey, Object... parameters )
-	{
-		String format = this.localization.get( translateKey );
-		return String.format( format != null ? format : translateKey, parameters );
+	public String format( String translateKey, Object... parameters ) {
+		return I18n.translateToLocalFormatted( translateKey, parameters );
 	}
 	
 	@Override
@@ -222,55 +331,19 @@ public class FMUM extends ModWrapper implements ContentProvider, AutowireLogger
 		}
 	}
 	
-	/**
-	 * Try to load localization file of standard format from given file path. Server side only.
-	 */
-	protected void loadLocalizationFile( String fName )
+	final void infoInitComplete()
 	{
-		// TODO: load specified language file
-		final HashMap< String, String > map = new HashMap<>();
-		
-		this.localization = map;
+		log.info( this.format(
+			"fmum.infoactivatedpacks",
+			Integer.toString( contentProviders.size() )
+		) );
+		for( ContentProvider cp : contentProviders.values() )
+			log.info( this.format(
+				"fmum.activatedpackinfo",
+				this.format( cp.name() ),
+				this.format( cp.author() )
+			) );
 	}
 	
-	protected void parseConfig( Configuration config )
-	{
-		final String CATEGORY = "Common";
-		
-		this.packDirName = config.getString(
-			"contentPackFolder",
-			CATEGORY,
-			this.packDirName,
-			"Content pack folder name where FMUM will load content packs from"
-		);
-		this.maxLocLen = config.getInt(
-			"maxLayers",
-			CATEGORY,
-			this.maxLocLen >>> 1,
-			1,
-			255,
-			"Max layers of modules can be installed on a base module"
-		) << 1;
-		this.maxCanInstall = config.getInt(
-			"maxCanInstall",
-			CATEGORY,
-			this.maxCanInstall,
-			1,
-			254,
-			"Max number of modules that can be installed in a single slot"
-		);
-	}
-	
-	@Override
-	protected final void infoInitComplete()
-	{
-		log.info(
-			this.format(
-				"fmum.infoactivedpacks",
-				Integer.toString( contentProviders.size() )
-			)
-		);
-	}
-	
-//	void tick() { }
+//	protected void tick() { }
 }

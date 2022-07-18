@@ -19,7 +19,7 @@ public final class ZipContentPack extends LocalContentProvider
 	static
 	{
 		for( EnumMeta type : EnumMeta.values() )
-			TYPE_MAP.put( type.recommendedSourceDirName, type );
+			TYPE_MAP.put( type.dirName, type );
 	}
 	
 	public ZipContentPack( File zip ) { super( zip ); }

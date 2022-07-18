@@ -35,7 +35,7 @@ public final class FolderContentPack extends LocalContentProvider
 		// Iterate through each type folder
 		for( EnumMeta type : EnumMeta.values() )
 		{
-			final File dir = new File( this.source, type.recommendedSourceDirName );
+			final File dir = new File( this.source, type.dirName );
 			if( !dir.exists() || !dir.isDirectory() ) continue;
 			
 			// Set parser before processing type files

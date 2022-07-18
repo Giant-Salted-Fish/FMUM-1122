@@ -10,15 +10,18 @@ import com.fmum.common.pack.TypeParser;
 
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+@SideOnly( Side.CLIENT )
 public class TypeKeyBind extends TypeBase implements MetaKeyBind
 {
-	public static final TypeParser< TypeKeyBind > parser = new TypeParser<>( null );
+	public static final TypeParser< TypeKeyBind > parserClient = new TypeParser<>( null );
 	static
 	{
-		parser.addKeyword( "Name", ( s, t ) -> t.name = s[ 1 ] );
-		parser.addKeyword( "Category", ( s, t ) -> t.category = s[ 1 ] );
-		parser.addKeyword(
+		parserClient.addKeyword( "Name", ( s, t ) -> t.name = s[ 1 ] );
+		parserClient.addKeyword( "Category", ( s, t ) -> t.category = s[ 1 ] );
+		parserClient.addKeyword(
 			"DefaultKey",
 			( s, t ) -> {
 				if( ( t.keyCode = Keyboard.getKeyIndex( s[ 1 ] ) ) != Keyboard.KEY_NONE )
@@ -123,5 +126,5 @@ public class TypeKeyBind extends TypeBase implements MetaKeyBind
 	public String category() { return this.category; }
 	
 	@Override
-	public EnumMeta enumMeta() { return EnumMeta.KEY_BIND; }
+	public EnumMeta enumMeta() { return MetaKeyBind.super.enumMeta(); }
 }

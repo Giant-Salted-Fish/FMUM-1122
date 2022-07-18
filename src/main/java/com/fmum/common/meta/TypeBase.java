@@ -41,7 +41,7 @@ public abstract class TypeBase implements MetaBase
 	public String description = DESCRIPTION_MISSING;
 	
 	/**
-	 * Provider of the meta. Usually is the content pack that this meta belongs to.
+	 * Provider of the meta. Usually is the content pack that provides this meta.
 	 */
 	public ContentProvider provider = FMUM.MOD;
 	

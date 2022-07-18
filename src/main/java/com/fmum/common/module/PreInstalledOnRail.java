@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 import javax.annotation.Nullable;
 
-import com.fmum.common.ModWrapper.AutowireLogger;
+import com.fmum.common.AutowireLogger;
 
 import net.minecraft.nbt.NBTTagList;
 

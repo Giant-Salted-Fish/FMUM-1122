@@ -3,6 +3,8 @@ package com.fmum.common.gun;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fmum.common.meta.EnumMeta;
+
 public interface MetaGun extends MetaGunPart
 {
 	public static final HashMap< String, MetaGun > regis = new HashMap<>();
@@ -19,6 +21,9 @@ public interface MetaGun extends MetaGunPart
 	public default void regisPostLoadHandler( Map< String, Runnable > tasks ) {
 		MetaGunPart.super.regisPostLoadHandler( tasks );
 	}
+	
+	@Override
+	public default EnumMeta enumMeta() { return EnumMeta.GUN; }
 	
 	public static MetaGun get( String name ) { return regis.get( name ); }
 }

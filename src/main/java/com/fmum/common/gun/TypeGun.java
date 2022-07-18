@@ -2,24 +2,21 @@ package com.fmum.common.gun;
 
 import java.util.Map;
 
-import com.fmum.client.item.ModelItem;
 import com.fmum.client.item.RenderableItem;
-import com.fmum.common.item.TypeItemCustomizable;
 import com.fmum.common.meta.EnumMeta;
 import com.fmum.common.pack.TypeParser;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 // FIXME: replace RenderableItem & maybe set a default model here?
-public class TypeGun extends TypeItemCustomizable< RenderableItem >
-	implements MetaGun
+public class TypeGun extends TypeGunPart< RenderableItem > implements MetaGun
 {
 	public static final TypeParser< TypeGun >
-		parser = new TypeParser<>( TypeGun.class, TypeItemCustomizable.parser );
+		parser = new TypeParser<>( TypeGun.class, TypeGunPart.parser );
 	static
 	{
-		// FIXME: load model
 	}
-	
-//	protected static final ModelItem DEF_MODEL = new ModelItem();
 	
 	public TypeGun( String name )
 	{
@@ -44,8 +41,14 @@ public class TypeGun extends TypeItemCustomizable< RenderableItem >
 	}
 	
 	@Override
-	public EnumMeta enumMeta() { return EnumMeta.GUN; }
+	public EnumMeta enumMeta() { return MetaGun.super.enumMeta(); }
 	
 	@Override
 	protected void createItem() { this.withItem( new ItemGunBase( this ), 1, 0 ); }
+	
+	@Override
+	@SideOnly( Side.CLIENT )
+	protected Class< ? extends RenderableItem > requiredModelClass() {
+		return RenderableItem.class; // TODO
+	}
 }

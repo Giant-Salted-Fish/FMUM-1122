@@ -2,7 +2,6 @@ package com.fmum.common;
 
 import java.util.Collection;
 
-import com.fmum.common.ModWrapper.AutowireLogger;
 import com.fmum.common.item.MetaItem;
 import com.fmum.common.network.PacketConfigSync;
 

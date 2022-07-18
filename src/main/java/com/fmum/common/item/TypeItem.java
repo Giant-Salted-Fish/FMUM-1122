@@ -22,6 +22,11 @@ public abstract class TypeItem< T extends RenderableItem > extends TypeRenderabl
 	static
 	{
 		parser.addKeyword( "CreativeTab", ( s, t ) -> t.creativeTab = s[ 1 ] );
+		parser.addKeywords(
+			( s, t ) -> t.creativeTab = FMUM.MOD.hideCreativeTab().name(),
+			"HideFromTab",
+			"NoTab"
+		);
 	}
 	
 	/**
@@ -34,7 +39,7 @@ public abstract class TypeItem< T extends RenderableItem > extends TypeRenderabl
 	/**
 	 * Creative tab where this item will be displayed in
 	 */
-	public String creativeTab = FMUM.tab.name();
+	public String creativeTab = FMUM.MOD.defCreativeTab().name();
 	
 	public TypeItem( String name ) { super( name ); }
 	
@@ -67,11 +72,11 @@ public abstract class TypeItem< T extends RenderableItem > extends TypeRenderabl
 				if( tab == null )
 				{
 					this.log().error( this.format(
-						"fmum.failtofindcreativetab",
-						this.creativeTab,
-						this.toString()
+						"fmum.cannotfindcreativetab",
+						this.toString(),
+						this.creativeTab
 					) );
-					tab = FMUM.tab;
+					tab = FMUM.MOD.defCreativeTab();
 				}
 				this.item.setCreativeTab( tab.creativeTab() );
 				tab.itemSettleIn( this.item );

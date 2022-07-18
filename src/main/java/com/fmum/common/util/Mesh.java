@@ -162,9 +162,6 @@ public final class Mesh implements AutoCloseable
 		);
 	}
 	
-	@FunctionalInterface
-	public static interface BufferProducer< T extends Buffer > { public T produce( int count ); }
-	
 	/**
 	 * A C like struct used to pass vertex data
 	 * 
@@ -316,4 +313,7 @@ public final class Mesh implements AutoCloseable
 		
 		public Mesh quickBuild() { return this.build(); }
 	}
+	
+	@FunctionalInterface
+	protected static interface BufferProducer< T extends Buffer > { public T produce( int count ); }
 }

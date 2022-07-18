@@ -149,11 +149,13 @@ public interface MetaItem extends MetaBase
 	@SideOnly( Side.CLIENT )
 	public default void onKeyInput( ItemStack stack, MetaKeyBind key ) { }
 	
-	@SideOnly( Side.CLIENT )
+	/**
+	 * This method is not side only as {@link Item#getUnlocalizedName(ItemStack)} is also not side
+	 * only
+	 */
 	public default String unlocalizedName( ItemStack stack ) { return this.unlocalizedName(); }
 	
 	@Override
-	@SideOnly( Side.CLIENT )
 	public default String unlocalizedName() { return TRANSLATION_PREFIX + this.name(); }
 	
 	/**

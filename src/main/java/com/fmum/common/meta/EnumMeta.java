@@ -16,18 +16,11 @@ import com.fmum.common.util.LocalAttrParser;
 public enum EnumMeta
 {
 	/**
-	 * If not specified, this will be the default. For third party extension use.
-	 * 
-	 * @see TypeMeta
-	 */
-	GENERAL( "general", null ),
-	
-	/**
 	 * Creative tabs
 	 * 
 	 * @see TypeCreativeTab
 	 */
-	TAB( "tab", TypeCreativeTab.parser ),
+	TAB( "tab", FMUM.MOD.isClient() ? TypeCreativeTab.parserClient : TypeCreativeTab.parser ),
 	
 	/**
 	 * Guns
@@ -62,17 +55,29 @@ public enum EnumMeta
 	 * 
 	 * @see TypeKeyBind
 	 */
-	KEY_BIND( "keybind", TypeSpKeyBind.parser );
-	
-	public final String recommendedSourceDirName;
+	KEY_BIND(
+		// Set folder name to something that will never use if it is on server side to skip key load
+		FMUM.MOD.isClient() ? "keybind" : "client",
 		
+		// TypeSpKeyBind is side only so avoid it if it is on server side
+		FMUM.MOD.isClient() ? TypeSpKeyBind.parserClient : null
+	),
+	
+	/**
+	 * For third party extension. No corresponding text file type parser. Only class based type
+	 * supported.
+	 * 
+	 * @see TypeBase
+	 */
+	OTHER( "other", null );
+	
+	public final String dirName;
+	
 	public final LocalAttrParser< ? extends MetaBase > parser;
 	
-	private EnumMeta(
-		String recommendedSourceDirName,
-		LocalAttrParser< ? extends MetaBase > parser
-	) {
-		this.recommendedSourceDirName = recommendedSourceDirName;
+	private EnumMeta( String dirName, LocalAttrParser< ? extends MetaBase > parser )
+	{
+		this.dirName = dirName;
 		this.parser = parser;
 	}
 }

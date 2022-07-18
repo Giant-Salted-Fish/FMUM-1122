@@ -8,9 +8,9 @@ import java.io.InputStreamReader;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.fmum.common.AutowireLogger;
 import com.fmum.common.FMUM;
 import com.fmum.common.FMUMClassLoader;
-import com.fmum.common.ModWrapper.AutowireLogger;
 import com.fmum.common.meta.MetaBase;
 import com.fmum.common.util.Messager;
 

@@ -1,6 +1,6 @@
 package com.fmum.common.network;
 
-import com.fmum.common.ModWrapper.AutowireLogger;
+import com.fmum.common.AutowireLogger;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

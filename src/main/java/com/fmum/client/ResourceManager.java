@@ -9,7 +9,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public abstract class ResourceHandler
+public abstract class ResourceManager
 {
 	private static final HashMap< String, ResourceLocation > textures = new HashMap<>();
 	
@@ -20,7 +20,7 @@ public abstract class ResourceHandler
 		TEXTURE_GREEN = getTexture( formatTexturePath( "0x00ff00" ) ),
 		TEXTURE_BLUE = getTexture( formatTexturePath( "0x0000ff" ) );
 	
-	private ResourceHandler() { }
+	private ResourceManager() { }
 	
 	public static ResourceLocation getTexture( String path )
 	{

@@ -3,7 +3,7 @@ package com.fmum.common.pack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.fmum.common.ModWrapper.AutowireLogger;
+import com.fmum.common.AutowireLogger;
 import com.fmum.common.util.AttrParser;
 import com.fmum.common.util.LocalAttrParser;
 import com.fmum.common.util.Messager;

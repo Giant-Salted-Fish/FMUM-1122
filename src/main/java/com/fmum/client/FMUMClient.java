@@ -10,7 +10,11 @@ import javax.annotation.Nullable;
 import org.lwjgl.opengl.GLContext;
 
 import com.fmum.client.input.InputHandler;
+import com.fmum.client.render.ModelDebugBox;
+import com.fmum.client.render.ModelRepository;
+import com.fmum.client.render.Renderable;
 import com.fmum.common.FMUM;
+import com.fmum.common.FMUMClassLoader;
 import com.fmum.common.ModWrapper;
 import com.fmum.common.item.MetaHostItem;
 import com.fmum.common.item.MetaItem;
@@ -102,6 +106,25 @@ public final class FMUMClient extends FMUM
 	}
 	
 	@Override
+	public void loadConfig( Configuration config )
+	{
+		super.loadConfig( config );
+		
+		// Parse client side only settings
+		final String CATEGORY = "Client";
+		
+		this.keyBindsFile = new File(
+			this.mcDir,
+			config.getString(
+				"keyBindsFile",
+				CATEGORY,
+				"config/fmumoptions.txt",
+				"Name of the file where FMUM will save key binds to"
+			)
+		);
+	}
+	
+	@Override
 	public void loadContentPacks()
 	{
 		super.loadContentPacks();
@@ -135,12 +158,6 @@ public final class FMUMClient extends FMUM
 	}
 	
 	@Override
-	public Side side() { return Side.CLIENT; }
-	
-	@Override
-	public boolean isClient() { return true; }
-	
-	@Override
 	public void regisLocalResource( File source )
 	{
 		super.regisLocalResource( source );
@@ -163,11 +180,50 @@ public final class FMUMClient extends FMUM
 		FMLClientHandler.instance().addModAsResource( container );
 	}
 	
-	@Nullable
 	@Override
+	@Nullable
 	public ResourceLocation loadTexture( String path ) {
-		return ResourceHandler.getTexture( path );
+		return ResourceManager.getTexture( path );
 	}
+	
+	private static final HashMap< String, ModelRepository > modelRepositories = new HashMap<>();
+	static { modelRepositories.put( ModelDebugBox.class.getName(), ModelDebugBox.INSTANCE ); }
+	@Override
+	public Renderable loadModel( String path )
+	{
+		try
+		{
+			final int i = path.indexOf( ':' );
+			if( i < 0 )
+				return ( Renderable ) FMUMClassLoader.INSTANCE.loadClass(
+					path
+				).getConstructor().newInstance();
+			
+			final String repoName = path.substring( 0, i );
+			ModelRepository repository = modelRepositories.get( repoName );
+			if( repository == null )
+				modelRepositories.put(
+					repoName,
+					repository = ( ModelRepository ) FMUMClassLoader.INSTANCE.loadClass(
+						repoName
+					).getConstructor().newInstance()
+				);
+			
+			final String modelName = path.substring( i + 1 );
+			Renderable model = repository.fetch( modelName );
+			if( model != null ) return model;
+			
+			log.error( this.format( "fmum.modelnotfoundinrepository", modelName, repoName ) );
+		}
+		catch( Exception e ) { log.error( this.format( "fmum.errorloadingmodel", path ), e ); }
+		return ModelDebugBox.INSTANCE;
+	}
+	
+	@Override
+	public Side side() { return Side.CLIENT; }
+	
+	@Override
+	public boolean isClient() { return true; }
 	
 	@Override
 	public String format( String translateKey, Object... parameters ) {
@@ -250,27 +306,6 @@ public final class FMUMClient extends FMUM
 		
 		// Ensure mouse helper(Mods like Flan's Mod may change mouse help in certain conditions)
 		mc.mouseHelper = this.MOUSE_HELPER_PROXY;
-	}
-	
-	@Override
-	protected void loadLocalizationFile( String fName ) { }
-	
-	@Override
-	protected void parseConfig( Configuration config )
-	{
-		super.parseConfig( config );
-		final String CATEGORY = "Client";
-		
-		// Parse client side only settings
-		this.keyBindsFile = new File(
-			this.mcDir,
-			config.getString(
-				"keyBindsFile",
-				CATEGORY,
-				"config/fmumoptions.txt",
-				"Name of the file where FMUM will save key binds to"
-			)
-		);
 	}
 	
 	/**

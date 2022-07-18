@@ -2,6 +2,8 @@ package com.fmum.common.util;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.annotation.Nullable;
 
@@ -66,6 +68,17 @@ public abstract class AttrParser< T > implements ParserFunc< T >
 	
 	public ParserFunc< T > addKeyword( String key, ParserFunc< T > parser ) {
 		return this.parsers.put( key, parser );
+	}
+	
+	public Map< String, ParserFunc< T > > addKeywords( ParserFunc< T > parser, String... keys )
+	{
+		TreeMap< String, ParserFunc< T > > old = new TreeMap<>();
+		for( String k : keys)
+		{
+			ParserFunc< T > prev = this.parsers.put( k, parser );
+			if( prev != null ) old.put( k, prev );
+		}
+		return old;
 	}
 	
 	public ParserFunc< T > removeKeyword( String key ) { return this.parsers.remove( key ); }

@@ -34,7 +34,7 @@ public interface MetaExternalPaintjob extends MetaBase
 			target.injectPaintjob( this );
 		else this.log().warn(
 			this.format(
-				"fmum.failtofindpaintjobinjecttarget",
+				"fmum.cannotfindpaintjobinjecttarget",
 				this.toString(),
 				this.injectTarget()
 			)
