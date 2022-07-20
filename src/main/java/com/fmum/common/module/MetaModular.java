@@ -11,6 +11,7 @@ import com.fmum.common.util.CoordSystem;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
 
@@ -57,7 +58,7 @@ public interface MetaModular extends MetaGrouped
 	
 	public static final ModuleSlot[] DEF_SLOTS = { };
 	
-	public static final PreInstalledModules DEF_DEF_MODULES = new PreInstalledOnRail( null );
+	public static final PreInstalledModules DEF_MODULES = new PreInstalledOnRail( null );
 	
 	@Override
 	public default void regisPostInitHandler( Map< String, Runnable > tasks )
@@ -90,7 +91,7 @@ public interface MetaModular extends MetaGrouped
 				for(
 					int i = this.numSlots();
 					i-- > 0;
-					this.slot( i ).rescale( this.modelScale() / 16D )
+					this.slot( i ).rescale( this.scale() / 16D )
 				);
 				
 				// TODO: scale the hit box
@@ -103,55 +104,6 @@ public interface MetaModular extends MetaGrouped
 		MetaGrouped.super.regisPostLoadHandler( tasks );
 	}
 	
-	public default int id() { return idMapping.inverse().get( this ); }
-	
-	/**
-	 * Generate tag for this module to install into a slot
-	 * 
-	 * @param dam Damage of the module
-	 */
-	public default NBTTagList genTag( int dam )
-	{
-		// Initialize data
-		final int[] data = new int[ this.dataArraySize() ];
-		data[ 0 ] = ( this.id() << 16 ) + ( 0xFFFF & dam );
-		
-		// Create tag and data tag
-		final NBTTagList dataWrapper = new NBTTagList();
-		dataWrapper.appendTag( new NBTTagIntArray( data ) );
-		final NBTTagList tag = new NBTTagList();
-		tag.appendTag( dataWrapper );
-		
-		// Append slot tag and default modules
-		for( int i = this.numSlots(); i-- > 0; tag.appendTag( new NBTTagList() ) );
-		this.defModules().writeToTag( tag );
-		return tag;
-	}
-	
-	/**
-	 * Notice that cross inherent could cause this method to fail if simply add up the size
-	 * retrieved from super method. In that case you may need to specify the size of the data array
-	 * manually.
-	 * 
-	 * @return The length of the data {@code int} array
-	 */
-	public default int dataArraySize() { return 1; }
-	
-	public default PreInstalledModules defModules() { return DEF_DEF_MODULES; }
-	
-	public default void updateStep( NBTTagList tag, int step ) { }
-	
-	public default void updateOffset( NBTTagList tag, int offset ) { }
-	
-	/**
-	 * Apply transform of its position into given coordinate system
-	 * 
-	 * @param slot Slot that this module has been installed in
-	 * @param tag Base tag of this module
-	 * @param dst Where to apply transform to
-	 */
-	public default void applyTransform( ModuleSlot slot, NBTTagList tag, CoordSystem dst ) { }
-	
 	public default boolean stream( NBTTagList tag, ModuleVisitor visitor )
 	{
 		// Visit this module
@@ -162,7 +114,7 @@ public interface MetaModular extends MetaGrouped
 		for( int i = this.numSlots(); i-- > 0; )
 			for( int j = ( slotTag = ( NBTTagList ) tag.get( 1 + i ) ).tagCount(); j-- > 0; )
 				if(
-					this.decodeInstalled(
+					decodeInstalled(
 						moduleTag = ( NBTTagList ) slotTag.get( j )
 					).stream( moduleTag, visitor )
 				) return true;
@@ -174,7 +126,7 @@ public interface MetaModular extends MetaGrouped
 	 * Stream for renderer. Difference from a normal stream is that the visitor is capable to change
 	 * the position of current module and it will effect all the modules installed on this module.
 	 * 
-	 * @return
+	 * @return {@code true} if visitor returns {@code true}
 	 */
 	public default void stream( NBTTagList tag, CoordSystem envSys, ModuleVisitor visitor )
 	{
@@ -199,15 +151,15 @@ public interface MetaModular extends MetaGrouped
 			// Apply transform to coordinate system
 			ModuleSlot slot = this.slot( i );
 			slotSys.set( envSys );
-			slot.applyTransform( slotSys );
+			slot.apply( slotSys );
 			
 			for( int j = slotTag.tagCount(); j-- > 0; )
 			{
 				NBTTagList moduleTag = ( NBTTagList ) slotTag.get( j );
-				MetaModular moduleMeta = this.decodeInstalled( moduleTag );
+				MetaModular moduleMeta = decodeInstalled( moduleTag );
 				
 				moduleSys.set( slotSys );
-				moduleMeta.applyTransform( slot, moduleTag, moduleSys );
+				moduleMeta.apply( moduleTag, slot, moduleSys );
 				moduleMeta.stream( moduleTag, moduleSys, visitor );
 			}
 		}
@@ -216,16 +168,125 @@ public interface MetaModular extends MetaGrouped
 		moduleSys.release();
 	}
 	
-	public default int numOffsets() { return 1; }
+	/**
+	 * Apply transform of its position into given coordinate system
+	 * 
+	 * @param tag Base tag of this module
+	 * @param slot Slot that this module has been installed in
+	 * @param dst Where to apply transform to
+	 */
+	public default void apply( NBTTagList tag, ModuleSlot slot, CoordSystem dst ) { }
 	
-	public default double offset( int index ) { return DEF_OFFSETS[ index ]; }
+	/**
+	 * Generate tag for this module to install into a slot
+	 */
+	public default NBTTagList genTag()
+	{
+		// Create tag and data tag
+		final NBTTagList dataWrapper = new NBTTagList();
+		dataWrapper.appendTag( new NBTTagIntArray( new int[ this.dataSize() ] ) );
+		final NBTTagList tag = new NBTTagList();
+		tag.appendTag( dataWrapper );
+		
+		// Set id
+		setData( tag, 0, 0, 0xFFFF, this.id() );
+		
+		// Append slot tag and pre-installed modules
+		for( int i = this.numSlots(); i-- > 0; tag.appendTag( new NBTTagList() ) );
+		this.defModules().writeToTag( tag );
+		return tag;
+	}
+	
+	public default int installedInSlot( NBTTagList tag, int slot ) {
+		return ( ( NBTTagList ) tag.get( 1 + slot ) ).tagCount();
+	}
+	
+	public default NBTTagList tag( NBTTagCompound tag ) { return ( NBTTagList ) tag.getTag( TAG ); }
+	
+	public default int dam( NBTTagList tag ) { return getData( tag, 0, 16, 0xFFFF ); }
+	
+	public default void $dam( NBTTagList tag, int dam ) { setData( tag, 0, 16, 0xFFFF, dam ); }
+	
+	public default int step( NBTTagList tag ) { return 0; }
+	
+	/**
+	 * Step effects the position in an external way. In other words it just tells the step that it
+	 * wants to the outside world.
+	 * 
+	 * @see #$offset(NBTTagList, int)
+	 */
+	public default void $step( NBTTagList tag, int step ) { }
+	
+	public default int offset( NBTTagList tag ) { return 0; }
+	
+	/**
+	 * Offset effects the position in an internal way. In other words this will be handled by this
+	 * module it self to actually change the position.
+	 * 
+	 * @see #$step(NBTTagList, int)
+	 */
+	public default void $offset( NBTTagList tag, int offset ) { }
+	
+	public default int id() { return idMapping.inverse().get( this ); }
 	
 	public default int numSlots() { return DEF_SLOTS.length; }
 	
-	public default ModuleSlot slot( int index ) { return DEF_SLOTS[ index ]; }
+	public default ModuleSlot slot( int idx ) { return DEF_SLOTS[ idx ]; }
 	
-	public default MetaModular decodeInstalled( NBTTagList tag ) {
-		return idMapping.get( ( ( NBTTagList ) tag.get( 0 ) ).getIntArrayAt( 0 )[ 0 ] >>> 16 );
+	public default int numOffsets() { return 1; }
+	
+	public default double offset( int idx ) { return DEF_OFFSETS[ idx ]; }
+	
+	public default PreInstalledModules defModules() { return DEF_MODULES; }
+	
+	/**
+	 * Notice that diamond Inheritance could cause this method to fail if simply add up the size
+	 * retrieved from all its super. In that case you may need to specify the size of the data array
+	 * manually.
+	 * 
+	 * @return The length of the {@code int} data array
+	 */
+	public default int dataSize() { return 1; }
+	
+	/// Helper methods ///
+	public static MetaModular decodeInstalled( NBTTagList tag ) {
+		return idMapping.get( getData( tag, 0, 0, 0xFFFF ) );
+	}
+	
+	/**
+	 * Helps to get data in data array
+	 * 
+	 * @param tag Tag of the module
+	 * @param index Index of the data to set
+	 * @param offset Offset of the value to get
+	 * @param mask Mask to be applied after offset
+	 * @return Retrieved value
+	 */
+	public static int getData( NBTTagList tag, int index, int offset, int mask ) {
+		return getDataArray( tag )[ index ] >>> offset & mask;
+	}
+	
+	public static int getData( int[] data, int index, int offset, int mask ) {
+		return data[ index ] >>> offset & mask;
+	}
+	
+	/**
+	 * Helps to set data in data array
+	 * 
+	 * @param tag Tag of the module
+	 * @param index Index of the data to set
+	 * @param offset Offset to be applied to value
+	 * @param mask Mask to be applied to value
+	 * @param value Value to set
+	 */
+	public static void setData( NBTTagList tag, int index, int offset, int mask, int value )
+	{
+		int[] data = getDataArray( tag );
+		data[ index ] = data[ index ] & mask << offset | ( value & mask ) << offset;
+	}
+	
+	public static int[] getDataArray( NBTTagList tag ) {
+		return ( ( NBTTagList ) tag.get( 0 ) ).getIntArrayAt( 0 );
 	}
 	
 	public static MetaModular get( String name ) { return regis.get( name ); }

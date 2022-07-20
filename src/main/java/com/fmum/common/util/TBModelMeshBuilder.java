@@ -127,7 +127,7 @@ public final class TBModelMeshBuilder extends Mesh.Builder
 		CoordSystem sys = CoordSystem.locate();
 
 		// Note that coordinate y, z are flipped in ToolBox
-		sys.setDefault();
+		sys.reset();
 		sys.globalTrans( posX, -posY, -posZ );
 		sys.globalRot( rotX * TO_DEGREES, rotY * TO_DEGREES, rotZ * TO_DEGREES );
 		sys.trans( offX, -offY, -offZ );

@@ -12,7 +12,7 @@ import org.lwjgl.opengl.GLContext;
 import com.fmum.client.input.InputHandler;
 import com.fmum.client.render.ModelDebugBox;
 import com.fmum.client.render.ModelRepository;
-import com.fmum.client.render.Renderable;
+import com.fmum.client.render.RenderableBase;
 import com.fmum.common.FMUM;
 import com.fmum.common.FMUMClassLoader;
 import com.fmum.common.ModWrapper;
@@ -187,15 +187,25 @@ public final class FMUMClient extends FMUM
 	}
 	
 	private static final HashMap< String, ModelRepository > modelRepositories = new HashMap<>();
-	static { modelRepositories.put( ModelDebugBox.class.getName(), ModelDebugBox.INSTANCE ); }
+	static
+	{
+		modelRepositories.put(
+			"debug",
+			new ModelRepository()
+			{
+				@Override
+				public RenderableBase fetch( String identifier ) { return ModelDebugBox.INSTANCE; }
+			}
+		);
+	}
 	@Override
-	public Renderable loadModel( String path )
+	public RenderableBase loadModel( String path )
 	{
 		try
 		{
 			final int i = path.indexOf( ':' );
 			if( i < 0 )
-				return ( Renderable ) FMUMClassLoader.INSTANCE.loadClass(
+				return ( RenderableBase ) FMUMClassLoader.INSTANCE.loadClass(
 					path
 				).getConstructor().newInstance();
 			
@@ -210,7 +220,7 @@ public final class FMUMClient extends FMUM
 				);
 			
 			final String modelName = path.substring( i + 1 );
-			Renderable model = repository.fetch( modelName );
+			RenderableBase model = repository.fetch( modelName );
 			if( model != null ) return model;
 			
 			log.error( this.format( "fmum.modelnotfoundinrepository", modelName, repoName ) );
@@ -290,8 +300,8 @@ public final class FMUMClient extends FMUM
 			settings.viewBobbing = this.oriViewBobbing && meta.allowViewBobbing();
 			
 			// Fire callback functions
-			MetaHostItem.getMeta( this.prevStack ).onPutAway( stack );
-			this.operating = this.operating.onHoldingItemChange( stack );
+			MetaHostItem.getMeta( this.prevStack ).onPutAway( this.prevStack );
+			this.operating = this.operating.onHoldingItemChange( stack, meta );
 			meta.onTakeOut( stack );
 			
 			// TODO: maybe move this to the tail
@@ -302,21 +312,22 @@ public final class FMUMClient extends FMUM
 		
 		// Tick item and current operation TODO: figure out which one is better to be the first
 		meta.onHandTick( stack );
-		this.operating = this.operating.tick( stack );
+		this.operating = this.operating.tick( stack, meta );
 		
 		// Ensure mouse helper(Mods like Flan's Mod may change mouse help in certain conditions)
 		mc.mouseHelper = this.MOUSE_HELPER_PROXY;
 	}
 	
 	/**
-	 * Try to launch a new operation
-	 * TODO: move this method to right place
+	 * Try to launch a new operation TODO: move this method to right place
+	 * 
 	 * @param op New operation to launch
 	 * @param stack Item stack that the new operation works on
+	 * @param meta Meta of the stack
 	 * @return Executing operation after this call
 	 */
-	public Operation launchOp( Operation op, ItemStack stack ) {
-		return this.operating = this.operating.onNewOpLaunch( op, stack );
+	public Operation launchOp( Operation op, ItemStack stack, MetaItem meta ) {
+		return this.operating = this.operating.onNewOpLaunch( op, stack, meta );
 	}
 	
 	public static void addPromptMsg( String... msg ) {

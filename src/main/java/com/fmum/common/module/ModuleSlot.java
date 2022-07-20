@@ -3,7 +3,7 @@ package com.fmum.common.module;
 import com.fmum.common.util.CoordSystem;
 
 /**
- * Describes a slot that can install {@link Modular}s on it
+ * Interface of a slot that can install {@link MetaModular} on it
  * 
  * @author Giant_Salted_Fish
  */
@@ -17,19 +17,14 @@ public interface ModuleSlot
 	
 	public default int maxPosStep() { return 0; }
 	
-	public default int maxRotStep() { return 0; }
+	public default int maxStep( int channel ) { return 0; }
 	
-	public default double posStepX() { return 0D; }
+	public default double posStep() { return 0D; }
 	
-	public default double posStepY() { return 0D; }
+	public default double step( int channel ) { return 0D; }
 	
-	public default double posStepZ() { return 0D; }
-	
-	public default double rotStepX() { return 0D; }
-	
-	public default double rotStepY() { return 0D; }
-	
-	public default double rotStepZ() { return 0D; }
-	
-	public default void applyTransform( CoordSystem sys ) { }
+	/**
+	 * Apply primary slot transform to the given coordinate system
+	 */
+	public default void apply( CoordSystem sys ) { }
 }

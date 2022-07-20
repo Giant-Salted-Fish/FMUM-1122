@@ -1,9 +1,11 @@
-package com.fmum.common.module;
+package com.fmum.common.gun;
 
 import java.util.LinkedList;
 import java.util.TreeSet;
 
 import com.fmum.common.FMUM;
+import com.fmum.common.module.FixedSlot;
+import com.fmum.common.module.ModuleSlot;
 import com.fmum.common.util.CoordSystem;
 
 /**
@@ -42,12 +44,12 @@ public class RailSlot extends FixedSlot
 	public int maxPosStep() { return this.maxStep; }
 	
 	@Override
-	public double posStepX() { return this.stepLen; }
+	public double posStep() { return this.stepLen; }
 	
 	@Override
-	public void applyTransform( CoordSystem sys )
+	public void apply( CoordSystem sys )
 	{
-		super.applyTransform( sys );
+		sys.trans( this );
 		
 		if( this.rotX != 0D )
 		{

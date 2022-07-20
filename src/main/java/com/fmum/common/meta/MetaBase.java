@@ -66,7 +66,7 @@ public interface MetaBase extends Meta, AutowireLogger
 	 * time the player enters a world as building a VBO at any initialization phase provided by
 	 * {@link MinecraftForge} could cause display problems.
 	 * 
-	 * @see TODO: loader function
+	 * @see FMUM#loadModel(String)
 	 */
 	@SideOnly( Side.CLIENT )
 	public default void onModelLoad() { }
@@ -113,14 +113,15 @@ public interface MetaBase extends Meta, AutowireLogger
 	@SideOnly( Side.CLIENT )
 	public default void render() { }
 	
-	public default double modelScale() { return 1D; }
+	/**
+	 * @return Scale of the model. Will also be applied to all dimension settings.
+	 */
+	public default double scale() { return 1D; }
 	
 	public default EnumMeta enumMeta() { return EnumMeta.OTHER; }
 	
 	/**
-	 * @return
-	 *     A human friendly name that shows the type, source and name of this instance. Mainly for
-	 *     debug.
+	 * @return A human friendly identifier that shows its type, source and name. Mainly for debug.
 	 */
 	public default String identifier() {
 		return "(" + this.enumMeta() + ")" + this.provider().name() + ":" + this.name();

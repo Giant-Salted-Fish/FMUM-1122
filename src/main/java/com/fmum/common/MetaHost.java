@@ -1,7 +1,4 @@
 package com.fmum.common;
 
 @FunctionalInterface
-public interface MetaHost
-{
-	public Meta meta();
-}
+public interface MetaHost { public Meta meta(); }

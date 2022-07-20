@@ -2,12 +2,13 @@ package com.fmum.client.render;
 
 import org.lwjgl.opengl.GL11;
 
+import com.fmum.common.meta.MetaBase;
 import com.fmum.common.util.Mesh;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.OpenGlHelper;
 
-public abstract class Model extends ModelBase implements Renderable
+public abstract class Model extends ModelBase implements RenderableBase
 {
 	/**
 	 * A fixed instance that can be used as the initializer value
@@ -25,7 +26,14 @@ public abstract class Model extends ModelBase implements Renderable
 	@Override
 	public void render() { for( Mesh m : this.meshes ) m.render(); }
 	
-	/// For lighting stuff ///
+	@Override
+	public void render( MetaBase meta )
+	{
+		this.bindTexture( meta.texture() );
+		this.render();
+	}
+	
+	/// For glow stuff ///
 	private static float
 		lightmapLastX = 0F,
 		lightmapLastY = 0F;

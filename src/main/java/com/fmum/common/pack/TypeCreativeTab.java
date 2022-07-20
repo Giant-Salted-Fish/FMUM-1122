@@ -2,6 +2,7 @@ package com.fmum.common.pack;
 
 import java.util.Map;
 
+import com.fmum.client.ResourceManager;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.MetaItem;
 
@@ -120,9 +121,9 @@ public class TypeCreativeTab extends CreativeTabs implements MetaCreativeTab
 		tasks.put(
 			"SETUP_BG_IMG",
 			() -> {
-				// TODO: look up side issue
-//				if( this.backgroundImage == null )
-//					this.backgroundImage = ResourceManager.getTexture( this.getBackgroundImageName() );
+				if( !FMUM.MOD.isClient() || this.backgroundImage != null ) return;
+				
+				this.backgroundImage = ResourceManager.getTexture( this.getBackgroundImageName() );
 			}
 		);
 	}

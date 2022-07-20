@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 import org.apache.logging.log4j.Logger;
 
 import com.fmum.client.render.ModelRepository;
-import com.fmum.client.render.Renderable;
+import com.fmum.client.render.RenderableBase;
 import com.fmum.common.meta.MetaBase;
 import com.fmum.common.network.PacketHandler;
 import com.fmum.common.pack.ContentProvider;
@@ -277,14 +277,15 @@ public class FMUM extends ModWrapper implements ContentProvider, AutowireLogger
 	
 	/**
 	 * In default server side will not load models. But it is reserved as a capability that once
-	 * someday in the future the data in models will be needed then this will still work.
+	 * someday in the future the data in models are needed then this will simply work.
 	 * 
+	 * @see ModelRepository
 	 * @param
 	 *     path Path of the model. Format is {@code repoName + ":" + modelName}. If {@code repoName}
 	 *     does not present then {@code modelName} should be the class path of the model to load. As
-	 *     for {@code repoName} see {@link ModelRepository}
+	 *     for {@code repoName} see {@link ModelRepository}.
 	 */
-	public Renderable loadModel( String path ) { return null; }
+	public RenderableBase loadModel( String path ) { return null; }
 	
 	public final MetaCreativeTab defCreativeTab() { return defTab; }
 	

@@ -3,14 +3,14 @@ package com.fmum.client.modular;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.fmum.client.render.Renderable;
+import com.fmum.client.render.RenderableBase;
 import com.fmum.common.module.MetaModular;
 import com.fmum.common.util.Releasable;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MouseHelper;
 
-public interface RenderableModular extends Renderable
+public interface RenderableModular extends RenderableBase
 {
 	/**
 	 * Render info queue
@@ -34,7 +34,7 @@ public interface RenderableModular extends Renderable
 		// FIXME: ton of stuff for rendering
 		
 		// Apply view translation if is in modification mode
-		if( this.operating() == OpModification.INSTANCE )
+		if( this.operating() == OpModify.INSTANCE )
 		{
 			
 		}

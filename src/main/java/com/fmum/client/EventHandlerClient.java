@@ -6,7 +6,6 @@ import org.lwjgl.opengl.GL11;
 
 import com.fmum.client.input.InputHandler;
 import com.fmum.client.input.MetaKeyBind;
-import com.fmum.client.render.ModelDebugBox;
 import com.fmum.common.AutowireLogger;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.MetaHostItem;
@@ -227,7 +226,7 @@ public abstract class EventHandlerClient
 //		GlStateManager.disableCull();
 //		FMUMClient.mc.renderEngine.bindTexture(ResourceManager.getTexture("skins/fnmk20ssr-desertyellow.png"));
 //		ModelFNMK20SSR.INSTANCE.render();
-		ModelDebugBox.INSTANCE.render();
+//		ModelDebugBox.INSTANCE.render();
 	}
 	
 	@SubscribeEvent

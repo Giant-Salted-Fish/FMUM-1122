@@ -60,7 +60,7 @@ public class FixedSlot extends Vec3 implements ModuleSlot
 	public int maxCanInstall() { return this.maxCanInstall; }
 	
 	@Override
-	public void applyTransform( CoordSystem sys ) { sys.trans( this ); }
+	public void apply( CoordSystem sys ) { sys.trans( this ); }
 	
 	// TODO: a parser maybe?
 	

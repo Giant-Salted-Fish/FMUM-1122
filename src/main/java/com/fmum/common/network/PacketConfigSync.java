@@ -12,7 +12,7 @@ public final class PacketConfigSync implements Packet
 	{
 		final FMUM mod = FMUM.MOD;
 		
-		data.writeByte( mod.maxLocLen >>> 1 );
+		data.writeByte( mod.maxLocLen / 2 );
 		data.writeByte( mod.maxCanInstall );
 	}
 	
@@ -21,7 +21,7 @@ public final class PacketConfigSync implements Packet
 	{
 		final FMUM mod = FMUM.MOD;
 		
-		mod.maxLocLen = ( 0xFF & data.readByte() ) << 1;
+		mod.maxLocLen = ( 0xFF & data.readByte() ) * 2;
 		mod.maxCanInstall = 0xFF & data.readByte();
 	}
 }

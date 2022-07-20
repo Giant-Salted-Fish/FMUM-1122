@@ -11,6 +11,9 @@ public interface MetaHostItem extends MetaHost
 	@Override
 	public MetaItem meta();
 	
+	/**
+	 * @return {@link MetaItem#NONE} if given stack is not a meta based item
+	 */
 	public static MetaItem getMeta( ItemStack stack )
 	{
 		final Item item = stack.getItem();

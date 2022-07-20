@@ -4,9 +4,9 @@
 	"description": "Provide highly customizable guns in Minecraft.",
 	"version": "${version}",
 	"mcversion": "${mcversion}",
-	"logoFile": "/fmum.png",
 	"url": "https://www.curseforge.com/minecraft/mc-mods/flans-mod-ultimate-1-1-modified",
 	"updateUrl": "",
 	"authorList": [ "Giant_Salted_Fish" ],
-	"credits": "All code contributors. Special thank to jamioflan, FlansGames, W44, vinidamiani126 and anyone else who has contributed to Flan's Mod, which is a mod that gives me mush inspiration."
+	"credits": "All code contributors. Special thank to jamioflan, FlansGames, W44, vinidamiani126 and anyone else who has contributed to Flan's Mod, which is a mod that gives me mush inspiration.",
+	"logoFile": "/fmum.png"
 }]

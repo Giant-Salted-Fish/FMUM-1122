@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import javax.annotation.Nullable;
 
 import com.fmum.common.AutowireLogger;
+import com.fmum.common.gun.RailSlot;
 
 import net.minecraft.nbt.NBTTagList;
 
@@ -135,9 +136,10 @@ public class PreInstalledOnRail implements PreInstalledModules, AutowireLogger
 			return null;
 		}
 		
-		NBTTagList tag = module.genTag( dam );
-		module.updateStep( tag, this.step );
-		module.updateOffset( tag, this.offset );
+		NBTTagList tag = module.genTag();
+		module.$dam( tag, this.dam );
+		module.$step( tag, this.step );
+		module.$offset( tag, this.offset );
 		this.writeToTag( tag );
 		return null;
 	}

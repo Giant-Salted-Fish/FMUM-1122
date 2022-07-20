@@ -9,7 +9,7 @@ import org.lwjgl.opengl.GL11;
  * 
  * @author Giant_Salted_Fish
  */
-public final class CoordSystem implements Releasable
+public class CoordSystem implements Releasable
 {
 	private static final ObjPool< CoordSystem > pool = new ObjPool<>( () -> new CoordSystem() );
 	
@@ -40,15 +40,15 @@ public final class CoordSystem implements Releasable
 	 */
 	public final double[] vec = new double[ VEC_LEN ];
 	
-	private CoordSystem() { }
-	
 	public static CoordSystem locate() { return pool.poll(); }
+	
+	protected CoordSystem() { }
 	
 	/**
 	 * Set offset vector as zero vector. Load identity matrix for normal vectors and sub-rotate
 	 * matrix.
 	 */
-	public CoordSystem setDefault()
+	public final CoordSystem reset()
 	{
 		this.vec[ OFFSET + X ]
 			= this.vec[ OFFSET + Y ]
@@ -66,7 +66,7 @@ public final class CoordSystem implements Releasable
 	 *     Matrix to load identity matrix. Should be one of the {@link #MAT_NORM} or
 	 *     {@link #MAT_SUBR}.
 	 */
-	public CoordSystem loadIdentity( byte base )
+	public final CoordSystem loadIdentity( byte base )
 	{
 		this.vec[ base + Y ] = this.vec[ base + Z ]
 			= this.vec[ base + NORM_Y - NORM_X + X ]
@@ -88,7 +88,7 @@ public final class CoordSystem implements Releasable
 	 * @param y Amount to translate on Y
 	 * @param z Amount to translate on Z
 	 */
-	public CoordSystem trans( double x, double y, double z )
+	public final CoordSystem trans( double x, double y, double z )
 	{
 		this.trans( x, NORM_X );
 		this.trans( y, NORM_Y );
@@ -101,7 +101,7 @@ public final class CoordSystem implements Releasable
 	 * 
 	 * @param vec Amount to translate on each dimension
 	 */
-	public CoordSystem trans( Vec3 vec )
+	public final CoordSystem trans( Vec3 vec )
 	{
 		this.trans( vec.x, NORM_X );
 		this.trans( vec.y, NORM_Y );
@@ -115,7 +115,7 @@ public final class CoordSystem implements Releasable
 	 * @param amount Amount to translate
 	 * @param base Axis to translate along. One of {@link #NORM_X}, {@link #NORM_Y}, {@link #NORM_Z}
 	 */
-	public CoordSystem trans( double amount, byte base )
+	public final CoordSystem trans( double amount, byte base )
 	{
 		this.vec[ OFFSET + X ] += amount * this.vec[ base + X ];
 		this.vec[ OFFSET + Y ] += amount * this.vec[ base + Y ];
@@ -132,7 +132,7 @@ public final class CoordSystem implements Releasable
 	 * @param y Amount to translate on Y
 	 * @param z Amount to translate on Z
 	 */
-	public CoordSystem globalTrans( double x, double y, double z )
+	public final CoordSystem globalTrans( double x, double y, double z )
 	{
 		this.vec[ OFFSET + X ] += x;
 		this.vec[ OFFSET + Y ] += y;
@@ -147,7 +147,7 @@ public final class CoordSystem implements Releasable
 	 * 
 	 * @param vec Amount to translate on each dimension
 	 */
-	public CoordSystem globalTrans( Vec3 vec )
+	public final CoordSystem globalTrans( Vec3 vec )
 	{
 		this.vec[ OFFSET + X ] += vec.x;
 		this.vec[ OFFSET + Y ] += vec.y;
@@ -166,7 +166,7 @@ public final class CoordSystem implements Releasable
 	 * @param y Amount to rot on Y
 	 * @param z Amount to rot on Z
 	 */
-	public CoordSystem rot( double x, double y, double z )
+	public final CoordSystem rot( double x, double y, double z )
 	{
 		this.rot( x, X );
 		this.rot( z, Z );
@@ -178,7 +178,7 @@ public final class CoordSystem implements Releasable
 	 * @see #rot(double, double, double)
 	 * @param vec Amount to rot on each axis
 	 */
-	public CoordSystem rot( Vec3 vec )
+	public final CoordSystem rot( Vec3 vec )
 	{
 		this.rot( vec.x, X );
 		this.rot( vec.z, Z );
@@ -203,7 +203,7 @@ public final class CoordSystem implements Releasable
 	 * @param amount Amount to rotate on this axis
 	 * @param along Axis to rotate with. One of {@link #X}, {@link #Y}, {@link #Z}.
 	 */
-	public CoordSystem rot( double amount, byte along )
+	public final CoordSystem rot( double amount, byte along )
 	{
 		this.rot( amount, along, SUBR_X );
 		this.rot( amount, along, SUBR_Y );
@@ -218,7 +218,7 @@ public final class CoordSystem implements Releasable
 	 *     that for OpenGL this should be called after applying all rotations and going to apply
 	 *     next translation
 	 */
-	public CoordSystem submitRot()
+	public final CoordSystem submitRot()
 	{
 		this.submitRot( SUBR_X );
 		this.submitRot( SUBR_Y );
@@ -241,7 +241,7 @@ public final class CoordSystem implements Releasable
 	 * @param y Amount to rot on Y
 	 * @param z Amount to rot on Z
 	 */
-	public CoordSystem globalRot( double x, double y, double z )
+	public final CoordSystem globalRot( double x, double y, double z )
 	{
 		this.globalRot( x, X );
 		this.globalRot( z, Z );
@@ -253,7 +253,7 @@ public final class CoordSystem implements Releasable
 	 * @see #globalRot(double, double, double)
 	 * @param vec Amount to rot on each axis
 	 */
-	public CoordSystem globalRot( Vec3 vec )
+	public final CoordSystem globalRot( Vec3 vec )
 	{
 		this.globalRot( vec.x, X );
 		this.globalRot( vec.z, Z );
@@ -276,7 +276,7 @@ public final class CoordSystem implements Releasable
 	 * @param amount Amount to rotate on this axis
 	 * @param along Axis to rotate with. One of {@link #X}, {@link #Y}, {@link #Z}.
 	 */
-	public CoordSystem globalRot( double amount, byte along )
+	public final CoordSystem globalRot( double amount, byte along )
 	{
 		this.rot( amount, along, NORM_X );
 		this.rot( amount, along, NORM_Y );
@@ -291,7 +291,7 @@ public final class CoordSystem implements Releasable
 	 * @param y Amount to scale on Y
 	 * @param z Amount to scale on Z
 	 */
-	public CoordSystem scale( double x, double y, double z )
+	public final CoordSystem scale( double x, double y, double z )
 	{
 		this.scale( x, NORM_X );
 		this.scale( y, NORM_Y );
@@ -305,7 +305,7 @@ public final class CoordSystem implements Releasable
 	 * @param amount Amount to scale
 	 * @param base Normal vector to scale
 	 */
-	public CoordSystem scale( double amount, byte base )
+	public final CoordSystem scale( double amount, byte base )
 	{
 		this.vec[ base + X ] *= amount;
 		this.vec[ base + Y ] *= amount;
@@ -319,7 +319,7 @@ public final class CoordSystem implements Releasable
 	 * @param raw Raw vector to transfer
 	 * @param dst Destination of the result
 	 */
-	public Vec3 apply( Vec3 raw, Vec3 dst )
+	public final Vec3 apply( Vec3 raw, Vec3 dst )
 	{
 		// Destination vector could be raw vector
 		// So buffer result before computation is done
@@ -349,7 +349,7 @@ public final class CoordSystem implements Releasable
 	/**
 	 * Convenience method used in processing ToolBox models
 	 */
-	public Vec3f apply( Vec3f raw, Vec3f dst )
+	public final Vec3f apply( Vec3f raw, Vec3f dst )
 	{
 		float x = ( float ) (
 			raw.x * this.vec[ NORM_X + X ]
@@ -380,7 +380,7 @@ public final class CoordSystem implements Releasable
 	 * @param raw Raw vector to transfer
 	 * @param dst Destination of the result
 	 */
-	public Vec3 applyRot( Vec3 raw, Vec3 dst )
+	public final Vec3 applyRot( Vec3 raw, Vec3 dst )
 	{
 		double x = (
 			raw.x * this.vec[ NORM_X + X ]
@@ -409,7 +409,7 @@ public final class CoordSystem implements Releasable
 	 * @param dst Destination coordinate system. Should not be this instance.
 	 * @param opVec Vector that will be used in operation
 	 */
-	public CoordSystem apply( CoordSystem raw, CoordSystem dst, Vec3 opVec )
+	public final CoordSystem apply( CoordSystem raw, CoordSystem dst, Vec3 opVec )
 	{
 		raw.get( opVec, NORM_X );
 		this.applyRot( opVec, opVec );
@@ -437,7 +437,7 @@ public final class CoordSystem implements Releasable
 	 * 
 	 * @param dst Destination vector to receive angle values
 	 */
-	public Vec3 getAngle( Vec3 dst )
+	public final Vec3 getAngle( Vec3 dst )
 	{
 		double sin, cos;
 		
@@ -472,7 +472,7 @@ public final class CoordSystem implements Releasable
 	 * 
 	 * @param dst Destination vector to receive angle values. Only y and z will be used.
 	 */
-	public Vec3 getViewAngle( Vec3 dst )
+	public final Vec3 getViewAngle( Vec3 dst )
 	{
 		double sin = this.vec[ NORM_X + Z ];
 		double cos = this.vec[ NORM_X + X ];
@@ -503,7 +503,7 @@ public final class CoordSystem implements Releasable
 	 * 
 	 * @return Angle of the system along x-axis
 	 */
-	public double getCameraRoll()
+	public final double getCameraRoll()
 	{
 		double sin = this.vec[ NORM_Y + Z ];
 		double cos = this.vec[ NORM_Y + Y ];
@@ -522,7 +522,7 @@ public final class CoordSystem implements Releasable
 	 * @param dst Destination vector
 	 * @param base Required value source
 	 */
-	public Vec3 get( Vec3 dst, byte base )
+	public final Vec3 get( Vec3 dst, byte base )
 	{
 		dst.x = this.vec[ base + X ];
 		dst.y = this.vec[ base + Y ];
@@ -530,7 +530,7 @@ public final class CoordSystem implements Releasable
 		return dst;
 	}
 	
-	public CoordSystem set( double x, double y, double z, byte base )
+	public final CoordSystem set( double x, double y, double z, byte base )
 	{
 		this.vec[ base + X ] = x;
 		this.vec[ base + Y ] = y;
@@ -538,7 +538,7 @@ public final class CoordSystem implements Releasable
 		return this;
 	}
 	
-	public CoordSystem set( Vec3 v, byte base )
+	public final CoordSystem set( Vec3 v, byte base )
 	{
 		this.vec[ base + X ] = v.x;
 		this.vec[ base + Y ] = v.y;
@@ -551,7 +551,7 @@ public final class CoordSystem implements Releasable
 	 * 
 	 * @param src Value provider
 	 */
-	public CoordSystem set( CoordSystem src )
+	public final CoordSystem set( CoordSystem src )
 	{
 		for( int i = VEC_LEN; i-- > 0; this.vec[ i ] = src.vec[ i ] );
 		return this;

@@ -11,8 +11,6 @@ public class Vec3 implements Releasable
 	
 	public double x, y, z;
 	
-	protected Vec3() { }
-	
 	public static Vec3 locate() { return pool.poll(); }
 	
 	public static Vec3 locate( double a ) { return pool.poll().set( a ); }
@@ -20,6 +18,8 @@ public class Vec3 implements Releasable
 	public static Vec3 locate( double x, double y, double z ) { return pool.poll().set( x, y, z ); }
 	
 	public static Vec3 locate( Vec3 v ) { return pool.poll().set( v ); }
+	
+	protected Vec3() { }
 	
 	public Vec3 set( double a )
 	{

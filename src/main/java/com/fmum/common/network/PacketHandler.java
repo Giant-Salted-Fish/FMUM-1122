@@ -125,15 +125,15 @@ public class PacketHandler extends MessageToMessageCodec<FMLProxyPacket, Packet>
 		// Get the encoded data from the incoming packet
 		ByteBuf encodedData = msg.payload();
 		
-		// If this discriminator returns no class, reject it
-		int discriminator = 0xFF & encodedData.readByte();
-		if( discriminator >= this.packets.size() )
+		// If its id has no class corresponds, reject it
+		int id = 0xFF & encodedData.readByte();
+		if( id >= this.packets.size() )
 			throw new RuntimeException(
-				"Meet unregistered discriminator <" + discriminator + "> while decoding packet"
+				"Meet unregistered discriminator <" + id + "> while decoding packet"
 			);
 		
 		// Create an empty packet and decode our packet data into it
-		Packet packet = this.packets.get( discriminator ).newInstance();
+		Packet packet = this.packets.get( id ).newInstance();
 		packet.decodeInto( ctx, encodedData.slice() );
 		
 		// Check the side and handle our packet accordingly

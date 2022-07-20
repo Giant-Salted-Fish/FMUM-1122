@@ -1,5 +1,7 @@
 package com.fmum.client;
 
+import com.fmum.common.item.MetaItem;
+
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -26,7 +28,7 @@ public abstract class OpProgressive implements Operation
 	}
 	
 	@Override
-	public Operation launch( ItemStack stack )
+	public Operation launch( ItemStack stack, MetaItem meta )
 	{
 		this.prevProgress
 			= this.progress
@@ -34,8 +36,12 @@ public abstract class OpProgressive implements Operation
 		return this;
 	}
 	
+	/**
+	 * A default implementation that adds up {@link #progressor} and returns {@link Operation#NONE}
+	 * when {@link #prevProgress} reaches {@code 1D}
+	 */
 	@Override
-	public Operation tick( ItemStack stack )
+	public Operation tick( ItemStack stack, MetaItem meta )
 	{
 		this.prevProgress = this.progress;
 		if( ( this.progress += this.progressor ) > 1D )

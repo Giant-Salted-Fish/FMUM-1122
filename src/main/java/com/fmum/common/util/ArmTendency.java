@@ -143,7 +143,7 @@ public class ArmTendency
 		);
 		
 		// Get elbow coordinate in 3D space
-		sys.setDefault();
+		sys.reset();
 		sys.globalRot( this.armRotX.curPos.x, rotY, rotZ );
 		sys.apply( vec, vec );
 		vec.trans( this.shoulderPos.curPos );

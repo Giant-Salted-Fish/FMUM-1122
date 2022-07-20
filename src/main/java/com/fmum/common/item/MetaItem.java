@@ -89,9 +89,11 @@ public interface MetaItem extends MetaBase
 	 * 
 	 * @see Item#onBlockStartBreak(ItemStack, BlockPos, EntityPlayer)
 	 */
-	public default boolean onBlockStartBreak( ItemStack itemstack, BlockPos pos, EntityPlayer player ) {
-		return true;
-	}
+	public default boolean onBlockStartBreak(
+		ItemStack itemstack,
+		BlockPos pos,
+		EntityPlayer player
+	) { return true; }
 	
 	/**
 	 * In default avoid to break the block when holding this item in creative mode

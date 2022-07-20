@@ -3,30 +3,39 @@ package com.fmum.client.render;
 import com.fmum.client.EventHandlerClient;
 import com.fmum.client.FMUMClient;
 import com.fmum.client.Operation;
+import com.fmum.common.meta.MetaBase;
 
 import net.minecraft.util.ResourceLocation;
 
-public interface Renderable
+public interface RenderableBase
 {
 	/**
 	 * Preliminary render method without any additional render information provided, hence it can be
-	 * called in any context. It is recommended to simply render your model in this method to ensure
-	 * the compatibility.
+	 * called in any context. In most cases it only renders the meshes.
 	 */
 	public default void render() { }
+	
+	/**
+	 * Simply bind texture and render mesh
+	 * 
+	 * @param
+	 *     meta Corresponding meta to provide extra info needed for rendering. For example the
+	 *     texture.
+	 */
+	public default void render( MetaBase meta ) { }
 	
 	/**
 	 * <p> Called when the corresponding model is focused or high lighted. In default it glows the
 	 * model before rendering it. </p>
 	 * 
-	 * <p> Notice that calling glow twice could cause unexpected light problem. Hence it is
+	 * <p> Notice that calling glow twice could cause unexpected lighting problem. Hence it is
 	 * recommended to override this method if you used {@link #glowOn()} or {@link #glowOn(int)}
-	 * </p>
+	 * in {@link #render(MetaBase)} or {@link #render()} </p>
 	 */
-	public default void renderHighLighted()
+	public default void renderHighLighted( MetaBase meta )
 	{
 		this.glowOn();
-		this.render();
+		this.render( meta );
 		this.glowOff();
 	}
 	
