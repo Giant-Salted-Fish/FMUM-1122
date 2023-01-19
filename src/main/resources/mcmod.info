@@ -1,0 +1,14 @@
+[ {
+	"modid": "mcwb",
+	"name": "Minecraft Weapon Base",
+	"description": "Provide highly customizable weapons in Minecraft.",
+	"version": "${version}",
+	"mcversion": "${mcversion}",
+	"url": "",
+	"updateUrl": "",
+	"authorList": [ "Giant_Salted_Fish" ],
+	"credits": "All code contributors.",
+	"logoFile": "",
+	"screenshots": [],
+	"dependencies": []
+} ]
