@@ -6,6 +6,7 @@ import com.mcwb.client.gun.IGunPartModel;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.modify.IContextedModifiable;
+import com.mcwb.common.modify.IModifiableMeta;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;

@@ -22,6 +22,8 @@ public interface IContextedModifiable extends IContexted, INBTSerializable< NBTT
 	@CapabilityInject( IContextedModifiable.class )
 	public static final Capability< IContextedModifiable > CAPABILITY = null;
 	
+	public IModifiableMeta meta();
+	
 	public IContextedModifiable base();
 	
 	public int baseSlot();
@@ -99,8 +101,12 @@ public interface IContextedModifiable extends IContexted, INBTSerializable< NBTT
 	public void prepareRenderer( Collection< IMultPassRenderer > renderQueue, IAnimator animator );
 	
 	/**
-	 * @return
-	 *     Bounden NBT tag. Should be the {@link HackedNBTTagCompound} stack tag if is primary base.
+	 * <p> Simply return the bounden NBT tag. Should be the {@link HackedNBTTagCompound} stack tag
+	 * if is primary base. </p>
+	 * 
+	 * <p> Do not directly feed the tag returned by this method to another context with
+	 * {@link #deserializeNBT(NBTTagCompound)} as they will bind to the same tag. Copy the tag if
+	 * that is needed. </p>
 	 */
 	@Override
 	public NBTTagCompound serializeNBT();
@@ -109,6 +115,8 @@ public interface IContextedModifiable extends IContexted, INBTSerializable< NBTT
 	 * <p> Restore the state of the context with the given tag. </p>
 	 * 
 	 * <p> Notice that context will bind to the given NBT tag. </p>
+	 * 
+	 * @see #serializeNBT()
 	 */
 	@Override
 	public void deserializeNBT( NBTTagCompound nbt );

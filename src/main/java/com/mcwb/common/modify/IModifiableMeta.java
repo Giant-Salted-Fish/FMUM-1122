@@ -13,12 +13,13 @@ public interface IModifiableMeta extends IMeta, IHasContext, ICategoried
 {
 	public static final Registry< IModifiableMeta > REGISTRY = new Registry<>();
 	
-	/**
-	 * Modifiable should always make sure that nbt is not {@code null}
-	 */
 	@Override
 	public IContextedModifiable getContexted( ICapabilityProvider provider );
 	
+	/**
+	 * @param Usually a clean tag. Created context will bind to it and set required tag to it.
+	 * @return A new context with given NBT tag bounden to it
+	 */
 	public IContextedModifiable newContexted( NBTTagCompound nbt );
 	
 	public IModuleSlot getSlot( int idx );

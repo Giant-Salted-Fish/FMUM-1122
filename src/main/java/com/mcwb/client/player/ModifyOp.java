@@ -1,32 +1,38 @@
 package com.mcwb.client.player;
 
-import com.mcwb.client.AutowirePlayerChat;
+import com.mcwb.client.IAutowirePlayerChat;
 import com.mcwb.client.MCWBClient;
+import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.Key;
-import com.mcwb.client.input.KeyBindMeta;
+import com.mcwb.common.item.IContextedItem;
+import com.mcwb.common.item.IItemMeta;
+import com.mcwb.common.item.IItemMetaHost;
 import com.mcwb.common.item.ItemContext;
-import com.mcwb.common.item.ItemMeta;
-import com.mcwb.common.item.MetaHostItem;
+import com.mcwb.common.modify.IContextedModifiable;
+import com.mcwb.common.modify.IContextedModifiable.ModifyState;
+import com.mcwb.common.modify.IModifiableMeta;
+import com.mcwb.common.modify.IModuleSlot;
 import com.mcwb.common.modify.ModifiableContext;
-import com.mcwb.common.modify.ModifiableContext.ModifyState;
 import com.mcwb.common.modify.ModifiableMeta;
-import com.mcwb.common.modify.ModuleSlot;
 import com.mcwb.common.network.PacketModify;
+import com.mcwb.common.player.IOperation;
 import com.mcwb.common.player.Operation;
-import com.mcwb.common.player.TogglableOp;
+import com.mcwb.common.player.TogglableOperation;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class ModifyOp< C extends ItemContext & ModifiableContext > extends TogglableOp< C >
-	implements AutowirePlayerChat
+public class ModifyOp< T extends IContextedItem & IContextedModifiable >
+	extends TogglableOperation< T > implements IAutowirePlayerChat
 {
+	protected static final Runnable INPUT_HANDLER = () -> { };
+	
 	public float refPlayerRotYaw = 0F;
 	
 	protected ModifyMode mode = ModifyMode.SLOT;
@@ -45,133 +51,75 @@ public class ModifyOp< C extends ItemContext & ModifiableContext > extends Toggl
 	protected boolean conflict = false;
 	
 	/**
-	 * A copy of {@link #context}. Preview changes will be performed on this context.
+	 * A copy of {@link #contexted}. Preview changes will be performed on this context.
 	 */
-	protected C primaryCtx = null;
+	protected T primary = null;
 	
-	protected ModifiableContext selectedCtx = null;
+	protected IContextedModifiable selected = null;
 	
 	protected int previewInvSlot = 0;
-	protected ModifiableContext previewCtx = null;
+	protected IContextedModifiable preview = null;
 	
-	/**
-	 * Modification operation input state
-	 */
-	protected boolean
-		selectedToggle = false,
-		selectedUp = false,
-		selectedDown = false,
-		selectedLeft = false,
-		selectedRight = false,
-		selectedConfirm = false,
-		selectedCancel = false;
+	protected Runnable inputHandler = INPUT_HANDLER;
 	
 	public ModifyOp() { super( null, null, () -> 0.1F, () -> -0.1F ); }
 	
-	public void handleKeyInput( KeyBindMeta key )
+	public void handleKeyInput( IKeyBind key )
 	{
-		switch( key.name() )
+		final String kName = key.name();
+		if( Key.SELECT_TOGGLE.equals( kName ) )
 		{
-		case Key.SELECT_TOGGLE:  this.selectedToggle = true; break;
-		case Key.SELECT_UP:      this.selectedUp = true; break;
-		case Key.SELECT_DOWN:    this.selectedDown = true; break;
-		case Key.SELECT_LEFT:    this.selectedLeft = true; break;
-		case Key.SELECT_RIGHT:   this.selectedRight = true; break;
-		case Key.SELECT_CONFIRM: this.selectedConfirm = true; break;
-		case Key.SELECT_CANCEL:  this.selectedCancel = true; break;
+			this.inputHandler = () -> {
+				// Handle toggle model
+				final ModifyMode[] modes = ModifyMode.values();
+				this.mode = modes[ ( this.mode.ordinal() + 1 ) % modes.length ];
+				this.sendPlayerPrompt( I18n.format( this.mode.notifyMsg ) );
+				
+				// Update state for selected module
+				if( this.preview != null )
+					this.preview.$modifyState( this.modifyState() );
+				else if( this.index() != -1 && this.locLen > 0 )
+					this.selected.$modifyState( this.modifyState() );
+			};
 		}
-	}
-	
-	public void handleHandRender( Runnable ori, EnumHand hand )
-	{
-		// TODO
-		if( this.primaryCtx == null ) ori.run();
-		else this.primaryCtx.onHandRender( hand );
-	}
-	
-	@Override
-	public Operation launch( Operation oldOp )
-	{
-		this.mode = ModifyMode.SLOT;
-		
-		// Initialize #loc if has not
-		if( this.loc == null || this.loc.length < MCWBClient.modifyLocLen )
-			this.loc = new byte[ MCWBClient.modifyLocLen ];
-		this.locLen = 0;
-		
-		this.setupSelectedContext( true );
-		this.refPlayerRotYaw = this.player.rotationYaw;
-		
-		this.clearInputState();
-		return super.launch( oldOp );
-	}
-	
-	@Override
-	public void toggle()
-	{
-		// Only update player reference yaw rotation when this operation is fully launched
-		if( this.prevProgress == 1F )
-			this.refPlayerRotYaw = this.player.rotationYaw;
-		
-		this.locLen = 0;
-		this.setupSelectedContext( true );
-		super.toggle();
-	}
-	
-	@Override
-	public Operation tick()
-	{
-		if( super.tick() == NONE )
-			return this.terminate();
-		
-		// Do not do modification if operation has not been fully launched
-		else if( this.prevProgress != 1F )
-			return this;
-		
-		// Handle toggle model
-		if( this.selectedToggle )
+		else if( InputHandler.CO.down ) switch( kName )
 		{
-			final ModifyMode[] modes = ModifyMode.values();
-			this.mode = modes[ ( this.mode.ordinal() + 1 ) % modes.length ];
-			this.sendPlayerPrompt( I18n.format( this.mode.notifyMsg ) );
-			
-			// Update state for selected module
-			if( this.previewCtx != null )
-				this.previewCtx.$modifyState( this.modifyState() );
-			else if( this.index() != -1 && this.locLen > 0 )
-				this.selectedCtx.$modifyState( this.modifyState() );
-		}
-		
-		if( InputHandler.CO.down )
-		{
-			// Loop preview module to install
-			if( ( this.selectedUp || this.selectedDown ) && this.index() == -1 )
-			{
+		case Key.SELECT_UP:
+		case Key.SELECT_DOWN:
+			// Try to loop preview module
+			if( this.index() != -1 ) break;
+			this.inputHandler = () -> {
 				// Get selected slot and player inventory
-				final ModuleSlot slot = this.selectedCtx.meta().getSlot( this.slot() );
+				final IModuleSlot slot = this.selected.meta().getSlot( this.slot() );
 				final InventoryPlayer inv = this.player.inventory;
 				final int size = inv.getSizeInventory() + 1;
-				final int incr = this.selectedUp ? size : 2;
+				final int incr = key == InputHandler.SELECT_UP ? size : 2;
 				
 				while( ( this.previewInvSlot = ( this.previewInvSlot + incr ) % size - 1 ) != -1 )
 				{
 					final ItemStack stack = inv.getStackInSlot( this.previewInvSlot );
-					final ItemMeta meta = MetaHostItem.getMeta( stack );
+					final IItemMeta meta = IItemMetaHost.getMeta( stack );
 					if(
-						meta instanceof ModifiableMeta
-						&& slot.isAllowed( ( ModifiableMeta ) meta )
+						meta instanceof IModifiableMeta
+						&& slot.isAllowed( ( IModifiableMeta ) meta )
 					) {
 						// Get a copy of the preview module context
-						this.previewCtx = ( ( ModifiableMeta) meta )
-							.getContext( stack, stack.getTagCompound() ).copy();
-						this.previewCtx.$step( this.curStep );
+						final IModifiableMeta modMeta = ( ( IModifiableMeta ) meta );
+						this.preview = modMeta.newContexted( new NBTTagCompound() ); // TODO: a static tag maybe
+						this.preview.deserializeNBT(
+							modMeta.getContexted( stack ).serializeNBT().copy()
+						);
+						
+						this.preview.$step( this.curStep );
+						this.preview.$offset( 0 );
+						this.curOffset = 0;
 						
 						// Step and offset will always be set when install a new module, but \
 						// paintjob would not be update if original paintjob does not change. \
 						// Hence #oriPaintjob needs to be setup but those two do not.
 						this.curPaintjob
 							= this.oriPaintjob
-							= this.previewCtx.paintjob();
+							= this.preview.paintjob();
 						break;
 					}
 				}
@@ -185,35 +133,36 @@ public class ModifyOp< C extends ItemContext & ModifiableContext > extends Toggl
 					this.setupSelectedContext( false );
 					
 					// Check if this preview module is valid to install
-					this.conflict = this.selectedCtx.getInstalledCount( iSlot )
+					this.conflict = this.selected.getInstalledCount( iSlot )
 						>= Math.min( MCWBClient.maxSlotCapacity, slot.capacity() );
 					// TODO: check hit box
 					
 					// Set modify state
-					this.previewCtx.$modifyState( this.modifyState() );
+					this.preview.$modifyState( this.modifyState() );
 					
 					// Append it to the base
-					this.selectedCtx.install( this.previewCtx, iSlot );
+					this.selected.install( iSlot, this.preview );
 				}
 				
 				// Setup indicator otherwise
 				else this.setupSelectedContext( true );
-			}
+			};
+			break;
 			
-			// Special functionality based on modify mode
-			else if( this.selectedLeft || this.selectedRight )
-			{
-				final ModifiableContext target = this.index() != -1
-					? this.selectedCtx : this.previewCtx;
+		case Key.SELECT_LEFT:
+		case Key.SELECT_RIGHT:
+			// Change step|offset|paintjob
+			this.inputHandler = () -> {
+				final IContextedModifiable target =
+					this.index() != -1 ? this.selected : this.preview;
 				
 				if( target == null )
-					; // TODO: this.sendPlayerPrompt( I18n.format( "mcwb.msg.module_select_required") );
+					; // TODO: this.sendPlayerPrompt( I18n.format( "mcwb.msg.module_select_required" ) );
 				else if( this.mode == ModifyMode.PAINTJOB )
 				{
 					final int bound = target.meta().paintjobCount();
-					final int incr = this.selectedLeft ? bound - 1 : 1;
+					final int incr = key == InputHandler.SELECT_LEFT ? bound - 1 : 1;
 					this.curPaintjob = ( this.curPaintjob + incr ) % bound;
-					
 					target.$paintjob( this.curPaintjob );
 				}
 				else
@@ -221,9 +170,8 @@ public class ModifyOp< C extends ItemContext & ModifiableContext > extends Toggl
 					if( this.mode == ModifyMode.MODULE )
 					{
 						final int bound = target.meta().offsetCount();
-						final int incr = this.selectedLeft ? bound - 1 : 1;
+						final int incr = key == InputHandler.SELECT_LEFT ? bound - 1 : 1;
 						this.curOffset = ( this.curOffset + incr ) % bound;
-						
 						target.$offset( this.curOffset );
 					}
 					
@@ -234,18 +182,19 @@ public class ModifyOp< C extends ItemContext & ModifiableContext > extends Toggl
 						
 						// Move upon player rotation to satisfy human intuition
 						final float rot = ( this.player.rotationYaw % 360F + 360F ) % 360F;
-						final int incr = this.selectedLeft ^ rot < 180F ? 1 : bound;
+						final int incr = key == InputHandler.SELECT_LEFT ^ rot < 180F ? 1 : bound;
 						this.curStep = ( this.curStep + incr ) % ( bound + 1 );
-						
 						target.$step( this.curStep );
 					}
 					
 					// TODO: Check whether the new position will cause conflict or not
 					this.conflict = false;
 				}
-			}
-			else if( this.selectedConfirm )
-			{
+			};
+			break;
+			
+		case Key.SELECT_CONFIRM:
+			this.inputHandler = () -> {
 				if( this.index() != -1 )
 				{
 					// Update step and offset if has changed and has not conflict
@@ -273,7 +222,7 @@ public class ModifyOp< C extends ItemContext & ModifiableContext > extends Toggl
 				}
 				
 				// Install a new module
-				else if( this.previewCtx != null && !this.conflict )
+				else if( this.preview != null && !this.conflict )
 				{
 					MCWBClient.NET.sendToServer(
 						new PacketModify(
@@ -291,7 +240,7 @@ public class ModifyOp< C extends ItemContext & ModifiableContext > extends Toggl
 						// The module has not been truly installed yet, so make a prediction of \
 						// its future install index (do not forget there is a preview tag installed)
 						this.loc[ this.locLen - 1 ] = ( byte )
-							( this.selectedCtx.getInstalledCount( this.slot() ) - 1 );
+							( this.selected.getInstalledCount( this.slot() ) - 1 );
 						MCWBClient.NET.sendToServer(
 							new PacketModify( this.curPaintjob, this.loc, this.locLen )
 						);
@@ -303,24 +252,32 @@ public class ModifyOp< C extends ItemContext & ModifiableContext > extends Toggl
 					// Clear preview selected after install
 					this.setupSelectedContext( true );
 				}
-			}
-			else if( this.selectedCancel && this.index() != -1 && this.locLen > 0 )
-			{
-				MCWBClient.NET.sendToServer( new PacketModify( this.loc, this.locLen ) );
-				
-				// Set current index to -1 as the selected module will be invalid soon
-				this.loc[ this.locLen - 1 ] = -1;
-				this.setupSelectedContext( true );
-			}
+			};
+			break;
+			
+		case Key.SELECT_CANCEL:
+			this.inputHandler = () -> {
+				// Only can remove when it is selected and is not primary base
+				if( this.index() == -1 || this.locLen == 0 )
+				{
+					MCWBClient.NET.sendToServer( new PacketModify( this.loc, this.locLen ) );
+					
+					// Set current index to -1 as the selected module will be invalid soon
+					this.loc[ this.locLen - 1 ] = -1;
+					this.setupSelectedContext( true );
+				}
+			};
+			break;
 		}
 		
-		/// Co-key is not down ///
-		else if( this.selectedConfirm )
+		// Co-key is not down
+		else if( key == InputHandler.SELECT_CONFIRM )
 		{
-			// Enter next layer if has module selected
-			if( this.index() != -1 )
-			{
-				if( this.selectedCtx.meta().slotCount() == 0 )
+			this.inputHandler = () -> {
+				// Enter next layer if has module selected
+				if( this.index() == -1 ) return;
+				
+				if( this.selected.meta().slotCount() == 0 )
 					; // TODO: mcwb.msg.module_has_no_slot
 				else if( this.locLen == this.loc.length )
 					; // TODO: mcwb.msg.reach_max_modify_layer
@@ -328,7 +285,7 @@ public class ModifyOp< C extends ItemContext & ModifiableContext > extends Toggl
 				{
 					// Set index to 0 if has module installed in new slot, or -1 otherwise
 					// Notice that when current index != -1, #previewCtx must be null
-					int count = this.selectedCtx.getInstalledCount( 0 );
+					int count = this.selected.getInstalledCount( 0 );
 					
 					this.loc[ this.locLen ] = 0;
 					this.loc[ this.locLen - 1 ] = ( byte ) ( Math.min( 1, count ) - 1 );
@@ -336,61 +293,114 @@ public class ModifyOp< C extends ItemContext & ModifiableContext > extends Toggl
 					
 					this.setupSelectedContext( true );
 				}
-			}
+			};
 		}
 		
 		// Switch slot, switch module and quit layer require current layer > 0
-		else if( this.locLen > 0 )
+		else if( this.locLen > 0 ) switch( kName )
 		{
+		case Key.SELECT_CANCEL:
 			// Quit layer
-			if( this.selectedCancel )
-			{
+			this.inputHandler = () -> {
 				this.locLen -= 2;
 				this.setupSelectedContext( true );
-			}
-			else
+			};
+			break;
+			
+		default:
+			final IContextedModifiable base = this.index() != -1
+				? this.selected.base() : this.selected;
+			
+			switch( kName )
 			{
-				final ModifiableContext baseCtx = this.index() != -1
-					? this.selectedCtx.base() : this.selectedCtx;
-				
+			case Key.SELECT_UP:
+			case Key.SELECT_DOWN:
 				// Switch slot
-				if( ( this.selectedUp || this.selectedDown ) && baseCtx.meta().slotCount() > 1 )
-				{
-					final int bound = baseCtx.meta().slotCount();
-					final int incr = this.selectedUp ? bound - 1 : 1;
-					final int next = ( this.slot() + incr ) % bound;
-					final int count = baseCtx.getInstalledCount( next );
-					
-					this.loc[ this.locLen - 2 ] = ( byte ) next;
-					this.loc[ this.locLen - 1 ] = ( byte ) ( Math.min( 1, count ) - 1 );
-					
-					this.setupSelectedContext( true );
-				}
+				this.inputHandler = () -> {
+					if( base.meta().slotCount() > 1 )
+					{
+						final int bound = base.meta().slotCount();
+						final int incr = key == InputHandler.SELECT_UP ? bound - 1 : 1;
+						final int next = ( this.slot() + incr ) % bound;
+						final int count = base.getInstalledCount( next );
+						
+						this.loc[ this.locLen - 2 ] = ( byte ) next;
+						this.loc[ this.locLen - 1 ] = ( byte ) ( Math.min( 1, count ) - 1 );
+						
+						this.setupSelectedContext( true );
+					}
+				};
+				break;
 				
+			case Key.SELECT_LEFT:
+			case Key.SELECT_RIGHT:
 				// Switch selected module
-				else if( this.selectedLeft || this.selectedRight )
-				{
+				this.inputHandler = () -> {
 					// Here we shift it before do mod so -1 is included
-					final int bound = baseCtx.getInstalledCount( this.slot() )
+					final int bound = base.getInstalledCount( this.slot() )
 						+ Math.max( 0, -this.previewInvSlot + 1 );
-					final int incr = this.selectedLeft ? bound : 2;
+					final int incr = key == InputHandler.SELECT_LEFT ? bound : 2;
 					final int idx = ( this.index() | incr ) % bound - 1;
 					this.loc[ this.locLen - 1 ] = ( byte ) idx;
 					
 					this.setupSelectedContext( true );
-				}
+				};
+				break;
 			}
 		}
+	}
+	
+	public IContextedItem getRenderDelegate( IContextedItem original ) {
+		return this.primary != null ? this.primary : original;
+	}
+	
+	@Override
+	public IOperation launch( IOperation oldOp )
+	{
+		this.mode = ModifyMode.SLOT;
 		
-		// One round complete, clear input state
+		// Initialize #loc if has not
+		if( this.loc == null || this.loc.length < MCWBClient.modifyLocLen )
+			this.loc = new byte[ MCWBClient.modifyLocLen ];
+		this.locLen = 0;
+		
+		this.setupSelectedContext( true );
+		this.refPlayerRotYaw = this.player.rotationYaw;
+		
 		this.clearInputState();
+		return super.launch( oldOp );
+	}
+	
+	@Override
+	public IOperation toggle()
+	{
+		// Only update player reference yaw rotation when this operation is fully launched
+		if( this.prevProgress == 1F )
+			this.refPlayerRotYaw = this.player.rotationYaw;
+		
+		this.locLen = 0;
+		this.setupSelectedContext( true );
+		return super.toggle();
+	}
+	
+	@Override
+	public IOperation tick()
+	{
+		if( super.tick() == NONE )
+			return this.terminate();
+		
+		// Do not do modification if operation has not been fully launched
+		else if( this.prevProgress != 1F )
+			return this;
+		
+		this.inputHandler.run();
 		return this;
 	}
 	
 	@Override
-	public Operation terminate()
+	public IOperation terminate()
 	{
-		this.primaryCtx = null;
+		this.primary = null;
 		this.clearProgress();
 		this.clearPreview();
 		return NONE;
@@ -398,7 +408,7 @@ public class ModifyOp< C extends ItemContext & ModifiableContext > extends Toggl
 	
 	@Override
 	@SuppressWarnings( "unchecked" )
-	public Operation onHoldingStackChange( ItemContext newItem )
+	public IOperation onHoldingStackChange( IContextedItem newItem )
 	{
 		// We basically has not way to ensure that this change is triggered by something like fire \
 		// fire mode switch rather than swap hand. So in compromise we just check whether current \
@@ -406,8 +416,8 @@ public class ModifyOp< C extends ItemContext & ModifiableContext > extends Toggl
 		// NOTE:
 		//     We do not check meta as it could change upon modification. For example, installing \
 		//     special attachment could actually change the meta of primary module base.
-		ModifiableContext newMod = ( ModifiableContext ) newItem;
-		ModifiableContext prevMod = this.primaryCtx;
+		IContextedModifiable newMod = ( IContextedModifiable ) newItem; // Meta does not change
+		IContextedModifiable prevMod = this.primary;
 		for( int i = 0; i < this.locLen; i += 2 )
 		{
 			final int slot = 0xFF & this.loc[ i ];
@@ -424,7 +434,7 @@ public class ModifyOp< C extends ItemContext & ModifiableContext > extends Toggl
 		}
 		
 		// Do be a valid primary for current state, then just update and continue
-		this.context = ( C ) newItem;
+		this.contexted = ( T ) newItem;
 		this.setupSelectedContext( true );
 		return this;
 	}
@@ -453,7 +463,7 @@ public class ModifyOp< C extends ItemContext & ModifiableContext > extends Toggl
 	protected void setupSelectedContext( boolean clearPreview )
 	{
 		// Move to base first
-		this.primaryCtx = ( C ) this.context.copy();
+		this.primary = ( T ) this.context.copy();
 		this.selectedCtx = this.primaryCtx.getInstalled( this.loc, Math.max( 0, this.locLen - 2 ) );
 		
 		// Check if is installed selected

@@ -270,6 +270,9 @@ public abstract class ModifiableItemMeta<
 		}
 		
 		@Override
+		public IModifiableMeta meta() { return ModifiableItemMeta.this; }
+		
+		@Override
 		public IContextedModifiable base() { return this.base; }
 		
 		@Override
@@ -477,7 +480,7 @@ public abstract class ModifiableItemMeta<
 				final NBTTagCompound modTag = modList.getCompoundTagAt( i );
 				final Item item = Item.getItemById( 0xFFFF & modTag.getIntArray( DATA_TAG )[ 0 ] );
 				final IModifiableMeta meta = ( IModifiableMeta ) ( ( IItemMetaHost ) item ).meta();
-				final IContextedModifiable module = meta.newContexted( new NBTTagCompound() ); // TODO: a default instance or refactor
+				final IContextedModifiable module = meta.newContexted( new NBTTagCompound() ); // TODO: a default tag instance or refactor
 				module.deserializeNBT( modTag );
 				
 				while( i >= this.getIdx( slot + 1 ) ) ++slot;
