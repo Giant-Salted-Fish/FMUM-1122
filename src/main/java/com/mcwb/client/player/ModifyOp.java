@@ -401,7 +401,7 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 	public IOperation terminate()
 	{
 		this.primary = null;
-		this.clearProgress();
+		this.resetProgress();
 		this.clearPreview();
 		return NONE;
 	}
@@ -463,8 +463,9 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 	protected void setupSelectedContext( boolean clearPreview )
 	{
 		// Move to base first
-		this.primary = ( T ) this.context.copy();
-		this.selectedCtx = this.primaryCtx.getInstalled( this.loc, Math.max( 0, this.locLen - 2 ) );
+		this.primary = ( T ) this.contexted.meta().newContexted( new NBTTagCompound() );
+		this.primary.deserializeNBT( this.contexted.serializeNBT().copy() );
+		this.selected = this.primary.getInstalled( this.loc, Math.max( 0, this.locLen - 2 ) );
 		
 		// Check if is installed selected
 		if( this.index() != -1 )

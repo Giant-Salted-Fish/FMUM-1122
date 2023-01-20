@@ -1,11 +1,12 @@
 package com.mcwb.common.network;
 
+import java.util.function.Consumer;
+
 import com.mcwb.common.ModConfig;
-import com.mcwb.common.item.ItemMeta;
-import com.mcwb.common.item.MetaHostItem;
-import com.mcwb.common.modify.ModifiableContext;
-import com.mcwb.common.modify.ModifiableMeta;
-import com.mcwb.common.modify.ModuleSlot;
+import com.mcwb.common.item.IItemMeta;
+import com.mcwb.common.item.IItemMetaHost;
+import com.mcwb.common.modify.IContextedModifiable;
+import com.mcwb.common.modify.IModifiableMeta;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -88,90 +89,70 @@ public class PacketModify implements IPacket
 			return;
 		}
 		
-		// TODO: maybe surround with try-catch to print error
+		final int len = this.loc.length;
 		final EntityPlayerMP player = ctx.getServerHandler().player;
-		player.getServerWorld().addScheduledTask( () -> {
-			// Make sure the operation target is still valid when this packet arrives
-			final ItemStack stack = player.inventory.getCurrentItem();
-			final ItemMeta meta = MetaHostItem.getMeta( stack );
-			if( !( meta instanceof ModifiableMeta ) ) return;
-			
-			final int len = this.loc.length;
-			final ModifiableMeta primaryMeta = ( ModifiableMeta ) meta;
-			final ModifiableContext primaryCtx = primaryMeta
-				.getContext( stack, stack.getTagCompound() );
-			switch( this.code )
-			{
-			case INSTALL_MODULE:
-				// Check if item to install is a module
-				final ItemStack tarStack = player.inventory.getStackInSlot( this.loc[ len - 1 ] );
-				final ItemMeta tarMeta = MetaHostItem.getMeta( stack );
-				if( !( tarMeta instanceof ModifiableMeta ) )
+		final Consumer< IContextedModifiable > handler =
+			INSTALL_MODULE == this.code ? primary -> {
+				// Check the meta of item to install
+				final ItemStack tarStack = player.inventory.getStackInSlot( this.loc[ len - 1] );
+				final IItemMeta tarMeta = IItemMetaHost.getMeta( tarStack );
+				if( !( tarMeta instanceof IModifiableMeta ) )
 				{
 					// TODO: log error
-					break;
+					return;
 				}
 				
 				// Validate before actual install
-				final ModifiableContext baseCtx = primaryCtx.getInstalled( this.loc, len - 2 );
+				final IContextedModifiable base = primary.getInstalled( this.loc, len - 2 );
+				final IContextedModifiable tarModule = ( ( IModifiableMeta ) tarMeta )
+					.getContexted( tarStack );
 				final int slot = 0xFF & this.loc[ len - 2 ];
-				final ModuleSlot moduelSlot = baseCtx.meta().getSlot( slot );
-				final ModifiableMeta tarModule = ( ModifiableMeta ) tarMeta;
-				if(
-					baseCtx.getInstalledCount( slot )
-						>= Math.min( moduelSlot.capacity(), ModConfig.maxSlotCapacity )
-					|| !moduelSlot.isAllowed( tarModule )
-				) {
+				if( !base.canInstall( slot, tarModule ) )
+				{
 					// TODO: log error
-					break;
+					return;
 				}
-				
 				// TODO: check hitbox conflict
 				
-				final ModifiableContext tarCtx = tarModule
-					.getContext( tarStack, tarStack.getTagCompound() );
-				tarCtx.$step( this.step() );
-				tarCtx.$offset( this.offset() );
-				
-				baseCtx.install( tarCtx, slot );
-				tarStack.shrink( 1 );
-				break;
-				
-			case UNSTALL_MODULE:
-				final ModifiableContext unstalled = primaryCtx.getInstalled( this.loc, len - 2 )
-					.unstall( 0xFF & this.loc[ len - 2 ], 0xFF & this.loc[ len - 1 ] );
+				tarModule.$step( this.step() );
+				tarModule.$offset( this.offset() );
+				base.install( slot, tarModule );
+			} :
+			UNSTALL_MODULE == this.code ? primary -> {
+				final IContextedModifiable removed = primary.getInstalled( this.loc, len - 2 )
+					.remove( 0xFF & this.loc[ len - 2 ], 0xFF & this.loc[ len - 1 ] );
 				// TODO: give it back to player
-				break;
-				
-			case UPDATE_STEP_OFFSET:
-				
-				final ModifiableContext modifiable = primaryCtx.getInstalled( this.loc, len );
+			} :
+			UPDATE_STEP_OFFSET == this.code ? primary -> {
+				final IContextedModifiable module = primary.getInstalled( this.loc, len );
 				final int step = this.step();
 				final int offset = this.offset();
-				final ModifiableMeta modMeta = modifiable.meta();
 //				if( step > modMeta.s) // TODO: check step and offset
-				modifiable.$step( this.step() );
-				modifiable.$offset( this.offset() );
+				module.$step( step );
+				module.$offset( offset );
 				
-				// TODO: Check hitbox
-				break;
-				
-			case UPDATE_PAINTJOB:
-				final ModifiableContext paintable = primaryCtx.getInstalled( this.loc, len );
+				// TODO: check hitbox
+			} :
+			UPDATE_PAINTJOB == this.code ? primary -> {
+				final IContextedModifiable paintable = primary.getInstalled( this.loc, len );
 				if( this.assist >= paintable.paintjob() )
 				{
 					// TODO: log error
-					break;
+					return;
 				}
 				
 				// TODO: check if player can offer this paintjob
 //				if( player.capabilities.isCreativeMode )
 					paintable.$paintjob( this.assist );
-				break;
-				
-			default:
-				// TODO: log error
-			}
+			} : null;
+		
+		player.getServerWorld().addScheduledTask( () -> {
+			// Make sure the operation target is still valid when this packet arrives
+			final ItemStack stack = player.inventory.getCurrentItem();
+			final IItemMeta meta = IItemMetaHost.getMeta( stack );
+			// TODO: maybe surround with try-catch to print error
+			if( meta instanceof IModifiableMeta )
+				handler.accept( ( ( IModifiableMeta ) meta ).getContexted( stack ) );
 		} );
 	}
 	

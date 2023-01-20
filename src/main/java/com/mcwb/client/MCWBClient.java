@@ -58,7 +58,6 @@ public final class MCWBClient extends MCWB
 		MODEL_LOADERS = new Registry<>();
 	
 	public static int modifyLocLen;
-	public static int maxSlotCapacity;
 	
 	public static float freeViewLimitSquared;
 	

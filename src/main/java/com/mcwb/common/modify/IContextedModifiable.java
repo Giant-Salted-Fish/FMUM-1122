@@ -30,6 +30,12 @@ public interface IContextedModifiable extends IContexted, INBTSerializable< NBTT
 	
 	public void forEach( Consumer< IContextedModifiable > visitor );
 	
+	/**
+	 * Check whether the given module can be installed into the given slot. Should at least perform
+	 * compatibility check and capacity check.
+	 */
+	public boolean canInstall( int slot, IContextedModifiable module );
+	
 	public void install( int slot, IContextedModifiable module );
 	
 	public IContextedModifiable remove( int slot, int idx );
@@ -99,6 +105,8 @@ public interface IContextedModifiable extends IContexted, INBTSerializable< NBTT
 	
 	@SideOnly( Side.CLIENT )
 	public void prepareRenderer( Collection< IMultPassRenderer > renderQueue, IAnimator animator );
+	
+//	public IModifiableMeta copy();
 	
 	/**
 	 * <p> Simply return the bounden NBT tag. Should be the {@link HackedNBTTagCompound} stack tag

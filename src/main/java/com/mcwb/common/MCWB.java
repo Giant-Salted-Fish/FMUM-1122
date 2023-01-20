@@ -165,6 +165,8 @@ public class MCWB extends URLClassLoader implements IContentProvider, IAutowireL
 	 */
 	static final Logger LOGGER = LogManager.getLogger( MODID );
 	
+	public static int maxSlotCapacity;
+	
 	private final HashMap< String, byte[] > classes = new HashMap<>();
 	
 	public MCWB() { super( new URL[ 0 ], MinecraftServer.class.getClassLoader() ); }

@@ -1,6 +1,7 @@
 package com.mcwb.common.network;
 
 import com.mcwb.client.MCWBClient;
+import com.mcwb.common.MCWB;
 import com.mcwb.common.ModConfig;
 import com.mcwb.util.Util;
 
@@ -24,7 +25,7 @@ public final class PacketConfigSync implements IPacket
 	public void fromBytes( ByteBuf buf )
 	{
 		MCWBClient.modifyLocLen = 2 * ( 0xFF & buf.readByte() );
-		MCWBClient.maxSlotCapacity = 0xFF & buf.readByte();
+		MCWB.maxSlotCapacity = 0xFF & buf.readByte();
 		
 		/// Camera settings ///
 		{

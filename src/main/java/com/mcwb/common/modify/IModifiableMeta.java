@@ -13,6 +13,8 @@ public interface IModifiableMeta extends IMeta, IHasContext, ICategoried
 {
 	public static final Registry< IModifiableMeta > REGISTRY = new Registry<>();
 	
+	public static final NBTTagCompound TAG = new NBTTagCompound();
+	
 	@Override
 	public IContextedModifiable getContexted( ICapabilityProvider provider );
 	
@@ -21,6 +23,18 @@ public interface IModifiableMeta extends IMeta, IHasContext, ICategoried
 	 * @return A new context with given NBT tag bounden to it
 	 */
 	public IContextedModifiable newContexted( NBTTagCompound nbt );
+	
+	/**
+	 * <p> Create a new context and deserialize from the given NBT tag. </p>
+	 * 
+	 * <p> Notice that The returned new context will bind the given NBT. </p>
+	 */
+	public default IContextedModifiable deserializeContexted( NBTTagCompound nbt )
+	{
+		final IContextedModifiable ret = this.newContexted( TAG );
+		ret.deserializeNBT( nbt );
+		return ret;
+	}
 	
 	public IModuleSlot getSlot( int idx );
 	

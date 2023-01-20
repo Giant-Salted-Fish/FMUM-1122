@@ -285,6 +285,16 @@ public abstract class ModifiableItemMeta<
 			this.installed.forEach( mod -> visitor.accept( mod ) );
 		}
 		
+		public boolean canInstall( int slot, IContextedModifiable module )
+		{
+			final IModuleSlot modSlot = ModifiableItemMeta.this.slots.get( slot );
+			return(
+				this.getInstalledCount( slot )
+					< Math.min( modSlot.capacity(), MCWB.maxSlotCapacity )
+				&& modSlot.isAllowed( module.meta() )
+			);
+		}
+		
 		@Override
 		public void install( int slot, IContextedModifiable module )
 		{
