@@ -29,6 +29,9 @@ public class HackedNBTTagCompound extends NBTTagCompound
 	
 	protected Supplier< NBTTagCompound > copyHandler = this::copy;
 	
+	/**
+	 * Set instance to return on next {@link #copy()} call
+	 */
 	public void setCopyDelegate( NBTTagCompound delegate )
 	{
 		this.copyHandler = () -> {
@@ -38,7 +41,10 @@ public class HackedNBTTagCompound extends NBTTagCompound
 	}
 	
 	/**
-	 * Delegate instance if has set
+	 * <p> Delegate instance if has set with {@link #setCopyDelegate(NBTTagCompound)}. </p>
+	 * 
+	 * <p> Notice that this returns normal {@link NBTTagCompound} rather than hacked if delegate
+	 * does not present. </p>
 	 */
 	@Override
 	public NBTTagCompound copy() { return this.copyHandler.get(); }

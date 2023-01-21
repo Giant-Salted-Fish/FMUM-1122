@@ -44,6 +44,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -98,7 +99,14 @@ public abstract class ModifiableItemMeta<
 	}
 	
 	@Override
-	public IContextedModifiable newContexted( NBTTagCompound nbt ) { return this.newCtxed( nbt ); }
+	public IContextedModifiable newContexted( NBTTagCompound nbt ) {
+		return this.newCtxedCap( nbt );
+	}
+	
+	@Override
+	public IContextedModifiable deserializeContexted( NBTTagCompound from ) {
+		return this.deserializeCtxedCap( from );
+	}
 	
 	@Override
 	public IModuleSlot getSlot( int idx ) { return this.slots.get( idx ); }
@@ -121,86 +129,48 @@ public abstract class ModifiableItemMeta<
 	protected Item createItem() { return this.new ModifiableItem( 1, 0 ); }
 	
 	/**
-	 * Purely for convenience. Change every place this is used if you do not want to use
-	 * {@link ContextedModifiableItem}.
+	 * Purely for convenience. Change every place this is used if you do want to use other
+	 * {@link ContextedModifiableItem} implementation that is not a capability provider.
+	 * 
+	 * @see #deserializeCtxtedCap(NBTTagCompound)
 	 */
-	protected abstract ContextedModifiableItem newCtxed( NBTTagCompound nbt );
+	protected abstract ContextedModifiableItem newCtxedCap( NBTTagCompound nbt );
 	
-	protected class ModifiableItem extends ItemBase
+	/**
+	 * Purely for convenience. Change every place this is used if you do want to use other
+	 * {@link ContextedModifiableItem} implementation that is not a capability provider.
+	 * 
+	 * @see #newCtxedCap(NBTTagCompound)
+	 */
+	protected ContextedModifiableItem deserializeCtxedCap( NBTTagCompound from )
+	{
+		final ContextedModifiableItem contexted = this.newCtxedCap( new NBTTagCompound() );
+		contexted.deserializeNBT( from );
+		return contexted;
+	}
+	
+	protected class ModifiableItem extends HackedCapItem
 	{
 		protected ModifiableItem( int maxStackSize, int maxDamage ) {
 			super( maxStackSize, maxDamage );
 		}
 		
 		@Override
-		public ICapabilityProvider initCapabilities(
-			ItemStack stack,
-			@Nullable NBTTagCompound capTag
-		) {
-			final NBTTagCompound stackTag = stack.getTagCompound();
-			
-			// 4 case to handle: \
-			// has-stackTag | has-capTag}: {deserialized from local storage} \
-			// has-stackTag | no--capTag}: \
-			// no--stackTag | has-capTag}: {copy stack} \
-			// no--stackTag | no--capTag}: {create stack}, {deserialize from network packet} \
-			switch( ( stackTag != null ? 2 : 0 ) + ( capTag != null ? 1 : 0 ) )
-			{
-			case 0: // no--stackTag | no--capTag: {create stack}, {deserialize from network packet}
-				// We actually can not distinguish from these two cases. But in general it will \
-				// have correct behavior by just creating a default context and set the tag of the \
-				// stack to the bounden tag of the context. This works for network packet \
-				// deserialize as it will later call data deserialize to parse data in NBT tag. \
-				// See below #readNBTShareTag(ItemStack, NBTTagCompound)
-				final HackedNBTTagCompound hackTag = new HackedNBTTagCompound();
-				final ICapabilityProvider pvd = this.newCap( hackTag );
-				ModifiableItemMeta.this.snapshot.initContexted( ( name, nbt ) -> pvd
-					.getCapability( ModifiableItemMeta.this.capability(), null ) );
-				stack.setTagCompound( hackTag );
-				return pvd;
-				
-			case 1: // no--stackTag | has-capTag: {copy stack}
-				// As #serialize() method will actually return the stack tag of then copy target, \
-				// hence copy the capTag and set it as the copy delegate to make sure that the new \
-				// stack will have the same tag instance as its compound tag. See ItemStack#copy().
-				final HackedNBTTagCompound copied = new HackedNBTTagCompound( capTag.copy() );
-				( ( HackedNBTTagCompound ) capTag ).setCopyDelegate( copied );
-				return this.copyCap( copied );
-				
-			case 2: // has-stackTag | no--capTag: should never happen
-				throw new RuntimeException( "has-stackTag | no--capTag: should never happen" );
-				
-			case 3: // has-stackTag | has-capTag: {deserialized from local storage}
-				return this.copyCap( new HackedNBTTagCompound( stackTag ) );
-				
-			default: throw new RuntimeException( "Impossible to reach here" );
-			}
+		protected ICapabilityProvider newInitedCap( NBTTagCompound nbt )
+		{
+			final ContextedModifiableItem contexted = ModifiableItemMeta.this.newCtxedCap( nbt );
+			ModifiableItemMeta.this.snapshot.initContexted( ( name, nbt1 ) -> contexted );
+			return contexted;
 		}
 		
 		@Override
-		public void readNBTShareTag( ItemStack stack, @Nullable NBTTagCompound nbt )
-		{
-			stack.setTagCompound( nbt );
-			
-			// Called on network packet stack creation. At this time a context has been created \
-			// with default snapshot. Here reset the context with the new NBT data from the stack \
-			// tag.
-			final IContextedModifiable mod = ModifiableItemMeta.this.getContexted( stack );
-			mod.deserializeNBT( new HackedNBTTagCompound( nbt ) );
+		protected ICapabilityProvider deserializeCap( NBTTagCompound from ) {
+			return ModifiableItemMeta.this.deserializeCtxedCap( from );
 		}
 		
-		protected ICapabilityProvider copyCap( NBTTagCompound from )
-		{
-			// TODO: static final NBT instance
-			final ICapabilityProvider pvd = ModifiableItemMeta.this.newCtxed(
-				new NBTTagCompound()
-			);
-			pvd.getCapability( ModifiableItemMeta.this.capability(), null ).deserializeNBT( from );
-			return pvd;
-		}
-		
-		protected ICapabilityProvider newCap( NBTTagCompound nbt ) {
-			return ModifiableItemMeta.this.newCtxed( nbt );
+		@Override
+		protected INBTSerializable< NBTTagCompound > getContexted( ItemStack stack ) {
+			return ModifiableItemMeta.this.getContexted( stack );
 		}
 	}
 	
@@ -490,8 +460,7 @@ public abstract class ModifiableItemMeta<
 				final NBTTagCompound modTag = modList.getCompoundTagAt( i );
 				final Item item = Item.getItemById( 0xFFFF & modTag.getIntArray( DATA_TAG )[ 0 ] );
 				final IModifiableMeta meta = ( IModifiableMeta ) ( ( IItemMetaHost ) item ).meta();
-				final IContextedModifiable module = meta.newContexted( new NBTTagCompound() ); // TODO: a default tag instance or refactor
-				module.deserializeNBT( modTag );
+				final IContextedModifiable module = meta.deserializeContexted( modTag );
 				
 				while( i >= this.getIdx( slot + 1 ) ) ++slot;
 				module.setBase( this, slot );

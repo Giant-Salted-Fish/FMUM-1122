@@ -119,13 +119,25 @@ public abstract class GunPartMeta<
 		}
 		
 		@Override
-		protected ContextedGunPart newCtxed( NBTTagCompound nbt )
+		protected ContextedGunPart newCtxedCap( NBTTagCompound nbt )
 		{
 			return this.new ContextedGunPart( nbt )
 			{
 				@Override
 				protected IContextedGunPart self() { return this; }
 			};
+		}
+		
+		@Override
+		protected ContextedGunPart deserializeCtxedCap( NBTTagCompound from )
+		{
+			final ContextedGunPart contexted = new ContextedGunPart()
+			{
+				@Override
+				protected IContextedGunPart self() { return this; }
+			};
+			contexted.deserializeNBT( from );
+			return contexted;
 		}
 	}
 }

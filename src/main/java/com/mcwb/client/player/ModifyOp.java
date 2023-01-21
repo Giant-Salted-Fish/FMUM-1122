@@ -8,22 +8,17 @@ import com.mcwb.client.input.Key;
 import com.mcwb.common.item.IContextedItem;
 import com.mcwb.common.item.IItemMeta;
 import com.mcwb.common.item.IItemMetaHost;
-import com.mcwb.common.item.ItemContext;
 import com.mcwb.common.modify.IContextedModifiable;
 import com.mcwb.common.modify.IContextedModifiable.ModifyState;
 import com.mcwb.common.modify.IModifiableMeta;
 import com.mcwb.common.modify.IModuleSlot;
-import com.mcwb.common.modify.ModifiableContext;
-import com.mcwb.common.modify.ModifiableMeta;
 import com.mcwb.common.network.PacketModify;
 import com.mcwb.common.player.IOperation;
-import com.mcwb.common.player.Operation;
 import com.mcwb.common.player.TogglableOperation;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -105,10 +100,9 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 					) {
 						// Get a copy of the preview module context
 						final IModifiableMeta modMeta = ( ( IModifiableMeta ) meta );
-						this.preview = modMeta.newContexted( new NBTTagCompound() ); // TODO: a static tag maybe
-						this.preview.deserializeNBT(
+						this.preview = modMeta.deserializeContexted(
 							modMeta.getContexted( stack ).serializeNBT().copy()
-						);
+						); // Hacked NBT not used as this will not be attached to a ItemStack
 						
 						this.preview.$step( this.curStep );
 						this.preview.$offset( 0 );
@@ -366,8 +360,6 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 		
 		this.setupSelectedContext( true );
 		this.refPlayerRotYaw = this.player.rotationYaw;
-		
-		this.clearInputState();
 		return super.launch( oldOp );
 	}
 	
@@ -401,7 +393,7 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 	public IOperation terminate()
 	{
 		this.primary = null;
-		this.resetProgress();
+		this.clearProgress();
 		this.clearPreview();
 		return NONE;
 	}
@@ -463,8 +455,8 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 	protected void setupSelectedContext( boolean clearPreview )
 	{
 		// Move to base first
-		this.primary = ( T ) this.contexted.meta().newContexted( new NBTTagCompound() );
-		this.primary.deserializeNBT( this.contexted.serializeNBT().copy() );
+		this.primary = ( T ) this.contexted.meta() // Hacked NBT not used as this will not attach to a ItemStack
+			.deserializeContexted( this.contexted.serializeNBT().copy() );
 		this.selected = this.primary.getInstalled( this.loc, Math.max( 0, this.locLen - 2 ) );
 		
 		// Check if is installed selected
@@ -473,10 +465,10 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 			// Move to selected module if not primary selected
 			if( this.locLen > 0 )
 			{
-				this.selectedCtx = this.selectedCtx.getInstalled( this.slot(), this.index() );
+				this.selected = this.selected.getInstalled( this.slot(), this.index() );
 				
 				// Module will only be highlighted when it is not primary base
-				this.selectedCtx.$modifyState( this.modifyState() );
+				this.selected.$modifyState( this.modifyState() );
 			}
 			
 			if( clearPreview )
@@ -487,19 +479,19 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 				// selected. This requires to check when clearPreview is true
 				this.curStep
 					= this.oriStep
-					= this.selectedCtx.step();
+					= this.selected.step();
 				this.curOffset
 					= this.oriOffset
-					= this.selectedCtx.offset();
+					= this.selected.offset();
 				this.curPaintjob
 					= this.oriPaintjob
-					= this.selectedCtx.paintjob();
+					= this.selected.paintjob();
 			}
 			else
 			{
-				this.selectedCtx.$step( this.curStep );
-				this.selectedCtx.$offset( this.curOffset );
-				this.selectedCtx.$paintjob( this.curPaintjob );
+				this.selected.$step( this.curStep );
+				this.selected.$offset( this.curOffset );
+				this.selected.$paintjob( this.curPaintjob );
 			}
 		}
 		else if( clearPreview )
@@ -519,20 +511,8 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 	protected void clearPreview()
 	{
 		this.previewInvSlot = -1;
-		this.previewCtx = null;
+		this.preview = null;
 		this.conflict = false;
-	}
-	
-	protected void clearInputState()
-	{
-		this.selectedToggle
-			= this.selectedUp
-			= this.selectedDown
-			= this.selectedLeft
-			= this.selectedRight
-			= this.selectedConfirm
-			= this.selectedCancel
-			= false;
 	}
 	
 	protected enum ModifyMode

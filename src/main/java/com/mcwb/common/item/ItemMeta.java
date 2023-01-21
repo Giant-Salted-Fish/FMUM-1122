@@ -21,6 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.INBTSerializable;
 
 public abstract class ItemMeta< C extends IContextedItem, M extends IItemModel< ? super C > >
 	extends RenderableMeta< M > implements IItemMeta, IRequirePostLoad
@@ -144,5 +145,82 @@ public abstract class ItemMeta< C extends IContextedItem, M extends IItemModel< 
 					EnumHand.MAIN_HAND
 				);
 		}
+	}
+	
+	/**
+	 * TODO: proper intro
+	 * 
+	 * @author Giant_Salted_Fish
+	 */
+	protected abstract class HackedCapItem extends ItemBase
+	{
+		protected HackedCapItem( int maxStackSize, int maxDamage ) {
+			super( maxStackSize, maxDamage );
+		}
+		
+		@Override
+		public ICapabilityProvider initCapabilities(
+			ItemStack stack,
+			@Nullable NBTTagCompound capTag
+		) {
+			final NBTTagCompound stackTag = stack.getTagCompound();
+			
+			// 4 case to handle: \
+			// has-stackTag | has-capTag}: {deserialized from local storage} \
+			// has-stackTag | no--capTag}: \
+			// no--stackTag | has-capTag}: {copy stack} \
+			// no--stackTag | no--capTag}: {create stack}, {deserialize from network packet} \
+			switch( ( stackTag != null ? 2 : 0 ) + ( capTag != null ? 1 : 0 ) )
+			{
+			case 0: // no--stackTag | no--capTag: {create stack}, {deserialize from network packet}
+				// We actually can not distinguish from these two cases. But in general it will \
+				// have correct behavior by just creating a default context and set the tag of the \
+				// stack to the bounden tag of the context. This works for network packet \
+				// deserialize as it will later call data deserialize to parse data in NBT tag. \
+				// See below #readNBTShareTag(ItemStack, NBTTagCompound)
+				final HackedNBTTagCompound hackedTag = new HackedNBTTagCompound();
+				final ICapabilityProvider provider = this.newInitedCap( hackedTag );
+				stack.setTagCompound( hackedTag );
+				return provider;
+				
+			case 1: // no--stackTag | has-capTag: {copy stack}
+				// As #serializeNBT() method will actually return the stack tag of the copy \
+				// target, hence copy the capTag and set it as the copy delegate to ensure that 
+				// the new stack will have the same tag as its compound tag. See ItemStack#copy().
+				final HackedNBTTagCompound copied = new HackedNBTTagCompound( capTag.copy() );
+				( ( HackedNBTTagCompound ) capTag ).setCopyDelegate( copied );
+				return this.deserializeCap( copied );
+				
+			case 2: // has-stackTag | no--capTag: should never happen
+				throw new RuntimeException( "has-stackTag | no--capTag: should never happen" );
+				
+			case 3: // has-stackTag | has-capTag: {deserialized from local storage}
+//				if( stackTag.getClass() == HackedNBTTagCompound.class )
+//				{
+//					MCWB.MOD.error( "=====" ); // TODO: check if it is not hacked
+//				}
+				final HackedNBTTagCompound hackedTag1 = new HackedNBTTagCompound( stackTag );
+				stack.setTagCompound( hackedTag1 );
+				return this.deserializeCap( hackedTag1 );
+				
+			default: throw new RuntimeException( "Impossible to reach here" );
+			}
+		}
+		
+		@Override
+		public void readNBTShareTag( ItemStack stack, @Nullable NBTTagCompound nbt )
+		{
+			// Called on network packet stack creation. At this time a context has been created \
+			// and setup. Hence load the state from the stack tag into its context.
+			final HackedNBTTagCompound hackedTag = new HackedNBTTagCompound( nbt );
+			this.getContexted( stack ).deserializeNBT( hackedTag );
+			stack.setTagCompound( hackedTag );
+		}
+		
+		protected abstract ICapabilityProvider newInitedCap( NBTTagCompound nbt );
+		
+		protected abstract ICapabilityProvider deserializeCap( NBTTagCompound from );
+		
+		protected abstract INBTSerializable< NBTTagCompound > getContexted( ItemStack stack );
 	}
 }

@@ -60,7 +60,7 @@ public abstract class Operation< T extends IContextedItem > implements IOperatio
 	
 	protected IOperation onComplete() { return NONE; }
 	
-	protected void resetProgress()
+	protected void clearProgress()
 	{
 		this.prevProgress = 0F;
 		this.progress = 0F;

@@ -6,7 +6,6 @@ import com.mcwb.client.gun.IGunPartModel;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.modify.IContextedModifiable;
-import com.mcwb.common.modify.IModifiableMeta;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -61,13 +60,25 @@ public abstract class GunMeta< C extends IContextedGun, M extends IGunPartModel<
 		}
 		
 		@Override
-		protected ContextedGun newCtxed( NBTTagCompound nbt )
+		protected ContextedGun newCtxedCap( NBTTagCompound nbt )
 		{
 			return this.new ContextedGun( nbt )
 			{
 				@Override
 				protected IContextedGun self() { return this; }
 			};
+		}
+		
+		@Override
+		protected ContextedGun deserializeCtxedCap( NBTTagCompound from )
+		{
+			final ContextedGun contexted = this.new ContextedGun()
+			{
+				@Override
+				protected IContextedGun self() { return this; }
+			};
+			contexted.deserializeNBT( from );
+			return contexted;
 		}
 	}
 }
