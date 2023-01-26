@@ -1,0 +1,5 @@
+{
+	"meshes": [ "models/gun/hk416/receiver_end_plate.obj" ],
+	"scale": 0.00625,
+	"tbObjAdapt": true
+}

@@ -23,11 +23,11 @@ public interface IModifiableMeta extends IMeta, IHasContext, ICategoried
 	public IContextedModifiable newContexted( NBTTagCompound nbt );
 	
 	/**
-	 * <p> Create a new context and deserialize from the given NBT tag. </p>
-	 * 
-	 * <p> Notice that The returned new context will bind the given NBT. </p>
+	 * Create a new context that bind to nothing.
+	 * {@link IContextedModifiable#deserializeNBT(NBTTagCompound)} should be called on the returned
+	 * context before actually use it.
 	 */
-	public IContextedModifiable deserializeContexted( NBTTagCompound from );
+	public IContextedModifiable newRawContexted();
 	
 	public IModuleSlot getSlot( int idx );
 	

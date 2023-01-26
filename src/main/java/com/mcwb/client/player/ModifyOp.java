@@ -100,7 +100,8 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 					) {
 						// Get a copy of the preview module context
 						final IModifiableMeta modMeta = ( ( IModifiableMeta ) meta );
-						this.preview = modMeta.deserializeContexted(
+						this.preview = modMeta.newRawContexted();
+						this.preview.deserializeNBT(
 							modMeta.getContexted( stack ).serializeNBT().copy()
 						); // Hacked NBT not used as this will not be attached to a ItemStack
 						
@@ -455,8 +456,10 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 	protected void setupSelectedContext( boolean clearPreview )
 	{
 		// Move to base first
-		this.primary = ( T ) this.contexted.meta() // Hacked NBT not used as this will not attach to a ItemStack
-			.deserializeContexted( this.contexted.serializeNBT().copy() );
+		this.primary = ( T ) this.contexted.meta().newRawContexted();
+		final IContextedModifiable copied = this.primary;
+		copied.deserializeNBT( this.contexted.serializeNBT().copy() ); // Hacked NBT not used as this will not attach to a ItemStack
+		
 		this.selected = this.primary.getInstalled( this.loc, Math.max( 0, this.locLen - 2 ) );
 		
 		// Check if is installed selected

@@ -1,0 +1,72 @@
+# By Giant_Salted_Fish
+
+# 内容包概要
+oc.pack=八边形枪械包
+oc.author=一条大大的咸鱼
+
+# 创造模式物品栏
+itemGroup.oc=八边形枪械包
+
+# 弹药
+item.556x45mm.name=5.56x45mm 北约制式弹药
+item.556x45mm_case.name=5.56x45mm 北约制式弹药铜壳
+
+# H&K416
+item.hk416_d10rs.name=H&K416 D10RS
+item.hk416_lower_receiver=H&K416 下机匣
+item.hk416_104_barrel.name=H&K416 10.4英寸枪管
+item.hk416_145_barrel.name=H&K416 14.5英寸枪管
+item.hk416_145_handguard.name=H&K416 14.5英寸护木
+item.hk416_165_barrel.name=H&K416 16.5英寸枪管
+item.hk416_20_barrel.name=H&K416 20英寸枪管
+item.hk416_barrel_extension.name=H&K416 枪管节套
+item.hk416_barrel_nut.name=H&K416 枪管螺母
+item.hk416_bolt.name=H&K416 枪击组件
+item.hk416_buffer_tube.name=H&K416 缓冲管
+item.hk416_charge_handle.name=H&K416 拉机柄
+item.hk416_dust_cover.name=H&K416 防尘盖
+item.hk416_front_sight.name=H&K416 折叠式准星
+item.hk416_gas_block.name=H&K416 导气组件
+item.hk416_handguard.name=H&K416 护木
+item.hk416_pistol_grip.name=H&K416 手枪握把
+item.hk416_piston_guide.name=H&K416 活塞导筒
+item.hk416_piston.name=H&K416 活塞
+item.hk416_receiver_end_plate.name=H&K416 机匣尾板
+item.hk416_receiver_extension_nut.name=H&K416 机匣延伸螺母
+item.hk416_upper_receiver.name=H&K416 上机匣
+
+# 弹匣
+item.556x45mm_30_round_mag.name=5.56x45mm 30发北约标准弹匣
+
+# 机械瞄具
+item.cic_is2_front_sight.name=CIC IS-2 准星
+item.cic_is2_front_sight-tritium_green.name=CIC IS-2 准星 - 绿氚光
+item.cic_is2_front_sight-tritium_red.name=CIC IS-2 准星 - 红氚光
+item.cic_is2_front_sight-tritium_white.name=CIC IS-2 准星 - 白氚光
+item.cic_is2_rear_sight.name=CIC IS-2 照门
+item.cic_is2_rear_sight-tritium_green.name=CIC IS-2 照门 - 绿氚光
+item.cic_is2_rear_sight-tritium_red.name=CIC IS-2 照门 - 红氚光
+item.cic_is2_rear_sight-tritium_white.name=CIC IS-2 照门 - 白氚光
+item.cic_is4_front_sight.name=CIC IS-4 准星
+item.cic_is4_front_sight-tritium_green.name=CIC IS-4 准星 - 绿氚光
+item.cic_is4_front_sight-tritium_red.name=CIC IS-4 准星 - 红氚光
+item.cic_is4_front_sight-tritium_white.name=CIC IS-4 准星 - 白氚光
+item.cic_is4_rear_sight.name=CIC IS-4 照门
+item.cic_is4_rear_sight-tritium_green.name=CIC IS-4 照门 - 绿氚光
+item.cic_is4_rear_sight-tritium_red.name=CIC IS-4 照门 - 红氚光
+item.cic_is4_rear_sight-tritium_white.name=CIC IS-4 照门 - 白氚光
+item.cic_is9_front_sight.name=CIC IS-9 准星
+item.cic_is9_front_sight-tritium_green.name=CIC IS-9 准星 - 绿氚光
+item.cic_is9_front_sight-tritium_red.name=CIC IS-9 准星 - 红氚光
+item.cic_is9_front_sight-tritium_white.name=CIC IS-9 准星 - 白氚光
+item.cic_is9_rear_sight.name=CIC IS-9 照门
+item.cic_is9_rear_sight-tritium_green.name=CIC IS-9 照门 - 绿氚光
+item.cic_is9_rear_sight-tritium_red.name=CIC IS-9 照门 - 红氚光
+item.cic_is9_rear_sight-tritium_white.name=CIC IS-9 照门 - 白氚光
+
+# 膛口装置
+item.556mm_thread_protector.name=5.56mm 螺纹保护帽
+
+# 枪托
+item.lmt_stock.name=海军托
+item.lmt_stock_butt_pad.name=海军托缓冲垫

@@ -3,7 +3,7 @@ package com.mcwb.common.item;
 import javax.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
-import com.mcwb.client.item.IItemModel;
+import com.mcwb.client.item.IItemRenderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.load.IRequirePostLoad;
 import com.mcwb.common.load.RenderableMeta;
@@ -23,7 +23,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.INBTSerializable;
 
-public abstract class ItemMeta< C extends IContextedItem, M extends IItemModel< ? super C > >
+public abstract class ItemMeta< C extends IContextedItem, M extends IItemRenderer< ? super C > >
 	extends RenderableMeta< M > implements IItemMeta, IRequirePostLoad
 {
 	protected transient Item item;
@@ -185,11 +185,25 @@ public abstract class ItemMeta< C extends IContextedItem, M extends IItemModel< 
 				
 			case 1: // no--stackTag | has-capTag: {copy stack}
 				// As #serializeNBT() method will actually return the stack tag of the copy \
-				// target, hence copy the capTag and set it as the copy delegate to ensure that 
-				// the new stack will have the same tag as its compound tag. See ItemStack#copy().
-				final HackedNBTTagCompound copied = new HackedNBTTagCompound( capTag.copy() );
-				( ( HackedNBTTagCompound ) capTag ).setCopyDelegate( copied );
-				return this.deserializeCap( copied );
+				// target, hence copy the corresponding tag in given capTag and set it as the copy \
+				// delegate to ensure that the new stack will have the same tag as its compound \
+				// tag. See ItemStack#copy().
+				final NBTTagCompound oriStackTag = capTag.getCompoundTag( "Parent" );
+				final HackedNBTTagCompound copied = new HackedNBTTagCompound( oriStackTag.copy() );
+				
+				// This is necessary #deserializeNBT(NBTTagCompound) will later be called on this \
+				// Capability on this given capTag. Hence replace it to make sure that we bind \
+				// context to the hacked tag. See ItemStack#forgeInit().
+				capTag.setTag( "Parent", copied );
+				
+				// This is necessary as the stack tag of this stack will later be set to the \
+				// instance returned by NBTTagCompound#copy() Call on the stack tag of the copy \
+				// target. And the oriStackTag is exactly the stack tag of the copy target. Hence \
+				// just set the copy delegate to make sure the stack tag will be the same as the \
+				// bounden capability tag.
+				( ( HackedNBTTagCompound ) oriStackTag ).setCopyDelegate( copied );
+				
+				return this.newRawCap();
 				
 			case 2: // has-stackTag | no--capTag: should never happen
 				throw new RuntimeException( "has-stackTag | no--capTag: should never happen" );
@@ -199,9 +213,11 @@ public abstract class ItemMeta< C extends IContextedItem, M extends IItemModel< 
 //				{
 //					MCWB.MOD.error( "=====" ); // TODO: check if it is not hacked
 //				}
+				// Handled similar to the case 1
 				final HackedNBTTagCompound hackedTag1 = new HackedNBTTagCompound( stackTag );
+				capTag.setTag( "Parent", hackedTag1 );
 				stack.setTagCompound( hackedTag1 );
-				return this.deserializeCap( hackedTag1 );
+				return this.newRawCap();
 				
 			default: throw new RuntimeException( "Impossible to reach here" );
 			}
@@ -219,7 +235,7 @@ public abstract class ItemMeta< C extends IContextedItem, M extends IItemModel< 
 		
 		protected abstract ICapabilityProvider newInitedCap( NBTTagCompound nbt );
 		
-		protected abstract ICapabilityProvider deserializeCap( NBTTagCompound from );
+		protected abstract ICapabilityProvider newRawCap();
 		
 		protected abstract INBTSerializable< NBTTagCompound > getContexted( ItemStack stack );
 	}

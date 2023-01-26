@@ -1,0 +1,5 @@
+{
+	"meshes": [ "models/gun/iron_sight/cic_is4_rear_sight.obj" ],
+	"scale": 0.00625,
+	"tbObjAdapt": true
+}

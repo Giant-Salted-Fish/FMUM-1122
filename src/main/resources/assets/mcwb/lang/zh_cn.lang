@@ -78,15 +78,25 @@ itemGroup.mcwb=MCWB 默认组
 # 对话框提示消息
 
 # 按键绑定
-mcwb.key_group.general=MCWB 通用
+mcwb.key_category.general=MCWB 通用
 mcwb.key.free_view=自由视角
 
-mcwb.key_group.gun=MCWB 武器
+mcwb.key_category.gun=MCWB 武器
 mcwb.key.aim_hold=按住瞄准
 mcwb.key.aim_toggle=切换瞄准
 
-mcwb.key_group.assist=MCWB 辅助
+mcwb.key_category.assist=MCWB 辅助
 mcwb.key.co=辅助键
 mcwb.key.co_free_view=自由视角组合键
 
-mcwb.key_group.other=MCWB 其它
+mcwb.key_category.modify=MCWB 改装
+mcwb.key.toggle_modify=改装当前武器
+mcwb.key.select_toggle=切换改装模式
+mcwb.key.select_up=向上选择
+mcwb.key.select_down=向下选择
+mcwb.key.select_left=向左选择
+mcwb.key.select_right=向右选择
+mcwb.key.select_confirm=确认选择
+mcwb.key.select_cancel=取消选择
+
+mcwb.key_category.other=MCWB 其它

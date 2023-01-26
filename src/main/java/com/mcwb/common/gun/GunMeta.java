@@ -2,7 +2,7 @@ package com.mcwb.common.gun;
 
 import javax.annotation.Nullable;
 
-import com.mcwb.client.gun.IGunPartModel;
+import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.modify.IContextedModifiable;
@@ -13,7 +13,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class GunMeta< C extends IContextedGun, M extends IGunPartModel< ? super C > >
+public abstract class GunMeta< C extends IContextedGun, M extends IGunPartRenderer< ? super C > >
 	extends GunPartMeta< C, M >
 {
 	public static final BuildableLoader< IMeta >
@@ -52,7 +52,7 @@ public abstract class GunMeta< C extends IContextedGun, M extends IGunPartModel<
 	
 	public static class GunJson extends GunMeta<
 		IContextedGun,
-		IGunPartModel< ? super IContextedGun >
+		IGunPartRenderer< ? super IContextedGun >
 	> {
 		@Override
 		protected Capability< ? extends IContextedGun > capability() {
@@ -70,15 +70,13 @@ public abstract class GunMeta< C extends IContextedGun, M extends IGunPartModel<
 		}
 		
 		@Override
-		protected ContextedGun deserializeCtxedCap( NBTTagCompound from )
+		protected ContextedGun newRawCtxedCap()
 		{
-			final ContextedGun contexted = this.new ContextedGun()
+			return this.new ContextedGun()
 			{
 				@Override
 				protected IContextedGun self() { return this; }
 			};
-			contexted.deserializeNBT( from );
-			return contexted;
 		}
 	}
 }

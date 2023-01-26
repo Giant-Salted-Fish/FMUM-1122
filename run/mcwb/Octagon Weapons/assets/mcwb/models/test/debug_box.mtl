@@ -1,0 +1,12 @@
+# MTL Export was created with the Minecraft-SMP Modelling Toolbox 2.2.2.2
+#  Copyright (C) 2022 Minecraft-SMP.de
+# 
+
+newmtl ModelMaterial
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.000000
+Ks 0.000000 0.000000 0.000000
+illum 0
+d 1.0000
+map_Ka debug_box.png
+map_Kd debug_box.png

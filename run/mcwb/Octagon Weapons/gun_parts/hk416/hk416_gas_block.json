@@ -1,0 +1,16 @@
+{
+	"creativeTab": "oc",
+	"model": "models/gun/hk416/gas_block.json",
+	"texture": "textures/guns/hk416_d10rs.png",
+	
+	"paramScale": 0.00625,
+	"moduleSlots": [
+		{
+			"origin": [ 0, 4.5, 14 ],
+			"allowed": [ "hk416_front_sight" ]
+		}, {
+			"origin": [ 0, 6, 0 ],
+			"allowed": [ "hk416_piston" ]
+		}
+	]
+}

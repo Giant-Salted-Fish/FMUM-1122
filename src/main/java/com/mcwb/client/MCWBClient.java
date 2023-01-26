@@ -15,12 +15,12 @@ import org.lwjgl.opengl.GLContext;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mcwb.client.gun.GunModel;
-import com.mcwb.client.gun.GunPartModel;
+import com.mcwb.client.gun.GunRenderer;
+import com.mcwb.client.gun.GunPartRenderer;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.player.PlayerPatchClient;
-import com.mcwb.client.render.IModel;
+import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IRequireMeshLoad;
@@ -54,7 +54,7 @@ public final class MCWBClient extends MCWB
 	
 	public static final MCWBClient MOD = new MCWBClient();
 	
-	public static final Registry< BuildableLoader< ? extends IModel > >
+	public static final Registry< BuildableLoader< ? extends IRenderer > >
 		MODEL_LOADERS = new Registry<>();
 	
 	public static int modifyLocLen;
@@ -71,7 +71,7 @@ public final class MCWBClient extends MCWB
 	 */
 	final LinkedList< IRequireMeshLoad > meshLoadSubscribers = new LinkedList<>();
 	
-	final HashMap< String, IModel > modelPool = new HashMap<>();
+	final HashMap< String, IRenderer > modelPool = new HashMap<>();
 	
 	final HashMap< String, Mesh > meshPool = new HashMap<>();
 	
@@ -101,8 +101,8 @@ public final class MCWBClient extends MCWB
 		this.regisCapability( PlayerPatchClient.class );
 		
 		// Register model loaders
-		MODEL_LOADERS.regis( GunPartModel.LOADER );
-		MODEL_LOADERS.regis( GunModel.LOADER );
+		MODEL_LOADERS.regis( GunPartRenderer.LOADER );
+		MODEL_LOADERS.regis( GunRenderer.LOADER );
 	}
 	
 	@Override
@@ -164,7 +164,7 @@ public final class MCWBClient extends MCWB
 	 * TODO: maybe a null object to avoid null pointer
 	 */
 	@Nullable
-	public IModel loadModel( String path, String fallbackType, IContentProvider provider )
+	public IRenderer loadModel( String path, String fallbackType, IContentProvider provider )
 	{
 		return this.modelPool.computeIfAbsent( path, key -> {
 			try
@@ -186,7 +186,7 @@ public final class MCWBClient extends MCWB
 						// Try get required loader and load
 						final String entry = eEntry != null
 							? eEntry.getAsString().toLowerCase() : fallbackType;
-						final BuildableLoader< ? extends IModel >
+						final BuildableLoader< ? extends IRenderer >
 							loader = MODEL_LOADERS.get( entry );
 						if( loader != null )
 							return loader.parser.apply( obj ).build( path, provider );
@@ -198,7 +198,7 @@ public final class MCWBClient extends MCWB
 				// Handle ".class" model
 				// TODO: maybe also require to pass two arguments( merge with type load )
 				else if( key.endsWith( ".class" ) )
-					return ( IModel ) this.loadClass( key.substring( 0, key.length() - 6 ) )
+					return ( IRenderer ) this.loadClass( key.substring( 0, key.length() - 6 ) )
 						.getConstructor().newInstance();
 				
 				// Unknown model type

@@ -2,7 +2,7 @@ package com.mcwb.common.load;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
-import com.mcwb.client.render.IModel;
+import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.pack.IContentProvider;
@@ -10,7 +10,7 @@ import com.mcwb.common.pack.IContentProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class RenderableMeta< T extends IModel > extends TexturedMeta
+public abstract class RenderableMeta< T extends IRenderer > extends TexturedMeta
 {
 	@SideOnly( Side.CLIENT )
 	@SerializedName( value = "modelPath", alternate = "model" )

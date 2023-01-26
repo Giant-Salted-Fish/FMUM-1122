@@ -1,0 +1,8 @@
+{
+	"meshes": [
+		"models/gun/hk416/bolt_carrier.obj",
+		"models/gun/hk416/bolt.obj"
+	],
+	"scale": 0.00625,
+	"tbObjAdapt": true
+}

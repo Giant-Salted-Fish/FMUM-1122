@@ -17,9 +17,9 @@ import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.Key;
-import com.mcwb.client.item.IItemModel;
+import com.mcwb.client.item.IItemRenderer;
 import com.mcwb.client.item.ItemAnimatorState;
-import com.mcwb.client.modify.IModifiableModel;
+import com.mcwb.client.modify.IModifiableRenderer;
 import com.mcwb.client.modify.IMultPassRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.MCWB;
@@ -51,7 +51,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class ModifiableItemMeta<
 	C extends IContextedItem & IContextedModifiable,
-	M extends IItemModel< ? super C > & IModifiableModel< ? super C >
+	M extends IItemRenderer< ? super C > & IModifiableRenderer< ? super C >
 > extends CategoriedItemType< C, M > implements IModifiableMeta, IPaintjob
 {
 	public static final JsonDeserializer< IModuleSlot >
@@ -104,9 +104,7 @@ public abstract class ModifiableItemMeta<
 	}
 	
 	@Override
-	public IContextedModifiable deserializeContexted( NBTTagCompound from ) {
-		return this.deserializeCtxedCap( from );
-	}
+	public IContextedModifiable newRawContexted() { return this.newRawCtxedCap(); }
 	
 	@Override
 	public IModuleSlot getSlot( int idx ) { return this.slots.get( idx ); }
@@ -132,7 +130,7 @@ public abstract class ModifiableItemMeta<
 	 * Purely for convenience. Change every place this is used if you do want to use other
 	 * {@link ContextedModifiableItem} implementation that is not a capability provider.
 	 * 
-	 * @see #deserializeCtxtedCap(NBTTagCompound)
+	 * @see #newRawCtxedCap()
 	 */
 	protected abstract ContextedModifiableItem newCtxedCap( NBTTagCompound nbt );
 	
@@ -142,12 +140,7 @@ public abstract class ModifiableItemMeta<
 	 * 
 	 * @see #newCtxedCap(NBTTagCompound)
 	 */
-	protected ContextedModifiableItem deserializeCtxedCap( NBTTagCompound from )
-	{
-		final ContextedModifiableItem contexted = this.newCtxedCap( new NBTTagCompound() );
-		contexted.deserializeNBT( from );
-		return contexted;
-	}
+	protected abstract ContextedModifiableItem newRawCtxedCap();
 	
 	protected class ModifiableItem extends HackedCapItem
 	{
@@ -164,8 +157,8 @@ public abstract class ModifiableItemMeta<
 		}
 		
 		@Override
-		protected ICapabilityProvider deserializeCap( NBTTagCompound from ) {
-			return ModifiableItemMeta.this.deserializeCtxedCap( from );
+		protected ICapabilityProvider newRawCap() {
+			return ModifiableItemMeta.this.newRawCtxedCap();
 		}
 		
 		@Override
@@ -252,7 +245,7 @@ public abstract class ModifiableItemMeta<
 		public void forEach( Consumer< IContextedModifiable > visitor )
 		{
 			visitor.accept( this );
-			this.installed.forEach( mod -> visitor.accept( mod ) );
+			this.installed.forEach( mod -> mod.forEach( visitor ) );
 		}
 		
 		public boolean canInstall( int slot, IContextedModifiable module )
@@ -278,7 +271,7 @@ public abstract class ModifiableItemMeta<
 			final NBTTagList modList = this.nbt.getTagList( MOD_TAG, NBT.TAG_COMPOUND );
 			final NBTTagCompound tarTag = target.serializeNBT();
 			modList.appendTag( tarTag );
-			for( int i = modList.tagCount(); i-- > idx; modList.set( i + 1, modList.get( i ) ) );
+			for( int i = modList.tagCount(); --i > idx; modList.set( i, modList.get( i - 1 ) ) );
 			modList.set( idx, tarTag );
 			
 			// Update indices
@@ -460,7 +453,8 @@ public abstract class ModifiableItemMeta<
 				final NBTTagCompound modTag = modList.getCompoundTagAt( i );
 				final Item item = Item.getItemById( 0xFFFF & modTag.getIntArray( DATA_TAG )[ 0 ] );
 				final IModifiableMeta meta = ( IModifiableMeta ) ( ( IItemMetaHost ) item ).meta();
-				final IContextedModifiable module = meta.deserializeContexted( modTag );
+				final IContextedModifiable module = meta.newRawContexted();
+				module.deserializeNBT( modTag );
 				
 				while( i >= this.getIdx( slot + 1 ) ) ++slot;
 				module.setBase( this, slot );
@@ -471,7 +465,12 @@ public abstract class ModifiableItemMeta<
 			this.nbt = nbt;
 		}
 		
+		@Override
+		public String toString() { return ModifiableItemMeta.this.toString(); }
+		
 		protected final int getIdx( int slot ) {
+			if( slot - 1 >= this.indices.length )
+				MCWB.MOD.info( "hit!" );
 			return slot > 0 ? 0xFF & this.indices[ slot - 1 ] : 0;
 		}
 		
@@ -480,16 +479,19 @@ public abstract class ModifiableItemMeta<
 		}
 		
 		// TODO: if 0 is never used then just remove it
-		protected final int getIdx( int[] data, int slot ) {
-			return slot > 0 ? 0xFF & data[ 1 + ( slot - 1 ) / 4 ] >>> ( ( slot - 1 ) % 4 ) * 8 : 0;
+		protected final int getIdx( int[] data, int slot )
+		{
+			final int islot = slot - 1;
+			return slot > 0 ? 0xFF & data[ 1 + islot / 4 ] >>> ( islot % 4 ) * 8 : 0;
 		}
 		
 		protected final void setIdx( int[] data, int slot, int val )
 		{
-			final int idx = 1 + slot / 4;
-			final int offset = ( slot % 4 ) * 8;
-			data[ idx ] &= ~( 0xFF << offset );       // Clear value
-			data[ idx ] |= ( 0xFF & val ) << offset;  // Set value
+			final int islot = slot - 1;
+			final int i = 1 + islot / 4;
+			final int offset = ( islot % 4 ) * 8;
+			data[ i ] &= ~( 0xFF << offset );       // Clear value
+			data[ i ] |= ( 0xFF & val ) << offset;  // Set value
 		}
 		
 		protected int dataSize() { return 1 + ( this.indices.length + 3 ) / 4; }

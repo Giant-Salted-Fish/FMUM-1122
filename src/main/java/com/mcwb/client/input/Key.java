@@ -17,7 +17,7 @@ public final class Key
 	/**
 	 * For keys that are general
 	 */
-	public static final String CATEGORY_GENERAL = "mcwb.key_group.general";
+	public static final String CATEGORY_GENERAL = "mcwb.key_category.general";
 	
 	public static final String
 		FREE_VIEW = "free_view";
@@ -25,7 +25,7 @@ public final class Key
 	/**
 	 * For keys that operate a gun
 	 */
-	public static final String CATEGORY_GUN = "mcwb.key_group.gun";
+	public static final String CATEGORY_GUN = "mcwb.key_category.gun";
 	
 	public static final String
 		PULL_TRIGGER = "pull_trigger",
@@ -35,7 +35,7 @@ public final class Key
 	/**
 	 * For keys that provides assist
 	 */
-	public static final String CATEGORY_ASSIST = "mcwb.key_group.assist";
+	public static final String CATEGORY_ASSIST = "mcwb.key_category.assist";
 	
 	public static final String
 		CO = "co",
@@ -45,7 +45,7 @@ public final class Key
 	/**
 	 * For keys that being used to modify a weapon
 	 */
-	public static final String CATEGORY_MODIFY = "mcwb.key_group.modify";
+	public static final String CATEGORY_MODIFY = "mcwb.key_category.modify";
 	
 	public static final String
 		TOGGLE_MODIFY  = "toggle_modify",
@@ -60,7 +60,7 @@ public final class Key
 	/**
 	 * Other keys
 	 */
-	public static final String CATEGORY_OTHER = "mcwb.key_group.other";
+	public static final String CATEGORY_OTHER = "mcwb.key_category.other";
 	
 	private Key() { }
 }

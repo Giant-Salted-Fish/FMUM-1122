@@ -6,7 +6,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * @see IModel
+ * @see IRenderer
  * @author Giant_Salted_Fish
  */
 @FunctionalInterface

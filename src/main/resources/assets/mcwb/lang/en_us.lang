@@ -78,15 +78,25 @@ itemGroup.mcwb=MCWB Default Group
 # Prompt chat message
 
 # Key binds
-mcwb.key_group.general=MCWB General
+mcwb.key_category.general=MCWB General
 mcwb.key.free_view=Free View
 
-mcwb.key_group.gun=MCWB Weapon
+mcwb.key_category.gun=MCWB Weapon
 mcwb.key.aim_hold=Aim Hold
 mcwb.key.aim_toggle=Aim Toggle
 
-mcwb.key_group.assist=MCWB Assist
+mcwb.key_category.assist=MCWB Assist
 mcwb.key.co=Co-Key
 mcwb.key.co_free_view=Co-Free View
 
-mcwb.key_group.other=MCWB Other
+mcwb.key_category.modify=MCWB Modify
+mcwb.key.toggle_modify=Modify Holding Weapon
+mcwb.key.select_toggle=Switch Modify Mode
+mcwb.key.select_up=Select Up
+mcwb.key.select_down=Select Down
+mcwb.key.select_left=Select Left
+mcwb.key.select_right=Select Right
+mcwb.key.select_confirm=Select Confirm
+mcwb.key.select_cancel=Select Cancel
+
+mcwb.key_category.other=MCWB Other

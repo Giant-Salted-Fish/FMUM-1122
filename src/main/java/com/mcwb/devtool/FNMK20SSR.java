@@ -1,10 +1,10 @@
 package com.mcwb.devtool;
 
-import com.mcwb.client.render.Model;
+import com.mcwb.client.render.Renderer;
 import com.mcwb.util.Mesh;
 import com.mcwb.util.TBModelMeshBuilder;
 
-public class FNMK20SSR extends Model
+public class FNMK20SSR extends Renderer
 {
 	public static final FNMK20SSR INSTANCE = new FNMK20SSR();
 	

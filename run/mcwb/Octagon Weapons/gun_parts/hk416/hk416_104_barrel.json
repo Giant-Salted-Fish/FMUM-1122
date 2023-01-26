@@ -1,0 +1,16 @@
+{
+	"creativeTab": "oc",
+	"model": "models/gun/hk416/104_barrel.json",
+	"texture": "textures/guns/hk416_d10rs.png",
+	
+	"paramScale": 0.00625,
+	"moduleSlots": [
+		{
+			"origin": [ 0, 0, 69 ],
+			"allowed": [ "556mm_muzzle" ]
+		}, {
+			"origin": [ 0, 0, 49 ],
+			"allowed": [ "hk416_gas_block" ]
+		}
+	]
+}

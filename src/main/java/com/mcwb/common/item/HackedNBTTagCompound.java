@@ -27,7 +27,7 @@ public class HackedNBTTagCompound extends NBTTagCompound
 		for( final String key : from.getKeySet() ) this.setTag( key, from.getTag( key ) );
 	}
 	
-	protected Supplier< NBTTagCompound > copyHandler = this::copy;
+	protected Supplier< NBTTagCompound > copyHandler = super::copy; // Note: NOT this::copy!!!
 	
 	/**
 	 * Set instance to return on next {@link #copy()} call
@@ -35,7 +35,7 @@ public class HackedNBTTagCompound extends NBTTagCompound
 	public void setCopyDelegate( NBTTagCompound delegate )
 	{
 		this.copyHandler = () -> {
-			this.copyHandler = this::copy;
+			this.copyHandler = super::copy;
 			return delegate;
 		};
 	}
