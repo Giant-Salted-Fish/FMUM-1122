@@ -10,7 +10,11 @@ import java.io.IOException;
 import net.minecraftforge.client.model.obj.OBJLoader;
 
 /**
- * Helps to make sure the "vt" keyword in .obj file follow the requirement of {@link OBJLoader}
+ * <p> Do two things: </p>
+ * <ol>
+ *     <li> Ensure all "vt" value is inside of {@code 0F-1F} (required by {@link OBJLoader} </li>
+ *     <li> Comment "mtllib" and "usemtl" if represent </li>
+ * </ol>
  * 
  * @author Giant_Salted_Fish
  */
@@ -23,6 +27,8 @@ public final class ObjReformator
 		
 		System.out.println( "In Dir: " + inDir );
 		System.out.println( "Out Dir: " + outDir );
+		
+		new File( outDir ).mkdirs();
 		
 		for( File file : new File( inDir ).listFiles() )
 		{

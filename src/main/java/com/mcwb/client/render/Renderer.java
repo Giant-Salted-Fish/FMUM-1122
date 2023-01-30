@@ -6,12 +6,14 @@ import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.IAutowireBindTexture;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.common.IAutowireLogger;
+import com.mcwb.common.MCWBResource;
 import com.mcwb.common.load.IBuildable;
 import com.mcwb.common.load.IRequireMeshLoad;
 import com.mcwb.common.pack.IContentProvider;
 import com.mcwb.util.Mesh;
 
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -19,6 +21,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class Renderer implements IRenderer, IBuildable< IRenderer >,
 	IRequireMeshLoad, IAutowireLogger, IAutowireBindTexture
 {
+	public static final ResourceLocation
+		RED_TEXTURE = new MCWBResource( "textures/0xff0000.png" ),
+		GREEN_TEXTURE = new MCWBResource( "textures/0x00ff00.png" ),
+		BLUE_TEXTURE = new MCWBResource( "textures/0x0000ff.png" );
+	
 	/**
 	 * Default mesh path initializer
 	 */
@@ -44,8 +51,9 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 	public void onMeshLoad()
 	{
 		this.meshes = new Mesh[ this.meshPaths.length ];
-		for( int i = this.meshPaths.length; i-- > 0; )
-		{
+		for(
+			int i = this.meshPaths.length;
+			i-- > 0;
 			this.meshes[ i ] = MCWBClient.MOD.loadMesh(
 				this.meshPaths[ i ],
 				builder -> {
@@ -57,8 +65,8 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 					}
 					return scale != 1F ? builder.scale( scale ) : builder;
 				}
-			);
-		}
+			)
+		);
 	}
 	
 	@Override

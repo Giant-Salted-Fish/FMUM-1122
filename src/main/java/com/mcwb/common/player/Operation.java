@@ -33,6 +33,13 @@ public abstract class Operation< T extends IContextedItem > implements IOperatio
 	}
 	
 	@Override
+	public IOperation terminate()
+	{
+		this.clearProgress();
+		return NONE;
+	}
+	
+	@Override
 	public IOperation tick()
 	{
 		// Update progress
@@ -57,6 +64,9 @@ public abstract class Operation< T extends IContextedItem > implements IOperatio
 		this.contexted = contexted;
 		return this;
 	}
+	
+	@Override
+	public String toString() { return "Operation::" + this.getClass().getTypeName(); }
 	
 	protected IOperation onComplete() { return NONE; }
 	

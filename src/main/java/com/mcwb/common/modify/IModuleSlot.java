@@ -9,7 +9,7 @@ import com.mcwb.util.Mat4f;
  */
 public interface IModuleSlot
 {
-	public boolean isAllowed( IModifiableMeta module );
+	public boolean isAllowed( IContextedModifiable module );
 	
 	/**
 	 * @return Max number of modules that can be installed into this slot

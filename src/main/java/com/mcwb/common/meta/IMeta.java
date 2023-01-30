@@ -23,7 +23,7 @@ public interface IMeta extends Comparable< IMeta >
 	 * @return Corresponding meta data. {@code null} if does not present.
 	 */
 	@Nullable
-	public default Object getMeta( String key ) { return null; }
+	public default Object getMeta( Object key ) { return null; }
 	
 	/**
 	 * In default the meta will be compared with their name

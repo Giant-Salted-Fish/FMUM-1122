@@ -21,7 +21,9 @@ import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IRenderer;
+import com.mcwb.client.render.Renderer;
 import com.mcwb.common.MCWB;
+import com.mcwb.common.MCWBResource;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IRequireMeshLoad;
 import com.mcwb.common.load.TexturedMeta;
@@ -71,7 +73,7 @@ public final class MCWBClient extends MCWB
 	 */
 	final LinkedList< IRequireMeshLoad > meshLoadSubscribers = new LinkedList<>();
 	
-	final HashMap< String, IRenderer > modelPool = new HashMap<>();
+	final HashMap< String, IRenderer > rendererPool = new HashMap<>();
 	
 	final HashMap< String, Mesh > meshPool = new HashMap<>();
 	
@@ -103,6 +105,11 @@ public final class MCWBClient extends MCWB
 		// Register model loaders
 		MODEL_LOADERS.regis( GunPartRenderer.LOADER );
 		MODEL_LOADERS.regis( GunRenderer.LOADER );
+		
+		// Register default textures
+		this.texturePool.put( Renderer.RED_TEXTURE.getPath(), Renderer.RED_TEXTURE );
+		this.texturePool.put( Renderer.GREEN_TEXTURE.getPath(), Renderer.RED_TEXTURE );
+		this.texturePool.put( Renderer.BLUE_TEXTURE.getPath(), Renderer.RED_TEXTURE );
 	}
 	
 	@Override
@@ -152,29 +159,29 @@ public final class MCWBClient extends MCWB
 	
 	@Override
 	public ResourceLocation loadTexture( String path ) {
-		return this.texturePool.computeIfAbsent( path, key -> new ResourceLocation( MODID, key ) );
+		return this.texturePool.computeIfAbsent( path, key -> new MCWBResource( key ) );
 	}
 	
 	/**
-	 * Load .json model or .class model from the given path.
+	 * Load .json or .class renderer from the given path.
 	 * 
-	 * @param path Path of the model to load
-	 * @param fallBackType Model type to use if "__type__" field does not exist in ".json" model
+	 * @param path Path of the renderer to load
+	 * @param fallBackType Renderer type to use if "__type__" field does not exist in ".json" file
 	 * @return {@code null} if required loader does not exist or an exception was thrown
 	 * TODO: maybe a null object to avoid null pointer
 	 */
 	@Nullable
-	public IRenderer loadModel( String path, String fallbackType, IContentProvider provider )
+	public IRenderer loadRenderer( String path, String fallbackType, IContentProvider provider )
 	{
-		return this.modelPool.computeIfAbsent( path, key -> {
+		return this.rendererPool.computeIfAbsent( path, key -> {
 			try
 			{
-				// Handle ".json" model
+				// Handle ".json" renderer
 				if( key.endsWith( ".json" ) )
 				{
 					try(
 						IResource res = MC.getResourceManager()
-							.getResource( new ResourceLocation( MODID, path ) )
+							.getResource( new MCWBResource( path ) )
 					) {
 						// Parse from input reader
 						final JsonObject obj = GSON.fromJson(
@@ -195,22 +202,23 @@ public final class MCWBClient extends MCWB
 					}
 				}
 				
-				// Handle ".class" model
+				// Handle ".class" renderer
 				// TODO: maybe also require to pass two arguments( merge with type load )
 				else if( key.endsWith( ".class" ) )
 					return ( IRenderer ) this.loadClass( key.substring( 0, key.length() - 6 ) )
 						.getConstructor().newInstance();
 				
-				// Unknown model type
-				else throw new RuntimeException( "Unsupported model file type" );
+				// Unknown renderer type
+				else throw new RuntimeException( "Unsupported renderer file type" );
 			}
-			catch( Exception e ) { this.except( e, "mcwb.error_loading_model", key ); }
+			catch( Exception e ) { this.except( e, "mcwb.error_loading_renderer", key ); }
 			return null;
 		} );
 	}
 	
 	/**
 	 * @param attrSetter Use this to set attribute when loading .obj model
+	 * @return {@link Mesh#NONE} if any error has occurred
 	 */
 	public Mesh loadMesh( String path, Function< Mesh.Builder, Mesh.Builder > attrSetter )
 	{
@@ -238,7 +246,7 @@ public final class MCWBClient extends MCWB
 	public boolean isClient() { return true; }
 	
 //	@Override
-//	public < T > T sideOnly( Supplier< ? extends T > common, Supplier< ? extends T > client ) {
+//	public < T > T sideOnly( T common, Supplier< ? extends T > client ) {
 //		return client.get();
 //	}
 	

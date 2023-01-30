@@ -1,10 +1,11 @@
-package com.mcwb.client;
+package com.mcwb.devtool;
 
 import java.util.Collection;
 import java.util.LinkedList;
 
 import org.lwjgl.input.Keyboard;
 
+import com.mcwb.client.IAutowirePlayerChat;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;

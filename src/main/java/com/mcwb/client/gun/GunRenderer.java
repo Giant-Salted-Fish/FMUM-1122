@@ -7,9 +7,12 @@ import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.IAutowireSmoother;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.InputHandler;
+import com.mcwb.client.player.ModifyOp;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IRenderer;
+import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IContextedGun;
+import com.mcwb.common.item.ModifiableItemMeta;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Util;
@@ -30,8 +33,11 @@ public class GunRenderer< T extends IContextedGun > extends GunPartRenderer< T >
 	implements IAutowireSmoother
 {
 	public static final BuildableLoader< IRenderer >
-		LOADER = new BuildableLoader<>( "gun", GunRenderer.class );
+		LOADER = new BuildableLoader<>(
+			"gun", json -> MCWB.GSON.fromJson( json, GunRenderer.class )
+		); // TODO: kind of weird as passing class works with ide but fails the compile
 	
+	// TODO: these vectors can be initialized with static variables as gson will create new instance on read
 	protected Vec3f motionInertiaPos = new Vec3f( -0.2F, -0.2F, -0.2F );
 	protected Vec3f motionInertiaRot = new Vec3f( -10F, 5F, 20F );
 	
@@ -78,6 +84,9 @@ public class GunRenderer< T extends IContextedGun > extends GunPartRenderer< T >
 	{
 		/// Prepare necessary variables ///
 		final GunAnimatorState state = this.animator( hand );
+		state.modifyOp = this.modifyOp();
+		state.modifyPos = this.modifyPos;
+		
 		final Mat4f mat = state.m0;
 		final EntityPlayerSP player = MCWBClient.MC.player;
 		final PlayerPatchClient patch = PlayerPatchClient.instance;
@@ -185,6 +194,7 @@ public class GunRenderer< T extends IContextedGun > extends GunPartRenderer< T >
 					: sprinting ? this.sprintRot
 						: crouching ? this.crouchRot : this.holdRot
 			);
+			
 			state.holdRot.update();
 		}
 	}
@@ -208,6 +218,9 @@ public class GunRenderer< T extends IContextedGun > extends GunPartRenderer< T >
 	
 	@Override
 	protected GunAnimatorState animator( EnumHand hand ) { return GunAnimatorState.INSTANCE; }
+	
+	@Override
+	protected ModifyOp< ? > modifyOp() { return ModifiableItemMeta.MODIFY_OP; }
 	
 	/**
 	 * Copied from {@link EntityRenderer#getFOVModifier(float, boolean)}

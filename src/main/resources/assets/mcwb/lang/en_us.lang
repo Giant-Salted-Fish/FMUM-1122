@@ -57,7 +57,7 @@ mcwb.on_post_init=Post-initializing MCWB...
 mcwb.post_init_complete=MCWB post-initialization complete \
 
 # Runtime info
-mcwb.error_loading_model=An error has occurred while loading model <%s>
+mcwb.error_loading_renderer=An error has occurred while loading renderer <%s>
 mcwb.error_loading_mesh=An error has occurred while attempting to load mesh <%s>
 mcwb.exception_call_model_load=An exception was thrown from the model load method of <%s>. This will be highly possible to crash the game.
 mcwb.fail_to_find_module=Can not found required module <%s>
@@ -88,6 +88,7 @@ mcwb.key.aim_toggle=Aim Toggle
 mcwb.key_category.assist=MCWB Assist
 mcwb.key.co=Co-Key
 mcwb.key.co_free_view=Co-Free View
+mcwb.key.co_toggle_modify=Co-Modify Holding Weapon
 
 mcwb.key_category.modify=MCWB Modify
 mcwb.key.toggle_modify=Modify Holding Weapon

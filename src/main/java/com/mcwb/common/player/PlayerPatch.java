@@ -100,7 +100,9 @@ public class PlayerPatch implements ICapabilityProvider
 	
 	public IOperation operating() { return this.operating; }
 	
-	public IOperation tryLaunch( IOperation op ) { return this.operating.onOtherTryLaunch( op ); }
+	public IOperation tryLaunch( IOperation op ) {
+		return this.operating = this.operating.onOtherTryLaunch( op );
+	}
 	
 	public IOperation ternimateOperating() { return this.operating = this.operating.terminate(); }
 	

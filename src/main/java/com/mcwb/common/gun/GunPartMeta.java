@@ -41,9 +41,6 @@ public abstract class GunPartMeta<
 	}
 	
 	@Override
-	public int offsetCount() { return this.offsets.length; }
-	
-	@Override
 	protected IMeta loader() { return LOADER; }
 	
 	protected abstract class ContextedGunPart extends ContextedModifiableItem
@@ -81,6 +78,9 @@ public abstract class GunPartMeta<
 			final int i = super.dataSize();
 			data[ i ] = 0xFFFF0000 & data[ i ] | this.step;
 		}
+		
+		@Override
+		public int offsetCount() { return GunPartMeta.this.offsets.length; }
 		
 		@Override
 		public int offset() { return this.offset; }

@@ -85,7 +85,7 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 			if( this.index() != -1 ) break;
 			this.inputHandler = () -> {
 				// Get selected slot and player inventory
-				final IModuleSlot slot = this.selected.meta().getSlot( this.slot() );
+				final IModuleSlot slot = this.selected.getSlot( this.slot() );
 				final InventoryPlayer inv = this.player.inventory;
 				final int size = inv.getSizeInventory() + 1;
 				final int incr = key == InputHandler.SELECT_UP ? size : 2;
@@ -96,7 +96,7 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 					final IItemMeta meta = IItemMetaHost.getMeta( stack );
 					if(
 						meta instanceof IModifiableMeta
-						&& slot.isAllowed( ( IModifiableMeta ) meta )
+						&& slot.isAllowed( ( ( IModifiableMeta ) meta ).getContexted( stack ) )
 					) {
 						// Get a copy of the preview module context
 						final IModifiableMeta modMeta = ( ( IModifiableMeta ) meta );
@@ -155,7 +155,7 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 					; // TODO: this.sendPlayerPrompt( I18n.format( "mcwb.msg.module_select_required" ) );
 				else if( this.mode == ModifyMode.PAINTJOB )
 				{
-					final int bound = target.meta().paintjobCount();
+					final int bound = target.paintjobCount();
 					final int incr = key == InputHandler.SELECT_LEFT ? bound - 1 : 1;
 					this.curPaintjob = ( this.curPaintjob + incr ) % bound;
 					target.$paintjob( this.curPaintjob );
@@ -164,7 +164,7 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 				{
 					if( this.mode == ModifyMode.MODULE )
 					{
-						final int bound = target.meta().offsetCount();
+						final int bound = target.offsetCount();
 						final int incr = key == InputHandler.SELECT_LEFT ? bound - 1 : 1;
 						this.curOffset = ( this.curOffset + incr ) % bound;
 						target.$offset( this.curOffset );
@@ -173,7 +173,7 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 					// Not available for primary base
 					else if( this.locLen > 0 )
 					{
-						final int bound = target.base().meta().getSlot( this.slot() ).maxStep();
+						final int bound = target.base().getSlot( this.slot() ).maxStep();
 						
 						// Move upon player rotation to satisfy human intuition
 						final float rot = ( this.player.rotationYaw % 360F + 360F ) % 360F;
@@ -272,7 +272,7 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 				// Enter next layer if has module selected
 				if( this.index() == -1 ) return;
 				
-				if( this.selected.meta().slotCount() == 0 )
+				if( this.selected.slotCount() == 0 )
 					; // TODO: mcwb.msg.module_has_no_slot
 				else if( this.locLen == this.loc.length )
 					; // TODO: mcwb.msg.reach_max_modify_layer
@@ -312,9 +312,9 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 			case Key.SELECT_DOWN:
 				// Switch slot
 				this.inputHandler = () -> {
-					if( base.meta().slotCount() > 1 )
+					if( base.slotCount() > 1 )
 					{
-						final int bound = base.meta().slotCount();
+						final int bound = base.slotCount();
 						final int incr = key == InputHandler.SELECT_UP ? bound - 1 : 1;
 						final int next = ( this.slot() + incr ) % bound;
 						final int count = base.getInstalledCount( next );
@@ -417,7 +417,7 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 			final int idx = ( ( 0xFF & this.loc[ i + 1 ] ) + 1 ) % 256 - 1; // Map 255 to -1
 			
 			// This will also work if is last layer and preview selected
-			if( slot >= newMod.meta().slotCount() || idx >= newMod.getInstalledCount( slot ) )
+			if( slot >= newMod.slotCount() || idx >= newMod.getInstalledCount( slot ) )
 				return this.terminate();
 			else if( i + 2 < this.locLen )
 			{
@@ -456,10 +456,7 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 	protected void setupSelectedContext( boolean clearPreview )
 	{
 		// Move to base first
-		this.primary = ( T ) this.contexted.meta().newRawContexted();
-		final IContextedModifiable copied = this.primary;
-		copied.deserializeNBT( this.contexted.serializeNBT().copy() ); // Hacked NBT not used as this will not attach to a ItemStack
-		
+		this.primary = ( T ) this.contexted.createModifyDelegate();
 		this.selected = this.primary.getInstalled( this.loc, Math.max( 0, this.locLen - 2 ) );
 		
 		// Check if is installed selected
@@ -501,7 +498,11 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 		{
 			this.clearPreview();
 			
-			// TODO: setup indicator
+			// TODO: maybe always let #selected be the one on last layer
+			final IContextedModifiable indicator = this.selected.modifyIndicator();
+			indicator.$modifyState( ModifyState.SELECTED_OK );
+			indicator.$step( this.selected.getSlot( this.slot() ).maxStep() / 2 );
+			this.selected.install( this.slot(), indicator );
 		}
 	}
 	

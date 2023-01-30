@@ -61,19 +61,21 @@ public final class InputHandler
 		SELECT_LEFT = new KeyBind( Key.SELECT_LEFT, Key.CATEGORY_MODIFY, Keyboard.KEY_LEFT ),
 		SELECT_RIGHT = new KeyBind( Key.SELECT_RIGHT, Key.CATEGORY_MODIFY, Keyboard.KEY_RIGHT ),
 		SELECT_CONFIRM = new KeyBind( Key.SELECT_CONFIRM, Key.CATEGORY_MODIFY, Keyboard.KEY_G ),
-		SELECT_CANCEL = new KeyBind( Key.SELECT_CANCEL, Key.CATEGORY_MODIFY, Keyboard.KEY_H );
+		SELECT_CANCEL = new KeyBind( Key.SELECT_CANCEL, Key.CATEGORY_MODIFY, Keyboard.KEY_H ),
+		
+		CO = new KeyBind( Key.CO, Key.CATEGORY_ASSIST, Keyboard.KEY_Z, GLOBAL_KEYS );
 	
 	/**
 	 * These keys will update if {@link #CO} is not down
 	 */
 	public static final KeyBind
-		FREE_VIEW = new KeyBind( Key.FREE_VIEW, Key.CATEGORY_GENERAL, Keyboard.KEY_LMENU );
+		FREE_VIEW = new KeyBind( Key.FREE_VIEW, Key.CATEGORY_GENERAL, Keyboard.KEY_LMENU ),
+		TOGGLE_MODIFY = new KeyBind( Key.TOGGLE_MODIFY, Key.CATEGORY_GUN, Keyboard.KEY_I );
 	
 	/**
 	 * These keys will update if {@link #CO} is down
 	 */
 	public static final KeyBind
-		CO = new KeyBind( Key.CO, Key.CATEGORY_ASSIST, Keyboard.KEY_Z, GLOBAL_KEYS ),
 		CO_FREE_VIEW = new KeyBind( Key.CO_FREE_VIEW, Key.CATEGORY_ASSIST, Keyboard.KEY_NONE ),
 		CO_TOGGLE_MODIFY = new KeyBind(
 			Key.CO_TOGGLE_MODIFY, Key.CATEGORY_ASSIST, Keyboard.KEY_NONE

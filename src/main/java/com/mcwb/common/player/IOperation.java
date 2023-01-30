@@ -10,7 +10,10 @@ public interface IOperation
 	/**
 	 * Default operation instance that simply do nothing
 	 */
-	public static final IOperation NONE = new IOperation() { };
+	public static final IOperation NONE = new IOperation() {
+		@Override
+		public String toString() { return "Operation::None"; }
+	};
 	
 	public default float progress() { return 1F; }
 	

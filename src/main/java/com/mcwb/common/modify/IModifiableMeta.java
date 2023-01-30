@@ -1,6 +1,5 @@
 package com.mcwb.common.modify;
 
-import com.mcwb.common.meta.ICategoried;
 import com.mcwb.common.meta.IHasContext;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.meta.Registry;
@@ -9,7 +8,8 @@ import com.mcwb.common.paintjob.IPaintjob;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
-public interface IModifiableMeta extends IMeta, IHasContext, ICategoried
+// TODO: it is considered that most of these stuff can be moved into context if it is used without context. Meta itself will act like a simple context getter
+public interface IModifiableMeta extends IMeta, IHasContext
 {
 	public static final Registry< IModifiableMeta > REGISTRY = new Registry<>();
 	
@@ -28,14 +28,6 @@ public interface IModifiableMeta extends IMeta, IHasContext, ICategoried
 	 * context before actually use it.
 	 */
 	public IContextedModifiable newRawContexted();
-	
-	public IModuleSlot getSlot( int idx );
-	
-	public int slotCount();
-	
-	public int offsetCount();
-	
-	public int paintjobCount();
 	
 	/**
 	 * Implement this to accept paintjob injection

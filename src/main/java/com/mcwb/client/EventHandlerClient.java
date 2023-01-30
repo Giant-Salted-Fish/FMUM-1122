@@ -2,23 +2,18 @@ package com.mcwb.client;
 
 import java.util.Collection;
 
-import org.lwjgl.opengl.GL11;
-
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.IAutowireLogger;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.item.IItemMeta;
-import com.mcwb.util.Mesh;
-import com.mcwb.util.ObjMeshBuilder;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiControls;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -26,7 +21,6 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
@@ -35,7 +29,6 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEve
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -93,8 +86,7 @@ public final class EventHandlerClient
 			oriViewBobbing = settings.viewBobbing;
 		}
 		
-		// Do not forget to update #prevGui
-		prevGui = gui;
+		prevGui = gui; // Do not forget to update #prevGui!
 	}
 	
 	@SubscribeEvent
@@ -108,7 +100,7 @@ public final class EventHandlerClient
 		LOGGER.info( "mcwb.model_regis_complete", items.size() );
 	}
 	
-	private static boolean modelLoaded = false;
+	private static boolean meshLoaded = false;
 	/**
 	 * 3D models will be build client side on the first time of the world load
 	 */
@@ -116,7 +108,7 @@ public final class EventHandlerClient
 	public static void onWorldLoad( WorldEvent.Load evt )
 	{
 		// Avoid model load on player local server
-		if( !evt.getWorld().isRemote || modelLoaded )
+		if( !evt.getWorld().isRemote || meshLoaded )
 			return;
 		
 		final MCWBClient mod = MCWBClient.MOD;
@@ -124,9 +116,9 @@ public final class EventHandlerClient
 		// Call load for all subscribers
 		mod.meshLoadSubscribers.forEach(
 			sub -> {
-				// Throwing an exception on world load could jam the world load and print a lot of \
-				// error messages that can barely help with debug. Hence we generally want to \
-				// avoid any exception being thrown out here especially when you think of that \
+				// Throwing any exception on world load could jam the load progress and print a \
+				// lot of error messages that will barely help with debug. Hence we generally want \
+				// to avoid any exception being thrown out here especially when you think of that \
 				// #onModelLoad method could be overridden by the pack makers who do not know this.
 				try { sub.onMeshLoad(); }
 				catch( Exception e ) { LOGGER.except( e, "mcwb.exception_call_model_load", sub ); }
@@ -135,9 +127,9 @@ public final class EventHandlerClient
 		
 		// Clear resources after model load
 		mod.meshLoadSubscribers.clear();
-		mod.modelPool.clear(); // TODO: check if this is needed
+		mod.rendererPool.clear(); // TODO: check if this is needed
 		mod.meshPool.clear();
-		modelLoaded = true;
+		meshLoaded = true;
 	}
 	
 	@SubscribeEvent
@@ -222,7 +214,7 @@ public final class EventHandlerClient
 			ConfigManager.sync( MCWB.MODID, Config.Type.INSTANCE );
 	}
 	
-	/** for test */
+	/** for test 
 	private static Mesh mesh = null;
 	@SubscribeEvent
 	public static void onPlayerRender( RenderPlayerEvent.Pre evt )
@@ -238,7 +230,7 @@ public final class EventHandlerClient
 			e.printStackTrace();
 		}
 		
-		final ResourceLocation texture = new ResourceLocation( MCWB.MODID, "textures/" +
+		final ResourceLocation texture = new MCWBResource( "textures/" +
 //			"0x00ff00.png"
 //			"debug_box.png"
 //			"marlin 1895-thumper v2.png"

@@ -4,9 +4,12 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 import com.mcwb.client.modify.IMultPassRenderer;
+import com.mcwb.client.player.ModifyOp;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.item.HackedNBTTagCompound;
+import com.mcwb.common.meta.ICategoried;
 import com.mcwb.common.meta.IContexted;
+import com.mcwb.common.meta.IMeta;
 import com.mcwb.util.Mat4f;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,13 +19,12 @@ import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public interface IContextedModifiable extends IContexted, INBTSerializable< NBTTagCompound >
+public interface IContextedModifiable
+	extends IMeta, ICategoried, IContexted, INBTSerializable< NBTTagCompound >
 {
 	// TODO: check if this is really needed
 	@CapabilityInject( IContextedModifiable.class )
 	public static final Capability< IContextedModifiable > CAPABILITY = null;
-	
-	public IModifiableMeta meta();
 	
 	public IContextedModifiable base();
 	
@@ -89,24 +91,39 @@ public interface IContextedModifiable extends IContexted, INBTSerializable< NBTT
 	
 	public void $step( int step );
 	
+	public int offsetCount();
+	
 	public int offset();
 	
 	public void $offset( int offset );
+	
+	public int paintjobCount();
 	
 	public int paintjob();
 	
 	public void $paintjob( int paintjob );
 	
+	public int slotCount();
+	
+	public IModuleSlot getSlot( int idx );
+	
+	public void getSlotTransform( IContextedModifiable installed, Mat4f dst );
+	
 	public ModifyState modifyState();
 	
 	public void $modifyState( ModifyState state );
 	
-	public void getSlotTransform( IContextedModifiable installed, Mat4f dst );
+	/**
+	 * Should only be used by {@link ModifyOp}
+	 */
+	@SideOnly( Side.CLIENT )
+	public IContextedModifiable createModifyDelegate();
+	
+	@SideOnly( Side.CLIENT )
+	public IContextedModifiable modifyIndicator();
 	
 	@SideOnly( Side.CLIENT )
 	public void prepareRenderer( Collection< IMultPassRenderer > renderQueue, IAnimator animator );
-	
-//	public IModifiableMeta copy();
 	
 	/**
 	 * <p> Simply return the bounden NBT tag. Should be the {@link HackedNBTTagCompound} stack tag

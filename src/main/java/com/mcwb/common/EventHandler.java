@@ -12,7 +12,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -49,7 +48,7 @@ public final class EventHandler
 		final EntityPlayer player = ( EntityPlayer ) e;
 		final boolean client = e.world.isRemote && MCWBClient.MC.player == null;
 		evt.addCapability(
-			new ResourceLocation( MCWB.MODID, "patch" ),
+			new MCWBResource( "patch" ),
 			client ? new PlayerPatchClient( player ) : new PlayerPatch( player )
 		);
 	}

@@ -1,9 +1,9 @@
 package com.mcwb.client.gun;
 
-import com.mcwb.client.item.ItemAnimatorState;
+import com.mcwb.client.item.ModifiableItemAnimatorState;
 import com.mcwb.util.Mat4f;
 
-public class GunAnimatorState extends ItemAnimatorState
+public class GunAnimatorState extends ModifiableItemAnimatorState
 {
 	public static final GunAnimatorState INSTANCE = new GunAnimatorState();
 	

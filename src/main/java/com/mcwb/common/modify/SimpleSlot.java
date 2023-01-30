@@ -41,7 +41,7 @@ public class SimpleSlot implements IModuleSlot
 	protected Vec3f pos = Vec3f.ORIGIN;
 	
 	@Override
-	public boolean isAllowed( IModifiableMeta module )
+	public boolean isAllowed( IContextedModifiable module )
 	{
 		final String name = module.name();
 		final String group = module.category();

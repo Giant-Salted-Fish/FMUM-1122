@@ -4,11 +4,15 @@ import java.util.ArrayList;
 
 import org.lwjgl.opengl.GL11;
 
-import com.mcwb.client.item.ItemRenderer;
+import com.mcwb.client.item.ModifiableItemAnimatorState;
+import com.mcwb.client.item.ModifiableItemRenderer;
 import com.mcwb.client.modify.IModifiableRenderer;
 import com.mcwb.client.modify.IMultPassRenderer;
+import com.mcwb.client.player.ModifyOp;
 import com.mcwb.client.render.IRenderer;
+import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IContextedGunPart;
+import com.mcwb.common.item.ModifiableItemMeta;
 import com.mcwb.common.load.BuildableLoader;
 
 import net.minecraft.util.EnumHand;
@@ -16,11 +20,13 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class GunPartRenderer< T extends IContextedGunPart > extends ItemRenderer< T >
+public class GunPartRenderer< T extends IContextedGunPart > extends ModifiableItemRenderer< T >
 	implements IModifiableRenderer< T >
 {
 	public static final BuildableLoader< IRenderer >
-		LOADER = new BuildableLoader<>( "gun_part", GunPartRenderer.class );
+		LOADER = new BuildableLoader< IRenderer >(
+			"gun_part", json -> MCWB.GSON.fromJson( json, GunPartRenderer.class )
+		); // TODO: kind of weird as passing class works with ide but fails the compile
 	
 	/**
 	 * Render queue is introduced here to help with rendering the objects with transparency
@@ -54,5 +60,13 @@ public class GunPartRenderer< T extends IContextedGunPart > extends ItemRenderer
 			RENDER_QUEUE.clear();
 			RENDER_QUEUE.addAll( BACK_QUEUE );
 		}
+	}
+	
+	@Override
+	protected ModifyOp< ? > modifyOp() { return ModifiableItemMeta.MODIFY_OP; }
+	
+	@Override
+	protected ModifiableItemAnimatorState animator( EnumHand hand ) {
+		return GunAnimatorState.INSTANCE;
 	}
 }

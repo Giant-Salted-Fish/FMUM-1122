@@ -21,13 +21,17 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public abstract class ItemRenderer< T extends IContexted > extends Renderer implements IItemRenderer< T >
+public abstract class ItemRenderer< T extends IContexted > extends Renderer
+	implements IItemRenderer< T >
 {
+	protected static final Vec3f HOLD_POS = new Vec3f( -40F / 160F, -50F / 160F, 100F / 160F );
+	protected static final Vec3f HOLD_ROT = new Vec3f();
+	
 	@SerializedName( value = "holdPos", alternate = "pos" )
-	protected Vec3f holdPos = new Vec3f( -40F / 160F, -50F / 160F, 100F / 160F );
+	protected Vec3f holdPos = HOLD_POS;
 	
 	@SerializedName( value = "holdRot", alternate = "rot" )
-	protected Vec3f holdRot = new Vec3f();
+	protected Vec3f holdRot = HOLD_ROT;
 	
 	@Override
 	public void onLogicTick( T contexted, EnumHand hand )

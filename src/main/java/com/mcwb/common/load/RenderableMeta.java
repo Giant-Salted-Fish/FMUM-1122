@@ -33,7 +33,7 @@ public abstract class RenderableMeta< T extends IRenderer > extends TexturedMeta
 			if( this.modelPath == null )
 				this.modelPath = "models/" + fallbackType + "/" + this.name + ".json";
 			
-			this.model = ( T ) MCWBClient.MOD.loadModel( this.modelPath, fallbackType, provider );
+			this.model = ( T ) MCWBClient.MOD.loadRenderer( this.modelPath, fallbackType, provider );
 			this.modelPath = null; // TODO: if this is needed to reload the model?
 		}
 		return this;

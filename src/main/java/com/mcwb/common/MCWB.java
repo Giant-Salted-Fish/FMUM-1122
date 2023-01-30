@@ -336,11 +336,8 @@ public class MCWB extends URLClassLoader implements IContentProvider, IAutowireL
 	@Nullable
 	public ResourceLocation loadTexture( String path ) { return null; }
 	
-	public final SoundEvent loadSound( String path )
-	{
-		return SOUND_POOL.computeIfAbsent(
-			path, key -> new SoundEvent( new ResourceLocation( MODID, key ) )
-		);
+	public final SoundEvent loadSound( String path ) {
+		return SOUND_POOL.computeIfAbsent( path, key -> new SoundEvent( new MCWBResource( key ) ) );
 	}
 	
 	public boolean isClient() { return false; }

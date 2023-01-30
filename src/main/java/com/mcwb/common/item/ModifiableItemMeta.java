@@ -21,6 +21,8 @@ import com.mcwb.client.item.IItemRenderer;
 import com.mcwb.client.item.ItemAnimatorState;
 import com.mcwb.client.modify.IModifiableRenderer;
 import com.mcwb.client.modify.IMultPassRenderer;
+import com.mcwb.client.player.ModifyOp;
+import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.meta.IMeta;
@@ -44,8 +46,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -65,8 +67,8 @@ public abstract class ModifiableItemMeta<
 		PAINTJOB_ADAPTER = ( json, typeOfT, context ) -> MCWB.GSON.fromJson( json, Paintjob.class );
 	
 	// TODO: test if this crash on server side
-//	public static final ModifyOp< ModifiableItemType< ?, ?, ? >.ModifiableItemCtx >
-//		MODIFY_OP = MCWB.MOD.isClient() ? new ModifyOp<>() : null;
+	public static final ModifyOp< ModifiableItemMeta< ?, ? >.ContextedModifiableItem >
+		MODIFY_OP = MCWB.MOD.isClient() ? new ModifyOp<>() : null;
 	
 	@SerializedName( value = "paramScale", alternate = "scale" )
 	protected float paramScale = 1F;
@@ -79,6 +81,9 @@ public abstract class ModifiableItemMeta<
 	
 	@SerializedName( value = "paintjobs", alternate = "skins" )
 	protected List< IPaintjob > paintjobs = Collections.emptyList();
+	
+	@SideOnly( Side.CLIENT )
+	protected String modifyIndicator;
 	
 	@Override
 	public IMeta build( String name, IContentProvider provider )
@@ -93,8 +98,16 @@ public abstract class ModifiableItemMeta<
 		this.paintjobs.add( 0, this );
 		
 		// Apply model scale
-		this.slots.forEach( s -> s.scale( this.paramScale ) );
+		this.slots.forEach( slot -> slot.scale( this.paramScale ) );
 		// TODO: hit boxes
+		
+		// Set a default indicator if it is not valid
+		if( MCWB.MOD.isClient() && IModifiableMeta.REGISTRY.get( this.modifyIndicator ) == null )
+		{
+			// TODO: set a default indicator this.modifyIndicator = ;
+			// TODO: print error?
+		}
+		
 		return this;
 	}
 	
@@ -105,15 +118,6 @@ public abstract class ModifiableItemMeta<
 	
 	@Override
 	public IContextedModifiable newRawContexted() { return this.newRawCtxedCap(); }
-	
-	@Override
-	public IModuleSlot getSlot( int idx ) { return this.slots.get( idx ); }
-	
-	@Override
-	public int slotCount() { return this.slots.size(); }
-	
-	@Override
-	public int paintjobCount() { return this.paintjobs.size(); }
 	
 	@Override
 	public void injectPaintjob( IPaintjob paintjob ) { this.paintjobs.add( paintjob ); }
@@ -233,7 +237,10 @@ public abstract class ModifiableItemMeta<
 		}
 		
 		@Override
-		public IModifiableMeta meta() { return ModifiableItemMeta.this; }
+		public String name() { return ModifiableItemMeta.this.name; }
+		
+		@Override
+		public String category() { return ModifiableItemMeta.this.category; }
 		
 		@Override
 		public IContextedModifiable base() { return this.base; }
@@ -254,7 +261,7 @@ public abstract class ModifiableItemMeta<
 			return(
 				this.getInstalledCount( slot )
 					< Math.min( modSlot.capacity(), MCWB.maxSlotCapacity )
-				&& modSlot.isAllowed( module.meta() )
+				&& modSlot.isAllowed( module )
 			);
 		}
 		
@@ -340,6 +347,9 @@ public abstract class ModifiableItemMeta<
 		}
 		
 		@Override
+		public int paintjobCount() { return ModifiableItemMeta.this.paintjobs.size(); }
+		
+		@Override
 		public int paintjob() { return this.paintjob; }
 		
 		@Override
@@ -352,10 +362,10 @@ public abstract class ModifiableItemMeta<
 		}
 		
 		@Override
-		public ModifyState modifyState() { return this.modifyState; }
+		public int slotCount() { return ModifiableItemMeta.this.slots.size(); }
 		
 		@Override
-		public void $modifyState( ModifyState state ) { this.modifyState = state; }
+		public IModuleSlot getSlot( int idx ) { return ModifiableItemMeta.this.slots.get( idx ); }
 		
 		// TODO: maybe change to apply transform?
 		@Override
@@ -364,6 +374,29 @@ public abstract class ModifiableItemMeta<
 			dst.load( this.globalMat );
 			ModifiableItemMeta.this.slots.get( installed.baseSlot() )
 				.applyTransform( installed, dst );
+		}
+		
+		@Override
+		public ModifyState modifyState() { return this.modifyState; }
+		
+		@Override
+		public void $modifyState( ModifyState state ) { this.modifyState = state; }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public IContextedModifiable createModifyDelegate()
+		{
+			final IContextedModifiable copied = ModifiableItemMeta.this.newRawContexted();
+			copied.deserializeNBT( this.nbt.copy() ); // Hacked NBT not used as it will not attach to any ItemStack
+			return copied;
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public IContextedModifiable modifyIndicator()
+		{
+			return IModifiableMeta.REGISTRY.get( ModifiableItemMeta.this.modifyIndicator )
+				.newContexted( new NBTTagCompound() ); // TODO: maybe a buffer instance
 		}
 		
 		@Override
@@ -392,13 +425,17 @@ public abstract class ModifiableItemMeta<
 			{
 			case Key.TOGGLE_MODIFY:
 			case Key.CO_TOGGLE_MODIFY:
-				
+				// TODO: maybe get modify op from protected method
+				final PlayerPatchClient patch = PlayerPatchClient.instance;
+				if( patch.operating() instanceof ModifyOp< ? > )
+					patch.toggleOperating();
+				else patch.tryLaunch( MODIFY_OP.reset( this ) );
 				break;
 			}
 			
 			// For keys of category modify, just send to operation to handle them
 			if( key.category().equals( Key.CATEGORY_MODIFY ) )
-				; // TODO
+				MODIFY_OP.handleKeyInput( key );
 		}
 		
 		@Override
@@ -466,11 +503,12 @@ public abstract class ModifiableItemMeta<
 		}
 		
 		@Override
+		public Object getMeta( Object key ) { return ModifiableItemMeta.this.getMeta( key ); }
+		
+		@Override
 		public String toString() { return ModifiableItemMeta.this.toString(); }
 		
 		protected final int getIdx( int slot ) {
-			if( slot - 1 >= this.indices.length )
-				MCWB.MOD.info( "hit!" );
 			return slot > 0 ? 0xFF & this.indices[ slot - 1 ] : 0;
 		}
 		

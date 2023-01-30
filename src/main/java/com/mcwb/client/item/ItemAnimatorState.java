@@ -19,21 +19,26 @@ public class ItemAnimatorState implements IAnimator
 		holdPos = new BasedMotionTendency( 0.4F, 0.125F, 0.25F ),
 		holdRot = new BasedMotionTendency( 0.4F, 4.25F, 1F );
 	
+	/**
+	 * This can be used by {@link #applyChannel(String, float, Mat4f)} function hence you need to
+	 * make sure that it is not called in between the use of this field
+	 * 
+	 * TODO: check and ensure this does not happen
+	 */
 	public final Vec3f v0 = new Vec3f();
 	
 	@Override
 	public void applyChannel( String channel, float smoother, Mat4f dst )
 	{
+		final Vec3f vec = this.v0;
 		switch( channel )
 		{
 		case ITEM:
-			final Vec3f v = this.v0;
+			this.holdPos.getPos( vec, smoother );
+			dst.translate( vec );
 			
-			this.holdPos.getPos( v, smoother );
-			dst.translate( v );
-			
-			this.holdRot.getPos( v, smoother );
-			dst.eulerRotateYXZ( v );
+			this.holdRot.getPos( vec, smoother );
+			dst.eulerRotateYXZ( vec );
 			break;
 			
 		default:

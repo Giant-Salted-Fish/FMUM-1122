@@ -57,7 +57,7 @@ mcwb.on_post_init=正在后初始化 MCWB...
 mcwb.post_init_complete=MCWB 后初始化完成 \
 
 # 运行时日志
-mcwb.error_loading_model=加载模型 %s 时遇到错误
+mcwb.error_loading_renderer=加载渲染代理 %s 时遇到错误
 mcwb.error_loading_mesh=加载模型网格 %s 时遇到错误
 mcwb.exception_call_model_load=执行 %s 的模型加载方法时出现异常，这很有可能导致游戏崩溃
 mcwb.fail_to_find_module=找不到要求的改件 %s
@@ -88,6 +88,7 @@ mcwb.key.aim_toggle=切换瞄准
 mcwb.key_category.assist=MCWB 辅助
 mcwb.key.co=辅助键
 mcwb.key.co_free_view=自由视角组合键
+mcwb.key.co_toggle_modify=改装当前武器组合键
 
 mcwb.key_category.modify=MCWB 改装
 mcwb.key.toggle_modify=改装当前武器
