@@ -114,7 +114,7 @@ public class PacketModify implements IPacket
 				}
 				// TODO: check hitbox conflict
 				
-				tarModule.$step( this.step() );
+				tarModule.$step( this.step() ); // TODO: maybe check step and offset?
 				tarModule.$offset( this.offset() );
 				base.install( slot, tarModule );
 			} :

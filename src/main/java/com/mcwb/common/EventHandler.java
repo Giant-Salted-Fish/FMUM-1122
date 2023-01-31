@@ -66,6 +66,6 @@ public final class EventHandler
 	// This seems to only be posted on server side
 	@SubscribeEvent
 	public static void onPlayerLogin( PlayerLoggedInEvent evt ) {
-		MCWB.NET.sendTo( new PacketConfigSync(), ( EntityPlayerMP ) evt.player );
+		MCWB.MOD.sendTo( new PacketConfigSync(), ( EntityPlayerMP ) evt.player );
 	}
 }

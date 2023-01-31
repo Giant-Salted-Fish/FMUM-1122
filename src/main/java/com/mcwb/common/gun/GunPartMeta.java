@@ -119,23 +119,21 @@ public abstract class GunPartMeta<
 		}
 		
 		@Override
-		protected ContextedGunPart newCtxedCap( NBTTagCompound nbt )
-		{
-			return this.new ContextedGunPart( nbt )
-			{
-				@Override
-				protected IContextedGunPart self() { return this; }
-			};
+		protected ContextedGunPart newCtxedCap( NBTTagCompound nbt ) {
+			return this.new ContextedGunPartJson( nbt );
 		}
 		
 		@Override
-		protected ContextedGunPart newRawCtxedCap()
+		protected ContextedGunPart newRawCtxedCap() { return this.new ContextedGunPartJson(); }
+		
+		public class ContextedGunPartJson extends ContextedGunPart
 		{
-			return new ContextedGunPart()
-			{
-				@Override
-				protected IContextedGunPart self() { return this; }
-			};
+			public ContextedGunPartJson( NBTTagCompound nbt ) { super( nbt ); }
+			
+			public ContextedGunPartJson() { }
+			
+			@Override
+			protected IContextedGunPart self() { return this; }
 		}
 	}
 }

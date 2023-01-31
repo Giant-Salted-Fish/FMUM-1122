@@ -1,10 +1,11 @@
-package com.mcwb.client.player;
+ package com.mcwb.client.player;
 
 import com.mcwb.client.IAutowirePlayerChat;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.Key;
+import com.mcwb.common.IAutowirePacketHandler;
 import com.mcwb.common.item.IContextedItem;
 import com.mcwb.common.item.IItemMeta;
 import com.mcwb.common.item.IItemMetaHost;
@@ -24,7 +25,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
 public class ModifyOp< T extends IContextedItem & IContextedModifiable >
-	extends TogglableOperation< T > implements IAutowirePlayerChat
+	extends TogglableOperation< T > implements IAutowirePacketHandler, IAutowirePlayerChat
 {
 	protected static final Runnable INPUT_HANDLER = () -> { };
 	
@@ -50,10 +51,15 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 	 */
 	protected T primary = null;
 	
+	/**
+	 * None null. Should be the currently selected module or the preview module or the indicator.
+	 */
 	protected IContextedModifiable selected = null;
 	
+	/**
+	 * {@code -1} if no preview selected
+	 */
 	protected int previewInvSlot = 0;
-	protected IContextedModifiable preview = null;
 	
 	protected Runnable inputHandler = INPUT_HANDLER;
 	
@@ -70,22 +76,25 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 				this.mode = modes[ ( this.mode.ordinal() + 1 ) % modes.length ];
 				this.sendPlayerPrompt( I18n.format( this.mode.notifyMsg ) );
 				
-				// Update state for selected module
-				if( this.preview != null )
-					this.preview.$modifyState( this.modifyState() );
-				else if( this.index() != -1 && this.locLen > 0 )
-					this.selected.$modifyState( this.modifyState() );
+				// TODO: check if this breaks for indicator
+				this.selected.$modifyState( this.modifyState() );
 			};
 		}
 		else if( InputHandler.CO.down ) switch( kName )
 		{
 		case Key.SELECT_UP:
 		case Key.SELECT_DOWN:
-			// Try to loop preview module
-			if( this.index() != -1 ) break;
 			this.inputHandler = () -> {
+				// Only loop preview module when none selected
+				if( this.index() != -1 ) return;
+				
+				// Remove previously installed indicator/preview
+				final int islot = this.slot();
+				final IContextedModifiable base = this.selected.base();
+				base.remove( islot, base.getInstalledCount( islot ) - 1 );
+				
 				// Get selected slot and player inventory
-				final IModuleSlot slot = this.selected.getSlot( this.slot() );
+				final IModuleSlot slot = base.getSlot( islot );
 				final InventoryPlayer inv = this.player.inventory;
 				final int size = inv.getSizeInventory() + 1;
 				final int incr = key == InputHandler.SELECT_UP ? size : 2;
@@ -99,48 +108,33 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 						&& slot.isAllowed( ( ( IModifiableMeta ) meta ).getContexted( stack ) )
 					) {
 						// Get a copy of the preview module context
-						final IModifiableMeta modMeta = ( ( IModifiableMeta ) meta );
-						this.preview = modMeta.newRawContexted();
-						this.preview.deserializeNBT(
-							modMeta.getContexted( stack ).serializeNBT().copy()
-						); // Hacked NBT not used as this will not be attached to a ItemStack
+						final IContextedModifiable preview = ( ( IModifiableMeta ) meta )
+							.getContexted( stack ).newModifyDelegate();
 						
-						this.preview.$step( this.curStep );
-						this.preview.$offset( 0 );
-						this.curOffset = 0;
+						preview.$step( this.curStep );
+						preview.$offset( this.curOffset = 0 );
 						
 						// Step and offset will always be set when install a new module, but \
 						// paintjob would not be update if original paintjob does not change. \
 						// Hence #oriPaintjob needs to be setup but those two do not.
 						this.curPaintjob
 							= this.oriPaintjob
-							= this.preview.paintjob();
+							= preview.paintjob();
+						
+						this.conflict = !base.canInstall( islot, preview );
+						// TODO: check hit box
+						
+						preview.$modifyState( this.modifyState() );
+						base.install( islot, preview );
+						
+						this.selected = preview; // Do not forget to update #selected
 						break;
 					}
 				}
 				
-				// If we have found a valid module for preview
-				if( this.previewInvSlot != -1 )
-				{
-					final int iSlot = this.slot();
-					
-					// Copy tag to reset the state
-					this.setupSelectedContext( false );
-					
-					// Check if this preview module is valid to install
-					this.conflict = this.selected.getInstalledCount( iSlot )
-						>= Math.min( MCWBClient.maxSlotCapacity, slot.capacity() );
-					// TODO: check hit box
-					
-					// Set modify state
-					this.preview.$modifyState( this.modifyState() );
-					
-					// Append it to the base
-					this.selected.install( iSlot, this.preview );
-				}
-				
-				// Setup indicator otherwise
-				else this.setupSelectedContext( true );
+				// If not found, setup indicator
+				if( this.previewInvSlot == -1 )
+					this.setupIndicator(); // this.conflict = false; Seems not needed
 			};
 			break;
 			
@@ -148,42 +142,48 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 		case Key.SELECT_RIGHT:
 			// Change step|offset|paintjob
 			this.inputHandler = () -> {
-				final IContextedModifiable target =
-					this.index() != -1 ? this.selected : this.preview;
+				// Not available for indicator
+				if( this.index() == -1 && this.previewInvSlot == -1 ) return;
 				
-				if( target == null )
-					; // TODO: this.sendPlayerPrompt( I18n.format( "mcwb.msg.module_select_required" ) );
-				else if( this.mode == ModifyMode.PAINTJOB )
+				switch( this.mode )
 				{
-					final int bound = target.paintjobCount();
-					final int incr = key == InputHandler.SELECT_LEFT ? bound - 1 : 1;
-					this.curPaintjob = ( this.curPaintjob + incr ) % bound;
-					target.$paintjob( this.curPaintjob );
-				}
-				else
-				{
-					if( this.mode == ModifyMode.MODULE )
+				case PAINTJOB:
 					{
-						final int bound = target.offsetCount();
+						final int bound = this.selected.paintjobCount();
+						final int incr = key == InputHandler.SELECT_LEFT ? bound - 1 : 1;
+						this.curPaintjob = ( this.curPaintjob + incr ) % bound;
+						this.selected.$paintjob( this.curPaintjob );
+					}
+					break;
+					
+				case MODULE:
+					{
+						final int bound = this.selected.offsetCount();
 						final int incr = key == InputHandler.SELECT_LEFT ? bound - 1 : 1;
 						this.curOffset = ( this.curOffset + incr ) % bound;
-						target.$offset( this.curOffset );
+						this.selected.$offset( this.curOffset );
+						
+						// TODO: Check whether the new position will cause conflict or not
+						this.conflict = false;
 					}
+					break;
 					
-					// Not available for primary base
-					else if( this.locLen > 0 )
+				case SLOT:
+					// Not available for primary base. But NONE_BASE provides a slot with 0 max \
+					// step, which make it works for this case. // if( this.locLen > 0 )
 					{
-						final int bound = target.base().getSlot( this.slot() ).maxStep();
+						final int bound = this.selected.base().getSlot( this.slot() ).maxStep();
 						
 						// Move upon player rotation to satisfy human intuition
 						final float rot = ( this.player.rotationYaw % 360F + 360F ) % 360F;
 						final int incr = key == InputHandler.SELECT_LEFT ^ rot < 180F ? 1 : bound;
 						this.curStep = ( this.curStep + incr ) % ( bound + 1 );
-						target.$step( this.curStep );
+						this.selected.$step( this.curStep );
+						
+						// TODO: Check whether the new position will cause conflict or not
+						this.conflict = false;
 					}
-					
-					// TODO: Check whether the new position will cause conflict or not
-					this.conflict = false;
+					break;
 				}
 			};
 			break;
@@ -192,34 +192,36 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 			this.inputHandler = () -> {
 				if( this.index() != -1 )
 				{
-					// Update step and offset if has changed and has not conflict
-					if(
-						!this.conflict
-						&& ( this.curStep != this.oriStep || this.curOffset != this.oriOffset )
-					) {
-						MCWBClient.NET.sendToServer(
+					final boolean stepChanged = this.curStep != this.oriStep;
+					final boolean offsetChanged = this.curOffset != this.oriOffset;
+					if( ( stepChanged || offsetChanged ) && !this.conflict )
+					{
+						this.sendToServer(
 							new PacketModify( this.curStep, this.curOffset, this.loc, this.locLen )
 						);
 						
-						// Do not forget to update original step and offset
 						this.oriStep = this.curStep;
 						this.oriOffset = this.curOffset;
 					}
 					
-					// Check paintjob update
-					if( this.curPaintjob != this.oriPaintjob ) // TODO: validate material
+					if( this.curPaintjob != this.oriPaintjob )
 					{
-						MCWBClient.NET.sendToServer(
-							new PacketModify( this.curPaintjob, this.loc, this.locLen )
-						);
-						this.oriPaintjob = this.curPaintjob;
+						// TODO: validate material
+						if( true )
+						{
+							this.sendToServer(
+								new PacketModify( this.curPaintjob, this.loc, this.locLen )
+							);
+							this.oriPaintjob = this.curPaintjob;
+						}
+						else ;// TODO: info can not offer
 					}
 				}
 				
-				// Install a new module
-				else if( this.preview != null && !this.conflict )
+				// Installing a new module
+				else if( this.previewInvSlot != -1 && !this.conflict )
 				{
-					MCWBClient.NET.sendToServer(
+					this.sendToServer(
 						new PacketModify(
 							this.previewInvSlot,
 							this.curStep,
@@ -228,24 +230,32 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 							this.locLen
 						)
 					);
+					this.selected.$modifyState( ModifyState.NOT_SELECTED );
 					
-					// Update paintjob if also has changed
 					if( this.curPaintjob != this.oriPaintjob )
 					{
-						// The module has not been truly installed yet, so make a prediction of \
-						// its future install index (do not forget there is a preview tag installed)
-						this.loc[ this.locLen - 1 ] = ( byte )
-							( this.selected.getInstalledCount( this.slot() ) - 1 );
-						MCWBClient.NET.sendToServer(
-							new PacketModify( this.curPaintjob, this.loc, this.locLen )
-						);
-						
-						// Do not forget to set it back
-						this.loc[ this.locLen - 1 ] = -1;
+						// TODO: validate material
+						if( true )
+						{
+							// Notice that preview actually has been installed in client side
+							this.loc[ this.locLen - 1 ] = ( byte )
+								( this.selected.base().getInstalledCount( this.slot() ) - 1 );
+							this.sendToServer(
+								new PacketModify( this.curPaintjob, this.loc, this.locLen )
+							);
+//							this.oriPaintjob = this.curPaintjob; // Not needed
+							this.loc[ this.locLen - 1 ] = -1;
+						}
+						else
+						{
+							// TODO: info can not offer
+							this.selected.$paintjob( this.oriPaintjob );
+						}
 					}
 					
 					// Clear preview selected after install
-					this.setupSelectedContext( true );
+					this.previewInvSlot = -1;
+					this.setupIndicator();
 				}
 			};
 			break;
@@ -253,19 +263,19 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 		case Key.SELECT_CANCEL:
 			this.inputHandler = () -> {
 				// Only can remove when it is selected and is not primary base
-				if( this.index() == -1 || this.locLen == 0 )
-				{
-					MCWBClient.NET.sendToServer( new PacketModify( this.loc, this.locLen ) );
-					
-					// Set current index to -1 as the selected module will be invalid soon
-					this.loc[ this.locLen - 1 ] = -1;
-					this.setupSelectedContext( true );
-				}
+				if( this.index() == -1 || this.locLen == 0 ) return;
+				
+				this.sendToServer( new PacketModify( this.loc, this.locLen ) );
+				
+				this.selected.base().remove( this.slot(), this.index() );
+				this.loc[ this.locLen - 1 ] = -1;
+				this.conflict = false; // Module position could be changed before unstall
+				this.setupIndicator();
 			};
 			break;
 		}
 		
-		// Co-key is not down
+		/// Co-key is not down ///
 		else if( key == InputHandler.SELECT_CONFIRM )
 		{
 			this.inputHandler = () -> {
@@ -274,19 +284,22 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 				
 				if( this.selected.slotCount() == 0 )
 					; // TODO: mcwb.msg.module_has_no_slot
-				else if( this.locLen == this.loc.length )
+				else if( this.locLen >= this.loc.length )
 					; // TODO: mcwb.msg.reach_max_modify_layer
 				else
 				{
+					// States may be changed before, hence restore it before moving into next layer
+					this.restoreSelectedState();
+					
 					// Set index to 0 if has module installed in new slot, or -1 otherwise
-					// Notice that when current index != -1, #previewCtx must be null
-					int count = this.selected.getInstalledCount( 0 );
+					// Notice that when current index != -1, #preview must be null
+					final int count = this.selected.getInstalledCount( 0 );
 					
 					this.loc[ this.locLen ] = 0;
 					this.loc[ this.locLen - 1 ] = ( byte ) ( Math.min( 1, count ) - 1 );
 					this.locLen += 2;
 					
-					this.setupSelectedContext( true );
+					this.setupSelection();
 				}
 			};
 		}
@@ -295,53 +308,53 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 		else if( this.locLen > 0 ) switch( kName )
 		{
 		case Key.SELECT_CANCEL:
-			// Quit layer
+			// Quit current modify layer
 			this.inputHandler = () -> {
+				this.clearForLeave();
 				this.locLen -= 2;
-				this.setupSelectedContext( true );
+				
+				this.selected = this.primary.getInstalled( this.loc, this.locLen );
+				this.saveSelectedState();
 			};
 			break;
 			
-		default:
-			final IContextedModifiable base = this.index() != -1
-				? this.selected.base() : this.selected;
-			
-			switch( kName )
-			{
-			case Key.SELECT_UP:
-			case Key.SELECT_DOWN:
-				// Switch slot
-				this.inputHandler = () -> {
-					if( base.slotCount() > 1 )
-					{
-						final int bound = base.slotCount();
-						final int incr = key == InputHandler.SELECT_UP ? bound - 1 : 1;
-						final int next = ( this.slot() + incr ) % bound;
-						final int count = base.getInstalledCount( next );
-						
-						this.loc[ this.locLen - 2 ] = ( byte ) next;
-						this.loc[ this.locLen - 1 ] = ( byte ) ( Math.min( 1, count ) - 1 );
-						
-						this.setupSelectedContext( true );
-					}
-				};
-				break;
+		case Key.SELECT_UP:
+		case Key.SELECT_DOWN:
+			// Switch modify slot
+			this.inputHandler = () -> {
+				final IContextedModifiable base = this.selected.base();
+				if( base.slotCount() < 2 ) return;
 				
-			case Key.SELECT_LEFT:
-			case Key.SELECT_RIGHT:
-				// Switch selected module
-				this.inputHandler = () -> {
-					// Here we shift it before do mod so -1 is included
-					final int bound = base.getInstalledCount( this.slot() )
-						+ Math.max( 0, -this.previewInvSlot + 1 );
-					final int incr = key == InputHandler.SELECT_LEFT ? bound : 2;
-					final int idx = ( this.index() | incr ) % bound - 1;
-					this.loc[ this.locLen - 1 ] = ( byte ) idx;
-					
-					this.setupSelectedContext( true );
-				};
-				break;
-			}
+				final int bound = base.slotCount();
+				final int incr = key == InputHandler.SELECT_UP ? bound - 1 : 1;
+				final int next = ( this.slot() + incr ) % bound;
+				final int count = base.getInstalledCount( next );
+				
+				this.clearForLeave();
+				this.loc[ this.locLen - 2 ] = ( byte ) next;
+				this.loc[ this.locLen - 1 ] = ( byte ) ( Math.min( 1, count ) - 1 );
+				
+				this.setupSelection();
+			};
+			break;
+				
+		case Key.SELECT_LEFT:
+		case Key.SELECT_RIGHT:
+			// Switch selected module
+			this.inputHandler = () -> {
+				// Clear before calculate index so the installed count will be same in all cases
+				final IContextedModifiable base = this.selected.base();
+				this.clearForLeave();
+				
+				// Here we shift it before do mod so -1 is included
+				final int bound = base.getInstalledCount( this.slot() ) + 1;
+				final int incr = key == InputHandler.SELECT_LEFT ? bound : 2;
+				final int idx = ( this.index() + incr ) % bound - 1;
+				this.loc[ this.locLen - 1 ] = ( byte ) idx;
+				
+				this.setupSelection();
+			};
+			break;
 		}
 	}
 	
@@ -350,21 +363,25 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 	}
 	
 	@Override
+	@SuppressWarnings( "unchecked" )
 	public IOperation launch( IOperation oldOp )
 	{
 		this.mode = ModifyMode.SLOT;
 		
-		// Initialize #loc if has not
-		if( this.loc == null || this.loc.length < MCWBClient.modifyLocLen )
-			this.loc = new byte[ MCWBClient.modifyLocLen ];
+		this.loc = MCWBClient.modifyLoc;
 		this.locLen = 0;
 		
-		this.setupSelectedContext( true );
+		this.previewInvSlot = -1;
+		this.primary = ( T ) this.contexted.newModifyDelegate();
+		this.selected = this.primary;
+		this.saveSelectedState();
+		
 		this.refPlayerRotYaw = this.player.rotationYaw;
 		return super.launch( oldOp );
 	}
 	
 	@Override
+	@SuppressWarnings( "unchecked" )
 	public IOperation toggle()
 	{
 		// Only update player reference yaw rotation when this operation is fully launched
@@ -372,7 +389,12 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 			this.refPlayerRotYaw = this.player.rotationYaw;
 		
 		this.locLen = 0;
-		this.setupSelectedContext( true );
+		
+		this.previewInvSlot = -1;
+		this.primary = ( T ) this.contexted.newModifyDelegate();
+		this.selected = this.primary;
+		this.saveSelectedState();
+		
 		return super.toggle();
 	}
 	
@@ -395,7 +417,6 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 	{
 		this.primary = null;
 		this.clearProgress();
-		this.clearPreview();
 		return NONE;
 	}
 	
@@ -416,7 +437,7 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 			final int slot = 0xFF & this.loc[ i ];
 			final int idx = ( ( 0xFF & this.loc[ i + 1 ] ) + 1 ) % 256 - 1; // Map 255 to -1
 			
-			// This will also work if is last layer and preview selected
+			// This will also work if is last layer and nothing selected
 			if( slot >= newMod.slotCount() || idx >= newMod.getInstalledCount( slot ) )
 				return this.terminate();
 			else if( i + 2 < this.locLen )
@@ -426,9 +447,38 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 			}
 		}
 		
-		// Do be a valid primary for current state, then just update and continue
+		// May be a valid context to continue modify, copy it
 		this.contexted = ( T ) newItem;
-		this.setupSelectedContext( true );
+		this.primary = ( T ) this.contexted.newModifyDelegate();
+		
+		// If has module selected the just update it current state
+		if( this.index() != -1 )
+		{
+			this.selected = this.primary.getInstalled( this.loc, this.locLen );
+			if( this.curStep > this.selected.base().getSlot( this.slot() ).maxStep() )
+				return this.terminate();
+			
+			this.selected.$step( this.curStep );
+			this.selected.$offset( this.curOffset );
+			this.selected.$paintjob( this.curPaintjob );
+			this.selected.$modifyState( this.modifyState() );
+			return this;
+		}
+		
+		// Otherwise, if no preview, install indicator
+		// NOTE: Not directly install selected as this may crash if it is not allowed
+		final IContextedModifiable base = this.primary.getInstalled( this.loc, this.locLen - 2 );
+		if( this.previewInvSlot == -1 )
+		{
+			base.install( this.slot(), this.selected );
+			return this;
+		}
+		
+		final IModuleSlot slot = base.getSlot( this.slot() );
+		if( !slot.isAllowed( this.selected ) || this.curStep > slot.maxStep() )
+			return this.terminate();
+		
+		base.install( this.slot(), this.selected );
 		return this;
 	}
 	
@@ -452,74 +502,104 @@ public class ModifyOp< T extends IContextedItem & IContextedModifiable >
 		return idx != -1 ? 0xFF & idx : -1;
 	}
 	
-	@SuppressWarnings( "unchecked" )
-	protected void setupSelectedContext( boolean clearPreview )
+	/**
+	 * Set original state with selected module if has. Otherwise, setup indicator.
+	 */
+	protected void setupSelection()
 	{
-		// Move to base first
-		this.primary = ( T ) this.contexted.createModifyDelegate();
-		this.selected = this.primary.getInstalled( this.loc, Math.max( 0, this.locLen - 2 ) );
-		
-		// Check if is installed selected
 		if( this.index() != -1 )
 		{
-			// Move to selected module if not primary selected
-			if( this.locLen > 0 )
-			{
-				this.selected = this.selected.getInstalled( this.slot(), this.index() );
-				
-				// Module will only be highlighted when it is not primary base
-				this.selected.$modifyState( this.modifyState() );
-			}
-			
-			if( clearPreview )
-			{
-				this.clearPreview();
-				
-				// TODO: check if it is needed to ensure this will only execute if has module \
-				// selected. This requires to check when clearPreview is true
-				this.curStep
-					= this.oriStep
-					= this.selected.step();
-				this.curOffset
-					= this.oriOffset
-					= this.selected.offset();
-				this.curPaintjob
-					= this.oriPaintjob
-					= this.selected.paintjob();
-			}
-			else
-			{
-				this.selected.$step( this.curStep );
-				this.selected.$offset( this.curOffset );
-				this.selected.$paintjob( this.curPaintjob );
-			}
+			final IContextedModifiable module = this.primary.getInstalled( this.loc, this.locLen );
+			this.selected = module;
+			this.saveSelectedState();
 		}
-		else if( clearPreview )
+		else
 		{
-			this.clearPreview();
-			
-			// TODO: maybe always let #selected be the one on last layer
-			final IContextedModifiable indicator = this.selected.modifyIndicator();
-			indicator.$modifyState( ModifyState.SELECTED_OK );
-			indicator.$step( this.selected.getSlot( this.slot() ).maxStep() / 2 );
-			this.selected.install( this.slot(), indicator );
+			this.setupIndicator();
+			this.oriStep = this.curStep = 0;
+			this.oriOffset = this.curOffset = 0;
 		}
+	}
+	
+	/**
+	 * <p> Do two things: </p>
+	 * <ol>
+	 *     <li> Create a new indicator </li>
+	 *     <li> Set {@link #selected} to it </li>
+	 * </ol>
+	 */
+	protected void setupIndicator()
+	{
+		final IContextedModifiable base = this.primary.getInstalled( this.loc, this.locLen - 2 );
+		final IContextedModifiable indicator = base.newModifyIndicator();
+		indicator.$step( base.getSlot( this.slot() ).maxStep() / 2 );
+		indicator.$modifyState( ModifyState.SELECTED_OK );
+		base.install( this.slot(), indicator );
+		this.selected = indicator;
+	}
+	
+	/**
+	 * Update all original state with {@link #selected}
+	 */
+	protected void saveSelectedState()
+	{
+		this.oriStep
+			= this.curStep
+			= this.selected.step();
+		this.oriOffset
+			= this.curOffset
+			= this.selected.offset();
+		this.oriPaintjob
+			= this.curPaintjob
+			= this.selected.paintjob();
+	}
+	
+	/**
+	 * <p> Do following things: </p>
+	 * <ol>
+	 *     <li> Unstall indicator or preview if has </li>
+	 *     <li> Clear {@link #previewInvSlot} if has </li>
+	 *     <li> Call {@link #restoreSelectedState()} if has module selected </li>
+	 *     <li> Set {@link #conflict} to {@code false} </li>
+	 * </ol>
+	 */
+	protected void clearForLeave()
+	{
+		if( this.index() == -1 )
+		{
+			final IContextedModifiable base = this.selected.base();
+			final int islot = this.slot();
+			base.remove( islot, base.getInstalledCount( islot ) - 1 );
+			this.previewInvSlot = -1;
+			this.conflict = false;
+		}
+		else this.restoreSelectedState();
+	}
+	
+	/**
+	 * <p> Do three things: </p>
+	 * <ol>
+	 *     <li> Set the state of the selected to original </li>
+	 *     <li> Set modify state of the selected to {@link ModifyState#NOT_SELECTED} </li>
+	 *     <li> Set {@link #conflict} to {@code false} </li>
+	 * </ol>
+	 */
+	protected void restoreSelectedState()
+	{
+		this.selected.$step( this.oriStep );
+		this.selected.$offset( this.oriOffset );
+		this.selected.$paintjob( this.oriPaintjob );
+		this.selected.$modifyState( ModifyState.NOT_SELECTED );
+		this.conflict = false;
 	}
 	
 	protected ModifyState modifyState()
 	{
-		return this.mode == ModifyMode.PAINTJOB ? ModifyState.NOT_SELECTED
+		return this.locLen == 0 || this.mode == ModifyMode.PAINTJOB ? ModifyState.NOT_SELECTED
 			: this.conflict ? ModifyState.SELECTED_CONFLICT : ModifyState.SELECTED_OK;
 	}
 	
-	protected void clearPreview()
-	{
-		this.previewInvSlot = -1;
-		this.preview = null;
-		this.conflict = false;
-	}
-	
-	protected enum ModifyMode
+	protected static enum ModifyMode
 	{
 		SLOT,
 		MODULE,

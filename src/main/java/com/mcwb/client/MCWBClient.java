@@ -59,7 +59,7 @@ public final class MCWBClient extends MCWB
 	public static final Registry< BuildableLoader< ? extends IRenderer > >
 		MODEL_LOADERS = new Registry<>();
 	
-	public static int modifyLocLen;
+	public static byte[] modifyLoc;
 	
 	public static float freeViewLimitSquared;
 	

@@ -40,7 +40,7 @@ public class GunPartRenderer< T extends IContextedGunPart > extends ModifiableIt
 	{
 		// Prepare render queue
 		RENDER_QUEUE.clear();
-		contexted.forEach( mod -> mod.prepareRenderer( RENDER_QUEUE, this.animator( hand ) ) );
+		contexted.prepareRenderer( RENDER_QUEUE, this.animator( hand ) );
 	}
 	
 	@Override

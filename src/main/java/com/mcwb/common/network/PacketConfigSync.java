@@ -24,7 +24,7 @@ public final class PacketConfigSync implements IPacket
 	@Override
 	public void fromBytes( ByteBuf buf )
 	{
-		MCWBClient.modifyLocLen = 2 * ( 0xFF & buf.readByte() );
+		MCWBClient.modifyLoc = new byte[ 2 * ( 0xFF & buf.readByte() ) ];
 		MCWB.maxSlotCapacity = 0xFF & buf.readByte();
 		
 		/// Camera settings ///

@@ -72,7 +72,8 @@ import net.minecraftforge.fml.relauncher.Side;
 	guiFactory = "com.mcwb.client.ConfigGuiFactory"
 //	, clientSideOnly = true
 )
-public class MCWB extends URLClassLoader implements IContentProvider, IAutowireLogger
+public class MCWB extends URLClassLoader
+	implements IContentProvider, IAutowirePacketHandler, IAutowireLogger
 {
 	/**
 	 * Mod id
@@ -110,11 +111,6 @@ public class MCWB extends URLClassLoader implements IContentProvider, IAutowireL
 	}
 	@Mod.InstanceFactory
 	public static MCWB instance() { return MOD; }
-	
-	/**
-	 * Network packet handler
-	 */
-	public static final PacketHandler NET = new PacketHandler( MODID );
 	
 	/**
 	 * A default {@link Gson} parser to load types in content pack
@@ -161,9 +157,14 @@ public class MCWB extends URLClassLoader implements IContentProvider, IAutowireL
 	protected static final File GAME_DIR = Loader.instance().getConfigDir().getParentFile();
 	
 	/**
-	 * Do not directly refer to this field. Use {@link IAutowireLogger} instead.
+	 * Use {@link IAutowireLogger}
 	 */
 	static final Logger LOGGER = LogManager.getLogger( MODID );
+	
+	/**
+	 * Use {@link IAutowirePacketHandler}
+	 */
+	static final PacketHandler NET = new PacketHandler( MODID );
 	
 	public static int maxSlotCapacity;
 	

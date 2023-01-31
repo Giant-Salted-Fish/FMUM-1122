@@ -16,7 +16,7 @@ public interface IModuleSlot
 	 */
 	public int capacity();
 	
-	public default int maxStep() { return 1; }
+	public default int maxStep() { return 0; }
 	
 //	public default void getStep( String channel, int step, Vec3f dst ) { dst.set( 0F ); }
 //	

@@ -187,11 +187,11 @@ public abstract class ModifiableItemMeta<
 		 * {@link IAnimator} on {@link Side#CLIENT} for rendering.
 		 */
 		// TODO: proper handle on server side
-		protected transient final Mat4f globalMat = new Mat4f(); // FIXME: how to handle with this?
+		protected transient final Mat4f mat = new Mat4f(); // FIXME: how to handle with this?
 		
 		protected transient ModifyState modifyState = ModifyState.NOT_SELECTED;
 		
-		protected transient IContextedModifiable base = null;
+		protected transient IContextedModifiable base = NONE_BASE;
 		protected transient short baseSlot = 0;
 		
 		/**
@@ -246,9 +246,6 @@ public abstract class ModifiableItemMeta<
 		public IContextedModifiable base() { return this.base; }
 		
 		@Override
-		public int baseSlot() { return this.baseSlot; }
-		
-		@Override
 		public void forEach( Consumer< IContextedModifiable > visitor )
 		{
 			visitor.accept( this );
@@ -259,9 +256,9 @@ public abstract class ModifiableItemMeta<
 		{
 			final IModuleSlot modSlot = ModifiableItemMeta.this.slots.get( slot );
 			return(
-				this.getInstalledCount( slot )
+				modSlot.isAllowed( module )
+				&& this.getInstalledCount( slot )
 					< Math.min( modSlot.capacity(), MCWB.maxSlotCapacity )
-				&& modSlot.isAllowed( module )
 			);
 		}
 		
@@ -328,11 +325,11 @@ public abstract class ModifiableItemMeta<
 		@Override
 		public IContextedModifiable onBeingRemoved()
 		{
-			this.base = null; // TODO: maybe a default base
+			this.base = NONE_BASE;
 			this.baseSlot = -1; // TODO: maye reset to 0?
 			return this;
 			
-			// Update position for server side
+			// TODO: Update position for server side
 //			this.globalMat.setIdentity();
 		}
 		
@@ -367,15 +364,6 @@ public abstract class ModifiableItemMeta<
 		@Override
 		public IModuleSlot getSlot( int idx ) { return ModifiableItemMeta.this.slots.get( idx ); }
 		
-		// TODO: maybe change to apply transform?
-		@Override
-		public void getSlotTransform( IContextedModifiable installed, Mat4f dst )
-		{
-			dst.load( this.globalMat );
-			ModifiableItemMeta.this.slots.get( installed.baseSlot() )
-				.applyTransform( installed, dst );
-		}
-		
 		@Override
 		public ModifyState modifyState() { return this.modifyState; }
 		
@@ -384,7 +372,7 @@ public abstract class ModifiableItemMeta<
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public IContextedModifiable createModifyDelegate()
+		public IContextedModifiable newModifyDelegate()
 		{
 			final IContextedModifiable copied = ModifiableItemMeta.this.newRawContexted();
 			copied.deserializeNBT( this.nbt.copy() ); // Hacked NBT not used as it will not attach to any ItemStack
@@ -393,7 +381,7 @@ public abstract class ModifiableItemMeta<
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public IContextedModifiable modifyIndicator()
+		public IContextedModifiable newModifyIndicator()
 		{
 			return IModifiableMeta.REGISTRY.get( ModifiableItemMeta.this.modifyIndicator )
 				.newContexted( new NBTTagCompound() ); // TODO: maybe a buffer instance
@@ -444,21 +432,16 @@ public abstract class ModifiableItemMeta<
 			Collection< IMultPassRenderer > renderQueue,
 			IAnimator animator
 		) {
-			if( this.base == null ) // TODO: A default instance to avoid base check
-			{
-				this.globalMat.setIdentity();
-				animator.applyChannel(
-					ItemAnimatorState.ITEM, MCWBClient.MOD.smoother(), this.globalMat
-				);
-			}
-			else this.base.getSlotTransform( this, this.globalMat );
+			this.mat.setIdentity();
+			animator.applyChannel( ItemAnimatorState.ITEM, MCWBClient.MOD.smoother(), this.mat );
+			this.base.getSlot( this.baseSlot ).applyTransform( this, this.mat );
 			
 			// TODO: maybe avoid instantiation to improve performance?
 			renderQueue.add( queue -> {
 				// Apply transform before actual render
 				final FloatBuffer buf = MAT_BUF;
 				buf.clear();
-				this.globalMat.store( buf );
+				this.mat.store( buf );
 				buf.flip();
 				GL11.glMultMatrix( buf );
 				
@@ -467,6 +450,8 @@ public abstract class ModifiableItemMeta<
 					.this.paintjobs.get( this.paintjob ).texture() );
 				ModifiableItemMeta.this.model.renderModule( this.self(), animator, renderQueue );
 			} );
+			
+			this.installed.forEach( mod -> mod.prepareRenderer( renderQueue, animator ) );
 		}
 		
 		@Override

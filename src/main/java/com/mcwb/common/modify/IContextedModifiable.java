@@ -6,11 +6,11 @@ import java.util.function.Consumer;
 import com.mcwb.client.modify.IMultPassRenderer;
 import com.mcwb.client.player.ModifyOp;
 import com.mcwb.client.render.IAnimator;
+import com.mcwb.common.gun.GunPartMeta.GunPartJson;
 import com.mcwb.common.item.HackedNBTTagCompound;
 import com.mcwb.common.meta.ICategoried;
 import com.mcwb.common.meta.IContexted;
 import com.mcwb.common.meta.IMeta;
-import com.mcwb.util.Mat4f;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.capabilities.Capability;
@@ -26,9 +26,16 @@ public interface IContextedModifiable
 	@CapabilityInject( IContextedModifiable.class )
 	public static final Capability< IContextedModifiable > CAPABILITY = null;
 	
-	public IContextedModifiable base();
+	public static final IContextedModifiable
+		NONE_BASE = new GunPartJson().new ContextedGunPartJson()
+		{
+			private final SimpleSlot slot = new SimpleSlot();
+			
+			@Override
+			public IModuleSlot getSlot( int idx ) { return slot; }
+		};
 	
-	public int baseSlot();
+	public IContextedModifiable base();
 	
 	public void forEach( Consumer< IContextedModifiable > visitor );
 	
@@ -107,8 +114,6 @@ public interface IContextedModifiable
 	
 	public IModuleSlot getSlot( int idx );
 	
-	public void getSlotTransform( IContextedModifiable installed, Mat4f dst );
-	
 	public ModifyState modifyState();
 	
 	public void $modifyState( ModifyState state );
@@ -117,10 +122,10 @@ public interface IContextedModifiable
 	 * Should only be used by {@link ModifyOp}
 	 */
 	@SideOnly( Side.CLIENT )
-	public IContextedModifiable createModifyDelegate();
+	public IContextedModifiable newModifyDelegate();
 	
 	@SideOnly( Side.CLIENT )
-	public IContextedModifiable modifyIndicator();
+	public IContextedModifiable newModifyIndicator();
 	
 	@SideOnly( Side.CLIENT )
 	public void prepareRenderer( Collection< IMultPassRenderer > renderQueue, IAnimator animator );
@@ -146,11 +151,18 @@ public interface IContextedModifiable
 	@Override
 	public void deserializeNBT( NBTTagCompound nbt );
 	
-	public enum ModifyState
+	public static enum ModifyState
 	{
 		NOT_SELECTED,
 		SELECTED_OK,
 		SELECTED_CONFLICT,
 		AVOID_CONFLICT_CHECK;
+		
+		// TODO: maybe create recommended render setup function for each state
+//		@SideOnly( Side.CLIENT )
+//		public void recommendedRender( ResourceLocation texture )
+//		{
+//			
+//		}
 	}
 }
