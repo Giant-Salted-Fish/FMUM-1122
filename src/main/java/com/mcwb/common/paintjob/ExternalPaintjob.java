@@ -2,12 +2,12 @@ package com.mcwb.common.paintjob;
 
 import com.mcwb.common.load.IRequirePostLoad;
 import com.mcwb.common.meta.Meta;
-import com.mcwb.common.modify.IModifiableMeta;
+import com.mcwb.common.modify.IModifiableType;
 import com.mcwb.common.pack.IContentProvider;
 
 /**
- * This provides the ability for third party packs to add paintjobs for {@link IModifiableMeta}s in
- * other packs
+ * This provides the ability for third party packs to add paintjobs for {@link IModifiableType}s in
+ * other content packs
  * 
  * @author Giant_Salted_Fish
  */
@@ -27,7 +27,7 @@ public class ExternalPaintjob extends Paintjob implements IRequirePostLoad
 	@Override
 	public void onPostLoad()
 	{
-		final IModifiableMeta target = IModifiableMeta.REGISTRY.get( this.injectTarget );
+		final IModifiableType target = IModifiableType.REGISTRY.get( this.injectTarget );
 		if( target != null ) target.injectPaintjob( this ); // TODO: maybe a null object to send warning
 		else this.warn( "mcwb.expaintjob_target_not_found", this, this.injectTarget );
 	}

@@ -1,8 +1,7 @@
 package com.mcwb.common.load;
 
-import com.google.gson.JsonDeserializer;
 import com.google.gson.annotations.SerializedName;
-import com.mcwb.common.MCWB;
+import com.mcwb.common.IAutowireSideHandler;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.pack.IContentProvider;
 
@@ -10,11 +9,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class TexturedMeta extends BuildableMeta
+public abstract class TexturedMeta extends BuildableMeta implements IAutowireSideHandler
 {
-	public static final JsonDeserializer< ResourceLocation >
-		TEXTURE_ADAPTER = ( json, typeOfT, context ) -> MCWB.MOD.loadTexture( json.getAsString() );
-	
 	@SideOnly( Side.CLIENT )
 	@SerializedName( value = "texture", alternate = "skin" )
 	protected ResourceLocation texture;
@@ -24,8 +20,7 @@ public abstract class TexturedMeta extends BuildableMeta
 	{
 		super.build( name, provider );
 		
-		if( MCWB.MOD.isClient() )
-			this.texture = this.ensureTextureSetup();
+		this.clientOnly( this::checkTextureSetup );
 		return this;
 	}
 	
@@ -33,9 +28,9 @@ public abstract class TexturedMeta extends BuildableMeta
 	 * Called in {@link #build(String, IContentProvider)} to ensure that texture is properly setup
 	 */
 	@SideOnly( Side.CLIENT )
-	protected ResourceLocation ensureTextureSetup()
+	protected void checkTextureSetup()
 	{
-		return this.texture != null ? this.texture
-			: MCWB.MOD.loadTexture( "textures/" + this.name + ".png" );
+		if( this.texture == null )
+			this.texture = this.provider.loadTexture( "textures/" + this.name + ".png" );
 	}
 }

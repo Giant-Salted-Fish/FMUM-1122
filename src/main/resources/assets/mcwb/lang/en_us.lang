@@ -35,10 +35,11 @@ mcwb.error_adding_classpath=Failed to register class path for <%s>. Contents in 
 mcwb.load_content_pack=Loading content pack <%s>...
 mcwb.io_error=Unexpected IO error from source <%s>
 mcwb.type_loader_not_found=Can not find type loader <%2$s> required by <%1$s>
-mcwb.unexpected_error=An unexpected error has occurred when handling <%s>
+mcwb.unexpected_load_error=An unexpected error has occurred when handling <%s>
 mcwb.error_parsing_type=An error has occurred while trying to parse <%s>
 mcwb.duplicate_meta_regis=Duplicate meta registration <%s> : <%s>
 mcwb.fail_to_find_tab=Can not find creative tab <%2$s> required by <%1$s>
+mcwb.fail_to_find_indicator=Can not find modify indicator <%2$s> required by <%1$s>
 mcwb.expaintjob_target_not_found=Can not find inject target <%2$s> required by external paintjob <%1$s>
 mcwb.model_loader_not_found=Can not found model loader <%2$s> required by <%1$s>
 mcwb.pre_init_complete=MCWB pre-initialization complete \
@@ -76,6 +77,7 @@ itemGroup.mcwb=MCWB Default Group
 # Item tooltip
 
 # Prompt chat message
+mcwb.msg.arrive_max_module_capacity=Exceed the max number of modules can be installed: %s
 
 # Key binds
 mcwb.key_category.general=MCWB General

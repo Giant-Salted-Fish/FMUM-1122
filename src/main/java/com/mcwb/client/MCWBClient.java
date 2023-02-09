@@ -13,20 +13,18 @@ import javax.annotation.Nullable;
 import org.lwjgl.opengl.GLContext;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mcwb.client.gun.GunRenderer;
 import com.mcwb.client.gun.GunPartRenderer;
+import com.mcwb.client.gun.GunRenderer;
 import com.mcwb.client.input.InputHandler;
-import com.mcwb.client.input.KeyBind;
-import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.client.render.Renderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.MCWBResource;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IRequireMeshLoad;
-import com.mcwb.common.load.TexturedMeta;
 import com.mcwb.common.meta.Registry;
 import com.mcwb.common.pack.IContentProvider;
 import com.mcwb.util.Mesh;
@@ -56,9 +54,6 @@ public final class MCWBClient extends MCWB
 	
 	public static final MCWBClient MOD = new MCWBClient();
 	
-	public static final Registry< BuildableLoader< ? extends IRenderer > >
-		MODEL_LOADERS = new Registry<>();
-	
 	public static byte[] modifyLoc;
 	
 	public static float freeViewLimitSquared;
@@ -67,6 +62,9 @@ public final class MCWBClient extends MCWB
 	public static float camDropAmpl;
 	
 	public static float camDropImpact;
+	
+	public static final Registry< BuildableLoader< ? extends IRenderer > >
+		MODEL_LOADERS = new Registry<>();
 	
 	/**
 	 * For those require mesh load
@@ -84,6 +82,8 @@ public final class MCWBClient extends MCWB
 	
 	/**
 	 * Buffered textures
+	 * 
+	 * TODO: clear this maybe?
 	 */
 	private final HashMap< String, ResourceLocation > texturePool = new HashMap<>();
 	
@@ -99,17 +99,14 @@ public final class MCWBClient extends MCWB
 		// Do prepare work
 		super.preLoad();
 		
-		// Register capability
-		this.regisCapability( PlayerPatchClient.class );
-		
 		// Register model loaders
 		MODEL_LOADERS.regis( GunPartRenderer.LOADER );
 		MODEL_LOADERS.regis( GunRenderer.LOADER );
 		
 		// Register default textures
-		this.texturePool.put( Renderer.RED_TEXTURE.getPath(), Renderer.RED_TEXTURE );
-		this.texturePool.put( Renderer.GREEN_TEXTURE.getPath(), Renderer.RED_TEXTURE );
-		this.texturePool.put( Renderer.BLUE_TEXTURE.getPath(), Renderer.RED_TEXTURE );
+		this.texturePool.put( Renderer.TEXTURE_RED.getPath(), Renderer.TEXTURE_RED );
+		this.texturePool.put( Renderer.TEXTURE_GREEN.getPath(), Renderer.TEXTURE_RED );
+		this.texturePool.put( Renderer.TEXTURE_BLUE.getPath(), Renderer.TEXTURE_RED );
 	}
 	
 	@Override
@@ -155,11 +152,6 @@ public final class MCWBClient extends MCWB
 		);
 		container.bindMetadata( MetadataCollection.from( null, "" ) );
 		FMLClientHandler.instance().addModAsResource( container );
-	}
-	
-	@Override
-	public ResourceLocation loadTexture( String path ) {
-		return this.texturePool.computeIfAbsent( path, key -> new MCWBResource( key ) );
 	}
 	
 	/**
@@ -216,10 +208,16 @@ public final class MCWBClient extends MCWB
 		} );
 	}
 	
+	@Override
+	public IRenderer loadRenderer( String path, String fallBackType ) {
+		return this.loadRenderer( path, fallBackType, this );
+	}
+	
 	/**
 	 * @param attrSetter Use this to set attribute when loading .obj model
 	 * @return {@link Mesh#NONE} if any error has occurred
 	 */
+	@Override
 	public Mesh loadMesh( String path, Function< Mesh.Builder, Mesh.Builder > attrSetter )
 	{
 		return this.meshPool.computeIfAbsent( path, key -> {
@@ -243,20 +241,23 @@ public final class MCWBClient extends MCWB
 	}
 	
 	@Override
+	public ResourceLocation loadTexture( String path ) {
+		return this.texturePool.computeIfAbsent( path, key -> new MCWBResource( key ) );
+	}
+	
+	@Override
 	public boolean isClient() { return true; }
 	
-//	@Override
-//	public < T > T sideOnly( T common, Supplier< ? extends T > client ) {
-//		return client.get();
-//	}
+	@Override
+	public void clientOnly( Runnable task ) { task.run(); }
 	
 	@Override
 	public String format( String translateKey, Object... parameters ) {
 		return I18n.format( translateKey, parameters );
 	}
 	
-	@Override
-	protected void setupSideDependentLoaders() { TYPE_LOADERS.regis( KeyBind.LOADER ); }
+//	@Override
+//	protected void setupSideDependentLoaders() { TYPE_LOADERS.regis( KeyBind.LOADER ); }
 	
 	@Override
 	protected void reloadResources() // TODO: make this part more clear?
@@ -275,8 +276,11 @@ public final class MCWBClient extends MCWB
 	protected GsonBuilder newGsonBuilder()
 	{
 		final GsonBuilder builder = super.newGsonBuilder();
-		builder.registerTypeAdapter( ResourceLocation.class, TexturedMeta.TEXTURE_ADAPTER );
-//		builder.registerTypeAdapter( RenderableItem.class, GunPartJson.GUN_PART_MODEL_ADAPTER );
+		
+		final JsonDeserializer< ResourceLocation > TEXTURE_ADAPTER =
+			( json, typeOfT, context ) -> this.loadTexture( json.getAsString() );
+		builder.registerTypeAdapter( ResourceLocation.class, TEXTURE_ADAPTER );
+		
 		return builder;
 	}
 }

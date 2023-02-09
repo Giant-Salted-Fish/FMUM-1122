@@ -1,11 +1,16 @@
 package com.mcwb.common.modify;
 
+import com.google.gson.JsonDeserializer;
 import com.google.gson.annotations.SerializedName;
+import com.mcwb.common.MCWB;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Vec3f;
 
 public class RailSlot extends SimpleSlot
 {
+	public static final JsonDeserializer< IModuleSlot >
+		ADAPTER = ( json, typeOfT, context ) -> MCWB.GSON.fromJson( json, RailSlot.class );
+	
 	/**
 	 * Rotation(pointing) of this slot. Around z-axis
 	 */
@@ -34,7 +39,7 @@ public class RailSlot extends SimpleSlot
 	}
 	
 	@Override
-	public void applyTransform( IContextedModifiable installed, Mat4f dst )
+	public void applyTransform( IModifiable installed, Mat4f dst )
 	{
 		final Vec3f v = this.pos;
 		dst.translate( v.x, v.y, v.z + this.stepLen * installed.step() );

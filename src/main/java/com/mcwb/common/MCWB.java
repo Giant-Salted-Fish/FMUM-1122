@@ -18,25 +18,25 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
-import com.mcwb.common.gun.GunMeta;
-import com.mcwb.common.gun.GunPartMeta;
-import com.mcwb.common.gun.IContextedGun;
-import com.mcwb.common.gun.IContextedGunPart;
-import com.mcwb.common.item.ModifiableItemMeta;
+import com.mcwb.common.gun.GunPartType;
+import com.mcwb.common.gun.GunType;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IRequireMeshLoad;
 import com.mcwb.common.load.IRequirePostLoad;
+import com.mcwb.common.meta.IContexted;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.meta.Registry;
-import com.mcwb.common.modify.IContextedModifiable;
 import com.mcwb.common.modify.IModuleSlot;
 import com.mcwb.common.modify.IModuleSnapshot;
+import com.mcwb.common.modify.ModuleSnapshot;
+import com.mcwb.common.modify.RailSlot;
 import com.mcwb.common.network.PacketHandler;
 import com.mcwb.common.pack.AbstractLocalPack;
 import com.mcwb.common.pack.FolderPack;
 import com.mcwb.common.pack.IContentProvider;
 import com.mcwb.common.pack.JarPack;
 import com.mcwb.common.paintjob.IPaintjob;
+import com.mcwb.common.paintjob.Paintjob;
 import com.mcwb.common.player.PlayerPatch;
 import com.mcwb.common.tab.CreativeTab;
 import com.mcwb.util.Vec3f;
@@ -46,7 +46,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -73,7 +72,7 @@ import net.minecraftforge.fml.relauncher.Side;
 //	, clientSideOnly = true
 )
 public class MCWB extends URLClassLoader
-	implements IContentProvider, IAutowirePacketHandler, IAutowireLogger
+	implements IContentProvider, IAutowireSideHandler, IAutowirePacketHandler, IAutowireLogger
 {
 	/**
 	 * Mod id
@@ -144,7 +143,8 @@ public class MCWB extends URLClassLoader
 	/**
 	 * Registered subscribers wait for post load callback
 	 */
-	protected static final LinkedList< IRequirePostLoad > POST_LOAD_SUBSCRIBERS = new LinkedList<>();
+	protected static final LinkedList< IRequirePostLoad >
+		POST_LOAD_SUBSCRIBERS = new LinkedList<>();
 	
 	/**
 	 * Buffered sounds
@@ -157,14 +157,14 @@ public class MCWB extends URLClassLoader
 	protected static final File GAME_DIR = Loader.instance().getConfigDir().getParentFile();
 	
 	/**
-	 * Use {@link IAutowireLogger}
-	 */
-	static final Logger LOGGER = LogManager.getLogger( MODID );
-	
-	/**
 	 * Use {@link IAutowirePacketHandler}
 	 */
 	static final PacketHandler NET = new PacketHandler( MODID );
+	
+	/**
+	 * Use {@link IAutowireLogger}
+	 */
+	static final Logger LOGGER = LogManager.getLogger( MODID );
 	
 	public static int maxSlotCapacity;
 	
@@ -223,14 +223,13 @@ public class MCWB extends URLClassLoader
 	{
 		// Register capabilities
 		this.regisCapability( PlayerPatch.class );
-		this.regisCapability( IContextedModifiable.class );
-		this.regisCapability( IContextedGunPart.class );
-		this.regisCapability( IContextedGun.class );
+		this.regisCapability( IContexted.class );
 		
 		// Register meta loaders
 		TYPE_LOADERS.regis( CreativeTab.LOADER );
-		TYPE_LOADERS.regis( GunPartMeta.LOADER );
-		TYPE_LOADERS.regis( GunMeta.LOADER );
+		TYPE_LOADERS.regis( GunPartType.LOADER );
+		TYPE_LOADERS.regis( GunType.LOADER );
+		TYPE_LOADERS.regis( Paintjob.LOADER );
 		this.setupSideDependentLoaders();
 	}
 	
@@ -291,14 +290,6 @@ public class MCWB extends URLClassLoader
 		POST_LOAD_SUBSCRIBERS.clear();
 	}
 	
-	@Override
-	public void regisPostLoad( IRequirePostLoad subscriber ) {
-		POST_LOAD_SUBSCRIBERS.add( subscriber );
-	}
-	
-	@Override
-	public void regisMeshLoad( IRequireMeshLoad subscriber ) { }
-	
 	public void regisResourceDomain( File resource )
 	{
 		try { this.addURL( resource.toURI().toURL() ); }
@@ -331,21 +322,24 @@ public class MCWB extends URLClassLoader
 		);
 	}
 	
-	/**
-	 * @return {@code null} on {@link Side#SERVER}
-	 */
-	@Nullable
-	public ResourceLocation loadTexture( String path ) { return null; }
+	@Override
+	public void regisPostLoad( IRequirePostLoad subscriber ) {
+		POST_LOAD_SUBSCRIBERS.add( subscriber );
+	}
 	
+	@Override
+	public void regisMeshLoad( IRequireMeshLoad subscriber ) { }
+	
+	@Override
 	public final SoundEvent loadSound( String path ) {
 		return SOUND_POOL.computeIfAbsent( path, key -> new SoundEvent( new MCWBResource( key ) ) );
 	}
 	
+	@Override
 	public boolean isClient() { return false; }
 	
-//	public < T > T sideOnly( Supplier< ? extends T > common, Supplier< ? extends T > client ) {
-//		return common.get();
-//	}
+	@Override
+	public void clientOnly( Runnable task ) { }
 	
 	/**
 	 * This localize the message based on the physical side. Use this for localization if the
@@ -413,11 +407,9 @@ public class MCWB extends URLClassLoader
 				return vec;
 			}
 		);
-		builder.registerTypeAdapter( IModuleSlot.class, ModifiableItemMeta.SLOT_ADAPTER );
-		builder.registerTypeAdapter(
-			IModuleSnapshot.class, ModifiableItemMeta.MODULE_SNAPSHOT_ADAPTER
-		);
-		builder.registerTypeAdapter( IPaintjob.class, ModifiableItemMeta.PAINTJOB_ADAPTER );
+		builder.registerTypeAdapter( IModuleSlot.class, RailSlot.ADAPTER );
+		builder.registerTypeAdapter( IModuleSnapshot.class, ModuleSnapshot.ADAPTER );
+		builder.registerTypeAdapter( IPaintjob.class, Paintjob.ADAPTER );
 		return builder;
 	}
 	

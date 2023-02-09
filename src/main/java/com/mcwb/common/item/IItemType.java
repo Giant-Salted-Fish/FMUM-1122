@@ -1,6 +1,5 @@
 package com.mcwb.common.item;
 
-import com.mcwb.common.meta.IHasContext;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.meta.Registry;
 
@@ -15,9 +14,9 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public interface IItemMeta extends IMeta, IHasContext
+public interface IItemType extends IMeta
 {
-	public static final Registry< IItemMeta > REGISTRY = new Registry<>();
+	public static final Registry< IItemType > REGISTRY = new Registry<>();
 	
 	public static final String
 		TRANSLATION_PREFIX = "item.",
@@ -26,7 +25,7 @@ public interface IItemMeta extends IMeta, IHasContext
 	/**
 	 * A default item that simply "do nothing". Delegate for vanilla items.
 	 */
-	public static final IItemMeta VANILLA = new IItemMeta()
+	public static final IItemType VANILLA = new IItemType()
 	{
 		@Override
 		public String name() { return "vanilla"; }
@@ -35,8 +34,8 @@ public interface IItemMeta extends IMeta, IHasContext
 		public Item item() { return null; }
 		
 		@Override
-		public IContextedItem getContexted( ICapabilityProvider provider ) {
-			return provider == ItemStack.EMPTY ? IContextedItem.EMPTY : IContextedItem.VANILLA;
+		public IItem getContexted( ICapabilityProvider provider ) {
+			return provider == ItemStack.EMPTY ? IItem.EMPTY : IItem.VANILLA;
 		}
 	};
 	
@@ -45,8 +44,7 @@ public interface IItemMeta extends IMeta, IHasContext
 	 */
 	public Item item();
 	
-	@Override
-	public IContextedItem getContexted( ICapabilityProvider provider );
+	public IItem getContexted( ICapabilityProvider provider );
 	
 	public default void onItemRegister( RegistryEvent.Register< Item > evt ) {
 		evt.getRegistry().register( this.item() );

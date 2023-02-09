@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.player.PlayerPatchClient;
-import com.mcwb.common.item.IItemMeta;
+import com.mcwb.common.item.IItemType;
 import com.mcwb.common.network.PacketConfigSync;
 import com.mcwb.common.player.PlayerPatch;
 
@@ -31,7 +31,7 @@ public final class EventHandler
 	{
 		LOGGER.info( "mcwb.on_item_regis" );
 		
-		final Collection< IItemMeta > items = IItemMeta.REGISTRY.values();
+		final Collection< IItemType > items = IItemType.REGISTRY.values();
 		items.forEach( it -> it.onItemRegister( evt ) );
 		
 		LOGGER.info( "mcwb.item_regis_complete", items.size() );

@@ -7,7 +7,7 @@ import com.mcwb.client.MCWBClient;
 import com.mcwb.client.camera.CameraAnimator;
 import com.mcwb.client.camera.ICameraController;
 import com.mcwb.client.input.IKeyBind;
-import com.mcwb.common.item.IContextedItem;
+import com.mcwb.common.item.IItem;
 import com.mcwb.common.player.PlayerPatch;
 import com.mcwb.util.Vec3f;
 
@@ -16,21 +16,15 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MouseHelper;
 import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
 public final class PlayerPatchClient extends PlayerPatch
 {
-	@CapabilityInject( PlayerPatchClient.class )
-	public static final Capability< PlayerPatchClient > CAPABILITY = null;
-	
 	/**
 	 * As there could only be one client player hence only one client patch instance here
 	 */
@@ -157,8 +151,8 @@ public final class PlayerPatchClient extends PlayerPatch
 	
 	public boolean onSpecificHandRender( EnumHand hand )
 	{
-		final IContextedItem it = hand == EnumHand.MAIN_HAND ? this.prevMainItem : this.prevOffItem;
-		return it.onSpecificHandRender( hand );
+		final IItem item = hand == EnumHand.MAIN_HAND ? this.prevMainItem : this.prevOffItem;
+		return item.onSpecificHandRender( hand );
 	}
 	
 	public void onCameraSetup( CameraSetup evt )
@@ -171,12 +165,9 @@ public final class PlayerPatchClient extends PlayerPatch
 	
 	public boolean hideCrosshair() { return this.prevMainItem.hideCrosshair(); }
 	
-	public boolean onMouseWheelInput( int dWheel ) { return false; } // TODO
+	public boolean onMouseWheelInput( int dWheel ) {
+		return this.prevMainItem.onMouseWheelInput( dWheel );
+	}
 	
 	public void onKeyInput( IKeyBind key ) { this.prevMainItem.onKeyInput( key ); }
-	
-	@Override
-	public boolean hasCapability( Capability< ? > capability, EnumFacing facing ) {
-		return capability == CAPABILITY || capability == PlayerPatch.CAPABILITY;
-	}
 }

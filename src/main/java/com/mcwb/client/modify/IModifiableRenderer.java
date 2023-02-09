@@ -4,14 +4,14 @@ import java.util.Collection;
 
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
-import com.mcwb.common.modify.IContextedModifiable;
+import com.mcwb.common.meta.IContexted;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @FunctionalInterface
 //@SideOnly( Side.CLIENT )
-public interface IModifiableRenderer< T extends IContextedModifiable > extends IRenderer
+public interface IModifiableRenderer< T extends IContexted > extends IRenderer
 {
 	/**
 	 * Primary transform has been applied and texture has been bind

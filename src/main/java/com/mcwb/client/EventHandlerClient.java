@@ -7,7 +7,7 @@ import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.IAutowireLogger;
 import com.mcwb.common.MCWB;
-import com.mcwb.common.item.IItemMeta;
+import com.mcwb.common.item.IItemType;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiControls;
@@ -94,7 +94,7 @@ public final class EventHandlerClient
 	{
 		LOGGER.info( "mcwb.on_model_regis" );
 		
-		final Collection< IItemMeta > items = IItemMeta.REGISTRY.values();
+		final Collection< IItemType > items = IItemType.REGISTRY.values();
 		items.forEach( it -> it.onModelRegister( evt ) );
 		
 		LOGGER.info( "mcwb.model_regis_complete", items.size() );

@@ -7,12 +7,10 @@ import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.IAutowireSmoother;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.InputHandler;
-import com.mcwb.client.player.ModifyOp;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
-import com.mcwb.common.gun.IContextedGun;
-import com.mcwb.common.item.ModifiableItemMeta;
+import com.mcwb.common.gun.IGun;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Util;
@@ -29,7 +27,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class GunRenderer< T extends IContextedGun > extends GunPartRenderer< T >
+public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 	implements IAutowireSmoother
 {
 	public static final BuildableLoader< IRenderer >
@@ -218,9 +216,6 @@ public class GunRenderer< T extends IContextedGun > extends GunPartRenderer< T >
 	
 	@Override
 	protected GunAnimatorState animator( EnumHand hand ) { return GunAnimatorState.INSTANCE; }
-	
-	@Override
-	protected ModifyOp< ? > modifyOp() { return ModifiableItemMeta.MODIFY_OP; }
 	
 	/**
 	 * Copied from {@link EntityRenderer#getFOVModifier(float, boolean)}

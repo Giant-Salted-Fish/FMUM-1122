@@ -3,13 +3,13 @@ package com.mcwb.common.modify;
 import com.mcwb.util.Mat4f;
 
 /**
- * Describes a slot that can install {@link IModifiableMeta} in it
+ * Describes a slot that can install {@link IModifiable} in it
  * 
  * @author Giant_Salted_Fish
  */
 public interface IModuleSlot
 {
-	public boolean isAllowed( IContextedModifiable module );
+	public boolean isAllowed( IModifiable module );
 	
 	/**
 	 * @return Max number of modules that can be installed into this slot
@@ -24,5 +24,5 @@ public interface IModuleSlot
 	
 	public void scale( float scale );
 	
-	public void applyTransform( IContextedModifiable installed, Mat4f dst );
+	public void applyTransform( IModifiable installed, Mat4f dst );
 }

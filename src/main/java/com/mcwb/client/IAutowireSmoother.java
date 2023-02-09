@@ -8,7 +8,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * 
  * @author Giant_Salted_Fish
  */
-@SideOnly( Side.CLIENT )
-public interface IAutowireSmoother {
+public interface IAutowireSmoother
+{
+	@SideOnly( Side.CLIENT )
 	public default float smoother() { return MCWBClient.MC.getRenderPartialTicks(); }
 }

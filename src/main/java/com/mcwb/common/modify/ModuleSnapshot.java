@@ -2,23 +2,28 @@ package com.mcwb.common.modify;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
+import com.google.gson.JsonDeserializer;
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.common.IAutowireLogger;
+import com.mcwb.common.MCWB;
 
 import net.minecraft.nbt.NBTTagCompound;
 
 public class ModuleSnapshot implements IModuleSnapshot, IAutowireLogger
 {
+	public static final JsonDeserializer< IModuleSnapshot >
+		ADAPTER = ( json, typeOfT, context ) -> MCWB.GSON.fromJson( json, ModuleSnapshot.class );
+	
 	public static final ModuleSnapshot DEFAULT = new ModuleSnapshot();
 	
-	protected static final BiFunction< String, NBTTagCompound, IContextedModifiable >
-		CONTEXTED_GETTER = ( name, nbt ) -> {
-			final IModifiableMeta meta = IModifiableMeta.REGISTRY.get( name );
-			return meta != null ? meta.newContexted( nbt ) : null;
+	protected static final Function< String, IModifiable >
+		CONTEXTED_GETTER = name -> {
+			final IModifiableType type = IModifiableType.REGISTRY.get( name );
+			return type != null ? type.newContexted( new NBTTagCompound() ) : null;
 		};
 	
 	@SerializedName( value = "module", alternate = "name" )
@@ -35,10 +40,9 @@ public class ModuleSnapshot implements IModuleSnapshot, IAutowireLogger
 	
 	@Nullable
 	@Override
-	public < T extends IContextedModifiable > T initContexted(
-		BiFunction< String, NBTTagCompound, T > getter
-	) {
-		final T module = getter.apply( this.module, new NBTTagCompound() );
+	public < T extends IModifiable > T initContexted( Function< String, T > getter )
+	{
+		final T module = getter.apply( this.module );
 		if( module == null )
 		{
 			this.error( "mcwb.fail_to_find_module", this.module );
@@ -55,7 +59,7 @@ public class ModuleSnapshot implements IModuleSnapshot, IAutowireLogger
 		{
 			final int slot = i;
 			this.slots.get( i ).forEach( snapshot -> {
-				final IContextedModifiable ctxed = snapshot.initContexted( CONTEXTED_GETTER );
+				final IModifiable ctxed = snapshot.initContexted( CONTEXTED_GETTER );
 				if( ctxed != null )
 					module.install( slot, ctxed );
 			} );

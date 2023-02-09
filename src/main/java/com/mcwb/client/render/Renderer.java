@@ -22,9 +22,9 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 	IRequireMeshLoad, IAutowireLogger, IAutowireBindTexture
 {
 	public static final ResourceLocation
-		RED_TEXTURE = new MCWBResource( "textures/0xff0000.png" ),
-		GREEN_TEXTURE = new MCWBResource( "textures/0x00ff00.png" ),
-		BLUE_TEXTURE = new MCWBResource( "textures/0x0000ff.png" );
+		TEXTURE_RED = new MCWBResource( "textures/0xff0000.png" ),
+		TEXTURE_GREEN = new MCWBResource( "textures/0x00ff00.png" ),
+		TEXTURE_BLUE = new MCWBResource( "textures/0x0000ff.png" );
 	
 	/**
 	 * Default mesh path initializer
@@ -80,7 +80,7 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 	/**
 	 * Call {@link #glowOn(float)} with {@code 1F}
 	 */
-	protected final void glowOn() { this.glowOn( 1F ); }
+	public static void glowOn() { glowOn( 1F ); }
 	
 	/**
 	 * Models rendered after this call will be glowed up. Call {@link #glowOff()} after you complete
@@ -88,7 +88,7 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 	 * 
 	 * @param glowFactor Range from {@code 0F-1F} to control how much to glow
 	 */
-	protected final void glowOn( float glowFactor )
+	public static void glowOn( float glowFactor )
 	{
 		// Push light bits and record previous brightness
 		GL11.glPushAttrib( GL11.GL_LIGHTING_BIT );
@@ -107,7 +107,7 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 	/**
 	 * Pair call for {@link #glowOn(float)}
 	 */
-	protected final void glowOff()
+	public static void glowOff()
 	{
 		OpenGlHelper.setLightmapTextureCoords(
 			OpenGlHelper.lightmapTexUnit,

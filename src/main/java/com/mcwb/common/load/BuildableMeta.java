@@ -7,7 +7,7 @@ import com.mcwb.common.pack.IContentProvider;
 
 public abstract class BuildableMeta extends Meta implements IBuildable< IMeta >, IAutowireLogger
 {
-	protected transient IMeta provider;
+	protected transient IContentProvider provider;
 	
 	@Override
 	public IMeta build( String name, IContentProvider provider )

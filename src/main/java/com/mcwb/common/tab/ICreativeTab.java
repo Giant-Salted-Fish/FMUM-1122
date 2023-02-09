@@ -1,6 +1,6 @@
 package com.mcwb.common.tab;
 
-import com.mcwb.common.item.IItemMeta;
+import com.mcwb.common.item.IItemType;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.meta.Registry;
 
@@ -18,5 +18,5 @@ public interface ICreativeTab extends IMeta
 	 * 
 	 * @param item Item that has settled in
 	 */
-	public default void itemSettledIn( IItemMeta item ) { }
+	public default void itemSettledIn( IItemType item ) { }
 }

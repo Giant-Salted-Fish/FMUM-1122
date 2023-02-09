@@ -114,6 +114,6 @@ public abstract class AbstractLocalPack extends Meta implements IContentProvider
 	}
 	
 	protected void printError( String source, Exception e ) {
-		this.except( e, "mcwb.unexpected_error", source ); // TODO: rename this maybe?
+		this.except( e, "mcwb.unexpected_load_error", source );
 	}
 }

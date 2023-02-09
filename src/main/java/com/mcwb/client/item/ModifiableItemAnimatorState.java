@@ -1,20 +1,19 @@
 package com.mcwb.client.item;
 
 import com.mcwb.client.MCWBClient;
-import com.mcwb.client.player.ModifyOp;
-import com.mcwb.common.item.ModifiableItemMeta;
+import com.mcwb.client.player.ModifyOperationClient;
+import com.mcwb.common.item.ModifiableItemType;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraftforge.fml.relauncher.Side;
-
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
 public class ModifiableItemAnimatorState extends ItemAnimatorState
 {
-	public ModifyOp< ? > modifyOp = ModifiableItemMeta.MODIFY_OP;
+	public ModifyOperationClient modifyOp = ModifiableItemType.MODIFY_OP;
 	
 	public Vec3f modifyPos = Vec3f.ORIGIN;
 	

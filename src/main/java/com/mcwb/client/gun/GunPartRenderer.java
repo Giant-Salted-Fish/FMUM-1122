@@ -8,11 +8,11 @@ import com.mcwb.client.item.ModifiableItemAnimatorState;
 import com.mcwb.client.item.ModifiableItemRenderer;
 import com.mcwb.client.modify.IModifiableRenderer;
 import com.mcwb.client.modify.IMultPassRenderer;
-import com.mcwb.client.player.ModifyOp;
+import com.mcwb.client.player.ModifyOperationClient;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
-import com.mcwb.common.gun.IContextedGunPart;
-import com.mcwb.common.item.ModifiableItemMeta;
+import com.mcwb.common.gun.IGunPart;
+import com.mcwb.common.item.ModifiableItemType;
 import com.mcwb.common.load.BuildableLoader;
 
 import net.minecraft.util.EnumHand;
@@ -20,7 +20,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class GunPartRenderer< T extends IContextedGunPart > extends ModifiableItemRenderer< T >
+public class GunPartRenderer< T extends IGunPart > extends ModifiableItemRenderer< T >
 	implements IModifiableRenderer< T >
 {
 	public static final BuildableLoader< IRenderer >
@@ -40,7 +40,7 @@ public class GunPartRenderer< T extends IContextedGunPart > extends ModifiableIt
 	{
 		// Prepare render queue
 		RENDER_QUEUE.clear();
-		contexted.prepareRenderer( RENDER_QUEUE, this.animator( hand ) );
+		contexted.base().prepareRenderer( RENDER_QUEUE, this.animator( hand ) ); // From wrapper
 	}
 	
 	@Override
@@ -63,7 +63,7 @@ public class GunPartRenderer< T extends IContextedGunPart > extends ModifiableIt
 	}
 	
 	@Override
-	protected ModifyOp< ? > modifyOp() { return ModifiableItemMeta.MODIFY_OP; }
+	protected ModifyOperationClient modifyOp() { return ModifiableItemType.MODIFY_OP; }
 	
 	@Override
 	protected ModifiableItemAnimatorState animator( EnumHand hand ) {

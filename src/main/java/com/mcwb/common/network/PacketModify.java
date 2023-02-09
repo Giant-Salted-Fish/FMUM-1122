@@ -3,13 +3,14 @@ package com.mcwb.common.network;
 import java.util.function.Consumer;
 
 import com.mcwb.common.ModConfig;
-import com.mcwb.common.item.IItemMeta;
-import com.mcwb.common.item.IItemMetaHost;
-import com.mcwb.common.modify.IContextedModifiable;
-import com.mcwb.common.modify.IModifiableMeta;
+import com.mcwb.common.item.IItemType;
+import com.mcwb.common.item.IItemTypeHost;
+import com.mcwb.common.modify.IModifiable;
+import com.mcwb.common.modify.IModifiableType;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
@@ -91,40 +92,55 @@ public class PacketModify implements IPacket
 		
 		final int len = this.loc.length;
 		final EntityPlayerMP player = ctx.getServerHandler().player;
-		final Consumer< IContextedModifiable > handler =
+		final Consumer< IModifiable > handler =
 			INSTALL_MODULE == this.code ? primary -> {
 				// Check the meta of item to install
-				final ItemStack tarStack = player.inventory.getStackInSlot( this.loc[ len - 1] );
-				final IItemMeta tarMeta = IItemMetaHost.getMeta( tarStack );
-				if( !( tarMeta instanceof IModifiableMeta ) )
+				final InventoryPlayer inv = player.inventory;
+				final ItemStack tarStack = inv.getStackInSlot( this.loc[ len - 1] );
+				final IItemType tarType = IItemTypeHost.getType( tarStack );
+				if( !( tarType instanceof IModifiableType ) )
 				{
 					// TODO: log error
 					return;
 				}
 				
-				// Validate before actual install
-				final IContextedModifiable base = primary.getInstalled( this.loc, len - 2 );
-				final IContextedModifiable tarModule = ( ( IModifiableMeta ) tarMeta )
-					.getContexted( tarStack );
+				// Copy primary and target stack to validate install
+				final ItemStack copiedStack = inv.getCurrentItem().copy();
+				final IModifiable copiedPrimary = ( ( IModifiableType )
+					IItemTypeHost.getType( copiedStack ) ).getContexted( copiedStack );
+				final IModifiable base = copiedPrimary.getInstalled( this.loc, len - 2 );
+				
+				final ItemStack copiedTarStack = tarStack.copy();
+				final IModifiable tarModule = ( ( IModifiableType )
+					tarType ).getContexted( copiedTarStack );
+				
 				final int slot = 0xFF & this.loc[ len - 2 ];
-				if( !base.canInstall( slot, tarModule ) )
+				if( !base.tryInstallPreview( slot, tarModule ).ok() )
 				{
 					// TODO: log error
 					return;
 				}
-				// TODO: check hitbox conflict
 				
 				tarModule.$step( this.step() ); // TODO: maybe check step and offset?
 				tarModule.$offset( this.offset() );
-				base.install( slot, tarModule );
+				
+				if( !copiedPrimary.checkInstalledPosition( tarModule ).ok() )
+				{
+					// TODO: log error
+					return;
+				}
+				
+				player.inventory.setItemStack( ItemStack.EMPTY );
+				inv.setInventorySlotContents( inv.currentItem, copiedStack );
+				tarStack.shrink( 1 );
 			} :
 			UNSTALL_MODULE == this.code ? primary -> {
-				final IContextedModifiable removed = primary.getInstalled( this.loc, len - 2 )
+				final IModifiable removed = primary.getInstalled( this.loc, len - 2 )
 					.remove( 0xFF & this.loc[ len - 2 ], 0xFF & this.loc[ len - 1 ] );
-				// TODO: give it back to player
+				player.addItemStackToInventory( removed.toStack() );
 			} :
 			UPDATE_STEP_OFFSET == this.code ? primary -> {
-				final IContextedModifiable module = primary.getInstalled( this.loc, len );
+				final IModifiable module = primary.getInstalled( this.loc, len );
 				final int step = this.step();
 				final int offset = this.offset();
 //				if( step > modMeta.s) // TODO: check step and offset
@@ -134,7 +150,7 @@ public class PacketModify implements IPacket
 				// TODO: check hitbox
 			} :
 			UPDATE_PAINTJOB == this.code ? primary -> {
-				final IContextedModifiable paintable = primary.getInstalled( this.loc, len );
+				final IModifiable paintable = primary.getInstalled( this.loc, len );
 				if( this.assist >= paintable.paintjob() )
 				{
 					// TODO: log error
@@ -149,10 +165,10 @@ public class PacketModify implements IPacket
 		player.getServerWorld().addScheduledTask( () -> {
 			// Make sure the operation target is still valid when this packet arrives
 			final ItemStack stack = player.inventory.getCurrentItem();
-			final IItemMeta meta = IItemMetaHost.getMeta( stack );
+			final IItemType type = IItemTypeHost.getType( stack );
 			// TODO: maybe surround with try-catch to print error
-			if( meta instanceof IModifiableMeta )
-				handler.accept( ( ( IModifiableMeta ) meta ).getContexted( stack ) );
+			if( type instanceof IModifiableType )
+				handler.accept( ( ( IModifiableType ) type ).getContexted( stack ) );
 		} );
 	}
 	

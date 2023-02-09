@@ -1,6 +1,6 @@
 package com.mcwb.common.player;
 
-import com.mcwb.common.item.IContextedItem;
+import com.mcwb.common.item.IItem;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -61,7 +61,7 @@ public interface IOperation
 	 * Callback when player changes the selected inventory slot
 	 * @return {@link #NONE} if this operation should terminate on item switch
 	 */
-	public default IOperation onInvSlotChange( IContextedItem newItem, int newSlot, int oldSlot ) {
+	public default IOperation onInvSlotChange( IItem newItem, int newSlot, int oldSlot ) {
 		return this.terminate();
 	}
 	
@@ -81,7 +81,7 @@ public interface IOperation
 	 *     and duplicate launch problems
 	 * @return {@link #NONE} if this operation should terminate on item change
 	 */
-	public default IOperation onHoldingStackChange( IContextedItem newItem ) {
+	public default IOperation onHoldingStackChange( IItem newItem ) {
 		return this.terminate();
 	}
 }

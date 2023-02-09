@@ -10,12 +10,17 @@ import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public interface IContextedItem extends IContexted
+/**
+ * {@link IItemType} with full context
+ * 
+ * @author Giant_Salted_Fish
+ */
+public interface IItem extends IContexted
 {
 	/**
 	 * This delegate will cancel render if is off-hand and empty stack
 	 */
-	public static final IContextedItem EMPTY = new IContextedItem()
+	public static final IItem EMPTY = new IItem()
 	{
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -29,7 +34,7 @@ public interface IContextedItem extends IContexted
 	/**
 	 * This delegate makes sure that Vanilla items will be rendered in original ways
 	 */
-	public static final IContextedItem VANILLA = new IContextedItem()
+	public static final IItem VANILLA = new IItem()
 	{
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -43,12 +48,12 @@ public interface IContextedItem extends IContexted
 	/**
 	 * Called when player is trying to switch to another item
 	 */
-	public default void onPutAway( IContextedItem newItem, EntityPlayer player, EnumHand hand ) { }
+	public default void onPutAway( IItem newItem, EntityPlayer player, EnumHand hand ) { }
 	
 	/**
 	 * Called when player is trying to switch to this item
 	 */
-	public default void onTakeOut( IContextedItem oldItem, EntityPlayer player, EnumHand hand ) { }
+	public default void onTakeOut( IItem oldItem, EntityPlayer player, EnumHand hand ) { }
 	
 	/**
 	 * @see PlayerPatchClient#onHandRender()
@@ -83,6 +88,9 @@ public interface IContextedItem extends IContexted
 	 */
 	@SideOnly( Side.CLIENT )
 	public default void onKeyInput( IKeyBind key ) { }
+	
+	@SideOnly( Side.CLIENT )
+	public default boolean onMouseWheelInput( int dWheel ) { return false; }
 	
 	@SideOnly( Side.CLIENT )
 	public default boolean updateViewBobbing( boolean original ) { return original; }

@@ -41,7 +41,7 @@ public class SimpleSlot implements IModuleSlot
 	protected Vec3f pos = Vec3f.ORIGIN;
 	
 	@Override
-	public boolean isAllowed( IContextedModifiable module )
+	public boolean isAllowed( IModifiable module )
 	{
 		final String name = module.name();
 		final String group = module.category();
@@ -62,7 +62,5 @@ public class SimpleSlot implements IModuleSlot
 	public void scale( float scale ) { this.pos.scale( scale ); }
 	
 	@Override
-	public void applyTransform( IContextedModifiable installed, Mat4f dst ) {
-		dst.translate( this.pos );
-	}
+	public void applyTransform( IModifiable installed, Mat4f dst ) { dst.translate( this.pos ); }
 }

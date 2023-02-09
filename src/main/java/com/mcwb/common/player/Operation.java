@@ -1,13 +1,12 @@
 package com.mcwb.common.player;
 
-import com.mcwb.client.MCWBClient;
-import com.mcwb.common.item.IContextedItem;
+import com.mcwb.common.meta.IContexted;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class Operation< T extends IContextedItem > implements IOperation
+public abstract class Operation< T extends IContexted > implements IOperation
 {
 	protected EntityPlayer player;
 	protected T contexted;
@@ -53,17 +52,6 @@ public abstract class Operation< T extends IContextedItem > implements IOperatio
 	
 	@Override
 	public IOperation onOtherTryLaunch( IOperation op ) { return this; }
-	
-	/**
-	 * Called on {@link Side#CLIENT} to reuse the this instance
-	 */
-	@SideOnly( Side.CLIENT )
-	public IOperation reset( T contexted )
-	{
-		this.player = MCWBClient.MC.player;
-		this.contexted = contexted;
-		return this;
-	}
 	
 	@Override
 	public String toString() { return "Operation::" + this.getClass().getTypeName(); }

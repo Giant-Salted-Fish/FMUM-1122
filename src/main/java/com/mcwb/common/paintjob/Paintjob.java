@@ -3,7 +3,9 @@ package com.mcwb.common.paintjob;
 import java.util.Collections;
 import java.util.Set;
 
+import com.google.gson.JsonDeserializer;
 import com.google.gson.annotations.SerializedName;
+import com.mcwb.common.MCWB;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.TexturedMeta;
 import com.mcwb.common.meta.IMeta;
@@ -12,6 +14,9 @@ import net.minecraft.util.ResourceLocation;
 
 public class Paintjob extends TexturedMeta implements IPaintjob
 {
+	public static final JsonDeserializer< IPaintjob >
+		ADAPTER = ( json, typeOfT, context ) -> MCWB.GSON.fromJson( json, Paintjob.class );
+	
 	public static final BuildableLoader< IMeta >
 		LOADER = new BuildableLoader<>( "paintjob", ExternalPaintjob.class );
 	

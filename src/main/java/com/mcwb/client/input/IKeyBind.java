@@ -1,7 +1,6 @@
 package com.mcwb.client.input;
 
 import com.mcwb.common.MCWB;
-import com.mcwb.common.meta.ICategoried;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.meta.Registry;
 
@@ -10,9 +9,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public interface IKeyBind extends IMeta, ICategoried
+public interface IKeyBind extends IMeta
+
 {
 	public static final Registry< IKeyBind > REGISTRY = new Registry<>();
+	
+	public String category();
 	
 	/**
 	 * Called by {@link InputHandler} on input event to update the state of this key bind

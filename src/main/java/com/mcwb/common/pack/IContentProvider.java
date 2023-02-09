@@ -1,12 +1,19 @@
 package com.mcwb.common.pack;
 
+import java.util.function.Function;
+
 import com.mcwb.client.MCWBClient;
+import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.load.IRequireMeshLoad;
 import com.mcwb.common.load.IRequirePostLoad;
 import com.mcwb.common.meta.IMeta;
+import com.mcwb.util.Mesh;
 
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Abstraction of the content provider. Usually is the content pack.
@@ -55,5 +62,22 @@ public interface IContentProvider extends IMeta
 	 */
 	public default void regisMeshLoad( IRequireMeshLoad subscriber ) {
 		MCWB.MOD.regisMeshLoad( subscriber );
+	}
+	
+	public default SoundEvent loadSound( String path ) { return MCWB.MOD.loadSound( path ); }
+	
+	@SideOnly( Side.CLIENT )
+	public default IRenderer loadRenderer( String path, String fallBackType ) {
+		return MCWBClient.MOD.loadRenderer( path, fallBackType, this );
+	}
+	
+	@SideOnly( Side.CLIENT )
+	public default Mesh loadMesh( String path, Function< Mesh.Builder, Mesh.Builder > attrSetter ) {
+		return MCWBClient.MOD.loadMesh( path, attrSetter );
+	}
+	
+	@SideOnly( Side.CLIENT )
+	public default ResourceLocation loadTexture( String path ) {
+		return MCWBClient.MOD.loadTexture( path );
 	}
 }

@@ -1,11 +1,11 @@
 package com.mcwb.common.player;
 
-import com.mcwb.common.item.IContextedItem;
+import com.mcwb.common.meta.IContexted;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 
-public abstract class TogglableOperation< T extends IContextedItem > extends Operation< T >
+public abstract class TogglableOperation< T extends IContexted > extends Operation< T >
 {
 	protected IOperationController forwardController;
 	protected IOperationController backwardController;

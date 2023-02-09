@@ -1,7 +1,7 @@
 package com.mcwb.common.tab;
 
 import com.mcwb.common.MCWB;
-import com.mcwb.common.item.IItemMeta;
+import com.mcwb.common.item.IItemType;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.TexturedMeta;
 import com.mcwb.common.meta.IMeta;
@@ -62,11 +62,11 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	protected ResourceLocation ensureTextureSetup()
+	protected void checkTextureSetup()
 	{
 		// Use a default background image if does not have
-		return this.texture != null ? this.texture
-			: CreativeTabs.BUILDING_BLOCKS.getBackgroundImage();
+		if( this.texture == null )
+			this.texture = CreativeTabs.BUILDING_BLOCKS.getBackgroundImage();
 	}
 	
 	@Override
@@ -86,7 +86,7 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 			final String icon = CreativeTab.this.iconItem;
 			
 			// Check if required item is defined in MCWB
-			final IItemMeta meta = IItemMeta.REGISTRY.get( icon );
+			final IItemType meta = IItemType.REGISTRY.get( icon );
 			final Item item = meta != null ? meta.item() : Item.getByNameOrId( icon );
 			if( item != null )
 				return new ItemStack( item, 1, CreativeTab.this.iconItemDam );
