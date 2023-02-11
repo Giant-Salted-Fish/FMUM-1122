@@ -1,5 +1,5 @@
 {
 	"creativeTab": "oc",
-	"model": "models/gun/iron_sight/cic_is4_rear_sight.json",
+	"model": "models/iron_sight/cic_is4_rear_sight.json",
 	"texture": "textures/guns/iron_sight.png"
 }

@@ -1,0 +1,17 @@
+{
+	"creativeTab": "oc",
+	"category": "556x45mm_mag",
+	"model": "models/mag/556x45mm_30_round_mag.json",
+	"texture": "textures/guns/hk416_d10rs.png",
+	
+	"allowedAmmoCapacity": [ "556x45mm" ],
+	"capacity": 30,
+	
+	"_paramScale": 0.00625,
+	"_moduleSlots": [
+		{
+			"origin": [ 0, 0, 1 ],
+			"allowed": [ "hk416_barrel" ]
+		}
+	]
+}

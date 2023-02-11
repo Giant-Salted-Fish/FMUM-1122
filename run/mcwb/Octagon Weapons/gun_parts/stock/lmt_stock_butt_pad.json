@@ -1,5 +1,5 @@
 {
 	"creativeTab": "oc",
-	"model": "models/gun/stock/lmt_stock_butt_pad.json",
+	"model": "models/stock/lmt_stock_butt_pad.json",
 	"texture": "textures/guns/hk416_d10rs.png"
 }

@@ -78,7 +78,7 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 	}
 	
 	@Override
-	public void onLogicTick( T contexted, EnumHand hand )
+	public void tickInHand( T contexted, EnumHand hand )
 	{
 		/// Prepare necessary variables ///
 		final GunAnimatorState state = this.animator( hand );

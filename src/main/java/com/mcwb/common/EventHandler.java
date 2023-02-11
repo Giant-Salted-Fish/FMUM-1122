@@ -2,12 +2,12 @@ package com.mcwb.common;
 
 import java.util.Collection;
 
-import com.mcwb.client.MCWBClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.item.IItemType;
 import com.mcwb.common.network.PacketConfigSync;
 import com.mcwb.common.player.PlayerPatch;
 
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -46,7 +46,7 @@ public final class EventHandler
 		
 		// TODO: check if it is ok for other players in the world
 		final EntityPlayer player = ( EntityPlayer ) e;
-		final boolean client = e.world.isRemote && MCWBClient.MC.player == null;
+		final boolean client = e.world.isRemote && e instanceof EntityPlayerSP;
 		evt.addCapability(
 			new MCWBResource( "patch" ),
 			client ? new PlayerPatchClient( player ) : new PlayerPatch( player )

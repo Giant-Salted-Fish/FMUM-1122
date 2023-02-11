@@ -57,7 +57,7 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 	protected int curPaintjob = 0;
 	protected int oriPaintjob = 0;
 	
-	protected ModifyPredication previewState1 = ModifyPredication.NO_PREVIEW;
+	protected ModifyPredication previewState = ModifyPredication.NO_PREVIEW;
 	protected ModifyPredication positionState = ModifyPredication.OK;
 	
 	protected Runnable inputHandler = NO_TASK;
@@ -71,8 +71,8 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 		final ItemStack stack = this.player.inventory.getCurrentItem();
 		this.copiedStack = stack.copy();
 		
-		final IModifiableType type = ( IModifiableType ) IItemTypeHost.getType( stack );
-		this.contexted = type.getContexted( stack );
+		final IItemType type = IItemTypeHost.getType( stack );
+		this.contexted = ( IModifiable ) type.getContexted( stack );
 		return this;
 	}
 	
@@ -113,10 +113,11 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 					final IItemType type = IItemTypeHost.getType( stack );
 					if( !( type instanceof IModifiableType ) ) continue;
 					
+					// Test if it is valid to install. // Copy before use.
 					final IModifiable preview = ( ( IModifiableType ) type )
-						.getContexted( stack.copy() ); // Copy before use
-					this.previewState1 = this.contexted.tryInstallPreview( slot, preview );
-					if( this.previewState1 == ModifyPredication.NO_PREVIEW ) continue;
+						.getContexted( stack.copy() );
+					this.previewState = this.contexted.tryInstallPreview( slot, preview );
+					if( this.previewState == ModifyPredication.NO_PREVIEW ) continue;
 					
 					// Is preview allowed, setup it as preview selected
 					preview.$step( this.curStep );
@@ -143,7 +144,7 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 				// If not found, setup indicator
 				if( invSlot == -1 )
 				{
-					this.previewState1 = ModifyPredication.NO_PREVIEW; // TODO: Seems not needed here
+					this.previewState = ModifyPredication.NO_PREVIEW; // TODO: Seems not needed here
 					this.positionState = ModifyPredication.OK;
 					this.setupIndicator();
 				}
@@ -232,7 +233,7 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 				// Installing a new module
 				else if(
 					this.previewInvSlot != -1
-					&& this.previewState1.okOrNotifyWhy() && this.positionState.okOrNotifyWhy()
+					&& this.previewState.okOrNotifyWhy() && this.positionState.okOrNotifyWhy()
 				) {
 					this.sendToServer(
 						new PacketModify(
@@ -334,6 +335,7 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 				this.resetPrimaryAndClearPreview();
 				this.locLen -= 2;
 				
+				// Can be better as it will never meet the case to setup indicator
 				this.setupSelection();
 			};
 			break;
@@ -386,7 +388,7 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 		this.locLen = 0;
 		
 		this.previewInvSlot = -1;
-		this.previewState1 = ModifyPredication.NO_PREVIEW;
+		this.previewState = ModifyPredication.NO_PREVIEW;
 		this.positionState = ModifyPredication.OK;
 		
 		this.selected = this.contexted;
@@ -430,8 +432,8 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 	@Override
 	public IOperation terminate()
 	{
-		final IModifiableType type = ( IModifiableType ) IItemTypeHost.getType( this.copiedStack );
-		this.contexted.base().install( 0, type.getContexted( this.copiedStack ) );
+		final IItemType type = IItemTypeHost.getType( this.copiedStack );
+		this.contexted.base().install( 0, ( IModifiable ) type.getContexted( this.copiedStack ) );
 		this.clearProgress();
 		return NONE;
 	}
@@ -491,8 +493,8 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 		else
 		{
 			final IModifiable base = this.contexted.getInstalled( this.loc, this.locLen - 2 );
-			this.previewState1 = base.tryInstallPreview( this.slot(), this.selected );
-			if( this.previewState1 == ModifyPredication.NO_PREVIEW )
+			this.previewState = base.tryInstallPreview( this.slot(), this.selected );
+			if( this.previewState == ModifyPredication.NO_PREVIEW )
 				this.terminate();
 			
 			this.positionState = this.contexted.checkInstalledPosition( this.selected );
@@ -511,9 +513,9 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 	/**
 	 * <p> Do 4 things: </p>
 	 * <ol>
-	 *     <li> Copy {@link #primary} from {@link #oriPrimary} </li>
-	 *     <li> Reset {@link #previewState} to {@link ModifyPredication#DEFUALT} </li>
-	 *     <li> Reset {@link #positionState} to {@link ModifyPredication#DEFUALT} </li>
+	 *     <li> Copy {@link #contexted} from {@link #copiedStack} </li>
+	 *     <li> Reset {@link #previewState} to {@link ModifyPredication#NO_PREVIEW} </li>
+	 *     <li> Reset {@link #positionState} to {@link ModifyPredication#OK} </li>
 	 *     <li> Reset {@link #previewInvSlot} to {@code -1} </li>
 	 * </ol>
 	 */
@@ -521,14 +523,14 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 	{
 		this.resetPrimary();
 		this.previewInvSlot = -1;
-		this.previewState1 = ModifyPredication.NO_PREVIEW;
+		this.previewState = ModifyPredication.NO_PREVIEW;
 		this.positionState = ModifyPredication.OK;
 	}
 	
 	protected void resetPrimary()
 	{
-		final IModifiableType type = ( IModifiableType ) IItemTypeHost.getType( this.copiedStack );
-		final IModifiable copied = type.getContexted( this.copiedStack.copy() );
+		final IItemType type = IItemTypeHost.getType( this.copiedStack );
+		final IModifiable copied = ( IModifiable ) type.getContexted( this.copiedStack.copy() );
 		this.contexted.base().install( 0, copied );
 		this.contexted = copied;
 	}
@@ -589,7 +591,7 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 	protected ModifyState modifyState()
 	{
 		return this.locLen == 0 || this.mode == ModifyMode.PAINTJOB ? ModifyState.NOT_SELECTED
-			: this.previewState1.ok() && this.positionState.ok()
+			: this.previewState.ok() && this.positionState.ok()
 				? ModifyState.SELECTED_OK : ModifyState.SELECTED_CONFLICT;
 	}
 	

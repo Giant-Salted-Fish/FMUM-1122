@@ -72,9 +72,9 @@ public final class PlayerPatchClient extends PlayerPatch
 			
 			// Call render tick for camera controller and item
 			final PlayerPatchClient patch = PlayerPatchClient.this;
-			patch.cameraController.onRenderTick( this );
-			patch.prevMainItem.onRenderTick( EnumHand.MAIN_HAND );
-			patch.prevOffItem.onRenderTick( EnumHand.OFF_HAND );
+			patch.cameraController.prepareRender( this );
+			patch.prevMainItem.prepareRenderInHand( EnumHand.MAIN_HAND );
+			patch.prevOffItem.prepareRenderInHand( EnumHand.OFF_HAND );
 		}
 	};
 	
@@ -113,14 +113,14 @@ public final class PlayerPatchClient extends PlayerPatch
 		this.playerAcceleration.set( this.playerVelocity ).subtract( this.prevPlayerVelocity );
 		
 		// Update camera effects
-		this.cameraController.onLogicTick();
+		this.cameraController.tick();
 		
 		// Ensure mouse helper(Mods like Flan's Mod may change mouse helper in certain conditions)
 		// TODO: maybe do a wrapper if the mouse help is not the original one and also not this one
 		MCWBClient.MC.mouseHelper = this.mouseHelper;
 	}
 	
-	public boolean onHandRender()
+	public boolean onRenderHand()
 	{
 		// Check if hand should be rendered or not
 		// Copied from {@link EntityRenderer#renderHand(float, int)}
@@ -136,8 +136,8 @@ public final class PlayerPatchClient extends PlayerPatch
 			|| settings.hideGUI
 			|| mc.playerController.isSpectator()
 			|| (
-				this.prevMainItem.onHandRender( EnumHand.MAIN_HAND )
-				&& this.prevOffItem.onHandRender( EnumHand.OFF_HAND )
+				this.prevMainItem.renderInHand( EnumHand.MAIN_HAND )
+				&& this.prevOffItem.renderInHand( EnumHand.OFF_HAND )
 			)
 		) return true;
 		
@@ -149,10 +149,10 @@ public final class PlayerPatchClient extends PlayerPatch
 		return false;
 	}
 	
-	public boolean onSpecificHandRender( EnumHand hand )
+	public boolean onRenderSpecificHand( EnumHand hand )
 	{
 		final IItem item = hand == EnumHand.MAIN_HAND ? this.prevMainItem : this.prevOffItem;
-		return item.onSpecificHandRender( hand );
+		return item.onRenderSpecificHand( hand );
 	}
 	
 	public void onCameraSetup( CameraSetup evt )

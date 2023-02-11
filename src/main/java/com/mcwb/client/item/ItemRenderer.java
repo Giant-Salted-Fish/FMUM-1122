@@ -3,10 +3,11 @@ package com.mcwb.client.item;
 import org.lwjgl.opengl.GL11;
 
 import com.google.gson.annotations.SerializedName;
+import com.mcwb.client.IAutowireBindTexture;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.Renderer;
-import com.mcwb.common.meta.IContexted;
+import com.mcwb.common.item.IItem;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.client.Minecraft;
@@ -21,8 +22,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public abstract class ItemRenderer< T extends IContexted > extends Renderer
-	implements IItemRenderer< T >
+public class ItemRenderer< T extends IItem > extends Renderer
+	implements IItemRenderer< T >, IAutowireBindTexture
 {
 	protected static final Vec3f HOLD_POS = new Vec3f( -40F / 160F, -50F / 160F, 100F / 160F );
 	protected static final Vec3f HOLD_ROT = new Vec3f();
@@ -34,7 +35,7 @@ public abstract class ItemRenderer< T extends IContexted > extends Renderer
 	protected Vec3f holdRot = HOLD_ROT;
 	
 	@Override
-	public void onLogicTick( T contexted, EnumHand hand )
+	public void tickInHand( T contexted, EnumHand hand )
 	{
 		final ItemAnimatorState state = this.animator( hand );
 		
@@ -50,7 +51,7 @@ public abstract class ItemRenderer< T extends IContexted > extends Renderer
 	 * rendering then override {@link #doRenderInHand()} as your first choice.
 	 */
 	@Override
-	public boolean onHandRender( T contexted, EnumHand hand )
+	public boolean renderInHand( T contexted, EnumHand hand )
 	{
 		GL11.glPushMatrix(); {
 		
@@ -105,9 +106,16 @@ public abstract class ItemRenderer< T extends IContexted > extends Renderer
 	}
 	
 	@Override
-	public boolean onSpecificHandRender( T contexted, EnumHand hand ) { return true; }
+	public boolean onRenderSpecificHand( T contexted, EnumHand hand ) { return true; }
 	
-	protected abstract void doRenderInHand( T contexted, EnumHand hand );
+	@Override
+	public void render( T contexted )
+	{
+		this.bindTexture( contexted.texture() );
+		this.render();
+	}
+	
+	protected void doRenderInHand( T contexted, EnumHand hand ) { this.render( contexted ); }
 	
 	protected ItemAnimatorState animator( EnumHand hand ) { return ItemAnimatorState.INSTANCE; }
 }

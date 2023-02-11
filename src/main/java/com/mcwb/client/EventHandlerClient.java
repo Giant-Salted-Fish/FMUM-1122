@@ -105,7 +105,7 @@ public final class EventHandlerClient
 	 * 3D models will be build client side on the first time of the world load
 	 */
 	@SubscribeEvent
-	public static void onWorldLoad( WorldEvent.Load evt )
+	public static void onWorld$Load( WorldEvent.Load evt )
 	{
 		// Avoid model load on player local server
 		if( !evt.getWorld().isRemote || meshLoaded )
@@ -133,7 +133,7 @@ public final class EventHandlerClient
 	}
 	
 	@SubscribeEvent
-	public static void onGameOverlayRender( RenderGameOverlayEvent.Pre evt )
+	public static void onRenderGameOverlay$Pre( RenderGameOverlayEvent.Pre evt )
 	{
 		switch( evt.getType() )
 		{
@@ -145,16 +145,16 @@ public final class EventHandlerClient
 	}
 	
 	@SubscribeEvent
-	public static void onHandRender( RenderHandEvent evt ) {
-		evt.setCanceled( PlayerPatchClient.instance.onHandRender() );
+	public static void onRenderHand( RenderHandEvent evt ) {
+		evt.setCanceled( PlayerPatchClient.instance.onRenderHand() );
 	}
 	
 	/**
 	 * TODO: proper intro
 	 */
 	@SubscribeEvent
-	public static void onSpecificHandRender( RenderSpecificHandEvent evt ) {
-		evt.setCanceled( PlayerPatchClient.instance.onSpecificHandRender( evt.getHand() ) );
+	public static void onRenderSpecificHand( RenderSpecificHandEvent evt ) {
+		evt.setCanceled( PlayerPatchClient.instance.onRenderSpecificHand( evt.getHand() ) );
 	}
 	
 	/**

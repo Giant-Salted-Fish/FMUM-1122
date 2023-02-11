@@ -7,6 +7,7 @@ import com.mcwb.common.meta.IContexted;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -24,11 +25,15 @@ public interface IItem extends IContexted
 	{
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean onHandRender( EnumHand hand ) { return hand == EnumHand.OFF_HAND; }
+		public boolean renderInHand( EnumHand hand ) { return hand == EnumHand.OFF_HAND; }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean onSpecificHandRender( EnumHand hand ) { return hand == EnumHand.OFF_HAND; }
+		public boolean onRenderSpecificHand( EnumHand hand ) { return hand == EnumHand.OFF_HAND; }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public ResourceLocation texture() { return null; }
 	};
 	
 	/**
@@ -38,11 +43,15 @@ public interface IItem extends IContexted
 	{
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean onHandRender( EnumHand hand ) { return false; }
+		public boolean renderInHand( EnumHand hand ) { return false; }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean onSpecificHandRender( EnumHand hand ) { return false; }
+		public boolean onRenderSpecificHand( EnumHand hand ) { return false; }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public ResourceLocation texture() { return null; }
 	};
 	
 	/**
@@ -56,22 +65,6 @@ public interface IItem extends IContexted
 	public default void onTakeOut( IItem oldItem, EntityPlayer player, EnumHand hand ) { }
 	
 	/**
-	 * @see PlayerPatchClient#onHandRender()
-	 * @param hand Actual hand to render in
-	 * @return {@code true} if should cancel original hand render
-	 */
-	@SideOnly( Side.CLIENT )
-	public boolean onHandRender( EnumHand hand );
-	
-	/**
-	 * @see PlayerPatchClient#onSpecificHandRender(EnumHand)
-	 * @param hand Actual hand
-	 * @return {@code true} if should cancel original hand render
-	 */
-	@SideOnly( Side.CLIENT )
-	public boolean onSpecificHandRender( EnumHand hand );
-	
-	/**
 	 * <p> It is not the appropriate time to render your models. Instead it gives you a chance to
 	 * prepare something before you do the actual rendering. </p>
 	 * 
@@ -79,7 +72,23 @@ public interface IItem extends IContexted
 	 * this method call. </p>
 	 */
 	@SideOnly( Side.CLIENT )
-	public default void onRenderTick( EnumHand hand ) { }
+	public default void prepareRenderInHand( EnumHand hand ) { }
+	
+	/**
+	 * @see PlayerPatchClient#onRenderHand()
+	 * @param hand Actual hand to render in
+	 * @return {@code true} if should cancel original hand render
+	 */
+	@SideOnly( Side.CLIENT )
+	public boolean renderInHand( EnumHand hand );
+	
+	/**
+	 * @see PlayerPatchClient#onRenderSpecificHand(EnumHand)
+	 * @param hand Actual hand
+	 * @return {@code true} if should cancel original hand render
+	 */
+	@SideOnly( Side.CLIENT )
+	public boolean onRenderSpecificHand( EnumHand hand );
 	
 	/**
 	 * This method is called when a key bind is triggered(pressed) when holding this item
@@ -97,4 +106,7 @@ public interface IItem extends IContexted
 	
 	@SideOnly( Side.CLIENT )
 	public default boolean hideCrosshair() { return false; }
+	
+	@SideOnly( Side.CLIENT )
+	public ResourceLocation texture();
 }

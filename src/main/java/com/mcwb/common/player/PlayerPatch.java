@@ -2,9 +2,12 @@ package com.mcwb.common.player;
 
 import javax.annotation.Nullable;
 
+import com.mcwb.common.ammo.IAmmoType;
+import com.mcwb.common.gun.IMag;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.IItemType;
 import com.mcwb.common.item.IItemTypeHost;
+import com.mcwb.devtool.DevHelper;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;

@@ -18,9 +18,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public interface ICameraController
 {
-	public void onLogicTick();
+	public void tick();
 	
-	public void onRenderTick( MouseHelper mouse );
+	public void prepareRender( MouseHelper mouse );
 	
 	/**
 	 * @param dst Set camera orientation into destination vector

@@ -11,11 +11,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public abstract class RenderableMeta< T extends IRenderer > extends TexturedMeta
 {
 	@SideOnly( Side.CLIENT )
-	@SerializedName( value = "modelPath", alternate = "model" )
-	protected String modelPath;
+	@SerializedName( value = "rendererPath", alternate = { "renderer", "model", "modelPath" } )
+	protected String rendererPath;
 	
 	@SideOnly( Side.CLIENT )
-	protected transient T model;
+	protected transient T renderer;
 	
 	@Override
 	public IMeta build( String name, IContentProvider provider )
@@ -33,10 +33,10 @@ public abstract class RenderableMeta< T extends IRenderer > extends TexturedMeta
 	{
 		// Set a default model path if does not have
 		final String fallbackType = this.loader().name();
-		if( this.modelPath == null )
-			this.modelPath = "models/" + fallbackType + "/" + this.name + ".json";
+		if( this.rendererPath == null )
+			this.rendererPath = "models/" + fallbackType + "/" + this.name + ".json";
 		
-		this.model = ( T ) this.provider.loadRenderer( this.modelPath, fallbackType );
-		this.modelPath = null; // TODO: if this is needed to reload the model?
+		this.renderer = ( T ) this.provider.loadRenderer( this.rendererPath, fallbackType );
+		this.rendererPath = null; // TODO: if this is needed to reload the model?
 	}
 }

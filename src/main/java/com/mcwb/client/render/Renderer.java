@@ -3,7 +3,6 @@ package com.mcwb.client.render;
 import org.lwjgl.opengl.GL11;
 
 import com.google.gson.annotations.SerializedName;
-import com.mcwb.client.IAutowireBindTexture;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.common.IAutowireLogger;
 import com.mcwb.common.MCWBResource;
@@ -19,7 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
 public class Renderer implements IRenderer, IBuildable< IRenderer >,
-	IRequireMeshLoad, IAutowireLogger, IAutowireBindTexture
+	IRequireMeshLoad, IAutowireLogger //, IAutowireBindTexture
 {
 	public static final ResourceLocation
 		TEXTURE_RED = new MCWBResource( "textures/0xff0000.png" ),
@@ -77,6 +76,8 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 		lightmapLastX = 0F,
 		lightmapLastY = 0F;
 	
+	private static int glowStack = 0;  // TODO: maybe avoid if?
+	
 	/**
 	 * Call {@link #glowOn(float)} with {@code 1F}
 	 */
@@ -90,6 +91,9 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 	 */
 	public static void glowOn( float glowFactor )
 	{
+		// Only glow when it is first time calling
+		if( glowStack++ != 0 ) return;
+		
 		// Push light bits and record previous brightness
 		GL11.glPushAttrib( GL11.GL_LIGHTING_BIT );
 		lightmapLastX = OpenGlHelper.lastBrightnessX;
@@ -109,6 +113,8 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 	 */
 	public static void glowOff()
 	{
+		if( --glowStack != 0 ) return;
+		
 		OpenGlHelper.setLightmapTextureCoords(
 			OpenGlHelper.lightmapTexUnit,
 			lightmapLastX, lightmapLastY

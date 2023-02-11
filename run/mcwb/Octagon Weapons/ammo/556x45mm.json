@@ -1,0 +1,7 @@
+{
+	"creativeTab": "oc",
+	"category": "556x45mm",
+	"model": "models/ammo/556x45mm.json",
+	"texture": "textures/ammo/bullets.png",
+	"case": "556x45mm_case"
+}

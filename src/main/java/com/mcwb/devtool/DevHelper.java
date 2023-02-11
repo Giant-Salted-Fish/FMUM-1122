@@ -10,7 +10,6 @@ import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
 import com.mcwb.common.MCWB;
-import com.mcwb.common.network.PacketModify;
 import com.mcwb.util.Vec3f;
 
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -75,8 +74,6 @@ public class DevHelper implements IAutowirePlayerChat
 			@Override
 			protected void fire()
 			{
-//				MCWB.MOD.sendToServer( new PacketModify( 4, 0, new byte[] { 1,0, 0,0 }, 4 ) );
-				MCWB.MOD.sendToServer( new PacketModify( new byte[] { 1, 0 }, 2 ) );
 				DevHelper.this.flag = !DevHelper.this.flag;
 			}
 		};

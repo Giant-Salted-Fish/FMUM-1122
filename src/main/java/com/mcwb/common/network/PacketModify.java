@@ -106,8 +106,8 @@ public class PacketModify implements IPacket
 				
 				// Copy primary and target stack to validate install
 				final ItemStack copiedStack = inv.getCurrentItem().copy();
-				final IModifiable copiedPrimary = ( ( IModifiableType )
-					IItemTypeHost.getType( copiedStack ) ).getContexted( copiedStack );
+				final IModifiable copiedPrimary = ( IModifiable )
+					IItemTypeHost.getType( copiedStack ).getContexted( copiedStack );
 				final IModifiable base = copiedPrimary.getInstalled( this.loc, len - 2 );
 				
 				final ItemStack copiedTarStack = tarStack.copy();

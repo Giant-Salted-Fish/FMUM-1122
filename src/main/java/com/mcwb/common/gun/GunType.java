@@ -17,6 +17,7 @@ public abstract class GunType< C extends IGunPart, M extends IGunPartRenderer< ?
 	public static final BuildableLoader< IMeta >
 		LOADER = new BuildableLoader<>( "gun", GunJson.class );
 	
+	@Override
 	protected IMeta loader() { return LOADER; }
 	
 	protected class Gun extends GunPart implements IGun

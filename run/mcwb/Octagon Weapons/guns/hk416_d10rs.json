@@ -6,7 +6,7 @@
 	"paramScale": 0.00625,
 	"moduleSlots": [
 		{
-			"origin": [ 0, 40, -16.5 ],
+			"origin": [ 0, 40, -15.5 ],
 			"allowed": [ "556x45mm_mag" ]
 		}, {
 			"origin": [ 0, 36.5, -44 ],

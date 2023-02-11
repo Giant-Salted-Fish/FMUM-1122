@@ -1,4 +1,4 @@
-package com.mcwb.common.item;
+	package com.mcwb.common.item;
 
 import javax.annotation.Nullable;
 
@@ -19,7 +19,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.INBTSerializable;
 
 public abstract class ItemType< C extends IItem, M extends IItemRenderer< ? super C > >
 	extends RenderableMeta< M > implements IItemType, IRequirePostLoad
@@ -111,7 +110,7 @@ public abstract class ItemType< C extends IItem, M extends IItemRenderer< ? supe
 		) {
 			// TODO: maybe move to context? // TODO: check hand and entity
 			if( worldIn.isRemote && isSelected )
-				ItemType.this.model.onLogicTick(
+				ItemType.this.renderer.tickInHand(
 					ItemType.this.getContexted( stack ),
 					EnumHand.MAIN_HAND
 				);

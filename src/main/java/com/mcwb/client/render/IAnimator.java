@@ -12,6 +12,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @FunctionalInterface
 public interface IAnimator
 {
+	public static final IAnimator INSTANCE = ( channel, smoother, dst ) -> { };
+	
 	@SideOnly( Side.CLIENT )
 	public void applyChannel( String channel, float smoother, Mat4f dst );
+	
+	@SideOnly( Side.CLIENT )
+	public default void getChannel( String channel, float smoother, Mat4f dst )
+	{
+		dst.setIdentity();
+		this.applyChannel( channel, smoother, dst );
+	}
 }

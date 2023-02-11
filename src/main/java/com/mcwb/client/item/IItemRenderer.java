@@ -14,23 +14,26 @@ public interface IItemRenderer< T extends IContexted > extends IRenderer
 	 * Called each tick if this item is holden in hand
 	 */
 	@SideOnly( Side.CLIENT )
-	public void onLogicTick( T contexted, EnumHand hand );
+	public void tickInHand( T contexted, EnumHand hand );
 	
 	/**
 	 * Called before the rendering in each frame if this item is holden in hand
 	 */
 	@SideOnly( Side.CLIENT )
-	public void onRenderTick( T contexted, EnumHand hand );
+	public default void prepareRenderInHand( T contexted, EnumHand hand ) { }
 	
 	/**
 	 * @return {@code true} if should cancel original render
 	 */
 	@SideOnly( Side.CLIENT )
-	public boolean onHandRender( T contexted, EnumHand hand );
+	public boolean renderInHand( T contexted, EnumHand hand );
 	
 	/**
 	 * @return {@code true} if should cancel original render
 	 */
 	@SideOnly( Side.CLIENT )
-	public boolean onSpecificHandRender( T contexted, EnumHand hand );
+	public boolean onRenderSpecificHand( T contexted, EnumHand hand );
+	
+	@SideOnly( Side.CLIENT )
+	public void render( T contexted );
 }

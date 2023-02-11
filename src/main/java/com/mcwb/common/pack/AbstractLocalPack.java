@@ -32,7 +32,7 @@ public abstract class AbstractLocalPack extends Meta implements IContentProvider
 		mapper.put( "creative_tabs", "creative_tab" );
 		mapper.put( "guns", "gun" );
 		mapper.put( "gun_parts", "gun_part" );
-//		mapper.put( "mags", "mag" );
+		mapper.put( "mags", "mag" );
 		mapper.put( "paintjobs", "paintjob" );
 		if( MCWB.MOD.isClient() )
 			mapper.put( "key_binds", "key_bind" );

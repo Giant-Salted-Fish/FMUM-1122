@@ -2,13 +2,12 @@ package com.mcwb.client.gun;
 
 import java.util.ArrayList;
 
-import org.lwjgl.opengl.GL11;
-
 import com.mcwb.client.item.ModifiableItemAnimatorState;
 import com.mcwb.client.item.ModifiableItemRenderer;
 import com.mcwb.client.modify.IModifiableRenderer;
-import com.mcwb.client.modify.IMultPassRenderer;
+import com.mcwb.client.modify.ISecondaryRenderer;
 import com.mcwb.client.player.ModifyOperationClient;
+import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IGunPart;
@@ -30,36 +29,57 @@ public class GunPartRenderer< T extends IGunPart > extends ModifiableItemRendere
 	
 	/**
 	 * Render queue is introduced here to help with rendering the objects with transparency
-	 * TODO: maybe a better way to achieve multiple render pass
+	 * FIXME: do not use same queue for first person hand and third-person view!
+	 *     Because rendering scope glass texture could also trigger other third-person render and
+	 *     this will break the queue state if they are the same
 	 */
-	protected static final ArrayList< IMultPassRenderer > RENDER_QUEUE = new ArrayList<>();
-	protected static final ArrayList< IMultPassRenderer > BACK_QUEUE = new ArrayList<>();
+	protected static final ArrayList< IRenderer > IN_HAND_RENDER_QUEUE = new ArrayList<>();
+	protected static final ArrayList< ISecondaryRenderer >
+		IN_HAND_SECONDARY_RENDER_QUEUE = new ArrayList<>();
+	
+	protected static final ArrayList< IRenderer > RENDER_QUEUE = new ArrayList<>();
+	protected static final ArrayList< ISecondaryRenderer >
+		SECONDARY_RENDER_QUEUE = new ArrayList<>();
 	
 	@Override
-	public void onRenderTick( T contexted, EnumHand hand )
+	public void prepareRenderInHand( T contexted, EnumHand hand )
 	{
 		// Prepare render queue
+		IN_HAND_RENDER_QUEUE.clear();
+		IN_HAND_SECONDARY_RENDER_QUEUE.clear();
+		contexted.base().prepareHandRenderer( // From wrapper
+			IN_HAND_RENDER_QUEUE,
+			IN_HAND_SECONDARY_RENDER_QUEUE,
+			this.animator( hand )
+		);
+		IN_HAND_SECONDARY_RENDER_QUEUE.sort( null );
+		IN_HAND_SECONDARY_RENDER_QUEUE.forEach( ISecondaryRenderer::prepare );
+	}
+	
+	@Override
+	public void render( T contexted )
+	{
 		RENDER_QUEUE.clear();
-		contexted.base().prepareRenderer( RENDER_QUEUE, this.animator( hand ) ); // From wrapper
+		SECONDARY_RENDER_QUEUE.clear();
+		contexted.base().prepareRenderer( // From wrapper
+			RENDER_QUEUE,
+			SECONDARY_RENDER_QUEUE,
+			IAnimator.INSTANCE // TODO: proper animator
+		);
+		RENDER_QUEUE.forEach( IRenderer::render );
+		SECONDARY_RENDER_QUEUE.forEach( IRenderer::render );
+	}
+	
+	@Override
+	public void renderModule( T contexted, IAnimator animator ) {
+		contexted.modifyState().doRecommendedRender( contexted.texture(), this::render );
 	}
 	
 	@Override
 	protected void doRenderInHand( T contexted, EnumHand hand )
 	{
-		// Repeat render pass until all modules has complete their work
-		while( RENDER_QUEUE.size() > 0 )
-		{
-			BACK_QUEUE.clear();
-			RENDER_QUEUE.forEach( renderer -> {
-				// Push matrix and render each module // TODO: maybe move to #render method
-				GL11.glPushMatrix(); {
-				renderer.render( BACK_QUEUE );
-				} GL11.glPopMatrix();
-			} );
-			
-			RENDER_QUEUE.clear();
-			RENDER_QUEUE.addAll( BACK_QUEUE );
-		}
+		IN_HAND_RENDER_QUEUE.forEach( IRenderer::render );
+		IN_HAND_SECONDARY_RENDER_QUEUE.forEach( IRenderer::render );
 	}
 	
 	@Override

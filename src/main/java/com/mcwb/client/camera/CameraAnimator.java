@@ -60,7 +60,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	 * Handles the camera effects
 	 */
 	@Override
-	public void onLogicTick()
+	public void tick()
 	{
 		// If looking around, clear camera recover speed
 		if( InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down )
@@ -104,7 +104,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	 * Handles the view update upon mouse input
 	 */
 	@Override
-	public void onRenderTick( MouseHelper mouse )
+	public void prepareRender( MouseHelper mouse )
 	{
 		final EntityPlayerSP player = MCWBClient.MC.player;
 		final MotionTendency camOffAxis = this.camOffAxis;

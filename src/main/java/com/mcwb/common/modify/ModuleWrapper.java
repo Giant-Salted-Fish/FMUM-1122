@@ -8,8 +8,9 @@ import javax.annotation.Nullable;
 import com.google.common.base.Supplier;
 import com.mcwb.client.IAutowireSmoother;
 import com.mcwb.client.item.ItemAnimatorState;
-import com.mcwb.client.modify.IMultPassRenderer;
+import com.mcwb.client.modify.ISecondaryRenderer;
 import com.mcwb.client.render.IAnimator;
+import com.mcwb.client.render.IRenderer;
 import com.mcwb.util.Mat4f;
 
 import net.minecraft.item.ItemStack;
@@ -186,18 +187,26 @@ public class ModuleWrapper implements IModifiable, ICapabilityProvider, IAutowir
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public void prepareRenderer( Collection< IMultPassRenderer > renderQueue, IAnimator animator )
-	{
+	public void prepareHandRenderer(
+		Collection< IRenderer > renderQueue,
+		Collection< ISecondaryRenderer > secondaryRenderQueue,
+		IAnimator animator
+	) {
 		this.mat.setIdentity();
 		animator.applyChannel( ItemAnimatorState.ITEM, this.smoother(), this.mat );
-		this.primary.prepareRenderer( renderQueue, animator );
+		this.primary.prepareHandRenderer( renderQueue, secondaryRenderQueue, animator );
 	}
 	
-//	@Override
-//	@SideOnly( Side.CLIENT )
-//	public IModifiable newModifyDelegate() {
-//		throw new RuntimeException( "Try to new modify delegate for " + this );
-//	}
+	@Override
+	@SideOnly( Side.CLIENT )
+	public void prepareRenderer(
+		Collection< IRenderer > renderQueue,
+		Collection< ISecondaryRenderer > secondaryRenderQueue,
+		IAnimator animator
+	) {
+		this.mat.setIdentity();
+		this.primary.prepareRenderer( renderQueue, secondaryRenderQueue, animator );
+	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )

@@ -12,17 +12,15 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.google.gson.annotations.SerializedName;
-import com.mcwb.client.IAutowireBindTexture;
-import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.Key;
 import com.mcwb.client.item.IItemRenderer;
 import com.mcwb.client.modify.IModifiableRenderer;
-import com.mcwb.client.modify.IMultPassRenderer;
+import com.mcwb.client.modify.ISecondaryRenderer;
 import com.mcwb.client.player.ModifyOperationClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
-import com.mcwb.client.render.Renderer;
+import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.modify.IModifiable;
@@ -219,8 +217,7 @@ public abstract class ModifiableItemType<
 	// TODO: maybe null on server side
 	protected static final FloatBuffer MAT_BUF = BufferUtils.createFloatBuffer( 16 );
 	
-	protected abstract class ModifiableItem extends Modifiable
-		implements IItem, IAutowireBindTexture
+	protected abstract class ModifiableItem extends Modifiable implements IItem
 	{
 		/**
 		 * It will be fixed hierarchy position at {@link Side#SERVER}. Mixed with output of
@@ -268,20 +265,20 @@ public abstract class ModifiableItemType<
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean onHandRender( EnumHand hand ) {
-			return ModifiableItemType.this.model.onHandRender( this.self(), hand );
+		public void prepareRenderInHand( EnumHand hand ) {
+			ModifiableItemType.this.renderer.prepareRenderInHand( this.self(), hand );
 		}
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean onSpecificHandRender( EnumHand hand ) {
-			return ModifiableItemType.this.model.onSpecificHandRender( this.self(), hand );
+		public boolean renderInHand( EnumHand hand ) {
+			return ModifiableItemType.this.renderer.renderInHand( this.self(), hand );
 		}
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public void onRenderTick( EnumHand hand ) {
-			ModifiableItemType.this.model.onRenderTick( this.self(), hand );
+		public boolean onRenderSpecificHand( EnumHand hand ) {
+			return ModifiableItemType.this.renderer.onRenderSpecificHand( this.self(), hand );
 		}
 		
 		@Override
@@ -312,17 +309,19 @@ public abstract class ModifiableItemType<
 			ModifiableItemType.this.slots.get( slot ).applyTransform( module, dst );
 		}
 		
-		@Override
 		@SideOnly( Side.CLIENT )
-		public void prepareRenderer(
-			Collection< IMultPassRenderer > renderQueue,
+		public void prepareHandRenderer(
+			Collection< IRenderer > renderQueue,
+			Collection< ISecondaryRenderer > secondaryRenderQueue,
 			IAnimator animator
 		) {
 			this.mat.setIdentity();
 			this.base.applyTransform( this.baseSlot, this, this.mat );
 			
 			// TODO: maybe avoid instantiation to improve performance?
-			renderQueue.add( queue -> {
+			renderQueue.add( () -> {
+				GL11.glPushMatrix(); {
+				
 				// Apply transform before actual render
 				final FloatBuffer buf = MAT_BUF;
 				buf.clear();
@@ -330,29 +329,47 @@ public abstract class ModifiableItemType<
 				buf.flip();
 				GL11.glMultMatrix( buf );
 				
-				// Bind texture and render!
-				switch( this.modifyState )
-				{
-				case SELECTED_OK:
-				case SELECTED_CONFLICT:
-					final boolean ok = this.modifyState == ModifyState.SELECTED_OK;
-					this.bindTexture( ok ? Renderer.TEXTURE_GREEN : Renderer.TEXTURE_RED );
-					break;
-				default:
-					final List< IPaintjob > paintjobs = ModifiableItemType.this.paintjobs;
-					MCWBClient.MOD.bindTexture( paintjobs.get( this.paintjob ).texture() );
-				}
-				ModifiableItemType.this.model.renderModule( this.self(), animator, renderQueue );
+				// Render!
+				ModifiableItemType.this.renderer.renderModule( this.self(), animator );
+				
+				} GL11.glPopMatrix();
 			} );
 			
-			this.installed.forEach( mod -> mod.prepareRenderer( renderQueue, animator ) );
+			this.installed.forEach(
+				mod -> mod.prepareHandRenderer( renderQueue, secondaryRenderQueue, animator )
+			);
 		}
 		
-//		@Override
-//		@SideOnly( Side.CLIENT )
-//		public IModifiable newModifyDelegate() {
-//			return ModifiableItemType.this.deserializeContexted( this.nbt.copy() );
-//		}
+		@SideOnly( Side.CLIENT )
+		public void prepareRenderer(
+			Collection< IRenderer > renderQueue,
+			Collection< ISecondaryRenderer > secondaryRenderQueue,
+			IAnimator animator
+		) {
+			this.mat.setIdentity();
+			this.base.applyTransform( this.baseSlot, this, this.mat );
+			
+			// TODO: maybe avoid instantiation to improve performance?
+			renderQueue.add( () -> {
+				GL11.glPushMatrix(); {
+				
+				// Apply transform before actual render
+				final FloatBuffer buf = MAT_BUF;
+				buf.clear();
+				this.mat.store( buf );
+				buf.flip();
+				GL11.glMultMatrix( buf );
+				
+				// Render!
+				ModifiableItemType.this.renderer.renderModule( this.self(), animator );
+				
+				} GL11.glPopMatrix();
+			} );
+			
+			this.installed.forEach(
+				mod -> mod.prepareRenderer( renderQueue, secondaryRenderQueue, animator )
+			);
+		}
 		
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -360,6 +377,12 @@ public abstract class ModifiableItemType<
 		{
 			return IModifiableType.REGISTRY.get( ModifiableItemType.this.modifyIndicator )
 				.newContexted( new NBTTagCompound() ); // TODO: maybe a buffer instance
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public ResourceLocation texture() {
+			return ModifiableItemType.this.paintjobs.get( this.paintjob ).texture();
 		}
 		
 		@Override
@@ -371,6 +394,12 @@ public abstract class ModifiableItemType<
 		@Override
 		protected IModifiableType fromId( int id ) {
 			return ( IModifiableType ) ( ( IItemTypeHost ) Item.getItemById( id ) ).meta();
+		}
+		
+		@SideOnly( Side.CLIENT )
+		protected void prepareRenderer()
+		{
+			
 		}
 		
 		@SuppressWarnings( "unchecked" )
