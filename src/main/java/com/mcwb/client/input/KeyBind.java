@@ -122,12 +122,11 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	@Override
 	public void update()
 	{
-		if( !this.updater.apply( this ) )
-			this.down = false;
-		else if( !this.down )
+		if( this.down ^ this.updater.apply( this ) )
 		{
-			this.down = true;
-			this.fire();
+			if( this.down ) this.release();
+			else this.fire();
+			this.down = !this.down;
 		}
 	}
 	
@@ -141,8 +140,7 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	public boolean clearMcKeyBind()
 	{
 		final int code = this.keyBind.getKeyCode();
-		if( code == this.keyCode )
-			return false;
+		if( code == this.keyCode ) return false;
 		
 		this.$keyCode( code );
 		this.keyBind.setKeyCode( Keyboard.KEY_NONE );
@@ -168,7 +166,9 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	/**
 	 * In default just pass the key press notification to player
 	 */
-	protected void fire() { PlayerPatchClient.instance.onKeyInput( this ); }
+	protected void fire() { PlayerPatchClient.instance.onKeyPress( this ); }
+	
+	protected void release() { PlayerPatchClient.instance.onKeyRelease( this ); }
 	
 	@Override
 	protected IMeta loader() { return LOADER; }

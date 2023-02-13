@@ -1,5 +1,8 @@
 package com.mcwb.client;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 
 import com.mcwb.client.input.IKeyBind;
@@ -14,6 +17,7 @@ import net.minecraft.client.gui.GuiControls;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -29,6 +33,7 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEve
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -41,12 +46,55 @@ public final class EventHandlerClient
 	public static boolean oriViewBobbing = MCWBClient.SETTINGS.viewBobbing;
 	public static float oriMouseSensi = MCWBClient.SETTINGS.mouseSensitivity;
 	
+	// TODO: exception appeared
+//	private static final Field KEY_BINDING__PRESS_TIME;
+//	static
+//	{
+//		try { KEY_BINDING__PRESS_TIME = KeyBinding.class.getField( "pressTime" ); }
+//		catch( NoSuchFieldException | SecurityException e ) {
+//			throw new RuntimeException( "Failed to get field <KeyBinding#pressTime>", e );
+//		}
+//		KEY_BINDING__PRESS_TIME.setAccessible( true );
+//	}
+//	
+//	private static final Method KEY_BINDING__UNPRESS_KEY;
+//	static
+//	{
+//		try { KEY_BINDING__UNPRESS_KEY = KeyBinding.class.getDeclaredMethod( "unpressKey" ); }
+//		catch( NoSuchMethodException | SecurityException e ) {
+//			throw new RuntimeException( "Failed to get method <KeyBinding#unpressKey()>", e );
+//		}
+//		KEY_BINDING__UNPRESS_KEY.setAccessible( true );
+//	}
+	
 	/**
 	 * Game gui in last tick
 	 */
 	private static GuiScreen prevGui = null;
 	
 	private EventHandlerClient() { }
+	
+	@SubscribeEvent
+	public static void onClientTick$Pre( ClientTickEvent evt )
+	{
+		switch( evt.phase )
+		{
+		case START:
+//			final KeyBinding key = MCWBClient.SETTINGS.keyBindSwapHands;
+//			try
+//			{
+//				final int pressTime = KEY_BINDING__PRESS_TIME.getInt( key );
+//				if( pressTime > 0 && PlayerPatchClient.instance.onSwapHand() )
+//					KEY_BINDING__UNPRESS_KEY.invoke( key );
+//			}
+//			catch(
+//				IllegalArgumentException | IllegalAccessException | InvocationTargetException e
+//			) { throw new RuntimeException( "Should never happen", e ); }
+//			break;
+			
+		case END: break;
+		}
+	}
 	
 //	@SubscribeEvent
 //	public static void onWorldUnload( WorldEvent.Unload evt )

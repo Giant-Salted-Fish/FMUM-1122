@@ -6,7 +6,7 @@ import com.mcwb.client.item.ModifiableItemAnimatorState;
 import com.mcwb.client.item.ModifiableItemRenderer;
 import com.mcwb.client.modify.IModifiableRenderer;
 import com.mcwb.client.modify.ISecondaryRenderer;
-import com.mcwb.client.player.ModifyOperationClient;
+import com.mcwb.client.player.OpModifyClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
@@ -83,7 +83,7 @@ public class GunPartRenderer< T extends IGunPart > extends ModifiableItemRendere
 	}
 	
 	@Override
-	protected ModifyOperationClient modifyOp() { return ModifiableItemType.MODIFY_OP; }
+	protected OpModifyClient opModify() { return ModifiableItemType.OP_MODIFY; }
 	
 	@Override
 	protected ModifiableItemAnimatorState animator( EnumHand hand ) {

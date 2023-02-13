@@ -35,6 +35,9 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 			"gun", json -> MCWB.GSON.fromJson( json, GunRenderer.class )
 		); // TODO: kind of weird as passing class works with ide but fails the compile
 	
+	protected static final Vec3f HOLD_POS = new Vec3f( -14F / 160F, -72F / 160F, 87.5F / 160F );
+	protected static final Vec3f HOLD_ROT = new Vec3f( 0F, 0F, -5F );
+	
 	// TODO: these vectors can be initialized with static variables as gson will create new instance on read
 	protected Vec3f motionInertiaPos = new Vec3f( -0.2F, -0.2F, -0.2F );
 	protected Vec3f motionInertiaRot = new Vec3f( -10F, 5F, 20F );
@@ -73,8 +76,8 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 	
 	public GunRenderer()
 	{
-		this.holdPos.set( -14F / 160F, -72F / 160F, 87.5F / 160F );
-		this.holdRot.set( 0F, 0F, -5F );
+		this.holdPos = HOLD_POS;
+		this.holdRot = HOLD_ROT;
 	}
 	
 	@Override
@@ -82,7 +85,7 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 	{
 		/// Prepare necessary variables ///
 		final GunAnimatorState state = this.animator( hand );
-		state.modifyOp = this.modifyOp();
+		state.modifyOp = this.opModify();
 		state.modifyPos = this.modifyPos;
 		
 		final Mat4f mat = state.m0;

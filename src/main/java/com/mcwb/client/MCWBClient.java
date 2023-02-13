@@ -25,6 +25,7 @@ import com.mcwb.client.render.IRenderer;
 import com.mcwb.client.render.Renderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.MCWBResource;
+import com.mcwb.common.gun.GunPartType.GunPartJson;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IRequireMeshLoad;
 import com.mcwb.common.meta.Registry;
@@ -56,6 +57,11 @@ public final class MCWBClient extends MCWB
 	
 	public static final MCWBClient MOD = new MCWBClient();
 	
+	public static final String MODIFY_INDICATOR = "modify_indicator";
+	
+	public static final Registry< BuildableLoader< ? extends IRenderer > >
+		MODEL_LOADERS = new Registry<>();
+	
 	public static byte[] modifyLoc;
 	
 	public static float freeViewLimitSquared;
@@ -64,9 +70,6 @@ public final class MCWBClient extends MCWB
 	public static float camDropAmpl;
 	
 	public static float camDropImpact;
-	
-	public static final Registry< BuildableLoader< ? extends IRenderer > >
-		MODEL_LOADERS = new Registry<>();
 	
 	/**
 	 * For those require mesh load
@@ -125,6 +128,12 @@ public final class MCWBClient extends MCWB
 			InputHandler.saveTo( this.keyBindsFile );
 		}
 		else InputHandler.readFrom( this.keyBindsFile );
+		
+		new GunPartJson() { {
+			this.creativeTab = "hide";
+			this.rendererPath = "models/modify_indicator.json";
+			this.texture = new MCWBResource( "textures/0x00ff00.png" );
+		} }.build( MODIFY_INDICATOR, this );
 		
 		// Do load content packs
 		super.load();

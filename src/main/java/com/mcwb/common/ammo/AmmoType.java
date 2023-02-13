@@ -27,6 +27,8 @@ public class AmmoType extends ItemType< IItem, IAmmoRenderer< ? super IAmmoType,
 	
 	protected String category;
 	
+	protected boolean isCase = false;
+	
 	protected int maxStackSize = 60;
 	
 	@Override
@@ -43,6 +45,9 @@ public class AmmoType extends ItemType< IItem, IAmmoRenderer< ? super IAmmoType,
 	
 	@Override
 	public String category() { return this.category; }
+	
+	@Override
+	public boolean isCase() { return this.isCase; }
 	
 	@Override
 	@SideOnly( Side.CLIENT )
@@ -67,6 +72,9 @@ public class AmmoType extends ItemType< IItem, IAmmoRenderer< ? super IAmmoType,
 			) {
 				return new ContextedWrapper( new IItem()
 				{
+					@Override
+					public IMeta meta() { return AmmoType.this; }
+					
 					@Override
 					@SideOnly( Side.CLIENT )
 					public boolean renderInHand( EnumHand hand ) {

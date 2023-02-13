@@ -1,4 +1,4 @@
-package com.mcwb.common.player;
+package com.mcwb.common.operation;
 
 import com.mcwb.common.meta.IContexted;
 
@@ -14,6 +14,9 @@ public abstract class Operation< T extends IContexted > implements IOperation
 	
 	protected float prevProgress;
 	protected float progress;
+	
+	protected int ieffect;
+	protected int isound;
 	
 	protected Operation( EntityPlayer player, T contexted, IOperationController controller )
 	{
@@ -32,6 +35,14 @@ public abstract class Operation< T extends IContexted > implements IOperation
 	}
 	
 	@Override
+	public IOperation launch( IOperation oldOp )
+	{
+		this.ieffect = 0;
+		this.isound = 0;
+		return this;
+	}
+	
+	@Override
 	public IOperation terminate()
 	{
 		this.clearProgress();
@@ -45,7 +56,13 @@ public abstract class Operation< T extends IContexted > implements IOperation
 		this.prevProgress = this.progress;
 		this.progress = Math.min( 1F, this.progress + this.controller.progressor() );
 		
-		// TODO: handle effects and play sounds
+		// TODO: play sounds: if we play this operation on other player's client then they can play sound automatically?
+		for(
+			final int effectCount = this.controller.effectCount();
+			this.ieffect < effectCount
+				&& this.controller.getEffectTime( this.ieffect ) <= this.progress;
+			this.dohandleEffect(), ++this.ieffect
+		);
 		
 		return this.prevProgress == 1F ? this.onComplete() : this;
 	}
@@ -63,4 +80,9 @@ public abstract class Operation< T extends IContexted > implements IOperation
 		this.prevProgress = 0F;
 		this.progress = 0F;
 	}
+	
+	/**
+	 * Handle effect specified by {@link #ieffect}
+	 */
+	protected void dohandleEffect() { }
 }

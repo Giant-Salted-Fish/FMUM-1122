@@ -1,4 +1,4 @@
-package com.mcwb.common.player;
+package com.mcwb.common.operation;
 
 import com.mcwb.common.item.IItem;
 
@@ -11,6 +11,9 @@ public interface IOperation
 	 * Default operation instance that simply do nothing
 	 */
 	public static final IOperation NONE = new IOperation() {
+		@Override
+		public IOperation onHoldingStackChange( IItem newItem ) { return this; }
+		
 		@Override
 		public String toString() { return "Operation::None"; }
 	};
@@ -81,7 +84,5 @@ public interface IOperation
 	 *     and duplicate launch problems
 	 * @return {@link #NONE} if this operation should terminate on item change
 	 */
-	public default IOperation onHoldingStackChange( IItem newItem ) {
-		return this.terminate();
-	}
+	public IOperation onHoldingStackChange( IItem newItem );
 }

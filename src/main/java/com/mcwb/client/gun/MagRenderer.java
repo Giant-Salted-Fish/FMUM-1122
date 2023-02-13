@@ -4,6 +4,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
+import com.mcwb.common.MCWB;
 import com.mcwb.common.ammo.IAmmoType;
 import com.mcwb.common.gun.IMag;
 import com.mcwb.common.load.BuildableLoader;
@@ -17,12 +18,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public class MagRenderer< T extends IMag > extends GunPartRenderer< T >
 {
-	public static final BuildableLoader< IRenderer >
-		LOADER = new BuildableLoader<>( "mag", MagRenderer.class );
+	public static final BuildableLoader< IRenderer > LOADER
+		= new BuildableLoader<>( "mag", json -> MCWB.GSON.fromJson( json, MagRenderer.class ) );
 	
 	protected static final int
 		MAG = 0,
 		FOLLOWER = 1;
+	
+	protected static final Vec3f HOLD_POS = new Vec3f( -25F / 160F, -30F / 160F, 70F / 160F );
+	protected static final Vec3f HOLD_ROT = new Vec3f( -15F, 0F, -10F );
 	
 	protected static final Vec3f[] AMMO_POS_ROT = { };
 	protected static final Vec3f[] FOLLOWER_POS_ROT = { Vec3f.ORIGIN };
@@ -33,6 +37,12 @@ public class MagRenderer< T extends IMag > extends GunPartRenderer< T >
 	// TODO: change rotation to quatarnion
 	protected Vec3f[] followerPos = FOLLOWER_POS_ROT;
 	protected Vec3f[] followerRot = FOLLOWER_POS_ROT;
+	
+	public MagRenderer()
+	{
+		this.holdPos = HOLD_POS;
+		this.holdRot = HOLD_ROT;
+	}
 	
 	@Override
 	public IRenderer build( String path, IContentProvider provider )
@@ -84,7 +94,7 @@ public class MagRenderer< T extends IMag > extends GunPartRenderer< T >
 		{
 			GL11.glPushMatrix(); {
 			
-			final IAmmoType ammo = contexted.get( ammoCount - i - 1 );
+			final IAmmoType ammo = contexted.getAmmo( ammoCount - i - 1 );
 			final Vec3f pos = this.ammoPos[ i ];
 			GL11.glTranslatef( flipPosX ? -pos.x : pos.x, pos.y, pos.z );
 			

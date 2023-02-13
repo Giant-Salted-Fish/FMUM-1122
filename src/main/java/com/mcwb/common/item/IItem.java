@@ -4,6 +4,7 @@ import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.Key;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.meta.IContexted;
+import com.mcwb.common.meta.IMeta;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
@@ -24,6 +25,9 @@ public interface IItem extends IContexted
 	public static final IItem EMPTY = new IItem()
 	{
 		@Override
+		public IMeta meta() { return null; }
+		
+		@Override
 		@SideOnly( Side.CLIENT )
 		public boolean renderInHand( EnumHand hand ) { return hand == EnumHand.OFF_HAND; }
 		
@@ -34,6 +38,7 @@ public interface IItem extends IContexted
 		@Override
 		@SideOnly( Side.CLIENT )
 		public ResourceLocation texture() { return null; }
+		
 	};
 	
 	/**
@@ -41,6 +46,9 @@ public interface IItem extends IContexted
 	 */
 	public static final IItem VANILLA = new IItem()
 	{
+		@Override
+		public IMeta meta() { return null; }
+		
 		@Override
 		@SideOnly( Side.CLIENT )
 		public boolean renderInHand( EnumHand hand ) { return false; }
@@ -96,7 +104,10 @@ public interface IItem extends IContexted
 	 * @param key Key bind being triggered. You can switch its name via {@link Key}.
 	 */
 	@SideOnly( Side.CLIENT )
-	public default void onKeyInput( IKeyBind key ) { }
+	public default void onKeyPress( IKeyBind key ) { }
+	
+	@SideOnly( Side.CLIENT )
+	public default void onKeyRelease( IKeyBind key ) { }
 	
 	@SideOnly( Side.CLIENT )
 	public default boolean onMouseWheelInput( int dWheel ) { return false; }

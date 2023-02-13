@@ -12,12 +12,13 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.google.gson.annotations.SerializedName;
+import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.Key;
 import com.mcwb.client.item.IItemRenderer;
 import com.mcwb.client.modify.IModifiableRenderer;
 import com.mcwb.client.modify.ISecondaryRenderer;
-import com.mcwb.client.player.ModifyOperationClient;
+import com.mcwb.client.player.OpModifyClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
@@ -52,8 +53,8 @@ public abstract class ModifiableItemType<
 > extends ItemType< C, M > implements IModifiableType, IPaintjob
 {
 	@SideOnly( Side.CLIENT )
-	public static final ModifyOperationClient MODIFY_OP; static {
-		MODIFY_OP = MCWB.MOD.isClient() ? new ModifyOperationClient() : null;
+	public static final OpModifyClient OP_MODIFY; static {
+		OP_MODIFY = MCWB.MOD.isClient() ? new OpModifyClient() : null;
 	}
 	
 	@SerializedName( value = "category", alternate = "group" )
@@ -72,7 +73,7 @@ public abstract class ModifiableItemType<
 	protected List< IPaintjob > paintjobs = Collections.emptyList();
 	
 	@SideOnly( Side.CLIENT )
-	protected String modifyIndicator = "modify_indicator"; // TODO: make it the default indicator provided by MCWB
+	protected String modifyIndicator = MCWBClient.MODIFY_INDICATOR;
 	
 	@Override
 	public IMeta build( String name, IContentProvider provider )
@@ -106,8 +107,8 @@ public abstract class ModifiableItemType<
 		this.clientOnly( () -> {
 			if( IModifiableType.REGISTRY.get( this.modifyIndicator ) == null )
 			{
-				// TODO: set a default indicator this.modifyIndicator = ;
 				this.error( "mcwb.fail_to_find_indicator", this, this.modifyIndicator );
+				this.modifyIndicator = MCWBClient.MODIFY_INDICATOR;
 			}
 		} );
 	}
@@ -237,7 +238,7 @@ public abstract class ModifiableItemType<
 		protected ModifiableItem( NBTTagCompound nbtToBeInit ) { super( nbtToBeInit ); }
 		
 		@Override
-		public String name() { return ModifiableItemType.this.name; }
+		public IMeta meta() { return ModifiableItemType.this; }
 		
 		@Override
 		public String category() { return ModifiableItemType.this.category; }
@@ -283,7 +284,7 @@ public abstract class ModifiableItemType<
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public void onKeyInput( IKeyBind key )
+		public void onKeyPress( IKeyBind key )
 		{
 			switch( key.name() )
 			{
@@ -291,15 +292,15 @@ public abstract class ModifiableItemType<
 			case Key.CO_TOGGLE_MODIFY:
 				// TODO: maybe get modify op from protected method
 				final PlayerPatchClient patch = PlayerPatchClient.instance;
-				if( patch.operating() instanceof ModifyOperationClient )
+				if( patch.operating() instanceof OpModifyClient )
 					patch.toggleOperating();
-				else patch.tryLaunch( MODIFY_OP.reset() );
+				else patch.tryLaunch( OP_MODIFY.reset( this ) );
 				break;
 			}
 			
 			// For keys of category modify, just send to operation to handle them
 			if( key.category().equals( Key.CATEGORY_MODIFY ) )
-				MODIFY_OP.handleKeyInput( key );
+				OP_MODIFY.handleKeyInput( key );
 		}
 		
 		@Override

@@ -13,6 +13,10 @@ public interface IAmmoType extends IItemType
 	
 	public String category();
 	
+	public boolean isCase();
+	
+//	public IAmmoType fire();
+	
 	@SideOnly( Side.CLIENT )
 	public void render();
 	

@@ -33,6 +33,8 @@ import com.mcwb.common.modify.IModuleSnapshot;
 import com.mcwb.common.modify.ModuleSnapshot;
 import com.mcwb.common.modify.RailSlot;
 import com.mcwb.common.network.PacketHandler;
+import com.mcwb.common.operation.IOperationController;
+import com.mcwb.common.operation.OperationController;
 import com.mcwb.common.pack.AbstractLocalPack;
 import com.mcwb.common.pack.FolderPack;
 import com.mcwb.common.pack.IContentProvider;
@@ -414,6 +416,7 @@ public class MCWB extends URLClassLoader
 		builder.registerTypeAdapter( IModuleSlot.class, RailSlot.ADAPTER );
 		builder.registerTypeAdapter( IModuleSnapshot.class, ModuleSnapshot.ADAPTER );
 		builder.registerTypeAdapter( IPaintjob.class, Paintjob.ADAPTER );
+		builder.registerTypeAdapter( IOperationController.class, OperationController.ADAPTER );
 		return builder;
 	}
 	

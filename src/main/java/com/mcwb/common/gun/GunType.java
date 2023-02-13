@@ -40,7 +40,7 @@ public abstract class GunType< C extends IGunPart, M extends IGunPartRenderer< ?
 		@SideOnly( Side.CLIENT )
 		public boolean hideCrosshair()
 		{
-			final boolean modifying = PlayerPatchClient.instance.operating() == MODIFY_OP;
+			final boolean modifying = PlayerPatchClient.instance.operating() == OP_MODIFY;
 			final boolean freeView = InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down;
 			return !( modifying && freeView );
 		}

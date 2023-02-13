@@ -1,7 +1,7 @@
 package com.mcwb.client.item;
 
 import com.mcwb.client.MCWBClient;
-import com.mcwb.client.player.ModifyOperationClient;
+import com.mcwb.client.player.OpModifyClient;
 import com.mcwb.common.item.ModifiableItemType;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Vec3f;
@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public class ModifiableItemAnimatorState extends ItemAnimatorState
 {
-	public ModifyOperationClient modifyOp = ModifiableItemType.MODIFY_OP;
+	public OpModifyClient modifyOp = ModifiableItemType.OP_MODIFY;
 	
 	public Vec3f modifyPos = Vec3f.ORIGIN;
 	

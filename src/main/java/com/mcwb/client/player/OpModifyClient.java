@@ -14,8 +14,9 @@ import com.mcwb.common.modify.IModifiable.ModifyState;
 import com.mcwb.common.modify.IModifiableType;
 import com.mcwb.common.modify.ModifyPredication;
 import com.mcwb.common.network.PacketModify;
-import com.mcwb.common.player.IOperation;
-import com.mcwb.common.player.TogglableOperation;
+import com.mcwb.common.operation.IOperation;
+import com.mcwb.common.operation.OperationController;
+import com.mcwb.common.operation.TogglableOperation;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -24,7 +25,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class ModifyOperationClient extends TogglableOperation< IModifiable >
+public class OpModifyClient extends TogglableOperation< IModifiable >
 	implements IAutowirePacketHandler, IAutowirePlayerChat
 {
 	protected static final Runnable NO_TASK = () -> { };
@@ -62,17 +63,17 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 	
 	protected Runnable inputHandler = NO_TASK;
 	
-	public ModifyOperationClient() { super( null, null, () -> 0.1F, () -> -0.1F ); }
+	public OpModifyClient() {
+		super( null, null, new OperationController( 0.1F ), new OperationController( -0.1F ) );
+	}
 	
-	public ModifyOperationClient reset()
+	public OpModifyClient reset( IModifiable primary )
 	{
 		this.player = MCWBClient.MC.player;
+		this.contexted = primary;
 		
 		final ItemStack stack = this.player.inventory.getCurrentItem();
 		this.copiedStack = stack.copy();
-		
-		final IItemType type = IItemTypeHost.getType( stack );
-		this.contexted = ( IModifiable ) type.getContexted( stack );
 		return this;
 	}
 	
@@ -432,8 +433,8 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 	@Override
 	public IOperation terminate()
 	{
-		final IItemType type = IItemTypeHost.getType( this.copiedStack );
-		this.contexted.base().install( 0, ( IModifiable ) type.getContexted( this.copiedStack ) );
+		final IModifiableType type = ( IModifiableType ) this.contexted.meta();
+		this.contexted.base().install( 0, type.getContexted( this.copiedStack ) );
 		this.clearProgress();
 		return NONE;
 	}
@@ -447,10 +448,8 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 		// NOTE:
 		//     We do not check meta as it could change upon modification. For example, installing \
 		//     special attachment could actually change the meta of primary module base.
-//		this.sendPlayerMsg( "holding stack change" );
-		//FIXME: no type check
-		if( newItem instanceof IModifiable );
-		else return this.terminate();
+		if( newItem.meta() != this.contexted.meta() )
+			return this.terminate();
 		
 		IModifiable newMod = ( IModifiable ) newItem;
 		IModifiable oldMod = this.contexted;
@@ -529,8 +528,8 @@ public class ModifyOperationClient extends TogglableOperation< IModifiable >
 	
 	protected void resetPrimary()
 	{
-		final IItemType type = IItemTypeHost.getType( this.copiedStack );
-		final IModifiable copied = ( IModifiable ) type.getContexted( this.copiedStack.copy() );
+		final IModifiableType type = ( IModifiableType ) this.contexted.meta();
+		final IModifiable copied = type.getContexted( this.copiedStack.copy() );
 		this.contexted.base().install( 0, copied );
 		this.contexted = copied;
 	}

@@ -4,7 +4,7 @@
 	"model": "models/mag/556x45mm_30_round_mag.json",
 	"texture": "textures/guns/hk416_d10rs.png",
 	
-	"allowedAmmoCapacity": [ "556x45mm" ],
+	"allowedAmmoCategory": [ "556x45mm" ],
 	"capacity": 30,
 	
 	"_paramScale": 0.00625,

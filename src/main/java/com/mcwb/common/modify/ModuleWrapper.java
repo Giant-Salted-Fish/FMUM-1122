@@ -11,6 +11,7 @@ import com.mcwb.client.item.ItemAnimatorState;
 import com.mcwb.client.modify.ISecondaryRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
+import com.mcwb.common.meta.IMeta;
 import com.mcwb.util.Mat4f;
 
 import net.minecraft.item.ItemStack;
@@ -72,10 +73,13 @@ public class ModuleWrapper implements IModifiable, ICapabilityProvider, IAutowir
 	}
 	
 	@Override
+	public IMeta meta() { throw new RuntimeException( "Try to get type from " + this ); }
+	
+	@Override
 	public String name() { return NAME; }
 	
 	@Override
-	public String category() { return NAME; }
+	public String category() { throw new RuntimeException( "Try to get category from " + this ); }
 	
 	@Override
 	public ItemStack toStack() { throw new RuntimeException( "Try to get stack for " + this ); }

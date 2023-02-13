@@ -83,6 +83,7 @@ mcwb.key_category.general=MCWB 通用
 mcwb.key.free_view=自由视角
 
 mcwb.key_category.gun=MCWB 武器
+mcwb.key.pull_trigger=武器开火
 mcwb.key.aim_hold=按住瞄准
 mcwb.key.aim_toggle=切换瞄准
 

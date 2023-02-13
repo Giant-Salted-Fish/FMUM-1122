@@ -21,7 +21,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IModifiable extends IContexted, INBTSerializable< NBTTagCompound >
 {
-	public String name();
+	public default String name() { return this.meta().name(); }
 	
 	public String category();
 	

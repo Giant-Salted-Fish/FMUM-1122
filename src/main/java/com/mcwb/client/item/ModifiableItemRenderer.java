@@ -1,6 +1,6 @@
 package com.mcwb.client.item;
 
-import com.mcwb.client.player.ModifyOperationClient;
+import com.mcwb.client.player.OpModifyClient;
 import com.mcwb.common.item.IItem;
 import com.mcwb.util.Vec3f;
 
@@ -15,7 +15,7 @@ public abstract class ModifiableItemRenderer< T extends IItem > extends ItemRend
 	
 	protected Vec3f modifyPos = MODIFY_POS;
 	
-	protected abstract ModifyOperationClient modifyOp();
+	protected abstract OpModifyClient opModify();
 	
 	@Override
 	protected abstract ModifiableItemAnimatorState animator( EnumHand hand );

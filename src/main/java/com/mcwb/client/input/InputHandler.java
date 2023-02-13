@@ -49,6 +49,7 @@ public final class InputHandler
 	 * These keys always update
 	 */
 	public static final KeyBind
+		PULL_TRIGGER = new KeyBind( Key.PULL_TRIGGER, Key.CATEGORY_GUN, 0 - 100, GLOBAL_KEYS ),
 		AIM_HOLD = new KeyBind( Key.AIM_HOLD, Key.CATEGORY_GUN, 1 - 100, GLOBAL_KEYS ),
 		AIM_TOGGLE = new KeyBind(
 			Key.AIM_TOGGLE, Key.CATEGORY_GUN, Keyboard.KEY_NONE, GLOBAL_KEYS

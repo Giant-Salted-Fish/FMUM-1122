@@ -169,5 +169,9 @@ public final class PlayerPatchClient extends PlayerPatch
 		return this.prevMainItem.onMouseWheelInput( dWheel );
 	}
 	
-	public void onKeyInput( IKeyBind key ) { this.prevMainItem.onKeyInput( key ); }
+	public boolean onSwapHand() { return false; } // TODO: swap hand event?
+	
+	public void onKeyPress( IKeyBind key ) { this.prevMainItem.onKeyPress( key ); }
+	
+	public void onKeyRelease( IKeyBind key ) { this.prevMainItem.onKeyRelease( key ); }
 }

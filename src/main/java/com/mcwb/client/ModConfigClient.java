@@ -10,4 +10,10 @@ import net.minecraftforge.common.config.Config.LangKey;
 @Config( modid = MCWB.MODID, category = "client" )
 public final class ModConfigClient
 {
+//	@LangKey( "mcwb.config.client.skip_case_when_possible" )
+//	@Comment(
+//		"Whether to skip ammo case when loading ammo. You can still "
+//		+ "load case into mag by pressing \"z\" + pop ammo key."
+//	)
+//	public static boolean skipCase = true;
 }

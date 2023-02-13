@@ -16,11 +16,14 @@ public interface IItemTypeHost extends IMetaHost
 	@Override
 	public IItemType meta();
 	
+	/***
+	 * @return {@link IItemType#VANILLA} if stack is empty
+	 */
 	public static IItemType getType( ItemStack stack )
 	{
 		final Item item = stack.getItem();
 		final boolean isHost = item instanceof IItemTypeHost;
-		return isHost ? ( ( IItemTypeHost ) item ).meta() : IItemType.VANILLA;
+		return !isHost && stack.isEmpty() ? IItemType.VANILLA : ( ( IItemTypeHost ) item ).meta();
 	}
 	
 	/**

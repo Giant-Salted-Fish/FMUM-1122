@@ -84,6 +84,7 @@ mcwb.key_category.general=MCWB General
 mcwb.key.free_view=Free View
 
 mcwb.key_category.gun=MCWB Weapon
+mcwb.key.pull_trigger=Pull Trigger
 mcwb.key.aim_hold=Aim Hold
 mcwb.key.aim_toggle=Aim Toggle
 

@@ -1,6 +1,7 @@
 package com.mcwb.common.gun;
 
 import com.mcwb.common.ammo.IAmmoType;
+import com.mcwb.common.operation.IOperationController;
 
 public interface IMag extends IGunPart
 {
@@ -12,11 +13,15 @@ public interface IMag extends IGunPart
 	
 	public boolean isAllowed( IAmmoType ammo );
 	
-	public void push( IAmmoType ammo );
+	public void pushAmmo( IAmmoType ammo );
 	
-	public default IAmmoType peek() { return this.get( this.ammoCount() - 1 ); }
+	public default IAmmoType peek() { return this.getAmmo( this.ammoCount() - 1 ); }
 	
-	public IAmmoType pop();
+	public IAmmoType popAmmo();
 	
-	public IAmmoType get( int idx );
+	public IAmmoType getAmmo( int idx );
+	
+	public IOperationController pushAmmoController();
+	
+	public IOperationController popAmmoController();
 }
