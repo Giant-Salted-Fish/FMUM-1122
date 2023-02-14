@@ -15,6 +15,7 @@ import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.Key;
+import com.mcwb.client.input.Key.KeyCategory;
 import com.mcwb.client.item.IItemRenderer;
 import com.mcwb.client.modify.IModifiableRenderer;
 import com.mcwb.client.modify.ISecondaryRenderer;
@@ -238,7 +239,7 @@ public abstract class ModifiableItemType<
 		protected ModifiableItem( NBTTagCompound nbtToBeInit ) { super( nbtToBeInit ); }
 		
 		@Override
-		public IMeta meta() { return ModifiableItemType.this; }
+		public String name() { return ModifiableItemType.this.name; }
 		
 		@Override
 		public String category() { return ModifiableItemType.this.category; }
@@ -299,7 +300,7 @@ public abstract class ModifiableItemType<
 			}
 			
 			// For keys of category modify, just send to operation to handle them
-			if( key.category().equals( Key.CATEGORY_MODIFY ) )
+			if( key.category().equals( KeyCategory.MODIFY ) )
 				OP_MODIFY.handleKeyInput( key );
 		}
 		

@@ -9,6 +9,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import com.google.gson.annotations.SerializedName;
+import com.mcwb.client.input.Key.KeyCategory;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.load.BuildableLoader;
@@ -47,7 +48,7 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	protected transient Function< IKeyBind, Boolean > updater = ABSENT_UPDATER;
 	
 	@SerializedName( value = "category", alternate = "group" )
-	protected String category = Key.CATEGORY_OTHER;
+	protected String category = KeyCategory.OTHER;
 	
 	protected transient KeyBinding keyBind;
 	
@@ -78,17 +79,17 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 		// Otherwise, assign group based on its category
 		else switch( category )
 		{
-		case Key.CATEGORY_MODIFY:
+		case KeyCategory.MODIFY:
 			InputHandler.GLOBAL_KEYS.add( this );
 			break;
 			
-		case Key.CATEGORY_ASSIST:
+		case KeyCategory.ASSIST:
 			InputHandler.CO_KEYS.add( this );
 			break;
 			
-		case Key.CATEGORY_GENERAL:
-		case Key.CATEGORY_GUN:
-		case Key.CATEGORY_OTHER:
+		case KeyCategory.GENERAL:
+		case KeyCategory.GUN:
+		case KeyCategory.OTHER:
 			InputHandler.INCO_KEYS.add( this );
 			break;
 			

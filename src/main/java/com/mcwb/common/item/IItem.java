@@ -4,7 +4,6 @@ import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.Key;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.meta.IContexted;
-import com.mcwb.common.meta.IMeta;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
@@ -25,9 +24,6 @@ public interface IItem extends IContexted
 	public static final IItem EMPTY = new IItem()
 	{
 		@Override
-		public IMeta meta() { return null; }
-		
-		@Override
 		@SideOnly( Side.CLIENT )
 		public boolean renderInHand( EnumHand hand ) { return hand == EnumHand.OFF_HAND; }
 		
@@ -47,9 +43,6 @@ public interface IItem extends IContexted
 	public static final IItem VANILLA = new IItem()
 	{
 		@Override
-		public IMeta meta() { return null; }
-		
-		@Override
 		@SideOnly( Side.CLIENT )
 		public boolean renderInHand( EnumHand hand ) { return false; }
 		
@@ -63,14 +56,23 @@ public interface IItem extends IContexted
 	};
 	
 	/**
-	 * Called when player is trying to switch to another item
+	 * Called when player trying to switch to another main hand item
 	 */
-	public default void onPutAway( IItem newItem, EntityPlayer player, EnumHand hand ) { }
+//	public default void onPutAway( IItem newItem, EntityPlayer player ) { }
 	
 	/**
-	 * Called when player is trying to switch to this item
+	 * Called when player is trying to take out this item
+	 * 
+	 * TODO: refactor this part maybe?
 	 */
 	public default void onTakeOut( IItem oldItem, EntityPlayer player, EnumHand hand ) { }
+	
+	/**
+	 * Called when player is trying swap this main hand item to off-hand
+	 * 
+	 * @return {@code true} to accept this swap
+	 */
+	public default boolean onSwapHand( EntityPlayer player ) { return true; }
 	
 	/**
 	 * <p> It is not the appropriate time to render your models. Instead it gives you a chance to

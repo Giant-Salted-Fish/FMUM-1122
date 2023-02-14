@@ -11,6 +11,7 @@ import org.lwjgl.input.Keyboard;
 
 import com.google.gson.JsonObject;
 import com.mcwb.client.MCWBClient;
+import com.mcwb.client.input.Key.KeyCategory;
 import com.mcwb.common.IAutowireLogger;
 import com.mcwb.common.MCWB;
 
@@ -30,6 +31,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public final class InputHandler
 {
+	// TODO: can be better by directly map key codes to updater
+	
 	/**
 	 * Keys that will always update
 	 */
@@ -49,38 +52,40 @@ public final class InputHandler
 	 * These keys always update
 	 */
 	public static final KeyBind
-		PULL_TRIGGER = new KeyBind( Key.PULL_TRIGGER, Key.CATEGORY_GUN, 0 - 100, GLOBAL_KEYS ),
-		AIM_HOLD = new KeyBind( Key.AIM_HOLD, Key.CATEGORY_GUN, 1 - 100, GLOBAL_KEYS ),
-		AIM_TOGGLE = new KeyBind(
-			Key.AIM_TOGGLE, Key.CATEGORY_GUN, Keyboard.KEY_NONE, GLOBAL_KEYS
-		),
+		PULL_TRIGGER = new KeyBind( Key.PULL_TRIGGER, KeyCategory.GUN, 0 - 100, GLOBAL_KEYS ),
+		AIM_HOLD = new KeyBind( Key.AIM_HOLD, KeyCategory.GUN, 1 - 100, GLOBAL_KEYS ),
+		AIM_TOGGLE = new KeyBind( Key.AIM_TOGGLE, KeyCategory.GUN, Keyboard.KEY_NONE, GLOBAL_KEYS ),
+		RELOAD = new KeyBind( Key.RELOAD, KeyCategory.GUN, Keyboard.KEY_R ),
+		LOAD_UNLOAD_MAG = new KeyBind( Key.LOAD_UNLOAD_MAG, KeyCategory.GUN, Keyboard.KEY_T ),
 		
 		// TODO: change the default bind key for this maybe
-		SELECT_TOGGLE = new KeyBind( Key.SELECT_TOGGLE, Key.CATEGORY_MODIFY, Keyboard.KEY_V ),
-		SELECT_UP = new KeyBind( Key.SELECT_UP, Key.CATEGORY_MODIFY, Keyboard.KEY_UP ),
-		SELECT_DOWN = new KeyBind( Key.SELECT_DOWN, Key.CATEGORY_MODIFY, Keyboard.KEY_DOWN ),
-		SELECT_LEFT = new KeyBind( Key.SELECT_LEFT, Key.CATEGORY_MODIFY, Keyboard.KEY_LEFT ),
-		SELECT_RIGHT = new KeyBind( Key.SELECT_RIGHT, Key.CATEGORY_MODIFY, Keyboard.KEY_RIGHT ),
-		SELECT_CONFIRM = new KeyBind( Key.SELECT_CONFIRM, Key.CATEGORY_MODIFY, Keyboard.KEY_G ),
-		SELECT_CANCEL = new KeyBind( Key.SELECT_CANCEL, Key.CATEGORY_MODIFY, Keyboard.KEY_H ),
+		SELECT_TOGGLE = new KeyBind( Key.SELECT_TOGGLE, KeyCategory.MODIFY, Keyboard.KEY_V ),
+		SELECT_UP = new KeyBind( Key.SELECT_UP, KeyCategory.MODIFY, Keyboard.KEY_UP ),
+		SELECT_DOWN = new KeyBind( Key.SELECT_DOWN, KeyCategory.MODIFY, Keyboard.KEY_DOWN ),
+		SELECT_LEFT = new KeyBind( Key.SELECT_LEFT, KeyCategory.MODIFY, Keyboard.KEY_LEFT ),
+		SELECT_RIGHT = new KeyBind( Key.SELECT_RIGHT, KeyCategory.MODIFY, Keyboard.KEY_RIGHT ),
+		SELECT_CONFIRM = new KeyBind( Key.SELECT_CONFIRM, KeyCategory.MODIFY, Keyboard.KEY_G ),
+		SELECT_CANCEL = new KeyBind( Key.SELECT_CANCEL, KeyCategory.MODIFY, Keyboard.KEY_H ),
 		
-		CO = new KeyBind( Key.CO, Key.CATEGORY_ASSIST, Keyboard.KEY_Z, GLOBAL_KEYS );
+		CO = new KeyBind( Key.CO, KeyCategory.ASSIST, Keyboard.KEY_Z, GLOBAL_KEYS );
 	
 	/**
 	 * These keys will update if {@link #CO} is not down
 	 */
 	public static final KeyBind
-		FREE_VIEW = new KeyBind( Key.FREE_VIEW, Key.CATEGORY_GENERAL, Keyboard.KEY_LMENU ),
-		TOGGLE_MODIFY = new KeyBind( Key.TOGGLE_MODIFY, Key.CATEGORY_GUN, Keyboard.KEY_I );
+		FREE_VIEW = new KeyBind( Key.FREE_VIEW, KeyCategory.GENERAL, Keyboard.KEY_LMENU ),
+		TOGGLE_MODIFY = new KeyBind( Key.TOGGLE_MODIFY, KeyCategory.GUN, Keyboard.KEY_I );
 	
 	/**
 	 * These keys will update if {@link #CO} is down
 	 */
 	public static final KeyBind
-		CO_FREE_VIEW = new KeyBind( Key.CO_FREE_VIEW, Key.CATEGORY_ASSIST, Keyboard.KEY_NONE ),
+		CO_FREE_VIEW = new KeyBind( Key.CO_FREE_VIEW, KeyCategory.ASSIST, Keyboard.KEY_NONE ),
+		CO_RELOAD = new KeyBind( Key.CO_RELOAD, KeyCategory.ASSIST, Keyboard.KEY_NONE ),
+		CO_LOAD_UNLOAD_MAG = new KeyBind(
+			Key.CO_LOAD_UNLOAD_MAG, KeyCategory.ASSIST, Keyboard.KEY_NONE ),
 		CO_TOGGLE_MODIFY = new KeyBind(
-			Key.CO_TOGGLE_MODIFY, Key.CATEGORY_ASSIST, Keyboard.KEY_NONE
-		);
+			Key.CO_TOGGLE_MODIFY, KeyCategory.ASSIST, Keyboard.KEY_NONE );
 	
 	private static final IAutowireLogger LOGGER = MCWBClient.MOD;
 	

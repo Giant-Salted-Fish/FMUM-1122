@@ -7,7 +7,10 @@ import com.mcwb.client.MCWBClient;
 import com.mcwb.client.camera.CameraAnimator;
 import com.mcwb.client.camera.ICameraController;
 import com.mcwb.client.input.IKeyBind;
+import com.mcwb.common.IAutowirePacketHandler;
 import com.mcwb.common.item.IItem;
+import com.mcwb.common.network.PacketCode;
+import com.mcwb.common.network.PacketCode.Code;
 import com.mcwb.common.player.PlayerPatch;
 import com.mcwb.util.Vec3f;
 
@@ -23,7 +26,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public final class PlayerPatchClient extends PlayerPatch
+public final class PlayerPatchClient extends PlayerPatch implements IAutowirePacketHandler
 {
 	/**
 	 * As there could only be one client player hence only one client patch instance here
@@ -73,8 +76,8 @@ public final class PlayerPatchClient extends PlayerPatch
 			// Call render tick for camera controller and item
 			final PlayerPatchClient patch = PlayerPatchClient.this;
 			patch.cameraController.prepareRender( this );
-			patch.prevMainItem.prepareRenderInHand( EnumHand.MAIN_HAND );
-			patch.prevOffItem.prepareRenderInHand( EnumHand.OFF_HAND );
+			patch.mainItem.prepareRenderInHand( EnumHand.MAIN_HAND );
+			patch.offItem.prepareRenderInHand( EnumHand.OFF_HAND );
 		}
 	};
 	
@@ -94,7 +97,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		if( MCWBClient.MC.currentScreen == null )
 		{
 			final GameSettings settings = MCWBClient.SETTINGS;
-			settings.viewBobbing = this.prevMainItem
+			settings.viewBobbing = this.mainItem
 				.updateViewBobbing( EventHandlerClient.oriViewBobbing );
 		}
 		
@@ -136,8 +139,8 @@ public final class PlayerPatchClient extends PlayerPatch
 			|| settings.hideGUI
 			|| mc.playerController.isSpectator()
 			|| (
-				this.prevMainItem.renderInHand( EnumHand.MAIN_HAND )
-				&& this.prevOffItem.renderInHand( EnumHand.OFF_HAND )
+				this.mainItem.renderInHand( EnumHand.MAIN_HAND )
+				&& this.offItem.renderInHand( EnumHand.OFF_HAND )
 			)
 		) return true;
 		
@@ -151,7 +154,7 @@ public final class PlayerPatchClient extends PlayerPatch
 	
 	public boolean onRenderSpecificHand( EnumHand hand )
 	{
-		final IItem item = hand == EnumHand.MAIN_HAND ? this.prevMainItem : this.prevOffItem;
+		final IItem item = hand == EnumHand.MAIN_HAND ? this.mainItem : this.offItem;
 		return item.onRenderSpecificHand( hand );
 	}
 	
@@ -163,15 +166,21 @@ public final class PlayerPatchClient extends PlayerPatch
 		evt.setRoll( this.camRot.z );
 	}
 	
-	public boolean hideCrosshair() { return this.prevMainItem.hideCrosshair(); }
+	public boolean hideCrosshair() { return this.mainItem.hideCrosshair(); }
 	
 	public boolean onMouseWheelInput( int dWheel ) {
-		return this.prevMainItem.onMouseWheelInput( dWheel );
+		return this.mainItem.onMouseWheelInput( dWheel );
 	}
 	
-	public boolean onSwapHand() { return false; } // TODO: swap hand event?
+	public void onKeyPress( IKeyBind key ) { this.mainItem.onKeyPress( key ); }
 	
-	public void onKeyPress( IKeyBind key ) { this.prevMainItem.onKeyPress( key ); }
+	public void onKeyRelease( IKeyBind key ) { this.mainItem.onKeyRelease( key ); }
 	
-	public void onKeyRelease( IKeyBind key ) { this.prevMainItem.onKeyRelease( key ); }
+	@Override
+	protected void doSwapHand()
+	{
+		super.doSwapHand();
+		
+		this.sendToServer( new PacketCode( Code.SWAP_HAND ) );
+	}
 }

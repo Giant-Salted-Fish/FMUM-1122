@@ -62,11 +62,16 @@ public interface IOperation
 	
 	/**
 	 * Callback when player changes the selected inventory slot
+	 * 
 	 * @return {@link #NONE} if this operation should terminate on item switch
 	 */
 	public default IOperation onInvSlotChange( IItem newItem, int newSlot, int oldSlot ) {
 		return this.terminate();
 	}
+	
+	public default IOperation onSwapHand( IItem newItem ) { return this.terminate(); }
+	
+	public default IOperation onHoldingTypeChange( IItem newItem ) { return this.terminate(); }
 	
 	/**
 	 * <p> Called when the {holding stack} != {last tick holding stack}. </p>
@@ -74,15 +79,12 @@ public interface IOperation
 	 * <p> This can be triggered in two ways: </p>
 	 * <ol>
 	 *     <li> Item stack in current selected slot being replaced with another stack(drop current
-	 *     item, swap hand, click to replace stack in inventory gui, etc). </li>
+	 *     item, click to replace stack in inventory GUI, etc). </li>
 	 *     
 	 *     <li> NBT tag of the stack being updated </li>
 	 * </ol>
 	 * 
-	 * @warning
-	 *     This method is usually being forgotten to handle with which could cause weird termination
-	 *     and duplicate launch problems
-	 * @return {@link #NONE} if this operation should terminate on item change
+	 * @return {@link #NONE} if this operation should terminate on stack change
 	 */
 	public IOperation onHoldingStackChange( IItem newItem );
 }

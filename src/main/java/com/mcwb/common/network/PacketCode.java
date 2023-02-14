@@ -18,7 +18,7 @@ public final class PacketCode implements IPacket
 		TERMINATE_OP()
 		{
 			@Override
-			protected void handle( PacketCode packet, EntityPlayerMP player )
+			protected void handle( EntityPlayerMP player )
 			{
 				PlayerPatch.get( player ).ternimateOperating();
 				// TODO: notify other players to stop animation
@@ -27,7 +27,7 @@ public final class PacketCode implements IPacket
 		UNLOAD_AMMO()
 		{
 			@Override
-			protected void handle( PacketCode packet, EntityPlayerMP player )
+			protected void handle( EntityPlayerMP player )
 			{
 				final ItemStack stack = player.inventory.getCurrentItem();
 				final IItem item = IItemTypeHost.getType( stack ).getContexted( stack );
@@ -35,9 +35,17 @@ public final class PacketCode implements IPacket
 				
 				PlayerPatch.get( player ).tryLaunch( new OpUnloadAmmo( player, ( IMag ) item ) );
 			}
+		},
+		
+		SWAP_HAND()
+		{
+			@Override
+			protected void handle( EntityPlayerMP player ) {
+				PlayerPatch.get( player ).trySwapHand();
+			}
 		};
 		
-		protected abstract void handle( PacketCode packet, EntityPlayerMP player );
+		protected abstract void handle( EntityPlayerMP player );
 	}
 	
 	protected Code code;
@@ -56,6 +64,6 @@ public final class PacketCode implements IPacket
 	public void handleServerSide( MessageContext ctx )
 	{
 		final EntityPlayerMP player = ctx.getServerHandler().player;
-		player.getServerWorld().addScheduledTask( () -> this.code.handle( this, player ) );
+		player.getServerWorld().addScheduledTask( () -> this.code.handle( player ) );
 	}
 }

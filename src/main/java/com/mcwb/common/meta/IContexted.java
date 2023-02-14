@@ -7,8 +7,8 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
-@FunctionalInterface
-public interface IContexted extends IMetaHost
+//@FunctionalInterface
+public interface IContexted // extends IMetaHost
 {
 	@CapabilityInject( IContexted.class )
 	public static final Capability< IContexted > CAPABILITY = null;

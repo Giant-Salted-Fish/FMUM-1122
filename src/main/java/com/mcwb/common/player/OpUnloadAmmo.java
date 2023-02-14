@@ -23,16 +23,6 @@ public class OpUnloadAmmo extends Operation< IMag >
 	}
 	
 	@Override
-	protected IOperation onComplete()
-	{
-		final IAmmoType ammo = this.contexted.popAmmo();
-		final ItemStack stack = new ItemStack( ammo.item() );
-		
-		this.player.addItemStackToInventory( stack );
-		return this.next.launch( this );
-	}
-	
-	@Override
 	public IOperation onOtherTryLaunch( IOperation op )
 	{
 		this.next = op;
@@ -42,10 +32,22 @@ public class OpUnloadAmmo extends Operation< IMag >
 	@Override
 	public IOperation onHoldingStackChange( IItem newItem )
 	{
-		if( newItem.meta() != this.contexted.meta() || ( ( IMag ) newItem ).isEmpty() )
+		if( ( ( IMag ) newItem ).isEmpty() )
 			return this.terminate();
 		
 		this.contexted = ( IMag ) newItem;
 		return this;
+	}
+	
+	@Override
+	protected IOperation onComplete() { return this.next.launch( this ); }
+	
+	@Override
+	protected void dohandleEffect()
+	{
+		final IAmmoType ammo = this.contexted.popAmmo();
+		final ItemStack stack = new ItemStack( ammo.item() );
+		
+		this.player.addItemStackToInventory( stack );
 	}
 }

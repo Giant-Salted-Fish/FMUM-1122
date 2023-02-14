@@ -63,7 +63,7 @@ public class OpLoadAmmoClient extends Operation< IMag > implements IAutowirePack
 	@Override
 	public IOperation onHoldingStackChange( IItem newItem )
 	{
-		if( newItem.meta() != this.contexted.meta() || ( ( IMag ) newItem ).isFull() )
+		if( ( ( IMag ) newItem ).isFull() )
 			return this.terminate();
 		
 		this.contexted = ( IMag ) newItem;
@@ -71,25 +71,20 @@ public class OpLoadAmmoClient extends Operation< IMag > implements IAutowirePack
 	}
 	
 	@Override
-	protected IOperation onComplete()
+	protected IOperation onComplete() { return this.launch( this ); }
+	
+	@Override
+	protected void dohandleEffect()
 	{
-		// Check again to make sure the ammo is still valid to load
-		switch( 0 )
-		{
-		default:
-			final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot );
-			final IItemType type = IItemTypeHost.getType( stack );
-			if( !( type instanceof IAmmoType ) ) break;
-			
-			final IAmmoType ammo = ( IAmmoType ) type;
-			if( !this.contexted.isAllowed( ammo ) ) break;
-			
-			stack.shrink( 1 );
-			this.contexted.pushAmmo( ammo );
-			return this.launch( this );
-		}
+		final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot );
+		final IItemType type = IItemTypeHost.getType( stack );
+		if( !( type instanceof IAmmoType ) ) return;
 		
-		return NONE;
+		final IAmmoType ammo = ( IAmmoType ) type;
+		if( !this.contexted.isAllowed( ammo ) ) return;
+		
+		stack.shrink( 1 );
+		this.contexted.pushAmmo( ammo );
 	}
 	
 	protected int getValidAmmoSlot( int offset )

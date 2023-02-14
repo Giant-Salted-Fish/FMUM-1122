@@ -73,9 +73,6 @@ public class AmmoType extends ItemType< IItem, IAmmoRenderer< ? super IAmmoType,
 				return new ContextedWrapper( new IItem()
 				{
 					@Override
-					public IMeta meta() { return AmmoType.this; }
-					
-					@Override
 					@SideOnly( Side.CLIENT )
 					public boolean renderInHand( EnumHand hand ) {
 						return AmmoType.this.renderer.renderInHand( this, hand );

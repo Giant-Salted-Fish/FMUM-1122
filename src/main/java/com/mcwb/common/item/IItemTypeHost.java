@@ -23,7 +23,7 @@ public interface IItemTypeHost extends IMetaHost
 	{
 		final Item item = stack.getItem();
 		final boolean isHost = item instanceof IItemTypeHost;
-		return !isHost && stack.isEmpty() ? IItemType.VANILLA : ( ( IItemTypeHost ) item ).meta();
+		return isHost && !stack.isEmpty() ? ( ( IItemTypeHost ) item ).meta() : IItemType.VANILLA;
 	}
 	
 	/**

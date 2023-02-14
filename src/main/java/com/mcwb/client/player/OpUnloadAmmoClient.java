@@ -45,7 +45,7 @@ public class OpUnloadAmmoClient extends Operation< IMag > implements IAutowirePa
 	@Override
 	public IOperation onHoldingStackChange( IItem newItem )
 	{
-		if( newItem.meta() != this.contexted.meta() || ( ( IMag ) newItem ).isEmpty() )
+		if( ( ( IMag ) newItem ).isEmpty() )
 			return this.terminate();
 		
 		this.contexted = ( IMag ) newItem;
@@ -53,9 +53,8 @@ public class OpUnloadAmmoClient extends Operation< IMag > implements IAutowirePa
 	}
 	
 	@Override
-	protected IOperation onComplete()
-	{
-		this.contexted.popAmmo();
-		return this.launch( this );
-	}
+	protected IOperation onComplete() { return this.launch( this ); }
+	
+	@Override
+	protected void dohandleEffect() { this.contexted.popAmmo(); }
 }

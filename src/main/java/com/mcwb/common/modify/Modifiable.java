@@ -132,7 +132,7 @@ public abstract class Modifiable implements IModifiable, IAutowirePlayerChat
 	{
 		// Update installed list
 		final int tarIdx = this.getIdx( slot ) + idx;
-		final IModifiable target = this.installed.remove( tarIdx );
+		final IModifiable removed = this.installed.remove( tarIdx );
 		
 		// Update nbt tag
 		final NBTTagList modList = this.nbt.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
@@ -147,17 +147,16 @@ public abstract class Modifiable implements IModifiable, IAutowirePlayerChat
 			this.setIdx( data, slot, val );
 		}
 		
-		final IModifiable ret = target.onBeingRemoved();
 		this.syncNBTData();
-		return ret;
+		removed.onBeingRemoved();
+		return removed;
 	}
 	
 	@Override
-	public IModifiable onBeingRemoved()
+	public void onBeingRemoved()
 	{
 		this.base = ModuleWrapper.DEFAULT;
 		this.baseSlot = 0;
-		return this;
 		
 		// TODO: Update position for server side
 //		this.globalMat.setIdentity();

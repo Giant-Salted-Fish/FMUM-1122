@@ -1,7 +1,5 @@
 package com.mcwb.common.network;
 
-import java.util.function.Consumer;
-
 import com.mcwb.common.ModConfig;
 import com.mcwb.common.item.IItemType;
 import com.mcwb.common.item.IItemTypeHost;
@@ -18,13 +16,146 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class PacketModify implements IPacket
 {
-	public static final byte
-		INSTALL_MODULE = 0,
-		UNSTALL_MODULE = 1,
-		UPDATE_STEP_OFFSET = 2,
-		UPDATE_PAINTJOB = 3;
+	public static enum Code
+	{
+		INSTALL_MODULE()
+		{
+			@Override
+			protected void handle( PacketModify packet, EntityPlayerMP player )
+			{
+				final InventoryPlayer inv = player.inventory;
+				final ItemStack stack = inv.getCurrentItem();
+				final IItemType type = IItemTypeHost.getType( stack );
+				if( !( type instanceof IModifiableType ) )
+				{
+					// TODO: log error
+					return;
+				}
+				
+				final byte[] loc = packet.loc;
+				final int len = loc.length;
+				final ItemStack tarStack = inv.getStackInSlot( loc[ len - 1] );
+				final IItemType tarType = IItemTypeHost.getType( tarStack );
+				if( !( tarType instanceof IModifiableType ) )
+				{
+					// TODO: log error
+					return;
+				}
+				
+				// Backup primary and target stack before install validation so that we can set \
+				// them back if installation test has failed
+				final ItemStack copiedStack = stack.copy();
+				final ItemStack copiedTarStack = tarStack.copy();
+				
+				final IModifiable primary = ( ( IModifiableType ) type ).getContexted( stack );
+				final IModifiable base = primary.getInstalled( loc, len - 2 );
+				final IModifiable tarModule = ( ( IModifiableType ) tarType )
+					.getContexted( tarStack );
+				
+				switch( 0 )
+				{
+				default:
+					final int slot = 0xFF & loc[ len - 2 ];
+					if( !base.tryInstallPreview( slot, tarModule ).ok() )
+					{
+						// TODO: log error
+						break;
+					}
+					
+					tarModule.$step( packet.step() ); // TODO: maybe check step and offset?
+					tarModule.$offset( packet.offset() );
+					
+					if( !primary.checkInstalledPosition( tarModule ).ok() )
+					{
+						// TODO: log error
+						break;
+					}
+					
+					tarStack.shrink( 1 );
+					return;
+				}
+				
+				// Installation test failed, restore those stacks
+				inv.setInventorySlotContents( inv.currentItem, copiedStack );
+				inv.setInventorySlotContents( loc[ len - 1 ], copiedTarStack );
+			}
+		},
+		UNINSTALL_MODULE()
+		{
+			@Override
+			protected void handle( PacketModify packet, EntityPlayerMP player )
+			{
+				final ItemStack stack = player.inventory.getCurrentItem();
+				final IItemType type = IItemTypeHost.getType( stack );
+				if( !( type instanceof IModifiableType ) )
+				{
+					// TODO: log error
+					return;
+				}
+				final IModifiable primary = ( ( IModifiableType ) type ).getContexted( stack );
+				
+				final byte[] loc = packet.loc;
+				final int len = loc.length;
+				final IModifiable removed = primary.getInstalled( loc, len - 2 )
+					.remove( 0xFF & loc[ len - 2 ], 0xFF & loc[ len - 1 ] );
+				player.addItemStackToInventory( removed.toStack() );
+			}
+		},
+		UPDATE_STEP_OFFSET()
+		{
+			@Override
+			protected void handle( PacketModify packet, EntityPlayerMP player )
+			{
+				final ItemStack stack = player.inventory.getCurrentItem();
+				final IItemType type = IItemTypeHost.getType( stack );
+				if( !( type instanceof IModifiableType ) )
+				{
+					// TODO: log error
+					return;
+				}
+				final IModifiable primary = ( ( IModifiableType ) type ).getContexted( stack );
+				
+				final IModifiable module = primary.getInstalled( packet.loc, packet.loc.length );
+				final int step = packet.step();
+				final int offset = packet.offset();
+//				if( step > modMeta.s) // TODO: check step and offset
+				module.$step( step );
+				module.$offset( offset );
+				
+				// TODO: check hitbox
+			}
+		},
+		UPDATE_PAINTJOB()
+		{
+			@Override
+			protected void handle( PacketModify packet, EntityPlayerMP player )
+			{
+				final ItemStack stack = player.inventory.getCurrentItem();
+				final IItemType type = IItemTypeHost.getType( stack );
+				if( !( type instanceof IModifiableType ) )
+				{
+					// TODO: log error
+					return;
+				}
+				final IModifiable primary = ( ( IModifiableType ) type ).getContexted( stack );
+				
+				final IModifiable paintable = primary.getInstalled( packet.loc, packet.loc.length );
+				if( packet.assist >= paintable.paintjob() )
+				{
+					// TODO: log error
+					return;
+				}
+				
+				// TODO: check if player can offer this paintjob
+//				if( player.capabilities.isCreativeMode )
+					paintable.$paintjob( packet.assist );
+			}
+		};
+		
+		protected abstract void handle( PacketModify packet, EntityPlayerMP player );
+	}
 	
-	protected byte code;
+	protected Code code;
 	
 	protected int assist;
 	
@@ -33,7 +164,7 @@ public class PacketModify implements IPacket
 	public PacketModify() { }
 	
 	@SideOnly( Side.CLIENT )
-	public PacketModify( byte code, int assist, byte[] loc, int len )
+	public PacketModify( Code code, int assist, byte[] loc, int len )
 	{
 		this.code = code;
 		this.assist = assist;
@@ -44,28 +175,28 @@ public class PacketModify implements IPacket
 	@SideOnly( Side.CLIENT )
 	public PacketModify( int invSlot, int step, int offset, byte[] loc, int len )
 	{
-		this( INSTALL_MODULE, step << 16 | offset & 0xFFFF, loc, len );
+		this( Code.INSTALL_MODULE, step << 16 | offset & 0xFFFF, loc, len );
 		
 		this.loc[ len - 1 ] = ( byte ) invSlot;
 	}
 	
 	@SideOnly( Side.CLIENT )
-	public PacketModify( byte[] loc, int len ) { this( UNSTALL_MODULE, 0, loc, len ); }
+	public PacketModify( byte[] loc, int len ) { this( Code.UNINSTALL_MODULE, 0, loc, len ); }
 	
 	@SideOnly( Side.CLIENT )
 	public PacketModify( int step, int offset, byte[] loc, int len ) {
-		this( UPDATE_STEP_OFFSET, step << 16 | offset & 0xFFFF, loc, len );
+		this( Code.UPDATE_STEP_OFFSET, step << 16 | offset & 0xFFFF, loc, len );
 	}
 	
 	@SideOnly( Side.CLIENT )
 	public PacketModify( int paintjob, byte[] loc, int len ) {
-		this( UPDATE_PAINTJOB, paintjob, loc, len );
+		this( Code.UPDATE_PAINTJOB, paintjob, loc, len );
 	}
 	
 	@Override
 	public void toBytes( ByteBuf buf )
 	{
-		buf.writeByte( this.code );
+		buf.writeByte( this.code.ordinal() );
 		buf.writeInt( this.assist );
 		buf.writeShort( this.loc.length / 2 );
 		buf.writeBytes( this.loc );
@@ -74,7 +205,7 @@ public class PacketModify implements IPacket
 	@Override
 	public void fromBytes( ByteBuf buf )
 	{
-		this.code = buf.readByte();
+		this.code = Code.values()[ buf.readByte() ];
 		this.assist = buf.readInt();
 		this.loc = new byte[ buf.readShort() * 2 ];
 		buf.readBytes( this.loc );
@@ -90,86 +221,8 @@ public class PacketModify implements IPacket
 			return;
 		}
 		
-		final int len = this.loc.length;
 		final EntityPlayerMP player = ctx.getServerHandler().player;
-		final Consumer< IModifiable > handler =
-			INSTALL_MODULE == this.code ? primary -> {
-				// Check the meta of item to install
-				final InventoryPlayer inv = player.inventory;
-				final ItemStack tarStack = inv.getStackInSlot( this.loc[ len - 1] );
-				final IItemType tarType = IItemTypeHost.getType( tarStack );
-				if( !( tarType instanceof IModifiableType ) )
-				{
-					// TODO: log error
-					return;
-				}
-				
-				// Copy primary and target stack to validate install
-				final ItemStack copiedStack = inv.getCurrentItem().copy();
-				final IModifiableType primaryType = ( IModifiableType ) primary.meta();
-				final IModifiable copiedPrimary = primaryType.getContexted( copiedStack );
-				final IModifiable base = copiedPrimary.getInstalled( this.loc, len - 2 );
-				
-				final ItemStack copiedTarStack = tarStack.copy();
-				final IModifiable tarModule = ( ( IModifiableType )
-					tarType ).getContexted( copiedTarStack );
-				
-				final int slot = 0xFF & this.loc[ len - 2 ];
-				if( !base.tryInstallPreview( slot, tarModule ).ok() )
-				{
-					// TODO: log error
-					return;
-				}
-				
-				tarModule.$step( this.step() ); // TODO: maybe check step and offset?
-				tarModule.$offset( this.offset() );
-				
-				if( !copiedPrimary.checkInstalledPosition( tarModule ).ok() )
-				{
-					// TODO: log error
-					return;
-				}
-				
-				player.inventory.setItemStack( ItemStack.EMPTY );
-				inv.setInventorySlotContents( inv.currentItem, copiedStack );
-				tarStack.shrink( 1 );
-			} :
-			UNSTALL_MODULE == this.code ? primary -> {
-				final IModifiable removed = primary.getInstalled( this.loc, len - 2 )
-					.remove( 0xFF & this.loc[ len - 2 ], 0xFF & this.loc[ len - 1 ] );
-				player.addItemStackToInventory( removed.toStack() );
-			} :
-			UPDATE_STEP_OFFSET == this.code ? primary -> {
-				final IModifiable module = primary.getInstalled( this.loc, len );
-				final int step = this.step();
-				final int offset = this.offset();
-//				if( step > modMeta.s) // TODO: check step and offset
-				module.$step( step );
-				module.$offset( offset );
-				
-				// TODO: check hitbox
-			} :
-			UPDATE_PAINTJOB == this.code ? primary -> {
-				final IModifiable paintable = primary.getInstalled( this.loc, len );
-				if( this.assist >= paintable.paintjob() )
-				{
-					// TODO: log error
-					return;
-				}
-				
-				// TODO: check if player can offer this paintjob
-//				if( player.capabilities.isCreativeMode )
-					paintable.$paintjob( this.assist );
-			} : null;
-		
-		player.getServerWorld().addScheduledTask( () -> {
-			// Make sure the operation target is still valid when this packet arrives
-			final ItemStack stack = player.inventory.getCurrentItem();
-			final IItemType type = IItemTypeHost.getType( stack );
-			// TODO: maybe surround with try-catch to print error
-			if( type instanceof IModifiableType )
-				handler.accept( ( ( IModifiableType ) type ).getContexted( stack ) );
-		} );
+		player.getServerWorld().addScheduledTask( () -> this.code.handle( this, player ) );
 	}
 	
 	protected final int step() { return this.assist >>> 16; }

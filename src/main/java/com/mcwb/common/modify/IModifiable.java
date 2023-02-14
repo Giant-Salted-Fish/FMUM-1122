@@ -21,7 +21,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IModifiable extends IContexted, INBTSerializable< NBTTagCompound >
 {
-	public default String name() { return this.meta().name(); }
+	public String name();
 	
 	public String category();
 	
@@ -36,7 +36,6 @@ public interface IModifiable extends IContexted, INBTSerializable< NBTTagCompoun
 	
 	public void forEach( Consumer< IModifiable > visitor );
 	
-	// TODO: check if this is needed?
 	public void install( int slot, IModifiable module );
 	
 	public ModifyPredication tryInstallPreview( int slot, IModifiable module );
@@ -49,7 +48,11 @@ public interface IModifiable extends IContexted, INBTSerializable< NBTTagCompoun
 		this.setBase( base, baseSlot );
 	}
 	
-	public IModifiable onBeingRemoved();
+	public void onBeingRemoved();
+	
+//	public default void updateOnInstallation( byte[] loc, int len ) { }
+//	
+//	public default void updateOnUninstallation( IModifiable removed, byte[] loc, int len ) { }
 	
 	public IModifiable getInstalled( int slot, int idx );
 	

@@ -44,26 +44,6 @@ public class OpLoadAmmo extends Operation< IMag >
 	}
 	
 	@Override
-	protected IOperation onComplete()
-	{
-		switch( 0 )
-		{
-		default:
-			final InventoryPlayer inv = this.player.inventory;
-			final ItemStack stack = inv.getStackInSlot( this.invSlot );
-			final IItemType type = IItemTypeHost.getType( stack );
-			if( !( type instanceof IAmmoType ) ) break;
-			
-			final IAmmoType ammo = ( IAmmoType ) type;
-			if( !this.contexted.isAllowed( ammo ) ) break;
-			
-			this.contexted.pushAmmo( ammo );
-			stack.shrink( 1 );
-		}
-		return this.next.launch( this );
-	}
-	
-	@Override
 	public IOperation onOtherTryLaunch( IOperation op )
 	{
 		this.next = op;
@@ -73,10 +53,28 @@ public class OpLoadAmmo extends Operation< IMag >
 	@Override
 	public IOperation onHoldingStackChange( IItem newItem )
 	{
-		if( newItem.meta() != this.contexted.meta() || ( ( IMag ) newItem ).isFull() )
+		if( ( ( IMag ) newItem ).isFull() )
 			return this.terminate();
 		
 		this.contexted = ( IMag ) newItem;
 		return this;
+	}
+	
+	@Override
+	protected IOperation onComplete() { return this.next.launch( this ); }
+	
+	@Override
+	protected void dohandleEffect()
+	{
+		final InventoryPlayer inv = this.player.inventory;
+		final ItemStack stack = inv.getStackInSlot( this.invSlot );
+		final IItemType type = IItemTypeHost.getType( stack );
+		if( !( type instanceof IAmmoType ) ) return;
+		
+		final IAmmoType ammo = ( IAmmoType ) type;
+		if( !this.contexted.isAllowed( ammo ) ) return;
+		
+		this.contexted.pushAmmo( ammo );
+		stack.shrink( 1 );
 	}
 }

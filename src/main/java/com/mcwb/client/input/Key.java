@@ -14,39 +14,47 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public final class Key
 {
+	public static final class KeyCategory
+	{
+		public static final String
+			GENERAL = "mcwb.key_category.general",
+			GUN = "mcwb.key_category.gun",
+			ASSIST = "mcwb.key_category.assist",
+			MODIFY = "mcwb.key_category.modify",
+			OTHER = "mcwb.key_category.other";
+		
+		private KeyCategory() { }
+	}
+	
 	/**
 	 * For keys that are general
 	 */
-	public static final String CATEGORY_GENERAL = "mcwb.key_category.general";
-	
 	public static final String
 		FREE_VIEW = "free_view";
 	
 	/**
 	 * For keys that operate a gun
 	 */
-	public static final String CATEGORY_GUN = "mcwb.key_category.gun";
-	
 	public static final String
-		PULL_TRIGGER = "pull_trigger",
-		AIM_HOLD     = "aim_hold",
-		AIM_TOGGLE   = "aim_toggle";
+		PULL_TRIGGER    = "pull_trigger",
+		AIM_HOLD        = "aim_hold",
+		AIM_TOGGLE      = "aim_toggle",
+		RELOAD          = "reload",
+		LOAD_UNLOAD_MAG = "load_unload_mag";
 	
 	/**
 	 * For keys that provides assist
 	 */
-	public static final String CATEGORY_ASSIST = "mcwb.key_category.assist";
-	
 	public static final String
 		CO = "co",
-		CO_FREE_VIEW     = "co_free_view",
-		CO_TOGGLE_MODIFY = "co_toggle_modify";
+		CO_FREE_VIEW       = "co_free_view",
+		CO_RELOAD          = "co_reload",
+		CO_LOAD_UNLOAD_MAG = "co_load_unload_mag",
+		CO_TOGGLE_MODIFY   = "co_toggle_modify";
 	
 	/**
 	 * For keys that being used to modify a weapon
 	 */
-	public static final String CATEGORY_MODIFY = "mcwb.key_category.modify";
-	
 	public static final String
 		TOGGLE_MODIFY  = "toggle_modify",
 		SELECT_TOGGLE  = "select_toggle",
@@ -56,11 +64,6 @@ public final class Key
 		SELECT_RIGHT   = "select_right",
 		SELECT_CONFIRM = "select_confirm",
 		SELECT_CANCEL  = "select_cancel";
-	
-	/**
-	 * Other keys
-	 */
-	public static final String CATEGORY_OTHER = "mcwb.key_category.other";
 	
 	private Key() { }
 }

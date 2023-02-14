@@ -34,10 +34,10 @@ public class OpModifyClient extends TogglableOperation< IModifiable >
 	
 	protected ModifyMode mode = ModifyMode.SLOT;
 	
-	protected byte[] loc = null;
-	protected int locLen = 0;
+	protected byte[] loc;
+	protected int locLen;
 	
-	protected ItemStack copiedStack = null;
+	protected ItemStack copiedStack;
 	
 	/**
 	 * None null. Should be the currently selected module or the preview module or the indicator.
@@ -47,16 +47,16 @@ public class OpModifyClient extends TogglableOperation< IModifiable >
 	/**
 	 * {@code -1} if no preview selected
 	 */
-	protected int previewInvSlot = 0;
+	protected int previewInvSlot;
 	
-	protected int curStep = 0;
-	protected int oriStep = 0;
+	protected int curStep;
+	protected int oriStep;
 	
-	protected int curOffset = 0;
-	protected int oriOffset = 0;
+	protected int curOffset;
+	protected int oriOffset;
 	
-	protected int curPaintjob = 0;
-	protected int oriPaintjob = 0;
+	protected int curPaintjob;
+	protected int oriPaintjob;
 	
 	protected ModifyPredication previewState = ModifyPredication.NO_PREVIEW;
 	protected ModifyPredication positionState = ModifyPredication.OK;
@@ -71,9 +71,7 @@ public class OpModifyClient extends TogglableOperation< IModifiable >
 	{
 		this.player = MCWBClient.MC.player;
 		this.contexted = primary;
-		
-		final ItemStack stack = this.player.inventory.getCurrentItem();
-		this.copiedStack = stack.copy();
+		this.copiedStack = this.player.inventory.getCurrentItem().copy();
 		return this;
 	}
 	
@@ -433,8 +431,11 @@ public class OpModifyClient extends TogglableOperation< IModifiable >
 	@Override
 	public IOperation terminate()
 	{
-		final IModifiableType type = ( IModifiableType ) this.contexted.meta();
-		this.contexted.base().install( 0, type.getContexted( this.copiedStack ) );
+		// Restore the original state on termination
+		final IItemType type = IItemTypeHost.getType( this.copiedStack );
+		final IModifiable primary = ( IModifiable ) type.getContexted( this.copiedStack );
+		this.contexted.base().install( 0, ( IModifiable ) primary );
+		
 		this.clearProgress();
 		return NONE;
 	}
@@ -448,9 +449,6 @@ public class OpModifyClient extends TogglableOperation< IModifiable >
 		// NOTE:
 		//     We do not check meta as it could change upon modification. For example, installing \
 		//     special attachment could actually change the meta of primary module base.
-		if( newItem.meta() != this.contexted.meta() )
-			return this.terminate();
-		
 		IModifiable newMod = ( IModifiable ) newItem;
 		IModifiable oldMod = this.contexted;
 		for( int i = 0; i < this.locLen; i += 2 )
@@ -528,10 +526,11 @@ public class OpModifyClient extends TogglableOperation< IModifiable >
 	
 	protected void resetPrimary()
 	{
-		final IModifiableType type = ( IModifiableType ) this.contexted.meta();
-		final IModifiable copied = type.getContexted( this.copiedStack.copy() );
-		this.contexted.base().install( 0, copied );
-		this.contexted = copied;
+		final ItemStack copiedStack = this.copiedStack.copy();
+		final IItemType type = IItemTypeHost.getType( copiedStack );
+		final IModifiable copiedPrimary = ( IModifiable ) type.getContexted( copiedStack );
+		this.contexted.base().install( 0, copiedPrimary );
+		this.contexted = copiedPrimary;
 	}
 	
 	/**

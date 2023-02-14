@@ -11,7 +11,6 @@ import com.mcwb.client.item.ItemAnimatorState;
 import com.mcwb.client.modify.ISecondaryRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
-import com.mcwb.common.meta.IMeta;
 import com.mcwb.util.Mat4f;
 
 import net.minecraft.item.ItemStack;
@@ -73,9 +72,6 @@ public class ModuleWrapper implements IModifiable, ICapabilityProvider, IAutowir
 	}
 	
 	@Override
-	public IMeta meta() { throw new RuntimeException( "Try to get type from " + this ); }
-	
-	@Override
 	public String name() { return NAME; }
 	
 	@Override
@@ -124,7 +120,7 @@ public class ModuleWrapper implements IModifiable, ICapabilityProvider, IAutowir
 	}
 	
 	@Override
-	public IModifiable onBeingRemoved() {
+	public void onBeingRemoved() {
 		throw new RuntimeException( "Try to remove " + this );
 	}
 	
