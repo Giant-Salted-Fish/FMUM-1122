@@ -12,12 +12,6 @@ public class ExternalKeyBind extends KeyBind
 	{
 		super.build( name, provider );
 		
-		this.setupUpdateGroup();
-		return this;
-	}
-	
-	protected void setupUpdateGroup()
-	{
 		switch( this.updateGroup.toLowerCase() )
 		{
 		case "global":
@@ -41,5 +35,6 @@ public class ExternalKeyBind extends KeyBind
 			
 		default: this.error( "mcwb.can_not_find_update_group", this, this.updateGroup );
 		}
+		return this;
 	}
 }

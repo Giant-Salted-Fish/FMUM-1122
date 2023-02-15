@@ -87,10 +87,14 @@ mcwb.key_category.gun=MCWB Weapon
 mcwb.key.pull_trigger=Pull Trigger
 mcwb.key.aim_hold=Aim Hold
 mcwb.key.aim_toggle=Aim Toggle
+mcwb.key.reload=Reload Weapon
+mcwb.key.load_unload_mag=Load/Unload Magazine
 
 mcwb.key_category.assist=MCWB Assist
 mcwb.key.co=Co-Key
 mcwb.key.co_free_view=Co-Free View
+mcwb.key.co_reload=Co-Reload Weapon
+mcwb.key.co_load_unload_mag=Co-Load Unload Magazine
 mcwb.key.co_toggle_modify=Co-Modify Holding Weapon
 
 mcwb.key_category.modify=MCWB Modify

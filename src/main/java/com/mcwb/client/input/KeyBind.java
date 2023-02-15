@@ -1,17 +1,15 @@
 package com.mcwb.client.input;
 
 import java.util.Collection;
-import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 
 import com.google.gson.annotations.SerializedName;
+import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.Key.KeyCategory;
 import com.mcwb.client.player.PlayerPatchClient;
-import com.mcwb.common.MCWB;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.BuildableMeta;
 import com.mcwb.common.meta.IMeta;
@@ -28,55 +26,37 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	public static final BuildableLoader< IMeta >
 		LOADER = new BuildableLoader<>( "key_bind", ExternalKeyBind.class );
 	
-	protected static final Function< IKeyBind, Boolean >
-		KEY_UPDATER = key -> Keyboard.isKeyDown( key.keyCode() );
+	@SerializedName( value = "keyCode", alternate = { "key", "defaultKey" } )
+	protected int keyCode = Keyboard.KEY_NONE;
 	
-	protected static final Function< IKeyBind, Boolean >
-		MOUSE_UPDATER = key -> Mouse.isButtonDown( key.keyCode() + 100 );
-	
-	protected static final Function< IKeyBind, Boolean >
-		ABSENT_UPDATER = key -> false;
+	@SerializedName( value = "category", alternate = "group" )
+	protected String category = KeyCategory.OTHER;
 	
 	/**
 	 * Whether this key is down or not
 	 */
 	public transient boolean down = false;
 	
-	@SerializedName( value = "keyCode", alternate = { "key", "defaultKey" } )
-	protected int keyCode = Keyboard.KEY_NONE;
-	
-	protected transient Function< IKeyBind, Boolean > updater = ABSENT_UPDATER;
-	
-	@SerializedName( value = "category", alternate = "group" )
-	protected String category = KeyCategory.OTHER;
-	
 	protected transient KeyBinding keyBind;
 	
 	protected KeyBind() { }
 	
-	public KeyBind( String name, String category, int keyCode ) {
-		this( name, category, keyCode, null );
-	}
+	KeyBind( String name, String category, int keyCode ) { this( name, category, keyCode, null ); }
 	
+	// This public is for develop helper
 	public KeyBind(
 		String name,
 		String category,
 		int keyCode,
 		@Nullable Collection< IKeyBind > updateGroup
 	) {
-		this.name = name;
-		this.provider = MCWB.MOD;
-		
-		this.$keyCode( keyCode );
+		this.keyCode = keyCode;
 		this.category = category;
-		this.build( MCWB.MODID, MCWB.MOD );
+		
+		this.build( name, MCWBClient.MOD );
 		
 		/// Assign update group
-		// If group specified, add it to the group
-		if( updateGroup != null )
-			updateGroup.add( this );
-		
-		// Otherwise, assign group based on its category
+		if( updateGroup != null ) updateGroup.add( this );
 		else switch( category )
 		{
 		case KeyCategory.MODIFY:
@@ -93,9 +73,9 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 			InputHandler.INCO_KEYS.add( this );
 			break;
 			
-		default: // This should never happen
+		default: // Should never happen
 			throw new RuntimeException(
-				"Unexpected key category <" + this.category + "> from <" + this.name
+				"Unexpected key category <" + this.category + "> from <" + this.name + ">"
 			);
 		}
 	}
@@ -112,27 +92,36 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 			this.keyCode,
 			this.category
 		);
-		
-		// Clear key code to avoid key conflict?
-		this.keyBind.setKeyCode( Keyboard.KEY_NONE );
-		
 		ClientRegistry.registerKeyBinding( this.keyBind );
+		
+		// Clear key code to avoid key conflict
+		this.keyBind.setKeyCode( Keyboard.KEY_NONE );
 		return this;
 	}
 	
 	@Override
-	public void update()
+	public String category() { return this.category; }
+	
+	@Override
+	public void update( boolean down )
 	{
-		if( this.down ^ this.updater.apply( this ) )
+		if( down ^ this.down )
 		{
-			if( this.down ) this.release();
-			else this.fire();
-			this.down = !this.down;
+			this.down = down;
+			if( down ) this.onFire();
+			else this.onRelease();
 		}
 	}
 	
 	@Override
-	public void reset() { this.down = false; }
+	public void reset()
+	{
+		if( this.down )
+		{
+			this.down = false;
+			this.onRelease();
+		}
+	}
 	
 	@Override
 	public void restoreMcKeyBind() { this.keyBind.setKeyCode( this.keyCode ); }
@@ -143,7 +132,7 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 		final int code = this.keyBind.getKeyCode();
 		if( code == this.keyCode ) return false;
 		
-		this.$keyCode( code );
+		this.keyCode = code;
 		this.keyBind.setKeyCode( Keyboard.KEY_NONE );
 		return true;
 	}
@@ -152,24 +141,17 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	public int keyCode() { return this.keyCode; }
 	
 	@Override
-	public void $keyCode( int code )
-	{
-		this.keyCode = code;
-		this.updater = code > 0 ? KEY_UPDATER : code < 0 ? MOUSE_UPDATER : ABSENT_UPDATER;
-	}
+	public void $keyCode( int code ) { this.keyCode = code; }
 	
 	@Override
 	public boolean down() { return this.down; }
 	
-	@Override
-	public String category() { return this.category; }
-	
 	/**
 	 * In default just pass the key press notification to player
 	 */
-	protected void fire() { PlayerPatchClient.instance.onKeyPress( this ); }
+	protected void onFire() { PlayerPatchClient.instance.onKeyPress( this ); }
 	
-	protected void release() { PlayerPatchClient.instance.onKeyRelease( this ); }
+	protected void onRelease() { PlayerPatchClient.instance.onKeyRelease( this ); }
 	
 	@Override
 	protected IMeta loader() { return LOADER; }

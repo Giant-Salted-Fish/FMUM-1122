@@ -2,14 +2,12 @@ package com.mcwb.client;
 
 import java.util.Collection;
 
-import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.IAutowireLogger;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.item.IItemType;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiControls;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiVideoSettings;
@@ -28,7 +26,6 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -179,28 +176,6 @@ public final class EventHandlerClient
 	 */
 	@SubscribeEvent
 	public static void onFOVUpdate( FOVUpdateEvent evt ) { evt.setNewfov( 1F ); }
-	
-	/**
-	 * @see InputHandler
-	 */
-	@SubscribeEvent
-	public static void onInput( InputEvent evt )
-	{
-		// Avoid key input if yet not entered a world or a GUI is activated
-		final Minecraft mc = MCWBClient.MC;
-		if( mc.player == null || mc.currentScreen != null )
-			return;
-		
-		// Update key states
-		InputHandler.GLOBAL_KEYS.forEach( IKeyBind::update );
-		final boolean co = InputHandler.CO.down;
-		( co ? InputHandler.CO_KEYS : InputHandler.INCO_KEYS ).forEach( IKeyBind::update );
-		( co ? InputHandler.INCO_KEYS : InputHandler.CO_KEYS ).forEach( IKeyBind::reset );
-		
-		// A bit of hack. We will delegate the swap hand operation to fire callback.
-		while( MCWBClient.SETTINGS.keyBindSwapHands.isPressed() )
-			PlayerPatchClient.instance.trySwapHand();
-	}
 	
 	@SubscribeEvent
 	public static void onMouseInput( MouseEvent evt )

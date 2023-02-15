@@ -4,18 +4,27 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.TreeSet;
 
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.JsonObject;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.Key.KeyCategory;
+import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.IAutowireLogger;
 import com.mcwb.common.MCWB;
 
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent.MouseInputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -25,14 +34,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * settings GUI is launched.
  * 
  * @see Key
- * @see KeyBindType
+ * @see KeyBind
  * @author Giant_Salted_Fish
  */
 @SideOnly( Side.CLIENT )
+@EventBusSubscriber( modid = MCWBClient.MODID, value = Side.CLIENT )
 public final class InputHandler
 {
-	// TODO: can be better by directly map key codes to updater
-	
 	/**
 	 * Keys that will always update
 	 */
@@ -67,7 +75,14 @@ public final class InputHandler
 		SELECT_CONFIRM = new KeyBind( Key.SELECT_CONFIRM, KeyCategory.MODIFY, Keyboard.KEY_G ),
 		SELECT_CANCEL = new KeyBind( Key.SELECT_CANCEL, KeyCategory.MODIFY, Keyboard.KEY_H ),
 		
-		CO = new KeyBind( Key.CO, KeyCategory.ASSIST, Keyboard.KEY_Z, GLOBAL_KEYS );
+		CO = new KeyBind( "co", KeyCategory.ASSIST, Keyboard.KEY_Z, GLOBAL_KEYS )
+		{
+			@Override
+			protected void onFire() { INCO_MAPPER.values().forEach( IKeyBind::reset ); }
+			
+			@Override
+			protected void onRelease() { CO_MAPPER.values().forEach( IKeyBind::reset ); }
+		};
 	
 	/**
 	 * These keys will update if {@link #CO} is not down
@@ -87,9 +102,53 @@ public final class InputHandler
 		CO_TOGGLE_MODIFY = new KeyBind(
 			Key.CO_TOGGLE_MODIFY, KeyCategory.ASSIST, Keyboard.KEY_NONE );
 	
+	private static final HashMultimap< Integer, IKeyBind > GLOBAL_MAPPER = HashMultimap.create();
+	
+	private static final HashMultimap< Integer, IKeyBind > CO_MAPPER = HashMultimap.create();
+	
+	private static final HashMultimap< Integer, IKeyBind > INCO_MAPPER = HashMultimap.create();
+	
+	static
+	{
+		new ProxyKeyBind(
+			"swap_hand",
+			MCWBClient.MOD,
+			KeyCategory.OTHER,
+			MCWBClient.SETTINGS.keyBindSwapHands
+		) {
+			@Override
+			protected void doProxyStuff() { PlayerPatchClient.instance.trySwapHand(); }
+		};
+	}
+	
 	private static final IAutowireLogger LOGGER = MCWBClient.MOD;
 	
 	private InputHandler() { }
+	
+	@SubscribeEvent
+	public static void onKeyInput( KeyInputEvent evt )
+	{
+		// TODO: check #player
+		if( MCWBClient.MC.currentScreen != null ) return;
+		
+		final int keyCode = Keyboard.getEventKey();
+		final int charCode = Keyboard.getEventCharacter();
+		final int key = keyCode == 0 ? charCode + 256 : keyCode;
+		final boolean state = Keyboard.getEventKeyState();
+		GLOBAL_MAPPER.get( key ).forEach( kb -> kb.update( state ) );
+		( CO.down ? CO_MAPPER : INCO_MAPPER ).get( key ).forEach( kb -> kb.update( state ) );
+	}
+	
+	@SubscribeEvent
+	public static void onMouseInput( MouseInputEvent evt )
+	{
+		if( MCWBClient.MC.currentScreen != null ) return;
+		
+		final int button = Mouse.getEventButton() - 100;
+		final boolean state = Mouse.getEventButtonState();
+		GLOBAL_MAPPER.get( button ).forEach( kb -> kb.update( state ) );
+		( CO.down ? CO_MAPPER : INCO_MAPPER ).get( button ).forEach( kb -> kb.update( state ) );
+	}
 	
 	private static KeyBind prevAimKey;
 	public static void restoreMcKeyBinds()
@@ -116,7 +175,10 @@ public final class InputHandler
 		
 		// If key bind has changed then save it
 		if( changed )
+		{
+			updateMappers();
 			saveTo( file );
+		}
 	}
 	
 	/**
@@ -152,5 +214,25 @@ public final class InputHandler
 			} );
 		}
 		catch( IOException e ) { LOGGER.except( e, "mcwb.error_reading_key_binds" ); }
+		
+		updateMappers();
+	}
+	
+	public static void updateMappers()
+	{
+		updateMapper( GLOBAL_KEYS, GLOBAL_MAPPER );
+		updateMapper( CO_KEYS, CO_MAPPER );
+		updateMapper( INCO_KEYS, INCO_MAPPER );
+	}
+	
+	private static void updateMapper(
+		Collection< IKeyBind > group,
+		Multimap< Integer, IKeyBind > mapper
+	) {
+		mapper.clear();
+		group.forEach( key -> {
+			final int code = key.keyCode();
+			if( code != 0 ) mapper.put( code, key );
+		} );
 	}
 }

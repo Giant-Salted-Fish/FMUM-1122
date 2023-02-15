@@ -46,7 +46,7 @@ public final class Key
 	 * For keys that provides assist
 	 */
 	public static final String
-		CO = "co",
+//		CO = "co",
 		CO_FREE_VIEW       = "co_free_view",
 		CO_RELOAD          = "co_reload",
 		CO_LOAD_UNLOAD_MAG = "co_load_unload_mag",

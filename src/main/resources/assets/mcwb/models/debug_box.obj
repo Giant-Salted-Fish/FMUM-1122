@@ -3,10 +3,10 @@
 # 
 
 
-mtllib debug_box.mtl
+#mtllib debug_box.mtl
 g debug_box
 
-usemtl ModelMaterial
+#usemtl ModelMaterial
 
 v -0.03125 0.03125 0.03125 
 v 0.03125 0.03125 0.03125 

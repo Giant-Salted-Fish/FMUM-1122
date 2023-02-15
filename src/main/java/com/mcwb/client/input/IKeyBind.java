@@ -10,7 +10,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
 public interface IKeyBind extends IMeta
-
 {
 	public static final Registry< IKeyBind > REGISTRY = new Registry<>();
 	
@@ -19,10 +18,10 @@ public interface IKeyBind extends IMeta
 	/**
 	 * Called by {@link InputHandler} on input event to update the state of this key bind
 	 */
-	public void update();
+	public void update( boolean down );
 	
 	/**
-	 * Called by {@link InputHandler} on input event if its update group is not active
+	 * Called by {@link InputHandler} on input event if its update group is blocked
 	 */
 	public void reset();
 	
@@ -66,8 +65,8 @@ public interface IKeyBind extends IMeta
 	 * is pressed then you can simply override this method to setup its effect. </p>
 	 * 
 	 * <p> Notice that you should not assume that calling this method will always trigger the effect
-	 * of the key bind as it is possible to implement its functionality in {@link #update()} method
-	 * although it is the recommended practice. </p>
+	 * of the key bind as it is possible to implement its functionality in {@link #update(boolean)}
+	 * method although it is the recommended practice. </p>
 	 * 
 	 * TODO: really need this?
 	 */

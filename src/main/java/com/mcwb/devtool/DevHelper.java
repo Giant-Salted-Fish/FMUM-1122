@@ -48,31 +48,31 @@ public class DevHelper implements IAutowirePlayerChat
 		final Collection< IKeyBind > updateGroup = InputHandler.GLOBAL_KEYS;
 		new KeyBind( "test_up", group, Keyboard.KEY_UP, updateGroup ) {
 			@Override
-			protected void fire() { DevHelper.this.tu = true; }
+			protected void onFire() { DevHelper.this.tu = true; }
 		};
 		new KeyBind( "test_down", group, Keyboard.KEY_DOWN, updateGroup ) {
 			@Override
-			protected void fire() { DevHelper.this.td = true; }
+			protected void onFire() { DevHelper.this.td = true; }
 		};
 		new KeyBind( "test_left", group, Keyboard.KEY_LEFT, updateGroup ) {
 			@Override
-			protected void fire() { DevHelper.this.tl = true; }
+			protected void onFire() { DevHelper.this.tl = true; }
 		};
 		new KeyBind( "test_right", group, Keyboard.KEY_RIGHT, updateGroup ) {
 			@Override
-			protected void fire() { DevHelper.this.tr = true; }
+			protected void onFire() { DevHelper.this.tr = true; }
 		};
 		new KeyBind( "test_enter", group, Keyboard.KEY_NUMPAD5, updateGroup ) {
 			@Override
-			protected void fire() { DevHelper.this.te = true; }
+			protected void onFire() { DevHelper.this.te = true; }
 		};
 		new KeyBind( "test_quit", group, Keyboard.KEY_NUMPAD2, updateGroup ) {
 			@Override
-			protected void fire() { DevHelper.this.tq = true; }
+			protected void onFire() { DevHelper.this.tq = true; }
 		};
 		new KeyBind( "test_flag", group, Keyboard.KEY_F10, updateGroup ) {
 			@Override
-			protected void fire()
+			protected void onFire()
 			{
 				DevHelper.this.flag = !DevHelper.this.flag;
 			}

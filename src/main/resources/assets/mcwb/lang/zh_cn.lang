@@ -86,10 +86,14 @@ mcwb.key_category.gun=MCWB 武器
 mcwb.key.pull_trigger=武器开火
 mcwb.key.aim_hold=按住瞄准
 mcwb.key.aim_toggle=切换瞄准
+mcwb.key.reload=重新填装武器
+mcwb.key.load_unload_mag=卸下/填装弹匣
 
 mcwb.key_category.assist=MCWB 辅助
 mcwb.key.co=辅助键
 mcwb.key.co_free_view=自由视角组合键
+mcwb.key.co_reload=重新填装武器组合键
+mcwb.key.co_load_unload_mag=卸下/填装弹匣组合键
 mcwb.key.co_toggle_modify=改装当前武器组合键
 
 mcwb.key_category.modify=MCWB 改装

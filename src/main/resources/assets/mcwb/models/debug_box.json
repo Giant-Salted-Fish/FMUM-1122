@@ -1,0 +1,5 @@
+{
+	"meshes": [ "models/debug_box.obj" ],
+	"scale": 0.00625,
+	"tbObjAdapt": true
+}
