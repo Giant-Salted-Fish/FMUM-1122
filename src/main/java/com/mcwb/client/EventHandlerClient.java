@@ -1,6 +1,7 @@
 package com.mcwb.client;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.player.PlayerPatchClient;
@@ -20,6 +21,7 @@ import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.world.WorldEvent;
@@ -42,6 +44,41 @@ public final class EventHandlerClient
 	 * Game gui in last tick
 	 */
 	private static GuiScreen prevGui = null;
+	
+	static
+	{
+		MinecraftForge.EVENT_BUS.register( new Consumer< WorldEvent.Load >() {
+			@Override
+			@SubscribeEvent
+			public void accept( WorldEvent.Load evt )
+			{
+				// Avoid model load on player local server
+				if( !evt.getWorld().isRemote ) return; // Just return, do not unregister!
+				
+				// Call load for all subscribers
+				final MCWBClient mod = MCWBClient.MOD;
+				mod.meshLoadSubscribers.forEach( sub -> {
+					// Throwing any exception on world load could jam the load progress and print \
+					// a lot of error messages that will barely help with debug. Hence we \
+					// generally want to avoid any exception being thrown out here especially when \
+					// you think of that #onModelLoad method could be overridden by the pack \
+					// makers who do not know this.
+					try { sub.onMeshLoad(); }
+					catch( Exception e ) {
+						LOGGER.except( e, "mcwb.exception_call_model_load", sub );
+					}
+				} );
+				
+				// Clear resources after model load
+				mod.meshLoadSubscribers.clear();
+				mod.rendererPool.clear(); // TODO: check if this is needed
+				mod.meshPool.clear();
+				
+				// Only load model once. Unregister after complete
+				MinecraftForge.EVENT_BUS.unregister( this );
+			}
+		} );
+	}
 	
 	private EventHandlerClient() { }
 	
@@ -95,38 +132,6 @@ public final class EventHandlerClient
 		items.forEach( it -> it.onModelRegister( evt ) );
 		
 		LOGGER.info( "mcwb.model_regis_complete", items.size() );
-	}
-	
-	private static boolean meshLoaded = false;
-	/**
-	 * 3D models will be build client side on the first time of the world load
-	 */
-	@SubscribeEvent
-	public static void onWorld$Load( WorldEvent.Load evt )
-	{
-		// Avoid model load on player local server
-		if( !evt.getWorld().isRemote || meshLoaded )
-			return;
-		
-		final MCWBClient mod = MCWBClient.MOD;
-		
-		// Call load for all subscribers
-		mod.meshLoadSubscribers.forEach(
-			sub -> {
-				// Throwing any exception on world load could jam the load progress and print a \
-				// lot of error messages that will barely help with debug. Hence we generally want \
-				// to avoid any exception being thrown out here especially when you think of that \
-				// #onModelLoad method could be overridden by the pack makers who do not know this.
-				try { sub.onMeshLoad(); }
-				catch( Exception e ) { LOGGER.except( e, "mcwb.exception_call_model_load", sub ); }
-			}
-		);
-		
-		// Clear resources after model load
-		mod.meshLoadSubscribers.clear();
-		mod.rendererPool.clear(); // TODO: check if this is needed
-		mod.meshPool.clear();
-		meshLoaded = true;
 	}
 	
 	@SubscribeEvent
