@@ -4,8 +4,10 @@ import org.lwjgl.opengl.GL11;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.IAutowireBindTexture;
+import com.mcwb.client.IAutowireSmoother;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.player.PlayerPatchClient;
+import com.mcwb.client.render.IRenderer;
 import com.mcwb.client.render.Renderer;
 import com.mcwb.common.item.IItem;
 import com.mcwb.util.Vec3f;
@@ -17,14 +19,27 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
 public class ItemRenderer< T extends IItem > extends Renderer
-	implements IItemRenderer< T >, IAutowireBindTexture
+	implements IItemRenderer< T >, IAutowireBindTexture, IAutowireSmoother
 {
+	public static final ResourceLocation
+		TEXTURE_STEVE = new ResourceLocation( "textures/entity/steve.png" );
+	
+	public static final ResourceLocation
+		TEXTURE_ALEX = new ResourceLocation( "textures/entity/alex.png" );
+	
+	protected static final IRenderer
+		STEVE_ARM = MCWBClient.MOD.loadRenderer( "models/steve_arm.json", "" );
+	
+	protected static final IRenderer
+		ALEX_ARM = MCWBClient.MOD.loadRenderer( "models/alex_arm.json", "" );
+	
 	protected static final Vec3f HOLD_POS = new Vec3f( -40F / 160F, -50F / 160F, 100F / 160F );
 	protected static final Vec3f HOLD_ROT = new Vec3f();
 	
@@ -115,7 +130,14 @@ public class ItemRenderer< T extends IItem > extends Renderer
 		this.render();
 	}
 	
-	protected void doRenderInHand( T contexted, EnumHand hand ) { this.render( contexted ); }
+	protected void doRenderInHand( T contexted, EnumHand hand )
+	{
+		final ItemAnimatorState state = this.animator( hand );
+		state.getChannel( ItemAnimatorState.CHANNEL_ITEM, this.smoother(), state.m0 );
+		
+		glMultMatrix( state.m0 );
+		this.render( contexted );
+	}
 	
 	protected ItemAnimatorState animator( EnumHand hand ) { return ItemAnimatorState.INSTANCE; }
 }

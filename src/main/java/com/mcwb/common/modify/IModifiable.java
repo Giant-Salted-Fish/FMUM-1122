@@ -3,18 +3,15 @@ package com.mcwb.common.modify;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-import com.mcwb.client.IAutowireBindTexture;
 import com.mcwb.client.modify.ISecondaryRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
-import com.mcwb.client.render.Renderer;
 import com.mcwb.common.meta.IContexted;
 import com.mcwb.util.Mat4f;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -50,10 +47,6 @@ public interface IModifiable extends IContexted, INBTSerializable< NBTTagCompoun
 	
 	public void onBeingRemoved();
 	
-//	public default void updateOnInstallation( byte[] loc, int len ) { }
-//	
-//	public default void updateOnUninstallation( IModifiable removed, byte[] loc, int len ) { }
-	
 	public IModifiable getInstalled( int slot, int idx );
 	
 	// TODO: maybe provide a version of better performance
@@ -87,9 +80,9 @@ public interface IModifiable extends IContexted, INBTSerializable< NBTTagCompoun
 	
 	public void $paintjob( int paintjob );
 	
-	public ModifyState modifyState();
+	public IModifyState modifyState();
 	
-	public void $modifyState( ModifyState state );
+	public void $modifyState( IModifyState state );
 	
 	public void applyTransform( int slot, IModifiable module, Mat4f dst );
 	
@@ -106,6 +99,11 @@ public interface IModifiable extends IContexted, INBTSerializable< NBTTagCompoun
 		Collection< ISecondaryRenderer > secondaryRenderQueue,
 		IAnimator animator
 	);
+	
+	/**
+	 * Called on primary upon module installation, module removal and after deserialization
+	 */
+	public default void updatePrimaryState() { }
 	
 	/**
 	 * Called to guarantee the changes will be updated to the stack tag
@@ -145,45 +143,4 @@ public interface IModifiable extends IContexted, INBTSerializable< NBTTagCompoun
 	
 	@SideOnly( Side.CLIENT )
 	public IModifiable newModifyIndicator();
-	
-	// TODO: seems that we do not switch on this so make it a normal class rather than enum
-	public static enum ModifyState implements IAutowireBindTexture
-	{
-		NOT_SELECTED,
-		SELECTED_OK
-		{
-			@Override
-			@SideOnly( Side.CLIENT )
-			public void doRecommendedRender( ResourceLocation texture, IRenderer renderer )
-			{
-				Renderer.glowOn();
-				this.bindTexture( Renderer.TEXTURE_GREEN );
-				renderer.render();
-				Renderer.glowOff();
-			}
-		},
-		SELECTED_CONFLICT
-		{
-			@Override
-			@SideOnly( Side.CLIENT )
-			public void doRecommendedRender( ResourceLocation texture, IRenderer renderer )
-			{
-				Renderer.glowOn();
-				this.bindTexture( Renderer.TEXTURE_RED );
-				renderer.render();
-				Renderer.glowOff();
-			}
-		},
-		AVOID_CONFLICT_CHECK;
-		
-		/**
-		 * Bind recommended texture, do setup work and call render
-		 */
-		@SideOnly( Side.CLIENT )
-		public void doRecommendedRender( ResourceLocation texture, IRenderer renderer )
-		{
-			this.bindTexture( texture );
-			renderer.render();
-		}
-	}
 }

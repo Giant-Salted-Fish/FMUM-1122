@@ -19,7 +19,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * This implementation includes the critical code that makes free view work. Hence it is recommended
  * to implement your camera controller from this class. This also provides some simple camera
  * effects that can be tuned via {@link ModConfig}.
- * 
+ * FIXME: 左右 alt 停住归中无抖动 上下有
  * @author Giant_Salted_Fish
  */
 @SideOnly( Side.CLIENT )

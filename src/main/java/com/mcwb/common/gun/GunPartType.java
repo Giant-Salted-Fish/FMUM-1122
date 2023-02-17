@@ -2,13 +2,17 @@ package com.mcwb.common.gun;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.gun.IGunPartRenderer;
+import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.item.ModifiableItemType;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.modify.IModifiable;
 import com.mcwb.common.pack.IContentProvider;
+import com.mcwb.util.ArmTracker;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class GunPartType< C extends IGunPart, M extends IGunPartRenderer< ? super C > >
 	extends ModifiableItemType< C, M >
@@ -20,6 +24,9 @@ public abstract class GunPartType< C extends IGunPart, M extends IGunPartRendere
 	
 	@SerializedName( value = "offsets", alternate = "installOffsets" )
 	protected float[] offsets = OFFSETS;
+	
+	protected int leftHandPriority = Integer.MIN_VALUE; // TODO: move to grip type maybe?
+	protected int rightHandPriority = Integer.MIN_VALUE;
 	
 	@Override
 	public IMeta build( String name, IContentProvider provider )
@@ -50,6 +57,12 @@ public abstract class GunPartType< C extends IGunPart, M extends IGunPartRendere
 		 * @see ModifiableItem#ModifiableItem(NBTTagCompound)
 		 */
 		protected GunPart( NBTTagCompound nbt ) { super( nbt ); }
+		
+		@Override
+		public int leftHandPriority() { return GunPartType.this.leftHandPriority; }
+		
+		@Override
+		public int rightHandPriority() { return GunPartType.this.rightHandPriority; }
 		
 		@Override
 		public int step() { return this.step; }
@@ -89,6 +102,22 @@ public abstract class GunPartType< C extends IGunPart, M extends IGunPartRendere
 			final int value = data[ super.dataSize() ];
 			this.step = ( short ) value;
 			this.offset = ( short ) ( value >>> 16 );
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator )
+		{
+			GunPartType.this.renderer
+				.setupLeftArmToRender( leftArm, this.wrapperAnimator( animator ) );
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public void setupRightArmToRender( ArmTracker rightArm, IAnimator animator )
+		{
+			GunPartType.this.renderer
+				.setupRightArmToRender( rightArm, this.wrapperAnimator( animator ) );
 		}
 		
 		@Override

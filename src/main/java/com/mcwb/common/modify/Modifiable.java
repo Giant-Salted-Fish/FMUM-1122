@@ -16,7 +16,7 @@ public abstract class Modifiable implements IModifiable, IAutowirePlayerChat
 	protected static final String DATA_TAG = "d";
 	protected static final String MODULE_TAG = "m";
 	
-	protected transient ModifyState modifyState = ModifyState.NOT_SELECTED;
+	protected transient IModifyState modifyState = IModifyState.NOT_SELECTED;
 	
 	protected transient IModifiable base = ModuleWrapper.DEFAULT;
 	protected transient short baseSlot = 0;
@@ -98,6 +98,7 @@ public abstract class Modifiable implements IModifiable, IAutowirePlayerChat
 			this.setIdx( slot, val );
 			this.setIdx( data, slot, val );
 		}
+		this.updatePrimaryState();
 		this.syncNBTData();
 	}
 	
@@ -147,8 +148,10 @@ public abstract class Modifiable implements IModifiable, IAutowirePlayerChat
 			this.setIdx( data, slot, val );
 		}
 		
-		this.syncNBTData();
 		removed.onBeingRemoved();
+		
+		this.updatePrimaryState();
+		this.syncNBTData();
 		return removed;
 	}
 	
@@ -186,10 +189,10 @@ public abstract class Modifiable implements IModifiable, IAutowirePlayerChat
 	}
 	
 	@Override
-	public ModifyState modifyState() { return this.modifyState; }
+	public IModifyState modifyState() { return this.modifyState; }
 	
 	@Override
-	public void $modifyState( ModifyState state ) { this.modifyState = state; }
+	public void $modifyState( IModifyState state ) { this.modifyState = state; }
 	
 	@Override
 	public NBTTagCompound serializeNBT() { return this.nbt; }

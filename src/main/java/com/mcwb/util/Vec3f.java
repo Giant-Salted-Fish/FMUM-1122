@@ -112,8 +112,8 @@ public class Vec3f extends Vector3f implements Releasable
 	 */
 	public final Vec3f getEulerAngle( Vector3f dst )
 	{
-		float pitch = ( float ) -Math.asin( this.y );
-		float yaw = ( float ) Math.atan2( this.x, this.z );
+		final float pitch = ( float ) -Math.asin( this.y / this.length() );
+		final float yaw = ( float ) Math.atan2( this.x, this.z );
 		
 		dst.y = yaw * Util.TO_DEGREES;
 		dst.x = pitch * Util.TO_DEGREES;

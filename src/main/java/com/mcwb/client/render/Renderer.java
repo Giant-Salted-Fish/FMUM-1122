@@ -1,14 +1,19 @@
 package com.mcwb.client.render;
 
+import java.nio.FloatBuffer;
+
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.common.IAutowireLogger;
 import com.mcwb.common.MCWBResource;
+import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IBuildable;
 import com.mcwb.common.load.IRequireMeshLoad;
 import com.mcwb.common.pack.IContentProvider;
+import com.mcwb.util.Mat4f;
 import com.mcwb.util.Mesh;
 
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -20,6 +25,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class Renderer implements IRenderer, IBuildable< IRenderer >,
 	IRequireMeshLoad, IAutowireLogger //, IAutowireBindTexture
 {
+	public static final BuildableLoader< IRenderer >
+		LOADER = new BuildableLoader<>( "", Renderer.class );
+	
 	public static final ResourceLocation
 		TEXTURE_RED = new MCWBResource( "textures/0xff0000.png" ),
 		TEXTURE_GREEN = new MCWBResource( "textures/0x00ff00.png" ),
@@ -120,5 +128,17 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 			lightmapLastX, lightmapLastY
 		);
 		GL11.glPopAttrib();
+	}
+	
+	private static final FloatBuffer MAT_BUF = BufferUtils.createFloatBuffer( 16 );
+	/**
+	 * Not thread safe!
+	 */
+	protected static void glMultMatrix( Mat4f mat )
+	{
+		MAT_BUF.clear();
+		mat.store( MAT_BUF );
+		MAT_BUF.flip();
+		GL11.glMultMatrix( MAT_BUF );
 	}
 }

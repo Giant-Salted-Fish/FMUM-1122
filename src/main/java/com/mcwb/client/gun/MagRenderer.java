@@ -87,6 +87,15 @@ public class MagRenderer< T extends IMag > extends GunPartRenderer< T >
 	@Override
 	public void renderModule( T contexted, IAnimator animator )
 	{
+		GL11.glPushMatrix(); {
+		
+		final float smoother = this.smoother();
+		final GunPartAnimatorState state = GunAnimatorState.INSTANCE; // TODO: replace this?
+		animator.getChannel( GunPartAnimatorState.CHANNEL_ITEM, smoother, state.m0 );
+		animator.applyChannel( GunPartAnimatorState.CHANNEL_INSTALL, smoother, state.m0 );
+		
+		glMultMatrix( state.m0 );
+		
 		// Render ammo first as mag itself can be transparent
 		final int ammoCount = contexted.ammoCount();
 		final boolean flipPosX = ammoCount % 2 != 0;
@@ -99,9 +108,9 @@ public class MagRenderer< T extends IMag > extends GunPartRenderer< T >
 			GL11.glTranslatef( flipPosX ? -pos.x : pos.x, pos.y, pos.z );
 			
 			final Vec3f rot = this.ammoRot[ i ];
-//			GL11.glRotatef( rot.y, 0F, 1F, 0F );
+//					GL11.glRotatef( rot.y, 0F, 1F, 0F );
 			GL11.glRotatef( rot.x, 1F, 0F, 0F );
-//			GL11.glRotatef( rot.z, 0F, 0F, 1F );
+//					GL11.glRotatef( rot.z, 0F, 0F, 1F );
 			
 			ammo.render();
 			
@@ -119,9 +128,9 @@ public class MagRenderer< T extends IMag > extends GunPartRenderer< T >
 				GL11.glTranslatef( pos.x, pos.y, pos.z );
 				
 				final Vec3f rot = this.followerRot[ idx ];
-//				GL11.glRotatef( rot.y, 0F, 1F, 0F );
+//						GL11.glRotatef( rot.y, 0F, 1F, 0F );
 				GL11.glRotatef( rot.x, 1F, 0F, 0F );
-//				GL11.glRotatef( rot.z, 0F, 0F, 1F );
+//						GL11.glRotatef( rot.z, 0F, 0F, 1F );
 				
 				this.meshes[ FOLLOWER ].render();
 				
@@ -130,5 +139,7 @@ public class MagRenderer< T extends IMag > extends GunPartRenderer< T >
 				this.meshes[ MAG ].render();
 			}
 		);
+		
+		} GL11.glPopMatrix();
 	}
 }

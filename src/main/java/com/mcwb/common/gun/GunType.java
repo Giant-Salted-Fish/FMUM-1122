@@ -3,11 +3,13 @@ package com.mcwb.common.gun;
 import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.player.PlayerPatchClient;
+import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.modify.IModifiable;
 import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.OperationController;
+import com.mcwb.util.ArmTracker;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
@@ -33,6 +35,9 @@ public abstract class GunType< C extends IGunPart, M extends IGunPartRenderer< ?
 	
 	protected class Gun extends GunPart implements IGun
 	{
+		protected transient IGunPart leftHandHolding = this;
+		protected transient IGunPart rightHandHolding = this;
+		
 		/**
 		 * @see GunPart#ContextedGunPart()
 		 */
@@ -42,6 +47,22 @@ public abstract class GunType< C extends IGunPart, M extends IGunPartRenderer< ?
 		 * @see GunPart#GunPart(NBTTagCompound)
 		 */
 		protected Gun( NBTTagCompound nbt ) { super( nbt ); }
+		
+		@Override
+		public void updatePrimaryState()
+		{
+			// TODO: maybe use generic to ensure all mods will be GunPart
+			this.forEach( mod -> {
+				final boolean isGunPart = mod instanceof IGunPart;
+				if( !isGunPart ) return;
+				
+				final IGunPart gunPart = ( IGunPart ) mod;
+				if( gunPart.leftHandPriority() > this.leftHandHolding.leftHandPriority() )
+					this.leftHandHolding = gunPart;
+				if( gunPart.rightHandPriority() > this.rightHandHolding.rightHandPriority() )
+					this.rightHandHolding = gunPart;
+			} );
+		}
 		
 		@Override
 		public IOperationController loadMagController() { return GunType.this.loadMagController; }
@@ -57,6 +78,19 @@ public abstract class GunType< C extends IGunPart, M extends IGunPartRenderer< ?
 			final boolean modifying = PlayerPatchClient.instance.operating() == OP_MODIFY;
 			final boolean freeView = InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down;
 			return !( modifying && freeView );
+		}
+		
+		@Override
+		public float aimProgress( float smoother ) {
+			return InputHandler.AIM_HOLD.down ? 1F : 0F; // TODO
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public void setupRenderArm( ArmTracker leftArm, ArmTracker rightArm, IAnimator animator )
+		{
+			this.leftHandHolding.setupLeftArmToRender( leftArm, animator );
+			this.rightHandHolding.setupRightArmToRender( rightArm, animator );
 		}
 	}
 	

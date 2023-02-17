@@ -4,14 +4,16 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
 import com.google.gson.annotations.SerializedName;
-import com.mcwb.client.IAutowireSmoother;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
+import com.mcwb.common.MCWBResource;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.load.BuildableLoader;
+import com.mcwb.devtool.DevHelper;
+import com.mcwb.util.ArmTracker;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Util;
 import com.mcwb.util.Vec3f;
@@ -20,15 +22,16 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MovementInput;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
-	implements IAutowireSmoother
+public class GunRenderer< T extends IGun > extends GripRenderer< T >
 {
 	public static final BuildableLoader< IRenderer >
 		LOADER = new BuildableLoader<>(
@@ -37,6 +40,8 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 	
 	protected static final Vec3f HOLD_POS = new Vec3f( -14F / 160F, -72F / 160F, 87.5F / 160F );
 	protected static final Vec3f HOLD_ROT = new Vec3f( 0F, 0F, -5F );
+	
+	protected static final Vec3f MODIFY_POS = new Vec3f( 0F, -20F / 160F, 150F / 160F );
 	
 	// TODO: these vectors can be initialized with static variables as gson will create new instance on read
 	protected Vec3f motionInertiaPos = new Vec3f( -0.2F, -0.2F, -0.2F );
@@ -78,6 +83,7 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 	{
 		this.holdPos = HOLD_POS;
 		this.holdRot = HOLD_ROT;
+		this.modifyPos = MODIFY_POS;
 	}
 	
 	@Override
@@ -214,11 +220,118 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 		);
 		GL11.glMatrixMode( GL11.GL_MODELVIEW );
 		
-		super.doRenderInHand( contexted, hand );
+		// For arm adjust
+//		if( DevHelper.flag )
+//		{
+//			GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
+//			
+//			final EntityPlayer player = MCWBClient.MC.player;
+//			GL11.glRotatef( -player.rotationPitch, 1F, 0F, 0F );
+//			GL11.glRotatef( player.rotationYaw, 0F, 1F, 0F );
+//			
+//			GL11.glTranslatef( 0F, 0F, -5F/16f );
+//		}
+		
+//		final ResourceLocation texture = new MCWBResource( "textures/debug_box.png" );
+//		final Vec3f p = DevHelper.get( 0 ).getPos();
+//		GL11.glTranslatef( p.x, p.y, p.z );
+//		
+//		GL11.glEnable( GL11.GL_STENCIL_TEST );
+//		
+//		GL11.glStencilFunc( GL11.GL_NEVER, 1, 0xFF );
+//		GL11.glStencilMask( 0xFF );
+//		GL11.glStencilOp( GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP );
+//		this.bindTexture( texture );
+//		
+//		final boolean flag = GL11.glIsEnabled( GL11.GL_STENCIL_TEST );
+//		DevHelper.DEBUG_BOX.render();
+//		GL11.glDisable( GL11.GL_STENCIL_TEST );
+		
+//		this.bindTexture( TEXTURE_BLUE );
+//		GL11.glPushMatrix();
+//		GL11.glTranslatef( 0F, 0F, 2F / 16F );
+//		DevHelper.DEBUG_BOX.render();
+//		GL11.glPopMatrix();
+//		
+//		this.bindTexture( TEXTURE_GREEN );
+//		GL11.glPushMatrix();
+//		GL11.glTranslatef( 0F, 0F, -2F / 16F );
+//		final float scale = 0.1F;
+//		GL11.glScalef( scale, scale, scale );
+//		DevHelper.DEBUG_BOX.render();
+//		GL11.glPopMatrix();
+//		
+//		GL11.glEnable( GL11.GL_STENCIL_TEST );
+//		GL11.glClearStencil( 0 );
+//		GL11.glClear( GL11.GL_STENCIL_BUFFER_BIT );
+//		
+		// Glass
+//		GL11.glStencilOp( GL11.GL_KEEP, GL11.GL_REPLACE, GL11.GL_REPLACE );
+//		GL11.glStencilFunc( GL11.GL_ALWAYS, 1, 0xFF );
+//		GL11.glStencilMask( 0xFF );
+//		
+//		this.bindTexture( texture );
+//		GL11.glEnable( GL11.GL_BLEND );
+//		GL11.glColor4f( 1F, 1F, 1F, 0.5F );
+//		DevHelper.DEBUG_BOX.render();
+//		GL11.glDisable( GL11.GL_BLEND );
+//		
+//		// reticle
+//		GL11.glStencilFunc( GL11.GL_NEVER, 1, 0xFF );
+//		GL11.glStencilMask( 0x00 );
+//		GL11.glStencilOp( GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP );
+//		
+//		GL11.glDisable( GL11.GL_DEPTH_TEST );
+//		
+//		final Vec3f pp = DevHelper.get( 1 ).getPos();
+//		GL11.glTranslatef( pp.x, pp.y, pp.z );
+//		this.bindTexture( TEXTURE_RED );
+//		DevHelper.DEBUG_BOX.render();
+//		
+//		GL11.glEnable( GL11.GL_DEPTH_TEST );
+//		GL11.glDisable( GL11.GL_STENCIL_TEST );
+		
+		
+//		super.doRenderInHand( contexted, hand );
+//		
+//		// Render hand // TODO: hand animation
+//		contexted.modifyState().doRenderArm( () -> {
+//			final GunAnimatorState animator = this.animator( hand );
+//			final ArmTracker leftArm = animator.leftArm;
+//			final ArmTracker rightArm = animator.rightArm;
+//			contexted.setupRenderArm( leftArm, rightArm, animator );
+//			
+//			this.renderArm( leftArm );
+//			this.renderArm( rightArm );
+//		} );
 	}
 	
 	@Override
 	protected GunAnimatorState animator( EnumHand hand ) { return GunAnimatorState.INSTANCE; }
+	
+	protected void renderArm( ArmTracker arm )
+	{
+		GL11.glPushMatrix(); {
+		
+		final Vec3f pos = arm.handPos;
+		GL11.glTranslatef( pos.x, pos.y, pos.z );
+		
+		DevHelper.DEBUG_BOX.render();
+		
+		final Vec3f rot = arm.handRot;
+		GL11.glRotatef( rot.y, 0F, 1F, 0F );
+		GL11.glRotatef( rot.x, 1F, 0F, 0F );
+		GL11.glRotatef( rot.z, 0F, 0F, 1F );
+		
+		this.bindTexture( TEXTURE_STEVE );
+		
+		GL11.glEnable( GL11.GL_BLEND );
+		GL11.glColor4f( 1F, 1F, 1F, 0.5F );
+		STEVE_ARM.render();
+		GL11.glDisable( GL11.GL_BLEND );
+		
+		} GL11.glPopMatrix();
+	}
 	
 	/**
 	 * Copied from {@link EntityRenderer#getFOVModifier(float, boolean)}
@@ -236,4 +349,70 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 			: fov
 		);
 	}
+	
+	/* for test
+	GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
+	
+	final EntityPlayer player = MCWBClient.MC.player;
+	GL11.glRotatef( -player.rotationPitch, 1F, 0F, 0F );
+	GL11.glRotatef( player.rotationYaw, 0F, 1F, 0F );
+	
+	GL11.glTranslatef( 0F, 0F, -5F/16f );
+	
+	this.renderArm( DevHelper.INS.get( 0 ).getPos(), new Vec3f( 5F / 16F, -4F / 16F, 0F / 16F ) );
+	this.renderArm( DevHelper.INS.get( 1 ).getPos(), new Vec3f( -3F / 16F, -4F / 16F, -2.5F / 16F ) );
+	
+	void renderArm( Vec3f handPos, Vec3f shoulderPos )
+	{
+		final ArmTracker tracker = new ArmTracker();
+		tracker.shoulderPos.set( shoulderPos );
+		tracker.handPos.set( handPos );
+//		final Vec3f r = DevHelper.INS.cur().getRot();
+//		tracker.handRot.z = r.z;
+//		tracker.armRotZ = r.x;
+		tracker.updateArmOrientation();
+		
+		GL11.glPushMatrix(); {
+		
+		final Vec3f pos = tracker.shoulderPos;
+		GL11.glTranslatef( pos.x, pos.y, pos.z );
+		DevHelper.DEBUG_BOX.render();
+		
+		} GL11.glPopMatrix();
+		
+		GL11.glPushMatrix(); {
+		
+		final Vec3f pos = tracker.elbowPos;
+		GL11.glTranslatef( pos.x, pos.y, pos.z );
+		DevHelper.DEBUG_BOX.render();
+		
+		} GL11.glPopMatrix();
+		
+		GL11.glPushMatrix(); {
+		
+		final Vec3f pos = tracker.handPos;
+		GL11.glTranslatef( pos.x, pos.y, pos.z );
+		DevHelper.DEBUG_BOX.render();
+		
+		} GL11.glPopMatrix();
+		
+		GL11.glPushMatrix(); {
+		
+		final Vec3f pos = tracker.handPos;
+		GL11.glTranslatef( pos.x, pos.y, pos.z );
+		
+		final Vec3f rot = tracker.handRot;
+		GL11.glRotatef( rot.y, 0F, 1F, 0F );
+		GL11.glRotatef( rot.x, 1F, 0F, 0F );
+		GL11.glRotatef( rot.z, 0F, 0F, 1F );
+		GL11.glRotatef( -90F, 0F, 1F, 0F );
+		this.bindTexture( new MCWBResource( "textures/steve.png" ) );
+		GL11.glEnable( GL11.GL_BLEND );
+		GL11.glColor4f( 1F, 1, 1, 0.5F );
+		MCWBClient.STEVE_ARM.render();
+		GL11.glDisable( GL11.GL_BLEND );
+		
+		} GL11.glPopMatrix();
+	}
+	/** for test */
 }

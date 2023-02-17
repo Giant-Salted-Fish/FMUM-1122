@@ -1,6 +1,5 @@
 package com.mcwb.common.item;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,15 +7,13 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.Key;
 import com.mcwb.client.input.Key.KeyCategory;
 import com.mcwb.client.item.IItemRenderer;
+import com.mcwb.client.item.ModifiableItemAnimatorState;
 import com.mcwb.client.modify.IModifiableRenderer;
 import com.mcwb.client.modify.ISecondaryRenderer;
 import com.mcwb.client.player.OpModifyClient;
@@ -69,6 +66,7 @@ public abstract class ModifiableItemType<
 	
 	@SerializedName( value = "snapshot", alternate = "preInstalls" )
 	protected IModuleSnapshot snapshot = ModuleSnapshot.DEFAULT;
+	protected transient NBTTagCompound snapshotNBT;
 	
 	@SerializedName( value = "paintjobs", alternate = "skins" )
 	protected List< IPaintjob > paintjobs = Collections.emptyList();
@@ -115,6 +113,14 @@ public abstract class ModifiableItemType<
 	}
 	
 	@Override
+	public void prepareSnapshot()
+	{
+		this.snapshotNBT = this.snapshot.initContexted(
+			name -> this.newContexted( new NBTTagCompound() )
+		).serializeNBT();
+	}
+	
+	@Override
 	public void injectPaintjob( IPaintjob paintjob ) { this.paintjobs.add( paintjob ); }
 	
 	@Override
@@ -143,15 +149,15 @@ public abstract class ModifiableItemType<
 			// has-stackTag | no--capTag}: \
 			// no--stackTag | has-capTag}: {copy stack} \
 			// no--stackTag | no--capTag}: {create stack}, {deserialize from network packet} \
+			final ModifiableItemType< ?, ? > type = ModifiableItemType.this;
 			switch( ( stackTag != null ? 2 : 0 ) + ( capTag != null ? 1 : 0 ) )
 			{
 			case 0: // no--stackTag | no--capTag: {create stack}, {deserialize from network packet}
-				final IModifiable contexted = ModifiableItemType
-					.this.newContexted( new NBTTagCompound() );
-				ModifiableItemType.this.snapshot.initContexted( name -> contexted );
+				final IModifiable primary0 = type.deserializeContexted( type.snapshotNBT.copy() );
+				primary0.updatePrimaryState();
 				
 				stack.setTagCompound( new NBTTagCompound() );
-				final ModuleWrapper wrapper = new ModuleWrapper( stack::getTagCompound, contexted );
+				final ModuleWrapper wrapper = new ModuleWrapper( stack::getTagCompound, primary0 );
 				wrapper.syncNBTData();
 				return wrapper;
 				
@@ -160,10 +166,10 @@ public abstract class ModifiableItemType<
 				// module could be its bounden tag, hence copy it before deserialize
 				final NBTTagCompound copyiedTag = capTag.getCompoundTag( "Parent" ).copy();
 				capTag.removeTag( "Parent" );
-				return new ModuleWrapper(
-					stack::getTagCompound,
-					ModifiableItemType.this.deserializeContexted( copyiedTag )
-				);
+				
+				final IModifiable primary1 = type.deserializeContexted( copyiedTag );
+				primary1.updatePrimaryState();
+				return new ModuleWrapper( stack::getTagCompound, primary1 );
 				// #syncNBTData() not called as it is possible that the stack tag has not been set \
 				// yet. This will not cause problem because the stack tag also has full context.
 				
@@ -174,10 +180,10 @@ public abstract class ModifiableItemType<
 				// Remove "Parent" tag to prevent repeat deserialization
 				final NBTTagCompound nbt = capTag.getCompoundTag( "Parent" );
 				capTag.removeTag( "Parent" );
-				return new ModuleWrapper(
-					stack::getTagCompound,
-					ModifiableItemType.this.deserializeContexted( nbt )
-				);
+				
+				final IModifiable primary2 = type.deserializeContexted( nbt );
+				primary2.updatePrimaryState();
+				return new ModuleWrapper( stack::getTagCompound, primary2 );
 				// See case 1
 				
 			default: throw new RuntimeException( "Impossible to reach here" );
@@ -217,7 +223,7 @@ public abstract class ModifiableItemType<
 	
 	/// Used for module render ///
 	// TODO: maybe null on server side
-	protected static final FloatBuffer MAT_BUF = BufferUtils.createFloatBuffer( 16 );
+//	protected static final FloatBuffer MAT_BUF = BufferUtils.createFloatBuffer( 16 );
 	
 	protected abstract class ModifiableItem extends Modifiable implements IItem
 	{
@@ -249,7 +255,7 @@ public abstract class ModifiableItemType<
 		{
 			final ItemStack stack = new ItemStack( ModifiableItemType.this.item );
 			final IModifiable module = ModifiableItemType.this.getContexted( stack );
-			module.deserializeNBT( this.nbt );
+			module.base().install( 0, this );
 			module.syncNBTData();
 			
 			stack.setItemDamage( this.paintjob );
@@ -317,25 +323,16 @@ public abstract class ModifiableItemType<
 			Collection< ISecondaryRenderer > secondaryRenderQueue,
 			IAnimator animator
 		) {
+			// TODO: May not be necessary to call this every time if no item transform applied
 			this.mat.setIdentity();
 			this.base.applyTransform( this.baseSlot, this, this.mat );
 			
 			// TODO: maybe avoid instantiation to improve performance?
-			renderQueue.add( () -> {
-				GL11.glPushMatrix(); {
-				
-				// Apply transform before actual render
-				final FloatBuffer buf = MAT_BUF;
-				buf.clear();
-				this.mat.store( buf );
-				buf.flip();
-				GL11.glMultMatrix( buf );
-				
-				// Render!
-				ModifiableItemType.this.renderer.renderModule( this.self(), animator );
-				
-				} GL11.glPopMatrix();
-			} );
+			renderQueue.add(
+				() -> ModifiableItemType.this.renderer.renderModule(
+					this.self(), this.wrapperAnimator( animator )
+				)
+			);
 			
 			this.installed.forEach(
 				mod -> mod.prepareHandRenderer( renderQueue, secondaryRenderQueue, animator )
@@ -352,21 +349,11 @@ public abstract class ModifiableItemType<
 			this.base.applyTransform( this.baseSlot, this, this.mat );
 			
 			// TODO: maybe avoid instantiation to improve performance?
-			renderQueue.add( () -> {
-				GL11.glPushMatrix(); {
-				
-				// Apply transform before actual render
-				final FloatBuffer buf = MAT_BUF;
-				buf.clear();
-				this.mat.store( buf );
-				buf.flip();
-				GL11.glMultMatrix( buf );
-				
-				// Render!
-				ModifiableItemType.this.renderer.renderModule( this.self(), animator );
-				
-				} GL11.glPopMatrix();
-			} );
+			renderQueue.add(
+				() -> ModifiableItemType.this.renderer.renderModule(
+					this.self(), this.wrapperAnimator( animator )
+				)
+			);
 			
 			this.installed.forEach(
 				mod -> mod.prepareRenderer( renderQueue, secondaryRenderQueue, animator )
@@ -399,9 +386,18 @@ public abstract class ModifiableItemType<
 		}
 		
 		@SideOnly( Side.CLIENT )
-		protected void prepareRenderer()
+		protected IAnimator wrapperAnimator( IAnimator animator )
 		{
-			
+			return ( channel, smoother, dst ) -> {
+				switch( channel )
+				{
+				case ModifiableItemAnimatorState.CHANNEL_INSTALL:
+					Mat4f.mul( dst, this.mat, dst );
+					break;
+					
+				default: animator.applyChannel( channel, smoother, dst );
+				}
+			};
 		}
 		
 		@SuppressWarnings( "unchecked" )

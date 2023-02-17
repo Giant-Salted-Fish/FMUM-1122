@@ -93,6 +93,7 @@ public final class PlayerPatchClient extends PlayerPatch implements IAutowirePac
 	{
 		super.tick();
 		
+		// TODO: can only update by setting a runner in gui event
 		// Only update game settings when there is no GUI activated
 		if( MCWBClient.MC.currentScreen == null )
 		{

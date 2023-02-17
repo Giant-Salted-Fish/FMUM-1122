@@ -1,18 +1,12 @@
 package com.mcwb.client.gun;
 
-import java.util.ArrayList;
-
-import com.mcwb.client.item.ModifiableItemAnimatorState;
 import com.mcwb.client.item.ModifiableItemRenderer;
-import com.mcwb.client.modify.IModifiableRenderer;
-import com.mcwb.client.modify.ISecondaryRenderer;
-import com.mcwb.client.player.OpModifyClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IGunPart;
-import com.mcwb.common.item.ModifiableItemType;
 import com.mcwb.common.load.BuildableLoader;
+import com.mcwb.util.ArmTracker;
 
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
@@ -20,73 +14,43 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
 public class GunPartRenderer< T extends IGunPart > extends ModifiableItemRenderer< T >
-	implements IModifiableRenderer< T >
+	implements IGunPartRenderer< T >
 {
 	public static final BuildableLoader< IRenderer >
 		LOADER = new BuildableLoader< IRenderer >(
 			"gun_part", json -> MCWB.GSON.fromJson( json, GunPartRenderer.class )
 		); // TODO: kind of weird as passing class works with ide but fails the compile
 	
-	/**
-	 * Render queue is introduced here to help with rendering the objects with transparency
-	 * FIXME: do not use same queue for first person hand and third-person view!
-	 *     Because rendering scope glass texture could also trigger other third-person render and
-	 *     this will break the queue state if they are the same
-	 */
-	protected static final ArrayList< IRenderer > IN_HAND_RENDER_QUEUE = new ArrayList<>();
-	protected static final ArrayList< ISecondaryRenderer >
-		IN_HAND_SECONDARY_RENDER_QUEUE = new ArrayList<>();
-	
-	protected static final ArrayList< IRenderer > RENDER_QUEUE = new ArrayList<>();
-	protected static final ArrayList< ISecondaryRenderer >
-		SECONDARY_RENDER_QUEUE = new ArrayList<>();
-	
 	@Override
-	public void prepareRenderInHand( T contexted, EnumHand hand )
+	public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator )
 	{
-		// Prepare render queue
-		IN_HAND_RENDER_QUEUE.clear();
-		IN_HAND_SECONDARY_RENDER_QUEUE.clear();
-		contexted.base().prepareHandRenderer( // From wrapper
-			IN_HAND_RENDER_QUEUE,
-			IN_HAND_SECONDARY_RENDER_QUEUE,
-			this.animator( hand )
-		);
-		IN_HAND_SECONDARY_RENDER_QUEUE.sort( null );
-		IN_HAND_SECONDARY_RENDER_QUEUE.forEach( ISecondaryRenderer::prepare );
+		leftArm.handPos.set( 0F );
+		leftArm.armRotZ = 0F;
+		leftArm.$handRotZ( 0F );
+		this.updateArm( leftArm, animator );
 	}
 	
 	@Override
-	public void render( T contexted )
+	public void setupRightArmToRender( ArmTracker rightArm, IAnimator animator )
 	{
-		RENDER_QUEUE.clear();
-		SECONDARY_RENDER_QUEUE.clear();
-		contexted.base().prepareRenderer( // From wrapper
-			RENDER_QUEUE,
-			SECONDARY_RENDER_QUEUE,
-			IAnimator.INSTANCE // TODO: proper animator
-		);
-		RENDER_QUEUE.forEach( IRenderer::render );
-		SECONDARY_RENDER_QUEUE.forEach( IRenderer::render );
+		rightArm.handPos.set( 0F );
+		rightArm.armRotZ = 0F;
+		rightArm.$handRotZ( 0F );
+		this.updateArm( rightArm, animator );
 	}
 	
 	@Override
-	public void renderModule( T contexted, IAnimator animator ) {
-		contexted.modifyState().doRecommendedRender( contexted.texture(), this::render );
-	}
-	
-	@Override
-	protected void doRenderInHand( T contexted, EnumHand hand )
-	{
-		IN_HAND_RENDER_QUEUE.forEach( IRenderer::render );
-		IN_HAND_SECONDARY_RENDER_QUEUE.forEach( IRenderer::render );
-	}
-	
-	@Override
-	protected OpModifyClient opModify() { return ModifiableItemType.OP_MODIFY; }
-	
-	@Override
-	protected ModifiableItemAnimatorState animator( EnumHand hand ) {
+	protected GunPartAnimatorState animator( EnumHand hand ) {
 		return GunAnimatorState.INSTANCE;
+	}
+	
+	protected void updateArm( ArmTracker arm, IAnimator animator )
+	{
+		final GunPartAnimatorState state = GunAnimatorState.INSTANCE;
+		animator.getChannel( GunPartAnimatorState.CHANNEL_ITEM, this.smoother(), state.m0 );
+		animator.applyChannel( GunPartAnimatorState.CHANNEL_INSTALL, this.smoother(), state.m0 );
+		
+		state.m0.apply( arm.handPos );
+		arm.updateArmOrientation();
 	}
 }

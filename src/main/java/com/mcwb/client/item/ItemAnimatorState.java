@@ -13,11 +13,10 @@ public class ItemAnimatorState implements IAnimator
 {
 	public static final ItemAnimatorState INSTANCE = new ItemAnimatorState();
 	
-	public static final String ITEM = "item";
+	public static final String CHANNEL_ITEM = "item";
 	
-	public final BasedMotionTendency
-		holdPos = new BasedMotionTendency( 0.4F, 0.125F, 0.25F ),
-		holdRot = new BasedMotionTendency( 0.4F, 4.25F, 1F );
+	public final BasedMotionTendency holdPos = new BasedMotionTendency( 0.4F, 0.125F, 0.25F );
+	public final BasedMotionTendency holdRot = new BasedMotionTendency( 0.4F, 4.25F, 1F );
 	
 	/**
 	 * This can be used by {@link #applyChannel(String, float, Mat4f)} function hence you need to
@@ -27,13 +26,15 @@ public class ItemAnimatorState implements IAnimator
 	 */
 	public final Vec3f v0 = new Vec3f();
 	
+	public final Mat4f m0 = new Mat4f();
+	
 	@Override
 	public void applyChannel( String channel, float smoother, Mat4f dst )
 	{
 		final Vec3f vec = this.v0;
 		switch( channel )
 		{
-		case ITEM:
+		case CHANNEL_ITEM:
 			this.holdPos.getPos( vec, smoother );
 			dst.translate( vec );
 			

@@ -10,8 +10,8 @@ import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.IItemType;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.modify.IModifiable;
-import com.mcwb.common.modify.IModifiable.ModifyState;
 import com.mcwb.common.modify.IModifiableType;
+import com.mcwb.common.modify.IModifyState;
 import com.mcwb.common.modify.ModifyPredication;
 import com.mcwb.common.network.PacketModify;
 import com.mcwb.common.operation.IOperation;
@@ -98,6 +98,7 @@ public class OpModifyClient extends TogglableOperation< IModifiable >
 				
 				// Get a copied delegate to clear the effect of previous preview modification
 				this.resetPrimary();
+				final IModifiable base = this.contexted.getInstalled( this.loc, this.locLen - 2 );
 				
 				// Get selected slot and player inventory
 				final int slot = this.slot();
@@ -115,7 +116,7 @@ public class OpModifyClient extends TogglableOperation< IModifiable >
 					// Test if it is valid to install. // Copy before use.
 					final IModifiable preview = ( ( IModifiableType ) type )
 						.getContexted( stack.copy() );
-					this.previewState = this.contexted.tryInstallPreview( slot, preview );
+					this.previewState = base.tryInstallPreview( slot, preview );
 					if( this.previewState == ModifyPredication.NO_PREVIEW ) continue;
 					
 					// Is preview allowed, setup it as preview selected
@@ -246,7 +247,7 @@ public class OpModifyClient extends TogglableOperation< IModifiable >
 					
 //					this.oriStep = this.curStep; // This will no longer be selected, hence no need
 //					this.oriOffset = this.curOffset;
-					this.selected.$modifyState( ModifyState.NOT_SELECTED );
+					this.selected.$modifyState( IModifyState.NOT_SELECTED );
 					
 					if( this.curPaintjob != this.oriPaintjob )
 					{
@@ -308,7 +309,7 @@ public class OpModifyClient extends TogglableOperation< IModifiable >
 					this.selected.$step( this.oriStep );
 					this.selected.$offset( this.oriOffset );
 					this.selected.$paintjob( this.oriPaintjob );
-					this.selected.$modifyState( ModifyState.NOT_SELECTED );
+					this.selected.$modifyState( IModifyState.NOT_SELECTED );
 					this.positionState = ModifyPredication.OK;
 					
 					// Set index to 0 if has module installed in new slot, or -1 otherwise
@@ -564,7 +565,7 @@ public class OpModifyClient extends TogglableOperation< IModifiable >
 		final IModifiable base = this.contexted.getInstalled( this.loc, this.locLen - 2 );
 		final IModifiable indicator = base.newModifyIndicator();
 		indicator.$step( base.getSlot( this.slot() ).maxStep() / 2 );
-		indicator.$modifyState( ModifyState.SELECTED_OK );
+		indicator.$modifyState( IModifyState.SELECTED_OK );
 		base.install( this.slot(), indicator );
 		this.selected = indicator;
 		// TODO: update primary maybe??
@@ -586,11 +587,11 @@ public class OpModifyClient extends TogglableOperation< IModifiable >
 			= this.selected.paintjob();
 	}
 	
-	protected ModifyState modifyState()
+	protected IModifyState modifyState()
 	{
-		return this.locLen == 0 || this.mode == ModifyMode.PAINTJOB ? ModifyState.NOT_SELECTED
+		return this.locLen == 0 || this.mode == ModifyMode.PAINTJOB ? IModifyState.NOT_SELECTED
 			: this.previewState.ok() && this.positionState.ok()
-				? ModifyState.SELECTED_OK : ModifyState.SELECTED_CONFLICT;
+				? IModifyState.SELECTED_OK : IModifyState.SELECTED_CONFLICT;
 	}
 	
 	protected static enum ModifyMode

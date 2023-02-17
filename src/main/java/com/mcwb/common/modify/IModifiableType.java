@@ -11,6 +11,8 @@ public interface IModifiableType extends IMeta
 {
 	public static final Registry< IModifiableType > REGISTRY = new Registry<>();
 	
+	public void prepareSnapshot();
+	
 	public IModifiable getContexted( ICapabilityProvider provider );
 	
 	public IModifiable newContexted( NBTTagCompound nbt );

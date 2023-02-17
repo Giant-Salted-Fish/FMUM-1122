@@ -17,10 +17,13 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mcwb.client.ammo.AmmoRenderer;
+import com.mcwb.client.gun.CarGripRenderer;
+import com.mcwb.client.gun.GripRenderer;
 import com.mcwb.client.gun.GunPartRenderer;
 import com.mcwb.client.gun.GunRenderer;
 import com.mcwb.client.gun.MagRenderer;
 import com.mcwb.client.input.InputHandler;
+import com.mcwb.client.item.ItemRenderer;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.client.render.Renderer;
 import com.mcwb.common.MCWB;
@@ -105,15 +108,20 @@ public final class MCWBClient extends MCWB
 		super.preLoad();
 		
 		// Register model loaders
+		MODEL_LOADERS.regis( Renderer.LOADER );
 		MODEL_LOADERS.regis( GunPartRenderer.LOADER );
 		MODEL_LOADERS.regis( GunRenderer.LOADER );
 		MODEL_LOADERS.regis( MagRenderer.LOADER );
+		MODEL_LOADERS.regis( GripRenderer.LOADER );
+		MODEL_LOADERS.regis( CarGripRenderer.LOADER );
 		MODEL_LOADERS.regis( AmmoRenderer.LOADER );
 		
 		// Register default textures
 		this.texturePool.put( Renderer.TEXTURE_RED.getPath(), Renderer.TEXTURE_RED );
 		this.texturePool.put( Renderer.TEXTURE_GREEN.getPath(), Renderer.TEXTURE_RED );
 		this.texturePool.put( Renderer.TEXTURE_BLUE.getPath(), Renderer.TEXTURE_RED );
+		this.texturePool.put( ItemRenderer.TEXTURE_STEVE.getPath(), ItemRenderer.TEXTURE_STEVE );
+		this.texturePool.put( ItemRenderer.TEXTURE_ALEX.getPath(), ItemRenderer.TEXTURE_ALEX );
 	}
 	
 	@Override
@@ -208,10 +216,10 @@ public final class MCWBClient extends MCWB
 				}
 				
 				// Handle ".class" renderer
-				// TODO: maybe also require to pass two arguments( merge with type load )
 				else if( key.endsWith( ".class" ) )
 					return ( IRenderer ) this.loadClass( key.substring( 0, key.length() - 6 ) )
-						.getConstructor().newInstance();
+						.getConstructor( String.class, IContentProvider.class )
+							.newInstance( path, provider );
 				
 				// Unknown renderer type
 				else throw new RuntimeException( "Unsupported renderer file type" );

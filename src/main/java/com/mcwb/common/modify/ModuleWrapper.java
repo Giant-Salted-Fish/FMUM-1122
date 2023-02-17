@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 
 import com.google.common.base.Supplier;
 import com.mcwb.client.IAutowireSmoother;
-import com.mcwb.client.item.ItemAnimatorState;
 import com.mcwb.client.modify.ISecondaryRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
@@ -171,12 +170,12 @@ public class ModuleWrapper implements IModifiable, ICapabilityProvider, IAutowir
 	}
 	
 	@Override
-	public ModifyState modifyState() {
+	public IModifyState modifyState() {
 		throw new RuntimeException( "Try to get modify state from " + this );
 	}
 	
 	@Override
-	public void $modifyState( ModifyState state ) {
+	public void $modifyState( IModifyState state ) {
 		throw new RuntimeException( "Try to set modify state for " + this );
 	}
 	
@@ -191,11 +190,7 @@ public class ModuleWrapper implements IModifiable, ICapabilityProvider, IAutowir
 		Collection< IRenderer > renderQueue,
 		Collection< ISecondaryRenderer > secondaryRenderQueue,
 		IAnimator animator
-	) {
-		this.mat.setIdentity();
-		animator.applyChannel( ItemAnimatorState.ITEM, this.smoother(), this.mat );
-		this.primary.prepareHandRenderer( renderQueue, secondaryRenderQueue, animator );
-	}
+	) { throw new RuntimeException( "Try to call prepare render from " + this ); }
 	
 	@Override
 	@SideOnly( Side.CLIENT )
@@ -221,13 +216,20 @@ public class ModuleWrapper implements IModifiable, ICapabilityProvider, IAutowir
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public void onReadNBTShareTag( NBTTagCompound nbt ) {
+	public void onReadNBTShareTag( NBTTagCompound nbt )
+	{
 		this.primary.deserializeNBT( nbt.getCompoundTag( "_" ) );
+		this.primary.updatePrimaryState();
+		
+		// Called to ensure that it works if world is closed immediately after this method call
+		this.syncNBTData();
 	}
 	
 	@Override
 	public NBTTagCompound serializeNBT() { return this.primary.serializeNBT(); }
 	
 	@Override
-	public void deserializeNBT( NBTTagCompound nbt ) { this.primary.deserializeNBT( nbt ); }
+	public void deserializeNBT( NBTTagCompound nbt ) {
+		throw new RuntimeException( "Try to call deserialize NBT for " + this );
+	}
 }

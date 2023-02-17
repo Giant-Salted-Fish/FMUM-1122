@@ -197,49 +197,4 @@ public final class EventHandlerClient
 		if( MCWB.MODID.equals( evt.getModID() ) )
 			ConfigManager.sync( MCWB.MODID, Config.Type.INSTANCE );
 	}
-	
-	/** for test 
-	private static Mesh mesh = null;
-	@SubscribeEvent
-	public static void onPlayerRender( RenderPlayerEvent.Pre evt )
-	{
-		try
-		{
-			mesh = new ObjMeshBuilder().load( "models/test/marlin 1895-thumper v2_1.obj" ).quickBuild();
-			mesh = MCWBClient.MOD.loadMesh( "models/fn_mk20_ssr.obj", b -> b );
-		}
-		catch( Exception e )
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		final ResourceLocation texture = new MCWBResource( "textures/" +
-//			"0x00ff00.png"
-//			"debug_box.png"
-//			"marlin 1895-thumper v2.png"
-			"fn_mk20_ssr.png"
-		);
-		MCWBClient.MC.renderEngine.bindTexture( texture );
-		
-		GL11.glPushMatrix();
-		{
-			final float s = 1F; //3F * 16F;
-			GL11.glScalef( s, s, s );
-			
-			mesh.render();
-//			FNMK20SSR.INSTANCE.render();
-			
-//			GlStateManager.disableCull();
-//			mesh.render();
-		}
-		GL11.glPopMatrix();
-	}
-	
-	@SubscribeEvent
-	public static void onClientTick( ClientTickEvent evt )
-	{
-		// TODO: call test stuff
-	}
-	/** for test */
 }

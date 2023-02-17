@@ -1,5 +1,6 @@
 package com.mcwb.util;
 
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -59,6 +60,8 @@ public class Mat4f extends Matrix4f implements Releasable
 	}
 	
 	/**
+	 * Equivalent as calling {@link GL11#glRotatef(float, float, float, float)} in same order
+	 * 
 	 * @param angle Rotation angle in degrees
 	 * @return {@code this}
 	 */
@@ -67,6 +70,8 @@ public class Mat4f extends Matrix4f implements Releasable
 	}
 	
 	/**
+	 * Equivalent as calling {@link GL11#glRotatef(float, float, float, float)} in same order
+	 * 
 	 * @param x Angle to rotate alone x-axis in degrees
 	 * @param y Angle to rotate alone y-axis in degrees
 	 * @param z Angle to rotate alone z-axis in degrees
@@ -119,6 +124,10 @@ public class Mat4f extends Matrix4f implements Releasable
 			Util.TO_DEGREES * ( float ) Math.atan2( this.m01, this.m11 )
 		);
 		return this;
+	}
+	
+	public final float getEulerAngleZ() {
+		return Util.TO_DEGREES * ( float ) Math.atan2( this.m01, this.m11 );
 	}
 	
 	/**

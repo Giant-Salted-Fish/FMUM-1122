@@ -1,11 +1,7 @@
 package com.mcwb.util;
 
 import java.util.Random;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
-
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagList;
 
 public abstract class Util
 {
@@ -27,16 +23,16 @@ public abstract class Util
 	
 	private Util() { }
 	
-	public static < T extends NBTBase >void streamTagList(
-		NBTTagList list,
-		Class< T > type,
-		Consumer< T > visitor
-	) {
-		for(
-			int i = 0, size = list.tagCount();
-			i < size;
-			visitor.accept( type.cast( list.get( i++ ) ) )
-		);
+	public static float lerp( float start, float end, float factor ) {
+		return start + ( end - start ) * factor;
+	}
+	
+	public static void lerp( Vec3f start, Vec3f end, float factor, Vec3f dst )
+	{
+		dst.set( end );
+		dst.subtract( start );
+		dst.scale( factor );
+		dst.translate( start );
 	}
 	
 	public static boolean intersectionOfLineAndPlane(

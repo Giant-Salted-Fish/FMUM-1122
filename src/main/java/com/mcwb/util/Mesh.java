@@ -256,9 +256,9 @@ public class Mesh implements Releasable
 			return this;
 		}
 		
-		public Builder flip()
+		public Builder flip( boolean x, boolean y, boolean z )
 		{
-			this.vertices.forEach( v -> v.flip( true, true, false ) );
+			this.vertices.forEach( v -> v.flip( x, y, z ) );
 			return this;
 		}
 		

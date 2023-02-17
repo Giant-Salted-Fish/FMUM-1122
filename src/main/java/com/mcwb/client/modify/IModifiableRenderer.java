@@ -10,9 +10,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 //@SideOnly( Side.CLIENT )
 public interface IModifiableRenderer< T extends IContexted > extends IRenderer
 {
-	/**
-	 * Primary transform has been applied and texture has been bind
-	 */
 	@SideOnly( Side.CLIENT )
 	public void renderModule( T contexted, IAnimator animator );
 }

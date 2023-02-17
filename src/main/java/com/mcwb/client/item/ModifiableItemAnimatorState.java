@@ -13,6 +13,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public class ModifiableItemAnimatorState extends ItemAnimatorState
 {
+	public static final String CHANNEL_INSTALL = "install_trans";
+	
 	public OpModifyClient modifyOp = ModifiableItemType.OP_MODIFY;
 	
 	public Vec3f modifyPos = Vec3f.ORIGIN;
@@ -23,7 +25,7 @@ public class ModifiableItemAnimatorState extends ItemAnimatorState
 		final Vec3f vec = this.v0;
 		switch( channel )
 		{
-		case ITEM:
+		case CHANNEL_ITEM:
 			final float modifyProgress = this.modifyOp.getProgress( smoother );
 			
 			// Translation
@@ -39,6 +41,7 @@ public class ModifiableItemAnimatorState extends ItemAnimatorState
 			this.holdRot.getPos( vec, smoother );
 			vec.scale( 1F - modifyProgress );
 			
+			// TODO: player#rotate seems to have lag when being used to render 
 			final EntityPlayerSP player = MCWBClient.MC.player;
 			final float refPlayerYaw = this.modifyOp.refPlayerRotYaw;
 			final float modifyYawBase = ( refPlayerYaw % 360F + 360F ) % 360F - 180F; // TODO: maybe do this when capture ref player yaw
@@ -50,7 +53,7 @@ public class ModifiableItemAnimatorState extends ItemAnimatorState
 			
 			break;
 			
-		default: super.applyChannel( channel, smoother, dst );
+		default: //super.applyChannel( channel, smoother, dst );
 		}
 	}
 }
