@@ -82,10 +82,20 @@ public final class Mat4f extends Matrix4f implements IReleasable
 //		this.m33 += this.m30 * x + this.m31 * y + this.m32 * z; // TODO: test this again
 	}
 	
+	/**
+	 * Axis need to be normalized
+	 * 
+	 * @param angle The angle to rotate about the axis in degrees
+	 */
 	public void rotate( float angle, Vector3f axis ) {
 		this.rotate( angle, axis.x, axis.y, axis.z );
 	}
 	
+	/**
+	 * Axis need to be normalized
+	 * 
+	 * @param angle The angle to rotate about the axis in degrees
+	 */
 	public void rotate( float angle, float ax, float ay, float az )
 	{
 		final float xz = ax * az;

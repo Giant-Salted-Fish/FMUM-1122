@@ -75,7 +75,7 @@ public final class InputHandler
 		SELECT_CONFIRM = new KeyBind( Key.SELECT_CONFIRM, KeyCategory.MODIFY, Keyboard.KEY_G ),
 		SELECT_CANCEL = new KeyBind( Key.SELECT_CANCEL, KeyCategory.MODIFY, Keyboard.KEY_H ),
 		
-		CO = new KeyBind( "co", KeyCategory.ASSIST, Keyboard.KEY_Z, GLOBAL_KEYS );
+		CO = new KeyBind( Key.CO, KeyCategory.ASSIST, Keyboard.KEY_Z, GLOBAL_KEYS );
 	
 	/**
 	 * These keys will update if {@link #CO} is not down

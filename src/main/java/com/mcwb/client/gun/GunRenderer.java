@@ -1,11 +1,5 @@
 package com.mcwb.client.gun;
 
-import java.nio.FloatBuffer;
-
-import javax.vecmath.AxisAngle4f;
-import javax.vecmath.Quat4f;
-
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
@@ -19,7 +13,6 @@ import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.pack.IContentProvider;
-import com.mcwb.devtool.Dev;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.Constants;
 import com.mcwb.util.Mat4f;
@@ -29,7 +22,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.math.MathHelper;
@@ -267,73 +259,17 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 		);
 		GL11.glMatrixMode( GL11.GL_MODELVIEW );
 		
-		// For arm adjust
-		if( Dev.flag )
-		{
-			GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
-			
-			final EntityPlayer player = MCWBClient.MC.player;
-			GL11.glRotatef( -player.rotationPitch, 1F, 0F, 0F );
-			GL11.glRotatef( player.rotationYaw, 0F, 1F, 0F );
-			
-			GL11.glTranslatef( 0F, 0F, -5F/16f );
-		}
-		
-//		final Vec3f rot = DevHelper.get( 0 ).getRot();
-//		final Vec3f pos = DevHelper.get( 0 ).getPos();
-//		final Vec3f scale = DevHelper.get( 1 ).getPos();
-//		if( !scale.nonZero() )
-//			scale.y = 1F;
-//		scale.normalize();
-//		
-//		GL11.glPushMatrix();
-//		final Mat4f mat = new Mat4f();
-//		mat.setIdentity();
-//		mat.translate( pos );
-//		mat.eulerRotateYXZ( rot );
-//		mat.scale( scale );
-//		glMultMatrix( mat );
-//		GL11.glRotatef( rot.y, 0F, 1F, 0F );
-//		GL11.glRotatef( rot.x, 1F, 0F, 0F );
-//		GL11.glRotatef( rot.z, 0F, 0F, 1F );
-//		GL11.glTranslatef( pos.x, pos.y, pos.z );
-//		GL11.glRotatef( rot.x, scale.x, scale.y, scale.z );
-//		GL11.glScalef( scale.x, scale.y, scale.z );
-//		DevHelper.DEBUG_BOX.accept( true );
-//		GL11.glPopMatrix();
-//		
-//		GL11.glPushMatrix();
-//		Mat4f mat0 = new Mat4f();
-//		mat0.setIdentity();
-//		
-//		Mat4f mat1 = new Mat4f();
-//		Quat4f quat = new Quat4f();
-//		quat.set( new AxisAngle4f( scale.x, scale.y, scale.z, rot.x * Constants.TO_RADIANS ) );
-//		mat1.set( quat );
-//		mat0.rotateY( rot.y );
-//		mat0.rotateX( rot.x );
-//		mat0.rotateZ( rot.z );
-//		mat0.translate( pos.x, pos.y, pos.z );
-//		mat0.mul( mat1 );
-//		mat0.rotate( rot.x, scale.x, scale.y, scale.z );
-//		mat0.scale( scale.x, scale.y, scale.z );
-//		
-//		FloatBuffer buf = BufferUtils.createFloatBuffer( 16 );
-//		buf.clear();
-//		mat0.store( buf );
-//		buf.flip();
-//		GL11.glMultMatrix( buf );
-//		
-//		GL11.glEnable( GL11.GL_BLEND );
-//		GL11.glColor4f( 1F, 1F, 1F, 0.5F );
-//		GL11.glScalef( 2F, 2F, 2F );
-//		DevHelper.DEBUG_BOX.accept( true );
-//		GL11.glDisable( GL11.GL_BLEND );
-//		GL11.glPopMatrix();
-//		
-//		new DevHelper().toggleFlagTell(
-//			mat.toString() + "^ old mat\n" + mat0 + "^ new mat"
-//		);
+		/* For arm adjust */
+//		if( Dev.flag )
+//		{
+//			GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
+//			
+//			final EntityPlayer player = MCWBClient.MC.player;
+//			GL11.glRotatef( -player.rotationPitch, 1F, 0F, 0F );
+//			GL11.glRotatef( player.rotationYaw, 0F, 1F, 0F );
+//			
+//			GL11.glTranslatef( 0F, 0F, -5F/16f );
+//		}
 		
 		// Render hand // TODO: hand animation
 		contexted.modifyState().doRenderArm( () -> {

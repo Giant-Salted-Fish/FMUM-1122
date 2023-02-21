@@ -18,10 +18,10 @@ public final class Key
 	{
 		public static final String
 			GENERAL = "mcwb.key_category.general",
-			GUN = "mcwb.key_category.gun",
-			ASSIST = "mcwb.key_category.assist",
-			MODIFY = "mcwb.key_category.modify",
-			OTHER = "mcwb.key_category.other";
+			GUN     = "mcwb.key_category.gun",
+			ASSIST  = "mcwb.key_category.assist",
+			MODIFY  = "mcwb.key_category.modify",
+			OTHER   = "mcwb.key_category.other";
 		
 		private KeyCategory() { }
 	}
@@ -46,7 +46,7 @@ public final class Key
 	 * For keys that provides assist
 	 */
 	public static final String
-//		CO = "co",
+		CO                 = "co",
 		CO_FREE_VIEW       = "co_free_view",
 		CO_RELOAD          = "co_reload",
 		CO_LOAD_UNLOAD_MAG = "co_load_unload_mag",

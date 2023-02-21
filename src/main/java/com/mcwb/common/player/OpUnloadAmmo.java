@@ -13,8 +13,8 @@ public class OpUnloadAmmo extends Operation< IMag >
 {
 	protected IOperation next = NONE;
 	
-	public OpUnloadAmmo( EntityPlayer player, IMag contexted ) {
-		super( player, contexted, contexted.popAmmoController() );
+	public OpUnloadAmmo( EntityPlayer player, IMag mag ) {
+		super( player, mag, mag.popAmmoController() );
 	}
 	
 	@Override

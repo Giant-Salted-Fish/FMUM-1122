@@ -13,12 +13,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
+import net.minecraftforge.registries.IForgeRegistry;
 
 @EventBusSubscriber( modid = MCWB.ID )
 public final class EventHandler
@@ -38,6 +40,20 @@ public final class EventHandler
 		IModifiableType.REGISTRY.values().forEach( IModifiableType::prepareSnapshot );
 		
 		LOGGER.info( "mcwb.item_regis_complete", items.size() );
+	}
+	
+	@SubscribeEvent
+	public static void onSoundRegister( RegistryEvent.Register< SoundEvent > evt )
+	{
+		LOGGER.info( "mcwb.on_sound_regis" ); // TODO: translation
+		
+		final IForgeRegistry< SoundEvent > registry = evt.getRegistry();
+		final Collection< SoundEvent > sounds = MCWB.SOUND_POOL.values();
+		sounds.forEach( sound -> registry.register( sound ) );
+		
+		LOGGER.info( "mcwb.sound_regis_complete", sounds.size() );
+		
+		// TODO: clear sound pool?
 	}
 	
 	@SubscribeEvent

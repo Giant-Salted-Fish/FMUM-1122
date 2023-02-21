@@ -1,9 +1,11 @@
 package com.mcwb.common.network;
 
+import com.mcwb.common.gun.IGun;
 import com.mcwb.common.gun.IMag;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.player.OpLoadAmmo;
+import com.mcwb.common.player.OpLoadMag;
 import com.mcwb.common.player.PlayerPatch;
 
 import io.netty.buffer.ByteBuf;
@@ -15,23 +17,31 @@ public final class PacketCodeAssist implements IPacket
 {
 	public static enum Code
 	{
+		// TODO: check assist maybe?
 		LOAD_AMMO()
 		{
 			@Override
 			protected void handle( PacketCodeAssist packet, EntityPlayerMP player )
 			{
-				if( packet.assist < 0 || packet.assist >= player.inventory.getSizeInventory() )
-				{
-					// TODO: log error
-					return;
-				}
-				
 				final ItemStack stack = player.inventory.getCurrentItem();
 				final IItem item = IItemTypeHost.getType( stack ).getContexted( stack );
 				if( !(item instanceof IMag ) ) return;
 				
 				final IMag mag = ( IMag ) item;
 				PlayerPatch.get( player ).tryLaunch( new OpLoadAmmo( player, mag, packet.assist ) );
+			}
+		},
+		LOAD_MAG()
+		{
+			@Override
+			protected void handle( PacketCodeAssist packet, EntityPlayerMP player )
+			{
+				final ItemStack stack = player.inventory.getCurrentItem();
+				final IItem item = IItemTypeHost.getType( stack ).getContexted( stack );
+				if( !( item instanceof IGun ) ) return;
+				
+				final IGun gun = ( IGun ) item;
+				PlayerPatch.get( player ).tryLaunch( new OpLoadMag( player, gun, packet.assist ) );
 			}
 		};
 		

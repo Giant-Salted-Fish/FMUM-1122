@@ -3,6 +3,10 @@ package com.mcwb.common.operation;
 import com.google.gson.JsonDeserializer;
 import com.mcwb.common.MCWB;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
+
 public class OperationController implements IOperationController
 {
 	public static final JsonDeserializer< IOperationController > ADAPTER =
@@ -10,6 +14,7 @@ public class OperationController implements IOperationController
 	
 	protected static final float[] TIME_ARR = { };
 	protected static final String[] EFFECT_ARR = { };
+	protected static final SoundEvent[] SOUNDS = { };
 	
 	protected float progressor = 0.1F;
 	
@@ -17,6 +22,7 @@ public class OperationController implements IOperationController
 	protected String[] effects = EFFECT_ARR;
 	
 	protected float[] soundTime = TIME_ARR;
+	protected SoundEvent[] sounds = SOUNDS;
 	
 	public OperationController() { }
 	
@@ -51,4 +57,15 @@ public class OperationController implements IOperationController
 	
 	@Override
 	public float getSoundTime( int idx ) { return this.soundTime[ idx ]; }
+	
+	@Override
+	public void handlePlaySound( int idx, EntityPlayer player )
+	{
+		player.world.playSound(
+			player.posX, player.posY, player.posZ,
+			this.sounds[ idx ],
+			SoundCategory.PLAYERS,
+			1F, 1F, false
+		);
+	}
 }

@@ -41,14 +41,13 @@ public class ItemRenderer< T extends IItem > extends Renderer
 	protected static final IRenderer
 		ALEX_ARM = MCWBClient.MOD.loadRenderer( "models/alex_arm.json", "" );
 	
-	protected static final Vec3f HOLD_POS = new Vec3f( -40F / 160F, -50F / 160F, 100F / 160F );
-	protected static final Vec3f HOLD_ROT = new Vec3f();
+	private static final Vec3f HOLD_POS = new Vec3f( -40F / 160F, -50 / 160F, 100F / 160F );
 	
 	@SerializedName( value = "holdPos", alternate = "pos" )
 	protected Vec3f holdPos = HOLD_POS;
 	
 	@SerializedName( value = "holdRot", alternate = "rot" )
-	protected Vec3f holdRot = HOLD_ROT;
+	protected Vec3f holdRot = Vec3f.ORIGIN;
 	
 	@Override
 	public void tickInHand( T contexted, EnumHand hand )

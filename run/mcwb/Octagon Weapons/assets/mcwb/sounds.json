@@ -1,0 +1,13 @@
+{
+	"push_ammo": {
+		"category": "player",
+		"subtitle": "mcwb.sound.push_ammo",
+		"sounds": [ "sounds/push_ammo" ]
+	},
+	
+	"pop_ammo": {
+		"category": "player",
+		"subtitle": "mcwb.sound.pop_ammo",
+		"sounds": [ "sounds/pop_ammo" ]
+	}
+}

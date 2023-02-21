@@ -7,6 +7,8 @@ import com.mcwb.common.gun.IMag;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.network.PacketCode;
+import com.mcwb.common.network.PacketCodeAssist;
+import com.mcwb.common.network.PacketCodeAssist.Code;
 import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.Operation;
 
@@ -42,6 +44,7 @@ public class OpLoadMagClient extends Operation< IGun > implements IAutowirePacke
 			if( this.invSlot == -1 ) break;
 			
 			this.clearProgress();
+			this.sendToServer( new PacketCodeAssist( Code.LOAD_MAG, this.invSlot ) );
 			return super.launch( oldOp );
 		}
 		

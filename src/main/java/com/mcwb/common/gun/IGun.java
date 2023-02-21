@@ -26,6 +26,8 @@ public interface IGun extends IGunPart
 	
 	public IOperationController loadMagController();
 	
+	public IOperationController unloadMagController();
+	
 	@SideOnly( Side.CLIENT )
 	public void setupRenderArm( ArmTracker leftArm, ArmTracker rightArm, IAnimator animator );
 }

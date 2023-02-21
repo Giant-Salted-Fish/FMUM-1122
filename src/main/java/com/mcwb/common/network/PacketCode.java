@@ -1,9 +1,11 @@
 package com.mcwb.common.network;
 
+import com.mcwb.common.gun.IGun;
 import com.mcwb.common.gun.IMag;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.player.OpUnloadAmmo;
+import com.mcwb.common.player.OpUnloadMag;
 import com.mcwb.common.player.PlayerPatch;
 
 import io.netty.buffer.ByteBuf;
@@ -34,6 +36,18 @@ public final class PacketCode implements IPacket
 				if( !( item instanceof IMag ) ) return;
 				
 				PlayerPatch.get( player ).tryLaunch( new OpUnloadAmmo( player, ( IMag ) item ) );
+			}
+		},
+		UNLOAD_MAG()
+		{
+			@Override
+			protected void handle( EntityPlayerMP player )
+			{
+				final ItemStack stack = player.inventory.getCurrentItem();
+				final IItem item = IItemTypeHost.getType( stack ).getContexted( stack );
+				if( !( item instanceof IGun ) ) return;
+				
+				PlayerPatch.get( player ).tryLaunch( new OpUnloadMag( player, ( IGun ) item ) );
 			}
 		},
 		

@@ -56,12 +56,20 @@ public abstract class Operation< T extends IContexted > implements IOperation
 		this.prevProgress = this.progress;
 		this.progress = Math.min( 1F, this.progress + this.controller.progressor() );
 		
-		// TODO: play sounds: if we play this operation on other player's client then they can play sound automatically?
+		// Handle effects
 		for(
 			final int effectCount = this.controller.effectCount();
 			this.ieffect < effectCount
 				&& this.controller.getEffectTime( this.ieffect ) <= this.progress;
 			this.dohandleEffect(), ++this.ieffect
+		);
+		
+		// Handle sounds
+		for(
+			final int soundCount = this.controller.soundCount();
+			this.isound < soundCount
+				&& this.controller.getSoundTime( this.ieffect ) <= this.progress;
+			this.controller.handlePlaySound( this.isound, this.player )
 		);
 		
 		return this.prevProgress == 1F ? this.onComplete() : this;

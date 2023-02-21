@@ -1,5 +1,7 @@
 package com.mcwb.common.operation;
 
+import net.minecraft.entity.player.EntityPlayer;
+
 public interface IOperationController
 {
 	public float progressor();
@@ -14,5 +16,5 @@ public interface IOperationController
 	
 	public float getSoundTime( int idx );
 	
-	// TODO: play sound
+	void handlePlaySound( int idx, EntityPlayer player );
 }

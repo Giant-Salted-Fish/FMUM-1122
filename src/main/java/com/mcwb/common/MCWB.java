@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
+import javax.vecmath.AxisAngle4f;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +44,8 @@ import com.mcwb.common.paintjob.IPaintjob;
 import com.mcwb.common.paintjob.Paintjob;
 import com.mcwb.common.player.PlayerPatch;
 import com.mcwb.common.tab.CreativeTab;
+import com.mcwb.util.AngleAxis4f;
+import com.mcwb.util.Mat4f;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.client.Minecraft;
@@ -399,7 +402,12 @@ public class MCWB extends URLClassLoader
 		builder.registerTypeAdapter( IModuleSnapshot.class, ModuleSnapshot.ADAPTER );
 		builder.registerTypeAdapter( IPaintjob.class, Paintjob.ADAPTER );
 		builder.registerTypeAdapter( IOperationController.class, OperationController.ADAPTER );
-		final Gson parser = new GsonBuilder().setLenient().create();
+		
+		final JsonDeserializer< SoundEvent > SOUND_ADAPTER =
+			( json, typeOfT, context ) -> this.loadSound( json.getAsString() );
+		builder.registerTypeAdapter( SoundEvent.class, SOUND_ADAPTER );
+		
+		final Gson innerParser = new GsonBuilder().setLenient().create();
 		builder.registerTypeAdapter(
 			Vec3f.class,
 			( JsonDeserializer< Vec3f > ) ( json, typeOfT, context ) -> {
@@ -416,8 +424,40 @@ public class MCWB extends URLClassLoader
 					return vec;
 				}
 				
-				return json.isJsonObject() ? parser.fromJson( json, Vec3f.class )
+				return json.isJsonObject() ? innerParser.fromJson( json, Vec3f.class )
 					: Vec3f.parse( json.getAsString() );
+			}
+		);
+		builder.registerTypeAdapter(
+			AxisAngle4f.class,
+			( JsonDeserializer< AngleAxis4f > ) ( json, typeOfT, context ) -> {
+				if( json.isJsonArray() )
+				{
+					final JsonArray arr = json.getAsJsonArray();
+					if( arr.size() < 4 )
+					{
+						final AngleAxis4f rot = new AngleAxis4f();
+						final Mat4f mat = Mat4f.locate();
+						mat.setIdentity();
+						mat.eulerRotateYXZ(
+							arr.get( 0 ).getAsFloat(),
+							arr.get( 1 ).getAsFloat(),
+							arr.get( 2 ).getAsFloat()
+						);
+						rot.set( mat );
+						mat.release();
+						return rot;
+					}
+					
+					return new AngleAxis4f(
+						arr.get( 0 ).getAsFloat(),
+						arr.get( 1 ).getAsFloat(),
+						arr.get( 2 ).getAsFloat(),
+						arr.get( 3 ).getAsFloat()
+					);
+				}
+				
+				return innerParser.fromJson( json, AngleAxis4f.class );
 			}
 		);
 		return builder;

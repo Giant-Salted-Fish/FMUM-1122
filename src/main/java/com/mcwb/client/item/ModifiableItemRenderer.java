@@ -38,7 +38,7 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModifiable >
 	protected static final ArrayList< IDeferredPriorityRenderer >
 		RENDER_QUEUE_1 = new ArrayList<>();
 	
-	protected static final Vec3f MODIFY_POS = new Vec3f( 0F, 0F, 150F / 160F );
+	private static final Vec3f MODIFY_POS = new Vec3f( 0F, 0F, 150F / 160F );
 	
 	protected Vec3f modifyPos = MODIFY_POS;
 	
