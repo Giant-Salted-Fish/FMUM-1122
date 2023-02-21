@@ -10,6 +10,7 @@ import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.client.render.Renderer;
 import com.mcwb.common.item.IItem;
+import com.mcwb.util.Mat4f;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.client.Minecraft;
@@ -132,10 +133,12 @@ public class ItemRenderer< T extends IItem > extends Renderer
 	
 	protected void doRenderInHand( T contexted, EnumHand hand )
 	{
+		final Mat4f mat = Mat4f.locate();
 		final ItemAnimatorState state = this.animator( hand );
-		state.getChannel( ItemAnimatorState.CHANNEL_ITEM, this.smoother(), state.m0 );
+		state.getChannel( CHANNEL_ITEM, this.smoother(), mat );
+		glMultMatrix( mat );
+		mat.release();
 		
-		glMultMatrix( state.m0 );
 		this.render( contexted );
 	}
 	

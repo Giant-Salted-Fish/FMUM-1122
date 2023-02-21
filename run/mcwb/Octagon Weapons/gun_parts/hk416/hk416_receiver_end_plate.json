@@ -1,6 +1,6 @@
 {
 	"creativeTab": "oc",
-	"model": "models/gun/hk416/receiver_end_plate.json",
+	"renderer": "renderers/gun/hk416/receiver_end_plate.json",
 	"texture": "textures/guns/hk416_d10rs.png",
 	
 	"category": "ar_receiver_end_plate",

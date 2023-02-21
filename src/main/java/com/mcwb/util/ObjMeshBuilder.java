@@ -13,7 +13,7 @@ import net.minecraftforge.client.model.obj.OBJModel;
 public class ObjMeshBuilder extends Mesh.Builder
 {
 	public ObjMeshBuilder load( String path ) throws Exception {
-		return this.load( new ResourceLocation( MCWB.MODID, path ) );
+		return this.load( new ResourceLocation( MCWB.ID, path ) );
 	}
 	
 	public ObjMeshBuilder load( ResourceLocation res ) throws Exception

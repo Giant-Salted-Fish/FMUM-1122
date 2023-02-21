@@ -7,6 +7,7 @@ import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.util.ArmTracker;
+import com.mcwb.util.Mat4f;
 
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
@@ -46,11 +47,12 @@ public class GunPartRenderer< T extends IGunPart > extends ModifiableItemRendere
 	
 	protected void updateArm( ArmTracker arm, IAnimator animator )
 	{
-		final GunPartAnimatorState state = GunAnimatorState.INSTANCE;
-		animator.getChannel( GunPartAnimatorState.CHANNEL_ITEM, this.smoother(), state.m0 );
-		animator.applyChannel( GunPartAnimatorState.CHANNEL_INSTALL, this.smoother(), state.m0 );
+		final Mat4f mat = Mat4f.locate();
+		animator.getChannel( CHANNEL_ITEM, this.smoother(), mat );
+		animator.applyChannel( CHANNEL_INSTALL, this.smoother(), mat );
+		mat.apply( arm.handPos );
+		mat.release();
 		
-		state.m0.apply( arm.handPos );
 		arm.updateArmOrientation();
 	}
 }

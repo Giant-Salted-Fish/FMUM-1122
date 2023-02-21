@@ -1,6 +1,6 @@
 {
 	"creativeTab": "oc",
-	"model": "models/gun/hk416/handguard.json",
+	"renderer": "renderers/gun/hk416/handguard.json",
 	"texture": "textures/guns/hk416_d10rs.png",
 	
 	"paramScale": 0.00625,
@@ -34,5 +34,5 @@
 			"allowed": [ "prb" ]
 		}
 	],
-	"leftHandPriority": 0
+	"leftHandPriority": 256
 }

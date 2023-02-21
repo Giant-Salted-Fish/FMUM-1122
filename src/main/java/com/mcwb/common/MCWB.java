@@ -68,7 +68,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * @author Giant_Salted_Fish
  */
 @Mod(
-	modid = MCWB.MODID,
+	modid = MCWB.ID,
 	name = MCWB.NAME,
 	version = MCWB.VERSION,
 	acceptedMinecraftVersions = "[1.12, 1.13)",
@@ -81,7 +81,7 @@ public class MCWB extends URLClassLoader
 	/**
 	 * Mod id
 	 */
-	public static final String MODID = "mcwb";
+	public static final String ID = "mcwb";
 	
 	/**
 	 * A human friendly mod name
@@ -129,7 +129,7 @@ public class MCWB extends URLClassLoader
 	/**
 	 * Default creative item tab
 	 */
-	public static final CreativeTab DEF_TAB = new CreativeTab().build( MODID, MOD );
+	public static final CreativeTab DEF_TAB = new CreativeTab().build( ID, MOD );
 	
 	/**
 	 * Items added into this tab will not be shown in creative item tab
@@ -163,12 +163,12 @@ public class MCWB extends URLClassLoader
 	/**
 	 * Use {@link IAutowirePacketHandler}
 	 */
-	static final PacketHandler NET = new PacketHandler( MODID );
+	static final PacketHandler NET = new PacketHandler( ID );
 	
 	/**
 	 * Use {@link IAutowireLogger}
 	 */
-	static final Logger LOGGER = LogManager.getLogger( MODID );
+	static final Logger LOGGER = LogManager.getLogger( ID );
 	
 	public static int maxSlotCapacity;
 	
@@ -244,11 +244,11 @@ public class MCWB extends URLClassLoader
 	{
 		// Check content pack folder
 		// TODO: if load packs from mods dir then allow the player to disable content pack folder
-		final File packDir = new File( GAME_DIR, MODID );
+		final File packDir = new File( GAME_DIR, ID );
 		if( !packDir.exists() )
 		{
 			packDir.mkdirs();
-			this.info( "mcwb.pack_dir_created", MODID );
+			this.info( "mcwb.pack_dir_created", ID );
 		}
 		
 		// Compile a regex to match the supported content pack file types
@@ -369,6 +369,9 @@ public class MCWB extends URLClassLoader
 	
 	@Override
 	public String sourceName() { return NAME; }
+	
+	@Override
+	public String toString() { return NAME; }
 	
 	protected void setupSideDependentLoaders()
 	{

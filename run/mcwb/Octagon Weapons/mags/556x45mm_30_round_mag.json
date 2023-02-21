@@ -1,7 +1,7 @@
 {
 	"creativeTab": "oc",
 	"category": "556x45mm_mag",
-	"model": "models/mag/556x45mm_30_round_mag.json",
+	"renderer": "renderers/mag/556x45mm_30_round_mag.json",
 	"texture": "textures/guns/hk416_d10rs.png",
 	
 	"allowedAmmoCategory": [ "556x45mm" ],

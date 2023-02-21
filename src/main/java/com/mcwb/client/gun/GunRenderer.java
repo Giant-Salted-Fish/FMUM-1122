@@ -1,5 +1,13 @@
 package com.mcwb.client.gun;
 
+import java.nio.FloatBuffer;
+
+import javax.vecmath.AxisAngle4f;
+import javax.vecmath.Matrix4f;
+import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3f;
+
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
@@ -7,16 +15,19 @@ import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.player.PlayerPatchClient;
+import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
-import com.mcwb.common.MCWBResource;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.load.BuildableLoader;
+import com.mcwb.common.pack.IContentProvider;
 import com.mcwb.devtool.DevHelper;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Util;
 import com.mcwb.util.Vec3f;
+import com.mcwb.utill.Constants;
+import com.mcwb.utill.NewMat4f;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -25,13 +36,12 @@ import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MovementInput;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class GunRenderer< T extends IGun > extends GripRenderer< T >
+public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 {
 	public static final BuildableLoader< IRenderer >
 		LOADER = new BuildableLoader<>(
@@ -42,6 +52,14 @@ public class GunRenderer< T extends IGun > extends GripRenderer< T >
 	protected static final Vec3f HOLD_ROT = new Vec3f( 0F, 0F, -5F );
 	
 	protected static final Vec3f MODIFY_POS = new Vec3f( 0F, -20F / 160F, 150F / 160F );
+	
+	protected final Vec3f rightHandPos = Vec3f.ORIGIN;
+	protected float rightHandRotZ = 0F;
+	protected float rightArmRotZ = 0F;
+	
+	protected final Vec3f leftHandPos = Vec3f.ORIGIN;
+	protected float leftHandRotZ = 0F;
+	protected float leftArmRotZ = 0F;
 	
 	// TODO: these vectors can be initialized with static variables as gson will create new instance on read
 	protected Vec3f motionInertiaPos = new Vec3f( -0.2F, -0.2F, -0.2F );
@@ -87,6 +105,16 @@ public class GunRenderer< T extends IGun > extends GripRenderer< T >
 	}
 	
 	@Override
+	public IRenderer build( String path, IContentProvider provider )
+	{
+		super.build( path, provider );
+		
+		this.leftHandPos.scale( this.scale );
+		this.rightHandPos.scale( this.scale );
+		return this;
+	}
+	
+	@Override
 	public void tickInHand( T contexted, EnumHand hand )
 	{
 		/// Prepare necessary variables ///
@@ -94,7 +122,6 @@ public class GunRenderer< T extends IGun > extends GripRenderer< T >
 		state.modifyOp = this.opModify();
 		state.modifyPos = this.modifyPos;
 		
-		final Mat4f mat = state.m0;
 		final EntityPlayerSP player = MCWBClient.MC.player;
 		final PlayerPatchClient patch = PlayerPatchClient.instance;
 		final boolean aiming = InputHandler.AIM_HOLD.down;
@@ -116,10 +143,13 @@ public class GunRenderer< T extends IGun > extends GripRenderer< T >
 		/// Camera acceleration impact ///
 		// TODO: camera control
 		
+		final Vec3f vec = Vec3f.locate();
+		final Mat4f mat = Mat4f.locate();
+		
 		/// Weapon acceleration impact ///
 		{
 			// Translate acceleration into walk direction
-			final Vec3f acc = state.v0;
+			final Vec3f acc = vec;
 			patch.cameraController.getPlayerRot( acc );
 			mat.setIdentity();
 			mat.rotateX( -acc.x );
@@ -137,7 +167,7 @@ public class GunRenderer< T extends IGun > extends GripRenderer< T >
 		
 		/// Weapon walk/sprint bobbing ///
 		{
-			final Vec3f velo = state.v0;
+			final Vec3f velo = vec;
 			velo.set( patch.playerVelocity );
 			mat.apply( velo );
 			
@@ -181,7 +211,7 @@ public class GunRenderer< T extends IGun > extends GripRenderer< T >
 			pos.translate( moving ? mo : Vec3f.ORIGIN );
 			
 			// TODO: maybe move to outer layer and avoid the delay introduce by motion tendency
-			final Vec3f so = state.v0;
+			final Vec3f so = vec;
 			patch.cameraController.getPlayerRot( so );
 			final float pitch = so.x;
 			so.set(
@@ -204,6 +234,27 @@ public class GunRenderer< T extends IGun > extends GripRenderer< T >
 			
 			state.holdRot.update();
 		}
+		
+		mat.release();
+		vec.release();
+	}
+	
+	@Override
+	public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator )
+	{
+		this.doSetupArmToRender(
+			leftArm, animator,
+			this.leftHandPos, this.leftHandRotZ, this.leftArmRotZ
+		);
+	}
+	
+	@Override
+	public void setupRightArmToRender( ArmTracker rightArm, IAnimator animator )
+	{
+		this.doSetupArmToRender(
+			rightArm, animator,
+			this.rightHandPos, this.rightHandRotZ, this.rightArmRotZ
+		);
 	}
 	
 	@Override
@@ -221,80 +272,74 @@ public class GunRenderer< T extends IGun > extends GripRenderer< T >
 		GL11.glMatrixMode( GL11.GL_MODELVIEW );
 		
 		// For arm adjust
-//		if( DevHelper.flag )
-//		{
-//			GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
-//			
-//			final EntityPlayer player = MCWBClient.MC.player;
-//			GL11.glRotatef( -player.rotationPitch, 1F, 0F, 0F );
-//			GL11.glRotatef( player.rotationYaw, 0F, 1F, 0F );
-//			
-//			GL11.glTranslatef( 0F, 0F, -5F/16f );
-//		}
+		if( DevHelper.flag )
+		{
+			GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
+			
+			final EntityPlayer player = MCWBClient.MC.player;
+			GL11.glRotatef( -player.rotationPitch, 1F, 0F, 0F );
+			GL11.glRotatef( player.rotationYaw, 0F, 1F, 0F );
+			
+			GL11.glTranslatef( 0F, 0F, -5F/16f );
+		}
 		
-//		final ResourceLocation texture = new MCWBResource( "textures/debug_box.png" );
-//		final Vec3f p = DevHelper.get( 0 ).getPos();
-//		GL11.glTranslatef( p.x, p.y, p.z );
-//		
-//		GL11.glEnable( GL11.GL_STENCIL_TEST );
-//		
-//		GL11.glStencilFunc( GL11.GL_NEVER, 1, 0xFF );
-//		GL11.glStencilMask( 0xFF );
-//		GL11.glStencilOp( GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP );
-//		this.bindTexture( texture );
-//		
-//		final boolean flag = GL11.glIsEnabled( GL11.GL_STENCIL_TEST );
-//		DevHelper.DEBUG_BOX.render();
-//		GL11.glDisable( GL11.GL_STENCIL_TEST );
+		final Vec3f rot = DevHelper.get( 0 ).getRot();
+		final Vec3f pos = DevHelper.get( 0 ).getPos();
+		final Vec3f scale = DevHelper.get( 1 ).getPos();
+		if( !scale.nonZero() )
+			scale.y = 1F;
+		scale.normalise();
 		
-//		this.bindTexture( TEXTURE_BLUE );
-//		GL11.glPushMatrix();
-//		GL11.glTranslatef( 0F, 0F, 2F / 16F );
-//		DevHelper.DEBUG_BOX.render();
-//		GL11.glPopMatrix();
-//		
-//		this.bindTexture( TEXTURE_GREEN );
-//		GL11.glPushMatrix();
-//		GL11.glTranslatef( 0F, 0F, -2F / 16F );
-//		final float scale = 0.1F;
-//		GL11.glScalef( scale, scale, scale );
-//		DevHelper.DEBUG_BOX.render();
-//		GL11.glPopMatrix();
-//		
-//		GL11.glEnable( GL11.GL_STENCIL_TEST );
-//		GL11.glClearStencil( 0 );
-//		GL11.glClear( GL11.GL_STENCIL_BUFFER_BIT );
-//		
-		// Glass
-//		GL11.glStencilOp( GL11.GL_KEEP, GL11.GL_REPLACE, GL11.GL_REPLACE );
-//		GL11.glStencilFunc( GL11.GL_ALWAYS, 1, 0xFF );
-//		GL11.glStencilMask( 0xFF );
-//		
-//		this.bindTexture( texture );
-//		GL11.glEnable( GL11.GL_BLEND );
-//		GL11.glColor4f( 1F, 1F, 1F, 0.5F );
-//		DevHelper.DEBUG_BOX.render();
-//		GL11.glDisable( GL11.GL_BLEND );
-//		
-//		// reticle
-//		GL11.glStencilFunc( GL11.GL_NEVER, 1, 0xFF );
-//		GL11.glStencilMask( 0x00 );
-//		GL11.glStencilOp( GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP );
-//		
-//		GL11.glDisable( GL11.GL_DEPTH_TEST );
-//		
-//		final Vec3f pp = DevHelper.get( 1 ).getPos();
-//		GL11.glTranslatef( pp.x, pp.y, pp.z );
-//		this.bindTexture( TEXTURE_RED );
-//		DevHelper.DEBUG_BOX.render();
-//		
-//		GL11.glEnable( GL11.GL_DEPTH_TEST );
-//		GL11.glDisable( GL11.GL_STENCIL_TEST );
+		GL11.glPushMatrix();
+//		final Mat4f mat = new Mat4f();
+//		mat.setIdentity();
+//		mat.translate( pos );
+//		mat.eulerRotateYXZ( rot );
+//		mat.scale( scale );
+//		glMultMatrix( mat );
+//		GL11.glRotatef( rot.y, 0F, 1F, 0F );
+//		GL11.glRotatef( rot.x, 1F, 0F, 0F );
+//		GL11.glRotatef( rot.z, 0F, 0F, 1F );
+		GL11.glTranslatef( pos.x, pos.y, pos.z );
+		GL11.glRotatef( rot.x, scale.x, scale.y, scale.z );
+//		GL11.glScalef( scale.x, scale.y, scale.z );
+		DevHelper.DEBUG_BOX.accept( true );
+		GL11.glPopMatrix();
 		
+		GL11.glPushMatrix();
+		NewMat4f mat0 = new NewMat4f();
+		mat0.setIdentity();
 		
-//		super.doRenderInHand( contexted, hand );
-//		
-//		// Render hand // TODO: hand animation
+		NewMat4f mat1 = new NewMat4f();
+		Quat4f quat = new Quat4f();
+		quat.set( new AxisAngle4f( scale.x, scale.y, scale.z, rot.x * Constants.TO_RADIANS ) );
+		mat1.set( quat );
+//		mat0.rotateY( rot.y );
+//		mat0.rotateX( rot.x );
+//		mat0.rotateZ( rot.z );
+		mat0.translate( pos.x, pos.y, pos.z );
+		mat0.mul( mat1 );
+//		mat0.rotate( rot.x, scale.x, scale.y, scale.z );
+//		mat0.scale( scale.x, scale.y, scale.z );
+		
+		FloatBuffer buf = BufferUtils.createFloatBuffer( 16 );
+		buf.clear();
+		mat0.store( buf );
+		buf.flip();
+		GL11.glMultMatrix( buf );
+		
+		GL11.glEnable( GL11.GL_BLEND );
+		GL11.glColor4f( 1F, 1F, 1F, 0.5F );
+		GL11.glScalef( 2F, 2F, 2F );
+		DevHelper.DEBUG_BOX.accept( true );
+		GL11.glDisable( GL11.GL_BLEND );
+		GL11.glPopMatrix();
+		
+//		new DevHelper().toggleFlagTell(
+//			mat.toString() + "^ old mat\n" + mat0 + "^ new mat"
+//		);
+		
+		// Render hand // TODO: hand animation
 //		contexted.modifyState().doRenderArm( () -> {
 //			final GunAnimatorState animator = this.animator( hand );
 //			final ArmTracker leftArm = animator.leftArm;
@@ -304,34 +349,54 @@ public class GunRenderer< T extends IGun > extends GripRenderer< T >
 //			this.renderArm( leftArm );
 //			this.renderArm( rightArm );
 //		} );
+//		
+//		super.doRenderInHand( contexted, hand );
 	}
 	
-	@Override
-	protected GunAnimatorState animator( EnumHand hand ) { return GunAnimatorState.INSTANCE; }
+	protected void doSetupArmToRender(
+		ArmTracker arm,
+		IAnimator animator,
+		Vec3f handPos,
+		float handRotZ,
+		float armRotZ
+	) {
+		final Mat4f mat = Mat4f.locate();
+		animator.getChannel( CHANNEL_ITEM, this.smoother(), mat );
+		final float gunRotZ = mat.getEulerAngleZ();
+		mat.release();
+		
+//		arm.handPos.set( DevHelper.get( 0 ).getPos() );
+//		arm.$handRotZ( gunRotZ + DevHelper.get( 0 ).getRot().z );
+//		arm.armRotZ = DevHelper.get( 0 ).getRot().x;
+		
+		arm.handPos.set( handPos );
+		arm.$handRotZ( gunRotZ + handRotZ );
+		arm.armRotZ = armRotZ;
+		
+		this.updateArm( arm, animator );
+	}
 	
 	protected void renderArm( ArmTracker arm )
 	{
 		GL11.glPushMatrix(); {
 		
-		final Vec3f pos = arm.handPos;
-		GL11.glTranslatef( pos.x, pos.y, pos.z );
+		glTranslatef( arm.handPos );
+//		DevHelper.DEBUG_BOX.render();
 		
-		DevHelper.DEBUG_BOX.render();
+		glEulerRotateYXZ( arm.handRot );
 		
-		final Vec3f rot = arm.handRot;
-		GL11.glRotatef( rot.y, 0F, 1F, 0F );
-		GL11.glRotatef( rot.x, 1F, 0F, 0F );
-		GL11.glRotatef( rot.z, 0F, 0F, 1F );
-		
-		this.bindTexture( TEXTURE_STEVE );
+		this.bindTexture( TEXTURE_ALEX );
 		
 		GL11.glEnable( GL11.GL_BLEND );
-		GL11.glColor4f( 1F, 1F, 1F, 0.5F );
-		STEVE_ARM.render();
+//		GL11.glColor4f( 1F, 1F, 1F, 0.5F );
+		ALEX_ARM.render();
 		GL11.glDisable( GL11.GL_BLEND );
 		
 		} GL11.glPopMatrix();
 	}
+	
+	@Override
+	protected GunAnimatorState animator( EnumHand hand ) { return GunAnimatorState.INSTANCE; }
 	
 	/**
 	 * Copied from {@link EntityRenderer#getFOVModifier(float, boolean)}

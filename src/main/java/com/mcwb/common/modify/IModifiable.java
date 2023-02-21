@@ -3,9 +3,9 @@ package com.mcwb.common.modify;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-import com.mcwb.client.modify.ISecondaryRenderer;
+import com.mcwb.client.modify.IDeferredPriorityRenderer;
+import com.mcwb.client.modify.IDeferredRenderer;
 import com.mcwb.client.render.IAnimator;
-import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.meta.IContexted;
 import com.mcwb.util.Mat4f;
 
@@ -87,16 +87,16 @@ public interface IModifiable extends IContexted, INBTSerializable< NBTTagCompoun
 	public void applyTransform( int slot, IModifiable module, Mat4f dst );
 	
 	@SideOnly( Side.CLIENT )
-	public void prepareHandRenderer(
-		Collection< IRenderer > renderQueue,
-		Collection< ISecondaryRenderer > secondaryRenderQueue,
+	public void prepareHandRender(
+		Collection< IDeferredRenderer > renderQueue0,
+		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
 	);
 	
 	@SideOnly( Side.CLIENT )
-	public void prepareRenderer(
-		Collection< IRenderer > renderQueue,
-		Collection< ISecondaryRenderer > secondaryRenderQueue,
+	public void prepareRender(
+		Collection< IDeferredRenderer > renderQueue0,
+		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
 	);
 	

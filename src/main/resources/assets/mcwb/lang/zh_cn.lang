@@ -21,7 +21,8 @@ mcwb.config.client.tooltip=这些配置仅在客户端有意义
 
 # 加载时日志
 mcwb.on_pre_init=正在预初始化 MCWB...
-mcwb.opengl_version_too_low=您的 OpenGL 版本过低，最低要求为 OpenGL3.0。请考虑更新显卡驱动或更换显卡。
+mcwb.opengl_version_too_low=您的 OpenGL 版本过低，最低要求为 OpenGL3.0。请更新显卡驱动或更换显卡后重试。
+mcwb.stencil_not_supported=模板缓冲不受支持，请更新驱动或更换显卡后重试。
 mcwb.error_creating_key_binds_file=创建按键绑定文件时出现错误，MCWB 按键绑定设置可能会不同步
 mcwb.error_saving_key_binds=存储按键绑定时出现错误，MCWB 按键绑定设置可能会不同步
 mcwb.error_reading_key_binds=读取按键绑定时出现错误，MCWB 按键绑定设置可能会不同步
@@ -45,6 +46,7 @@ mcwb.model_loader_not_found=找不到 %s 需要的模型加载器 %s
 mcwb.pre_init_complete=MCWB 预初始化完成 \
 
 mcwb.on_item_regis=正在为 MCWB 所属的内容包注册物品...
+mcwb.fail_to_find_module=找不到要求的快照改件 %s
 mcwb.item_regis_complete=物品注册已完成 共计 %s 个
 mcwb.on_model_regis=正在为 MCWB 所属的内容包注册模型...
 mcwb.model_regis_complete=模型注册已完成 共计 %s 个
@@ -61,7 +63,6 @@ mcwb.post_init_complete=MCWB 后初始化完成 \
 mcwb.error_loading_renderer=加载渲染代理 %s 时遇到错误
 mcwb.error_loading_mesh=加载模型网格 %s 时遇到错误
 mcwb.exception_call_model_load=执行 %s 的模型加载方法时出现异常，这很有可能导致游戏崩溃
-mcwb.fail_to_find_module=找不到要求的改件 %s
 
 # 内容包摘要
 mcwb.core_pack=MCWB 核心内容包

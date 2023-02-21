@@ -20,7 +20,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 
-@EventBusSubscriber( modid = MCWB.MODID )
+@EventBusSubscriber( modid = MCWB.ID )
 public final class EventHandler
 {
 	private static final IAutowireLogger LOGGER = MCWB.MOD;

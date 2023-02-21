@@ -6,8 +6,8 @@ import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.pack.IContentProvider;
-import com.mcwb.devtool.DevHelper;
 import com.mcwb.util.ArmTracker;
+import com.mcwb.util.Mat4f;
 import com.mcwb.util.Vec3f;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -37,23 +37,6 @@ public class GripRenderer< T extends IGunPart > extends GunPartRenderer< T >
 		this.doSetupArmToRender( leftArm, animator );
 	}
 	
-	protected void doSetupArmToRender( ArmTracker arm, IAnimator animator )
-	{
-		final GunPartAnimatorState state = GunAnimatorState.INSTANCE;
-		animator.getChannel( GunPartAnimatorState.CHANNEL_ITEM, this.smoother(), state.m0 );
-		final float gunRotZ = state.m0.getEulerAngleZ();
-		
-//		arm.handPos.set( DevHelper.get( 0 ).getPos() );
-//		arm.$handRotZ( gunRotZ + DevHelper.get( 0 ).getRot().z );
-//		arm.armRotZ = DevHelper.get( 0 ).getRot().x;
-		
-		arm.handPos.set( this.handPos );
-		arm.$handRotZ( gunRotZ + this.handRotZ );
-		arm.armRotZ = this.armRotZ;
-		
-		this.updateArm( arm, animator );
-	}
-	
 	@Override
 	public void setupRightArmToRender( ArmTracker rightArm, IAnimator animator )
 	{
@@ -68,5 +51,23 @@ public class GripRenderer< T extends IGunPart > extends GunPartRenderer< T >
 //		rightArm.$handRotZ( gunRotZ + DevHelper.get( 1 ).getRot().z );
 //		
 //		this.updateArm( rightArm, animator );
+	}
+	
+	protected void doSetupArmToRender( ArmTracker arm, IAnimator animator )
+	{
+		final Mat4f mat = Mat4f.locate();
+		animator.getChannel( CHANNEL_ITEM, this.smoother(), mat );
+		final float gunRotZ = mat.getEulerAngleZ();
+		mat.release();
+		
+//		arm.handPos.set( DevHelper.get( 0 ).getPos() );
+//		arm.$handRotZ( gunRotZ + DevHelper.get( 0 ).getRot().z );
+//		arm.armRotZ = DevHelper.get( 0 ).getRot().x;
+		
+		arm.handPos.set( this.handPos );
+		arm.$handRotZ( gunRotZ + this.handRotZ );
+		arm.armRotZ = this.armRotZ;
+		
+		this.updateArm( arm, animator );
 	}
 }

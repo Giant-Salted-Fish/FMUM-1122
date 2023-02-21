@@ -15,6 +15,7 @@ import com.mcwb.common.load.IRequireMeshLoad;
 import com.mcwb.common.pack.IContentProvider;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Mesh;
+import com.mcwb.util.Vec3f;
 
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.util.ResourceLocation;
@@ -33,13 +34,8 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 		TEXTURE_GREEN = new MCWBResource( "textures/0x00ff00.png" ),
 		TEXTURE_BLUE = new MCWBResource( "textures/0x0000ff.png" );
 	
-	/**
-	 * Default mesh path initializer
-	 */
-	protected static final String[] MESH_PATHS = { };
-	
-	@SerializedName( value = "meshPaths", alternate = "meshes" )
-	protected String[] meshPaths = MESH_PATHS;
+	@SerializedName( value = "meshes" )
+	protected String[] meshPaths; // TODO: maybe set to null after load?
 	
 	protected float scale = 1F;
 	
@@ -61,23 +57,28 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 		for(
 			int i = this.meshPaths.length;
 			i-- > 0;
-			this.meshes[ i ] = MCWBClient.MOD.loadMesh(
-				this.meshPaths[ i ],
-				builder -> {
-					float scale = this.scale;
-					if( this.tbObjAdapt )
-					{
-						builder.swapXZ();
-						scale *= 16F;
-					}
-					return scale != 1F ? builder.scale( scale ) : builder;
-				}
-			)
+			this.meshes[ i ] = this.loadMesh( this.meshPaths[ i ] )
 		);
 	}
 	
 	@Override
 	public void render() { for( Mesh mesh : this.meshes ) mesh.render(); }
+	
+	protected Mesh loadMesh( String path )
+	{
+		return MCWBClient.MOD.loadMesh(
+			path,
+			builder -> {
+				float scale = this.scale;
+				if( this.tbObjAdapt )
+				{
+					builder.swapXZ();
+					scale *= 16F;
+				}
+				return scale != 1F ? builder.scale( scale ) : builder;
+			}
+		);
+	}
 	
 	/// For glow stuff ///
 	private static float
@@ -141,4 +142,17 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 		MAT_BUF.flip();
 		GL11.glMultMatrix( MAT_BUF );
 	}
+	
+	protected static void glTranslatef( Vec3f trans ) {
+		GL11.glTranslatef( trans.x, trans.y, trans.z );
+	}
+	
+	protected static void glEulerRotateYXZ( Vec3f rot )
+	{
+		GL11.glRotatef( rot.y, 0F, 1F, 0F );
+		GL11.glRotatef( rot.x, 1F, 0F, 0F );
+		GL11.glRotatef( rot.z, 0F, 0F, 1F );
+	}
+	
+	protected static void glScalef( float scale ) { GL11.glScalef( scale, scale, scale ); }
 }

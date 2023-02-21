@@ -18,7 +18,7 @@ import org.lwjgl.opengl.GL30;
  * 
  * @author Giant_Salted_Fish
  */
-public class Mesh implements Releasable
+public class Mesh implements IReleasable
 {
 	/**
 	 * A fixed instance that renders nothing
@@ -93,6 +93,8 @@ public class Mesh implements Releasable
 		GL30.glBindVertexArray( vao );
 		
 		// Buffer vertices, normals and texture coordinates
+		// FIXME: load them into one buffer. Only enable state for once
+		// FIXME: seems that it is not needed for vertex pointer to work
 		GL11.glEnableClientState( GL11.GL_VERTEX_ARRAY );
 		int posVBO = GL15.glGenBuffers();
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, posVBO );

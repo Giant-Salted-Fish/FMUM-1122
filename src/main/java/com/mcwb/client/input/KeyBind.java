@@ -114,9 +114,9 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	}
 	
 	@Override
-	public void reset()
+	public void inactiveUpdate( boolean down )
 	{
-		if( this.down )
+		if( !down && this.down )
 		{
 			this.down = false;
 			this.onRelease();

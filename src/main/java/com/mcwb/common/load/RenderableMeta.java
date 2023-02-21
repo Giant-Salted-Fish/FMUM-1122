@@ -11,7 +11,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public abstract class RenderableMeta< T extends IRenderer > extends TexturedMeta
 {
 	@SideOnly( Side.CLIENT )
-	@SerializedName( value = "rendererPath", alternate = { "renderer", "model", "modelPath" } )
+	@SerializedName( value = "renderer", alternate = "model" )
 	protected String rendererPath;
 	
 	@SideOnly( Side.CLIENT )

@@ -7,9 +7,9 @@ import javax.annotation.Nullable;
 
 import com.google.common.base.Supplier;
 import com.mcwb.client.IAutowireSmoother;
-import com.mcwb.client.modify.ISecondaryRenderer;
+import com.mcwb.client.modify.IDeferredPriorityRenderer;
+import com.mcwb.client.modify.IDeferredRenderer;
 import com.mcwb.client.render.IAnimator;
-import com.mcwb.client.render.IRenderer;
 import com.mcwb.util.Mat4f;
 
 import net.minecraft.item.ItemStack;
@@ -186,21 +186,21 @@ public class ModuleWrapper implements IModifiable, ICapabilityProvider, IAutowir
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public void prepareHandRenderer(
-		Collection< IRenderer > renderQueue,
-		Collection< ISecondaryRenderer > secondaryRenderQueue,
+	public void prepareHandRender(
+		Collection< IDeferredRenderer > renderQueue0,
+		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
 	) { throw new RuntimeException( "Try to call prepare render from " + this ); }
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public void prepareRenderer(
-		Collection< IRenderer > renderQueue,
-		Collection< ISecondaryRenderer > secondaryRenderQueue,
+	public void prepareRender(
+		Collection< IDeferredRenderer > renderQueue0,
+		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
 	) {
 		this.mat.setIdentity();
-		this.primary.prepareRenderer( renderQueue, secondaryRenderQueue, animator );
+		this.primary.prepareRender( renderQueue0, renderQueue1, animator );
 	}
 	
 	@Override

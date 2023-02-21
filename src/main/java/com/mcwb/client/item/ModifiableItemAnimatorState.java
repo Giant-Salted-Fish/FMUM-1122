@@ -13,8 +13,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public class ModifiableItemAnimatorState extends ItemAnimatorState
 {
-	public static final String CHANNEL_INSTALL = "install_trans";
-	
 	public OpModifyClient modifyOp = ModifiableItemType.OP_MODIFY;
 	
 	public Vec3f modifyPos = Vec3f.ORIGIN;
@@ -25,7 +23,7 @@ public class ModifiableItemAnimatorState extends ItemAnimatorState
 		final Vec3f vec = this.v0;
 		switch( channel )
 		{
-		case CHANNEL_ITEM:
+		case IItemRenderer.CHANNEL_ITEM:
 			final float modifyProgress = this.modifyOp.getProgress( smoother );
 			
 			// Translation

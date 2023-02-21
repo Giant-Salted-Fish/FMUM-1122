@@ -1,6 +1,6 @@
 {
 	"creativeTab": "oc",
-	"model": "models/gun/hk416/charge_handle.json",
+	"renderer": "renderers/gun/hk416/charge_handle.json",
 	"texture": "textures/guns/hk416_d10rs.png",
 	
 	"category": "ar_charge_handle"

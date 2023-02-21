@@ -21,9 +21,9 @@ public interface IKeyBind extends IMeta
 	public void update( boolean down );
 	
 	/**
-	 * Called by {@link InputHandler} on input event if its update group is blocked
+	 * Called by {@link InputHandler} on input event if its update group is inactive
 	 */
-	public void reset();
+	public void inactiveUpdate( boolean down );
 	
 	/**
 	 * Called when enters controls GUI to set key code back to corresponding {@link KeyBinding}.

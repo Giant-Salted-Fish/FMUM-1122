@@ -5,7 +5,7 @@ import org.lwjgl.util.vector.Vector3f;
 /**
  * @author Giant_Salted_Fish
  */
-public class Vec3f extends Vector3f implements Releasable
+public class Vec3f extends Vector3f implements IReleasable
 {
 	public static final Vec3f ORIGIN = new Vec3f();
 	

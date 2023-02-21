@@ -7,7 +7,7 @@ import org.lwjgl.util.vector.Vector3f;
 /** 
  * @author Giant_Salted_Fish
  */
-public class Mat4f extends Matrix4f implements Releasable
+public class Mat4f extends Matrix4f implements IReleasable
 {
 	private static final long serialVersionUID = -3852853301881304154L;
 	

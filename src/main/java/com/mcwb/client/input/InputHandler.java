@@ -34,11 +34,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * settings GUI is launched.
  * 
  * @see Key
- * @see KeyBind
+ * @see IKeyBind
  * @author Giant_Salted_Fish
  */
 @SideOnly( Side.CLIENT )
-@EventBusSubscriber( modid = MCWBClient.MODID, value = Side.CLIENT )
+@EventBusSubscriber( modid = MCWBClient.ID, value = Side.CLIENT )
 public final class InputHandler
 {
 	/**
@@ -75,14 +75,7 @@ public final class InputHandler
 		SELECT_CONFIRM = new KeyBind( Key.SELECT_CONFIRM, KeyCategory.MODIFY, Keyboard.KEY_G ),
 		SELECT_CANCEL = new KeyBind( Key.SELECT_CANCEL, KeyCategory.MODIFY, Keyboard.KEY_H ),
 		
-		CO = new KeyBind( "co", KeyCategory.ASSIST, Keyboard.KEY_Z, GLOBAL_KEYS )
-		{
-			@Override
-			protected void onFire() { INCO_MAPPER.values().forEach( IKeyBind::reset ); }
-			
-			@Override
-			protected void onRelease() { CO_MAPPER.values().forEach( IKeyBind::reset ); }
-		};
+		CO = new KeyBind( "co", KeyCategory.ASSIST, Keyboard.KEY_Z, GLOBAL_KEYS );
 	
 	/**
 	 * These keys will update if {@link #CO} is not down
@@ -137,6 +130,8 @@ public final class InputHandler
 		final boolean state = Keyboard.getEventKeyState();
 		GLOBAL_MAPPER.get( key ).forEach( kb -> kb.update( state ) );
 		( CO.down ? CO_MAPPER : INCO_MAPPER ).get( key ).forEach( kb -> kb.update( state ) );
+		( CO.down ? INCO_MAPPER : CO_MAPPER ).get( key )
+			.forEach( kb -> kb.inactiveUpdate( state ) );
 	}
 	
 	@SubscribeEvent
@@ -148,6 +143,8 @@ public final class InputHandler
 		final boolean state = Mouse.getEventButtonState();
 		GLOBAL_MAPPER.get( button ).forEach( kb -> kb.update( state ) );
 		( CO.down ? CO_MAPPER : INCO_MAPPER ).get( button ).forEach( kb -> kb.update( state ) );
+		( CO.down ? INCO_MAPPER : CO_MAPPER ).get( button )
+			.forEach( kb -> kb.inactiveUpdate( state ) );
 	}
 	
 	private static KeyBind prevAimKey;

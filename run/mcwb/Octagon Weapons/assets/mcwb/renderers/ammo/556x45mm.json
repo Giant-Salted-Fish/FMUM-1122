@@ -1,0 +1,5 @@
+{
+	"meshes": [ "renderers/ammo/556x45mm.obj" ],
+	"scale": 0.00625,
+	"tbObjAdapt": true
+}

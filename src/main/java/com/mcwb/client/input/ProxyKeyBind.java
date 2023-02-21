@@ -4,10 +4,16 @@ import javax.annotation.Nullable;
 
 import com.mcwb.common.pack.IContentProvider;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * This type of key bind can be used to proxy the vanilla {@link KeyBinding} of {@link Minecraft}
+ * 
+ * @author Giant_Salted_Fish
+ */
 @SideOnly( Side.CLIENT )
 public abstract class ProxyKeyBind extends KeyBind
 {
@@ -46,7 +52,7 @@ public abstract class ProxyKeyBind extends KeyBind
 	protected void onFire() { while( this.keyBind.isPressed() ) this.doProxyStuff(); }
 	
 	@Override
-	protected void onRelease() { }
+	protected void onRelease() { } // Avoid normal notification
 	
 	/**
 	 * Do what you need to proxy the target vanilla key bind

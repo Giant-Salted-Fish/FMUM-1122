@@ -10,6 +10,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 //@SideOnly( Side.CLIENT )
 public interface IItemRenderer< T extends IContexted > extends IRenderer
 {
+	public static final String CHANNEL_ITEM = "item";
+	
 	/**
 	 * Called each tick if this item is holden in hand
 	 */

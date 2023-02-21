@@ -1,0 +1,5 @@
+{
+	"meshes": [ "renderers/gun/hk416/104_barrel.obj" ],
+	"scale": 0.00625,
+	"tbObjAdapt": true
+}

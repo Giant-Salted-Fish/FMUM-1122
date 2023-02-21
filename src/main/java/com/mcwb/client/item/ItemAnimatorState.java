@@ -13,8 +13,6 @@ public class ItemAnimatorState implements IAnimator
 {
 	public static final ItemAnimatorState INSTANCE = new ItemAnimatorState();
 	
-	public static final String CHANNEL_ITEM = "item";
-	
 	public final BasedMotionTendency holdPos = new BasedMotionTendency( 0.4F, 0.125F, 0.25F );
 	public final BasedMotionTendency holdRot = new BasedMotionTendency( 0.4F, 4.25F, 1F );
 	
@@ -24,9 +22,7 @@ public class ItemAnimatorState implements IAnimator
 	 * 
 	 * TODO: check and ensure this does not happen
 	 */
-	public final Vec3f v0 = new Vec3f();
-	
-	public final Mat4f m0 = new Mat4f();
+	protected final Vec3f v0 = new Vec3f();
 	
 	@Override
 	public void applyChannel( String channel, float smoother, Mat4f dst )
@@ -34,7 +30,7 @@ public class ItemAnimatorState implements IAnimator
 		final Vec3f vec = this.v0;
 		switch( channel )
 		{
-		case CHANNEL_ITEM:
+		case IItemRenderer.CHANNEL_ITEM:
 			this.holdPos.getPos( vec, smoother );
 			dst.translate( vec );
 			

@@ -1,18 +1,19 @@
 package com.mcwb.client.item;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.lwjgl.opengl.GL11;
 
-import com.mcwb.client.gun.GunAnimatorState;
+import com.mcwb.client.modify.IDeferredPriorityRenderer;
+import com.mcwb.client.modify.IDeferredRenderer;
 import com.mcwb.client.modify.IModifiableRenderer;
-import com.mcwb.client.modify.ISecondaryRenderer;
 import com.mcwb.client.player.OpModifyClient;
 import com.mcwb.client.render.IAnimator;
-import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.ModifiableItemType;
 import com.mcwb.common.modify.IModifiable;
+import com.mcwb.util.Mat4f;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.util.EnumHand;
@@ -29,13 +30,13 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModifiable >
 	 *     Because rendering scope glass texture could also trigger other third-person render and
 	 *     this will break the queue state if they are the same
 	 */
-	protected static final ArrayList< IRenderer > IN_HAND_RENDER_QUEUE = new ArrayList<>();
-	protected static final ArrayList< ISecondaryRenderer >
-		IN_HAND_SECONDARY_RENDER_QUEUE = new ArrayList<>();
+	protected static final ArrayList< IDeferredRenderer > IN_HAND_QUEUE_0 = new ArrayList<>();
+	protected static final ArrayList< IDeferredPriorityRenderer >
+		IN_HAND_QUEUE_1 = new ArrayList<>();
 	
-	protected static final ArrayList< IRenderer > RENDER_QUEUE = new ArrayList<>();
-	protected static final ArrayList< ISecondaryRenderer >
-		SECONDARY_RENDER_QUEUE = new ArrayList<>();
+	protected static final ArrayList< IDeferredRenderer > RENDER_QUEUE_0 = new ArrayList<>();
+	protected static final ArrayList< IDeferredPriorityRenderer >
+		RENDER_QUEUE_1 = new ArrayList<>();
 	
 	protected static final Vec3f MODIFY_POS = new Vec3f( 0F, 0F, 150F / 160F );
 	
@@ -54,53 +55,67 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModifiable >
 	@Override
 	public void prepareRenderInHand( T contexted, EnumHand hand )
 	{
+		// Clear previous state
+		IN_HAND_QUEUE_0.forEach( IDeferredRenderer::release );
+		IN_HAND_QUEUE_0.clear();
+		IN_HAND_QUEUE_1.forEach( IDeferredPriorityRenderer::release );
+		IN_HAND_QUEUE_1.clear();
+		
 		// Prepare render queue
-		IN_HAND_RENDER_QUEUE.clear();
-		IN_HAND_SECONDARY_RENDER_QUEUE.clear();
-		contexted.prepareHandRenderer(
-			IN_HAND_RENDER_QUEUE,
-			IN_HAND_SECONDARY_RENDER_QUEUE,
+		contexted.prepareHandRender(
+			IN_HAND_QUEUE_0,
+			IN_HAND_QUEUE_1,
 			this.animator( hand )
 		);
-		IN_HAND_SECONDARY_RENDER_QUEUE.sort( null );
-		IN_HAND_SECONDARY_RENDER_QUEUE.forEach( ISecondaryRenderer::prepare );
+		IN_HAND_QUEUE_1.sort( null );
+		IN_HAND_QUEUE_1.forEach( IDeferredPriorityRenderer::prepare );
 	}
 	
 	@Override
 	public void render( T contexted )
 	{
-		RENDER_QUEUE.clear();
-		SECONDARY_RENDER_QUEUE.clear();
-		contexted.prepareRenderer(
-			RENDER_QUEUE,
-			SECONDARY_RENDER_QUEUE,
+		RENDER_QUEUE_0.forEach( IDeferredRenderer::release );
+		RENDER_QUEUE_0.clear();
+		RENDER_QUEUE_1.forEach( IDeferredPriorityRenderer::release );
+		RENDER_QUEUE_1.clear();
+		
+		contexted.prepareRender(
+			RENDER_QUEUE_0,
+			RENDER_QUEUE_1,
 			IAnimator.INSTANCE // TODO: proper animator
 		);
-		RENDER_QUEUE.forEach( IRenderer::render );
-		SECONDARY_RENDER_QUEUE.forEach( IRenderer::render );
+		RENDER_QUEUE_0.forEach( IDeferredRenderer::render );
+		RENDER_QUEUE_1.forEach( IDeferredPriorityRenderer::render );
 	}
 	
 	@Override
-	public void renderModule( T contexted, IAnimator animator )
-	{
-		GL11.glPushMatrix(); {
-		
-		final float smoother = this.smoother();
-		final ModifiableItemAnimatorState state = GunAnimatorState.INSTANCE; // TODO: replace this instance?
-		animator.getChannel( ModifiableItemAnimatorState.CHANNEL_ITEM, smoother, state.m0 );
-		animator.applyChannel( ModifiableItemAnimatorState.CHANNEL_INSTALL, smoother, state.m0 );
-		glMultMatrix( state.m0 );
-		
-		contexted.modifyState().doRecommendedRender( contexted.texture(), this::render );
-		
-		} GL11.glPopMatrix();
+	public void prepareRender(
+		T contexted,
+		IAnimator animator,
+		Collection< IDeferredRenderer > renderQueue0,
+		Collection< IDeferredPriorityRenderer > renderQueue1
+	) {
+		renderQueue0.add( () -> {
+			GL11.glPushMatrix(); {
+			
+			final Mat4f mat = Mat4f.locate();
+			final float smoother = this.smoother();
+			animator.getChannel( CHANNEL_ITEM, smoother, mat );
+			animator.applyChannel( CHANNEL_INSTALL, smoother, mat );
+			glMultMatrix( mat );
+			mat.release();
+			
+			contexted.modifyState().doRecommendedRender( contexted.texture(), this::render );
+			
+			} GL11.glPopMatrix();
+		} );
 	}
 	
 	@Override
 	protected void doRenderInHand( T contexted, EnumHand hand )
 	{
-		IN_HAND_RENDER_QUEUE.forEach( IRenderer::render );
-		IN_HAND_SECONDARY_RENDER_QUEUE.forEach( IRenderer::render );
+		IN_HAND_QUEUE_0.forEach( IDeferredRenderer::render );
+		IN_HAND_QUEUE_1.forEach( IDeferredPriorityRenderer::render );
 	}
 	
 	protected OpModifyClient opModify() { return ModifiableItemType.OP_MODIFY; }

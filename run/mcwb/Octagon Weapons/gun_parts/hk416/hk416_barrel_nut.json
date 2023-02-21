@@ -1,6 +1,6 @@
 {
 	"creativeTab": "oc",
-	"model": "models/gun/hk416/barrel_nut.json",
+	"renderer": "renderers/gun/hk416/barrel_nut.json",
 	"texture": "textures/guns/hk416_d10rs.png",
 	
 	"paramScale": 0.00625,

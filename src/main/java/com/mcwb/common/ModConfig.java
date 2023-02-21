@@ -8,7 +8,7 @@ import net.minecraftforge.common.config.Config.RangeInt;
 import net.minecraftforge.common.config.Config.RequiresWorldRestart;
 
 @LangKey( "mcwb.config.common" )
-@Config( modid = MCWB.MODID, category = "common" )
+@Config( modid = MCWB.ID, category = "common" )
 public final class ModConfig
 {
 	@LangKey( "mcwb.config.common.max_modify_layers" )

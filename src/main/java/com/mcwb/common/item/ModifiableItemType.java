@@ -13,13 +13,12 @@ import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.Key;
 import com.mcwb.client.input.Key.KeyCategory;
 import com.mcwb.client.item.IItemRenderer;
-import com.mcwb.client.item.ModifiableItemAnimatorState;
+import com.mcwb.client.modify.IDeferredPriorityRenderer;
+import com.mcwb.client.modify.IDeferredRenderer;
 import com.mcwb.client.modify.IModifiableRenderer;
-import com.mcwb.client.modify.ISecondaryRenderer;
 import com.mcwb.client.player.OpModifyClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
-import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.modify.IModifiable;
@@ -318,9 +317,9 @@ public abstract class ModifiableItemType<
 		}
 		
 		@SideOnly( Side.CLIENT )
-		public void prepareHandRenderer(
-			Collection< IRenderer > renderQueue,
-			Collection< ISecondaryRenderer > secondaryRenderQueue,
+		public void prepareHandRender(
+			Collection< IDeferredRenderer > renderQueue0,
+			Collection< IDeferredPriorityRenderer > renderQueue1,
 			IAnimator animator
 		) {
 			// TODO: May not be necessary to call this every time if no item transform applied
@@ -328,35 +327,37 @@ public abstract class ModifiableItemType<
 			this.base.applyTransform( this.baseSlot, this, this.mat );
 			
 			// TODO: maybe avoid instantiation to improve performance?
-			renderQueue.add(
-				() -> ModifiableItemType.this.renderer.renderModule(
-					this.self(), this.wrapperAnimator( animator )
-				)
+			ModifiableItemType.this.renderer.prepareHandRender(
+				this.self(),
+				this.wrapperAnimator( animator ),
+				renderQueue0,
+				renderQueue1
 			);
 			
 			this.installed.forEach(
-				mod -> mod.prepareHandRenderer( renderQueue, secondaryRenderQueue, animator )
+				mod -> mod.prepareHandRender( renderQueue0, renderQueue1, animator )
 			);
 		}
 		
 		@SideOnly( Side.CLIENT )
-		public void prepareRenderer(
-			Collection< IRenderer > renderQueue,
-			Collection< ISecondaryRenderer > secondaryRenderQueue,
+		public void prepareRender(
+			Collection< IDeferredRenderer > renderQueue0,
+			Collection< IDeferredPriorityRenderer > renderQueue1,
 			IAnimator animator
 		) {
 			this.mat.setIdentity();
 			this.base.applyTransform( this.baseSlot, this, this.mat );
 			
 			// TODO: maybe avoid instantiation to improve performance?
-			renderQueue.add(
-				() -> ModifiableItemType.this.renderer.renderModule(
-					this.self(), this.wrapperAnimator( animator )
-				)
+			ModifiableItemType.this.renderer.prepareRender(
+				this.self(),
+				this.wrapperAnimator( animator ),
+				renderQueue0,
+				renderQueue1
 			);
 			
 			this.installed.forEach(
-				mod -> mod.prepareRenderer( renderQueue, secondaryRenderQueue, animator )
+				mod -> mod.prepareRender( renderQueue0, renderQueue1, animator )
 			);
 		}
 		
@@ -391,7 +392,7 @@ public abstract class ModifiableItemType<
 			return ( channel, smoother, dst ) -> {
 				switch( channel )
 				{
-				case ModifiableItemAnimatorState.CHANNEL_INSTALL:
+				case IModifiableRenderer.CHANNEL_INSTALL:
 					Mat4f.mul( dst, this.mat, dst );
 					break;
 					

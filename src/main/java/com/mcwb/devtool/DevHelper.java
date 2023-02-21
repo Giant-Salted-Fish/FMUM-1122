@@ -2,9 +2,12 @@ package com.mcwb.devtool;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.function.Consumer;
+
+import javax.vecmath.Matrix4f;
+import javax.vecmath.Vector3f;
 
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
 import com.mcwb.client.IAutowirePlayerChat;
@@ -13,13 +16,12 @@ import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.render.IRenderer;
-import com.mcwb.client.render.Renderer;
 import com.mcwb.common.MCWB;
-import com.mcwb.common.MCWBResource;
+import com.mcwb.util.Mat4f;
+import com.mcwb.util.Util;
 import com.mcwb.util.Vec3f;
 
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -30,26 +32,23 @@ import net.minecraftforge.fml.relauncher.Side;
  * 
  * @author Giant_Salted_Fish
  */
-@EventBusSubscriber( modid = MCWB.MODID, value = Side.CLIENT )
+@EventBusSubscriber( modid = MCWB.ID, value = Side.CLIENT )
 public class DevHelper implements IAutowirePlayerChat
 {
-	public static final IRenderer DEBUG_BOX = new Renderer()
+	public static final Consumer< Boolean > DEBUG_BOX = new Consumer< Boolean >()
 	{
-		{
-			this.meshPaths = new String[] { "models/debug_box.obj" };
-			this.tbObjAdapt = true;
-			this.scale = 1F / 16F;
-		}
+		private final IRenderer renderer = MCWBClient.MOD.loadRenderer( "models/debug_box.json", "" );
 		
-		final MCWBResource texture = new MCWBResource( "textures/debug_box.png" );
+		private final ResourceLocation texture = MCWBClient.MOD.loadTexture( "textures/debug_box.png" );
 		
 		@Override
-		public void render()
+		public void accept( Boolean useDefaultTexture )
 		{
-//			MCWBClient.MOD.bindTexture( this.texture );
-			super.render();
+			if( useDefaultTexture )
+				MCWBClient.MOD.bindTexture( this.texture );
+			renderer.render();
 		}
-	}.build( "debug_box", MCWB.MOD );
+	};
 	
 	public static boolean flag = false;
 	
@@ -104,6 +103,30 @@ public class DevHelper implements IAutowirePlayerChat
 			protected void onFire()
 			{
 				DevHelper.flag = !DevHelper.flag;
+				// FIXME: add check for vector and matrix pool
+//				final Vec3f rot = cur().getRot();
+//				
+//				Mat4f mat = new Mat4f();
+//				mat.setIdentity();
+//				mat.eulerRotateYXZ( rot );
+//				mat.translate( 0F, 0F, 3F );
+//				MCWBClient.MOD.sendPlayerMsg( mat.toString() + "^ Mat4f" );
+//				
+//				rot.scale( Util.TO_RADIANS );
+//				Matrix4f mat0 = new Matrix4f();
+//				Matrix4f mat1 = new Matrix4f();
+//				Matrix4f mat2 = new Matrix4f();
+//				Matrix4f mat3 = new Matrix4f();
+//				mat0.rotY( rot.y );
+//				mat1.rotX( rot.x );
+//				mat2.rotZ( rot.z );
+//				mat3.setIdentity();
+//				mat3.setTranslation( new Vector3f( 0F, 0F, 3F ) );
+//				
+//				mat0.mul( mat1 );
+//				mat0.mul( mat2 );
+//				mat0.mul( mat3 );
+//				MCWBClient.MOD.sendPlayerMsg( mat0.toString() + "^ Matrix4f" );
 			}
 		};
 		InputHandler.updateMappers();
@@ -156,26 +179,31 @@ public class DevHelper implements IAutowirePlayerChat
 		}
 	}
 	
-	@SubscribeEvent
-	public static void onPlayerRender( RenderPlayerEvent.Pre evt )
-	{
-		MCWBClient.MC.renderEngine.bindTexture( new MCWBResource( "textures/debug_box.png" ) );
-		
-		GL11.glEnable( GL11.GL_STENCIL_TEST );
-		GL11.glStencilFunc( GL11.GL_NEVER, 1, 0xFF );
-		
-		GL11.glPushMatrix();
-		{
-			final float s = 16F; //3F * 16F;
-			GL11.glScalef( s, s, s );
-			
-			final Vec3f v = cur().getPos();
-			GL11.glTranslatef( v.x, v.y, v.z );
-			
-			DEBUG_BOX.render();
-		}
-		GL11.glPopMatrix();
-	}
+//	@SubscribeEvent
+//	public static void onPlayerRender( RenderPlayerEvent.Pre evt )
+//	{
+//		MCWBClient.MC.renderEngine.bindTexture( new MCWBResource( "textures/debug_box.png" ) );
+//		
+//		GL11.glEnable( GL11.GL_STENCIL_TEST );
+//		GL11.glStencilFunc( GL11.GL_NEVER, 1, 0xFF );
+//		
+//		GL11.glPushMatrix();
+//		{
+//			final float s = 16F; //3F * 16F;
+//			GL11.glScalef( s, s, s );
+//			
+//			final Vec3f v = cur().getPos();
+//			GL11.glTranslatef( v.x, v.y, v.z );
+//			
+//			GL11.glDisable( GL11.GL_DEPTH_TEST );
+//			DEBUG_BOX.render();
+//			GL11.glEnable( GL11.GL_DEPTH_TEST );
+//		}
+//		GL11.glPopMatrix();
+//		
+//		GL11.glStencilFunc( GL11.GL_ALWAYS, 1, 0xFF );
+//		GL11.glDisable( GL11.GL_STENCIL_TEST );
+//	}
 	
 	@SubscribeEvent
 	public static void onTick( ClientTickEvent evt ) { tick(); }

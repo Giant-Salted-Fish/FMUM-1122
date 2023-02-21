@@ -22,6 +22,7 @@ import com.mcwb.client.gun.GripRenderer;
 import com.mcwb.client.gun.GunPartRenderer;
 import com.mcwb.client.gun.GunRenderer;
 import com.mcwb.client.gun.MagRenderer;
+import com.mcwb.client.gun.OpticSightRenderer;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.item.ItemRenderer;
 import com.mcwb.client.render.IRenderer;
@@ -40,6 +41,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.resource.VanillaResourceType;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -104,6 +106,10 @@ public final class MCWBClient extends MCWB
 		if( !GLContext.getCapabilities().OpenGL30 )
 			throw new RuntimeException( I18n.format( "mcwb.opengl_version_too_low" ) );
 		
+		final Framebuffer framebuffer = MC.getFramebuffer();
+		if( !framebuffer.isStencilEnabled() && !framebuffer.enableStencil() )
+			throw new RuntimeException( I18n.format( "mcwb.stencil_not_supported" ) );
+		
 		// Do prepare work
 		super.preLoad();
 		
@@ -114,6 +120,7 @@ public final class MCWBClient extends MCWB
 		MODEL_LOADERS.regis( MagRenderer.LOADER );
 		MODEL_LOADERS.regis( GripRenderer.LOADER );
 		MODEL_LOADERS.regis( CarGripRenderer.LOADER );
+		MODEL_LOADERS.regis( OpticSightRenderer.LOADER );
 		MODEL_LOADERS.regis( AmmoRenderer.LOADER );
 		
 		// Register default textures
@@ -122,6 +129,9 @@ public final class MCWBClient extends MCWB
 		this.texturePool.put( Renderer.TEXTURE_BLUE.getPath(), Renderer.TEXTURE_RED );
 		this.texturePool.put( ItemRenderer.TEXTURE_STEVE.getPath(), ItemRenderer.TEXTURE_STEVE );
 		this.texturePool.put( ItemRenderer.TEXTURE_ALEX.getPath(), ItemRenderer.TEXTURE_ALEX );
+		
+		// Also a default none mesh
+		this.meshPool.put( "", Mesh.NONE );
 	}
 	
 	@Override
@@ -160,7 +170,7 @@ public final class MCWBClient extends MCWB
 		// Register it as a resource pack to load textures and sounds
 		// Mainly referenced Flan's Mod for this part
 		final TreeMap< String, Object > descriptor = new TreeMap<>();
-		descriptor.put( "modid", MODID );
+		descriptor.put( "modid", ID );
 		descriptor.put( "name", NAME + ":" + resource.getName() );
 		descriptor.put( "version", "1" ); // TODO: from pack info maybe
 		final FMLModContainer container = new FMLModContainer(

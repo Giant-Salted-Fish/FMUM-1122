@@ -1,7 +1,6 @@
 package com.mcwb.client;
 
 import java.util.Collection;
-import java.util.function.Consumer;
 
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.player.PlayerPatchClient;
@@ -32,7 +31,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-@EventBusSubscriber( modid = MCWBClient.MODID, value = Side.CLIENT )
+@EventBusSubscriber( modid = MCWBClient.ID, value = Side.CLIENT )
 public final class EventHandlerClient
 {
 	private static final IAutowireLogger LOGGER = MCWBClient.MOD;
@@ -47,10 +46,9 @@ public final class EventHandlerClient
 	
 	static
 	{
-		MinecraftForge.EVENT_BUS.register( new Consumer< WorldEvent.Load >() {
-			@Override
+		MinecraftForge.EVENT_BUS.register( new Object() {
 			@SubscribeEvent
-			public void accept( WorldEvent.Load evt )
+			public void onWorldLoad( WorldEvent.Load evt )
 			{
 				// Avoid model load on player local server
 				if( !evt.getWorld().isRemote ) return; // Just return, do not unregister!
@@ -194,7 +192,7 @@ public final class EventHandlerClient
 	public static void onConfigChanged( OnConfigChangedEvent evt )
 	{
 		// Save config if has changed
-		if( MCWB.MODID.equals( evt.getModID() ) )
-			ConfigManager.sync( MCWB.MODID, Config.Type.INSTANCE );
+		if( MCWB.ID.equals( evt.getModID() ) )
+			ConfigManager.sync( MCWB.ID, Config.Type.INSTANCE );
 	}
 }

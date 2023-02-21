@@ -1,0 +1,11 @@
+{
+	"__type__": "optic_sight",
+	
+	"meshes": [ "renderers/sight/eotech_exps30.obj" ],
+	"scale": 0.00625,
+	"tbObjAdapt": true,
+	"lenMesh": "renderers/sight/eotech_exps30_len.obj",
+	"reticleMesh": "renderers/sight/eotech_exps30_reticle.obj",
+	"reticlePos": [ 0, 10, 2048 ],
+	"reticleScale": 24
+}

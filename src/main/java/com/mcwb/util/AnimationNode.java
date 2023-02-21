@@ -1,6 +1,6 @@
 package com.mcwb.util;
 
-public class AnimationNode implements Animation
+public class AnimationNode implements IAnimation
 {
 	public final Vec3f pos = new Vec3f();
 	
