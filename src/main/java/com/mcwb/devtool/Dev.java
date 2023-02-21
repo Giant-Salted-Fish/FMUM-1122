@@ -4,9 +4,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Vector3f;
-
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -17,8 +14,6 @@ import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
-import com.mcwb.util.Mat4f;
-import com.mcwb.util.Util;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.util.ResourceLocation;
@@ -33,7 +28,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * @author Giant_Salted_Fish
  */
 @EventBusSubscriber( modid = MCWB.ID, value = Side.CLIENT )
-public class DevHelper implements IAutowirePlayerChat
+public class Dev implements IAutowirePlayerChat
 {
 	public static final Consumer< Boolean > DEBUG_BOX = new Consumer< Boolean >()
 	{
@@ -49,6 +44,8 @@ public class DevHelper implements IAutowirePlayerChat
 			renderer.render();
 		}
 	};
+	
+	public static int refer = 0;
 	
 	public static boolean flag = false;
 	
@@ -76,33 +73,33 @@ public class DevHelper implements IAutowirePlayerChat
 		final Collection< IKeyBind > updateGroup = InputHandler.GLOBAL_KEYS;
 		new KeyBind( "test_up", group, Keyboard.KEY_UP, updateGroup ) {
 			@Override
-			protected void onFire() { DevHelper.tu = true; }
+			protected void onFire() { Dev.tu = true; }
 		};
 		new KeyBind( "test_down", group, Keyboard.KEY_DOWN, updateGroup ) {
 			@Override
-			protected void onFire() { DevHelper.td = true; }
+			protected void onFire() { Dev.td = true; }
 		};
 		new KeyBind( "test_left", group, Keyboard.KEY_LEFT, updateGroup ) {
 			@Override
-			protected void onFire() { DevHelper.tl = true; }
+			protected void onFire() { Dev.tl = true; }
 		};
 		new KeyBind( "test_right", group, Keyboard.KEY_RIGHT, updateGroup ) {
 			@Override
-			protected void onFire() { DevHelper.tr = true; }
+			protected void onFire() { Dev.tr = true; }
 		};
 		new KeyBind( "test_enter", group, Keyboard.KEY_NUMPAD5, updateGroup ) {
 			@Override
-			protected void onFire() { DevHelper.te = true; }
+			protected void onFire() { Dev.te = true; }
 		};
 		new KeyBind( "test_quit", group, Keyboard.KEY_NUMPAD2, updateGroup ) {
 			@Override
-			protected void onFire() { DevHelper.tq = true; }
+			protected void onFire() { Dev.tq = true; }
 		};
 		new KeyBind( "test_flag", group, Keyboard.KEY_F10, updateGroup ) {
 			@Override
 			protected void onFire()
 			{
-				DevHelper.flag = !DevHelper.flag;
+				Dev.flag = !Dev.flag;
 				// FIXME: add check for vector and matrix pool
 //				final Vec3f rot = cur().getRot();
 //				

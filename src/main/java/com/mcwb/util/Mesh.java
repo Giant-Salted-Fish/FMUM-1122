@@ -144,12 +144,10 @@ public class Mesh implements IReleasable
 	 * 
 	 * @author Giant_Salted_Fish
 	 */
-	public static class Vertex extends Vec3f
+	@SuppressWarnings( "serial" )
+	public static final class Vertex extends Vec3f
 	{
-		private static final long serialVersionUID = -7851294786528827693L;
-		
 		public float u, v;
-		
 		public float normX, normY, normZ;
 	}
 	
@@ -218,7 +216,7 @@ public class Mesh implements IReleasable
 				}
 				: this.vertices.iterator()
 			);
-
+			
 			final Vec3f vec0 = Vec3f.locate();
 			final Vec3f vec1 = Vec3f.locate();
 			
@@ -232,13 +230,15 @@ public class Mesh implements IReleasable
 					final Vertex vert1 = arr[ j + 1 ];
 					final Vertex vert2 = arr[ j + 2 & 3 ];
 					
-					vec0.set( vert0 ).subtract( vert1 );
-					vec1.set( vert1 ).subtract( vert2 );
-					vec0.cross( vec1, vec0 );
+					vec0.set( vert0 );
+					vec0.sub( vert1 );
+					vec1.set( vert1 );
+					vec1.sub( vert2 );
+					vec0.cross( vec0, vec1 );
 					
 					if( vec0.nonZero() )
 					{
-						vec0.normalise();
+						vec0.normalize();
 						
 						for( int k = 0; k < 4; ++k )
 						{
@@ -260,7 +260,11 @@ public class Mesh implements IReleasable
 		
 		public Builder flip( boolean x, boolean y, boolean z )
 		{
-			this.vertices.forEach( v -> v.flip( x, y, z ) );
+			this.vertices.forEach( v -> {
+				v.x = x ? -v.x : v.x;
+				v.y = y ? -v.y : v.y;
+				v.z = z ? -v.z : v.z;
+			} );
 			return this;
 		}
 		

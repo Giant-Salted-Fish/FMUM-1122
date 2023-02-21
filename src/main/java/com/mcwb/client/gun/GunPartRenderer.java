@@ -25,7 +25,7 @@ public class GunPartRenderer< T extends IGunPart > extends ModifiableItemRendere
 	@Override
 	public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator )
 	{
-		leftArm.handPos.set( 0F );
+		leftArm.handPos.setZero();
 		leftArm.armRotZ = 0F;
 		leftArm.$handRotZ( 0F );
 		this.updateArm( leftArm, animator );
@@ -34,7 +34,7 @@ public class GunPartRenderer< T extends IGunPart > extends ModifiableItemRendere
 	@Override
 	public void setupRightArmToRender( ArmTracker rightArm, IAnimator animator )
 	{
-		rightArm.handPos.set( 0F );
+		rightArm.handPos.setZero();
 		rightArm.armRotZ = 0F;
 		rightArm.$handRotZ( 0F );
 		this.updateArm( rightArm, animator );
@@ -50,7 +50,7 @@ public class GunPartRenderer< T extends IGunPart > extends ModifiableItemRendere
 		final Mat4f mat = Mat4f.locate();
 		animator.getChannel( CHANNEL_ITEM, this.smoother(), mat );
 		animator.applyChannel( CHANNEL_INSTALL, this.smoother(), mat );
-		mat.apply( arm.handPos );
+		mat.transformAsPoint( arm.handPos );
 		mat.release();
 		
 		arm.updateArmOrientation();

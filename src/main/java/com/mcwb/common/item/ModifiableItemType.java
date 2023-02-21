@@ -312,7 +312,7 @@ public abstract class ModifiableItemType<
 		@Override
 		public void applyTransform( int slot, IModifiable module, Mat4f dst )
 		{
-			Mat4f.mul( this.mat, dst, dst );
+			dst.mul( this.mat );
 			ModifiableItemType.this.slots.get( slot ).applyTransform( module, dst );
 		}
 		
@@ -345,6 +345,7 @@ public abstract class ModifiableItemType<
 			Collection< IDeferredPriorityRenderer > renderQueue1,
 			IAnimator animator
 		) {
+			// TODO: May not be necessary to call this every time if no item transform applied
 			this.mat.setIdentity();
 			this.base.applyTransform( this.baseSlot, this, this.mat );
 			
@@ -393,7 +394,7 @@ public abstract class ModifiableItemType<
 				switch( channel )
 				{
 				case IModifiableRenderer.CHANNEL_INSTALL:
-					Mat4f.mul( dst, this.mat, dst );
+					dst.mul( this.mat );
 					break;
 					
 				default: animator.applyChannel( channel, smoother, dst );

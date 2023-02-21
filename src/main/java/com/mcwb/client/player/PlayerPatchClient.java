@@ -111,10 +111,12 @@ public final class PlayerPatchClient extends PlayerPatch implements IAutowirePac
 		);
 		
 		this.prevPlayerVelocity.set( this.playerVelocity );
-		this.playerVelocity.set( this.playerPos ).subtract( this.prevPlayerPos );
+		this.playerVelocity.set( this.playerPos );
+		this.playerVelocity.sub( this.prevPlayerPos );
 		
 		this.prevPlayerAcceleration.set( this.playerAcceleration );
-		this.playerAcceleration.set( this.playerVelocity ).subtract( this.prevPlayerVelocity );
+		this.playerAcceleration.set( this.playerVelocity );
+		this.playerAcceleration.sub( this.prevPlayerVelocity );
 		
 		// Update camera effects
 		this.cameraController.tick();

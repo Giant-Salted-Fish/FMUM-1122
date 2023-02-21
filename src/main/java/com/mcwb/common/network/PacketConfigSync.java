@@ -3,7 +3,7 @@ package com.mcwb.common.network;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.ModConfig;
-import com.mcwb.util.Util;
+import com.mcwb.util.Constants;
 
 import io.netty.buffer.ByteBuf;
 
@@ -32,7 +32,7 @@ public final class PacketConfigSync implements IPacket
 			final float limit = buf.readFloat();
 			MCWBClient.freeViewLimitSquared = limit * limit;
 		}
-		MCWBClient.camDropCycle  = buf.readFloat() * Util.PI * 0.3F;
+		MCWBClient.camDropCycle  = buf.readFloat() * Constants.PI * 0.3F;
 		MCWBClient.camDropAmpl   = buf.readFloat() * 3F;
 		MCWBClient.camDropImpact = buf.readFloat() * 7.5F;
 	}

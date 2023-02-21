@@ -60,7 +60,7 @@ public class ArmTracker
 		
 		// Get distance from hand to shoulder
 		vec.set( this.handPos );
-		vec.subtract( this.shoulderPos );
+		vec.sub( this.shoulderPos );
 		final float distanceSquared = vec.lengthSquared();
 		final float distance = MathHelper.sqrt( distanceSquared );
 		
@@ -74,15 +74,15 @@ public class ArmTracker
 			else if( this.forearmLen > this.upperArmLen ) vec.negate();
 			
 			vec.scale( this.forearmLen / vec.length() );
-			vec.translate( this.handPos );
-			this.elbowPos.translate( vec );
+			vec.add( this.handPos );
+			this.elbowPos.add( vec );
 		}
 		// Case: distance it too long and arm is not enough
 		else if( distance >= this.forearmLen + this.upperArmLen )
 		{
 			vec.negate();
 			vec.scale( this.forearmLen / vec.length() );
-			vec.translate( this.handPos );
+			vec.add( this.handPos );
 			this.elbowPos.set( vec );
 		}
 		// Case: normal triangular shape
@@ -101,13 +101,13 @@ public class ArmTracker
 			mat.setIdentity();
 			vec.getEulerAngle( vec );
 			mat.eulerRotateYXZ( vec.x, vec.y, this.armRotZ );
-			mat.apply( this.elbowPos );
-			this.elbowPos.translate( this.shoulderPos );
+			mat.transformAsPoint( this.elbowPos );
+			this.elbowPos.add( this.shoulderPos );
 		}
 		
 		// Get hand angle
 		vec.set( this.handPos );
-		vec.subtract( this.elbowPos );
+		vec.sub( this.elbowPos );
 		vec.getEulerAngle( this.handRot );
 	}
 }

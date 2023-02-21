@@ -6,10 +6,8 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import com.mcwb.client.MCWBClient;
-
 /**
- * A simple pool to buffer instances like {@link Vec3}
+ * A simple pool to buffer instances like {@link Vec3f}
  *
  * @param <T> Class of buffered instance
  * 
@@ -26,12 +24,8 @@ public final class ObjPool< T >
 	 * 
 	 * @param factory Instance factory which provides instance when there is none left in pool
 	 */
-	public ObjPool( Supplier< T > factory )
-	{
-		this( factory, ( instance, pool ) -> {
-			if( pool.size() < 64 ) pool.add( instance );
-			else MCWBClient.MOD.error( "Too Much instance back, check if anything goes wrong" );
-		} );
+	public ObjPool( Supplier< T > factory ) {
+		this( factory, ( instance, pool ) -> { if( pool.size() < 64 ) pool.add( instance ); } );
 	}
 	
 	public ObjPool( Supplier< T > factory, BiConsumer< T, List< T > > recycler ) {

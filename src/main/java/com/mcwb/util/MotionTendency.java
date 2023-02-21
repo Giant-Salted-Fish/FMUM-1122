@@ -31,7 +31,7 @@ public class MotionTendency
 		this.velocity.scale( speedFactor );
 		
 		this.vec.set( this.tarPos );
-		this.vec.subtract( this.curPos );
+		this.vec.sub( this.curPos );
 		
 		// Make sure force is not exceeding max force
 		float squared = this.vec.lengthSquared();
@@ -40,8 +40,8 @@ public class MotionTendency
 		
 		// Apply modification on speed
 		this.vec.scale( forceMult );
-		this.velocity.translate( this.vec );
-		this.curPos.translate( this.velocity );
+		this.velocity.add( this.vec );
+		this.curPos.add( this.velocity );
 	}
 	
 	/**
@@ -53,26 +53,26 @@ public class MotionTendency
 	public final void approachTarPos( float factor )
 	{
 		this.vec.set( this.tarPos );
-		this.vec.subtract( this.curPos );
+		this.vec.sub( this.curPos );
 		this.vec.scale( factor );
-		this.curPos.translate( this.vec );
+		this.curPos.add( this.vec );
 	}
 	
 	public final void getPos( Vec3f dst, float smoother )
 	{
 		dst.set( this.curPos );
-		dst.subtract( this.prevPos );
+		dst.sub( this.prevPos );
 		dst.scale( smoother );
-		dst.translate( this.prevPos );
+		dst.add( this.prevPos );
 	}
 	
 	public final void applyPos( Vec3f dst, float smoother )
 	{
 		this.vec.set( this.curPos );
-		this.vec.subtract( this.prevPos );
+		this.vec.sub( this.prevPos );
 		this.vec.scale( smoother );
-		dst.translate( this.vec );
-		dst.translate( this.prevPos );
+		dst.add( this.vec );
+		dst.add( this.prevPos );
 	}
 	
 	public final float getX( float smoother )

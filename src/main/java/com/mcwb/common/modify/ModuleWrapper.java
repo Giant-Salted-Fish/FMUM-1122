@@ -45,8 +45,6 @@ public class ModuleWrapper implements IModifiable, ICapabilityProvider, IAutowir
 	
 	protected transient IModifiable primary;
 	
-	protected transient final Mat4f mat = new Mat4f();
-	
 	/**
 	 * {@link #syncNBTData()} not called. Call it after this if it is needed.
 	 */
@@ -180,9 +178,7 @@ public class ModuleWrapper implements IModifiable, ICapabilityProvider, IAutowir
 	}
 	
 	@Override
-	public void applyTransform( int slot, IModifiable module, Mat4f dst ) {
-		Mat4f.mul( this.mat, dst, dst );
-	}
+	public void applyTransform( int slot, IModifiable module, Mat4f dst ) { }
 	
 	@Override
 	@SideOnly( Side.CLIENT )
@@ -190,7 +186,7 @@ public class ModuleWrapper implements IModifiable, ICapabilityProvider, IAutowir
 		Collection< IDeferredRenderer > renderQueue0,
 		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
-	) { throw new RuntimeException( "Try to call prepare render from " + this ); }
+	) { throw new RuntimeException( "Try to call prepare in hand render from " + this ); }
 	
 	@Override
 	@SideOnly( Side.CLIENT )
@@ -198,10 +194,7 @@ public class ModuleWrapper implements IModifiable, ICapabilityProvider, IAutowir
 		Collection< IDeferredRenderer > renderQueue0,
 		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
-	) {
-		this.mat.setIdentity();
-		this.primary.prepareRender( renderQueue0, renderQueue1, animator );
-	}
+	) { throw new RuntimeException( "Try to call prepare render from " + this ); }
 	
 	@Override
 	@SideOnly( Side.CLIENT )

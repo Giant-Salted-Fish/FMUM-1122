@@ -64,7 +64,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	{
 		// If looking around, clear camera recover speed
 		if( InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down )
-			this.camOffAxis.velocity.set( 0F );
+			this.camOffAxis.velocity.setZero();
 		
 		// Otherwise, update off-axis rotation
 		else this.camOffAxis.update();
@@ -166,7 +166,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	public void getCameraRot( Vec3f dst )
 	{
 		this.camEasing.getPos( dst, this.smoother() );
-		dst.translate( this.camRot );
+		dst.add( this.camRot );
 	}
 	
 	@Override

@@ -72,8 +72,8 @@ public class OpticSightRenderer< T extends IGunPart > extends GunPartRenderer< T
 			renderQueue1,
 			mat -> {
 				final Vec3f vec = Vec3f.locate();
-				vec.set( 0F );
-				mat.apply( vec );
+				vec.setZero();
+				mat.transformAsPoint( vec );
 				final float length = vec.length();
 				vec.release();
 				
@@ -161,8 +161,8 @@ public class OpticSightRenderer< T extends IGunPart > extends GunPartRenderer< T
 			public float priority()
 			{
 				final Vec3f vec = Vec3f.locate();
-				vec.set( 0F );
-				this.mat.apply( vec );
+				vec.setZero();
+				this.mat.transformAsPoint( vec );
 				final float distanceSquared = vec.lengthSquared();
 				vec.release();
 				

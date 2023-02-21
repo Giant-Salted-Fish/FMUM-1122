@@ -135,7 +135,7 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 	/**
 	 * Not thread safe!
 	 */
-	protected static void glMultMatrix( Mat4f mat )
+	protected static void glMultMatrix( Mat4f mat ) // TODO: synchronize?
 	{
 		MAT_BUF.clear();
 		mat.store( MAT_BUF );

@@ -395,31 +395,31 @@ public class MCWB extends URLClassLoader
 		builder.setLenient();
 		builder.setPrettyPrinting();
 		
-		final Gson vecParser = new GsonBuilder().setLenient().create();
+		builder.registerTypeAdapter( IModuleSlot.class, RailSlot.ADAPTER );
+		builder.registerTypeAdapter( IModuleSnapshot.class, ModuleSnapshot.ADAPTER );
+		builder.registerTypeAdapter( IPaintjob.class, Paintjob.ADAPTER );
+		builder.registerTypeAdapter( IOperationController.class, OperationController.ADAPTER );
+		final Gson parser = new GsonBuilder().setLenient().create();
 		builder.registerTypeAdapter(
 			Vec3f.class,
 			( JsonDeserializer< Vec3f > ) ( json, typeOfT, context ) -> {
-				if( json.isJsonObject() )
-					return vecParser.fromJson( json, Vec3f.class );
-				
-				final Vec3f vec = new Vec3f();
 				if( json.isJsonArray() )
 				{
 					final JsonArray arr = json.getAsJsonArray();
+					final Vec3f vec = new Vec3f();
 					switch( arr.size() )
 					{
 					case 3: vec.z = arr.get( 2 ).getAsFloat();
 					case 2: vec.y = arr.get( 1 ).getAsFloat();
 					case 1: vec.x = arr.get( 0 ).getAsFloat();
 					}
-				} // TODO: maybe add support for string
-				return vec;
+					return vec;
+				}
+				
+				return json.isJsonObject() ? parser.fromJson( json, Vec3f.class )
+					: Vec3f.parse( json.getAsString() );
 			}
 		);
-		builder.registerTypeAdapter( IModuleSlot.class, RailSlot.ADAPTER );
-		builder.registerTypeAdapter( IModuleSnapshot.class, ModuleSnapshot.ADAPTER );
-		builder.registerTypeAdapter( IPaintjob.class, Paintjob.ADAPTER );
-		builder.registerTypeAdapter( IOperationController.class, OperationController.ADAPTER );
 		return builder;
 	}
 	

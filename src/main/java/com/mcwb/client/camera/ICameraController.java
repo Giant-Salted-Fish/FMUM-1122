@@ -5,7 +5,6 @@ import com.mcwb.util.Vec3f;
 
 import net.minecraft.util.MouseHelper;
 import net.minecraftforge.fml.relauncher.Side;
-
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**

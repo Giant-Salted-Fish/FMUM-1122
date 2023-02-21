@@ -3,9 +3,7 @@ package com.mcwb.client.gun;
 import java.nio.FloatBuffer;
 
 import javax.vecmath.AxisAngle4f;
-import javax.vecmath.Matrix4f;
 import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -21,13 +19,11 @@ import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.pack.IContentProvider;
-import com.mcwb.devtool.DevHelper;
+import com.mcwb.devtool.Dev;
 import com.mcwb.util.ArmTracker;
+import com.mcwb.util.Constants;
 import com.mcwb.util.Mat4f;
-import com.mcwb.util.Util;
 import com.mcwb.util.Vec3f;
-import com.mcwb.utill.Constants;
-import com.mcwb.utill.NewMat4f;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -91,11 +87,11 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 	protected Vec3f crouchShoulderOffset = this.shoulderOffset;
 	protected Vec3f sprintShoulderOffset = this.shoulderOffset;
 	
-	protected float dropCycle = Util.PI * 0.3F;
-	protected float walkCycle = Util.PI * 0.6F;
+	protected float dropCycle = Constants.PI * 0.3F;
+	protected float walkCycle = Constants.PI * 0.6F;
 	
 	@SerializedName( value = "crouchWalkCycle", alternate = "sneakWalkCycle" )
-	protected float crouchWalkCycle = Util.PI;
+	protected float crouchWalkCycle = Constants.PI;
 	
 	public GunRenderer()
 	{
@@ -156,28 +152,28 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 			mat.rotateY( acc.y );
 			
 			acc.set( patch.playerAcceleration );
-			mat.apply( acc );
+			mat.transformAsPoint( acc );
 			
 			// Apply gun body shift
 			final Vec3f ip = this.motionInertiaPos;
 			final Vec3f ir = this.motionInertiaRot;
-			state.holdPos.velocity.translate( acc.x * ip.x, acc.y * ip.y, acc.z * ip.z );
-			state.holdRot.velocity.translate( acc.y * ir.x, acc.x * ir.y, acc.x * ir.z );
+			state.holdPos.velocity.add( acc.x * ip.x, acc.y * ip.y, acc.z * ip.z );
+			state.holdRot.velocity.add( acc.y * ir.x, acc.x * ir.y, acc.x * ir.z );
 		}
 		
 		/// Weapon walk/sprint bobbing ///
 		{
 			final Vec3f velo = vec;
 			velo.set( patch.playerVelocity );
-			mat.apply( velo );
+			mat.transformAsPoint( velo );
 			
 			final float cos = moveSpeed
-				* MathHelper.cos( GunAnimatorState.walkDistanceCycle + 0.5F * Util.PI );
+				* MathHelper.cos( GunAnimatorState.walkDistanceCycle + 0.5F * Constants.PI );
 			final float sin = Math.abs( cos ) - 0.5F * moveSpeed;
 			final Vec3f ap = sprinting ? this.sprintAmplPos : this.walkAmplPos;
 			final Vec3f ar = sprinting ? this.sprintAmplRot : this.walkAmplRot;
-			state.holdPos.velocity.translate( cos * ap.x, sin * ap.y, cos * ap.z );
-			state.holdRot.velocity.translate( sin * ar.x, cos * ar.y, cos * ar.z );
+			state.holdPos.velocity.add( cos * ap.x, sin * ap.y, cos * ap.z );
+			state.holdRot.velocity.add( sin * ar.x, cos * ar.y, cos * ar.z );
 		}
 		
 		/// Smooth on view rotation ///
@@ -186,8 +182,8 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 			final float deltaYaw = player.rotationYaw - GunAnimatorState.prevPlayerYaw;
 			final Vec3f ip = this.viewInertiaPos;
 			final Vec3f ir = this.viewInertiaRot;
-			state.holdPos.velocity.translate( deltaYaw * ip.x, deltaPitch * ip.y, 0F );
-			state.holdRot.velocity.translate( deltaPitch * ir.x, deltaYaw * ir.y, deltaYaw * ir.z );
+			state.holdPos.velocity.add( deltaYaw * ip.x, deltaPitch * ip.y, 0F );
+			state.holdRot.velocity.add( deltaPitch * ir.x, deltaYaw * ir.y, deltaYaw * ir.z );
 			
 			GunAnimatorState.prevPlayerPitch = player.rotationPitch;
 			GunAnimatorState.prevPlayerYaw = player.rotationYaw;
@@ -208,7 +204,7 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 			final MovementInput input = player.movementInput;
 			final boolean moving = input.forwardKeyDown
 				|| input.backKeyDown || input.leftKeyDown || input.rightKeyDown;
-			pos.translate( moving ? mo : Vec3f.ORIGIN );
+			pos.add( moving ? mo : Vec3f.ORIGIN );
 			
 			// TODO: maybe move to outer layer and avoid the delay introduce by motion tendency
 			final Vec3f so = vec;
@@ -220,7 +216,7 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 						: crouching ? this.crouchShoulderOffset : this.shoulderOffset
 			);
 			so.scale( pitch );
-			pos.translate( so );
+			pos.add( so );
 			
 			state.holdPos.update();
 			
@@ -272,7 +268,7 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 		GL11.glMatrixMode( GL11.GL_MODELVIEW );
 		
 		// For arm adjust
-		if( DevHelper.flag )
+		if( Dev.flag )
 		{
 			GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
 			
@@ -283,14 +279,14 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 			GL11.glTranslatef( 0F, 0F, -5F/16f );
 		}
 		
-		final Vec3f rot = DevHelper.get( 0 ).getRot();
-		final Vec3f pos = DevHelper.get( 0 ).getPos();
-		final Vec3f scale = DevHelper.get( 1 ).getPos();
-		if( !scale.nonZero() )
-			scale.y = 1F;
-		scale.normalise();
-		
-		GL11.glPushMatrix();
+//		final Vec3f rot = DevHelper.get( 0 ).getRot();
+//		final Vec3f pos = DevHelper.get( 0 ).getPos();
+//		final Vec3f scale = DevHelper.get( 1 ).getPos();
+//		if( !scale.nonZero() )
+//			scale.y = 1F;
+//		scale.normalize();
+//		
+//		GL11.glPushMatrix();
 //		final Mat4f mat = new Mat4f();
 //		mat.setIdentity();
 //		mat.translate( pos );
@@ -300,57 +296,57 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 //		GL11.glRotatef( rot.y, 0F, 1F, 0F );
 //		GL11.glRotatef( rot.x, 1F, 0F, 0F );
 //		GL11.glRotatef( rot.z, 0F, 0F, 1F );
-		GL11.glTranslatef( pos.x, pos.y, pos.z );
-		GL11.glRotatef( rot.x, scale.x, scale.y, scale.z );
+//		GL11.glTranslatef( pos.x, pos.y, pos.z );
+//		GL11.glRotatef( rot.x, scale.x, scale.y, scale.z );
 //		GL11.glScalef( scale.x, scale.y, scale.z );
-		DevHelper.DEBUG_BOX.accept( true );
-		GL11.glPopMatrix();
-		
-		GL11.glPushMatrix();
-		NewMat4f mat0 = new NewMat4f();
-		mat0.setIdentity();
-		
-		NewMat4f mat1 = new NewMat4f();
-		Quat4f quat = new Quat4f();
-		quat.set( new AxisAngle4f( scale.x, scale.y, scale.z, rot.x * Constants.TO_RADIANS ) );
-		mat1.set( quat );
+//		DevHelper.DEBUG_BOX.accept( true );
+//		GL11.glPopMatrix();
+//		
+//		GL11.glPushMatrix();
+//		Mat4f mat0 = new Mat4f();
+//		mat0.setIdentity();
+//		
+//		Mat4f mat1 = new Mat4f();
+//		Quat4f quat = new Quat4f();
+//		quat.set( new AxisAngle4f( scale.x, scale.y, scale.z, rot.x * Constants.TO_RADIANS ) );
+//		mat1.set( quat );
 //		mat0.rotateY( rot.y );
 //		mat0.rotateX( rot.x );
 //		mat0.rotateZ( rot.z );
-		mat0.translate( pos.x, pos.y, pos.z );
-		mat0.mul( mat1 );
+//		mat0.translate( pos.x, pos.y, pos.z );
+//		mat0.mul( mat1 );
 //		mat0.rotate( rot.x, scale.x, scale.y, scale.z );
 //		mat0.scale( scale.x, scale.y, scale.z );
-		
-		FloatBuffer buf = BufferUtils.createFloatBuffer( 16 );
-		buf.clear();
-		mat0.store( buf );
-		buf.flip();
-		GL11.glMultMatrix( buf );
-		
-		GL11.glEnable( GL11.GL_BLEND );
-		GL11.glColor4f( 1F, 1F, 1F, 0.5F );
-		GL11.glScalef( 2F, 2F, 2F );
-		DevHelper.DEBUG_BOX.accept( true );
-		GL11.glDisable( GL11.GL_BLEND );
-		GL11.glPopMatrix();
-		
+//		
+//		FloatBuffer buf = BufferUtils.createFloatBuffer( 16 );
+//		buf.clear();
+//		mat0.store( buf );
+//		buf.flip();
+//		GL11.glMultMatrix( buf );
+//		
+//		GL11.glEnable( GL11.GL_BLEND );
+//		GL11.glColor4f( 1F, 1F, 1F, 0.5F );
+//		GL11.glScalef( 2F, 2F, 2F );
+//		DevHelper.DEBUG_BOX.accept( true );
+//		GL11.glDisable( GL11.GL_BLEND );
+//		GL11.glPopMatrix();
+//		
 //		new DevHelper().toggleFlagTell(
 //			mat.toString() + "^ old mat\n" + mat0 + "^ new mat"
 //		);
 		
 		// Render hand // TODO: hand animation
-//		contexted.modifyState().doRenderArm( () -> {
-//			final GunAnimatorState animator = this.animator( hand );
-//			final ArmTracker leftArm = animator.leftArm;
-//			final ArmTracker rightArm = animator.rightArm;
-//			contexted.setupRenderArm( leftArm, rightArm, animator );
-//			
-//			this.renderArm( leftArm );
-//			this.renderArm( rightArm );
-//		} );
-//		
-//		super.doRenderInHand( contexted, hand );
+		contexted.modifyState().doRenderArm( () -> {
+			final GunAnimatorState animator = this.animator( hand );
+			final ArmTracker leftArm = animator.leftArm;
+			final ArmTracker rightArm = animator.rightArm;
+			contexted.setupRenderArm( leftArm, rightArm, animator );
+			
+			this.renderArm( leftArm );
+			this.renderArm( rightArm );
+		} );
+		
+		super.doRenderInHand( contexted, hand );
 	}
 	
 	protected void doSetupArmToRender(
