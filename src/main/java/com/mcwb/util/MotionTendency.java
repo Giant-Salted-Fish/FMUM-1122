@@ -23,12 +23,12 @@ public class MotionTendency
 	
 	public void update() { this.update( 0.4F, 4.25F, 1F ); }
 	
-	public void update( float speedFactor, float maxForce, float forceMult )
+	public void update( float dampingFactor, float maxForce, float forceMult )
 	{
 		// Set previous value
 		this.prevPos.set( this.curPos );
 		
-		this.velocity.scale( speedFactor );
+		this.velocity.scale( dampingFactor );
 		
 		this.vec.set( this.tarPos );
 		this.vec.sub( this.curPos );
@@ -39,7 +39,7 @@ public class MotionTendency
 			this.vec.scale( maxForce / MathHelper.sqrt( squared ) );
 		
 		// Apply modification on speed
-		this.vec.scale( forceMult );
+		this.vec.scale( forceMult ); // TODO: move up ward
 		this.velocity.add( this.vec );
 		this.curPos.add( this.velocity );
 	}

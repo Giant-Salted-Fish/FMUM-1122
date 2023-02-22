@@ -32,12 +32,15 @@ public class OperationController implements IOperationController
 		float progressor,
 		float[] effectTime,
 		String[] effects,
-		float[] soundTime
+		float[] soundTime,
+		String... sounds
 	) {
 		this.progressor = progressor;
 		this.effectTime = effectTime;
 		this.effects = effects;
 		this.soundTime = soundTime;
+		this.sounds = new SoundEvent[ sounds.length ];
+		for( int i = sounds.length; i-- > 0; this.sounds[ i ] = MCWB.MOD.loadSound( sounds[ i ] ) );
 	}
 	
 	@Override

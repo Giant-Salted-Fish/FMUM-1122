@@ -75,6 +75,7 @@ public class OpLoadAmmo extends Operation< IMag >
 		if( !this.contexted.isAllowed( ammo ) ) return;
 		
 		this.contexted.pushAmmo( ammo );
-		stack.shrink( 1 );
+//		if( !this.player.isCreative() )
+			stack.shrink( 1 );
 	}
 }

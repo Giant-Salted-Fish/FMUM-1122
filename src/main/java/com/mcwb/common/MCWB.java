@@ -10,7 +10,6 @@ import java.util.LinkedList;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
-import javax.vecmath.AxisAngle4f;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -340,8 +339,15 @@ public class MCWB extends URLClassLoader
 	public void regisMeshLoad( IRequireMeshLoad subscriber ) { }
 	
 	@Override
-	public final SoundEvent loadSound( String path ) {
-		return SOUND_POOL.computeIfAbsent( path, key -> new SoundEvent( new MCWBResource( key ) ) );
+	public final SoundEvent loadSound( String path )
+	{
+		return SOUND_POOL.computeIfAbsent(
+			path,
+			key -> {
+				final MCWBResource res = new MCWBResource( path );
+				return new SoundEvent( res ).setRegistryName( res );
+			}
+		);
 	}
 	
 	@Override
@@ -429,7 +435,7 @@ public class MCWB extends URLClassLoader
 			}
 		);
 		builder.registerTypeAdapter(
-			AxisAngle4f.class,
+			AngleAxis4f.class,
 			( JsonDeserializer< AngleAxis4f > ) ( json, typeOfT, context ) -> {
 				if( json.isJsonArray() )
 				{

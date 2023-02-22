@@ -31,13 +31,15 @@ public abstract class GunType< C extends IGunPart, M extends IGunPartRenderer< ?
 			1F / 40F,
 			new float[] { 0.8F },
 			new String[ 0 ],
-			new float[ 0 ]
+			new float[] { 0.8F },
+			"load_mag"
 		),
 		UNLOAD_MAG_CONTROLLER = new OperationController(
 			1F / 40F,
 			new float[] { 0.5F },
 			new String[ 0 ],
-			new float[ 0 ]
+			new float[] { 0.5F },
+			"unload_mag"
 		);
 	
 	protected static final OpLoadMagClient OP_LOAD_MAG = new OpLoadMagClient();

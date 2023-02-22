@@ -38,13 +38,15 @@ public abstract class MagType< C extends IMag, M extends IGunPartRenderer< ? sup
 			1F / 10F,
 			new float[] { 0.8F },
 			new String[ 0 ],
-			new float[] { 0.8F }
+			new float[] { 0.8F },
+			"push_ammo"
 		),
 		POP_AMMO_CONTROLLER = new OperationController(
 			1F / 8F,
 			new float[] { 0.8F },
 			new String[ 0 ],
-			new float[] { 0.8F }
+			new float[] { 0.8F },
+			"pop_ammo"
 		);
 	
 	protected static final OpLoadAmmoClient OP_LOAD_AMMO = new OpLoadAmmoClient();

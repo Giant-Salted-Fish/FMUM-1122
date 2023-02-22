@@ -1,7 +1,6 @@
 package com.mcwb.util;
 
 import javax.vecmath.AxisAngle4f;
-import javax.vecmath.Vector3f;
 
 public final class AngleAxis4f extends AxisAngle4f
 {
@@ -21,5 +20,5 @@ public final class AngleAxis4f extends AxisAngle4f
 		this.z = axisZ * s;
 	}
 	
-	public AngleAxis4f( float angle, Vector3f axis ) { this( angle, axis.x, axis.y, axis.z ); }
+	public AngleAxis4f( float angle, Vec3f axis ) { this( angle, axis.x, axis.y, axis.z ); }
 }

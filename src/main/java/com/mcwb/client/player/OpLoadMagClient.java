@@ -71,7 +71,8 @@ public class OpLoadMagClient extends Operation< IGun > implements IAutowirePacke
 	@Override
 	protected void dohandleEffect()
 	{
-		final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot );
+		// Calling install will change the state of the mag itself, hence copy before use
+		final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot ).copy();
 		final IItem item = IItemTypeHost.getType( stack ).getContexted( stack );
 		if( !( item instanceof IMag ) ) return;
 		

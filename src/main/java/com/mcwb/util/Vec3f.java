@@ -5,14 +5,13 @@ import javax.vecmath.Vector3f;
 import com.mcwb.common.MCWB;
 import com.mcwb.devtool.Dev;
 
+@SuppressWarnings( "serial" )
 public class Vec3f extends Vector3f implements IReleasable
 {
 	public static final Vec3f ORIGIN = new Vec3f();
 	
 	private static final ObjPool< Vec3f > POOL = new ObjPool<>( Vec3f::new );
-	private static int count = Dev.refer;
-	
-	private static final long serialVersionUID = 8903442919042309432L;
+	private static int count = Dev.REFER;
 	
 	public static Vec3f locate()
 	{
@@ -43,7 +42,7 @@ public class Vec3f extends Vector3f implements IReleasable
 	
 	public final boolean nonZero() { return this.x != 0F || this.y != 0F || this.z != 0F; }
 	
-	public final void getEulerAngle( Vector3f dst )
+	public final void getEulerAngle( Vec3f dst )
 	{
 		final float pitch = ( float ) -Math.asin( this.y / this.length() );
 		final float yaw = ( float ) Math.atan2( this.x, this.z );
@@ -53,7 +52,11 @@ public class Vec3f extends Vector3f implements IReleasable
 	}
 	
 	@Override
-	public final void release() { POOL.back( this ); --count; }
+	public final void release()
+	{
+		if( --count < 0 ) MCWB.MOD.error( "count vec below 0! could be something wrong!" );
+		POOL.back( this );
+	}
 	
 	public static Vec3f parse( String text )
 	{

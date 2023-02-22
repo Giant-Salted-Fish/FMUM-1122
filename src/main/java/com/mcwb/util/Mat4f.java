@@ -3,7 +3,6 @@ package com.mcwb.util;
 import java.nio.FloatBuffer;
 
 import javax.vecmath.Matrix4f;
-import javax.vecmath.Vector3f;
 
 import org.lwjgl.opengl.GL11;
 
@@ -12,12 +11,11 @@ import com.mcwb.devtool.Dev;
 
 import net.minecraft.util.math.MathHelper;
 
+@SuppressWarnings( "serial" )
 public final class Mat4f extends Matrix4f implements IReleasable
 {
 	private static final ObjPool< Mat4f > POOL = new ObjPool<>( Mat4f::new );
-	private static int count = Dev.refer;
-	
-	private static final long serialVersionUID = 3816790190927250662L;
+	private static int count = Dev.REFER;
 	
 	// FIXME: count
 	public static Mat4f locate()
@@ -72,7 +70,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 		buf.put( this.m33 );
 	}
 	
-	public void translate( Vector3f vec ) { this.translate( vec.x, vec.y, vec.z ); }
+	public void translate( Vec3f vec ) { this.translate( vec.x, vec.y, vec.z ); }
 	
 	public void translate( float x, float y, float z )
 	{
@@ -87,7 +85,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	 * 
 	 * @param angle The angle to rotate about the axis in degrees
 	 */
-	public void rotate( float angle, Vector3f axis ) {
+	public void rotate( float angle, Vec3f axis ) {
 		this.rotate( angle, axis.x, axis.y, axis.z );
 	}
 	
@@ -230,7 +228,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	 * 
 	 * @param angle The angle to rotate about the three axis in degrees
 	 */
-	public void eulerRotateYXZ( Vector3f angle )
+	public void eulerRotateYXZ( Vec3f angle )
 	{
 		this.rotateY( angle.y );
 		this.rotateX( angle.x );
@@ -271,11 +269,11 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	 * Obtain euler angle applied in YXZ order in degrees
 	 * 
 	 * @note
-	 *     {@link #scale(Vector3f)} should not be applied to this matrix. Otherwise, the angle
+	 *     {@link #scale(Vec3f)} should not be applied to this matrix. Otherwise, the angle
 	 *     obtained via this method could be wrong.
 	 * @param dst Angle will be saved into this vector in degrees
 	 */
-	public final void getEulerAngleYXZ( Vector3f dst )
+	public final void getEulerAngleYXZ( Vec3f dst )
 	{
 		dst.set(
 			Constants.TO_DEGREES * ( float ) -Math.asin( this.m12 ),
@@ -291,7 +289,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 		return Constants.TO_DEGREES * ( float ) Math.atan2( this.m10, this.m11 );
 	}
 	
-	public final void transformAsPoint( Vector3f point )
+	public final void transformAsPoint( Vec3f point )
 	{
 		this.transform( point );
 		point.x += this.m03;
@@ -300,5 +298,9 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	}
 	
 	@Override
-	public void release() { POOL.back( this ); --count; }
+	public void release()
+	{
+		if( --count < 0 ) MCWB.MOD.error( "count mat below 0! could be something wrong!" );
+		POOL.back( this );
+	}
 }

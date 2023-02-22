@@ -13,15 +13,20 @@ import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.pack.IContentProvider;
+import com.mcwb.devtool.Dev;
+import com.mcwb.util.AngleAxis4f;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.Constants;
+import com.mcwb.util.DynamicRot;
 import com.mcwb.util.Mat4f;
-import com.mcwb.util.Vec3f;
+
+import com.mcwb.util.Quat4f;import com.mcwb.util.Vec3f;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.math.MathHelper;
@@ -225,6 +230,19 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 		
 		mat.release();
 		vec.release();
+		
+		if( Dev.flag )
+		{
+			final AngleAxis4f cur = new AngleAxis4f( 1F, 1F, 0F, 60F * Constants.TO_RADIANS );
+			final AngleAxis4f tar = new AngleAxis4f( 0F, 1F, 0F, 0F );
+//			final Vec3f inertia = new Vec3f( 1F, 1F, 2F );
+			dynamic.curRot.set( cur );
+			dynamic.prevRot.set( cur );
+			dynamic.tarRot.set( tar );
+			
+			Dev.flag = !Dev.flag;
+		}
+		dynamic.update( new Vec3f( 1F, 1F, 2F ), 0.1F, 0.4F );
 	}
 	
 	@Override
@@ -245,6 +263,9 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 		);
 	}
 	
+	static final DynamicRot dynamic = new DynamicRot();
+	static final Quat4f quat = new Quat4f();
+	static final Mat4f mat = new Mat4f();
 	@Override
 	protected void doRenderInHand( T contexted, EnumHand hand )
 	{
@@ -260,29 +281,37 @@ public class GunRenderer< T extends IGun > extends GunPartRenderer< T >
 		GL11.glMatrixMode( GL11.GL_MODELVIEW );
 		
 		/* For arm adjust */
-//		if( Dev.flag )
-//		{
-//			GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
-//			
-//			final EntityPlayer player = MCWBClient.MC.player;
-//			GL11.glRotatef( -player.rotationPitch, 1F, 0F, 0F );
-//			GL11.glRotatef( player.rotationYaw, 0F, 1F, 0F );
-//			
-//			GL11.glTranslatef( 0F, 0F, -5F/16f );
-//		}
+		if( Dev.flag )
+		{
+			GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
+			
+			final EntityPlayer player = MCWBClient.MC.player;
+			GL11.glRotatef( -player.rotationPitch, 1F, 0F, 0F );
+			GL11.glRotatef( player.rotationYaw, 0F, 1F, 0F );
+			
+			GL11.glTranslatef( 0F, 0F, -5F/16f );
+		}
+		
+		final DynamicRot dyn = dynamic;
+		final Quat4f qua = quat;
+		glTranslatef( Dev.cur().getPos() );
+		dynamic.get( quat, this.smoother() );
+		mat.set( quat );
+		glMultMatrix( mat );
+		Dev.DEBUG_BOX.accept( true );
 		
 		// Render hand // TODO: hand animation
-		contexted.modifyState().doRenderArm( () -> {
-			final GunAnimatorState animator = this.animator( hand );
-			final ArmTracker leftArm = animator.leftArm;
-			final ArmTracker rightArm = animator.rightArm;
-			contexted.setupRenderArm( leftArm, rightArm, animator );
-			
-			this.renderArm( leftArm );
-			this.renderArm( rightArm );
-		} );
-		
-		super.doRenderInHand( contexted, hand );
+//		contexted.modifyState().doRenderArm( () -> {
+//			final GunAnimatorState animator = this.animator( hand );
+//			final ArmTracker leftArm = animator.leftArm;
+//			final ArmTracker rightArm = animator.rightArm;
+//			contexted.setupRenderArm( leftArm, rightArm, animator );
+//			
+//			this.renderArm( leftArm );
+//			this.renderArm( rightArm );
+//		} );
+//		
+//		super.doRenderInHand( contexted, hand );
 	}
 	
 	protected void doSetupArmToRender(

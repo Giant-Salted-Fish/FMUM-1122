@@ -83,8 +83,9 @@ public class OpLoadAmmoClient extends Operation< IMag > implements IAutowirePack
 		final IAmmoType ammo = ( IAmmoType ) type;
 		if( !this.contexted.isAllowed( ammo ) ) return;
 		
-		stack.shrink( 1 );
 		this.contexted.pushAmmo( ammo );
+//		if( !this.player.isCreative() )
+			stack.shrink( 1 );
 	}
 	
 	protected int getValidAmmoSlot( int offset )

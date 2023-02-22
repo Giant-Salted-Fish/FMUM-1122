@@ -32,7 +32,7 @@ public class OpLoadMag extends Operation< IGun >
 			final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot );
 			final IItem item = IItemTypeHost.getType( stack ).getContexted( stack );
 			final boolean isMag = item instanceof IMag;
-			if( !isMag || this.contexted.isAllowed( ( IMag ) item ) ) break;
+			if( !isMag || !this.contexted.isAllowed( ( IMag ) item ) ) break;
 			
 			return super.launch( oldOp );
 		}

@@ -45,7 +45,7 @@ public class Dev implements IAutowirePlayerChat
 		}
 	};
 	
-	public static int refer = 0;
+	public static final int REFER = 0;
 	
 	public static boolean flag = false;
 	
