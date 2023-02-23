@@ -10,6 +10,18 @@ public final class AngleAxis4f extends AxisAngle4f
 	
 	public AngleAxis4f() { }
 	
+	/**
+	 * Initialize this instance with given euler rotation applied in order ZXY
+	 */
+	public AngleAxis4f( float x, float y, float z )
+	{
+		final Mat4f mat = Mat4f.locate();
+		mat.setIdentity();
+		mat.eulerRotateYXZ( x, y, z );
+		this.set( mat );
+		mat.release();
+	}
+	
 	public AngleAxis4f( float angle, float axisX, float axisY, float axisZ )
 	{
 		final float s = 1F / ( float ) Math.sqrt( axisX * axisX + axisY * axisY + axisZ * axisZ );
@@ -20,5 +32,5 @@ public final class AngleAxis4f extends AxisAngle4f
 		this.z = axisZ * s;
 	}
 	
-	public AngleAxis4f( float angle, Vec3f axis ) { this( angle, axis.x, axis.y, axis.z ); }
+	public AngleAxis4f( float angle, Vec3f axis ) { super( axis, angle ); }
 }

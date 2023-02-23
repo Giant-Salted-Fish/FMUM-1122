@@ -44,7 +44,7 @@ import com.mcwb.common.paintjob.Paintjob;
 import com.mcwb.common.player.PlayerPatch;
 import com.mcwb.common.tab.CreativeTab;
 import com.mcwb.util.AngleAxis4f;
-import com.mcwb.util.Mat4f;
+import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.client.Minecraft;
@@ -409,63 +409,44 @@ public class MCWB extends URLClassLoader
 		builder.registerTypeAdapter( IPaintjob.class, Paintjob.ADAPTER );
 		builder.registerTypeAdapter( IOperationController.class, OperationController.ADAPTER );
 		
-		final JsonDeserializer< SoundEvent > SOUND_ADAPTER =
+		final JsonDeserializer< SoundEvent > soundAdapter =
 			( json, typeOfT, context ) -> this.loadSound( json.getAsString() );
-		builder.registerTypeAdapter( SoundEvent.class, SOUND_ADAPTER );
+		builder.registerTypeAdapter( SoundEvent.class, soundAdapter );
 		
 		final Gson innerParser = new GsonBuilder().setLenient().create();
-		builder.registerTypeAdapter(
-			Vec3f.class,
-			( JsonDeserializer< Vec3f > ) ( json, typeOfT, context ) -> {
-				if( json.isJsonArray() )
+		final JsonDeserializer< Vec3f > vecAdapter = ( json, typeOfT, context ) -> {
+			if( json.isJsonArray() )
+			{
+				final JsonArray arr = json.getAsJsonArray();
+				final Vec3f vec = new Vec3f();
+				switch( arr.size() )
 				{
-					final JsonArray arr = json.getAsJsonArray();
-					final Vec3f vec = new Vec3f();
-					switch( arr.size() )
-					{
-					case 3: vec.z = arr.get( 2 ).getAsFloat();
-					case 2: vec.y = arr.get( 1 ).getAsFloat();
-					case 1: vec.x = arr.get( 0 ).getAsFloat();
-					}
-					return vec;
+				case 3: vec.z = arr.get( 2 ).getAsFloat();
+				case 2: vec.y = arr.get( 1 ).getAsFloat();
+				case 1: vec.x = arr.get( 0 ).getAsFloat();
 				}
-				
-				return json.isJsonObject() ? innerParser.fromJson( json, Vec3f.class )
-					: Vec3f.parse( json.getAsString() );
+				return vec;
 			}
-		);
-		builder.registerTypeAdapter(
-			AngleAxis4f.class,
-			( JsonDeserializer< AngleAxis4f > ) ( json, typeOfT, context ) -> {
-				if( json.isJsonArray() )
-				{
-					final JsonArray arr = json.getAsJsonArray();
-					if( arr.size() < 4 )
-					{
-						final AngleAxis4f rot = new AngleAxis4f();
-						final Mat4f mat = Mat4f.locate();
-						mat.setIdentity();
-						mat.eulerRotateYXZ(
-							arr.get( 0 ).getAsFloat(),
-							arr.get( 1 ).getAsFloat(),
-							arr.get( 2 ).getAsFloat()
-						);
-						rot.set( mat );
-						mat.release();
-						return rot;
-					}
-					
-					return new AngleAxis4f(
-						arr.get( 0 ).getAsFloat(),
-						arr.get( 1 ).getAsFloat(),
-						arr.get( 2 ).getAsFloat(),
-						arr.get( 3 ).getAsFloat()
-					);
-				}
-				
+			
+			return json.isJsonObject() ? innerParser.fromJson( json, Vec3f.class )
+				: Vec3f.parse( json.getAsString() );
+		};
+		final JsonDeserializer< AngleAxis4f > angleAxisAdapter = ( json, typeOfT, context ) -> {
+			if( !json.isJsonArray() )
 				return innerParser.fromJson( json, AngleAxis4f.class );
-			}
-		);
+			
+			final JsonArray arr = json.getAsJsonArray();
+			final float f0 = arr.get( 0 ).getAsFloat();
+			final float f1 = arr.get( 1 ).getAsFloat();
+			final float f2 = arr.get( 2 ).getAsFloat();
+			return arr.size() < 4 ? new AngleAxis4f( f0, f1, f2 )
+				: new AngleAxis4f( f0, f1, f2, arr.get( 3 ).getAsFloat() );
+		};
+		final JsonDeserializer< Quat4f > quatAdapter = ( json, typeOfT, context ) -> 
+			new Quat4f( angleAxisAdapter.deserialize( json, typeOfT, context ) );
+		builder.registerTypeAdapter( Vec3f.class, vecAdapter );
+		builder.registerTypeAdapter( AngleAxis4f.class, angleAxisAdapter );
+		builder.registerTypeAdapter( Quat4f.class, quatAdapter );
 		return builder;
 	}
 	

@@ -2,7 +2,6 @@ package com.mcwb.client.item;
 
 import org.lwjgl.opengl.GL11;
 
-import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.IAutowireBindTexture;
 import com.mcwb.client.IAutowireSmoother;
 import com.mcwb.client.MCWBClient;
@@ -43,11 +42,16 @@ public class ItemRenderer< T extends IItem > extends Renderer
 	
 	private static final Vec3f HOLD_POS = new Vec3f( -40F / 160F, -50 / 160F, 100F / 160F );
 	
-	@SerializedName( value = "holdPos", alternate = "pos" )
 	protected Vec3f holdPos = HOLD_POS;
-	
-	@SerializedName( value = "holdRot", alternate = "rot" )
 	protected Vec3f holdRot = Vec3f.ORIGIN;
+	
+	protected float holdPosForceMult = 0.25F;
+	protected float holdPosMaxForce = 0.125F;
+	protected float holdPosDampingFactor = 0.4F;
+	
+	protected float holdRotForceMult = 1F;
+	protected float holdRotMaxForce = 4.25F;
+	protected float holdRotDampingFactor = 0.4F;
 	
 	@Override
 	public void tickInHand( T contexted, EnumHand hand )
@@ -56,9 +60,17 @@ public class ItemRenderer< T extends IItem > extends Renderer
 		
 		// Simply set position and rotation then update
 		state.holdPos.tarPos.set( this.holdPos );
-		state.holdPos.update();
+		state.holdPos.update(
+			this.holdPosForceMult,
+			this.holdPosMaxForce,
+			this.holdPosDampingFactor
+		);
 		state.holdRot.tarPos.set( this.holdRot );
-		state.holdRot.update();
+		state.holdRot.update(
+			this.holdRotForceMult,
+			this.holdRotMaxForce,
+			this.holdRotDampingFactor
+		);
 	}
 	
 	/**

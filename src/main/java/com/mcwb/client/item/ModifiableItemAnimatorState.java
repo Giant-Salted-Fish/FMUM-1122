@@ -27,8 +27,8 @@ public class ModifiableItemAnimatorState extends ItemAnimatorState
 			final float modifyProgress = this.modifyOp.getProgress( smoother );
 			
 			// Translation
-			this.holdPos.getPos( vec, smoother );
-			vec.scale( 1F - modifyProgress );
+			this.holdPos.get( vec, smoother );
+			this.v0.scale( 1F - modifyProgress );
 			dst.translate( vec );
 			
 			vec.set( this.modifyPos );
@@ -36,7 +36,7 @@ public class ModifiableItemAnimatorState extends ItemAnimatorState
 			dst.translate( vec );
 			
 			// Rotation
-			this.holdRot.getPos( vec, smoother );
+			this.holdRot.get( vec, smoother );
 			vec.scale( 1F - modifyProgress );
 			
 			// TODO: player#rotate seems to have lag when being used to render 
@@ -44,10 +44,10 @@ public class ModifiableItemAnimatorState extends ItemAnimatorState
 			final float refPlayerYaw = this.modifyOp.refPlayerRotYaw;
 			final float modifyYawBase = ( refPlayerYaw % 360F + 360F ) % 360F - 180F; // TODO: maybe do this when capture ref player yaw
 			final float modifyYawDelta = refPlayerYaw - player.rotationYaw; // TODO: get this from camera controller
-			final float modifyYaw = ( modifyYawBase - modifyYawDelta ) * modifyProgress;
+			final float modifyYaw = modifyYawBase - modifyYawDelta;
 			
 			dst.rotateX( -player.rotationPitch * modifyProgress );
-			dst.eulerRotateYXZ( vec.x, vec.y + modifyYaw, vec.z );
+			dst.eulerRotateYXZ( vec.x, vec.y + modifyYaw * modifyProgress, vec.z );
 			
 			break;
 			

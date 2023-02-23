@@ -167,11 +167,20 @@ public class Dev implements IAutowirePlayerChat
 		tu = td = tl = tr = te = tq = false;
 	}
 	
-	public void toggleFlagTell( String... msg )
+	public static void toggleFlagTell( String... msg )
 	{
 		if( flag )
 		{
 			MCWBClient.MOD.sendPlayerMsg( msg );
+			flag = false;
+		}
+	}
+	
+	public static void toggleFlagDo( Runnable task )
+	{
+		if( flag )
+		{
+			task.run();
 			flag = false;
 		}
 	}

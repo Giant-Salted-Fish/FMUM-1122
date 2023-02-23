@@ -6,6 +6,9 @@ import com.mcwb.devtool.Dev;
 @SuppressWarnings( "serial" )
 public final class Quat4f extends javax.vecmath.Quat4f implements IReleasable
 {
+	/**
+	 * Use this but NEVER change its value!!!
+	 */
 	public static final Quat4f ORIGIN = new Quat4f();
 	
 	private static final ObjPool< Quat4f > POOL = new ObjPool<>( Quat4f::new );
@@ -22,7 +25,28 @@ public final class Quat4f extends javax.vecmath.Quat4f implements IReleasable
 	 */
 	public Quat4f() { super( 0F, 0F, 0F, 1F ); }
 	
+	/**
+	 * Initialize this quaternion with given euler rotation applied in order ZXY
+	 */
+	public Quat4f( float x, float y, float z )
+	{
+		final Mat4f mat = Mat4f.locate();
+		mat.setIdentity();
+		mat.eulerRotateYXZ( x, y, z );
+		this.set( mat );
+		mat.release();
+	}
+	
+	public Quat4f( AngleAxis4f rot ) { this.set( rot ); }
+	
 	public Quat4f( float x, float y, float z, float w ) { super( x, y, z, w ); }
+	
+	/**
+	 * Reset this quaternion to (0,0,0,1)
+	 */
+	public void clearRot() { this.set( ORIGIN ); }
+	
+	public void scaleAngle( float scale ) { this.interpolate( ORIGIN, this, scale ); }
 	
 	@Override
 	public void release()

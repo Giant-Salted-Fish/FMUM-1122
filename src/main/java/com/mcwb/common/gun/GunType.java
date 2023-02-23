@@ -1,5 +1,7 @@
 package com.mcwb.common.gun;
 
+import java.util.ArrayList;
+
 import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
@@ -55,6 +57,9 @@ public abstract class GunType< C extends IGunPart, M extends IGunPartRenderer< ?
 	{
 		protected transient IGunPart leftHandHolding = this;
 		protected transient IGunPart rightHandHolding = this;
+		
+		// FIXME: for sights on use
+		protected transient final ArrayList< IGunPart > aimCenters = new ArrayList<>();
 		
 		/**
 		 * @see GunPart#ContextedGunPart()

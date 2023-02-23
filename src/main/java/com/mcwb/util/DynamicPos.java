@@ -43,13 +43,13 @@ public final class DynamicPos
 		final Vec3f force = this.vec;
 		force.set( this.tarPos );
 		force.sub( this.curPos );
-		force.scale( forceMult );
 		
 		final float forceSquared = force.lengthSquared();
 		if( forceSquared > maxForce * maxForce )
 			force.scale( maxForce / MathHelper.sqrt( forceSquared ) );
 		
 		// Assume that mess=1 then acceleration equals force
+		force.scale( forceMult );
 		this.velocity.add( force );
 		this.curPos.add( this.velocity );
 	}

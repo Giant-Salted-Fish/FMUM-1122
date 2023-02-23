@@ -80,6 +80,15 @@ public final class Mat4f extends Matrix4f implements IReleasable
 //		this.m33 += this.m30 * x + this.m31 * y + this.m32 * z; // TODO: test this again
 	}
 	
+	// TODO: a better implementation?
+	public void rotate( Quat4f quat )
+	{
+		final Mat4f mat = locate();
+		mat.set( quat );
+		this.mul( mat );
+		mat.release();
+	}
+	
 	/**
 	 * Axis need to be normalized
 	 * 

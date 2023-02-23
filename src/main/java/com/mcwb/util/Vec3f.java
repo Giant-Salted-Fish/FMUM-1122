@@ -8,6 +8,9 @@ import com.mcwb.devtool.Dev;
 @SuppressWarnings( "serial" )
 public class Vec3f extends Vector3f implements IReleasable
 {
+	/**
+	 * Use this but NEVER change its value!!!
+	 */
 	public static final Vec3f ORIGIN = new Vec3f();
 	
 	private static final ObjPool< Vec3f > POOL = new ObjPool<>( Vec3f::new );
