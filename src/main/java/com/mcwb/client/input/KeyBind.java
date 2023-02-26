@@ -12,25 +12,25 @@ import com.mcwb.client.input.Key.KeyCategory;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.BuildableMeta;
+import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
-import com.mcwb.common.pack.IContentProvider;
+import com.mcwb.devtool.Dev;
 
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * Default implementation of {@link IKeyBind}
+ * 
+ * @author Giant_Salted_Fish
+ */
 @SideOnly( Side.CLIENT )
 public class KeyBind extends BuildableMeta implements IKeyBind
 {
 	public static final BuildableLoader< IMeta >
 		LOADER = new BuildableLoader<>( "key_bind", ExternalKeyBind.class );
-	
-	@SerializedName( value = "keyCode", alternate = { "key", "defaultKey" } )
-	protected int keyCode = Keyboard.KEY_NONE;
-	
-	@SerializedName( value = "category", alternate = "group" )
-	protected String category = KeyCategory.OTHER;
 	
 	/**
 	 * Whether this key is down or not
@@ -38,6 +38,13 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	public transient boolean down = false;
 	
 	protected transient KeyBinding keyBind;
+	
+	// TODO: maybe add support to parse string key code?
+	@SerializedName( value = "keyCode", alternate = { "key", "defaultKey" } )
+	protected int keyCode = Keyboard.KEY_NONE;
+	
+	@SerializedName( value = "category", alternate = "group" )
+	protected String category = KeyCategory.OTHER;
 	
 	protected KeyBind() { }
 	
@@ -49,7 +56,7 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 		String category,
 		int keyCode,
 		@Nullable Collection< IKeyBind > updateGroup
-	) {
+	) { Dev.cur();
 		this.keyCode = keyCode;
 		this.category = category;
 		
@@ -116,6 +123,7 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	@Override
 	public void inactiveUpdate( boolean down )
 	{
+		// Only handle release if inactive
 		if( !down && this.down )
 		{
 			this.down = false;
@@ -146,9 +154,7 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	@Override
 	public boolean down() { return this.down; }
 	
-	/**
-	 * In default just pass the key press notification to player
-	 */
+	// In default just pass the key press notification to player
 	protected void onFire() { PlayerPatchClient.instance.onKeyPress( this ); }
 	
 	protected void onRelease() { PlayerPatchClient.instance.onKeyRelease( this ); }

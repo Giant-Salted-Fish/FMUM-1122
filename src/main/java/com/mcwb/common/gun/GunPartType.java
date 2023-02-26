@@ -5,17 +5,21 @@ import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.item.ModifiableItemType;
 import com.mcwb.common.load.BuildableLoader;
+import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
-import com.mcwb.common.modify.IModifiable;
-import com.mcwb.common.pack.IContentProvider;
+import com.mcwb.common.module.IModular;
 import com.mcwb.util.ArmTracker;
 
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class GunPartType< C extends IGunPart, M extends IGunPartRenderer< ? super C > >
-	extends ModifiableItemType< C, M >
+public abstract class GunPartType<
+	C extends IGunPart< ? >,
+	R extends IGunPartRenderer< ? super C >
+> extends ModifiableItemType< C, R >
 {
 	public static final BuildableLoader< IMeta >
 		LOADER = new BuildableLoader<>( "gun_part", GunPartJson.class );
@@ -42,20 +46,15 @@ public abstract class GunPartType< C extends IGunPart, M extends IGunPartRendere
 	@Override
 	protected IMeta loader() { return LOADER; }
 	
-	protected class GunPart extends ModifiableItem implements IGunPart
+	protected class GunPart< T extends IGunPart< ? extends T > >
+		extends ModifiableItem< T > implements IGunPart< T >
 	{
 		protected short step;
 		
 		protected short offset;
 		
-		/**
-		 * @see ModifiableItem#ModifiableItem()
-		 */
 		protected GunPart() { }
 		
-		/**
-		 * @see ModifiableItem#ModifiableItem(NBTTagCompound)
-		 */
 		protected GunPart( NBTTagCompound nbt ) { super( nbt ); }
 		
 		@Override
@@ -65,31 +64,22 @@ public abstract class GunPartType< C extends IGunPart, M extends IGunPartRendere
 		public int rightHandPriority() { return GunPartType.this.rightHandPriority; }
 		
 		@Override
-		public int step() { return this.step; }
-		
-		@Override
-		public void $step( int step )
-		{
-			this.step = ( short ) step;
-			final int[] data = this.nbt.getIntArray( DATA_TAG );
-			final int i = super.dataSize();
-			data[ i ] = 0xFFFF0000 & data[ i ] | step;
-			this.syncNBTData();
-		}
-		
-		@Override
 		public int offsetCount() { return GunPartType.this.offsets.length; }
 		
 		@Override
 		public int offset() { return this.offset; }
 		
 		@Override
-		public void $offset( int offset )
+		public int step() { return this.step; }
+		
+		@Override
+		public void setOffsetStep( int offset, int step )
 		{
 			this.offset = ( short ) offset;
+			this.step = ( short ) step;
 			final int[] data = this.nbt.getIntArray( DATA_TAG );
-			final int i = super.dataSize();
-			data[ i ] = 0xFFFF & data[ i ] | offset << 16;
+			data[ super.dataSize() ] = 0xFFFF & step | offset << 16;
+			this.updateState(); // Because position has changed
 			this.syncNBTData();
 		}
 		
@@ -124,18 +114,48 @@ public abstract class GunPartType< C extends IGunPart, M extends IGunPartRendere
 		protected int dataSize() { return super.dataSize() + 1; }
 	}
 	
-	public static class GunPartJson
-		extends GunPartType< IGunPart, IGunPartRenderer< ? super IGunPart > >
+	protected static class GunPartWrapper<
+		M extends IGunPart< ? extends M >,
+		T extends IGunPart< ? extends M >
+	> extends ModifiableItemWrapper< M, T > implements IGunPart< M >
 	{
-		@Override
-		public IModifiable newContexted( NBTTagCompound nbt ) { return this.new GunPart( nbt ); }
+		protected GunPartWrapper( NBTTagCompound primaryTag, ItemStack stack ) {
+			super( primaryTag, stack );
+		}
 		
 		@Override
-		public IModifiable deserializeContexted( NBTTagCompound nbt )
-		{
-			final GunPart gunPart = this.new GunPart();
-			gunPart.deserializeNBT( nbt );
-			return gunPart;
+		public int leftHandPriority() { return this.primary.leftHandPriority(); }
+		
+		@Override
+		public int rightHandPriority() { return this.primary.rightHandPriority(); }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator ) {
+			this.primary.setupLeftArmToRender( leftArm, animator );
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public void setupRightArmToRender( ArmTracker rightArm, IAnimator animator ) {
+			this.primary.setupRightArmToRender( rightArm, animator );
+		}
+	}
+	
+	public static class GunPartJson
+		extends GunPartType< IGunPart< ? >, IGunPartRenderer< ? super IGunPart< ? > > >
+	{
+		@Override
+		public IModular< ? > newContexted() { return this.new GunPart<>(); }
+		
+		@Override
+		public IModular< ? > deserializeContexted( NBTTagCompound nbt ) {
+			return this.new GunPart<>( nbt );
+		}
+		
+		@Override
+		protected ICapabilityProvider newWrapper( NBTTagCompound primaryTag, ItemStack stack ) {
+			return new GunPartWrapper<>( primaryTag, stack );
 		}
 	}
 }

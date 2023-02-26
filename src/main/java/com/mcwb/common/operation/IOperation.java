@@ -1,18 +1,25 @@
 package com.mcwb.common.operation;
 
 import com.mcwb.common.item.IItem;
+import com.mcwb.common.item.IItemType;
 
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * Represents something that the player is doing with the item in main hand
+ * 
+ * @author Giant_Salted_Fish
+ */
 public interface IOperation
 {
 	/**
-	 * Default operation instance that simply do nothing
+	 * Placeholder operation instance. Represent no operation running.
 	 */
 	public static final IOperation NONE = new IOperation() {
 		@Override
-		public IOperation onHoldingStackChange( IItem newItem ) { return this; }
+		public IOperation onInHandStackChange( IItem newItem ) { return this; }
 		
 		@Override
 		public String toString() { return "Operation::None"; }
@@ -21,11 +28,11 @@ public interface IOperation
 	public default float progress() { return 1F; }
 	
 	@SideOnly( Side.CLIENT )
-	public default float getProgress( float smoother ) { return 1F; }
+	public default float getProgress( float alpha ) { return 1F; }
 	
-	/// Methods for operation life cycle ///
+	/// *** Methods for operation life cycle *** ///
 	/**
-	 * Prepare the execution
+	 * Prepare for the execution
 	 */
 	public default IOperation launch( IOperation oldOp ) { return this; }
 	
@@ -51,9 +58,9 @@ public interface IOperation
 	public default IOperation tick() { return this; }
 	
 	/**
-	 * Callback when another operation is requesting to launch during the execution of this
-	 * operation. You can call {@link IOperation#launch(IOperation)} on the new operation if this
-	 * operation should give up its execution and let new operation to run.
+	 * Called when another operation is requesting to launch during the execution of this operation.
+	 * You can call {@link IOperation#launch(IOperation)} on the new operation if this operation
+	 * should give up its execution and let new operation to run.
 	 * 
 	 * @param op New operation that requests to launch
 	 * @return {@link IOperation} that should be executed after this call
@@ -61,17 +68,24 @@ public interface IOperation
 	public default IOperation onOtherTryLaunch( IOperation op ) { return op.launch( this ); }
 	
 	/**
-	 * Callback when player changes the selected inventory slot
+	 * Called when player swap the item in hands
+	 * 
+	 * @return {@link #NONE} if this operation should terminate on hand swap
+	 */
+	public default IOperation onSwapHand( IItem newItem ) { return this.terminate(); }
+	
+	/**
+	 * <p> Called when player's main hand item has changed. </p>
+	 * 
+	 * <p> Two cases included: </p>
+	 * <ol>
+	 *     <li> On {@link InventoryPlayer#currentItem} change </li>
+	 *     <li> On {@link IItemType} change </li>
+	 * </ol>
 	 * 
 	 * @return {@link #NONE} if this operation should terminate on item switch
 	 */
-	public default IOperation onInvSlotChange( IItem newItem, int newSlot, int oldSlot ) {
-		return this.terminate();
-	}
-	
-	public default IOperation onSwapHand( IItem newItem ) { return this.terminate(); }
-	
-	public default IOperation onHoldingTypeChange( IItem newItem ) { return this.terminate(); }
+	public default IOperation onInHandItemChange( IItem newItem ) { return this.terminate(); }
 	
 	/**
 	 * <p> Called when the {holding stack} != {last tick holding stack}. </p>
@@ -86,5 +100,5 @@ public interface IOperation
 	 * 
 	 * @return {@link #NONE} if this operation should terminate on stack change
 	 */
-	public IOperation onHoldingStackChange( IItem newItem );
+	public IOperation onInHandStackChange( IItem newItem );
 }

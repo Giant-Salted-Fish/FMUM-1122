@@ -8,28 +8,25 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
-import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.IKeyBind;
-import com.mcwb.client.input.Key;
-import com.mcwb.client.input.Key.KeyCategory;
 import com.mcwb.client.item.IItemRenderer;
-import com.mcwb.client.modify.IDeferredPriorityRenderer;
-import com.mcwb.client.modify.IDeferredRenderer;
-import com.mcwb.client.modify.IModifiableRenderer;
-import com.mcwb.client.player.OpModifyClient;
-import com.mcwb.client.player.PlayerPatchClient;
+import com.mcwb.client.module.IDeferredPriorityRenderer;
+import com.mcwb.client.module.IDeferredRenderer;
+import com.mcwb.client.module.IModuleRenderer;
 import com.mcwb.client.render.IAnimator;
-import com.mcwb.common.MCWB;
+import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
-import com.mcwb.common.modify.IModifiable;
-import com.mcwb.common.modify.IModifiableType;
-import com.mcwb.common.modify.IModuleSlot;
-import com.mcwb.common.modify.IModuleSnapshot;
-import com.mcwb.common.modify.Modifiable;
-import com.mcwb.common.modify.ModuleSnapshot;
-import com.mcwb.common.modify.ModuleWrapper;
-import com.mcwb.common.pack.IContentProvider;
+import com.mcwb.common.module.IModular;
+import com.mcwb.common.module.IModularType;
+import com.mcwb.common.module.IModuleSlot;
+import com.mcwb.common.module.IModuleSnapshot;
+import com.mcwb.common.module.Module;
+import com.mcwb.common.module.ModuleSnapshot;
+import com.mcwb.common.module.ModuleWrapper;
+import com.mcwb.common.paintjob.IPaintable;
+import com.mcwb.common.paintjob.IPaintableType;
 import com.mcwb.common.paintjob.IPaintjob;
+import com.mcwb.devtool.Dev;
 import com.mcwb.util.Mat4f;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -45,14 +42,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class ModifiableItemType<
-	C extends IItem & IModifiable,
-	M extends IItemRenderer< ? super C > & IModifiableRenderer< ? super C >
-> extends ItemType< C, M > implements IModifiableType, IPaintjob
+	C extends IItem & IModular< ? > & IPaintable,
+	R extends IItemRenderer< ? super C > & IModuleRenderer< ? super C >
+> extends ItemType< C, R > implements IModularType, IPaintableType, IPaintjob
 {
-	@SideOnly( Side.CLIENT )
-	public static final OpModifyClient OP_MODIFY; static {
-		OP_MODIFY = MCWB.MOD.isClient() ? new OpModifyClient() : null;
-	}
+	/**
+	 * TODO: explain what is this for
+	 */
+	protected static final NBTTagCompound NBT = new NBTTagCompound();
 	
 	@SerializedName( value = "category", alternate = "group" )
 	protected String category;
@@ -65,24 +62,21 @@ public abstract class ModifiableItemType<
 	
 	@SerializedName( value = "snapshot", alternate = "preInstalls" )
 	protected IModuleSnapshot snapshot = ModuleSnapshot.DEFAULT;
-	protected transient NBTTagCompound snapshotNBT;
+	protected transient NBTTagCompound compiledSnapshotNBT;
 	
 	@SerializedName( value = "paintjobs", alternate = "skins" )
 	protected List< IPaintjob > paintjobs = Collections.emptyList();
-	
-	@SideOnly( Side.CLIENT )
-	protected String modifyIndicator = MCWBClient.MODIFY_INDICATOR;
 	
 	@Override
 	public IMeta build( String name, IContentProvider provider )
 	{
 		super.build( name, provider );
 		
-		IModifiableType.REGISTRY.regis( this );
+		IModularType.REGISTRY.regis( this );
+		IPaintableType.REGISTRY.regis( this );
 		
-		// If category is not set then set it to its name
-		if( this.category == null )
-			this.category = this.name;
+		// If not category set then set it is its name
+		this.category = this.category != null ? this.category : this.name;
 		
 		// Add itself as the default paintjob
 		if( this.paintjobs.size() == 0 )
@@ -91,8 +85,7 @@ public abstract class ModifiableItemType<
 		
 		// Apply model scale
 		this.slots.forEach( slot -> slot.scale( this.paramScale ) );
-		// TODO: hit boxes
-		
+		// TODO: hitboxes
 		return this;
 	}
 	
@@ -101,21 +94,14 @@ public abstract class ModifiableItemType<
 	{
 		super.onPostLoad();
 		
-		// Set a default indicator if it is not valid
-		this.clientOnly( () -> {
-			if( IModifiableType.REGISTRY.get( this.modifyIndicator ) == null )
-			{
-				this.error( "mcwb.fail_to_find_indicator", this, this.modifyIndicator );
-				this.modifyIndicator = MCWBClient.MODIFY_INDICATOR;
-			}
-		} );
+		// TODO: set a default indicator
 	}
 	
 	@Override
-	public void prepareSnapshot()
+	public void compileSnapshot()
 	{
-		this.snapshotNBT = this.snapshot.initContexted(
-			name -> this.newContexted( new NBTTagCompound() )
+		this.compiledSnapshotNBT = this.snapshot.setSnapshot(
+			name -> this.newContexted()
 		).serializeNBT();
 	}
 	
@@ -129,6 +115,8 @@ public abstract class ModifiableItemType<
 	// TODO: handle paintjobs
 	@Override
 	protected Item createItem() { return this.new ModifiableVanillaItem( 1, 0 ); }
+	
+	protected abstract ICapabilityProvider newWrapper( NBTTagCompound primaryTag, ItemStack stack );
 	
 	protected class ModifiableVanillaItem extends VanillaItem
 	{
@@ -148,50 +136,53 @@ public abstract class ModifiableItemType<
 			// has-stackTag | no--capTag}: \
 			// no--stackTag | has-capTag}: {copy stack} \
 			// no--stackTag | no--capTag}: {create stack}, {deserialize from network packet} \
-			final ModifiableItemType< ?, ? > type = ModifiableItemType.this;
-			switch( ( stackTag != null ? 2 : 0 ) + ( capTag != null ? 1 : 0 ) )
+			if( capTag != null )
 			{
-			case 0: // no--stackTag | no--capTag: {create stack}, {deserialize from network packet}
-				final IModifiable primary0 = type.deserializeContexted( type.snapshotNBT.copy() );
-				primary0.updatePrimaryState();
+				// 2 cases possible:
+				// no--stackTag | has-capTag: {copy stack}
+				// has-stackTag | has-capTag: {deserialize from local storage}
+				NBTTagCompound primaryTag = capTag.getCompoundTag( "Parent" );
 				
-				stack.setTagCompound( new NBTTagCompound() );
-				final ModuleWrapper wrapper = new ModuleWrapper( stack::getTagCompound, primary0 );
-				wrapper.syncNBTData();
-				return wrapper;
-				
-			case 1: // no--stackTag | has-capTag: {copy stack}
-				// A little bit more work to do to handle copy case as the #serializeNBT() of the \
-				// module could be its bounden tag, hence copy it before deserialize
-				final NBTTagCompound copyiedTag = capTag.getCompoundTag( "Parent" ).copy();
-				capTag.removeTag( "Parent" );
-				
-				final IModifiable primary1 = type.deserializeContexted( copyiedTag );
-				primary1.updatePrimaryState();
-				return new ModuleWrapper( stack::getTagCompound, primary1 );
-				// #syncNBTData() not called as it is possible that the stack tag has not been set \
-				// yet. This will not cause problem because the stack tag also has full context.
-				
-			case 2: // has-stackTag | no--capTag: should never happen
-				throw new RuntimeException( "has-stackTag | no--capTag: should never happen" );
-				
-			case 3: // has-stackTag | has-capTag: {deserialized from local storage}
 				// Remove "Parent" tag to prevent repeat deserialization
-				final NBTTagCompound nbt = capTag.getCompoundTag( "Parent" );
 				capTag.removeTag( "Parent" );
 				
-				final IModifiable primary2 = type.deserializeContexted( nbt );
-				primary2.updatePrimaryState();
-				return new ModuleWrapper( stack::getTagCompound, primary2 );
-				// See case 1
+				// Has to copy before use if is first case as the capability tag provided here \
+				// could be the same as the bounden tag of copy target.
+				if( stackTag == null )
+				{
+					stack.setTagCompound( NBT );
+					primaryTag = primaryTag.copy();
+				}
 				
-			default: throw new RuntimeException( "Impossible to reach here" );
+				// #syncNBTData() not called as it is possible that the stack tag has not been set \
+				// yet. This would not cause problem because the stack tag also has the same data.
+				return ModifiableItemType.this.newWrapper( primaryTag, stack );
 			}
+			
+			// has-stackTag | no--capTag: should never happen
+			if( stackTag != null )
+			{
+				Dev.cur();
+				throw new RuntimeException( "has-stackTag | no--capTag: should never happen" );
+			}
+			
+			// no--stackTag | no--capTag: {create stack}, {deserialize from network packet}
+			// We basically has no way to distinguish from these two cases. But it will work fine \
+			// if we simply deserialize and setup it with the compiled snapshot NBT. The down side \
+			// is that it will actually deserialize twice for the network packet case.
+			// TODO: a possible hack way to avoid this: get compiled snapshot tag from contexted
+			final NBTTagCompound compiledNBT = ModifiableItemType.this.compiledSnapshotNBT;
+			return ModifiableItemType.this.newWrapper( compiledNBT.copy(), stack );
 		}
 		
 		@Override
-		public void readNBTShareTag( ItemStack stack, @Nullable NBTTagCompound nbt ) {
-			ModifiableItemType.this.getContexted( stack ).onReadNBTShareTag( nbt );
+		public void readNBTShareTag( ItemStack stack, @Nullable NBTTagCompound nbt )
+		{
+			stack.setTagCompound( nbt ); // Copied from super
+			
+			final NBTTagCompound primaryTag = nbt.getCompoundTag( "_" );
+			final IModular< ? > contexted = ModifiableItemType.this.getContexted( stack );
+			contexted.deserializeNBT( primaryTag );
 		}
 		
 		/**
@@ -218,30 +209,14 @@ public abstract class ModifiableItemType<
 			ItemStack stack,
 			EntityPlayer player
 		) { return false; }
-	}
+	}	
 	
-	/// Used for module render ///
-	// TODO: maybe null on server side
-//	protected static final FloatBuffer MAT_BUF = BufferUtils.createFloatBuffer( 16 );
-	
-	protected abstract class ModifiableItem extends Modifiable implements IItem
+	protected abstract class ModifiableItem< T extends IModular< ? extends T > >
+		extends Module< T > implements IItem
 	{
-		/**
-		 * It will be fixed hierarchy position at {@link Side#SERVER}. Mixed with output of
-		 * {@link IAnimator} on {@link Side#CLIENT} for rendering.
-		 */
-		// TODO: proper handle on server side
-		protected transient final Mat4f mat = new Mat4f(); // FIXME: how to handle with this?
-		
-		/**
-		 * @see Modifiable#Modifiable()
-		 */
 		protected ModifiableItem() { }
 		
-		/**
-		 * @see Modifiable#Modifiable(NBTTagCompound)
-		 */
-		protected ModifiableItem( NBTTagCompound nbtToBeInit ) { super( nbtToBeInit ); }
+		protected ModifiableItem( NBTTagCompound nbt ) { super( nbt ); }
 		
 		@Override
 		public String name() { return ModifiableItemType.this.name; }
@@ -249,16 +224,20 @@ public abstract class ModifiableItemType<
 		@Override
 		public String category() { return ModifiableItemType.this.category; }
 		
+		/**
+		 * Maybe a kind of too hacky...
+		 */
 		@Override
-		public ItemStack toStack()
+		public IModular< ? > removeFromBase( int slot, int idx )
 		{
+			this.base.remove( slot, idx );
 			final ItemStack stack = new ItemStack( ModifiableItemType.this.item );
-			final IModifiable module = ModifiableItemType.this.getContexted( stack );
-			module.base().install( 0, this );
-			module.syncNBTData();
+			final IModular< ? > wrapper = ModifiableItemType.this.getContexted( stack );
+			wrapper.deserializeNBT( this.nbt );
 			
-			stack.setItemDamage( this.paintjob );
-			return stack;
+			// TODO: notify the modules on wrapper that they are just removed from our base and can do something to update
+			
+			return wrapper;
 		}
 		
 		@Override
@@ -292,39 +271,30 @@ public abstract class ModifiableItemType<
 		@SideOnly( Side.CLIENT )
 		public void onKeyPress( IKeyBind key )
 		{
+			// TODO
 			switch( key.name() )
 			{
-			case Key.TOGGLE_MODIFY:
-			case Key.CO_TOGGLE_MODIFY:
-				// TODO: maybe get modify op from protected method
-				final PlayerPatchClient patch = PlayerPatchClient.instance;
-				if( patch.operating() instanceof OpModifyClient )
-					patch.toggleOperating();
-				else patch.tryLaunch( OP_MODIFY.reset( this ) );
-				break;
-			}
 			
-			// For keys of category modify, just send to operation to handle them
-			if( key.category().equals( KeyCategory.MODIFY ) )
-				OP_MODIFY.handleKeyInput( key );
+			}
 		}
 		
 		@Override
-		public void applyTransform( int slot, IModifiable module, Mat4f dst )
+		public void applyTransform( int slot, IModular< ? > module, Mat4f dst )
 		{
 			dst.mul( this.mat );
 			ModifiableItemType.this.slots.get( slot ).applyTransform( module, dst );
 		}
 		
+		@Override
 		@SideOnly( Side.CLIENT )
-		public void prepareHandRender(
+		public void prepareInHandRender(
 			Collection< IDeferredRenderer > renderQueue0,
 			Collection< IDeferredPriorityRenderer > renderQueue1,
 			IAnimator animator
 		) {
 			// TODO: May not be necessary to call this every time if no item transform applied
-			this.mat.setIdentity();
-			this.base.applyTransform( this.baseSlot, this, this.mat );
+//			this.mat.setIdentity();
+//			this.base.applyTransform( this.baseSlot, this, this.mat );
 			
 			// TODO: maybe avoid instantiation to improve performance?
 			ModifiableItemType.this.renderer.prepareHandRender(
@@ -335,10 +305,11 @@ public abstract class ModifiableItemType<
 			);
 			
 			this.installed.forEach(
-				mod -> mod.prepareHandRender( renderQueue0, renderQueue1, animator )
+				mod -> mod.prepareInHandRender( renderQueue0, renderQueue1, animator )
 			);
 		}
 		
+		@Override
 		@SideOnly( Side.CLIENT )
 		public void prepareRender(
 			Collection< IDeferredRenderer > renderQueue0,
@@ -346,8 +317,8 @@ public abstract class ModifiableItemType<
 			IAnimator animator
 		) {
 			// TODO: May not be necessary to call this every time if no item transform applied
-			this.mat.setIdentity();
-			this.base.applyTransform( this.baseSlot, this, this.mat );
+//			this.mat.setIdentity();
+//			this.base.applyTransform( this.baseSlot, this, this.mat );
 			
 			// TODO: maybe avoid instantiation to improve performance?
 			ModifiableItemType.this.renderer.prepareRender(
@@ -364,27 +335,16 @@ public abstract class ModifiableItemType<
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public IModifiable newModifyIndicator()
-		{
-			return IModifiableType.REGISTRY.get( ModifiableItemType.this.modifyIndicator )
-				.newContexted( new NBTTagCompound() ); // TODO: maybe a buffer instance
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
 		public ResourceLocation texture() {
 			return ModifiableItemType.this.paintjobs.get( this.paintjob ).texture();
 		}
 		
 		@Override
-		public String toString() { return ModifiableItemType.this.toString(); }
-		
-		@Override
 		protected int id() { return Item.getIdFromItem( ModifiableItemType.this.item ); }
 		
 		@Override
-		protected IModifiableType fromId( int id ) {
-			return ( IModifiableType ) ( ( IItemTypeHost ) Item.getItemById( id ) ).meta();
+		protected IModularType fromId( int id ) {
+			return ( IModularType ) IItemTypeHost.getType( Item.getItemById( id ) );
 		}
 		
 		@SideOnly( Side.CLIENT )
@@ -393,7 +353,7 @@ public abstract class ModifiableItemType<
 			return ( channel, smoother, dst ) -> {
 				switch( channel )
 				{
-				case IModifiableRenderer.CHANNEL_INSTALL:
+				case IModuleRenderer.CHANNEL_INSTALL:
 					dst.mul( this.mat );
 					break;
 					
@@ -404,5 +364,58 @@ public abstract class ModifiableItemType<
 		
 		@SuppressWarnings( "unchecked" )
 		protected C self() { return ( C ) this; }
+	}
+	
+	protected static class ModifiableItemWrapper<
+		M extends IModular< ? extends M >,
+		T extends IItem & IModular< ? extends M > & IPaintable
+	> extends ModuleWrapper< M, T > implements IItem
+	{
+		protected final ItemStack stack;
+		
+		protected ModifiableItemWrapper( NBTTagCompound primaryTag, ItemStack stack )
+		{
+			this.stack = stack;
+			this.deserializeNBT( primaryTag );
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public boolean renderInHand( EnumHand hand ) { return this.primary.renderInHand( hand ); }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public boolean onRenderSpecificHand( EnumHand hand ) {
+			return this.primary.onRenderSpecificHand( hand );
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public ResourceLocation texture() { return this.primary.texture(); }
+		
+		/**
+		 * <p> Called in two cases: </p>
+		 * <ol>
+		 *     <li> On {@link ItemStack} construction </li>
+		 *     <li> On network packet NBT update </li>
+		 * </ol>
+		 */
+		@Override
+		@SuppressWarnings( "unchecked" )
+		public void deserializeNBT( NBTTagCompound nbt )
+		{
+			final int id = IModular.getId( nbt );
+			final Item item = Item.getItemById( id );
+			final IModularType type = ( IModularType ) IItemTypeHost.getType( item );
+			this.primary = ( T ) type.deserializeContexted( nbt );
+			this.primary.setBase( this, 0 );
+			this.primary.updateState();
+			this.syncNBTData(); // Whether only call this on need?
+		}
+		
+		@Override
+		public void syncNBTData() {
+			this.stack.getTagCompound().setTag( "_", this.primary.serializeNBT() );
+		}
 	}
 }

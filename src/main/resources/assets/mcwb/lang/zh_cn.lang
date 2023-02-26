@@ -32,12 +32,11 @@ mcwb.can_not_find_update_group=找不到自定义按键 %s 所要求的更新组
 mcwb.pack_dir_created=已为您创建内容包文件夹 %s，寻找一些适配 MCWB 的内容包放入其中吧！
 mcwb.unknown_pack_file_type=无法加载内容包 %s。MCWB 仅支持以下 { <文件夹>, <.jar>, <.zip> } 三种类型的内容包。
 mcwb.detect_content_pack=检测到内容包 %s
-mcwb.error_adding_classpath=为 %s 注册Class加载路径时遇到了问题 相关内容包内容可能会无法加载
+#mcwb.error_adding_classpath=为 %s 注册Class加载路径时遇到了问题 相关内容包内容可能会无法加载
 mcwb.load_content_pack=正在加载内容包 %s ...
-mcwb.io_error=读取源 %s 时遇到 IO 错误
+mcwb.error_loading_pack_info=加载内容包 info 文件 %s 时遇到错误
 mcwb.type_loader_not_found=找不到 %s 需要的类型加载器 %s
-mcwb.unexpected_load_error=处理 %s 遇到意外错误
-mcwb.error_parsing_type=解析 %s 时遇到错误
+mcwb.mcwb.error_loading_type=加载 %s 时遇到意外错误
 mcwb.duplicate_meta_regis=重复的元注册 %s : %s
 mcwb.fail_to_find_tab=找不到 %s 指定的创造模式物品栏 %s
 mcwb.fail_to_find_indicator=找不到 %s 指定的改装指示器 %s
@@ -68,7 +67,7 @@ mcwb.exception_call_model_load=执行 %s 的模型加载方法时出现异常，
 
 # 内容包摘要
 mcwb.core_pack=MCWB 核心内容包
-mcwb.core_author=一条大大的咸鱼
+mcwb.author=一条大大的咸鱼
 mcwb.author_missing=未知作者
 mcwb.description_missing=描述未被提供
 

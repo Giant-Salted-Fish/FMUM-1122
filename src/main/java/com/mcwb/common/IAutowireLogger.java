@@ -5,12 +5,17 @@ import org.apache.logging.log4j.Logger;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * Implement this interface if you need the logger
+ * 
+ * @author Giant_Salted_Fish
+ */
 public interface IAutowireLogger
 {
 	public default Logger logger() { return MCWB.LOGGER; }
 	
 	/**
-	 * You can call this to translate your message if the code may run on both side. Otherwise,
+	 * You can call this to translate your message if your code runs on both side. Otherwise,
 	 * simply use {@link I18n} if your code only runs on {@link Side#CLIENT} side.
 	 * 
 	 * @see I18n#format(String, Object...)
@@ -19,7 +24,7 @@ public interface IAutowireLogger
 		return MCWB.MOD.format( translateKey, parameters );
 	}
 	
-	/// Convenient packed methods that are commonly used ///
+	/// *** Wrap commonly used calls *** ///
 	public default void info( String translateKey, Object... parameters ) {
 		this.logger().info( this.format( translateKey, parameters ) );
 	}

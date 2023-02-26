@@ -5,6 +5,12 @@ import com.mcwb.common.MCWB;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.Config.LangKey;
 
+/**
+ * Client only configurations. Unfortunately that currently we have no way to prevent this from
+ * loading on physical server side.
+ * 
+ * @author Giant_Salted_Fish
+ */
 //@SideOnly( Side.CLIENT ) // Commented as it will crash on load
 @LangKey( "mcwb.config.client" )
 @Config( modid = MCWB.ID, category = "client" )

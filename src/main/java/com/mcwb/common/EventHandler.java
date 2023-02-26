@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.item.IItemType;
-import com.mcwb.common.modify.IModifiableType;
+import com.mcwb.common.module.IModularType;
 import com.mcwb.common.network.PacketConfigSync;
 import com.mcwb.common.player.PlayerPatch;
 
@@ -30,25 +30,25 @@ public final class EventHandler
 	private EventHandler() { }
 	
 	@SubscribeEvent
-	public static void onItemRegister( RegistryEvent.Register< Item > evt )
+	public static void onRegisterItem( RegistryEvent.Register< Item > evt )
 	{
 		LOGGER.info( "mcwb.on_item_regis" );
 		
 		final Collection< IItemType > items = IItemType.REGISTRY.values();
-		items.forEach( it -> it.onItemRegister( evt ) );
+		items.forEach( it -> it.onRegisterItem( evt ) );
 		
-		IModifiableType.REGISTRY.values().forEach( IModifiableType::prepareSnapshot );
+		IModularType.REGISTRY.values().forEach( IModularType::compileSnapshot );
 		
 		LOGGER.info( "mcwb.item_regis_complete", items.size() );
 	}
 	
 	@SubscribeEvent
-	public static void onSoundRegister( RegistryEvent.Register< SoundEvent > evt )
+	public static void onRegisterSound( RegistryEvent.Register< SoundEvent > evt )
 	{
 		LOGGER.info( "mcwb.on_sound_regis" ); // TODO: translation
 		
 		final IForgeRegistry< SoundEvent > registry = evt.getRegistry();
-		final Collection< SoundEvent > sounds = MCWB.SOUND_POOL.values();
+		final Collection< SoundEvent > sounds = MCWB.MOD.soundPool.values();
 		sounds.forEach( sound -> registry.register( sound ) );
 		
 		LOGGER.info( "mcwb.sound_regis_complete", sounds.size() );

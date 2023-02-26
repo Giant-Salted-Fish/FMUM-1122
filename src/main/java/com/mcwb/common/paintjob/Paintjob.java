@@ -11,7 +11,14 @@ import com.mcwb.common.load.TexturedMeta;
 import com.mcwb.common.meta.IMeta;
 
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * Simply implementation of {@link IPaintjob}
+ * 
+ * @author Giant_Salted_Fish
+ */
 public class Paintjob extends TexturedMeta implements IPaintjob
 {
 	public static final JsonDeserializer< IPaintjob >
@@ -24,12 +31,13 @@ public class Paintjob extends TexturedMeta implements IPaintjob
 	protected Set< PaintjobMaterial > materials = Collections.emptySet();
 	
 	@Override
+	@SideOnly( Side.CLIENT )
 	public ResourceLocation texture() { return this.texture; }
 	
 	@Override
 	protected IMeta loader() { return LOADER; }
 	
-	// TODO: material
+	// TODO: paintjob material
 	public static class PaintjobMaterial
 	{
 		@SerializedName( value = "item", alternate = { "required", "material" } )

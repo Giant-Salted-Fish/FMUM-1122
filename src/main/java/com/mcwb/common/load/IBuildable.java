@@ -1,13 +1,15 @@
 package com.mcwb.common.load;
 
-import com.mcwb.common.pack.IContentProvider;
-
+/**
+ * @param <T> Type that produced after build
+ * @author Giant_Salted_Fish
+ */
 @FunctionalInterface
 public interface IBuildable< T >
 {
 	/**
-	 * @param name An alternative name that usually obtained from its file name
-	 * @param provider Content pack that provides this meta
+	 * @param name An optional name that usually obtained from its file name
+	 * @param provider Where this buildable is load from
 	 */
 	public T build( String name, IContentProvider provider );
 }

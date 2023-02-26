@@ -5,8 +5,7 @@ import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.ModConfig;
-import com.mcwb.util.BasedMotionTendency;
-import com.mcwb.util.MotionTendency;
+import com.mcwb.util.DynamicPos;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -19,7 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * This implementation includes the critical code that makes free view work. Hence it is recommended
  * to implement your camera controller from this class. This also provides some simple camera
  * effects that can be tuned via {@link ModConfig}.
- * FIXME: 左右 alt 停住归中无抖动 上下有
+ * FIXME: 左右归中停住无抖动 上下有
  * @author Giant_Salted_Fish
  */
 @SideOnly( Side.CLIENT )
@@ -38,8 +37,10 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	
 	/**
 	 * The actual camera rotation in world coordinate(player rot + off-axis)
+	 * 
+	 * TODO: also save camera easing in it so that we dont need to calculate on {@link #getCameraRot(Vec3f)} every time
 	 */
-	protected final Vec3f camRot = new Vec3f();
+	protected final Vec3f cameraRot = new Vec3f();
 	
 	/**
 	 * Direction that the player is heading
@@ -49,12 +50,12 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	/**
 	 * Off-axis view angle that triggered by free view
 	 */
-	protected final MotionTendency camOffAxis = new BasedMotionTendency( 0.4F, 50F, 0.125F );
+	protected final DynamicPos cameraOffAxis = new DynamicPos();
 	
 	/**
 	 * Handles easing animation on camera. For example the drop camera shake.
 	 */
-	protected final MotionTendency camEasing = new BasedMotionTendency( 0.4F, 4.25F, 1F );
+	protected final DynamicPos cameraEasing = new DynamicPos();
 	
 	/**
 	 * Handles the camera effects
@@ -64,10 +65,10 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	{
 		// If looking around, clear camera recover speed
 		if( InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down )
-			this.camOffAxis.velocity.setZero();
+			this.cameraOffAxis.velocity.setZero();
 		
 		// Otherwise, update off-axis rotation
-		else this.camOffAxis.update();
+		else this.cameraOffAxis.update( 0.125F, 50F, 0.4F );
 		
 		/// Apply drop camera effects ///
 		final PlayerPatchClient patch = PlayerPatchClient.instance;
@@ -75,18 +76,18 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		final float dropSpeed = Math.min( 0F, patch.playerVelocity.y );
 		dropDistanceCycle += dropSpeed * MCWBClient.camDropCycle;
 		
-		this.camEasing.velocity.z += dropSpeed * MCWBClient.camDropAmpl
+		this.cameraEasing.velocity.z += dropSpeed * MCWBClient.camDropAmpl
 			* MathHelper.sin( dropDistanceCycle );
 		
 		// Apply drop impact on camera if upon hitting the ground
 		if( patch.prevPlayerVelocity.y < 0F && patch.playerAcceleration.y > 0F )
 		{
-			final Vec3f headVelocity = this.camEasing.velocity;
+			final Vec3f headVelocity = this.cameraEasing.velocity;
 
 //			boolean positive = MCWB.rand.nextBoolean();
 			// Make sure the drop impact always makes the head tilt harder on its original direction
 			boolean positive = headVelocity.z > 0F;
-			if( positive ^ this.camEasing.curPos.z > 0F )
+			if( positive ^ this.cameraEasing.curPos.z > 0F )
 			{
 				headVelocity.z = -headVelocity.z;
 				positive = !positive;
@@ -97,7 +98,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 			headVelocity.z += positive ? impact : -impact;
 		}
 		
-		this.camEasing.update();
+		this.cameraEasing.update( 1F, 4.25F, 0.4F );
 	}
 	
 	/**
@@ -107,7 +108,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	public void prepareRender( MouseHelper mouse )
 	{
 		final EntityPlayerSP player = MCWBClient.MC.player;
-		final MotionTendency camOffAxis = this.camOffAxis;
+		final DynamicPos camOffAxis = this.cameraOffAxis;
 		final float smoother = this.smoother();
 		
 		// Apply a tiny change to player's view to force chunk load
@@ -119,16 +120,16 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		final float deltaYaw = mouse.deltaX * mouseFactor;
 		
 		// Make sure delta pitch is inside the limit
-		final Vec3f camRot = this.camRot;
-		camRot.x = player.rotationPitch + camOffAxis.getX( smoother );
+		final Vec3f cameraRot = this.cameraRot;
+		cameraRot.x = player.rotationPitch + camOffAxis.getX( smoother );
 		
 		final float deltaY = mouse.deltaY * mouseFactor;
 		final float deltaPitch = MathHelper.clamp(
 			MCWBClient.SETTINGS.invertMouse ? deltaY : -deltaY,
-			-90F - camRot.x,
-			90F - camRot.x
+			-90F - cameraRot.x,
+			90F - cameraRot.x
 		);
-		camRot.x += deltaPitch;
+		cameraRot.x += deltaPitch;
 		
 		// If looking around, apply view rot to off-axis
 		if( InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down )
@@ -145,7 +146,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 			
 			// Apply delta rot and make the rotation would not exceed the limit
 			final float yawLimit = MathHelper
-				.sqrt( MCWBClient.freeViewLimitSquared - camRot.x * camRot.x );
+				.sqrt( MCWBClient.freeViewLimitSquared - cameraRot.x * cameraRot.x );
 			offAxis.y = MathHelper.clamp( offAxis.y + deltaYaw , -yawLimit, yawLimit );
 			offAxis.x += deltaPitch;
 			
@@ -159,14 +160,14 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 			.set( player.rotationPitch + deltaPitch, player.rotationYaw + deltaYaw, 0F );
 		
 		// Do not forget to update camera rot yaw
-		camRot.y = this.playerRot.y + camOffAxis.getY( smoother );
+		cameraRot.y = this.playerRot.y + camOffAxis.getY( smoother );
 	}
 	
 	@Override
 	public void getCameraRot( Vec3f dst )
 	{
-		this.camEasing.getPos( dst, this.smoother() );
-		dst.add( this.camRot );
+		this.cameraEasing.get( dst, this.smoother() );
+		dst.add( this.cameraRot );
 	}
 	
 	@Override

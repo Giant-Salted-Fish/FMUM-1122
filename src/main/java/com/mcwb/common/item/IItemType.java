@@ -3,7 +3,6 @@ package com.mcwb.common.item;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.meta.Registry;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -14,16 +13,21 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * @see IItem
+ * @author Giant_Salted_Fish
+ */
 public interface IItemType extends IMeta
 {
 	public static final Registry< IItemType > REGISTRY = new Registry<>();
 	
-	public static final String
-		TRANSLATION_PREFIX = "item.",
-		TRANSLATION_SUFFIX = ".name";
+	// TODO: for paintjob name override?
+//	public static final String
+//		TRANSLATION_PREFIX = "item.",
+//		TRANSLATION_SUFFIX = ".name";
 	
 	/**
-	 * A default item that simply "do nothing". Delegate for vanilla items.
+	 * Default item type that represents those vanilla items
 	 */
 	public static final IItemType VANILLA = new IItemType()
 	{
@@ -33,6 +37,7 @@ public interface IItemType extends IMeta
 		@Override
 		public Item item() { return null; }
 		
+		// TODO: actually sure test on ItemStack#isEmpty(). change or refactor?
 		@Override
 		public IItem getContexted( ICapabilityProvider provider ) {
 			return provider == ItemStack.EMPTY ? IItem.EMPTY : IItem.VANILLA;
@@ -40,13 +45,13 @@ public interface IItemType extends IMeta
 	};
 	
 	/**
-	 * @return Corresponding vanilla item in {@link Minecraft}
+	 * @return Corresponding vanilla item
 	 */
 	public Item item();
 	
 	public IItem getContexted( ICapabilityProvider provider );
 	
-	public default void onItemRegister( RegistryEvent.Register< Item > evt ) {
+	public default void onRegisterItem( RegistryEvent.Register< Item > evt ) {
 		evt.getRegistry().register( this.item() );
 	}
 	

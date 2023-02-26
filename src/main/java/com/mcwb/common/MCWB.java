@@ -18,27 +18,23 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
-import com.mcwb.common.ammo.AmmoType;
 import com.mcwb.common.gun.GunPartType;
 import com.mcwb.common.gun.GunType;
-import com.mcwb.common.gun.MagType;
 import com.mcwb.common.load.BuildableLoader;
-import com.mcwb.common.load.IRequireMeshLoad;
-import com.mcwb.common.load.IRequirePostLoad;
+import com.mcwb.common.load.IContentProvider;
+import com.mcwb.common.load.IMeshLoadSubscriber;
+import com.mcwb.common.load.IPostLoadSubscriber;
 import com.mcwb.common.meta.IContexted;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.meta.Registry;
-import com.mcwb.common.modify.IModuleSlot;
-import com.mcwb.common.modify.IModuleSnapshot;
-import com.mcwb.common.modify.ModuleSnapshot;
-import com.mcwb.common.modify.RailSlot;
+import com.mcwb.common.module.IModuleSlot;
+import com.mcwb.common.module.IModuleSnapshot;
+import com.mcwb.common.module.ModuleSnapshot;
+import com.mcwb.common.module.RailSlot;
 import com.mcwb.common.network.PacketHandler;
-import com.mcwb.common.operation.IOperationController;
-import com.mcwb.common.operation.OperationController;
-import com.mcwb.common.pack.AbstractLocalPack;
 import com.mcwb.common.pack.FolderPack;
-import com.mcwb.common.pack.IContentProvider;
 import com.mcwb.common.pack.JarPack;
+import com.mcwb.common.pack.LocalPack;
 import com.mcwb.common.paintjob.IPaintjob;
 import com.mcwb.common.paintjob.Paintjob;
 import com.mcwb.common.player.PlayerPatch;
@@ -47,7 +43,6 @@ import com.mcwb.util.AngleAxis4f;
 import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.server.MinecraftServer;
@@ -62,10 +57,9 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.relauncher.Side;
 
 /**
- * A weapon framework that provides highly customizable weapons in {@link Minecraft}
+ * A weapon mod that provides highly customizable weapons
  * 
  * @author Giant_Salted_Fish
  */
@@ -78,7 +72,7 @@ import net.minecraftforge.fml.relauncher.Side;
 //	, clientSideOnly = true
 )
 public class MCWB extends URLClassLoader
-	implements IContentProvider, IAutowireSideHandler, IAutowirePacketHandler, IAutowireLogger
+	implements IContentProvider, IAutowirePacketHandler, IAutowireLogger
 {
 	/**
 	 * Mod id
@@ -120,10 +114,10 @@ public class MCWB extends URLClassLoader
 	/**
 	 * A default {@link Gson} parser to load types in content pack
 	 */
-	public static final Gson GSON = MOD.newGsonBuilder().create();
+	public static final Gson GSON = MOD.gsonBuilder().create();
 	
 	/**
-	 * Type and model loaders
+	 * Type loaders
 	 */
 	public static final Registry< BuildableLoader< ? extends IMeta > >
 		TYPE_LOADERS = new Registry<>();
@@ -131,10 +125,10 @@ public class MCWB extends URLClassLoader
 	/**
 	 * Default creative item tab
 	 */
-	public static final CreativeTab DEF_TAB = new CreativeTab().build( ID, MOD );
+	public static final CreativeTab DEFAULT_TAB = new CreativeTab().build( ID, MOD );
 	
 	/**
-	 * Items added into this tab will not be shown in creative item tab
+	 * Items added into this tab will not be hidden from creative item tab
 	 */
 	public static final CreativeTab HIDE_TAB = new CreativeTab() {
 		@Override
@@ -142,41 +136,41 @@ public class MCWB extends URLClassLoader
 	}.build( "hide", MOD );
 	
 	/**
-	 * All loaded content packs
+	 * Loaded content packs
 	 */
-	protected static final Registry< IContentProvider > CONTENT_PROVIDERS = new Registry<>();
+	public static final Registry< IContentProvider > CONTENT_PROVIDERS = new Registry<>();
 	
 	/**
-	 * Registered subscribers wait for post load callback
+	 * @see IAutowirePacketHandler
 	 */
-	protected static final LinkedList< IRequirePostLoad >
-		POST_LOAD_SUBSCRIBERS = new LinkedList<>();
+	public static final PacketHandler NET = new PacketHandler( ID );
 	
 	/**
-	 * Buffered sounds
+	 * @see IAutowireLogger
 	 */
-	protected static final HashMap< String, SoundEvent > SOUND_POOL = new HashMap<>();
+	public static final Logger LOGGER = LogManager.getLogger( ID );
+	
+	// FIXME: Initialize this for pure server side, check this on server side independently?
+	public static int maxSlotCapacity; // TODO: why not directly refer it from mod config on server side?
 	
 	/**
 	 * ".minecraft/" folder
 	 */
-	protected static final File GAME_DIR = Loader.instance().getConfigDir().getParentFile();
+	protected final File gameDir = Loader.instance().getConfigDir().getParentFile();
 	
 	/**
-	 * Use {@link IAutowirePacketHandler}
+	 * Buffered sounds
 	 */
-	static final PacketHandler NET = new PacketHandler( ID );
+	final HashMap< String, SoundEvent > soundPool = new HashMap<>();
 	
 	/**
-	 * Use {@link IAutowireLogger}
+	 * Registered subscribers for post load callback
 	 */
-	static final Logger LOGGER = LogManager.getLogger( ID );
+	private final LinkedList< IPostLoadSubscriber > postLoadSubscribers = new LinkedList<>();
 	
-	public static int maxSlotCapacity;
+//	private final HashMap< String, byte[] > classes = new HashMap<>();
 	
-	private final HashMap< String, byte[] > classes = new HashMap<>();
-	
-	public MCWB() { super( new URL[ 0 ], MinecraftServer.class.getClassLoader() ); }
+	protected MCWB() { super( new URL[ 0 ], MinecraftServer.class.getClassLoader() ); }
 	
 	@EventHandler
 	public final void onPreInit( FMLPreInitializationEvent evt )
@@ -235,10 +229,10 @@ public class MCWB extends URLClassLoader
 		TYPE_LOADERS.regis( CreativeTab.LOADER );
 		TYPE_LOADERS.regis( GunPartType.LOADER );
 		TYPE_LOADERS.regis( GunType.LOADER );
-		TYPE_LOADERS.regis( MagType.LOADER );
-		TYPE_LOADERS.regis( AmmoType.LOADER );
+//		TYPE_LOADERS.regis( MagType.LOADER );
+//		TYPE_LOADERS.regis( AmmoType.LOADER );
 		TYPE_LOADERS.regis( Paintjob.LOADER );
-		this.setupSideDependentLoaders();
+		this.regisSideDependentLoaders();
 	}
 	
 	@Override
@@ -246,7 +240,7 @@ public class MCWB extends URLClassLoader
 	{
 		// Check content pack folder
 		// TODO: if load packs from mods dir then allow the player to disable content pack folder
-		final File packDir = new File( GAME_DIR, ID );
+		final File packDir = new File( this.gameDir, ID );
 		if( !packDir.exists() )
 		{
 			packDir.mkdirs();
@@ -255,16 +249,16 @@ public class MCWB extends URLClassLoader
 		
 		// Compile a regex to match the supported content pack file types
 		// TODO: check if zip is supported
-		final Pattern packPattern = Pattern.compile( "(.+)\\.(zip|jar)$" );
+		final Pattern jarRegex = Pattern.compile( "(.+)\\.(zip|jar)$" );
 		
 		// Find all content packs and load them
 		final HashSet< IContentProvider > providers = new HashSet<>();
 		for( final File file : packDir.listFiles() )
 		{
-			AbstractLocalPack pack;
+			LocalPack pack;
 			if( file.isDirectory() )
 				pack = new FolderPack( file );
-			else if( packPattern.matcher( file.getName() ).matches() )
+			else if( jarRegex.matcher( file.getName() ).matches() )
 				pack = new JarPack( file );
 			else
 			{
@@ -282,9 +276,9 @@ public class MCWB extends URLClassLoader
 		// TODO: Post provider registry event to get providers from other mods?
 //		MinecraftForge.EVENT_BUS.post( new ContentProviderRegistryEvent( providers ) );
 		
-		// Let content packs register their resource domains and reload Minecraft resources
+		// Let content packs register resource domains and reload Minecraft resources
 		providers.forEach( IContentProvider::preLoad );
-		this.reloadResources();
+		this.reloadResources(); // TODO: check if it works without this
 		
 		// Load content packs!
 		providers.forEach( p -> {
@@ -294,15 +288,15 @@ public class MCWB extends URLClassLoader
 		} );
 		
 		// Fire load callback
-		POST_LOAD_SUBSCRIBERS.forEach( IRequirePostLoad::onPostLoad );
-		POST_LOAD_SUBSCRIBERS.clear();
+		this.postLoadSubscribers.forEach( IPostLoadSubscriber::onPostLoad );
+		this.postLoadSubscribers.clear();
 	}
 	
-	public void regisResourceDomain( File resource )
+	public void addResourceDomain( File file )
 	{
-		try { this.addURL( resource.toURI().toURL() ); }
+		try { this.addURL( file.toURI().toURL() ); }
 		catch( MalformedURLException e ) {
-			this.except( e, "mcwb.error_adding_classpath", resource.getName() );
+			this.except( e, "mcwb.error_adding_classpath", file.getName() );
 		}
 	}
 	
@@ -331,23 +325,20 @@ public class MCWB extends URLClassLoader
 	}
 	
 	@Override
-	public void regisPostLoad( IRequirePostLoad subscriber ) {
-		POST_LOAD_SUBSCRIBERS.add( subscriber );
+	public void regis( IPostLoadSubscriber subscriber ) {
+		this.postLoadSubscribers.add( subscriber );
 	}
 	
 	@Override
-	public void regisMeshLoad( IRequireMeshLoad subscriber ) { }
+	public void regis( IMeshLoadSubscriber subscriber ) { }
 	
 	@Override
-	public final SoundEvent loadSound( String path )
+	public SoundEvent loadSound( String path )
 	{
-		return SOUND_POOL.computeIfAbsent(
-			path,
-			key -> {
-				final MCWBResource res = new MCWBResource( path );
-				return new SoundEvent( res ).setRegistryName( res );
-			}
-		);
+		return this.soundPool.computeIfAbsent( path, key -> {
+			final MCWBResource res = new MCWBResource( path );
+			return new SoundEvent( res ).setRegistryName( res );
+		} );
 	}
 	
 	@Override
@@ -356,12 +347,6 @@ public class MCWB extends URLClassLoader
 	@Override
 	public void clientOnly( Runnable task ) { }
 	
-	/**
-	 * This localize the message based on the physical side. Use this for localization if the
-	 * message may be formated in both client side and server side.
-	 * 
-	 * @see net.minecraft.client.resources.I18n#format(String, Object...)
-	 */
 	@Override
 	@SuppressWarnings( "deprecation" )
 	public String format( String translateKey, Object... parameters )
@@ -374,31 +359,31 @@ public class MCWB extends URLClassLoader
 	public String name() { return "mcwb.core_pack"; }
 	
 	@Override
-	public String author() { return "mcwb.core_author"; }
+	public String author() { return "mcwb.author"; }
 	
 	@Override
 	public String sourceName() { return NAME; }
 	
 	@Override
-	public String toString() { return NAME; }
+	public String toString() { return ID; }
 	
-	protected void setupSideDependentLoaders()
+	protected void regisSideDependentLoaders()
 	{
 		// Key binds is client only. But to avoid the errors when it is absent, set a loader that \
-		// simply does nothing on load. 
-		TYPE_LOADERS.regis(
-			new BuildableLoader<>( "key_bind", json -> ( name, provider ) -> null )
-		);
+		// simply does nothing on load.
+		TYPE_LOADERS.regis( new BuildableLoader<>(
+			"key_bind", json -> ( name, provider ) -> null
+		) );
 	}
 	
 	/**
-	 * {@link Side#CLIENT} only
+	 * client only to reload resources
 	 * 
 	 * TODO: check if needed server side to load languages
 	 */
 	protected void reloadResources() { }
 	
-	protected GsonBuilder newGsonBuilder()
+	protected GsonBuilder gsonBuilder()
 	{
 		final GsonBuilder builder = new GsonBuilder();
 		builder.setLenient();
@@ -407,7 +392,7 @@ public class MCWB extends URLClassLoader
 		builder.registerTypeAdapter( IModuleSlot.class, RailSlot.ADAPTER );
 		builder.registerTypeAdapter( IModuleSnapshot.class, ModuleSnapshot.ADAPTER );
 		builder.registerTypeAdapter( IPaintjob.class, Paintjob.ADAPTER );
-		builder.registerTypeAdapter( IOperationController.class, OperationController.ADAPTER );
+//		builder.registerTypeAdapter( IOperationController.class, OperationController.ADAPTER );
 		
 		final JsonDeserializer< SoundEvent > soundAdapter =
 			( json, typeOfT, context ) -> this.loadSound( json.getAsString() );
@@ -450,14 +435,14 @@ public class MCWB extends URLClassLoader
 		return builder;
 	}
 	
-	@Override
-	protected Class< ? > findClass( String name ) throws ClassNotFoundException
-	{
-		final byte[] bytes = this.classes.get( name );
-		return(
-			bytes != null
-			? this.defineClass( name, bytes, 0, bytes.length )
-			: super.findClass( name )
-		);
-	}
+//	@Override
+//	protected Class< ? > findClass( String name ) throws ClassNotFoundException
+//	{
+//		final byte[] bytes = this.classes.get( name );
+//		return(
+//			bytes != null
+//			? this.defineClass( name, bytes, 0, bytes.length )
+//			: super.findClass( name )
+//		);
+//	}
 }

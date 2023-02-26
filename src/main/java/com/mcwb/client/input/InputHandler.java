@@ -103,14 +103,14 @@ public final class InputHandler
 	
 	static
 	{
-		new ProxyKeyBind(
+		new VanillaKeyBindProxy(
 			"swap_hand",
 			MCWBClient.MOD,
 			KeyCategory.OTHER,
 			MCWBClient.SETTINGS.keyBindSwapHands
 		) {
 			@Override
-			protected void doProxyStuff() { PlayerPatchClient.instance.trySwapHand(); }
+			protected void onAction() { PlayerPatchClient.instance.trySwapHand(); }
 		};
 	}
 	

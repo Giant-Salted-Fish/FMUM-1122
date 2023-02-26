@@ -16,24 +16,16 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mcwb.client.ammo.AmmoRenderer;
-import com.mcwb.client.gun.CarGripRenderer;
-import com.mcwb.client.gun.GripRenderer;
-import com.mcwb.client.gun.GunPartRenderer;
-import com.mcwb.client.gun.GunRenderer;
-import com.mcwb.client.gun.MagRenderer;
-import com.mcwb.client.gun.OpticSightRenderer;
 import com.mcwb.client.input.InputHandler;
-import com.mcwb.client.item.ItemRenderer;
+import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.client.render.Renderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.MCWBResource;
-import com.mcwb.common.gun.GunPartType.GunPartJson;
 import com.mcwb.common.load.BuildableLoader;
-import com.mcwb.common.load.IRequireMeshLoad;
+import com.mcwb.common.load.IContentProvider;
+import com.mcwb.common.load.IMeshLoadSubscriber;
 import com.mcwb.common.meta.Registry;
-import com.mcwb.common.pack.IContentProvider;
 import com.mcwb.util.Mesh;
 import com.mcwb.util.ObjMeshBuilder;
 
@@ -56,16 +48,18 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public final class MCWBClient extends MCWB
 	implements IAutowirePlayerChat, IAutowireBindTexture, IAutowireSmoother
 {
-	/// Easy referencing ///
+	/// *** For easy referencing *** ///
 	public static final Minecraft MC = Minecraft.getMinecraft();
 	public static final GameSettings SETTINGS = MC.gameSettings;
 	
 	public static final MCWBClient MOD = new MCWBClient();
 	
-	public static final String MODIFY_INDICATOR = "modify_indicator";
-	
 	public static final Registry< BuildableLoader< ? extends IRenderer > >
 		MODEL_LOADERS = new Registry<>();
+	
+	// TODO: mesh loaders? to support other types of model
+	
+//	public static final String MODIFY_INDICATOR = "modify_indicator";
 	
 	public static byte[] modifyLoc;
 	
@@ -76,10 +70,7 @@ public final class MCWBClient extends MCWB
 	
 	public static float camDropImpact;
 	
-	/**
-	 * For those require mesh load
-	 */
-	final LinkedList< IRequireMeshLoad > meshLoadSubscribers = new LinkedList<>();
+	final LinkedList< IMeshLoadSubscriber > meshLoadSubscribers = new LinkedList<>();
 	
 	final HashMap< String, IRenderer > rendererPool = new HashMap<>();
 	
@@ -93,7 +84,7 @@ public final class MCWBClient extends MCWB
 	/**
 	 * Buffered textures
 	 * 
-	 * TODO: clear this maybe?
+	 * TODO: clear this after use maybe?
 	 */
 	private final HashMap< String, ResourceLocation > texturePool = new HashMap<>();
 	
@@ -102,7 +93,7 @@ public final class MCWBClient extends MCWB
 	@Override
 	public void preLoad()
 	{
-		// Check OpenGL compatibility
+		// Check OpenGL support
 		if( !GLContext.getCapabilities().OpenGL30 )
 			throw new RuntimeException( I18n.format( "mcwb.opengl_version_too_low" ) );
 		
@@ -110,27 +101,27 @@ public final class MCWBClient extends MCWB
 		if( !framebuffer.isStencilEnabled() && !framebuffer.enableStencil() )
 			throw new RuntimeException( I18n.format( "mcwb.stencil_not_supported" ) );
 		
-		// Do prepare work
+		// Do prepare load
 		super.preLoad();
 		
 		// Register model loaders
 		MODEL_LOADERS.regis( Renderer.LOADER );
-		MODEL_LOADERS.regis( GunPartRenderer.LOADER );
-		MODEL_LOADERS.regis( GunRenderer.LOADER );
-		MODEL_LOADERS.regis( MagRenderer.LOADER );
-		MODEL_LOADERS.regis( GripRenderer.LOADER );
-		MODEL_LOADERS.regis( CarGripRenderer.LOADER );
-		MODEL_LOADERS.regis( OpticSightRenderer.LOADER );
-		MODEL_LOADERS.regis( AmmoRenderer.LOADER );
+//		MODEL_LOADERS.regis( GunPartRenderer.LOADER );
+//		MODEL_LOADERS.regis( GunRenderer.LOADER );
+//		MODEL_LOADERS.regis( MagRenderer.LOADER );
+//		MODEL_LOADERS.regis( GripRenderer.LOADER );
+//		MODEL_LOADERS.regis( CarGripRenderer.LOADER );
+//		MODEL_LOADERS.regis( OpticSightRenderer.LOADER );
+//		MODEL_LOADERS.regis( AmmoRenderer.LOADER );
 		
 		// Register default textures
 		this.texturePool.put( Renderer.TEXTURE_RED.getPath(), Renderer.TEXTURE_RED );
 		this.texturePool.put( Renderer.TEXTURE_GREEN.getPath(), Renderer.TEXTURE_RED );
 		this.texturePool.put( Renderer.TEXTURE_BLUE.getPath(), Renderer.TEXTURE_RED );
-		this.texturePool.put( ItemRenderer.TEXTURE_STEVE.getPath(), ItemRenderer.TEXTURE_STEVE );
-		this.texturePool.put( ItemRenderer.TEXTURE_ALEX.getPath(), ItemRenderer.TEXTURE_ALEX );
+//		this.texturePool.put( ItemRenderer.TEXTURE_STEVE.getPath(), ItemRenderer.TEXTURE_STEVE );
+//		this.texturePool.put( ItemRenderer.TEXTURE_ALEX.getPath(), ItemRenderer.TEXTURE_ALEX );
 		
-		// Also a default none mesh
+		// The default NONE mesh
 		this.meshPool.put( "", Mesh.NONE );
 	}
 	
@@ -138,7 +129,7 @@ public final class MCWBClient extends MCWB
 	public void load()
 	{
 		// Load key binds before the content load
-		this.keyBindsFile = new File( GAME_DIR, "config/mcwb-keys.json" );
+		this.keyBindsFile = new File( this.gameDir, "config/mcwb-keys.json" );
 		if( !this.keyBindsFile.exists() )
 		{
 			try { this.keyBindsFile.createNewFile(); }
@@ -147,28 +138,28 @@ public final class MCWBClient extends MCWB
 		}
 		else InputHandler.readFrom( this.keyBindsFile );
 		
-		new GunPartJson() { {
-			this.creativeTab = "hide";
-			this.rendererPath = "models/modify_indicator.json";
-			this.texture = new MCWBResource( "textures/0x00ff00.png" );
-		} }.build( MODIFY_INDICATOR, this );
+//		new GunPartJson() { {
+//			this.creativeTab = "hide";
+//			this.rendererPath = "renderers/modify_indicator.json";
+//			this.texture = new MCWBResource( "textures/0x00ff00.png" );
+//		} }.build( MODIFY_INDICATOR, this );
 		
-		// Do load content packs
+		// Do load content packs!
 		super.load();
 	}
 	
 	@Override
-	public void regisMeshLoad( IRequireMeshLoad subscriber ) {
+	public void regis( IMeshLoadSubscriber subscriber ) {
 		this.meshLoadSubscribers.add( subscriber );
 	}
 	
 	@Override
-	public void regisResourceDomain( File resource )
+	public void addResourceDomain( File resource )
 	{
-		super.regisResourceDomain( resource );
+		super.addResourceDomain( resource );
 		
 		// Register it as a resource pack to load textures and sounds
-		// Mainly referenced Flan's Mod for this part
+		// Reference: Flan's Mod content pack load
 		final TreeMap< String, Object > descriptor = new TreeMap<>();
 		descriptor.put( "modid", ID );
 		descriptor.put( "name", NAME + ":" + resource.getName() );
@@ -199,40 +190,40 @@ public final class MCWBClient extends MCWB
 		return this.rendererPool.computeIfAbsent( path, key -> {
 			try
 			{
-				// Handle ".json" renderer
 				if( key.endsWith( ".json" ) )
 				{
 					try(
 						IResource res = MC.getResourceManager()
 							.getResource( new MCWBResource( path ) )
 					) {
-						// Parse from input reader
 						final JsonObject obj = GSON.fromJson(
 							new InputStreamReader( res.getInputStream() ),
 							JsonObject.class
 						);
-						final JsonElement eEntry = obj.get( "__type__" );
 						
 						// Try get required loader and load
-						final String entry = eEntry != null
-							? eEntry.getAsString().toLowerCase() : fallbackType;
+						final JsonElement type = obj.get( "__type__" );
+						final String entry = type != null
+							? type.getAsString().toLowerCase() : fallbackType;
 						final BuildableLoader< ? extends IRenderer >
 							loader = MODEL_LOADERS.get( entry );
 						if( loader != null )
 							return loader.parser.apply( obj ).build( path, provider );
 						
-						this.error( "mcwb.model_loader_not_found", path, entry );
+						throw new RuntimeException(
+							this.format( "mcwb.model_loader_not_found", path, entry )
+						);
 					}
 				}
-				
-				// Handle ".class" renderer
 				else if( key.endsWith( ".class" ) )
+				{
 					return ( IRenderer ) this.loadClass( key.substring( 0, key.length() - 6 ) )
 						.getConstructor( String.class, IContentProvider.class )
 							.newInstance( path, provider );
+				}
 				
 				// Unknown renderer type
-				else throw new RuntimeException( "Unsupported renderer file type" );
+				else throw new RuntimeException( "Unsupported renderer file type" ); // TODO: format this?
 			}
 			catch( Exception e ) { this.except( e, "mcwb.error_loading_renderer", key ); }
 			return null;
@@ -245,26 +236,24 @@ public final class MCWBClient extends MCWB
 	}
 	
 	/**
-	 * @param attrSetter Use this to set attribute when loading .obj model
+	 * @param processor Use this to process .obj model before compiling it to mesh
 	 * @return {@link Mesh#NONE} if any error has occurred
 	 */
 	@Override
-	public Mesh loadMesh( String path, Function< Mesh.Builder, Mesh.Builder > attrSetter )
+	public Mesh loadMesh( String path, Function< Mesh.Builder, Mesh.Builder > processor )
 	{
 		return this.meshPool.computeIfAbsent( path, key -> {
 			try
 			{
-				// Handle .obj mesh
+				// TODO: switch by suffix to support other types of models?
 				if( key.endsWith( ".obj" ) )
-					return attrSetter.apply( new ObjMeshBuilder().load( key ) ).quickBuild();
-				
-				// Handle .class mesh
-				if( key.endsWith( ".class" ) )
-					return ( Mesh ) this.loadClass( key.substring( 0, key.length() - 6 ) )
-						.getConstructor().newInstance();
+					return processor.apply( new ObjMeshBuilder().load( key ) ).quickBuild();
+//				if( key.endsWith( ".class" ) )
+//					return ( Mesh ) this.loadClass( key.substring( 0, key.length() - 6 ) )
+//						.getConstructor().newInstance();
 				
 				// Unknown mesh type
-				throw new RuntimeException( "Unsupported mesh file type" );
+				throw new RuntimeException( "Unsupported model file type" ); // TODO: format this?
 			}
 			catch( Exception e ) { this.except( e, "mcwb.error_loading_mesh", key ); }
 			return Mesh.NONE;
@@ -287,8 +276,8 @@ public final class MCWBClient extends MCWB
 		return I18n.format( translateKey, parameters );
 	}
 	
-//	@Override
-//	protected void setupSideDependentLoaders() { TYPE_LOADERS.regis( KeyBind.LOADER ); }
+	@Override
+	protected void regisSideDependentLoaders() { TYPE_LOADERS.regis( KeyBind.LOADER ); }
 	
 	@Override
 	protected void reloadResources() // TODO: make this part more clear?
@@ -304,9 +293,9 @@ public final class MCWBClient extends MCWB
 	}
 	
 	@Override
-	protected GsonBuilder newGsonBuilder()
+	protected GsonBuilder gsonBuilder()
 	{
-		final GsonBuilder builder = super.newGsonBuilder();
+		final GsonBuilder builder = super.gsonBuilder();
 		
 		final JsonDeserializer< ResourceLocation > TEXTURE_ADAPTER =
 			( json, typeOfT, context ) -> this.loadTexture( json.getAsString() );

@@ -19,9 +19,11 @@ public interface IAutowirePlayerChat
 	public default void sendPlayerPrompt( String... msg )
 	{
 		for( int i = 0; i < msg.length; ++i )
+		{
 			MCWBClient.MC.ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(
 				new TextComponentString( msg[ i ] ),
 				CHAT_LINE_ID + i
 			);
+		}
 	}
 }

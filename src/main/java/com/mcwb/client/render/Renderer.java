@@ -6,13 +6,12 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.google.gson.annotations.SerializedName;
-import com.mcwb.client.MCWBClient;
 import com.mcwb.common.IAutowireLogger;
 import com.mcwb.common.MCWBResource;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IBuildable;
-import com.mcwb.common.load.IRequireMeshLoad;
-import com.mcwb.common.pack.IContentProvider;
+import com.mcwb.common.load.IContentProvider;
+import com.mcwb.common.load.IMeshLoadSubscriber;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Mesh;
 import com.mcwb.util.Vec3f;
@@ -23,8 +22,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class Renderer implements IRenderer, IBuildable< IRenderer >,
-	IRequireMeshLoad, IAutowireLogger //, IAutowireBindTexture
+public class Renderer implements IRenderer, IBuildable< IRenderer >, IAutowireLogger //, IAutowireBindTexture
 {
 	public static final BuildableLoader< IRenderer >
 		LOADER = new BuildableLoader<>( "", Renderer.class );
@@ -46,27 +44,23 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >,
 	@Override
 	public IRenderer build( String path, IContentProvider provider )
 	{
-		provider.regisMeshLoad( this );
+		provider.regis( ( IMeshLoadSubscriber ) () -> {
+			this.meshes = new Mesh[ this.meshPaths.length ];
+			for(
+				int i = this.meshPaths.length;
+				i-- > 0;
+				this.meshes[ i ] = this.loadMesh( this.meshPaths[ i ], provider )
+			);
+		} );
 		return this;
-	}
-	
-	@Override
-	public void onMeshLoad()
-	{
-		this.meshes = new Mesh[ this.meshPaths.length ];
-		for(
-			int i = this.meshPaths.length;
-			i-- > 0;
-			this.meshes[ i ] = this.loadMesh( this.meshPaths[ i ] )
-		);
 	}
 	
 	@Override
 	public void render() { for( Mesh mesh : this.meshes ) mesh.render(); }
 	
-	protected Mesh loadMesh( String path )
+	protected Mesh loadMesh( String path, IContentProvider provider )
 	{
-		return MCWBClient.MOD.loadMesh(
+		return provider.loadMesh(
 			path,
 			builder -> {
 				float scale = this.scale;

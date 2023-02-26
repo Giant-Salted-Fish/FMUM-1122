@@ -6,6 +6,11 @@ import com.google.gson.JsonObject;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.meta.IMeta;
 
+/**
+ * Loader for specified {@link IBuildable}s
+ * 
+ * @author Giant_Salted_Fish
+ */
 public final class BuildableLoader< T > implements IMeta // Implements this to use Registry<>
 {
 	public final String entry;
@@ -17,7 +22,7 @@ public final class BuildableLoader< T > implements IMeta // Implements this to u
 	}
 	
 	public BuildableLoader(
-		String entry,
+		String														entry,
 		Function< JsonObject, ? extends IBuildable< ? extends T > > parser
 	) {
 		this.entry = entry;

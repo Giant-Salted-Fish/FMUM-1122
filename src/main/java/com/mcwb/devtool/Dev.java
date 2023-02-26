@@ -32,7 +32,7 @@ public class Dev implements IAutowirePlayerChat
 {
 	public static final Consumer< Boolean > DEBUG_BOX = new Consumer< Boolean >()
 	{
-		private final IRenderer renderer = MCWBClient.MOD.loadRenderer( "models/debug_box.json", "" );
+		private final IRenderer renderer = MCWBClient.MOD.loadRenderer( "renderers/debug_box.json", "" );
 		
 		private final ResourceLocation texture = MCWBClient.MOD.loadTexture( "textures/debug_box.png" );
 		

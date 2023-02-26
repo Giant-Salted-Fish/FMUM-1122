@@ -3,7 +3,6 @@ package com.mcwb.common.load;
 import com.mcwb.common.IAutowireLogger;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.meta.Meta;
-import com.mcwb.common.pack.IContentProvider;
 
 public abstract class BuildableMeta extends Meta implements IBuildable< IMeta >, IAutowireLogger
 {
@@ -21,7 +20,7 @@ public abstract class BuildableMeta extends Meta implements IBuildable< IMeta >,
 	public String toString() { return this.loader() + "::" + this.provider + "." + this.name; }
 	
 	/**
-	 * @return The loader of this type. Usually is the corresponding {@link BuildableLoader}.
+	 * @return The loader of this meta. Usually is the corresponding {@link BuildableLoader}.
 	 */
 	protected abstract IMeta loader();
 }

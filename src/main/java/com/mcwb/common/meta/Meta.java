@@ -1,7 +1,7 @@
 package com.mcwb.common.meta;
 
 /**
- * Simple implementation for {@link IMeta}
+ * Base implementation of {@link IMeta}
  * 
  * @author Giant_Salted_Fish
  */

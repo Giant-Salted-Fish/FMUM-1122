@@ -7,24 +7,24 @@ import java.io.IOException;
 import com.google.common.base.Supplier;
 
 /**
- * Content packs that organized in folders
+ * Content packs that organized as folders
  * 
  * @author Giant_Salted_Fish
  */
-public class FolderPack extends AbstractLocalPack
+public class FolderPack extends LocalPack
 {
 	public FolderPack( File source ) { super( source ); }
 	
 	@Override
 	public void load()
 	{
-		// Read pack info if has
+		// Read pack info first if has
 		final File infoFile = new File( this.source, this.infoFile() );
 		if( infoFile.exists() )
 		{
 			try( FileReader in = new FileReader( infoFile ) ) { this.setupInfoWith( in ); }
 			catch( IOException e ) {
-				this.printError( this.sourceName() + "/" + this.infoFile(), e );
+				this.except( e, ERROR_LOADING_INFO, this.sourceName() + "/" + this.infoFile() );
 			}
 		}
 		
@@ -41,7 +41,6 @@ public class FolderPack extends AbstractLocalPack
 	{
 		for( final File file : dir.listFiles() )
 		{
-			// Make sure all files are touched
 			final String fName = file.getName();
 			if( file.isDirectory() )
 			{
@@ -53,8 +52,8 @@ public class FolderPack extends AbstractLocalPack
 				+ "/" + parentPath.get() + "/" + fName;
 			try
 			{
-				// Load ".json" type file
-				if( fName.endsWith( ".json") )
+				if( fName.endsWith( ".json" ) )
+				{
 					try( FileReader in = new FileReader( file ) )
 					{
 						this.loadJsonType(
@@ -64,12 +63,11 @@ public class FolderPack extends AbstractLocalPack
 							sourceTrace
 						);
 					}
-				
-				// Load ".class" type file
+				}
 				else if( fName.endsWith( ".class" ) )
 					this.loadClassType( parentPath.get().replace( '/', '.' ) + "." + fName );
 			}
-			catch( Exception e ) { this.printError( sourceTrace.get(), e ); }
+			catch( Exception e ) { this.except( e, ERROR_LOADING_TYPE, sourceTrace.get() ); }
 		}
 	}
 }

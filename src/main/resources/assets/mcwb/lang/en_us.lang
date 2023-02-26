@@ -32,12 +32,11 @@ mcwb.can_not_find_update_group=Can not find key update group <%2$s> required by 
 mcwb.pack_dir_created=Content pack folder <%s> has been created for you. Go find some content packs that support MCWB and drop them into this folder!
 mcwb.unknown_pack_file_type=Can not load content pack <%s>. MCWB only support content packs of these three type: { <folder>, <.jar>, <.zip> }.
 mcwb.detect_content_pack=Find content pack <%s>
-mcwb.error_adding_classpath=Failed to register class path for <%s>. Contents in this pack could be broken.
+#mcwb.error_adding_classpath=Failed to register class path for <%s>. Contents in this pack could be broken.
 mcwb.load_content_pack=Loading content pack <%s>...
-mcwb.io_error=Unexpected IO error from source <%s>
+mcwb.error_loading_pack_info=An error has occurred while attempting to load pack info file <%s>
 mcwb.type_loader_not_found=Can not find type loader <%2$s> required by <%1$s>
-mcwb.unexpected_load_error=An unexpected error has occurred when handling <%s>
-mcwb.error_parsing_type=An error has occurred while trying to parse <%s>
+mcwb.mcwb.error_loading_type=An error has occurred while attempting to load <%s>
 mcwb.duplicate_meta_regis=Duplicate meta registration <%s> : <%s>
 mcwb.fail_to_find_tab=Can not find creative tab <%2$s> required by <%1$s>
 mcwb.fail_to_find_indicator=Can not find modify indicator <%2$s> required by <%1$s>
@@ -68,7 +67,7 @@ mcwb.exception_call_model_load=An exception was thrown from the model load metho
 
 # Content pack
 mcwb.core_pack=MCWB Core Content Pack
-mcwb.core_author=Giant_Salted_Fish
+mcwb.author=Giant_Salted_Fish
 mcwb.author_missing=Unknown author
 mcwb.description_missing=Description missing
 

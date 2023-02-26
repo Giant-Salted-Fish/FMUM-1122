@@ -12,6 +12,12 @@ import net.minecraftforge.fml.client.config.GuiConfig;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * Reference: <a href="https://harbinger.covertdragon.team/chapter-26/config-gui.html">
+ *     https://harbinger.covertdragon.team/chapter-26/config-gui.html </a>
+ * 
+ * @author Giant_Salted_Fish
+ */
 @SideOnly( Side.CLIENT )
 public final class ConfigGuiFactory implements IModGuiFactory
 {

@@ -2,7 +2,9 @@ package com.mcwb.common.player;
 
 import javax.annotation.Nullable;
 
+import com.mcwb.common.MCWB;
 import com.mcwb.common.item.IItem;
+import com.mcwb.common.item.IItem.IUseContext;
 import com.mcwb.common.item.IItemType;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.operation.IOperation;
@@ -16,10 +18,15 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
+/**
+ * Additional patch that added to the player to do extra logic required by {@link MCWB}
+ * 
+ * @author Giant_Salted_Fish
+ */
 public class PlayerPatch implements ICapabilityProvider
 {
 	@CapabilityInject( PlayerPatch.class )
-	public static final Capability< PlayerPatch > CAPABILITY = null;
+	private static final Capability< PlayerPatch > CAPABILITY = null;
 	
 	/**
 	 * Host player of this patch
@@ -27,20 +34,22 @@ public class PlayerPatch implements ICapabilityProvider
 	protected final EntityPlayer player;
 	
 	/**
-	 * Current operation that is executing
+	 * Operation that is currently executing. {@link IOperation#NONE} if is idle.
 	 */
-	protected IOperation operating = IOperation.NONE;
+	protected IOperation executing = IOperation.NONE;
 	
-	/// Stuffs for main hand item ///
+	/// *** Stuffs for main hand item *** ///
 	protected ItemStack mainStack = ItemStack.EMPTY;
 	protected IItemType mainType = IItemType.VANILLA;
 	protected IItem mainItem = IItem.EMPTY;
-	protected int invSlot = -1; // TODO: better initialize?
+	protected int invSlot = -1; // TODO: better initialization?
+	protected IUseContext mainUseContext = IItem.USE_CONTEXT;
 	
-	/// Stuffs for off-hand item ///
+	/// *** Stuffs for off-hand item *** ///
 	protected ItemStack offStack = ItemStack.EMPTY;
 	protected IItemType offType = IItemType.VANILLA;
 	protected IItem offItem = IItem.EMPTY;
+	protected IUseContext offUseContext = IItem.USE_CONTEXT;
 	
 	public PlayerPatch( EntityPlayer player ) { this.player = player; }
 	
@@ -48,93 +57,82 @@ public class PlayerPatch implements ICapabilityProvider
 	{
 		final InventoryPlayer inv = this.player.inventory;
 		
-		/// Main hand stuff ///
+		/// *** Main hand stuff *** ///
 		{
 			final ItemStack stack = inv.getCurrentItem();
-			final IItemType type = IItemTypeHost.getType( stack );
+			final IItemType type = IItemTypeHost.getTypeOrDefault( stack );
 			final IItem item = type.getContexted( stack );
 			
-			// Check selected slot switch
-			if( inv.currentItem != this.invSlot )
+			/// Check and fire callback for each condition
+			if( inv.currentItem != this.invSlot || type != this.mainType )
 			{
-				// Fire events for inventory slot change
-//				this.prevMainItem.onPutAway( item, this.player );
-				this.operating = this.operating
-					.onInvSlotChange( item, inv.currentItem, this.invSlot );
-				item.onTakeOut( this.mainItem, this.player, EnumHand.MAIN_HAND );
-			}
-			else if( type != this.mainType )
-			{
-				// Swap hand will be handled separately hence can only be something like set in \
-				// inventory. In this case, put away is not necessary.
-				// TODO: swap hand is only handled in client side so check if it is valid on server side
-//				this.prevMainItem.onPutAway( item, this.player, EnumHand.MAIN_HAND );
-				
-				this.operating = this.operating.onHoldingTypeChange( item );
-				item.onTakeOut( this.mainItem, this.player, EnumHand.MAIN_HAND );
+				this.executing = this.executing.onInHandItemChange( item );
+				this.mainUseContext = item.onTakeOut(
+					this.mainItem, this.player, EnumHand.MAIN_HAND
+				);
 			}
 			else if( stack != this.mainStack )
 			{
-				// Actually still can be switching to another item but we literally has no way to \
-				// distinguish those cases with simple NBT update.
-				this.operating = this.operating.onHoldingStackChange( item );
+				// Actually still can be changing to another item but we literally has no way to \
+				// distinguish those cases with the NBT update.
+				this.executing = this.executing.onInHandStackChange( item );
+				this.mainUseContext = item.onInHandStackChanged(
+					this.mainItem, this.player, EnumHand.MAIN_HAND
+				);
 			}
 			
-			// For convenience, update all previous variables here. Notice that context is special \
-			// as it could change even if all three conditional branch all miss.
+			item.tickInHand( this.player, EnumHand.MAIN_HAND );
 			this.mainStack = stack;
 			this.mainType = type;
-			this.mainItem = item; // Special
+			this.mainItem = item; // Should always be updated. See {@link IItem}
 			this.invSlot = inv.currentItem;
 		}
 		
-		/// Off-hand stuff ///
+		/// *** Off-hand stuff *** ///
 		{
 			final ItemStack stack = inv.offHandInventory.get( 0 );
-			final IItemType type = IItemTypeHost.getType( stack );
+			final IItemType type = IItemTypeHost.getTypeOrDefault( stack );
 			final IItem item = type.getContexted( stack );
 			
 			if( type != this.offType )
-				item.onTakeOut( this.offItem, this.player, EnumHand.OFF_HAND );
-//			else if( offStack != this.prevOffStack ) // TODO: maybe call stack change for off-hand item
+				this.offUseContext = item.onTakeOut( this.offItem, this.player, EnumHand.OFF_HAND );
+			else if( stack != this.offStack )
+			{
+				this.offUseContext = item.onInHandStackChanged(
+					this.offItem, this.player, EnumHand.OFF_HAND
+				);
+			}
 			
+			this.offItem.tickInHand( this.player, EnumHand.OFF_HAND );
 			this.offStack = stack;
-			this.offItem = item;
 			this.offType = type;
+			this.offItem = item; // Always. See main hand part.
 		}
 		
-		// Tick current operating
-		this.operating = this.operating.tick();
+		// Tick operation executing
+		this.executing = this.executing.tick();
 	}
+	
+	public final IUseContext getUseContext( EnumHand hand ) {
+		return hand == EnumHand.MAIN_HAND ? this.mainUseContext : this.offUseContext;
+	}
+	
+	public final IOperation executing() { return this.executing; }
+	
+	public final IOperation tryLaunch( IOperation op ) {
+		return this.executing = this.executing.onOtherTryLaunch( op );
+	}
+	
+	public final IOperation ternimateExecuting() {
+		return this.executing = this.executing.terminate();
+	}
+	
+	public final IOperation toggleExecuting() { return this.executing = this.executing.toggle(); }
 	
 	public void trySwapHand()
 	{
-		if( !this.player.isSpectator() && this.mainItem.onSwapHand( this.player ) )
-			this.doSwapHand();
-	}
-	
-	public IOperation operating() { return this.operating; }
-	
-	public IOperation tryLaunch( IOperation op ) {
-		return this.operating = this.operating.onOtherTryLaunch( op );
-	}
-	
-	public IOperation ternimateOperating() { return this.operating = this.operating.terminate(); }
-	
-	public IOperation toggleOperating() { return this.operating = this.operating.toggle(); }
-	
-	@Override
-	public boolean hasCapability( Capability< ? > capability, @Nullable EnumFacing facing ) {
-		return capability == CAPABILITY;
-	}
-	
-	@Override
-	public < T > T getCapability( Capability< T > capability, @Nullable EnumFacing facing ) {
-		return CAPABILITY.cast( this );
-	}
-	
-	protected void doSwapHand()
-	{
+		if( this.player.isSpectator() || this.mainItem.onSwapHand( this.player ) ) return;
+		
 		final InventoryPlayer inv = this.player.inventory;
 		inv.setInventorySlotContents( this.invSlot, this.offStack );
 		inv.offHandInventory.set( 0, this.mainStack );
@@ -151,7 +149,17 @@ public class PlayerPatch implements ICapabilityProvider
 		this.mainType = mtype;
 		this.mainItem = mitem;
 		
-		this.operating = this.operating.onSwapHand( mitem );
+		this.executing = this.executing.onSwapHand( mitem );
+	}
+	
+	@Override
+	public final boolean hasCapability( Capability<?> capability, @Nullable EnumFacing facing ) {
+		return capability == CAPABILITY;
+	}
+	
+	@Override
+	public final < T > T getCapability( Capability< T > capability, @Nullable EnumFacing facing ) {
+		return CAPABILITY.cast( this );
 	}
 	
 	public static PlayerPatch get( EntityPlayer player ) {

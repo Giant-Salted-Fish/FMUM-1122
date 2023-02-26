@@ -24,6 +24,7 @@ public final class PacketConfigSync implements IPacket
 	@Override
 	public void fromBytes( ByteBuf buf )
 	{
+		// TODO: also server side?
 		MCWBClient.modifyLoc = new byte[ 2 * ( 0xFF & buf.readByte() ) ];
 		MCWB.maxSlotCapacity = 0xFF & buf.readByte();
 		

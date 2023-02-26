@@ -16,14 +16,35 @@ public interface IItemTypeHost extends IMetaHost
 	@Override
 	public IItemType meta();
 	
-	/***
-	 * @return {@link IItemType#VANILLA} if stack is empty
+	/**
+	 * @see #getTypeOrDefault(ItemStack)
+	 * @param stack Must be an non-empty stack and its item must be a valid type item
 	 */
-	public static IItemType getType( ItemStack stack )
-	{
-		final Item item = stack.getItem();
-		final boolean isHost = item instanceof IItemTypeHost;
-		return isHost && !stack.isEmpty() ? ( ( IItemTypeHost ) item ).meta() : IItemType.VANILLA;
+	public static IItemType getTypeA( ItemStack stack ) { return getType( stack.getItem() ); }
+	
+	/**
+	 * Use {@link #getTypeA(ItemStack)} instead if you can guarantee that the stack is not empty and
+	 * its item is a valid type item
+	 * 
+	 * @return {@link IItemType#VANILLA} if stack is empty or is not a valid type item
+	 */
+	public static IItemType getTypeOrDefault( ItemStack stack ) {
+		return stack.isEmpty() ? IItemType.VANILLA : getTypeOrDefault( stack.getItem() );
+	}
+	
+	/**
+	 * @see #getTypeOrDefault(Item)
+	 * @param item Must be a valid type item
+	 */
+	public static IItemType getType( Item item ) { return ( ( IItemTypeHost ) item ).meta(); }
+	
+	/**
+	 * Use {@link #getType(Item)} instead if you can guarantee the item is valid type item
+	 * 
+	 * @return {@link IItemType#VANILLA} if the item is not a valid type item
+	 */
+	public static IItemType getTypeOrDefault( Item item ) {
+		return item instanceof IItemTypeHost ? getType( item ) : IItemType.VANILLA;
 	}
 	
 	/**
@@ -40,7 +61,7 @@ public interface IItemTypeHost extends IMetaHost
 		for( int i = 0, size = inv.getSizeInventory(); i < size; ++i )
 		{
 			final ItemStack stack = inv.getStackInSlot( i );
-			final T ret = visitor.apply( getType( stack ), stack );
+			final T ret = visitor.apply( getTypeA( stack ), stack );
 			if( ret != null ) return ret;
 		}
 		return null;

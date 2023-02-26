@@ -1,15 +1,15 @@
-	package com.mcwb.common.item;
+package com.mcwb.common.item;
 
 import javax.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.item.IItemRenderer;
 import com.mcwb.common.MCWB;
-import com.mcwb.common.load.IRequirePostLoad;
+import com.mcwb.common.load.IContentProvider;
+import com.mcwb.common.load.IPostLoadSubscriber;
 import com.mcwb.common.load.RenderableMeta;
 import com.mcwb.common.meta.IContexted;
 import com.mcwb.common.meta.IMeta;
-import com.mcwb.common.pack.IContentProvider;
 import com.mcwb.common.tab.ICreativeTab;
 
 import net.minecraft.entity.Entity;
@@ -20,35 +20,33 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
-public abstract class ItemType< C extends IItem, M extends IItemRenderer< ? super C > >
-	extends RenderableMeta< M > implements IItemType, IRequirePostLoad
+public abstract class ItemType< C extends IItem, R extends IItemRenderer< ? super C > >
+	extends RenderableMeta< R > implements IItemType, IPostLoadSubscriber
 {
 	protected transient Item item;
 	
 	protected String description = "mcwb.description.missing";
 	
-	@SerializedName( value = "creativeTab", alternate = "tab" )
-	protected String creativeTab = MCWB.DEF_TAB.name();
+	@SerializedName( value = "creativeTab", alternate = "itemGroup" )
+	protected String creativeTab = MCWB.DEFAULT_TAB.name();
 	
 	@Override
 	public IMeta build( String name, IContentProvider provider )
 	{
 		super.build( name, provider );
 		
-		// Setup corresponding item
-		this.item = this.createItem();
-		
-		// Successfully setup the item, register itself
 		IItemType.REGISTRY.regis( this );
-		provider.regisPostLoad( this );
+		
+		this.item = this.createItem();
+		provider.regis( this );
 		return this;
 	}
 	
 	@Override
 	public void onPostLoad()
 	{
-		// Locate creative tab and set it for item here as the customized creative may not be \
-		// loaded right after the parse of the type item
+		// We can not guarantee that creative tabs are loaded before the items. Hence locate its \
+		// creative tab on post load.
 		this.setupCreativeTab();
 	}
 	
@@ -65,14 +63,10 @@ public abstract class ItemType< C extends IItem, M extends IItemRenderer< ? supe
 	
 	protected void setupCreativeTab()
 	{
-		// Try to locate required creative tab
-		final ICreativeTab tab = ICreativeTab.REGISTRY.getOrElse(
-			this.creativeTab,
-			() -> {
-				this.error( "mcwb.fail_to_find_tab", this, this.creativeTab );
-				return MCWB.DEF_TAB;
-			}
-		);
+		final ICreativeTab tab = ICreativeTab.REGISTRY.getOrElse( this.creativeTab, () -> {
+			this.error( "mcwb.fail_to_find_tab", this, this.creativeTab );
+			return MCWB.DEFAULT_TAB;
+		} );
 		this.item.setCreativeTab( tab.creativeTab() );
 		tab.itemSettledIn( this );
 		
@@ -84,7 +78,6 @@ public abstract class ItemType< C extends IItem, M extends IItemRenderer< ? supe
 	{
 		protected VanillaItem( int maxStackSize, int maxDamage )
 		{
-			// Setup basic info for this item
 			this.setRegistryName( ItemType.this.name );
 			this.setTranslationKey( ItemType.this.name );
 			this.setMaxStackSize( maxStackSize );

@@ -7,6 +7,11 @@ import net.minecraftforge.common.config.Config.RangeDouble;
 import net.minecraftforge.common.config.Config.RangeInt;
 import net.minecraftforge.common.config.Config.RequiresWorldRestart;
 
+/**
+ * Configurations that will be loaded on both side
+ * 
+ * @author Giant_Salted_Fish
+ */
 @LangKey( "mcwb.config.common" )
 @Config( modid = MCWB.ID, category = "common" )
 public final class ModConfig

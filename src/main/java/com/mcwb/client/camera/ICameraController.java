@@ -27,6 +27,4 @@ public interface ICameraController
 	public void getCameraRot( Vec3f dst );
 	
 	public void getPlayerRot( Vec3f dst );
-	
-//	public void applyRot( float yaw, float pitch );
 }

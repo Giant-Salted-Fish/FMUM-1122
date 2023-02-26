@@ -25,6 +25,11 @@ import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * Can only have one instance at one time for client player
+ * 
+ * @author Giant_Salted_Fish
+ */
 @SideOnly( Side.CLIENT )
 public final class PlayerPatchClient extends PlayerPatch implements IAutowirePacketHandler
 {
@@ -54,10 +59,7 @@ public final class PlayerPatchClient extends PlayerPatch implements IAutowirePac
 		playerAcceleration = new Vec3f(),
 		prevPlayerAcceleration = new Vec3f();
 	
-	// TODO: this part is a bit ugly
-	public final Vec3f camRot = new Vec3f();
-	
-	// TODO: maybe wrap this
+	// TODO: maybe wrapper this
 	public ICameraController cameraController = CameraAnimator.INSTANCE;
 	
 	/**
@@ -73,7 +75,8 @@ public final class PlayerPatchClient extends PlayerPatch implements IAutowirePac
 		{
 			super.mouseXYChange();
 			
-			// Call render tick for camera controller and item
+			// This method is called right before the render and player rotation is also updated. \
+			// Hence is the proper place to fire prepare render callback.
 			final PlayerPatchClient patch = PlayerPatchClient.this;
 			patch.cameraController.prepareRender( this );
 			patch.mainItem.prepareRenderInHand( EnumHand.MAIN_HAND );
@@ -148,10 +151,13 @@ public final class PlayerPatchClient extends PlayerPatch implements IAutowirePac
 		) return true;
 		
 		// Otherwise, setup orientation for vanilla item rendering
-		GL11.glRotatef( this.camRot.z, 0F, 0F, 1F );
-		GL11.glRotatef( this.camRot.x, 1F, 0F, 0F );
-		GL11.glRotatef( this.camRot.y - this.player.rotationYaw, 0F, 1F, 0F );
+		final Vec3f cameraRot = Vec3f.locate();
+		this.cameraController.getCameraRot( cameraRot );
+		GL11.glRotatef( cameraRot.z, 0F, 0F, 1F );
+		GL11.glRotatef( cameraRot.x, 1F, 0F, 0F );
+		GL11.glRotatef( cameraRot.y - this.player.rotationYaw, 0F, 1F, 0F );
 		GL11.glRotatef( -this.player.rotationPitch, 1F, 0F, 0F );
+		cameraRot.release();
 		return false;
 	}
 	
@@ -163,10 +169,12 @@ public final class PlayerPatchClient extends PlayerPatch implements IAutowirePac
 	
 	public void onCameraSetup( CameraSetup evt )
 	{
-		this.cameraController.getCameraRot( this.camRot );
-		evt.setYaw( 180F + this.camRot.y );
-		evt.setPitch( this.camRot.x );
-		evt.setRoll( this.camRot.z );
+		final Vec3f cameraRot = Vec3f.locate();
+		this.cameraController.getCameraRot( cameraRot );
+		evt.setYaw( 180F + cameraRot.y );
+		evt.setPitch( cameraRot.x );
+		evt.setRoll( cameraRot.z );
+		cameraRot.release();
 	}
 	
 	public boolean hideCrosshair() { return this.mainItem.hideCrosshair(); }
@@ -180,10 +188,9 @@ public final class PlayerPatchClient extends PlayerPatch implements IAutowirePac
 	public void onKeyRelease( IKeyBind key ) { this.mainItem.onKeyRelease( key ); }
 	
 	@Override
-	protected void doSwapHand()
+	public void trySwapHand()
 	{
-		super.doSwapHand();
-		
-		this.sendToServer( new PacketCode( Code.SWAP_HAND ) );
+		if( !this.player.isSpectator() && !this.mainItem.onSwapHand( this.player ) )
+			this.sendToServer( new PacketCode( Code.SWAP_HAND ) );
 	}
 }

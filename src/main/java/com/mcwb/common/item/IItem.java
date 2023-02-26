@@ -6,20 +6,26 @@ import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.meta.IContexted;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * {@link IItemType} with full context
+ * <p> Represents {@link IItemType} with context. </p>
  * 
+ * <p> WARNING: You should not assume that the contexted will stay the same if type does not change
+ * due to some special reason. Especially true for the modules. Hence re-fetch and update if the
+ * contexted you are using is buffered from somewhere before. </p>
+ * 
+ * @see IItemType
  * @author Giant_Salted_Fish
  */
 public interface IItem extends IContexted
 {
 	/**
-	 * This delegate will cancel render if is off-hand and empty stack
+	 * For empty stack. Cancel item render if is place in off-hand.
 	 */
 	public static final IItem EMPTY = new IItem()
 	{
@@ -34,11 +40,10 @@ public interface IItem extends IContexted
 		@Override
 		@SideOnly( Side.CLIENT )
 		public ResourceLocation texture() { return null; }
-		
 	};
 	
 	/**
-	 * This delegate makes sure that Vanilla items will be rendered in original ways
+	 * For vanilla item that is not empty. They will be rendered in original ways.
 	 */
 	public static final IItem VANILLA = new IItem()
 	{
@@ -56,23 +61,42 @@ public interface IItem extends IContexted
 	};
 	
 	/**
+	 * A default use context
+	 */
+	public static final IUseContext USE_CONTEXT = new IUseContext()
+	{
+		private final NBTTagCompound data = new NBTTagCompound();
+		
+		@Override
+		public NBTTagCompound data() { return this.data; }
+	};
+	
+	/**
+	 * Called when this item is holden in player's hand
+	 */
+	public default void tickInHand( EntityPlayer player, EnumHand hand ) { }
+	
+	/**
 	 * Called when player trying to switch to another main hand item
 	 */
 //	public default void onPutAway( IItem newItem, EntityPlayer player ) { }
 	
-	/**
-	 * Called when player is trying to take out this item
-	 * 
-	 * TODO: refactor this part maybe?
-	 */
-	public default void onTakeOut( IItem oldItem, EntityPlayer player, EnumHand hand ) { }
+	public default IUseContext onTakeOut( IItem oldItem, EntityPlayer player, EnumHand hand ) {
+		return USE_CONTEXT;
+	}
+	
+	public default IUseContext onInHandStackChanged(
+		IItem oldItem,
+		EntityPlayer player,
+		EnumHand hand
+	) { return USE_CONTEXT; }
 	
 	/**
 	 * Called when player is trying swap this main hand item to off-hand
 	 * 
-	 * @return {@code true} to accept this swap
+	 * @return {@code true} to prevent this swap
 	 */
-	public default boolean onSwapHand( EntityPlayer player ) { return true; }
+	public default boolean onSwapHand( EntityPlayer player ) { return false; }
 	
 	/**
 	 * <p> It is not the appropriate time to render your models. Instead it gives you a chance to
@@ -103,7 +127,9 @@ public interface IItem extends IContexted
 	/**
 	 * This method is called when a key bind is triggered(pressed) when holding this item
 	 * 
-	 * @param key Key bind being triggered. You can switch its name via {@link Key}.
+	 * @param key
+	 *     Key bind being triggered. You can switch via its name with constants provided in
+	 *     {@link Key}.
 	 */
 	@SideOnly( Side.CLIENT )
 	public default void onKeyPress( IKeyBind key ) { }
@@ -121,5 +147,13 @@ public interface IItem extends IContexted
 	public default boolean hideCrosshair() { return false; }
 	
 	@SideOnly( Side.CLIENT )
-	public ResourceLocation texture();
+	public ResourceLocation texture(); // TODO: check if this is used
+	
+	/**
+	 * TODO: proper intro
+	 * 
+	 * @author Giant_Salted_Fish
+	 */
+	@FunctionalInterface
+	public static interface IUseContext { public NBTTagCompound data(); }
 }

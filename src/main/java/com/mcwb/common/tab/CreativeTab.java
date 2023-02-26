@@ -1,12 +1,10 @@
 package com.mcwb.common.tab;
 
-import com.mcwb.common.MCWB;
 import com.mcwb.common.item.IItemType;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.TexturedMeta;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.meta.IMetaHost;
-import com.mcwb.common.pack.IContentProvider;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
@@ -16,6 +14,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * Default implementation of {@link ICreativeTab}
+ * 
+ * @author Giant_Salted_Fish
+ */
 public class CreativeTab extends TexturedMeta implements ICreativeTab
 {
 	public static final BuildableLoader< IMeta >
@@ -24,9 +27,7 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 	protected transient CreativeTabs tab;
 	
 	@SideOnly( Side.CLIENT )
-	protected String iconItem; {
-		if( MCWB.MOD.isClient() ) this.iconItem = "" + Items.FISH.getRegistryName();
-	}
+	protected String iconItem;
 	
 	@SideOnly( Side.CLIENT )
 	protected short iconItemDam;
@@ -38,27 +39,28 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 	protected boolean noTitle;
 	
 	@Override
-	public CreativeTab build( String name, IContentProvider provider )
+	public CreativeTab build( String name, com.mcwb.common.load.IContentProvider provider )
 	{
 		super.build( name, provider );
 		
 		ICreativeTab.REGISTRY.regis( this );
 		
 		this.tab = this.createTab();
-		if( MCWB.MOD.isClient() )
-		{
+		provider.clientOnly( () -> {
+			if( this.iconItem == null )
+				this.iconItem = "" + Items.FISH.getRegistryName();
 			if( this.noScrollBar )
 				this.tab.setNoScrollbar();
 			if( this.noTitle )
 				this.tab.setNoTitle();
-		}
+		} );
 		return this;
 	}
 	
 	@Override
 	public CreativeTabs creativeTab() { return this.tab; }
 	
-	protected CreativeTabs createTab() { return this.new VanillaCreativeTab( this.name ); }
+	protected CreativeTabs createTab() { return this.new VanillaCreativeTab(); }
 	
 	@Override
 	@SideOnly( Side.CLIENT )
@@ -74,10 +76,10 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 	
 	protected class VanillaCreativeTab extends CreativeTabs implements IMetaHost
 	{
-		public VanillaCreativeTab( String label ) { super( label ); }
+		protected VanillaCreativeTab() { super( CreativeTab.this.name ); }
 		
 		@Override
-		public ICreativeTab meta() { return CreativeTab.this; }
+		public IMeta meta() { return CreativeTab.this; }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -86,8 +88,8 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 			final String icon = CreativeTab.this.iconItem;
 			
 			// Check if required item is defined in MCWB
-			final IItemType meta = IItemType.REGISTRY.get( icon );
-			final Item item = meta != null ? meta.item() : Item.getByNameOrId( icon );
+			final IItemType type = IItemType.REGISTRY.get( icon );
+			final Item item = type != null ? type.item() : Item.getByNameOrId( icon );
 			if( item != null )
 				return new ItemStack( item, 1, CreativeTab.this.iconItemDam );
 			
@@ -96,7 +98,7 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 				this.getTabLabel(),
 				CreativeTab.this.iconItemDam
 			);
-			return new ItemStack( Items.FISH );
+			return new ItemStack( Items.FISH ); // Fallback to fish!
 		}
 		
 		@Override

@@ -1,8 +1,12 @@
 package com.mcwb.client.input;
 
+import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
-import com.mcwb.common.pack.IContentProvider;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
+@SideOnly( Side.CLIENT )
 public class ExternalKeyBind extends KeyBind
 {
 	protected String updateGroup = "default";
