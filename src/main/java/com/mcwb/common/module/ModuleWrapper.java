@@ -56,11 +56,14 @@ public abstract class ModuleWrapper<
 	@Override
 	public IModular< ? > primary() { return this.primary; }
 	
+	/**
+	 * Get base on primary to actually get wrapper
+	 */
 	@Override
-	public IModular< ? > base() { return null; } // Null indicating that it is a wrapper
+	public IModular< ? > base() { throw new RuntimeException( "Try to get base from wrapper" ); }
 	
 	/**
-	 * Set base is not useful for wrapper so we use it to help reset primary
+	 * Set base is meaningless for wrapper so we use it to help reset primary
 	 */
 	@Override
 	@SuppressWarnings( "unchecked" )
@@ -96,6 +99,7 @@ public abstract class ModuleWrapper<
 		return this.primary.onModuleRemove( base, slot, idx );
 	}
 	
+	// TODO: validate if these methods are actually called
 	@Override
 	public void install( int slot, IModular< ? > module ) { this.primary.install( slot, module ); }
 	
@@ -160,7 +164,7 @@ public abstract class ModuleWrapper<
 		Collection< IDeferredRenderer > renderQueue0,
 		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
-	) { this.primary.prepareInHandRender( renderQueue0, renderQueue1, animator ); }
+	) { throw new RuntimeException( "Try to call prepare in hand render on wrapper" ); }
 	
 	@Override
 	@SideOnly( Side.CLIENT )
@@ -168,7 +172,7 @@ public abstract class ModuleWrapper<
 		Collection< IDeferredRenderer > renderQueue0,
 		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
-	) { this.primary.prepareRender( renderQueue0, renderQueue1, animator ); }
+	) { throw new RuntimeException( "Try to call prepare render on wrapper" ); }
 	
 	@Override
 	public NBTTagCompound serializeNBT() { return this.primary.serializeNBT(); }

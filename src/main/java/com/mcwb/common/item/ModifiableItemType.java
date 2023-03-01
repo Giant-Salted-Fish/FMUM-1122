@@ -113,18 +113,17 @@ public abstract class ModifiableItemType<
 	@Override
 	protected Item createItem() { return this.new ModifiableVanillaItem( 1, 0 ); }
 	
-	// TODO: seal this
-	protected IModular< ? > fromTag( NBTTagCompound tag )
+	protected abstract ModifiableItemWrapper< ?, ? > newWrapper(
+		IModular< ? > primary,
+		ItemStack stack
+	);
+	
+	protected final IModular< ? > fromTag( NBTTagCompound tag )
 	{
 		final Item item = Item.getItemById( IModular.getId( tag ) );
 		final IModularType type = ( IModularType ) IItemTypeHost.getType( item );
 		return type.deserializeContexted( tag );
 	}
-	
-	protected abstract ModifiableItemWrapper< ?, ? > newWrapper(
-		IModular< ? > primary,
-		ItemStack stack
-	);
 	
 	protected class ModifiableVanillaItem extends VanillaItem
 	{
@@ -158,11 +157,11 @@ public abstract class ModifiableItemType<
 				// Has to copy before use if is first case as the capability tag provided here \
 				// could be the same as the bounden tag of copy target.
 				final IModular< ? > primary = $this.fromTag( stack == null ? nbt.copy() : nbt );
+				final ICapabilityProvider wrapper = $this.newWrapper( primary, stack );
 				primary.updateState();
-				
+				return wrapper;
 				// #syncNBTData() not called as it is possible that the stack tag has not been set \
 				// yet. This would not cause problem because the stack tag also has the same data.
-				return $this.newWrapper( primary, stack );
 			}
 			
 			// has-stackTag | no--capTag: should never happen
@@ -180,9 +179,8 @@ public abstract class ModifiableItemType<
 			
 			final NBTTagCompound primaryTag = $this.compiledSnapshotNBT.copy();
 			final IModular< ? > primary = $this.deserializeContexted( primaryTag );
-			primary.updateState();
-			
 			final ModifiableItemWrapper< ?, ? > wrapper = $this.newWrapper( primary, stack );
+			primary.updateState();
 			wrapper.syncNBTData();
 			return wrapper;
 		}
@@ -194,8 +192,10 @@ public abstract class ModifiableItemType<
 			
 			final NBTTagCompound primaryTag = nbt.getCompoundTag( "_" );
 			final IModular< ? > primary = ModifiableItemType.this.fromTag( primaryTag );
-			ModifiableItemType.this.getContexted( stack ).setBase( primary, 0 );
+			
 			// See ModuleWrapper#setBase(...)
+			ModifiableItemType.this.getContexted( stack ).setBase( primary, 0 );
+			primary.updateState();
 		}
 		
 		/**

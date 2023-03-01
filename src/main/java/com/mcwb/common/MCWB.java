@@ -192,6 +192,10 @@ public class MCWB extends URLClassLoader
 	{
 		this.info( "mcwb.on_init" );
 		
+		// Fire load callback
+		this.postLoadSubscribers.forEach( IPostLoadSubscriber::onPostLoad );
+		this.postLoadSubscribers.clear();
+		
 		NET.regisPackets();
 		
 		this.info( "mcwb.init_complete" );
@@ -211,10 +215,6 @@ public class MCWB extends URLClassLoader
 	public final void onPostInit( FMLPostInitializationEvent evt )
 	{
 		this.info( "mcwb.on_post_init" );
-		
-		// Fire load callback
-		this.postLoadSubscribers.forEach( IPostLoadSubscriber::onPostLoad );
-		this.postLoadSubscribers.clear();
 		
 		// may add possibility to register packets for packs?
 //		NET.postInit();

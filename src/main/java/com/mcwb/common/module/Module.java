@@ -76,6 +76,11 @@ public abstract class Module< T extends IModular< ? extends T > >
 	}
 	
 	@Override
+	public void doAndUpdate( Runnable action ) {
+		throw new RuntimeException( "Try to call do and update on non-wrapper module" );
+	}
+	
+	@Override
 	public void updateState()
 	{
 		// FIXME: Check if this works
@@ -251,15 +256,5 @@ public abstract class Module< T extends IModular< ? extends T > >
 		final int offset = ( islot % 4 ) * 8;
 		data[ i ] &= ~( 0xFF << offset );       // Clear value
 		data[ i ] |= ( 0xFF & val ) << offset;  // Set value
-	}
-	
-	protected static IModular< ? > getPrimary( IModular< ? > module )
-	{
-		for( IModular< ? > base = module.base(); base != null; )
-		{
-			module = base;
-			base = module.base();
-		}
-		return module;
 	}
 }

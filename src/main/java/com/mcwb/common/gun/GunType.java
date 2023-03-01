@@ -79,8 +79,9 @@ public abstract class GunType< C extends IGunPart< ? >, R extends IGunPartRender
 		}
 		
 		@Override
+		@SideOnly( Side.CLIENT )
 		public void setupRenderArm( ArmTracker leftArm, ArmTracker rightArm, IAnimator animator ) {
-			this.primary.setupRenderArm( leftArm, rightArm, animator );
+			throw new RuntimeException( "Try to call setup render arm on wrapper" );
 		}
 	}
 	

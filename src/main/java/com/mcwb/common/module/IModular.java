@@ -48,13 +48,14 @@ public interface IModular< T extends IModular< ? extends T > >
 	 */
 	public void forEach( Consumer< ? super T > visitor );
 	
-	public default void doAndUpdate( Runnable action ) {
-		throw new RuntimeException( "Try to call do and update on non-wrapper module" );
-	}
+	public void doAndUpdate( Runnable action );
 	
 	/**
-	 * Call on primary after a change of the module tree structure to trigger state update. It it
-	 * recommended to update your global matrix here if the slots' origin is fixed.
+	 * <p> Call on primary after a change of the module tree structure to trigger state update. It
+	 * it recommended to update your global matrix here. </p>
+	 * 
+	 * <p> WARNNING: The implementation of this method could rely on the wrapper hence make sure
+	 * the primary has valid context to call this method. </p>
 	 */
 	public void updateState();
 	

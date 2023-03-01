@@ -78,7 +78,6 @@ public abstract class GunPartType<
 			this.step = ( short ) step;
 			final int[] data = this.nbt.getIntArray( DATA_TAG );
 			data[ super.dataSize() ] = 0xFFFF & step | offset << 16;
-			this.updateState(); // Because position has changed
 		}
 		
 		@Override
@@ -130,13 +129,13 @@ public abstract class GunPartType<
 		@Override
 		@SideOnly( Side.CLIENT )
 		public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator ) {
-			this.primary.setupLeftArmToRender( leftArm, animator );
+			throw new RuntimeException( "Try to call setup left arm to render on wrapper" );
 		}
 		
 		@Override
 		@SideOnly( Side.CLIENT )
 		public void setupRightArmToRender( ArmTracker rightArm, IAnimator animator ) {
-			this.primary.setupRightArmToRender( rightArm, animator );
+			throw new RuntimeException( "Try to call setup right arm to render on wrapper" );
 		}
 	}
 	
