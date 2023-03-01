@@ -12,7 +12,6 @@ import com.mcwb.util.ArmTracker;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -80,7 +79,6 @@ public abstract class GunPartType<
 			final int[] data = this.nbt.getIntArray( DATA_TAG );
 			data[ super.dataSize() ] = 0xFFFF & step | offset << 16;
 			this.updateState(); // Because position has changed
-			this.syncNBTData();
 		}
 		
 		@Override
@@ -99,7 +97,7 @@ public abstract class GunPartType<
 		public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator )
 		{
 			GunPartType.this.renderer
-				.setupLeftArmToRender( leftArm, this.wrapperAnimator( animator ) );
+				.setupLeftArmToRender( leftArm, this.wrapAnimator( animator ) );
 		}
 		
 		@Override
@@ -107,7 +105,7 @@ public abstract class GunPartType<
 		public void setupRightArmToRender( ArmTracker rightArm, IAnimator animator )
 		{
 			GunPartType.this.renderer
-				.setupRightArmToRender( rightArm, this.wrapperAnimator( animator ) );
+				.setupRightArmToRender( rightArm, this.wrapAnimator( animator ) );
 		}
 		
 		@Override
@@ -119,8 +117,8 @@ public abstract class GunPartType<
 		T extends IGunPart< ? extends M >
 	> extends ModifiableItemWrapper< M, T > implements IGunPart< M >
 	{
-		protected GunPartWrapper( NBTTagCompound primaryTag, ItemStack stack ) {
-			super( primaryTag, stack );
+		protected GunPartWrapper( IModular< ? > primary, ItemStack stack ) {
+			super( primary, stack );
 		}
 		
 		@Override
@@ -146,7 +144,7 @@ public abstract class GunPartType<
 		extends GunPartType< IGunPart< ? >, IGunPartRenderer< ? super IGunPart< ? > > >
 	{
 		@Override
-		public IModular< ? > newContexted() { return this.new GunPart<>(); }
+		public IModular< ? > newPreparedContexted() { return this.new GunPart<>(); }
 		
 		@Override
 		public IModular< ? > deserializeContexted( NBTTagCompound nbt ) {
@@ -154,8 +152,8 @@ public abstract class GunPartType<
 		}
 		
 		@Override
-		protected ICapabilityProvider newWrapper( NBTTagCompound primaryTag, ItemStack stack ) {
-			return new GunPartWrapper<>( primaryTag, stack );
+		protected GunPartWrapper< ?, ? > newWrapper( IModular< ? > primary, ItemStack stack ) {
+			return new GunPartWrapper<>( primary, stack );
 		}
 	}
 }

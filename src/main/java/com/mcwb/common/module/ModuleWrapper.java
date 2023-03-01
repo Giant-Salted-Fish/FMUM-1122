@@ -32,10 +32,9 @@ public abstract class ModuleWrapper<
 	T extends IModular< ? extends M > & IPaintable
 > implements IModular< M >, IPaintable, ICapabilityProvider
 {
-	/**
-	 * Do not forget to initialize this
-	 */
 	protected T primary;
+	
+	protected ModuleWrapper( IModular< ? > primary ) { this.setBase( primary, 0 ); }
 	
 	@Override
 	public boolean hasCapability( Capability< ? > capability, @Nullable EnumFacing facing ) {
@@ -60,20 +59,41 @@ public abstract class ModuleWrapper<
 	@Override
 	public IModular< ? > base() { return null; } // Null indicating that it is a wrapper
 	
+	/**
+	 * Set base is not useful for wrapper so we use it to help reset primary
+	 */
 	@Override
-	public void setBase( IModular< ? > base, int baseSlot ) {
-		throw new RuntimeException( "Try to call set base on wrapper" );
+	@SuppressWarnings( "unchecked" )
+	public void setBase( IModular< ? > primary, int unused )
+	{
+		this.primary = ( T ) primary;
+		primary.setBase( this, 0 );
 	}
 	
 	@Override
 	public void forEach( Consumer< ? super M > visitor ) { this.primary.forEach( visitor ); }
 	
-	public void tryInstallTo( IModular< ? > base, int slot ) {
-		this.primary.tryInstallTo( base, slot );
+	@Override
+	public void doAndUpdate( Runnable action )
+	{
+		action.run();
+		this.primary.updateState();
+		this.syncNBTData();
 	}
 	
-	public IModular< ? > removeFromBase( int slot, int idx ) {
-		throw new RuntimeException( "Try to call remove from on wrapper" );
+	@Override
+	public void updateState() {
+		throw new RuntimeException( "Try to call update state on wrapper" );
+	}
+	
+	@Override
+	public IModuleModifier onModuleInstall( IModular< ? > base, int slot, IModular< ? > module ) {
+		return this.primary.onModuleInstall( base, slot, module );
+	}
+	
+	@Override
+	public IModuleModifier onModuleRemove( IModular< ? > base, int slot, int idx ) {
+		return this.primary.onModuleRemove( base, slot, idx );
 	}
 	
 	@Override
@@ -151,13 +171,12 @@ public abstract class ModuleWrapper<
 	) { this.primary.prepareRender( renderQueue0, renderQueue1, animator ); }
 	
 	@Override
-	public void updateState() {
-		throw new RuntimeException( "Try to call update state on wrapper" );
+	public NBTTagCompound serializeNBT() { return this.primary.serializeNBT(); }
+	
+	@Override
+	public void deserializeNBT( NBTTagCompound nbt ) {
+		throw new RuntimeException( "Try to call deserialize NBT on wrapper" );
 	}
 	
-	@Override
-	public abstract void syncNBTData();
-	
-	@Override
-	public NBTTagCompound serializeNBT() { return this.primary.serializeNBT(); }
+	protected abstract void syncNBTData();
 }

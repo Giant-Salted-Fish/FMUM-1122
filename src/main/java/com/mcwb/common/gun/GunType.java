@@ -9,7 +9,6 @@ import com.mcwb.util.ArmTracker;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -75,8 +74,8 @@ public abstract class GunType< C extends IGunPart< ? >, R extends IGunPartRender
 		T extends IGun< ? extends M >
 	> extends GunPartWrapper< M, T > implements IGun< M >
 	{
-		protected GunWrapper( NBTTagCompound primaryTag, ItemStack stack ) {
-			super( primaryTag, stack );
+		protected GunWrapper( IModular< ? > primary, ItemStack stack ) {
+			super( primary, stack );
 		}
 		
 		@Override
@@ -88,7 +87,7 @@ public abstract class GunType< C extends IGunPart< ? >, R extends IGunPartRender
 	public static class GunJson extends GunType< IGun< ? >, IGunPartRenderer< ? super IGun< ? > > >
 	{
 		@Override
-		public IModular< ? > newContexted() { return this.new Gun<>(); }
+		public IModular< ? > newPreparedContexted() { return this.new Gun<>(); }
 		
 		@Override
 		public IModular< ? > deserializeContexted( NBTTagCompound nbt ) {
@@ -96,8 +95,8 @@ public abstract class GunType< C extends IGunPart< ? >, R extends IGunPartRender
 		}
 		
 		@Override
-		protected ICapabilityProvider newWrapper( NBTTagCompound primaryTag, ItemStack stack ) {
-			return new GunWrapper<>( primaryTag, stack );
+		protected GunWrapper< ?, ? > newWrapper( IModular< ? > primary, ItemStack stack ) {
+			return new GunWrapper<>( primary, stack );
 		}
 	}
 }

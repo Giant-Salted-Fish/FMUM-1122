@@ -76,46 +76,37 @@ public abstract class Module< T extends IModular< ? extends T > >
 	}
 	
 	@Override
-	public void tryInstallTo( IModular< ? > base, int slot )
+	public void updateState()
 	{
-		// TODO: deserialize modified tag to change state before actually installing something
+		// FIXME: Check if this works
+		this.mat.setIdentity();
+		this.base.applyTransform( this.baseSlot, this, this.mat );
 		
-		base.install( slot, this );
+		this.installed.forEach( T::updateState );
 	}
 	
 	@Override
-	@SuppressWarnings( "unchecked" )
-	public IModifyPredicate tryInstall( int slot, IModular< ? > module )
+	public IModuleModifier onModuleInstall( IModular< ? > base, int slot, IModular< ? > module )
 	{
-		// TODO: test capacity and whitelist
-		
-		return module.onBeingInstalled( this, slot, () -> {
-			final T mod = ( T ) module;
-			mod.setBase( this, slot );
-			
-			// Update installed list
-			final int idx = this.getIdx( slot + 1 );
-			this.installed.add( idx, mod );
-			
-			// Update NBT tag
-			final NBTTagList modList = this.nbt.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
-			final NBTTagCompound tarTag = mod.serializeNBT();
-			modList.appendTag( tarTag );
-			for( int i = modList.tagCount(); --i > idx; modList.set( i, modList.get( i - 1 ) ) );
-			modList.set( idx, tarTag );
-			
-			// Update indices
-			final int[] data = this.nbt.getIntArray( DATA_TAG );
-			for( int islot = slot; islot++ < this.indices.length; )
-			{
-				final int val = 1 + this.getIdx( islot );
-				this.setIdx( islot, val );
-				this.setIdx( data, islot, val );
-			}
-			this.primary().updateState();
-			this.syncNBTData();
-			return IModifyPredicate.OK;
-		} ).get();
+		IModuleModifier modifier = IModuleModifier.NONE;
+		for( T mod : this.installed )
+		{
+			final IModuleModifier newModifier = mod.onModuleInstall( base, slot, module );
+			if( newModifier.priority() > modifier.priority() ) modifier = newModifier;
+		}
+		return modifier;
+	}
+	
+	@Override
+	public IModuleModifier onModuleRemove( IModular< ? > base, int slot, int idx )
+	{
+		IModuleModifier modifier = IModuleModifier.NONE;
+		for( T mod : this.installed )
+		{
+			final IModuleModifier newModifier = mod.onModuleRemove( base, slot, idx );
+			if( newModifier.priority() > modifier.priority() ) modifier = newModifier;
+		}
+		return modifier;
 	}
 	
 	@Override
@@ -144,8 +135,6 @@ public abstract class Module< T extends IModular< ? extends T > >
 			this.setIdx( slot, val );
 			this.setIdx( data, slot, val );
 		}
-		this.primary().updateState();
-		this.syncNBTData();
 	}
 	
 	@Override
@@ -167,10 +156,6 @@ public abstract class Module< T extends IModular< ? extends T > >
 			this.setIdx( slot, val );
 			this.setIdx( data, slot, val );
 		}
-		
-		this.primary().updateState();
-//		removed.updateState(); // Can not guarantee its base has changed
-		this.syncNBTData();
 		return removed;
 	}
 	
@@ -194,7 +179,6 @@ public abstract class Module< T extends IModular< ? extends T > >
 		final int[] data = this.nbt.getIntArray( DATA_TAG );
 		data[ 0 ] &= 0xFFFF;
 		data[ 0 ] |= paintjob << 16;
-		this.syncNBTData();
 	}
 	
 	@Override
@@ -202,16 +186,6 @@ public abstract class Module< T extends IModular< ? extends T > >
 	
 	@Override
 	public void setModifyState( IModifyState state ) { this.modifyState = state; }
-	
-	@Override
-	public void updateState()
-	{
-		// FIXME: Check if this works
-		this.mat.setIdentity();
-		this.base.applyTransform( this.baseSlot, this, this.mat );
-		
-		this.installed.forEach( T::updateState );
-	}
 	
 	@Override
 	public NBTTagCompound serializeNBT() { return this.nbt; }
@@ -234,9 +208,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 		for( int i = 0, size = modList.tagCount(), slot = 0; i < size; ++i )
 		{
 			final NBTTagCompound modTag = modList.getCompoundTagAt( i );
-			final int modId = IModular.getId( modTag );
-			final IModularType type = this.fromId( modId );
-			final IModular< ? > module = type.deserializeContexted( modTag );
+			final IModular< ? > module = this.fromTag( modTag );
 			
 			while( i >= this.getIdx( slot + 1 ) ) ++slot;
 			module.setBase( this, slot );
@@ -255,7 +227,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 	 */
 	protected abstract int id();
 	
-	protected abstract IModularType fromId( int id );
+	protected abstract IModular< ? > fromTag( NBTTagCompound tag );
 	
 	protected final int getIdx( int slot ) {
 		return slot > 0 ? 0xFF & this.indices[ slot - 1 ] : 0;

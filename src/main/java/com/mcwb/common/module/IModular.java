@@ -2,7 +2,6 @@ package com.mcwb.common.module;
 
 import java.util.Collection;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import com.mcwb.client.module.IDeferredPriorityRenderer;
 import com.mcwb.client.module.IDeferredRenderer;
@@ -49,34 +48,31 @@ public interface IModular< T extends IModular< ? extends T > >
 	 */
 	public void forEach( Consumer< ? super T > visitor );
 	
-	public IModifyPredicate tryInstall( int slot, IModular< ? > module );
-	
-	public Supplier< IModifyPredicate > onBeingInstalled(
-		IModular< ? > base, int baseSlot,
-		Supplier< IModifyPredicate > action
-	);
-	
-	public void onBeingRemoved( IModular< ? > base );
+	public default void doAndUpdate( Runnable action ) {
+		throw new RuntimeException( "Try to call do and update on non-wrapper module" );
+	}
 	
 	/**
-	 * You should call this to actually install a new module
-	 * TODO: proper intro
+	 * Call on primary after a change of the module tree structure to trigger state update. It it
+	 * recommended to update your global matrix here if the slots' origin is fixed.
 	 */
-	public void tryInstallTo( IModular< ? > base, int slot );
+	public void updateState();
+	
+	public IModuleModifier onModuleInstall( IModular< ? > base, int slot, IModular< ? > module );
+	
+	public IModuleModifier onModuleRemove( IModular< ? > base, int slot, int idx );
 	
 	/**
-	 * You should call this to actually remove a installed module
-	 * TODO: proper intro
-	 */
-	public IModular< ? > removeFromBase( int slot, int idx );
-	
-	/**
-	 * Only use this in (@link #installTo(IModular, int)}
+	 * Simply add the given module to given slot. Usually you should call {@link #updateState()} and
+	 * {@link #syncNBTData()} after installing a module.
 	 */
 	public void install( int slot, IModular< ? > module );
 	
 	/**
-	 * Only use this in {@link #removeFromBase(int, int)}
+	 * Simply remove the module in given slot and index. Usually you should call
+	 * {@link #updateState()} and {@link #syncNBTData()} after removing a module.
+	 * 
+	 * @return Removed module
 	 */
 	public T remove( int slot, int idx );
 	
@@ -115,14 +111,6 @@ public interface IModular< T extends IModular< ? extends T > >
 		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
 	);
-	
-	/**
-	 * Call on primary after a change of the module tree structure to trigger state update. It it
-	 * recommended to update your global matrix here if the slots' origin is fixed.
-	 */
-	public void updateState();
-	
-	public default void syncNBTData() { this.base().syncNBTData(); }
 	
 	/**
 	 * <p> Simply return the bounden NBT tag. </p>
