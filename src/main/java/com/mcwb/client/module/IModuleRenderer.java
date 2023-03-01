@@ -14,7 +14,7 @@ public interface IModuleRenderer< T extends IContexted > extends IRenderer
 	public static final String CHANNEL_INSTALL = "install_trans";
 	
 	@SideOnly( Side.CLIENT )
-	public default void prepareHandRender(
+	public default void prepareInHandRender(
 		T contexted,
 		IAnimator animator,
 		Collection< IDeferredRenderer > renderQueue0,

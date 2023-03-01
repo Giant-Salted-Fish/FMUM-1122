@@ -16,8 +16,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mcwb.client.gun.GunPartRenderer;
+import com.mcwb.client.gun.GunRenderer;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
+import com.mcwb.client.item.ItemRenderer;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.client.render.Renderer;
 import com.mcwb.common.MCWB;
@@ -106,8 +109,8 @@ public final class MCWBClient extends MCWB
 		
 		// Register model loaders
 		MODEL_LOADERS.regis( Renderer.LOADER );
-//		MODEL_LOADERS.regis( GunPartRenderer.LOADER );
-//		MODEL_LOADERS.regis( GunRenderer.LOADER );
+		MODEL_LOADERS.regis( GunPartRenderer.LOADER );
+		MODEL_LOADERS.regis( GunRenderer.LOADER );
 //		MODEL_LOADERS.regis( MagRenderer.LOADER );
 //		MODEL_LOADERS.regis( GripRenderer.LOADER );
 //		MODEL_LOADERS.regis( CarGripRenderer.LOADER );
@@ -118,8 +121,8 @@ public final class MCWBClient extends MCWB
 		this.texturePool.put( Renderer.TEXTURE_RED.getPath(), Renderer.TEXTURE_RED );
 		this.texturePool.put( Renderer.TEXTURE_GREEN.getPath(), Renderer.TEXTURE_RED );
 		this.texturePool.put( Renderer.TEXTURE_BLUE.getPath(), Renderer.TEXTURE_RED );
-//		this.texturePool.put( ItemRenderer.TEXTURE_STEVE.getPath(), ItemRenderer.TEXTURE_STEVE );
-//		this.texturePool.put( ItemRenderer.TEXTURE_ALEX.getPath(), ItemRenderer.TEXTURE_ALEX );
+		this.texturePool.put( ItemRenderer.TEXTURE_STEVE.getPath(), ItemRenderer.TEXTURE_STEVE );
+		this.texturePool.put( ItemRenderer.TEXTURE_ALEX.getPath(), ItemRenderer.TEXTURE_ALEX );
 		
 		// The default NONE mesh
 		this.meshPool.put( "", Mesh.NONE );

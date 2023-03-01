@@ -9,17 +9,17 @@ public interface IModularType extends IMeta
 {
 	public static final Registry< IModularType > REGISTRY = new Registry<>();
 	
-	public void compileSnapshot();
-	
 //	public IModular< ? > getContexted( ICapabilityProvider provider );
 	
 	/**
-	 * @return A fresh contexted without wrapper
+	 * WARNNING: Never use this unless you understand what it is doing. This is only designed to be
+	 * used by {@link IModuleSnapshot}
 	 */
-	public IModular< ? > newContexted();
+	public IModular< ? > newPreparedContexted();
 	
 	/**
-	 * @return A contexted deserialized from given nbt without wrapper
+	 * WARNNING: Never use this unless you understand what it is doing. This is only designed to be
+	 * used by {@link IModular#deserializeNBT(NBTTagCompound)}
 	 */
 	public IModular< ? > deserializeContexted( NBTTagCompound nbt );
 }

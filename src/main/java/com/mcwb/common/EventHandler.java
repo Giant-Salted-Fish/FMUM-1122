@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.item.IItemType;
-import com.mcwb.common.module.IModularType;
 import com.mcwb.common.network.PacketConfigSync;
 import com.mcwb.common.player.PlayerPatch;
 
@@ -36,8 +35,6 @@ public final class EventHandler
 		
 		final Collection< IItemType > items = IItemType.REGISTRY.values();
 		items.forEach( it -> it.onRegisterItem( evt ) );
-		
-		IModularType.REGISTRY.values().forEach( IModularType::compileSnapshot );
 		
 		LOGGER.info( "mcwb.item_regis_complete", items.size() );
 	}

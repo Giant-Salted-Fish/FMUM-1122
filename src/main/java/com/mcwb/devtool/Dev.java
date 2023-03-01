@@ -17,6 +17,8 @@ import com.mcwb.common.MCWB;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -126,7 +128,15 @@ public class Dev implements IAutowirePlayerChat
 //				MCWBClient.MOD.sendPlayerMsg( mat0.toString() + "^ Matrix4f" );
 			}
 		};
-		InputHandler.updateMappers();
+		
+		MinecraftForge.EVENT_BUS.register( new Object() {
+			@SubscribeEvent
+			public void onGuiOpen( GuiOpenEvent evt )
+			{
+				InputHandler.updateMappers();
+				MinecraftForge.EVENT_BUS.unregister( this );
+			}
+		} );
 	}
 	
 	public static void tick()

@@ -2,6 +2,7 @@ package com.mcwb.common.module;
 
 import java.util.Collection;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import com.mcwb.client.module.IDeferredPriorityRenderer;
 import com.mcwb.client.module.IDeferredRenderer;
@@ -19,7 +20,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * For the default implementation, a module must have wrapper if it is not attached to any other
  * module.
  * 
- * @param <T> Modules installed on this will at least be a sub-type of this type
+ * @param <T> Modules installed on this must at least be a sub-type of this type
  * @author Giant_Salted_Fish
  */
 public interface IModular< T extends IModular< ? extends T > >
@@ -48,6 +49,15 @@ public interface IModular< T extends IModular< ? extends T > >
 	 */
 	public void forEach( Consumer< ? super T > visitor );
 	
+	public IModifyPredicate tryInstall( int slot, IModular< ? > module );
+	
+	public Supplier< IModifyPredicate > onBeingInstalled(
+		IModular< ? > base, int baseSlot,
+		Supplier< IModifyPredicate > action
+	);
+	
+	public void onBeingRemoved( IModular< ? > base );
+	
 	/**
 	 * You should call this to actually install a new module
 	 * TODO: proper intro
@@ -66,7 +76,7 @@ public interface IModular< T extends IModular< ? extends T > >
 	public void install( int slot, IModular< ? > module );
 	
 	/**
-	 * Only use this in {@link #removeFromBase()}
+	 * Only use this in {@link #removeFromBase(int, int)}
 	 */
 	public T remove( int slot, int idx );
 	
@@ -84,7 +94,11 @@ public interface IModular< T extends IModular< ? extends T > >
 	
 	public int step();
 	
-	public void setOffsetStep( int offset, int step );
+	public void updateOffsetStep( int offset, int step );
+	
+	public IModifyState modifyState();
+	
+	public void setModifyState( IModifyState state );
 	
 	public void applyTransform( int slot, IModular< ? > module, Mat4f dst );
 	

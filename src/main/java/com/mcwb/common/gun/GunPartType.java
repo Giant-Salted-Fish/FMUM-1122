@@ -73,7 +73,7 @@ public abstract class GunPartType<
 		public int step() { return this.step; }
 		
 		@Override
-		public void setOffsetStep( int offset, int step )
+		public void updateOffsetStep( int offset, int step )
 		{
 			this.offset = ( short ) offset;
 			this.step = ( short ) step;

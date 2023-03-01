@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -95,14 +96,10 @@ public abstract class ModifiableItemType<
 		super.onPostLoad();
 		
 		// TODO: set a default indicator
-	}
-	
-	@Override
-	public void compileSnapshot()
-	{
-		this.compiledSnapshotNBT = this.snapshot.setSnapshot(
-			name -> this.newContexted()
-		).serializeNBT();
+		
+		
+		final Function< String, IModular< ? > > func = name -> this.newPreparedContexted();
+		this.compiledSnapshotNBT = this.snapshot.setSnapshot( func ).serializeNBT();
 	}
 	
 	@Override
@@ -170,7 +167,6 @@ public abstract class ModifiableItemType<
 			// We basically has no way to distinguish from these two cases. But it will work fine \
 			// if we simply deserialize and setup it with the compiled snapshot NBT. The down side \
 			// is that it will actually deserialize twice for the network packet case.
-			// TODO: a possible hack way to avoid this: get compiled snapshot tag from contexted
 			final NBTTagCompound compiledNBT = ModifiableItemType.this.compiledSnapshotNBT;
 			return ModifiableItemType.this.newWrapper( compiledNBT.copy(), stack );
 		}
@@ -297,7 +293,7 @@ public abstract class ModifiableItemType<
 //			this.base.applyTransform( this.baseSlot, this, this.mat );
 			
 			// TODO: maybe avoid instantiation to improve performance?
-			ModifiableItemType.this.renderer.prepareHandRender(
+			ModifiableItemType.this.renderer.prepareInHandRender(
 				this.self(),
 				this.wrapperAnimator( animator ),
 				renderQueue0,
@@ -409,8 +405,8 @@ public abstract class ModifiableItemType<
 			final IModularType type = ( IModularType ) IItemTypeHost.getType( item );
 			this.primary = ( T ) type.deserializeContexted( nbt );
 			this.primary.setBase( this, 0 );
-			this.primary.updateState();
-			this.syncNBTData(); // Whether only call this on need?
+//			this.primary.updateState();
+//			this.syncNBTData(); // Whether only call this on need?
 		}
 		
 		@Override

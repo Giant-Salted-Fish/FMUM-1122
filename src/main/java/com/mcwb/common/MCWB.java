@@ -212,6 +212,10 @@ public class MCWB extends URLClassLoader
 	{
 		this.info( "mcwb.on_post_init" );
 		
+		// Fire load callback
+		this.postLoadSubscribers.forEach( IPostLoadSubscriber::onPostLoad );
+		this.postLoadSubscribers.clear();
+		
 		// may add possibility to register packets for packs?
 //		NET.postInit();
 		
@@ -286,10 +290,6 @@ public class MCWB extends URLClassLoader
 			p.load();
 			CONTENT_PROVIDERS.regis( p );
 		} );
-		
-		// Fire load callback
-		this.postLoadSubscribers.forEach( IPostLoadSubscriber::onPostLoad );
-		this.postLoadSubscribers.clear();
 	}
 	
 	public void addResourceDomain( File file )

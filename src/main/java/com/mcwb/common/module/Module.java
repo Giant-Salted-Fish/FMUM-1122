@@ -11,7 +11,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants.NBT;
 
 /**
- * Provide additional support for {@link IPaintable}
+ * Has additional support for {@link IPaintable} for convenience
  * 
  * @author Giant_Salted_Fish
  */
@@ -30,6 +30,8 @@ public abstract class Module< T extends IModular< ? extends T > >
 	protected final ArrayList< T > installed = new ArrayList<>();
 	protected final byte[] indices = new byte[ this.slotCount() ];
 	
+	protected transient IModifyState modifyState = IModifyState.NOT_SELECTED;
+	
 	/**
 	 * Bounden NBT used for data persistence
 	 */
@@ -47,16 +49,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 	protected Module( NBTTagCompound nbt ) { this.deserializeNBT( nbt ); }
 	
 	@Override
-	public IModular< ? > primary()
-	{
-		IModular< ? > mod = this;
-		for( IModular< ? > base = mod.base(); base != null; )
-		{
-			mod = base;
-			base = mod.base();
-		}
-		return mod;
-	}
+	public IModular< ? > primary() { return this.base.primary(); }
 	
 	@Override
 	public IModular< ? > base() { return this.base; }
@@ -88,6 +81,41 @@ public abstract class Module< T extends IModular< ? extends T > >
 		// TODO: deserialize modified tag to change state before actually installing something
 		
 		base.install( slot, this );
+	}
+	
+	@Override
+	@SuppressWarnings( "unchecked" )
+	public IModifyPredicate tryInstall( int slot, IModular< ? > module )
+	{
+		// TODO: test capacity and whitelist
+		
+		return module.onBeingInstalled( this, slot, () -> {
+			final T mod = ( T ) module;
+			mod.setBase( this, slot );
+			
+			// Update installed list
+			final int idx = this.getIdx( slot + 1 );
+			this.installed.add( idx, mod );
+			
+			// Update NBT tag
+			final NBTTagList modList = this.nbt.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
+			final NBTTagCompound tarTag = mod.serializeNBT();
+			modList.appendTag( tarTag );
+			for( int i = modList.tagCount(); --i > idx; modList.set( i, modList.get( i - 1 ) ) );
+			modList.set( idx, tarTag );
+			
+			// Update indices
+			final int[] data = this.nbt.getIntArray( DATA_TAG );
+			for( int islot = slot; islot++ < this.indices.length; )
+			{
+				final int val = 1 + this.getIdx( islot );
+				this.setIdx( islot, val );
+				this.setIdx( data, islot, val );
+			}
+			this.primary().updateState();
+			this.syncNBTData();
+			return IModifyPredicate.OK;
+		} ).get();
 	}
 	
 	@Override
@@ -160,7 +188,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 	public int paintjob() { return this.paintjob; }
 	
 	@Override
-	public void setPaintjob( int paintjob )
+	public void updatePaintjob( int paintjob )
 	{
 		this.paintjob = ( short ) paintjob;
 		final int[] data = this.nbt.getIntArray( DATA_TAG );
@@ -168,6 +196,12 @@ public abstract class Module< T extends IModular< ? extends T > >
 		data[ 0 ] |= paintjob << 16;
 		this.syncNBTData();
 	}
+	
+	@Override
+	public IModifyState modifyState() { return this.modifyState; }
+	
+	@Override
+	public void setModifyState( IModifyState state ) { this.modifyState = state; }
 	
 	@Override
 	public void updateState()
