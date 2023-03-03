@@ -6,10 +6,8 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-import com.google.gson.JsonDeserializer;
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.common.IAutowireLogger;
-import com.mcwb.common.MCWB;
 import com.mcwb.common.paintjob.IPaintable;
 
 /**
@@ -17,11 +15,8 @@ import com.mcwb.common.paintjob.IPaintable;
  * 
  * @author Giant_Salted_Fish
  */
-public class ModuleSnapshot implements IModuleSnapshot, IAutowireLogger
+public class ModuleSnapshot implements IAutowireLogger
 {
-	public static final JsonDeserializer< IModuleSnapshot >
-		ADAPTER = ( json, typeOfT, context ) -> MCWB.GSON.fromJson( json, ModuleSnapshot.class );
-	
 	public static final ModuleSnapshot DEFAULT = new ModuleSnapshot();
 	
 	protected static final Function< String, IModular< ? > > SUPPLIER = name -> {
@@ -32,7 +27,7 @@ public class ModuleSnapshot implements IModuleSnapshot, IAutowireLogger
 	protected String module = "unspecified";
 	
 	@SerializedName( value = "slots", alternate = "installeds" )
-	protected List< List< IModuleSnapshot > > slots = Collections.emptyList();
+	protected List< List< ModuleSnapshot > > slots = Collections.emptyList();
 	
 	protected short offset;
 	protected short step;
@@ -41,7 +36,6 @@ public class ModuleSnapshot implements IModuleSnapshot, IAutowireLogger
 	protected short paintjob;
 	
 	@Nullable
-	@Override
 	public < T extends IModular< ? > > T setSnapshot( Function< String, T > supplier )
 	{
 		final T module = supplier.apply( this.module );

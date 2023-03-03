@@ -3,16 +3,23 @@ package com.mcwb.common.module;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
+import com.mcwb.common.MCWB;
+import com.mcwb.common.item.IItem;
 import com.mcwb.common.paintjob.IPaintable;
 import com.mcwb.util.Mat4f;
 
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants.NBT;
 
 /**
- * Has additional support for {@link IPaintable} for convenience
+ * <p> This implementation of {@link IModular} uses a wrapper to satisfy the constraint of
+ * {@link IItem}. </p>
  * 
+ * <p> Has additional support for {@link IPaintable} for convenience </p>
+ * 
+ * @see ModuleWrapper
  * @author Giant_Salted_Fish
  */
 public abstract class Module< T extends IModular< ? extends T > >
@@ -76,9 +83,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 	}
 	
 	@Override
-	public void doAndUpdate( Runnable action ) {
-		throw new RuntimeException( "Try to call do and update on non-wrapper module" );
-	}
+	public void syncAndUpdate() { this.base.syncAndUpdate(); }
 	
 	@Override
 	public void updateState()
@@ -91,26 +96,53 @@ public abstract class Module< T extends IModular< ? extends T > >
 	}
 	
 	@Override
-	public IModuleModifier onModuleInstall( IModular< ? > base, int slot, IModular< ? > module )
+	public IModifyPredicate tryInstall( int slot, IModular< ? > module )
 	{
-		IModuleModifier modifier = IModuleModifier.NONE;
-		for( T mod : this.installed )
+		final IModular< ? > unwrapped = module.primary();
+		final IModuleSlot mslot = this.getSlot( slot );
+		if( !mslot.isAllowed( unwrapped ) ) return IModifyPredicate.NO_PREVIEW;
+		
+		final int capacity = Math.min( MCWB.maxSlotCapacity, mslot.capacity() );
+		if( this.getInstalledCount( slot ) > capacity )
 		{
-			final IModuleModifier newModifier = mod.onModuleInstall( base, slot, module );
-			if( newModifier.priority() > modifier.priority() ) modifier = newModifier;
+			return ( IModifyPredicate.NotOk )
+				() -> I18n.format( "mcwb.msg.arrive_max_module_capacity", capacity );
 		}
+		
+		final IModuleModifier m0 = () -> {
+			this.install( slot, unwrapped );
+			return unwrapped;
+		};
+		final IModuleModifier m1 = this.primary().onModuleInstall( this, slot, module, m0 );
+		final IModuleModifier m2 = unwrapped.onModuleInstall( this, slot, module, m1 );
+		m2.action();
+		return m2.predicate();
+	}
+	
+	@Override
+	public IModular< ? > removeFromBase( int slot, int idx )
+	{
+		final IModuleModifier modifier = () -> this.base.remove( slot, idx );
+		return this.primary().onModuleRemove( this, slot, idx, modifier ).action();
+	}
+	
+	@Override
+	public IModuleModifier onModuleInstall(
+		IModular< ? > base, int slot, IModular< ? > module,
+		IModuleModifier modifier
+	) {
+		for( T mod : this.installed )
+			modifier = mod.onModuleInstall( base, slot, module, modifier );
 		return modifier;
 	}
 	
 	@Override
-	public IModuleModifier onModuleRemove( IModular< ? > base, int slot, int idx )
-	{
-		IModuleModifier modifier = IModuleModifier.NONE;
+	public IModuleModifier onModuleRemove(
+		IModular< ? > base, int slot, int idx,
+		IModuleModifier modifier
+	) {
 		for( T mod : this.installed )
-		{
-			final IModuleModifier newModifier = mod.onModuleRemove( base, slot, idx );
-			if( newModifier.priority() > modifier.priority() ) modifier = newModifier;
-		}
+			modifier = mod.onModuleRemove( base, slot, idx, modifier );
 		return modifier;
 	}
 	
@@ -223,7 +255,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 		this.nbt = nbt; // Do not forget to bind to the given tag
 	}
 	
-	protected int dataSize() { return 1 + ( this.indices.length + 3 ) / 4; }
+	protected abstract IModular< ? > onBeingRemoved();
 	
 	/**
 	 * @return
@@ -233,6 +265,8 @@ public abstract class Module< T extends IModular< ? extends T > >
 	protected abstract int id();
 	
 	protected abstract IModular< ? > fromTag( NBTTagCompound tag );
+	
+	protected int dataSize() { return 1 + ( this.indices.length + 3 ) / 4; }
 	
 	protected final int getIdx( int slot ) {
 		return slot > 0 ? 0xFF & this.indices[ slot - 1 ] : 0;

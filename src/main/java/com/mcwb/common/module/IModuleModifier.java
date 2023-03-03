@@ -1,17 +1,24 @@
 package com.mcwb.common.module;
 
+@FunctionalInterface
 public interface IModuleModifier
 {
-	public static final IModuleModifier NONE = new IModuleModifier()
+	public default IModifyPredicate predicate() { return IModifyPredicate.OK; }
+	
+	/**
+	 * @return Cursor
+	 */
+	public IModular< ? > action();
+	
+	public default int priority() { return 0; }
+	
+	@FunctionalInterface
+	public static interface NotOk extends IModuleModifier
 	{
 		@Override
-		public int priority() { return Integer.MIN_VALUE; }
+		public IModifyPredicate predicate();
 		
 		@Override
-		public IModifyPredicate action() { return null; }
-	};
-	
-	public IModifyPredicate action();
-	
-	public int priority();
+		public default IModular< ? > action() { return null; }
+	}
 }

@@ -60,10 +60,10 @@ public abstract class ModuleWrapper<
 	 * Get base on primary to actually get wrapper
 	 */
 	@Override
-	public IModular< ? > base() { throw new RuntimeException( "Try to get base from wrapper" ); }
+	public IModular< ? > base() { throw new RuntimeException( "Try to get base from " + this ); }
 	
 	/**
-	 * Set base is meaningless for wrapper so we use it to help reset primary
+	 * Set base is meaningless for wrapper so it is used here to reset wrapped primary
 	 */
 	@Override
 	@SuppressWarnings( "unchecked" )
@@ -77,27 +77,46 @@ public abstract class ModuleWrapper<
 	public void forEach( Consumer< ? super M > visitor ) { this.primary.forEach( visitor ); }
 	
 	@Override
-	public void doAndUpdate( Runnable action )
+	public void syncAndUpdate()
 	{
-		action.run();
 		this.primary.updateState();
 		this.syncNBTData();
 	}
 	
 	@Override
 	public void updateState() {
-		throw new RuntimeException( "Try to call update state on wrapper" );
+		throw new RuntimeException( "Try to call update state on " + this );
 	}
 	
 	@Override
-	public IModuleModifier onModuleInstall( IModular< ? > base, int slot, IModular< ? > module ) {
-		return this.primary.onModuleInstall( base, slot, module );
+	public IModifyPredicate tryInstallTo( IModular< ? > base, int slot ) {
+		throw new RuntimeException( "Try to call try install to on " + this );
 	}
 	
 	@Override
-	public IModuleModifier onModuleRemove( IModular< ? > base, int slot, int idx ) {
-		return this.primary.onModuleRemove( base, slot, idx );
+	public IModular< ? > removeFromBase( int slot, int idx ) {
+		throw new RuntimeException( "Try to call remove from base on " + this );
 	}
+	
+	@Override
+	public IModuleModifier onModuleInstall(
+		IModular< ? > base, int slot, IModular< ? > module,
+		IModuleModifier modifier
+	) {
+		//if( modifier.predicate().ok() ) // TODO: If {module == this} is required?
+		
+		// Avoid install wrapper
+		return this.primary.onModuleInstall( base, slot, module, () -> {
+			base.install( slot, this.primary );
+			return this.primary;
+		} );
+	}
+	
+	@Override
+	public IModuleModifier onModuleRemove(
+		IModular< ? > base, int slot, int idx,
+		IModuleModifier modifier
+	) { throw new RuntimeException( "Try to call on module remove on " + this ); }
 	
 	// TODO: validate if these methods are actually called
 	@Override
@@ -181,6 +200,9 @@ public abstract class ModuleWrapper<
 	public void deserializeNBT( NBTTagCompound nbt ) {
 		throw new RuntimeException( "Try to call deserialize NBT on wrapper" );
 	}
+	
+	@Override
+	public String toString() { return "Wrapper{" + this.primary + "}"; }
 	
 	protected abstract void syncNBTData();
 }

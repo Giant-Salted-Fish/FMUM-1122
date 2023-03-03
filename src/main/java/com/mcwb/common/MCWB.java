@@ -28,8 +28,6 @@ import com.mcwb.common.meta.IContexted;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.meta.Registry;
 import com.mcwb.common.module.IModuleSlot;
-import com.mcwb.common.module.IModuleSnapshot;
-import com.mcwb.common.module.ModuleSnapshot;
 import com.mcwb.common.module.RailSlot;
 import com.mcwb.common.network.PacketHandler;
 import com.mcwb.common.pack.FolderPack;
@@ -390,7 +388,6 @@ public class MCWB extends URLClassLoader
 		builder.setPrettyPrinting();
 		
 		builder.registerTypeAdapter( IModuleSlot.class, RailSlot.ADAPTER );
-		builder.registerTypeAdapter( IModuleSnapshot.class, ModuleSnapshot.ADAPTER );
 		builder.registerTypeAdapter( IPaintjob.class, Paintjob.ADAPTER );
 //		builder.registerTypeAdapter( IOperationController.class, OperationController.ADAPTER );
 		

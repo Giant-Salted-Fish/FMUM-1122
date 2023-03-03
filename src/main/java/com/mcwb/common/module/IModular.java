@@ -16,9 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * TODO: 实行完全的 cursor 模式？
- * For the default implementation, a module must have wrapper if it is not attached to any other
- * module.
- * 
+ * @see Module
  * @param <T> Modules installed on this must at least be a sub-type of this type
  * @author Giant_Salted_Fish
  */
@@ -48,7 +46,7 @@ public interface IModular< T extends IModular< ? extends T > >
 	 */
 	public void forEach( Consumer< ? super T > visitor );
 	
-	public void doAndUpdate( Runnable action );
+	public void syncAndUpdate();
 	
 	/**
 	 * <p> Call on primary after a change of the module tree structure to trigger state update. It
@@ -59,14 +57,23 @@ public interface IModular< T extends IModular< ? extends T > >
 	 */
 	public void updateState();
 	
-	public IModuleModifier onModuleInstall( IModular< ? > base, int slot, IModular< ? > module );
-	
-	public IModuleModifier onModuleRemove( IModular< ? > base, int slot, int idx );
-	
 	/**
-	 * Simply add the given module to given slot. Usually you should call {@link #updateState()} and
-	 * {@link #syncNBTData()} after installing a module.
+	 * @return Whether it has been succeeded or not
 	 */
+	public IModifyPredicate tryInstall( int slot, IModular< ? > module );
+	
+	public IModular< ? > removeFromBase( int slot, int idx );
+	
+	public IModuleModifier onModuleInstall(
+		IModular< ? > base, int slot, IModular< ? > module,
+		IModuleModifier modifier
+	);
+	
+	public IModuleModifier onModuleRemove(
+		IModular< ? > base, int slot, int idx,
+		IModuleModifier modifier
+	);
+	
 	public void install( int slot, IModular< ? > module );
 	
 	/**

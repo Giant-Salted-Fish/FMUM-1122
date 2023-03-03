@@ -20,7 +20,6 @@ import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.module.IModular;
 import com.mcwb.common.module.IModularType;
 import com.mcwb.common.module.IModuleSlot;
-import com.mcwb.common.module.IModuleSnapshot;
 import com.mcwb.common.module.Module;
 import com.mcwb.common.module.ModuleSnapshot;
 import com.mcwb.common.module.ModuleWrapper;
@@ -62,7 +61,7 @@ public abstract class ModifiableItemType<
 	protected List< IModuleSlot > slots = Collections.emptyList();
 	
 	@SerializedName( value = "snapshot", alternate = "preInstalls" )
-	protected IModuleSnapshot snapshot = ModuleSnapshot.DEFAULT;
+	protected ModuleSnapshot snapshot = ModuleSnapshot.DEFAULT;
 	protected transient NBTTagCompound compiledSnapshotNBT;
 	
 	@SerializedName( value = "paintjobs", alternate = "skins" )
@@ -353,6 +352,24 @@ public abstract class ModifiableItemType<
 		}
 		
 		@Override
+		public String toString() { return "Contexted<" + ModifiableItemType.this + ">"; }
+		
+		/**
+		 * This may be a bit of too hacky...
+		 * 
+		 * @see ModuleWrapper#setBase(IModular, int)
+		 */
+		@Override
+		protected IModular< ? > onBeingRemoved()
+		{
+			final ItemStack stack = new ItemStack( ModifiableItemType.this.item );
+			final IModular< ? > wrapper = ModifiableItemType.this.getContexted( stack );
+			wrapper.setBase( this, 0 );
+//			wrapper.syncAndUpdate(); // TODO: Sync NBT data? Seems that outer will call this
+			return wrapper;
+		}
+		
+		@Override
 		protected int id() { return Item.getIdFromItem( ModifiableItemType.this.item ); }
 		
 		@Override
@@ -391,6 +408,12 @@ public abstract class ModifiableItemType<
 			super( primary );
 			
 			this.stack = stack;
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public void prepareRenderInHand( EnumHand hand ) {
+			this.primary.prepareRenderInHand( hand );
 		}
 		
 		@Override

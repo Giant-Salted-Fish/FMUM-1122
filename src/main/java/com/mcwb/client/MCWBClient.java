@@ -16,6 +16,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mcwb.client.gun.CarGripRenderer;
+import com.mcwb.client.gun.GripRenderer;
 import com.mcwb.client.gun.GunPartRenderer;
 import com.mcwb.client.gun.GunRenderer;
 import com.mcwb.client.input.InputHandler;
@@ -112,8 +114,8 @@ public final class MCWBClient extends MCWB
 		MODEL_LOADERS.regis( GunPartRenderer.LOADER );
 		MODEL_LOADERS.regis( GunRenderer.LOADER );
 //		MODEL_LOADERS.regis( MagRenderer.LOADER );
-//		MODEL_LOADERS.regis( GripRenderer.LOADER );
-//		MODEL_LOADERS.regis( CarGripRenderer.LOADER );
+		MODEL_LOADERS.regis( GripRenderer.LOADER );
+		MODEL_LOADERS.regis( CarGripRenderer.LOADER );
 //		MODEL_LOADERS.regis( OpticSightRenderer.LOADER );
 //		MODEL_LOADERS.regis( AmmoRenderer.LOADER );
 		
