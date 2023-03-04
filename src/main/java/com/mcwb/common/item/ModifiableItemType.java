@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -20,6 +21,7 @@ import com.mcwb.common.module.IModular;
 import com.mcwb.common.module.IModularType;
 import com.mcwb.common.module.IModuleSlot;
 import com.mcwb.common.module.Module;
+import com.mcwb.common.module.ModuleSnapshot;
 import com.mcwb.common.module.ModuleWrapper;
 import com.mcwb.common.paintjob.IPaintable;
 import com.mcwb.common.paintjob.IPaintableType;
@@ -54,8 +56,8 @@ public abstract class ModifiableItemType<
 	@SerializedName( value = "slots", alternate = "moduleSlots" )
 	protected List< IModuleSlot > slots = Collections.emptyList();
 	
-//	@SerializedName( value = "snapshot", alternate = "preInstalls" )
-//	protected ModuleSnapshot snapshot = ModuleSnapshot.DEFAULT;
+	@SerializedName( value = "snapshot", alternate = "preInstalls" )
+	protected ModuleSnapshot snapshot = ModuleSnapshot.DEFAULT;
 	protected transient NBTTagCompound compiledSnapshotNBT;
 	
 	@SerializedName( value = "paintjobs", alternate = "skins" )
@@ -91,8 +93,8 @@ public abstract class ModifiableItemType<
 		// TODO: set a default indicator
 		
 		// TODO: call update state maybe?
-//		final Function< String, IModular< ? > > func = name -> this.newPreparedContexted();
-//		this.compiledSnapshotNBT = this.snapshot.setSnapshot( func ).serializeNBT();
+		final Function< String, IModular< ? > > func = name -> this.newRawContexted();
+		this.compiledSnapshotNBT = this.snapshot.setSnapshot( func ).serializeNBT();
 	}
 	
 	@Override

@@ -42,7 +42,11 @@ public abstract class ModuleWrapper<
 	
 	protected transient T primary;
 	
-	protected ModuleWrapper( T primary ) { this.primary = primary; }
+	protected ModuleWrapper( T primary )
+	{
+		this.primary = primary;
+		primary.setBase( this, 0 );
+	}
 	
 	@Override
 	public boolean hasCapability( Capability< ? > capability, @Nullable EnumFacing facing ) {
