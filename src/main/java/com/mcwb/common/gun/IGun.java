@@ -18,11 +18,11 @@ public interface IGun< T extends IGunPart< ? extends T > > extends IGunPart< T >
 		return this.hasMag() ? ( IMag< ? > ) this.getInstalled( 0, 0 ) : null;
 	}
 	
-	public default boolean isAllowed( IMag< ? > mag ) { return this.getSlot( 0 ).isAllowed( mag ); }
-	
-	public default void loadMag( IMag< ? > mag ) { mag.tryInstallTo( this, 0 ); }
-	
-	public default IMag< ? > unloadMag() { return ( IMag< ? > ) this.mag().removeFromBase( 0, 0 ); }
+//	public default boolean isAllowed( IMag< ? > mag ) { return this.getSlot( 0 ).isAllowed( mag ); }
+//	
+//	public default void loadMag( IMag< ? > mag ) { mag.tryInstallTo( this, 0 ); }
+//	
+//	public default IMag< ? > unloadMag() { return ( IMag< ? > ) this.mag().removeFromBase( 0, 0 ); }
 	
 	@SideOnly( Side.CLIENT )
 	public void setupRenderArm( ArmTracker leftArm, ArmTracker rightArm, IAnimator animator );

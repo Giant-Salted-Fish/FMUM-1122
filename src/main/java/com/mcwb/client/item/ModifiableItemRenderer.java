@@ -65,6 +65,7 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModular< ? > >
 			IN_HAND_QUEUE_1,
 			this.animator( hand )
 		);
+		// TODO: better comparator?
 		IN_HAND_QUEUE_1.sort( ( r0, r1 ) -> r0.priority() > r1.priority() ? -1 : 1 );
 		IN_HAND_QUEUE_1.forEach( IDeferredPriorityRenderer::prepare );
 	}

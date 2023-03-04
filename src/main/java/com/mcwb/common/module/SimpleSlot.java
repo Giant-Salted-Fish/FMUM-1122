@@ -62,7 +62,5 @@ public class SimpleSlot implements IModuleSlot
 	public void scale( float scale ) { this.origin.scale( scale ); }
 	
 	@Override
-	public void applyTransform( IModular< ? > installed, Mat4f dst ) {
-		dst.translate( this.origin );
-	}
+	public void applyTransform( IModular< ? > module, Mat4f dst ) { dst.translate( this.origin ); }
 }

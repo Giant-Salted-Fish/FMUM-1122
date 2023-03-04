@@ -21,7 +21,7 @@ public class ModuleSnapshot implements IAutowireLogger
 	
 	protected static final Function< String, IModular< ? > > SUPPLIER = name -> {
 		final IModularType type = IModularType.REGISTRY.get( name );
-		return type != null ? type.newPreparedContexted() : null;
+		return type != null ? type.newRawContexted() : null;
 	};
 	
 	protected String module = "unspecified";
@@ -46,9 +46,9 @@ public class ModuleSnapshot implements IAutowireLogger
 		}
 		
 		// Setup settings
-		module.updateOffsetStep( this.offset, this.step );
+		module.setOffsetStep( this.offset, this.step );
 		if( module instanceof IPaintable )
-			( ( IPaintable ) module ).updatePaintjob( this.paintjob );
+			( ( IPaintable ) module ).setPaintjob( this.paintjob );
 		
 		// Install modules
 		for( int i = 0, size = this.slots.size(); i < size; ++i )
@@ -57,7 +57,7 @@ public class ModuleSnapshot implements IAutowireLogger
 			this.slots.get( i ).forEach( snapshot -> {
 				final IModular< ? > tarMod = snapshot.setSnapshot( SUPPLIER );
 				if( tarMod != null ) module.install( slot, tarMod );
-				// This is the special case that we do not use tarMod.installTo(...)
+				// This is the special case that we do not use #tryInstall(...)
 			} );
 		}
 		return module;

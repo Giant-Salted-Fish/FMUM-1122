@@ -1,6 +1,7 @@
 package com.mcwb.common.module;
 
 import java.util.Collection;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.mcwb.client.module.IDeferredPriorityRenderer;
@@ -14,12 +15,6 @@ import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-/**
- * TODO: 实行完全的 cursor 模式？
- * @see Module
- * @param <T> Modules installed on this must at least be a sub-type of this type
- * @author Giant_Salted_Fish
- */
 public interface IModular< T extends IModular< ? extends T > >
 	extends IContexted, INBTSerializable< NBTTagCompound >
 {
@@ -32,61 +27,60 @@ public interface IModular< T extends IModular< ? extends T > >
 	
 	public String category();
 	
-	/**
-	 * @return Primary module rather than the wrapper
-	 */
-	public IModular< ? > primary();
-	
 	public IModular< ? > base();
 	
+//	public IModular< ? > primary();
+	
 	public void setBase( IModular< ? > base, int baseSlot );
+	
+	public void postEvent( Object evt );
+	
+	/**
+	 * Synchronize NBT tag data and do update
+	 * 
+	 * @see #updateState(BiConsumer)
+	 */
+	public void syncAndUpdate();
+	
+	/**
+	 * Used in {@link #syncAndUpdate()}
+	 */
+	public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry );
+	
+	public IModifyPredicate tryInstall( int slot, IModular< ? > module );
+	
+	public IModular< ? > doRemove( int slot, int idx );
+	
+	/**
+	 * <p> Simply install the given module without posting the event. </p>
+	 * 
+	 * <p> In most cases you should use {@link #tryInstall(int, IModular)} rather than this to
+	 * install a new module. </p>
+	 * 
+	 * @return The actual index of the installed module in given slot
+	 */
+	public int install( int slot, IModular< ? > module );
+	
+	/**
+	 * <p> Simply remove the given module without posting the event. </p>
+	 * 
+	 * <p> In most cases you should use {@link #doRemove(int, int)} rather this to remove an
+	 * installed module. </p>
+	 */
+	public IModular< ? > remove( int slot, int idx );
+	
+	public IModular< ? > onBeingInstalled();
+	
+	public IModular< ? > onBeingRemoved();
 	
 	/**
 	 * Notice that for each will not visit itself
 	 */
 	public void forEach( Consumer< ? super T > visitor );
 	
-	public void syncAndUpdate();
-	
-	/**
-	 * <p> Call on primary after a change of the module tree structure to trigger state update. It
-	 * it recommended to update your global matrix here. </p>
-	 * 
-	 * <p> WARNNING: The implementation of this method could rely on the wrapper hence make sure
-	 * the primary has valid context to call this method. </p>
-	 */
-	public void updateState();
-	
-	/**
-	 * @return Whether it has been succeeded or not
-	 */
-	public IModifyPredicate tryInstall( int slot, IModular< ? > module );
-	
-	public IModular< ? > removeFromBase( int slot, int idx );
-	
-	public IModuleModifier onModuleInstall(
-		IModular< ? > base, int slot, IModular< ? > module,
-		IModuleModifier modifier
-	);
-	
-	public IModuleModifier onModuleRemove(
-		IModular< ? > base, int slot, int idx,
-		IModuleModifier modifier
-	);
-	
-	public void install( int slot, IModular< ? > module );
-	
-	/**
-	 * Simply remove the module in given slot and index. Usually you should call
-	 * {@link #updateState()} and {@link #syncNBTData()} after removing a module.
-	 * 
-	 * @return Removed module
-	 */
-	public T remove( int slot, int idx );
+	public int getInstalledCount( int slot );
 	
 	public T getInstalled( int slot, int idx );
-	
-	public int getInstalledCount( int slot );
 	
 	public int slotCount();
 	
@@ -98,7 +92,7 @@ public interface IModular< T extends IModular< ? extends T > >
 	
 	public int step();
 	
-	public void updateOffsetStep( int offset, int step );
+	public void setOffsetStep( int offset, int step );
 	
 	public IModifyState modifyState();
 	
@@ -132,12 +126,12 @@ public interface IModular< T extends IModular< ? extends T > >
 	
 	/**
 	 * <p> Restore the state of the context with the given tag. You should directly set the values
-	 * rather than calling setting methods like {@link #$step(int)} as they may try to set the NBT
-	 * data. </p>
+	 * rather than calling setting methods like {@link #setOffsetStep(int)} as they may try to set
+	 * the NBT data. </p>
 	 * 
-	 * <p> Notice that context will bind to the given NBT tag. This method call will not invoke
-	 * {@link #syncNBTData()} and {@link #updateState()}. Call them after this if that is required.
-	 * </p>
+	 * <p> Notice that context will bind to the given NBT tag. </p>
+	 * 
+	 * <p> This method call will not invoke {@link #syncAndUpdate()}. </p>
 	 * 
 	 * @see #serializeNBT()
 	 */

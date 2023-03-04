@@ -1,18 +1,22 @@
 package com.mcwb.common.gun;
 
+import java.util.function.BiConsumer;
+
 import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.module.IModular;
+import com.mcwb.common.module.IModuleEventSubscriber;
 import com.mcwb.util.ArmTracker;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class GunType< C extends IGunPart< ? >, R extends IGunPartRenderer< ? super C > >
+public abstract class GunType< C extends IGun< ? >, R extends IGunPartRenderer< ? super C > >
 	extends GunPartType< C, R >
 {
 	public static final BuildableLoader< IMeta >
@@ -32,9 +36,9 @@ public abstract class GunType< C extends IGunPart< ? >, R extends IGunPartRender
 		protected Gun( NBTTagCompound nbt ) { super( nbt ); }
 		
 		@Override
-		public void updateState()
+		public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry )
 		{
-			super.updateState();
+			super.updateState( registry );
 			
 			this.leftHandHolding = this; // TODO: Validate if necessary
 			this.rightHandHolding = this;
@@ -74,21 +78,27 @@ public abstract class GunType< C extends IGunPart< ? >, R extends IGunPartRender
 		T extends IGun< ? extends M >
 	> extends GunPartWrapper< M, T > implements IGun< M >
 	{
-		protected GunWrapper( IModular< ? > primary, ItemStack stack ) {
-			super( primary, stack );
-		}
+		protected GunWrapper( T primary, ItemStack stack ) { super( primary, stack ); }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
 		public void setupRenderArm( ArmTracker leftArm, ArmTracker rightArm, IAnimator animator ) {
-			throw new RuntimeException( "Try to call setup render arm on wrapper" );
+			throw new RuntimeException();
 		}
 	}
 	
-	public static class GunJson extends GunType< IGun< ? >, IGunPartRenderer< ? super IGun< ? > > >
+	private static class GunJson extends GunType< IGun< ? >, IGunPartRenderer< ? super IGun< ? > > >
 	{
 		@Override
-		public IModular< ? > newPreparedContexted() { return this.new Gun<>(); }
+		public IModular< ? > newRawContexted()
+		{
+			return this.new Gun< IGunPart< ? > >()
+			{
+				// Override this so that we do not need to create a wrapper for it
+				@Override
+				public void syncAndUpdate() { }
+			};
+		}
 		
 		@Override
 		public IModular< ? > deserializeContexted( NBTTagCompound nbt ) {
@@ -96,7 +106,7 @@ public abstract class GunType< C extends IGunPart< ? >, R extends IGunPartRender
 		}
 		
 		@Override
-		protected GunWrapper< ?, ? > newWrapper( IModular< ? > primary, ItemStack stack ) {
+		protected ICapabilityProvider newWrapper( IGun< ? > primary, ItemStack stack ) {
 			return new GunWrapper<>( primary, stack );
 		}
 	}

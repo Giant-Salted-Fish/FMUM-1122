@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -21,7 +20,6 @@ import com.mcwb.common.module.IModular;
 import com.mcwb.common.module.IModularType;
 import com.mcwb.common.module.IModuleSlot;
 import com.mcwb.common.module.Module;
-import com.mcwb.common.module.ModuleSnapshot;
 import com.mcwb.common.module.ModuleWrapper;
 import com.mcwb.common.paintjob.IPaintable;
 import com.mcwb.common.paintjob.IPaintableType;
@@ -46,10 +44,6 @@ public abstract class ModifiableItemType<
 	R extends IItemRenderer< ? super C > & IModuleRenderer< ? super C >
 > extends ItemType< C, R > implements IModularType, IPaintableType, IPaintjob
 {
-	/**
-	 * TODO: explain what is this for
-	 */
-	protected static final NBTTagCompound NBT = new NBTTagCompound();
 	
 	@SerializedName( value = "category", alternate = "group" )
 	protected String category;
@@ -60,8 +54,8 @@ public abstract class ModifiableItemType<
 	@SerializedName( value = "slots", alternate = "moduleSlots" )
 	protected List< IModuleSlot > slots = Collections.emptyList();
 	
-	@SerializedName( value = "snapshot", alternate = "preInstalls" )
-	protected ModuleSnapshot snapshot = ModuleSnapshot.DEFAULT;
+//	@SerializedName( value = "snapshot", alternate = "preInstalls" )
+//	protected ModuleSnapshot snapshot = ModuleSnapshot.DEFAULT;
 	protected transient NBTTagCompound compiledSnapshotNBT;
 	
 	@SerializedName( value = "paintjobs", alternate = "skins" )
@@ -97,8 +91,8 @@ public abstract class ModifiableItemType<
 		// TODO: set a default indicator
 		
 		// TODO: call update state maybe?
-		final Function< String, IModular< ? > > func = name -> this.newPreparedContexted();
-		this.compiledSnapshotNBT = this.snapshot.setSnapshot( func ).serializeNBT();
+//		final Function< String, IModular< ? > > func = name -> this.newPreparedContexted();
+//		this.compiledSnapshotNBT = this.snapshot.setSnapshot( func ).serializeNBT();
 	}
 	
 	@Override
@@ -112,17 +106,14 @@ public abstract class ModifiableItemType<
 	@Override
 	protected Item createItem() { return this.new ModifiableVanillaItem( 1, 0 ); }
 	
-	protected abstract ModifiableItemWrapper< ?, ? > newWrapper(
-		IModular< ? > primary,
-		ItemStack stack
-	);
-	
 	protected final IModular< ? > fromTag( NBTTagCompound tag )
 	{
 		final Item item = Item.getItemById( IModular.getId( tag ) );
 		final IModularType type = ( IModularType ) IItemTypeHost.getType( item );
 		return type.deserializeContexted( tag );
 	}
+	
+	protected abstract ICapabilityProvider newWrapper( C primary, ItemStack stack );
 	
 	protected class ModifiableVanillaItem extends VanillaItem
 	{
@@ -131,36 +122,48 @@ public abstract class ModifiableItemType<
 		}
 		
 		@Override
+		@SuppressWarnings( "unchecked" )
 		public ICapabilityProvider initCapabilities(
 			ItemStack stack,
 			@Nullable NBTTagCompound capTag
 		) {
+//			
+//			// 4 case to handle: \
+//			// has-stackTag | has-capTag}: {deserialized from local storage} \
+//			// has-stackTag | no--capTag}: \
+//			// no--stackTag | has-capTag}: {copy stack} \
+//			// no--stackTag | no--capTag}: {create stack}, {deserialize from network packet} \
 			final NBTTagCompound stackTag = stack.getTagCompound();
 			final ModifiableItemType< ?, ? > $this = ModifiableItemType.this;
 			
-			// 4 case to handle: \
-			// has-stackTag | has-capTag}: {deserialized from local storage} \
-			// has-stackTag | no--capTag}: \
-			// no--stackTag | has-capTag}: {copy stack} \
-			// no--stackTag | no--capTag}: {create stack}, {deserialize from network packet} \
 			if( capTag != null )
 			{
-				// 2 cases possible:
-				// no--stackTag | has-capTag: {copy stack}
-				// has-stackTag | has-capTag: {deserialize from local storage}
+//				// 2 cases possible:
+//				// no--stackTag | has-capTag: {copy stack}
+//				// has-stackTag | has-capTag: {deserialize from local storage}
 				final NBTTagCompound nbt = capTag.getCompoundTag( "Parent" );
-				
-				// Remove "Parent" tag to prevent repeat deserialization
+//				
+//				// Remove "Parent" tag to prevent repeat deserialization
+				// See CapabilityDispatcher#deserializeNBT(NBTTagCompound)
 				capTag.removeTag( "Parent" );
 				
-				// Has to copy before use if is first case as the capability tag provided here \
-				// could be the same as the bounden tag of copy target.
-				final IModular< ? > primary = $this.fromTag( stack == null ? nbt.copy() : nbt );
-				final ICapabilityProvider wrapper = $this.newWrapper( primary, stack );
-				primary.updateState();
+				NBTTagCompound primaryTag;
+				if( stackTag == null )
+				{
+					// Has to copy before use if is first case as the capability tag provided here \
+					// could be the same as the bounden tag of copy target.
+					primaryTag = nbt.copy();
+					
+					// To ensure #syncAndUpdate() call will not crash on null
+					stack.setTagCompound( new NBTTagCompound() ); // TODO: static instance
+				}
+				else primaryTag = nbt;
+				
+				final C primary = ( C ) $this.fromTag( primaryTag );
+				final ICapabilityProvider wrapper =
+					ModifiableItemType.this.newWrapper( primary, stack );
+				primary.syncAndUpdate();
 				return wrapper;
-				// #syncNBTData() not called as it is possible that the stack tag has not been set \
-				// yet. This would not cause problem because the stack tag also has the same data.
 			}
 			
 			// has-stackTag | no--capTag: should never happen
@@ -177,24 +180,25 @@ public abstract class ModifiableItemType<
 			stack.setTagCompound( new NBTTagCompound() );
 			
 			final NBTTagCompound primaryTag = $this.compiledSnapshotNBT.copy();
-			final IModular< ? > primary = $this.deserializeContexted( primaryTag );
-			final ModifiableItemWrapper< ?, ? > wrapper = $this.newWrapper( primary, stack );
-			primary.updateState();
-			wrapper.syncNBTData();
-			return wrapper;
+			final C primary = ( C ) $this.deserializeContexted( primaryTag );
+			final ICapabilityProvider provider =
+				ModifiableItemType.this.newWrapper( primary, stack );
+			primary.syncAndUpdate();
+			return provider;
 		}
 		
 		@Override
-		public void readNBTShareTag( ItemStack stack, @Nullable NBTTagCompound nbt )
+		public void readNBTShareTag( ItemStack stack, NBTTagCompound nbt )
 		{
 			stack.setTagCompound( nbt ); // Copied from super
 			
 			final NBTTagCompound primaryTag = nbt.getCompoundTag( "_" );
 			final IModular< ? > primary = ModifiableItemType.this.fromTag( primaryTag );
 			
-			// See ModuleWrapper#setBase(...)
-			ModifiableItemType.this.getContexted( stack ).setBase( primary, 0 );
-			primary.updateState();
+			// Set ModuleWrapper#setBase(...)
+			final IModular< ? > wrapper = ModifiableItemType.this.getContexted( stack );
+			wrapper.setBase( primary, 0 );
+			wrapper.syncAndUpdate();
 		}
 		
 		/**
@@ -221,7 +225,7 @@ public abstract class ModifiableItemType<
 			ItemStack stack,
 			EntityPlayer player
 		) { return false; }
-	}	
+	}
 	
 	protected abstract class ModifiableItem< T extends IModular< ? extends T > >
 		extends Module< T > implements IItem
@@ -235,22 +239,6 @@ public abstract class ModifiableItemType<
 		
 		@Override
 		public String category() { return ModifiableItemType.this.category; }
-		
-		/**
-		 * Maybe a kind of too hacky...
-		 */
-//		@Override
-//		public IModular< ? > removeFromBase( int slot, int idx )
-//		{
-//			this.base.remove( slot, idx );
-//			final ItemStack stack = new ItemStack( ModifiableItemType.this.item );
-//			final IModular< ? > wrapper = ModifiableItemType.this.getContexted( stack );
-//			wrapper.deserializeNBT( this.nbt );
-//			
-//			// TODO: notify the modules on wrapper that they are just removed from our base and can do something to update
-//			
-//			return wrapper;
-//		}
 		
 		@Override
 		public int paintjobCount() { return ModifiableItemType.this.paintjobs.size(); }
@@ -304,11 +292,6 @@ public abstract class ModifiableItemType<
 			Collection< IDeferredPriorityRenderer > renderQueue1,
 			IAnimator animator
 		) {
-			// TODO: May not be necessary to call this every time if no item transform applied
-//			this.mat.setIdentity();
-//			this.base.applyTransform( this.baseSlot, this, this.mat );
-			
-			// TODO: maybe avoid instantiation to improve performance?
 			ModifiableItemType.this.renderer.prepareInHandRender(
 				this.self(),
 				this.wrapAnimator( animator ),
@@ -328,11 +311,6 @@ public abstract class ModifiableItemType<
 			Collection< IDeferredPriorityRenderer > renderQueue1,
 			IAnimator animator
 		) {
-			// TODO: May not be necessary to call this every time if no item transform applied
-//			this.mat.setIdentity();
-//			this.base.applyTransform( this.baseSlot, this, this.mat );
-			
-			// TODO: maybe avoid instantiation to improve performance?
 			ModifiableItemType.this.renderer.prepareRender(
 				this.self(),
 				this.wrapAnimator( animator ),
@@ -354,27 +332,22 @@ public abstract class ModifiableItemType<
 		@Override
 		public String toString() { return "Contexted<" + ModifiableItemType.this + ">"; }
 		
-		/**
-		 * This may be a bit of too hacky...
-		 * 
-		 * @see ModuleWrapper#setBase(IModular, int)
-		 */
-		@Override
-		protected IModular< ? > onBeingRemoved()
-		{
-			final ItemStack stack = new ItemStack( ModifiableItemType.this.item );
-			final IModular< ? > wrapper = ModifiableItemType.this.getContexted( stack );
-			wrapper.setBase( this, 0 );
-//			wrapper.syncAndUpdate(); // TODO: Sync NBT data? Seems that outer will call this
-			return wrapper;
-		}
-		
 		@Override
 		protected int id() { return Item.getIdFromItem( ModifiableItemType.this.item ); }
 		
 		@Override
 		protected IModular< ? > fromTag( NBTTagCompound tag ) {
 			return ModifiableItemType.this.fromTag( tag );
+		}
+		
+		@Override
+		protected IModular< ? > wrapOnBeingRemoved()
+		{
+			// Maybe a bit of too hacky...
+			final ItemStack stack = new ItemStack( ModifiableItemType.this.item );
+			final IModular< ? > wrapper = ModifiableItemType.this.getContexted( stack );
+			wrapper.setBase( this, 0 ); // See ModuleWrapper#setBase(...)
+			return wrapper;
 		}
 		
 		@SideOnly( Side.CLIENT )
@@ -393,7 +366,7 @@ public abstract class ModifiableItemType<
 		}
 		
 		@SuppressWarnings( "unchecked" )
-		protected C self() { return ( C ) this; }
+		protected final C self() { return ( C ) this; }
 	}
 	
 	protected static class ModifiableItemWrapper<
@@ -403,7 +376,7 @@ public abstract class ModifiableItemType<
 	{
 		protected final ItemStack stack;
 		
-		protected ModifiableItemWrapper( IModular< ? > primary, ItemStack stack )
+		protected ModifiableItemWrapper( T primary, ItemStack stack )
 		{
 			super( primary );
 			
@@ -428,7 +401,7 @@ public abstract class ModifiableItemType<
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public ResourceLocation texture() { return this.primary.texture(); }
+		public ResourceLocation texture() { throw new RuntimeException(); }
 		
 		@Override
 		protected void syncNBTData() {

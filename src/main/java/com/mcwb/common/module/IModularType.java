@@ -13,9 +13,9 @@ public interface IModularType extends IMeta
 	
 	/**
 	 * WARNNING: Never use this unless you understand what it is doing. This is only designed to be
-	 * used by {@link IModuleSnapshot}
+	 * used by {@link ModuleSnapshot}
 	 */
-	public IModular< ? > newPreparedContexted();
+	public IModular< ? > newRawContexted();
 	
 	/**
 	 * WARNNING: Never use this unless you understand what it is doing. This is only designed to be

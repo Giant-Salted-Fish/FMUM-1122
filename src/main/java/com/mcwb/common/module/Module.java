@@ -1,10 +1,13 @@
 package com.mcwb.common.module;
 
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import com.google.common.base.Supplier;
 import com.mcwb.common.MCWB;
-import com.mcwb.common.item.IItem;
+import com.mcwb.common.module.IModuleEventSubscriber.ModuleInstallEvent;
+import com.mcwb.common.module.IModuleEventSubscriber.ModuleRemoveEvent;
 import com.mcwb.common.paintjob.IPaintable;
 import com.mcwb.util.Mat4f;
 
@@ -13,21 +16,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants.NBT;
 
-/**
- * <p> This implementation of {@link IModular} uses a wrapper to satisfy the constraint of
- * {@link IItem}. </p>
- * 
- * <p> Has additional support for {@link IPaintable} for convenience </p>
- * 
- * @see ModuleWrapper
- * @author Giant_Salted_Fish
- */
 public abstract class Module< T extends IModular< ? extends T > >
 	implements IModular< T >, IPaintable
 {
 	protected static final String MODULE_TAG = "m";
 	
-	protected transient final Mat4f mat = new Mat4f(); // FIXME: how to handle with this?
+	protected transient final Mat4f mat = new Mat4f();
 	
 	protected transient IModular< ? > base;
 	protected transient short baseSlot;
@@ -56,9 +50,6 @@ public abstract class Module< T extends IModular< ? extends T > >
 	protected Module( NBTTagCompound nbt ) { this.deserializeNBT( nbt ); }
 	
 	@Override
-	public IModular< ? > primary() { return this.base.primary(); }
-	
-	@Override
 	public IModular< ? > base() { return this.base; }
 	
 	@Override
@@ -66,91 +57,59 @@ public abstract class Module< T extends IModular< ? extends T > >
 	{
 		this.base = base;
 		this.baseSlot = ( short ) baseSlot;
-		
-		// Update position for server side. Client side will always update matrix before render.
-		// FIXME: matrix is not serialized hence this will not work on server side
-//		this.globalMat.setIdentity();
-//		base.applySlotTransform( this, this.globalMat );
 	}
 	
 	@Override
-	public void forEach( Consumer< ? super T > visitor )
-	{
-		this.installed.forEach( mod -> {
-			visitor.accept( mod );
-			mod.forEach( visitor );
-		} );
-	}
+	public void postEvent( Object evt ) { this.base.postEvent( evt ); }
 	
 	@Override
 	public void syncAndUpdate() { this.base.syncAndUpdate(); }
 	
 	@Override
-	public void updateState()
+	public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry )
 	{
-		// FIXME: Check if this works
 		this.mat.setIdentity();
 		this.base.applyTransform( this.baseSlot, this, this.mat );
 		
-		this.installed.forEach( T::updateState );
+		this.installed.forEach( mod -> mod.updateState( registry ) );
 	}
 	
 	@Override
-	public IModifyPredicate tryInstall( int slot, IModular< ? > module )
+	public IModifyPredicate tryInstall( int islot, IModular< ? > module )
 	{
-		final IModular< ? > unwrapped = module.primary();
-		final IModuleSlot mslot = this.getSlot( slot );
-		if( !mslot.isAllowed( unwrapped ) ) return IModifyPredicate.NO_PREVIEW;
+		final IModuleSlot slot = this.getSlot( islot );
+		if( !slot.isAllowed( module ) ) return IModifyPredicate.NO_PREVIEW;
 		
-		final int capacity = Math.min( MCWB.maxSlotCapacity, mslot.capacity() );
-		if( this.getInstalledCount( slot ) > capacity )
+		final int capacity = Math.min( MCWB.maxSlotCapacity, slot.capacity() );
+		if( this.getInstalledCount( islot ) > capacity )
 		{
-			return ( IModifyPredicate.NotOk )
-				() -> I18n.format( "mcwb.msg.arrive_max_module_capacity", capacity );
+			final String msg = "mcwb.msg.arrive_max_module_capacity";
+			return ( IModifyPredicate.NotOk ) () -> I18n.format( msg, capacity );
 		}
 		
-		final IModuleModifier m0 = () -> {
-			this.install( slot, unwrapped );
-			return unwrapped;
+		final Supplier< IModifyPredicate > action = () -> {
+			final int idx = this.base.install( islot, module );
+			return () -> this.base.getInstalled( islot, idx );
 		};
-		final IModuleModifier m1 = this.primary().onModuleInstall( this, slot, module, m0 );
-		final IModuleModifier m2 = unwrapped.onModuleInstall( this, slot, module, m1 );
-		m2.action();
-		return m2.predicate();
+		final ModuleInstallEvent evt = new ModuleInstallEvent( this, islot, module, action );
+		this.postEvent( evt );
+		return evt.action.get();
 	}
 	
 	@Override
-	public IModular< ? > removeFromBase( int slot, int idx )
+	public IModular< ? > doRemove( int slot, int idx )
 	{
-		final IModuleModifier modifier = () -> this.base.remove( slot, idx );
-		return this.primary().onModuleRemove( this, slot, idx, modifier ).action();
-	}
-	
-	@Override
-	public IModuleModifier onModuleInstall(
-		IModular< ? > base, int slot, IModular< ? > module,
-		IModuleModifier modifier
-	) {
-		for( T mod : this.installed )
-			modifier = mod.onModuleInstall( base, slot, module, modifier );
-		return modifier;
-	}
-	
-	@Override
-	public IModuleModifier onModuleRemove(
-		IModular< ? > base, int slot, int idx,
-		IModuleModifier modifier
-	) {
-		for( T mod : this.installed )
-			modifier = mod.onModuleRemove( base, slot, idx, modifier );
-		return modifier;
+		final Supplier< IModular< ? > > action = () -> this.base.remove( slot, idx );
+		final ModuleRemoveEvent evt = new ModuleRemoveEvent( this, slot, idx, action );
+		this.postEvent( evt );
+		return evt.action.get();
 	}
 	
 	@Override
 	@SuppressWarnings( "unchecked" )
-	public void install( int slot, IModular< ? > module )
+	public int install( int slot, IModular< ? > module )
 	{
-		final T mod = ( T ) module;
+		final T mod = ( T ) module.onBeingInstalled();
 		mod.setBase( this, slot );
 		
 		// Update installed list
@@ -172,10 +131,12 @@ public abstract class Module< T extends IModular< ? extends T > >
 			this.setIdx( slot, val );
 			this.setIdx( data, slot, val );
 		}
+		this.syncAndUpdate();
+		return idx;
 	}
 	
 	@Override
-	public T remove( int slot, int idx )
+	public IModular< ? > remove( int slot, int idx )
 	{
 		// Update installed list
 		final int i = this.getIdx( slot ) + idx;
@@ -193,12 +154,28 @@ public abstract class Module< T extends IModular< ? extends T > >
 			this.setIdx( slot, val );
 			this.setIdx( data, slot, val );
 		}
-		return removed;
+		this.syncAndUpdate();
+		return removed.onBeingRemoved();
 	}
 	
 	@Override
-	public T getInstalled( int slot, int idx ) {
-		return this.installed.get( this.getIdx( slot ) + idx ); 
+	public IModular< ? > onBeingInstalled() { return this; }
+	
+	@Override
+	public IModular< ? > onBeingRemoved()
+	{
+		final IModular< ? > wrapper = this.wrapOnBeingRemoved();
+		wrapper.syncAndUpdate();
+		return wrapper;
+	}
+	
+	@Override
+	public void forEach( Consumer< ? super T > visitor )
+	{
+		this.installed.forEach( mod -> {
+			visitor.accept( mod );
+			mod.forEach( visitor );
+		} );
 	}
 	
 	@Override
@@ -207,15 +184,21 @@ public abstract class Module< T extends IModular< ? extends T > >
 	}
 	
 	@Override
+	public T getInstalled( int slot, int idx ) {
+		return this.installed.get( this.getIdx( slot ) + idx ); 
+	}
+	
+	@Override
 	public int paintjob() { return this.paintjob; }
 	
 	@Override
-	public void updatePaintjob( int paintjob )
+	public void setPaintjob( int paintjob )
 	{
 		this.paintjob = ( short ) paintjob;
 		final int[] data = this.nbt.getIntArray( DATA_TAG );
 		data[ 0 ] &= 0xFFFF;
 		data[ 0 ] |= paintjob << 16;
+		this.syncAndUpdate();
 	}
 	
 	@Override
@@ -255,7 +238,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 		this.nbt = nbt; // Do not forget to bind to the given tag
 	}
 	
-	protected abstract IModular< ? > onBeingRemoved();
+	protected int dataSize() { return 1 + ( this.indices.length + 3 ) / 4; }
 	
 	/**
 	 * @return
@@ -264,9 +247,13 @@ public abstract class Module< T extends IModular< ? extends T > >
 	 */
 	protected abstract int id();
 	
-	protected abstract IModular< ? > fromTag( NBTTagCompound tag );
+	/**
+	 * Used in {@link #onBeingRemoved()} to wrap this module on being removed.
+	 * {@link #syncAndUpdate()} will be called on returned wrapper.
+	 */
+	protected abstract IModular< ? > wrapOnBeingRemoved();
 	
-	protected int dataSize() { return 1 + ( this.indices.length + 3 ) / 4; }
+	protected abstract IModular< ? > fromTag( NBTTagCompound tag );
 	
 	protected final int getIdx( int slot ) {
 		return slot > 0 ? 0xFF & this.indices[ slot - 1 ] : 0;

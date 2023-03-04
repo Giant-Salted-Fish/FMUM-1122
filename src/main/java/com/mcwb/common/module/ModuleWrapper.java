@@ -1,10 +1,12 @@
 package com.mcwb.common.module;
 
 import java.util.Collection;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.TreeMultimap;
 import com.mcwb.client.module.IDeferredPriorityRenderer;
 import com.mcwb.client.module.IDeferredRenderer;
 import com.mcwb.client.render.IAnimator;
@@ -32,9 +34,15 @@ public abstract class ModuleWrapper<
 	T extends IModular< ? extends M > & IPaintable
 > implements IModular< M >, IPaintable, ICapabilityProvider
 {
-	protected T primary;
+	protected transient final TreeMultimap< Class< ? >, IModuleEventSubscriber< ? > >
+		eventSubscribers = TreeMultimap.create(
+			( c0, c1 ) -> 0,
+			( s0, s1 ) -> s0.priority() - s1.priority() // TODO: receive event later with higher priority
+		);
 	
-	protected ModuleWrapper( IModular< ? > primary ) { this.setBase( primary, 0 ); }
+	protected transient T primary;
+	
+	protected ModuleWrapper( T primary ) { this.primary = primary; }
 	
 	@Override
 	public boolean hasCapability( Capability< ? > capability, @Nullable EnumFacing facing ) {
@@ -52,15 +60,9 @@ public abstract class ModuleWrapper<
 	@Override
 	public String category() { return this.primary.category(); }
 	
-	// TODO: check if this is valid?
+	// TODO: add proper error string. Also for sub-classes
 	@Override
-	public IModular< ? > primary() { return this.primary; }
-	
-	/**
-	 * Get base on primary to actually get wrapper
-	 */
-	@Override
-	public IModular< ? > base() { throw new RuntimeException( "Try to get base from " + this ); }
+	public IModular< ? > base() { throw new RuntimeException(); }
 	
 	/**
 	 * Set base is meaningless for wrapper so it is used here to reset wrapped primary
@@ -74,106 +76,89 @@ public abstract class ModuleWrapper<
 	}
 	
 	@Override
-	public void forEach( Consumer< ? super M > visitor ) { this.primary.forEach( visitor ); }
+	@SuppressWarnings( "unchecked" )
+	public void postEvent( Object evt )
+	{
+		this.eventSubscribers.get( evt.getClass() ).forEach(
+			subscriber -> ( ( Consumer< Object > ) subscriber ).accept( evt )
+		);
+	}
 	
 	@Override
 	public void syncAndUpdate()
 	{
-		this.primary.updateState();
 		this.syncNBTData();
+		this.eventSubscribers.clear();
+		this.primary.updateState( this.eventSubscribers::put );
 	}
 	
 	@Override
-	public void updateState() {
-		throw new RuntimeException( "Try to call update state on " + this );
+	public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry ) {
+		throw new RuntimeException();
 	}
 	
 	@Override
-	public IModifyPredicate tryInstallTo( IModular< ? > base, int slot ) {
-		throw new RuntimeException( "Try to call try install to on " + this );
+	public IModifyPredicate tryInstall( int slot, IModular< ? > module ) {
+		throw new RuntimeException();
 	}
 	
 	@Override
-	public IModular< ? > removeFromBase( int slot, int idx ) {
-		throw new RuntimeException( "Try to call remove from base on " + this );
-	}
+	public IModular< ? > doRemove( int slot, int idx ) { throw new RuntimeException(); }
 	
 	@Override
-	public IModuleModifier onModuleInstall(
-		IModular< ? > base, int slot, IModular< ? > module,
-		IModuleModifier modifier
-	) {
-		//if( modifier.predicate().ok() ) // TODO: If {module == this} is required?
-		
-		// Avoid install wrapper
-		return this.primary.onModuleInstall( base, slot, module, () -> {
-			base.install( slot, this.primary );
-			return this.primary;
-		} );
-	}
+	public int install( int slot, IModular< ? > module ) { throw new RuntimeException(); }
 	
 	@Override
-	public IModuleModifier onModuleRemove(
-		IModular< ? > base, int slot, int idx,
-		IModuleModifier modifier
-	) { throw new RuntimeException( "Try to call on module remove on " + this ); }
-	
-	// TODO: validate if these methods are actually called
-	@Override
-	public void install( int slot, IModular< ? > module ) { this.primary.install( slot, module ); }
+	public IModular< ? > remove( int slot, int idx ) { throw new RuntimeException(); }
 	
 	@Override
-	public M remove( int slot, int idx ) { return this.primary.remove( slot, idx ); }
+	public IModular< ? > onBeingInstalled() { return this.primary.onBeingInstalled(); }
 	
 	@Override
-	public M getInstalled( int slot, int idx ) { return this.primary.getInstalled( slot, idx ); }
+	public IModular< ? > onBeingRemoved() { throw new RuntimeException(); }
 	
 	@Override
-	public int getInstalledCount( int slot ) { return this.primary.getInstalledCount( slot ); }
+	public void forEach( Consumer< ? super M > visitor ) { this.primary.forEach( visitor ); }
 	
 	@Override
-	public int slotCount() { return this.primary.slotCount(); }
+	public int getInstalledCount( int slot ) { throw new RuntimeException(); }
 	
 	@Override
-	public IModuleSlot getSlot( int idx ) { return this.primary.getSlot( idx ); }
-	
-	// TODO: if get and set offset and step are valid 
-	@Override
-	public int offsetCount() { return this.primary.offsetCount(); }
+	public M getInstalled( int slot, int idx ) { throw new RuntimeException(); }
 	
 	@Override
-	public int offset() { return this.primary.offset(); }
+	public int slotCount() { throw new RuntimeException(); }
 	
 	@Override
-	public int step() { return this.primary.step(); }
+	public IModuleSlot getSlot( int idx ) { throw new RuntimeException(); }
 	
 	@Override
-	public void updateOffsetStep( int offset, int step ) {
-		this.primary.updateOffsetStep( offset, step );
-	}
+	public int paintjobCount() { throw new RuntimeException(); }
 	
 	@Override
-	public int paintjobCount() { return this.primary.paintjobCount(); }
+	public int paintjob() { throw new RuntimeException(); }
 	
 	@Override
-	public int paintjob() { return this.primary.paintjob(); }
+	public void setPaintjob( int paintjob ) { throw new RuntimeException(); }
 	
 	@Override
-	public void updatePaintjob( int paintjob ) { this.primary.updatePaintjob( paintjob ); }
+	public int offsetCount() { throw new RuntimeException(); }
 	
 	@Override
-	public IModifyState modifyState() {
-		throw new RuntimeException( "Try to get modify state from wrapper" );
-	}
+	public int offset() { throw new RuntimeException(); }
 	
 	@Override
-	public void setModifyState( IModifyState state ) {
-		throw new RuntimeException( "Try to set modify state for wrapper" );
-	}
+	public int step() { throw new RuntimeException(); }
 	
-	/**
-	 * This is on purpose to simply the matrix update of the module tree
-	 */
+	@Override
+	public void setOffsetStep( int offset, int step ){ throw new RuntimeException(); }
+	
+	@Override
+	public IModifyState modifyState() { throw new RuntimeException(); }
+	
+	@Override
+	public void setModifyState( IModifyState state ) { throw new RuntimeException(); }
+	
 	@Override
 	public void applyTransform( int slot, IModular< ? > module, Mat4f dst ) { }
 	
@@ -183,7 +168,7 @@ public abstract class ModuleWrapper<
 		Collection< IDeferredRenderer > renderQueue0,
 		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
-	) { throw new RuntimeException( "Try to call prepare in hand render on wrapper" ); }
+	) { throw new RuntimeException(); }
 	
 	@Override
 	@SideOnly( Side.CLIENT )
@@ -191,15 +176,13 @@ public abstract class ModuleWrapper<
 		Collection< IDeferredRenderer > renderQueue0,
 		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
-	) { throw new RuntimeException( "Try to call prepare render on wrapper" ); }
+	) { throw new RuntimeException(); }
 	
 	@Override
 	public NBTTagCompound serializeNBT() { return this.primary.serializeNBT(); }
 	
 	@Override
-	public void deserializeNBT( NBTTagCompound nbt ) {
-		throw new RuntimeException( "Try to call deserialize NBT on wrapper" );
-	}
+	public void deserializeNBT( NBTTagCompound nbt ) { throw new RuntimeException(); }
 	
 	@Override
 	public String toString() { return "Wrapper{" + this.primary + "}"; }

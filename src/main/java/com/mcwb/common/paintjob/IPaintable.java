@@ -8,5 +8,5 @@ public interface IPaintable extends IContexted
 	
 	public int paintjob();
 	
-	public void updatePaintjob( int paintjob );
+	public void setPaintjob( int paintjob );
 }
