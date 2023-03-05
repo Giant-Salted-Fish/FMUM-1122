@@ -15,7 +15,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.JsonObject;
 import com.mcwb.client.MCWBClient;
-import com.mcwb.client.input.Key.KeyCategory;
+import com.mcwb.client.input.Key.Category;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.IAutowireLogger;
 import com.mcwb.common.MCWB;
@@ -60,40 +60,40 @@ public final class InputHandler
 	 * These keys always update
 	 */
 	public static final KeyBind
-		PULL_TRIGGER = new KeyBind( Key.PULL_TRIGGER, KeyCategory.GUN, 0 - 100, GLOBAL_KEYS ),
-		AIM_HOLD = new KeyBind( Key.AIM_HOLD, KeyCategory.GUN, 1 - 100, GLOBAL_KEYS ),
-		AIM_TOGGLE = new KeyBind( Key.AIM_TOGGLE, KeyCategory.GUN, Keyboard.KEY_NONE, GLOBAL_KEYS ),
-		RELOAD = new KeyBind( Key.RELOAD, KeyCategory.GUN, Keyboard.KEY_R ),
-		LOAD_UNLOAD_MAG = new KeyBind( Key.LOAD_UNLOAD_MAG, KeyCategory.GUN, Keyboard.KEY_T ),
+		PULL_TRIGGER = new KeyBind( Key.PULL_TRIGGER, Category.GUN, 0 - 100, GLOBAL_KEYS ),
+		AIM_HOLD = new KeyBind( Key.AIM_HOLD, Category.GUN, 1 - 100, GLOBAL_KEYS ),
+		AIM_TOGGLE = new KeyBind( Key.AIM_TOGGLE, Category.GUN, Keyboard.KEY_NONE, GLOBAL_KEYS ),
+		RELOAD = new KeyBind( Key.RELOAD, Category.GUN, Keyboard.KEY_R ),
+		LOAD_UNLOAD_MAG = new KeyBind( Key.LOAD_UNLOAD_MAG, Category.GUN, Keyboard.KEY_T ),
 		
 		// TODO: change the default bind key for this maybe
-		SELECT_TOGGLE = new KeyBind( Key.SELECT_TOGGLE, KeyCategory.MODIFY, Keyboard.KEY_V ),
-		SELECT_UP = new KeyBind( Key.SELECT_UP, KeyCategory.MODIFY, Keyboard.KEY_UP ),
-		SELECT_DOWN = new KeyBind( Key.SELECT_DOWN, KeyCategory.MODIFY, Keyboard.KEY_DOWN ),
-		SELECT_LEFT = new KeyBind( Key.SELECT_LEFT, KeyCategory.MODIFY, Keyboard.KEY_LEFT ),
-		SELECT_RIGHT = new KeyBind( Key.SELECT_RIGHT, KeyCategory.MODIFY, Keyboard.KEY_RIGHT ),
-		SELECT_CONFIRM = new KeyBind( Key.SELECT_CONFIRM, KeyCategory.MODIFY, Keyboard.KEY_G ),
-		SELECT_CANCEL = new KeyBind( Key.SELECT_CANCEL, KeyCategory.MODIFY, Keyboard.KEY_H ),
+		SELECT_TOGGLE = new KeyBind( Key.SELECT_TOGGLE, Category.MODIFY, Keyboard.KEY_V ),
+		SELECT_UP = new KeyBind( Key.SELECT_UP, Category.MODIFY, Keyboard.KEY_UP ),
+		SELECT_DOWN = new KeyBind( Key.SELECT_DOWN, Category.MODIFY, Keyboard.KEY_DOWN ),
+		SELECT_LEFT = new KeyBind( Key.SELECT_LEFT, Category.MODIFY, Keyboard.KEY_LEFT ),
+		SELECT_RIGHT = new KeyBind( Key.SELECT_RIGHT, Category.MODIFY, Keyboard.KEY_RIGHT ),
+		SELECT_CONFIRM = new KeyBind( Key.SELECT_CONFIRM, Category.MODIFY, Keyboard.KEY_G ),
+		SELECT_CANCEL = new KeyBind( Key.SELECT_CANCEL, Category.MODIFY, Keyboard.KEY_H ),
 		
-		CO = new KeyBind( Key.CO, KeyCategory.ASSIST, Keyboard.KEY_Z, GLOBAL_KEYS );
+		CO = new KeyBind( Key.CO, Category.ASSIST, Keyboard.KEY_Z, GLOBAL_KEYS );
 	
 	/**
 	 * These keys will update if {@link #CO} is not down
 	 */
 	public static final KeyBind
-		FREE_VIEW = new KeyBind( Key.FREE_VIEW, KeyCategory.GENERAL, Keyboard.KEY_LMENU ),
-		TOGGLE_MODIFY = new KeyBind( Key.TOGGLE_MODIFY, KeyCategory.GUN, Keyboard.KEY_I );
+		FREE_VIEW = new KeyBind( Key.FREE_VIEW, Category.GENERAL, Keyboard.KEY_LMENU ),
+		TOGGLE_MODIFY = new KeyBind( Key.TOGGLE_MODIFY, Category.GUN, Keyboard.KEY_I );
 	
 	/**
 	 * These keys will update if {@link #CO} is down
 	 */
 	public static final KeyBind
-		CO_FREE_VIEW = new KeyBind( Key.CO_FREE_VIEW, KeyCategory.ASSIST, Keyboard.KEY_NONE ),
-		CO_RELOAD = new KeyBind( Key.CO_RELOAD, KeyCategory.ASSIST, Keyboard.KEY_NONE ),
+		CO_FREE_VIEW = new KeyBind( Key.CO_FREE_VIEW, Category.ASSIST, Keyboard.KEY_NONE ),
+		CO_RELOAD = new KeyBind( Key.CO_RELOAD, Category.ASSIST, Keyboard.KEY_NONE ),
 		CO_LOAD_UNLOAD_MAG = new KeyBind(
-			Key.CO_LOAD_UNLOAD_MAG, KeyCategory.ASSIST, Keyboard.KEY_NONE ),
-		CO_TOGGLE_MODIFY = new KeyBind(
-			Key.CO_TOGGLE_MODIFY, KeyCategory.ASSIST, Keyboard.KEY_NONE );
+			Key.CO_LOAD_UNLOAD_MAG, Category.ASSIST, Keyboard.KEY_NONE
+		),
+		CO_TOGGLE_MODIFY = new KeyBind( Key.CO_TOGGLE_MODIFY, Category.ASSIST, Keyboard.KEY_NONE );
 	
 	private static final HashMultimap< Integer, IKeyBind > GLOBAL_MAPPER = HashMultimap.create();
 	
@@ -106,7 +106,7 @@ public final class InputHandler
 		new VanillaKeyBindProxy(
 			"swap_hand",
 			MCWBClient.MOD,
-			KeyCategory.OTHER,
+			Category.OTHER,
 			MCWBClient.SETTINGS.keyBindSwapHands
 		) {
 			@Override

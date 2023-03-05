@@ -30,6 +30,8 @@ import com.mcwb.common.meta.Registry;
 import com.mcwb.common.module.IModuleSlot;
 import com.mcwb.common.module.RailSlot;
 import com.mcwb.common.network.PacketHandler;
+import com.mcwb.common.operation.IOperationController;
+import com.mcwb.common.operation.OperationController;
 import com.mcwb.common.pack.FolderPack;
 import com.mcwb.common.pack.JarPack;
 import com.mcwb.common.pack.LocalPack;
@@ -99,8 +101,8 @@ public class MCWB extends URLClassLoader
 		else try
 		{
 			// Avoid class not define exception with indirect reference
-			MOD = ( MCWB ) Class.forName( "com.mcwb.client.MCWBClient" )
-				.getField( "MOD" ).get( null );
+			final String className = "com.mcwb.client.MCWBClient";
+			MOD = ( MCWB ) Class.forName( className ).getField( "MOD" ).get( null );
 		}
 		catch( Exception e ) {
 			throw new RuntimeException( "Can not get client proxy. Should be impossible", e );
@@ -389,7 +391,7 @@ public class MCWB extends URLClassLoader
 		
 		builder.registerTypeAdapter( IModuleSlot.class, RailSlot.ADAPTER );
 		builder.registerTypeAdapter( IPaintjob.class, Paintjob.ADAPTER );
-//		builder.registerTypeAdapter( IOperationController.class, OperationController.ADAPTER );
+		builder.registerTypeAdapter( IOperationController.class, OperationController.ADAPTER );
 		
 		final JsonDeserializer< SoundEvent > soundAdapter =
 			( json, typeOfT, context ) -> this.loadSound( json.getAsString() );

@@ -3,6 +3,8 @@ package com.mcwb.common.gun;
 import java.util.function.BiConsumer;
 
 import com.mcwb.client.gun.IGunPartRenderer;
+import com.mcwb.client.input.InputHandler;
+import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.meta.IMeta;
@@ -58,10 +60,9 @@ public abstract class GunType< C extends IGun< ? >, R extends IGunPartRenderer< 
 		@SideOnly( Side.CLIENT )
 		public boolean hideCrosshair()
 		{
-//			final boolean modifying = PlayerPatchClient.instance.executing() == OP_MODIFY;
-//			final boolean freeView = InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down;
-//			return !( modifying && freeView );
-			return true;
+			final boolean modifying = PlayerPatchClient.instance.executing() == this.opModify();
+			final boolean freeView = InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down;
+			return !( modifying && freeView );
 		}
 		
 		@Override

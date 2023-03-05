@@ -13,7 +13,7 @@ item.556x45mm_case.name=5.56x45mm 北约制式弹药铜壳
 
 # H&K416
 item.hk416_d10rs.name=H&K416 D10RS
-item.hk416_lower_receiver=H&K416 下机匣
+item.hk416_lower_receiver.name=H&K416 下机匣
 item.hk416_104_barrel.name=H&K416 10.4英寸枪管
 item.hk416_145_barrel.name=H&K416 14.5英寸枪管
 item.hk416_145_handguard.name=H&K416 14.5英寸护木

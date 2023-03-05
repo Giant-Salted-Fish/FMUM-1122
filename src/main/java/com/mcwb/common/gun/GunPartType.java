@@ -70,7 +70,8 @@ public abstract class GunPartType<
 			this.offset = ( short ) offset;
 			this.step = ( short ) step;
 			final int[] data = this.nbt.getIntArray( DATA_TAG );
-			data[ super.dataSize() ] = 0xFFFF & offset & step << 16;
+			data[ super.dataSize() ] = 0xFFFF & offset | step << 16;
+			this.syncAndUpdate();
 		}
 		
 		@Override

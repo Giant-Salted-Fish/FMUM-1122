@@ -6,10 +6,12 @@ import java.util.function.Consumer;
 
 import com.mcwb.client.module.IDeferredPriorityRenderer;
 import com.mcwb.client.module.IDeferredRenderer;
+import com.mcwb.client.player.OpModifyClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.meta.IContexted;
 import com.mcwb.util.Mat4f;
 
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.Side;
@@ -26,6 +28,11 @@ public interface IModular< T extends IModular< ? extends T > >
 	public String name();
 	
 	public String category();
+	
+	/**
+	 * @return An {@link ItemStack} that linked to this module
+	 */
+	public ItemStack toStack();
 	
 	public IModular< ? > base();
 	
@@ -47,7 +54,7 @@ public interface IModular< T extends IModular< ? extends T > >
 	 */
 	public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry );
 	
-	public IModifyPredicate tryInstall( int slot, IModular< ? > module );
+	public IPreviewPredicate tryInstall( int slot, IModular< ? > module );
 	
 	public IModular< ? > doRemove( int slot, int idx );
 	
@@ -73,6 +80,8 @@ public interface IModular< T extends IModular< ? extends T > >
 	
 	public IModular< ? > onBeingRemoved();
 	
+	public IModifyPredicate checkHitboxConflict( IModular< ? > module );
+	
 	/**
 	 * Notice that for each will not visit itself
 	 */
@@ -81,6 +90,10 @@ public interface IModular< T extends IModular< ? extends T > >
 	public int getInstalledCount( int slot );
 	
 	public T getInstalled( int slot, int idx );
+	
+	public IModular< ? > getInstalled( byte[] loc, int locLen );
+	
+	public void setInstalled( int slot, int idx, IModular< ? > module );
 	
 	public int slotCount();
 	
@@ -113,6 +126,12 @@ public interface IModular< T extends IModular< ? extends T > >
 		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
 	);
+	
+	@SideOnly( Side.CLIENT )
+	public OpModifyClient opModify();
+	
+	@SideOnly( Side.CLIENT )
+	public IModular< ? > newModifyIndicator();
 	
 	/**
 	 * <p> Simply return the bounden NBT tag. </p>

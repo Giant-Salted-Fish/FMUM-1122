@@ -11,6 +11,7 @@ import com.mcwb.client.module.IModuleRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.module.IModular;
+import com.mcwb.devtool.Dev;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Vec3f;
 
@@ -36,7 +37,7 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModular< ? > >
 	protected static final ArrayList< IDeferredPriorityRenderer >
 		RENDER_QUEUE_1 = new ArrayList<>();
 	
-	private static final Vec3f MODIFY_POS = new Vec3f( 0F, 0F, 150F / 160F );
+	private static final Vec3f MODIFY_POS = new Vec3f( 0F, 0F, 200F / 160F );
 	
 	protected Vec3f modifyPos = MODIFY_POS;
 	
@@ -44,7 +45,7 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModular< ? > >
 	public void tickInHand( T contexted, EnumHand hand )
 	{
 		final ModifiableItemAnimatorState state = this.animator( hand );
-//		state.modifyOp = this.opModify();
+		state.modifyOp = contexted.opModify();
 		state.modifyPos = this.modifyPos;
 		
 		super.tickInHand( contexted, hand );
@@ -103,6 +104,11 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModular< ? > >
 			glMultMatrix( mat );
 			mat.release();
 			
+			final float pro = contexted.opModify().getProgress( 0F );
+			if( contexted.name().equals( "hk416_front_sight" ) )
+			{
+				Dev.cur();
+			}
 			contexted.modifyState().doRecommendedRender( contexted.texture(), this::render );
 			GL11.glPopMatrix();
 		} );
@@ -114,8 +120,6 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModular< ? > >
 		IN_HAND_QUEUE_0.forEach( IDeferredRenderer::render );
 		IN_HAND_QUEUE_1.forEach( IDeferredPriorityRenderer::render );
 	}
-	
-//	protected OpModifyClient opModify() { return ModifiableItemType.OP_MODIFY; }
 	
 	@Override
 	protected abstract ModifiableItemAnimatorState animator( EnumHand hand );

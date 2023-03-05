@@ -9,11 +9,13 @@ import javax.annotation.Nullable;
 import com.google.common.collect.TreeMultimap;
 import com.mcwb.client.module.IDeferredPriorityRenderer;
 import com.mcwb.client.module.IDeferredRenderer;
+import com.mcwb.client.player.OpModifyClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.paintjob.IPaintable;
 import com.mcwb.util.Mat4f;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
@@ -102,7 +104,7 @@ public abstract class ModuleWrapper<
 	}
 	
 	@Override
-	public IModifyPredicate tryInstall( int slot, IModular< ? > module ) {
+	public IPreviewPredicate tryInstall( int slot, IModular< ? > module ) {
 		throw new RuntimeException();
 	}
 	
@@ -122,6 +124,11 @@ public abstract class ModuleWrapper<
 	public IModular< ? > onBeingRemoved() { throw new RuntimeException(); }
 	
 	@Override
+	public IModifyPredicate checkHitboxConflict( IModular< ? > module ) {
+		return IModifyPredicate.OK; // TODO: hitbox test
+	}
+	
+	@Override
 	public void forEach( Consumer< ? super M > visitor ) { this.primary.forEach( visitor ); }
 	
 	@Override
@@ -131,19 +138,20 @@ public abstract class ModuleWrapper<
 	public M getInstalled( int slot, int idx ) { throw new RuntimeException(); }
 	
 	@Override
+	public IModular< ? > getInstalled( byte[] loc, int locLen ) {
+		return this.primary.getInstalled( loc, locLen );
+	}
+	
+	@Override
+	public void setInstalled( int slot, int idx, IModular< ? > module ) {
+		throw new RuntimeException();
+	}
+	
+	@Override
 	public int slotCount() { throw new RuntimeException(); }
 	
 	@Override
 	public IModuleSlot getSlot( int idx ) { throw new RuntimeException(); }
-	
-	@Override
-	public int paintjobCount() { throw new RuntimeException(); }
-	
-	@Override
-	public int paintjob() { throw new RuntimeException(); }
-	
-	@Override
-	public void setPaintjob( int paintjob ) { throw new RuntimeException(); }
 	
 	@Override
 	public int offsetCount() { throw new RuntimeException(); }
@@ -158,10 +166,30 @@ public abstract class ModuleWrapper<
 	public void setOffsetStep( int offset, int step ){ throw new RuntimeException(); }
 	
 	@Override
+	public int paintjobCount() { throw new RuntimeException(); }
+	
+	@Override
+	public int paintjob() { throw new RuntimeException(); }
+	
+	@Override
+	public void setPaintjob( int paintjob ) { throw new RuntimeException(); }
+	
+	@Override
+	public boolean tryOffer( int paintjob, EntityPlayer player ) {
+		throw new RuntimeException();
+	}
+	
+	@Override
+	@SideOnly( Side.CLIENT )
+	public boolean tryOfferOrNotifyWhy( int paintjob, EntityPlayer player ) {
+		throw new RuntimeException();
+	}
+	
+	@Override
 	public IModifyState modifyState() { throw new RuntimeException(); }
 	
 	@Override
-	public void setModifyState( IModifyState state ) { throw new RuntimeException(); }
+	public void setModifyState( IModifyState state ) { this.primary.setModifyState( state ); }
 	
 	@Override
 	public void applyTransform( int slot, IModular< ? > module, Mat4f dst ) { }
@@ -181,6 +209,14 @@ public abstract class ModuleWrapper<
 		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
 	) { throw new RuntimeException(); }
+	
+	@Override
+	@SideOnly( Side.CLIENT )
+	public OpModifyClient opModify() { throw new RuntimeException(); }
+	
+	@Override
+	@SideOnly( Side.CLIENT )
+	public IModular< ? > newModifyIndicator() { throw new RuntimeException(); }
 	
 	@Override
 	public NBTTagCompound serializeNBT() { return this.primary.serializeNBT(); }

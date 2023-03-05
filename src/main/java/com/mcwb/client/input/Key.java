@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public final class Key
 {
-	public static final class KeyCategory
+	public static final class Category
 	{
 		public static final String
 			GENERAL = "mcwb.key_category.general",
@@ -23,7 +23,7 @@ public final class Key
 			MODIFY  = "mcwb.key_category.modify",
 			OTHER   = "mcwb.key_category.other";
 		
-		private KeyCategory() { }
+		private Category() { }
 	}
 	
 	/**

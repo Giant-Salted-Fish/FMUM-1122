@@ -1,0 +1,26 @@
+{
+	"creativeTab": "oc",
+	"renderer": "renderers/gun/hk416/lower_receiver.json",
+	"texture": "textures/guns/hk416_d10rs.png",
+	
+	"paramScale": 0.00625,
+	"moduleSlots": [
+		{
+			"origin": [ 0, 40, -15.5 ],
+			"allowed": [ "556x45mm_mag" ]
+		}, {
+			"origin": [ 0, 36.5, -44 ],
+			"allowed": [ "hk416_upper_receiver" ]
+		}, {
+			"origin": [ 0, 43, -49 ],
+			"allowed": [ "ar_buffer_tube" ]
+		}, {
+			"origin": [ 0, 35.5, -52.5 ],
+			"allowed": [ "ar_receiver_end_plate" ]
+		}, {
+			"origin": [ 0, 28, -34 ],
+			"rotZ": 180,
+			"allowed": [ "ar_pistol_grip" ]
+		}
+	]
+}

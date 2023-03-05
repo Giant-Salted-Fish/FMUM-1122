@@ -9,11 +9,16 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
+import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.IKeyBind;
+import com.mcwb.client.input.Key;
+import com.mcwb.client.input.Key.Category;
 import com.mcwb.client.item.IItemRenderer;
 import com.mcwb.client.module.IDeferredPriorityRenderer;
 import com.mcwb.client.module.IDeferredRenderer;
 import com.mcwb.client.module.IModuleRenderer;
+import com.mcwb.client.player.OpModifyClient;
+import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
@@ -29,6 +34,7 @@ import com.mcwb.common.paintjob.IPaintjob;
 import com.mcwb.devtool.Dev;
 import com.mcwb.util.Mat4f;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -46,6 +52,8 @@ public abstract class ModifiableItemType<
 	R extends IItemRenderer< ? super C > & IModuleRenderer< ? super C >
 > extends ItemType< C, R > implements IModularType, IPaintableType, IPaintjob
 {
+	// TODO: side only
+	public static final OpModifyClient OP_MODIFY = new OpModifyClient();
 	
 	@SerializedName( value = "category", alternate = "group" )
 	protected String category;
@@ -63,6 +71,9 @@ public abstract class ModifiableItemType<
 	@SerializedName( value = "paintjobs", alternate = "skins" )
 	protected List< IPaintjob > paintjobs = Collections.emptyList();
 	
+	@SideOnly( Side.CLIENT )
+	protected String modifyIndicator;
+	
 	@Override
 	public IMeta build( String name, IContentProvider provider )
 	{
@@ -73,6 +84,10 @@ public abstract class ModifiableItemType<
 		
 		// If not category set then set it is its name
 		this.category = this.category != null ? this.category : this.name;
+		provider.clientOnly( () ->
+			this.modifyIndicator = this.modifyIndicator != null
+				? this.modifyIndicator : MCWBClient.MODIFY_INDICATOR
+		);
 		
 		// Add itself as the default paintjob
 		if( this.paintjobs.size() == 0 )
@@ -90,7 +105,13 @@ public abstract class ModifiableItemType<
 	{
 		super.onPostLoad();
 		
-		// TODO: set a default indicator
+		this.provider.clientOnly( () -> {
+			if( IModularType.REGISTRY.get( this.modifyIndicator ) == null )
+			{
+				this.error( "mcwb.fail_to_find_indicator", this, this.modifyIndicator );
+				this.modifyIndicator = MCWBClient.MODIFY_INDICATOR;
+			}
+		} );
 		
 		// TODO: call update state maybe?
 		final Function< String, IModular< ? > > func = name -> this.newRawContexted();
@@ -203,6 +224,17 @@ public abstract class ModifiableItemType<
 			wrapper.syncAndUpdate();
 		}
 		
+		// Cause we now have the wrapper so avoid to tick render from item
+		// See ModifiableItem#tickInHand(...)
+		@Override
+		public void onUpdate(
+			ItemStack stack,
+			World worldIn,
+			Entity entityIn,
+			int itemSlot,
+			boolean isSelected
+		) { }
+		
 		/**
 		 * <p> {@inheritDoc} </p>
 		 * 
@@ -252,6 +284,13 @@ public abstract class ModifiableItemType<
 		public IModuleSlot getSlot( int idx ) { return ModifiableItemType.this.slots.get( idx ); }
 		
 		@Override
+		public void tickInHand( EntityPlayer player, EnumHand hand )
+		{
+			if( player.world.isRemote )
+				ModifiableItemType.this.renderer.tickInHand( this.self(), hand );
+		}
+		
+		@Override
 		@SideOnly( Side.CLIENT )
 		public void prepareRenderInHand( EnumHand hand ) {
 			ModifiableItemType.this.renderer.prepareRenderInHand( this.self(), hand );
@@ -273,11 +312,21 @@ public abstract class ModifiableItemType<
 		@SideOnly( Side.CLIENT )
 		public void onKeyPress( IKeyBind key )
 		{
-			// TODO
 			switch( key.name() )
 			{
-			
+			case Key.TOGGLE_MODIFY:
+			case Key.CO_TOGGLE_MODIFY:
+				final PlayerPatchClient patch = PlayerPatchClient.instance;
+				final OpModifyClient opModify = this.opModify();
+				if( patch.executing() == opModify )
+					patch.toggleExecuting();
+				else patch.tryLaunch( opModify.reset() );
+				break;
 			}
+			
+			// For keys of category modify, just send to operation to handle them
+			if( key.category().equals( Category.MODIFY ) )
+				this.opModify().handleInput( key );
 		}
 		
 		@Override
@@ -332,6 +381,19 @@ public abstract class ModifiableItemType<
 		}
 		
 		@Override
+		@SideOnly( Side.CLIENT )
+		public OpModifyClient opModify() { return OP_MODIFY; }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public IModular< ? > newModifyIndicator()
+		{
+			final String indicator = ModifiableItemType.this.modifyIndicator;
+			return IModularType.REGISTRY.get( indicator ).newRawContexted();
+			// TODO: maybe a buffered instance
+		}
+		
+		@Override
 		public String toString() { return "Contexted<" + ModifiableItemType.this + ">"; }
 		
 		@Override
@@ -367,6 +429,7 @@ public abstract class ModifiableItemType<
 			};
 		}
 		
+		@SideOnly( Side.CLIENT )
 		@SuppressWarnings( "unchecked" )
 		protected final C self() { return ( C ) this; }
 	}
@@ -386,20 +449,71 @@ public abstract class ModifiableItemType<
 		}
 		
 		@Override
-		@SideOnly( Side.CLIENT )
-		public void prepareRenderInHand( EnumHand hand ) {
-			this.primary.prepareRenderInHand( hand );
+		public IUseContext onTakeOut( IItem oldItem, EntityPlayer player, EnumHand hand ) {
+			return this.primary.onTakeOut( oldItem, player, hand );
+		}
+		
+		@Override
+		public ItemStack toStack() { return this.stack; }
+		
+		@Override
+		public void tickInHand( EntityPlayer player, EnumHand hand ) {
+			this.primary.tickInHand( player, hand );
+		}
+		
+		@Override
+		public IUseContext onInHandStackChanged(
+			IItem oldItem,
+			EntityPlayer player,
+			EnumHand hand
+		) { return this.primary.onInHandStackChanged( oldItem, player, hand ); }
+		
+		@Override
+		public boolean onSwapHand( EntityPlayer player ) {
+			return this.primary.onSwapHand( player );
 		}
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean renderInHand( EnumHand hand ) { return this.primary.renderInHand( hand ); }
+		public void prepareRenderInHand( EnumHand hand ) {
+			this.primary.opModify().delegate( this.primary ).prepareRenderInHand( hand );
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public boolean renderInHand( EnumHand hand ) {
+			return this.primary.opModify().delegate( this.primary ).renderInHand( hand );
+		}
 		
 		@Override
 		@SideOnly( Side.CLIENT )
 		public boolean onRenderSpecificHand( EnumHand hand ) {
-			return this.primary.onRenderSpecificHand( hand );
+			return this.primary.opModify().delegate( this.primary ).onRenderSpecificHand( hand );
 		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public void onKeyPress( IKeyBind key ) { this.primary.onKeyPress( key ); }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public void onKeyRelease( IKeyBind key ) { this.primary.onKeyRelease( key ); }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public boolean onMouseWheelInput( int dWheel ) {
+			return this.primary.onMouseWheelInput( dWheel );
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public boolean updateViewBobbing( boolean original ) {
+			return this.primary.updateViewBobbing( original );
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public boolean hideCrosshair() { return this.primary.hideCrosshair(); }
 		
 		@Override
 		@SideOnly( Side.CLIENT )

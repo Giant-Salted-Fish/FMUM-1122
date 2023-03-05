@@ -13,7 +13,7 @@ item.556x45mmcase.name=5.56x45mm NATO Ammo Case
 
 # H&K416
 item.hk416_d10rs.name=H&K416 D10RS
-item.hk416_lower_receiver=H&K416 Lower Receiver
+item.hk416_lower_receiver.name=H&K416 Lower Receiver
 item.hk416_104_barrel.name=H&K416 10.4" Barrel
 item.hk416_145_barrel.name=H&K416 14.5" Barrel
 item.hk416_145_handguard.name=H&K416 14.5" Handguard

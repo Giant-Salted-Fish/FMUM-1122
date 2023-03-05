@@ -3,28 +3,34 @@ package com.mcwb.common.module;
 import com.mcwb.client.MCWBClient;
 
 import net.minecraftforge.fml.relauncher.Side;
+
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public interface IModifyPredicate
+@FunctionalInterface
+public interface IPreviewPredicate extends IModifyPredicate
 {
-	public static final IModifyPredicate OK = new IModifyPredicate() { };
+	public static final IPreviewPredicate NO_PREVIEW = new IPreviewPredicate()
+	{
+		@Override
+		public int index() { return -1; }
+	};
 	
-	public default boolean ok() { return true; }
-	
-	@SideOnly( Side.CLIENT )
-	public default boolean okOrNotifyWhy() { return true; }
+	public int index();
 	
 	@FunctionalInterface
-	public static interface NotOk extends IModifyPredicate
+	public static interface NotOk extends IPreviewPredicate
 	{
 		@Override
 		public default boolean ok() { return false; }
 		
 		@Override
+		public default int index() { return -1; }
+		
+		@Override
 		@SideOnly( Side.CLIENT )
 		public default boolean okOrNotifyWhy()
 		{
-			MCWBClient.MOD.sendPlayerPrompt( this.why() );
+			MCWBClient.MOD.sendPlayerMsg( this.why() );
 			return false;
 		}
 		

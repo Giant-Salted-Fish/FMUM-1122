@@ -104,7 +104,7 @@ public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
 	{
 		/// Prepare necessary variables ///
 		final GunAnimatorState state = this.animator( hand );
-//		state.modifyOp = this.opModify();
+		state.modifyOp = contexted.opModify();
 		state.modifyPos = this.modifyPos;
 		
 		final EntityPlayerSP player = MCWBClient.MC.player;

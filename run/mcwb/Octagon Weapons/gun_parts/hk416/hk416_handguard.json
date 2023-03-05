@@ -13,21 +13,21 @@
 			"allowed": [ "prb" ]
 		}, {
 			"origin": [ 0, -9, 4 ],
-			"rotation": 180,
+			"rotZ": 180,
 			"stepLen": 4,
 			"maxStep": 14,
 			"capacity": 8,
 			"allowed": [ "prb" ]
 		}, {
 			"origin": [ 9, 0, 5 ],
-			"rotation": -90,
+			"rotZ": -90,
 			"stepLen": 4,
 			"maxStep": 14,
 			"capacity": 8,
 			"allowed": [ "prb" ]
 		}, {
 			"origin": [ -9, 0, 5 ],
-			"rotation": 90,
+			"rotZ": 90,
 			"stepLen": 4,
 			"maxStep": 14,
 			"capacity": 8,

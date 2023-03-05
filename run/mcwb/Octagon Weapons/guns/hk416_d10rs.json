@@ -19,7 +19,7 @@
 			"allowed": [ "ar_receiver_end_plate" ]
 		}, {
 			"origin": [ 0, 28, -34 ],
-			"rotation": 180,
+			"rotZ": 180,
 			"allowed": [ "ar_pistol_grip" ]
 		}
 	],

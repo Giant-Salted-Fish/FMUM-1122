@@ -17,12 +17,12 @@ public interface IModuleEventSubscriber< T >
 		
 		public int slot;
 		
-		public Supplier< IModifyPredicate > action;
+		public Supplier< IPreviewPredicate > action;
 		
 		public ModuleInstallEvent(
 			IModular< ? > base,
 			int slot, IModular< ? > module,
-			Supplier< IModifyPredicate > action
+			Supplier< IPreviewPredicate > action
 		) {
 			this.base = base;
 			this.slot = slot;

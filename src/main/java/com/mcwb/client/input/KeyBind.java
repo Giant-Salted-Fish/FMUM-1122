@@ -8,7 +8,7 @@ import org.lwjgl.input.Keyboard;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
-import com.mcwb.client.input.Key.KeyCategory;
+import com.mcwb.client.input.Key.Category;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.BuildableMeta;
@@ -44,7 +44,7 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	protected int keyCode = Keyboard.KEY_NONE;
 	
 	@SerializedName( value = "category", alternate = "group" )
-	protected String category = KeyCategory.OTHER;
+	protected String category = Category.OTHER;
 	
 	protected KeyBind() { }
 	
@@ -66,17 +66,17 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 		if( updateGroup != null ) updateGroup.add( this );
 		else switch( category )
 		{
-		case KeyCategory.MODIFY:
+		case Category.MODIFY:
 			InputHandler.GLOBAL_KEYS.add( this );
 			break;
 			
-		case KeyCategory.ASSIST:
+		case Category.ASSIST:
 			InputHandler.CO_KEYS.add( this );
 			break;
 			
-		case KeyCategory.GENERAL:
-		case KeyCategory.GUN:
-		case KeyCategory.OTHER:
+		case Category.GENERAL:
+		case Category.GUN:
+		case Category.OTHER:
 			InputHandler.INCO_KEYS.add( this );
 			break;
 			

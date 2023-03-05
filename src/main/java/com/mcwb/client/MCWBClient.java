@@ -59,6 +59,8 @@ public final class MCWBClient extends MCWB
 	
 	public static final MCWBClient MOD = new MCWBClient();
 	
+	public static final String MODIFY_INDICATOR = "modify_indicator";
+	
 	public static final Registry< BuildableLoader< ? extends IRenderer > >
 		MODEL_LOADERS = new Registry<>();
 	
@@ -143,11 +145,12 @@ public final class MCWBClient extends MCWB
 		}
 		else InputHandler.readFrom( this.keyBindsFile );
 		
-//		new GunPartJson() { {
-//			this.creativeTab = "hide";
-//			this.rendererPath = "renderers/modify_indicator.json";
-//			this.texture = new MCWBResource( "textures/0x00ff00.png" );
-//		} }.build( MODIFY_INDICATOR, this );
+		// Construct a default indicator
+		final JsonObject indicator = new JsonObject();
+		indicator.addProperty( "creativeTab", MCWB.HIDE_TAB.name() );
+		indicator.addProperty( "renderer", "renderers/modify_indicator.json" );
+		indicator.addProperty( "texture", "textures/0x00ff00.png" );
+		TYPE_LOADERS.get( "gun_part" ).parser.apply( indicator ).build( MODIFY_INDICATOR, this );
 		
 		// Do load content packs!
 		super.load();

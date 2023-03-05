@@ -12,9 +12,13 @@ import com.mcwb.common.paintjob.IPaintable;
 import com.mcwb.util.Mat4f;
 
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class Module< T extends IModular< ? extends T > >
 	implements IModular< T >, IPaintable
@@ -50,6 +54,9 @@ public abstract class Module< T extends IModular< ? extends T > >
 	protected Module( NBTTagCompound nbt ) { this.deserializeNBT( nbt ); }
 	
 	@Override
+	public ItemStack toStack() { throw new RuntimeException(); }
+	
+	@Override
 	public IModular< ? > base() { return this.base; }
 	
 	@Override
@@ -75,21 +82,22 @@ public abstract class Module< T extends IModular< ? extends T > >
 	}
 	
 	@Override
-	public IModifyPredicate tryInstall( int islot, IModular< ? > module )
+	public IPreviewPredicate tryInstall( int islot, IModular< ? > module )
 	{
 		final IModuleSlot slot = this.getSlot( islot );
-		if( !slot.isAllowed( module ) ) return IModifyPredicate.NO_PREVIEW;
+		if( !slot.isAllowed( module ) ) return IPreviewPredicate.NO_PREVIEW;
 		
 		final int capacity = Math.min( MCWB.maxSlotCapacity, slot.capacity() );
 		if( this.getInstalledCount( islot ) > capacity )
 		{
 			final String msg = "mcwb.msg.arrive_max_module_capacity";
-			return ( IModifyPredicate.NotOk ) () -> I18n.format( msg, capacity );
+			return ( IPreviewPredicate.NotOk ) () -> I18n.format( msg, capacity );
 		}
 		
-		final Supplier< IModifyPredicate > action = () -> {
-			final int idx = this.base.install( islot, module );
-			return () -> this.base.getInstalled( islot, idx );
+		final Supplier< IPreviewPredicate > action = () -> {
+			// Do not delay actual installation to #index() as it may not be called by outer
+			final int idx = this.install( islot, module );
+			return () -> idx;
 		};
 		final ModuleInstallEvent evt = new ModuleInstallEvent( this, islot, module, action );
 		this.postEvent( evt );
@@ -99,7 +107,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 	@Override
 	public IModular< ? > doRemove( int slot, int idx )
 	{
-		final Supplier< IModular< ? > > action = () -> this.base.remove( slot, idx );
+		final Supplier< IModular< ? > > action = () -> this.remove( slot, idx );
 		final ModuleRemoveEvent evt = new ModuleRemoveEvent( this, slot, idx, action );
 		this.postEvent( evt );
 		return evt.action.get();
@@ -170,6 +178,11 @@ public abstract class Module< T extends IModular< ? extends T > >
 	}
 	
 	@Override
+	public IModifyPredicate checkHitboxConflict( IModular< ? > module ) {
+		throw new RuntimeException();
+	}
+	
+	@Override
 	public void forEach( Consumer< ? super T > visitor )
 	{
 		this.installed.forEach( mod -> {
@@ -189,6 +202,27 @@ public abstract class Module< T extends IModular< ? extends T > >
 	}
 	
 	@Override
+	public IModular< ? > getInstalled( byte[] loc, int locLen )
+	{
+		IModular< ? > mod = this;
+		for( int i = 0; i < locLen; i += 2 )
+			mod = mod.getInstalled( 0xFF & loc[ i ], 0xFF & loc[ i + 1 ] );
+		return mod;
+	}
+	
+	@Override
+	@SuppressWarnings( "unchecked" )
+	public void setInstalled( int slot, int idx, IModular< ? > module )
+	{
+		final T mod = ( T ) module;
+		final int actualIdx = this.getIdx( slot ) + idx;
+		final NBTTagList modList = this.nbt.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
+		this.installed.set( actualIdx, mod );
+		modList.set( actualIdx, module.serializeNBT() );
+		this.syncAndUpdate();
+	}
+	
+	@Override
 	public int paintjob() { return this.paintjob; }
 	
 	@Override
@@ -199,6 +233,20 @@ public abstract class Module< T extends IModular< ? extends T > >
 		data[ 0 ] &= 0xFFFF;
 		data[ 0 ] |= paintjob << 16;
 		this.syncAndUpdate();
+	}
+	
+	@Override
+	public boolean tryOffer( int paintjob, EntityPlayer player )
+	{
+		// TODO:  validate material
+		return player.capabilities.isCreativeMode;
+	}
+	
+	@Override
+	@SideOnly( Side.CLIENT )
+	public boolean tryOfferOrNotifyWhy( int paintjob, EntityPlayer player )
+	{
+		return player.capabilities.isCreativeMode;
 	}
 	
 	@Override
