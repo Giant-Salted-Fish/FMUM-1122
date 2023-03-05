@@ -53,7 +53,7 @@ public abstract class GunPartType<
 		
 		protected GunPart() { }
 		
-		protected GunPart( NBTTagCompound nbt ) { super( nbt ); }
+		protected GunPart( boolean unused ) { super( unused ); }
 		
 		@Override
 		public int offsetCount() { return GunPartType.this.offsets.length; }
@@ -152,8 +152,11 @@ public abstract class GunPartType<
 		}
 		
 		@Override
-		public IModular< ? > deserializeContexted( NBTTagCompound nbt ) {
-			return this.new GunPart<>( nbt );
+		public IModular< ? > deserializeContexted( NBTTagCompound nbt )
+		{
+			final GunPart< ? > gunPart = this.new GunPart<>( false );
+			gunPart.deserializeNBT( nbt );
+			return gunPart;
 		}
 		
 		@Override

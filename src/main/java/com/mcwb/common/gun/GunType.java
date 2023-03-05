@@ -10,6 +10,8 @@ import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.module.IModular;
 import com.mcwb.common.module.IModuleEventSubscriber;
+import com.mcwb.common.operation.IOperationController;
+import com.mcwb.common.operation.OperationController;
 import com.mcwb.util.ArmTracker;
 
 import net.minecraft.item.ItemStack;
@@ -24,6 +26,25 @@ public abstract class GunType< C extends IGun< ? >, R extends IGunPartRenderer< 
 	public static final BuildableLoader< IMeta >
 		LOADER = new BuildableLoader<>( "gun", GunJson.class );
 	
+	protected static final OperationController
+		LOAD_MAG_CONTROLLER = new OperationController(
+			1F / 40F,
+			new float[] { 0.8F },
+			new String[ 0 ],
+			new float[] { 0.8F },
+			"load_mag"
+		),
+		UNLOAD_MAG_CONTROLLER = new OperationController(
+			1F / 40F,
+			new float[] { 0.5F },
+			new String[ 0 ],
+			new float[] { 0.5F },
+			"unload_mag"
+		);
+	
+	protected IOperationController loadMagController = LOAD_MAG_CONTROLLER;
+	protected IOperationController unloadMagController = UNLOAD_MAG_CONTROLLER;
+	
 	@Override
 	protected IMeta loader() { return LOADER; }
 	
@@ -35,7 +56,7 @@ public abstract class GunType< C extends IGun< ? >, R extends IGunPartRenderer< 
 		
 		protected Gun() { }
 		
-		protected Gun( NBTTagCompound nbt ) { super( nbt ); }
+		protected Gun( boolean unused ) { super( unused ); }
 		
 		@Override
 		public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry )
@@ -50,6 +71,14 @@ public abstract class GunType< C extends IGun< ? >, R extends IGunPartRenderer< 
 				if( gunPart.rightHandPriority() > this.rightHandHolding.rightHandPriority() )
 					this.rightHandHolding = gunPart;
 			} );
+		}
+		
+		@Override
+		public IOperationController loadMagController() { return GunType.this.loadMagController; }
+		
+		@Override
+		public IOperationController unloadMagController() {
+			return GunType.this.unloadMagController;
 		}
 		
 		@Override
@@ -82,6 +111,14 @@ public abstract class GunType< C extends IGun< ? >, R extends IGunPartRenderer< 
 		protected GunWrapper( T primary, ItemStack stack ) { super( primary, stack ); }
 		
 		@Override
+		public IOperationController loadMagController() { return this.primary.loadMagController(); }
+		
+		@Override
+		public IOperationController unloadMagController() {
+			return this.primary.unloadMagController();
+		}
+		
+		@Override
 		@SideOnly( Side.CLIENT )
 		public void setupRenderArm( ArmTracker leftArm, ArmTracker rightArm, IAnimator animator ) {
 			throw new RuntimeException();
@@ -102,8 +139,11 @@ public abstract class GunType< C extends IGun< ? >, R extends IGunPartRenderer< 
 		}
 		
 		@Override
-		public IModular< ? > deserializeContexted( NBTTagCompound nbt ) {
-			return this.new Gun<>( nbt );
+		public IModular< ? > deserializeContexted( NBTTagCompound nbt )
+		{
+			final Gun< ? > gun = this.new Gun<>( false );
+			gun.deserializeNBT( nbt );
+			return gun;
 		}
 		
 		@Override

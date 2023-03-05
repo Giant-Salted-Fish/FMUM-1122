@@ -16,10 +16,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mcwb.client.ammo.AmmoRenderer;
 import com.mcwb.client.gun.CarGripRenderer;
 import com.mcwb.client.gun.GripRenderer;
 import com.mcwb.client.gun.GunPartRenderer;
 import com.mcwb.client.gun.GunRenderer;
+import com.mcwb.client.gun.MagRenderer;
+import com.mcwb.client.gun.OpticSightRenderer;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.item.ItemRenderer;
@@ -59,14 +62,12 @@ public final class MCWBClient extends MCWB
 	
 	public static final MCWBClient MOD = new MCWBClient();
 	
-	public static final String MODIFY_INDICATOR = "modify_indicator";
-	
 	public static final Registry< BuildableLoader< ? extends IRenderer > >
 		MODEL_LOADERS = new Registry<>();
 	
 	// TODO: mesh loaders? to support other types of model
 	
-//	public static final String MODIFY_INDICATOR = "modify_indicator";
+	public static final String MODIFY_INDICATOR = "modify_indicator";
 	
 	public static byte[] modifyLoc;
 	
@@ -115,11 +116,11 @@ public final class MCWBClient extends MCWB
 		MODEL_LOADERS.regis( Renderer.LOADER );
 		MODEL_LOADERS.regis( GunPartRenderer.LOADER );
 		MODEL_LOADERS.regis( GunRenderer.LOADER );
-//		MODEL_LOADERS.regis( MagRenderer.LOADER );
+		MODEL_LOADERS.regis( MagRenderer.LOADER );
 		MODEL_LOADERS.regis( GripRenderer.LOADER );
 		MODEL_LOADERS.regis( CarGripRenderer.LOADER );
-//		MODEL_LOADERS.regis( OpticSightRenderer.LOADER );
-//		MODEL_LOADERS.regis( AmmoRenderer.LOADER );
+		MODEL_LOADERS.regis( OpticSightRenderer.LOADER );
+		MODEL_LOADERS.regis( AmmoRenderer.LOADER );
 		
 		// Register default textures
 		this.texturePool.put( Renderer.TEXTURE_RED.getPath(), Renderer.TEXTURE_RED );

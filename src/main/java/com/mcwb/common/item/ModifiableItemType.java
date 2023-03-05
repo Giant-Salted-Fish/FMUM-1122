@@ -266,7 +266,7 @@ public abstract class ModifiableItemType<
 	{
 		protected ModifiableItem() { }
 		
-		protected ModifiableItem( NBTTagCompound nbt ) { super( nbt ); }
+		protected ModifiableItem( boolean unused ) { super( unused ); }
 		
 		@Override
 		public String name() { return ModifiableItemType.this.name; }

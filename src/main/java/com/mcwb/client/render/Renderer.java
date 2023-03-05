@@ -44,15 +44,15 @@ public class Renderer implements IRenderer, IBuildable< IRenderer >, IAutowireLo
 	@Override
 	public IRenderer build( String path, IContentProvider provider )
 	{
-		provider.regis( ( IMeshLoadSubscriber ) () -> {
-			this.meshes = new Mesh[ this.meshPaths.length ];
-			for(
-				int i = this.meshPaths.length;
-				i-- > 0;
-				this.meshes[ i ] = this.loadMesh( this.meshPaths[ i ], provider )
-			);
-		} );
+		provider.regis( ( IMeshLoadSubscriber ) () -> this.onMeshLoad( provider ) );
 		return this;
+	}
+	
+	protected void onMeshLoad( IContentProvider provider )
+	{
+		this.meshes = new Mesh[ this.meshPaths.length ];
+		for( int i = this.meshPaths.length; i-- > 0; )
+			this.meshes[ i ] = this.loadMesh( this.meshPaths[ i ], provider );
 	}
 	
 	@Override

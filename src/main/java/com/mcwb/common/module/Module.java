@@ -51,7 +51,14 @@ public abstract class Module< T extends IModular< ? extends T > >
 		this.nbt.setTag( MODULE_TAG, new NBTTagList() );
 	}
 	
-	protected Module( NBTTagCompound nbt ) { this.deserializeNBT( nbt ); }
+	/**
+	 * Unfortunately calling {@link #deserializeNBT(NBTTagCompound)} could cause error as it the
+	 * fields of the sub-class may not have been properly initialized. Hence it needs to be delay
+	 * after the constructor finishes its work.
+	 * 
+	 * @param unused To distinguish this from {@link #Module()}
+	 */
+	protected Module( boolean unused ) { }
 	
 	@Override
 	public ItemStack toStack() { throw new RuntimeException(); }

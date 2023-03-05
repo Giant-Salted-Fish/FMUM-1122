@@ -3,6 +3,7 @@ package com.mcwb.common.gun;
 import javax.annotation.Nullable;
 
 import com.mcwb.client.render.IAnimator;
+import com.mcwb.common.operation.IOperationController;
 import com.mcwb.util.ArmTracker;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -23,6 +24,10 @@ public interface IGun< T extends IGunPart< ? extends T > > extends IGunPart< T >
 	public default void loadMag( IMag< ? > mag ) { this.install( 0, mag ); }
 	
 	public default IMag< ? > unloadMag() { return ( IMag< ? > ) this.remove( 0, 0 ); }
+	
+	public IOperationController loadMagController();
+	
+	public IOperationController unloadMagController();
 	
 	@SideOnly( Side.CLIENT )
 	public void setupRenderArm( ArmTracker leftArm, ArmTracker rightArm, IAnimator animator );
