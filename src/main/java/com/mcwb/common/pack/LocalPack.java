@@ -3,10 +3,12 @@ package com.mcwb.common.pack;
 import java.io.File;
 import java.io.Reader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mcwb.common.IAutowireLogger;
@@ -51,10 +53,13 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 	 */
 	protected String author = "mcwb.author_missing";
 	
+	protected final HashSet< String > ignoreEntires = new HashSet<>();
+	
 	protected LocalPack( File source )
 	{
 		this.name = source.getName();
 		this.source = source;
+		this.ignoreEntires.add( "assets" );
 	}
 	
 	@Override
@@ -82,6 +87,12 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 			this.name = obj.get( "name" ).getAsString();
 		if( obj.has( "author" ) )
 			this.author = obj.get( "author" ).getAsString();
+		if( obj.has( "ignoreEntries" ) )
+		{
+			final JsonArray arr = obj.get( "ignoreEntries" ).getAsJsonArray();
+			for( int i = arr.size(); i-- > 0; )
+				this.ignoreEntires.add( arr.get( i ).getAsString() );
+		}
 		// TODO: handle version check
 	}
 	

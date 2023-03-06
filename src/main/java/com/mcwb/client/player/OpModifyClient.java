@@ -96,7 +96,7 @@ public class OpModifyClient extends TogglableOperation< IModular< ? > >
 		return this.renderDelegate != null ? ( T ) this.renderDelegate : original;
 	}
 	
-	public OpModifyClient reset()
+	public IOperation reset()
 	{
 		this.player = MCWBClient.MC.player;
 		this.stack = this.player.inventory.getCurrentItem();
@@ -380,7 +380,6 @@ public class OpModifyClient extends TogglableOperation< IModular< ? > >
 		this.refPlayerRotYaw = this.player.rotationYaw;
 		return super.launch( oldOp );
 	}
-	
 	
 	@Override
 	public IOperation toggle()

@@ -18,9 +18,7 @@ public class OpUnloadAmmo extends Operation< IMag< ? > >
 	}
 	
 	@Override
-	public IOperation launch( IOperation oldOp ) {
-		return this.contexted.isEmpty() ? NONE : super.launch( oldOp );
-	}
+	public IOperation launch( IOperation oldOp ) { return this.contexted.isEmpty() ? NONE : this; }
 	
 	@Override
 	public IOperation onOtherTryLaunch( IOperation op )
@@ -32,8 +30,7 @@ public class OpUnloadAmmo extends Operation< IMag< ? > >
 	@Override
 	public IOperation onInHandStackChange( IItem newItem )
 	{
-		if( ( ( IMag< ? > ) newItem ).isEmpty() )
-			return this.terminate();
+		if( ( ( IMag< ? > ) newItem ).isEmpty() ) return NONE;
 		
 		this.contexted = ( IMag< ? > ) newItem;
 		return this;
@@ -43,7 +40,7 @@ public class OpUnloadAmmo extends Operation< IMag< ? > >
 	protected IOperation onComplete() { return this.next.launch( this ); }
 	
 	@Override
-	protected void dohandleEffect()
+	protected void doHandleEffect()
 	{
 		final IAmmoType ammo = this.contexted.popAmmo();
 		final ItemStack stack = new ItemStack( ammo.item() );

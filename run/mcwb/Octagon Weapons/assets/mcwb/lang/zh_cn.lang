@@ -21,7 +21,7 @@ item.hk416_165_barrel.name=H&K416 16.5英寸枪管
 item.hk416_20_barrel.name=H&K416 20英寸枪管
 item.hk416_barrel_extension.name=H&K416 枪管节套
 item.hk416_barrel_nut.name=H&K416 枪管螺母
-item.hk416_bolt.name=H&K416 枪击组件
+item.hk416_bolt.name=H&K416 枪机组件
 item.hk416_buffer_tube.name=H&K416 缓冲管
 item.hk416_charge_handle.name=H&K416 拉机柄
 item.hk416_dust_cover.name=H&K416 防尘盖
@@ -63,6 +63,13 @@ item.cic_is9_rear_sight.name=CIC IS-9 照门
 item.cic_is9_rear_sight-tritium_green.name=CIC IS-9 照门 - 绿氚光
 item.cic_is9_rear_sight-tritium_red.name=CIC IS-9 照门 - 红氚光
 item.cic_is9_rear_sight-tritium_white.name=CIC IS-9 照门 - 白氚光
+
+# 光瞄
+item.kobra_ekp8mpp.name=Kobra EKP-8M-PP 反射式红点瞄具
+item.eotech_exps30.name=Eotech EXPS3-0 全息瞄具
+
+# 握把
+item.td_grip.name=TD 握把
 
 # 膛口装置
 item.556mm_thread_protector.name=5.56mm 螺纹保护帽

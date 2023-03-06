@@ -71,72 +71,72 @@ public class Dev implements IAutowirePlayerChat
 	
 	static
 	{
-		final String group = "test";
-		final Collection< IKeyBind > updateGroup = InputHandler.GLOBAL_KEYS;
-		new KeyBind( "test_up", group, Keyboard.KEY_UP, updateGroup ) {
-			@Override
-			protected void onFire() { Dev.tu = true; }
-		};
-		new KeyBind( "test_down", group, Keyboard.KEY_DOWN, updateGroup ) {
-			@Override
-			protected void onFire() { Dev.td = true; }
-		};
-		new KeyBind( "test_left", group, Keyboard.KEY_LEFT, updateGroup ) {
-			@Override
-			protected void onFire() { Dev.tl = true; }
-		};
-		new KeyBind( "test_right", group, Keyboard.KEY_RIGHT, updateGroup ) {
-			@Override
-			protected void onFire() { Dev.tr = true; }
-		};
-		new KeyBind( "test_enter", group, Keyboard.KEY_NUMPAD5, updateGroup ) {
-			@Override
-			protected void onFire() { Dev.te = true; }
-		};
-		new KeyBind( "test_quit", group, Keyboard.KEY_NUMPAD2, updateGroup ) {
-			@Override
-			protected void onFire() { Dev.tq = true; }
-		};
-		new KeyBind( "test_flag", group, Keyboard.KEY_F10, updateGroup ) {
-			@Override
-			protected void onFire()
-			{
-				Dev.flag = !Dev.flag;
-				// FIXME: add check for vector and matrix pool
-//				final Vec3f rot = cur().getRot();
-//				
-//				Mat4f mat = new Mat4f();
-//				mat.setIdentity();
-//				mat.eulerRotateYXZ( rot );
-//				mat.translate( 0F, 0F, 3F );
-//				MCWBClient.MOD.sendPlayerMsg( mat.toString() + "^ Mat4f" );
-//				
-//				rot.scale( Util.TO_RADIANS );
-//				Matrix4f mat0 = new Matrix4f();
-//				Matrix4f mat1 = new Matrix4f();
-//				Matrix4f mat2 = new Matrix4f();
-//				Matrix4f mat3 = new Matrix4f();
-//				mat0.rotY( rot.y );
-//				mat1.rotX( rot.x );
-//				mat2.rotZ( rot.z );
-//				mat3.setIdentity();
-//				mat3.setTranslation( new Vector3f( 0F, 0F, 3F ) );
-//				
-//				mat0.mul( mat1 );
-//				mat0.mul( mat2 );
-//				mat0.mul( mat3 );
-//				MCWBClient.MOD.sendPlayerMsg( mat0.toString() + "^ Matrix4f" );
-			}
-		};
-		
-		MinecraftForge.EVENT_BUS.register( new Object() {
-			@SubscribeEvent
-			public void onGuiOpen( GuiOpenEvent evt )
-			{
-				InputHandler.updateMappers();
-				MinecraftForge.EVENT_BUS.unregister( this );
-			}
-		} );
+//		final String group = "test";
+//		final Collection< IKeyBind > updateGroup = InputHandler.GLOBAL_KEYS;
+//		new KeyBind( "test_up", group, Keyboard.KEY_UP, updateGroup ) {
+//			@Override
+//			protected void onFire() { Dev.tu = true; }
+//		};
+//		new KeyBind( "test_down", group, Keyboard.KEY_DOWN, updateGroup ) {
+//			@Override
+//			protected void onFire() { Dev.td = true; }
+//		};
+//		new KeyBind( "test_left", group, Keyboard.KEY_LEFT, updateGroup ) {
+//			@Override
+//			protected void onFire() { Dev.tl = true; }
+//		};
+//		new KeyBind( "test_right", group, Keyboard.KEY_RIGHT, updateGroup ) {
+//			@Override
+//			protected void onFire() { Dev.tr = true; }
+//		};
+//		new KeyBind( "test_enter", group, Keyboard.KEY_NUMPAD5, updateGroup ) {
+//			@Override
+//			protected void onFire() { Dev.te = true; }
+//		};
+//		new KeyBind( "test_quit", group, Keyboard.KEY_NUMPAD2, updateGroup ) {
+//			@Override
+//			protected void onFire() { Dev.tq = true; }
+//		};
+//		new KeyBind( "test_flag", group, Keyboard.KEY_F10, updateGroup ) {
+//			@Override
+//			protected void onFire()
+//			{
+//				Dev.flag = !Dev.flag;
+//				// FIXME: add check for vector and matrix pool
+////				final Vec3f rot = cur().getRot();
+////				
+////				Mat4f mat = new Mat4f();
+////				mat.setIdentity();
+////				mat.eulerRotateYXZ( rot );
+////				mat.translate( 0F, 0F, 3F );
+////				MCWBClient.MOD.sendPlayerMsg( mat.toString() + "^ Mat4f" );
+////				
+////				rot.scale( Util.TO_RADIANS );
+////				Matrix4f mat0 = new Matrix4f();
+////				Matrix4f mat1 = new Matrix4f();
+////				Matrix4f mat2 = new Matrix4f();
+////				Matrix4f mat3 = new Matrix4f();
+////				mat0.rotY( rot.y );
+////				mat1.rotX( rot.x );
+////				mat2.rotZ( rot.z );
+////				mat3.setIdentity();
+////				mat3.setTranslation( new Vector3f( 0F, 0F, 3F ) );
+////				
+////				mat0.mul( mat1 );
+////				mat0.mul( mat2 );
+////				mat0.mul( mat3 );
+////				MCWBClient.MOD.sendPlayerMsg( mat0.toString() + "^ Matrix4f" );
+//			}
+//		};
+//		
+//		MinecraftForge.EVENT_BUS.register( new Object() {
+//			@SubscribeEvent
+//			public void onGuiOpen( GuiOpenEvent evt )
+//			{
+//				InputHandler.updateMappers();
+//				MinecraftForge.EVENT_BUS.unregister( this );
+//			}
+//		} );
 	}
 	
 	public static void tick()

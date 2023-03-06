@@ -9,6 +9,7 @@ import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
+import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
@@ -30,8 +31,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
 {
-	public static final BuildableLoader< IRenderer >
-		LOADER = new BuildableLoader<>( "gun", GunRenderer.class );
+	public static final BuildableLoader< IRenderer > LOADER =
+		new BuildableLoader<>( "gun", json -> MCWB.GSON.fromJson( json, GunRenderer.class ) );
 	
 	protected static final Vec3f HOLD_POS = new Vec3f( -14F / 160F, -72F / 160F, 87.5F / 160F );
 	protected static final Vec3f HOLD_ROT = new Vec3f( 0F, 0F, -5F );

@@ -36,7 +36,10 @@ public class JarPack extends LocalPack
 				// Skip stuffs not in folder or in "assets/" folder
 				final String eName = e.getName();
 				final int i = eName.indexOf( '/' );
-				if( i < 0 || eName.startsWith( "assets/" ) ) continue;
+				if( i < 0 ) continue;
+				
+				final String entry = eName.substring( 0, i );
+				if( this.ignoreEntires.contains( entry ) ) continue;
 				
 				final Supplier< String > sourceTrace = () -> this.sourceName() + "/" + eName;
 				try
@@ -45,8 +48,8 @@ public class JarPack extends LocalPack
 					{
 						this.loadJsonType(
 							new InputStreamReader( zipIn ),
-							this.getFallbackType( eName.substring( i ) ),
-							eName.substring( eName.lastIndexOf( '/' ), eName.length() - 5 ),
+							this.getFallbackType( entry ),
+							eName.substring( eName.lastIndexOf( '/' ) + 1, eName.length() - 5 ),
 							sourceTrace
 						);
 					}

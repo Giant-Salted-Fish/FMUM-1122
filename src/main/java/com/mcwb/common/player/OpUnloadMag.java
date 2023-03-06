@@ -15,22 +15,19 @@ public class OpUnloadMag extends Operation< IGun< ? > >
 	}
 	
 	@Override
-	public IOperation launch( IOperation oldOp ) {
-		return this.contexted.hasMag() ? super.launch( oldOp ) : NONE;
-	}
+	public IOperation launch( IOperation oldOp ) { return this.contexted.hasMag() ? this : NONE; }
 	
 	@Override
 	public IOperation onInHandStackChange( IItem newItem )
 	{
-		if( !( ( IGun< ? > ) newItem ).hasMag() )
-			return this.terminate();
+		if( !( ( IGun< ? > ) newItem ).hasMag() ) return NONE;
 		
 		this.contexted = ( IGun< ? > ) newItem;
 		return this;
 	}
 	
 	@Override
-	protected void dohandleEffect()
+	protected void doHandleEffect()
 	{
 		final IMag< ? > mag = this.contexted.unloadMag();
 		this.player.addItemStackToInventory( mag.toStack() );

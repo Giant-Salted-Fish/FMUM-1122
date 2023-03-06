@@ -3,6 +3,7 @@ package com.mcwb.client.gun;
 import com.mcwb.client.item.ModifiableItemRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
+import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.util.ArmTracker;
@@ -17,7 +18,10 @@ public class GunPartRenderer< T extends IGunPart< ? > >
 	extends ModifiableItemRenderer< T > implements IGunPartRenderer< T >
 {
 	public static final BuildableLoader< IRenderer >
-		LOADER = new  BuildableLoader<>( "gun_part", GunPartRenderer.class );
+		LOADER = new BuildableLoader<>(
+			"gun_part",
+			json -> MCWB.GSON.fromJson( json, GunPartRenderer.class )
+		);
 	
 	@Override
 	public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator )

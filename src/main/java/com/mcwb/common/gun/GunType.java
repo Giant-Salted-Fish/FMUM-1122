@@ -3,13 +3,18 @@ package com.mcwb.common.gun;
 import java.util.function.BiConsumer;
 
 import com.mcwb.client.gun.IGunPartRenderer;
+import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
+import com.mcwb.client.input.Key;
+import com.mcwb.client.player.OpLoadMagClient;
+import com.mcwb.client.player.OpUnloadMagClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.module.IModular;
 import com.mcwb.common.module.IModuleEventSubscriber;
+import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.OperationController;
 import com.mcwb.util.ArmTracker;
@@ -25,6 +30,9 @@ public abstract class GunType< C extends IGun< ? >, R extends IGunPartRenderer< 
 {
 	public static final BuildableLoader< IMeta >
 		LOADER = new BuildableLoader<>( "gun", GunJson.class );
+	
+	protected static final OpLoadMagClient OP_LOAD_MAG = new OpLoadMagClient();
+	protected static final OpUnloadMagClient OP_UNLOAD_MAG = new OpUnloadMagClient();
 	
 	protected static final OperationController
 		LOAD_MAG_CONTROLLER = new OperationController(
@@ -83,6 +91,23 @@ public abstract class GunType< C extends IGun< ? >, R extends IGunPartRenderer< 
 		
 		@Override
 		@SideOnly( Side.CLIENT )
+		public void onKeyPress( IKeyBind key )
+		{
+			switch( key.name() )
+			{
+			case Key.LOAD_UNLOAD_MAG:
+			case Key.CO_LOAD_UNLOAD_MAG:
+				final IOperation op = this.hasMag()
+					? OP_UNLOAD_MAG.reset( this ) : OP_LOAD_MAG.reset( this );
+				PlayerPatchClient.instance.tryLaunch( op );
+				break;
+				
+			default: super.onKeyPress( key );
+			}
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
 		public boolean updateViewBobbing( boolean original ) { return false; }
 		
 		@Override
@@ -109,6 +134,18 @@ public abstract class GunType< C extends IGun< ? >, R extends IGunPartRenderer< 
 	> extends GunPartWrapper< M, T > implements IGun< M >
 	{
 		protected GunWrapper( T primary, ItemStack stack ) { super( primary, stack ); }
+		
+		@Override
+		public boolean hasMag() { return this.primary.hasMag(); }
+		
+		@Override
+		public boolean isAllowed( IMag< ? > mag ) { return this.primary.isAllowed( mag ); }
+		
+		@Override
+		public void loadMag( IMag< ? > mag ) { this.primary.loadMag( mag ); }
+		
+		@Override
+		public IMag< ? > unloadMag() { return this.primary.unloadMag(); }
 		
 		@Override
 		public IOperationController loadMagController() { return this.primary.loadMagController(); }

@@ -449,16 +449,16 @@ public abstract class ModifiableItemType<
 		}
 		
 		@Override
-		public IUseContext onTakeOut( IItem oldItem, EntityPlayer player, EnumHand hand ) {
-			return this.primary.onTakeOut( oldItem, player, hand );
-		}
-		
-		@Override
 		public ItemStack toStack() { return this.stack; }
 		
 		@Override
 		public void tickInHand( EntityPlayer player, EnumHand hand ) {
 			this.primary.tickInHand( player, hand );
+		}
+		
+		@Override
+		public IUseContext onTakeOut( IItem oldItem, EntityPlayer player, EnumHand hand ) {
+			return this.primary.onTakeOut( oldItem, player, hand );
 		}
 		
 		@Override

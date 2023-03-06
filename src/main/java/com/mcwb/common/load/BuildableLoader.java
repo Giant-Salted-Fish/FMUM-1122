@@ -22,7 +22,7 @@ public final class BuildableLoader< T > implements IMeta // Implements this to u
 	}
 	
 	public BuildableLoader(
-		String														entry,
+		String entry,
 		Function< JsonObject, ? extends IBuildable< ? extends T > > parser
 	) {
 		this.entry = entry;

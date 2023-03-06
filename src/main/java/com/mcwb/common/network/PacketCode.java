@@ -1,9 +1,16 @@
 package com.mcwb.common.network;
 
+import com.mcwb.common.gun.IGun;
+import com.mcwb.common.gun.IMag;
+import com.mcwb.common.item.IItem;
+import com.mcwb.common.item.IItemTypeHost;
+import com.mcwb.common.player.OpUnloadAmmo;
+import com.mcwb.common.player.OpUnloadMag;
 import com.mcwb.common.player.PlayerPatch;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public final class PacketCode implements IPacket
@@ -19,30 +26,31 @@ public final class PacketCode implements IPacket
 				// TODO: notify other players to stop animation
 			}
 		},
-//		UNLOAD_AMMO()
-//		{
-//			@Override
-//			protected void handle( EntityPlayerMP player )
-//			{
-//				final ItemStack stack = player.inventory.getCurrentItem();
-//				final IItem item = IItemTypeHost.getType( stack ).getContexted( stack );
-//				if( !( item instanceof IMag ) ) return;
-//				
-//				PlayerPatch.get( player ).tryLaunch( new OpUnloadAmmo( player, ( IMag ) item ) );
-//			}
-//		},
-//		UNLOAD_MAG()
-//		{
-//			@Override
-//			protected void handle( EntityPlayerMP player )
-//			{
-//				final ItemStack stack = player.inventory.getCurrentItem();
-//				final IItem item = IItemTypeHost.getType( stack ).getContexted( stack );
-//				if( !( item instanceof IGun ) ) return;
-//				
-//				PlayerPatch.get( player ).tryLaunch( new OpUnloadMag( player, ( IGun ) item ) );
-//			}
-//		},
+		UNLOAD_AMMO()
+		{
+			@Override
+			protected void handle( EntityPlayerMP player )
+			{
+				final ItemStack stack = player.inventory.getCurrentItem();
+				final IItem item = IItemTypeHost.getTypeOrDefault( stack ).getContexted( stack );
+				if( !( item instanceof IMag< ? > ) ) return;
+				
+				PlayerPatch.get( player ).tryLaunch( new OpUnloadAmmo( player, ( IMag< ? > ) item ) );
+			}
+		},
+		UNLOAD_MAG()
+		{
+			@Override
+			protected void handle( EntityPlayerMP player )
+			{
+				final ItemStack stack = player.inventory.getCurrentItem();
+				final IItem item = IItemTypeHost.getTypeOrDefault( stack ).getContexted( stack );
+				if( !( item instanceof IGun< ? > ) ) return;
+				
+				final IGun< ? > gun = ( IGun< ? > ) item;
+				PlayerPatch.get( player ).tryLaunch( new OpUnloadMag( player, gun ) );
+			}
+		},
 		
 		SWAP_HAND()
 		{

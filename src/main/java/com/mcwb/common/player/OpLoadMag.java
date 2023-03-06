@@ -32,10 +32,10 @@ public class OpLoadMag extends Operation< IGun< ? > >
 			
 			final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot );
 			final IItem item = IItemTypeHost.getTypeOrDefault( stack ).getContexted( stack );
-			final boolean isMag = item instanceof IMag;
+			final boolean isMag = item instanceof IMag< ? >;
 			if( !isMag || !this.contexted.isAllowed( ( IMag< ? > ) item ) ) break;
 			
-			return super.launch( oldOp );
+			return this;
 		}
 		return NONE;
 	}
@@ -44,16 +44,16 @@ public class OpLoadMag extends Operation< IGun< ? > >
 	public IOperation onInHandStackChange( IItem newItem )
 	{
 		this.contexted = ( IGun< ? > ) newItem;
-		return this.contexted.hasMag() ? this.terminate() : this;
+		return this.contexted.hasMag() ? NONE : this;
 	}
 	
 	@Override
-	protected void dohandleEffect()
+	protected void doHandleEffect()
 	{
 		final InventoryPlayer inv = this.player.inventory;
 		final ItemStack stack = inv.getStackInSlot( this.invSlot );
 		final IItem item = IItemTypeHost.getTypeOrDefault( stack ).getContexted( stack );
-		final boolean isMag = item instanceof IMag;
+		final boolean isMag = item instanceof IMag< ? >;
 		if( !isMag ) return;
 		
 		final IMag< ? > mag = ( IMag< ? > ) item;

@@ -10,6 +10,7 @@ import com.mcwb.client.module.IDeferredPriorityRenderer;
 import com.mcwb.client.module.IDeferredRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
+import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
@@ -25,7 +26,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class OpticSightRenderer< T extends IGunPart< ? > > extends GunPartRenderer< T >
 {
 	public static final BuildableLoader< IRenderer >
-		LOADER = new BuildableLoader<>( "optic_sight", OpticSightRenderer.class );
+		LOADER = new BuildableLoader<>(
+			"optic_sight",
+			json -> MCWB.GSON.fromJson( json, OpticSightRenderer.class )
+		);
 	
 	@SerializedName( value = "lenMeshPath", alternate = "lenMesh" )
 	protected String lenMeshPath = "";

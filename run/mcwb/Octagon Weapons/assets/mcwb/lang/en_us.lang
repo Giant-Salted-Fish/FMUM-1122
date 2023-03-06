@@ -64,6 +64,13 @@ item.cic_is9_rear_sight-tritium_green.name=CIC IS-9 Rear Sight - Tritium Green
 item.cic_is9_rear_sight-tritium_red.name=CIC IS-9 Rear Sight - Tritium Red
 item.cic_is9_rear_sight-tritium_white.name=CIC IS-9 Rear Sight - Tritium White
 
+# Optic sight
+item.kobra_ekp8mpp.name=Kobra EKP-8M-PP
+item.eotech_exps30.name=Eotech EXPS3-0
+
+# Grip
+item.td_grip.name=TD Grip
+
 # Muzzle
 item.556mm_thread_protector.name=5.56mm Thread Protector
 

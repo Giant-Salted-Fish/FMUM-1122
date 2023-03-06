@@ -38,7 +38,7 @@ public class OpLoadAmmo extends Operation< IMag< ? > >
 			final boolean isAmmo = type instanceof IAmmoType;
 			if( !isAmmo || !this.contexted.isAllowed( ( IAmmoType ) type ) ) break;
 			
-			return super.launch( oldOp );
+			return this;
 		}
 		return NONE;
 	}
@@ -53,8 +53,7 @@ public class OpLoadAmmo extends Operation< IMag< ? > >
 	@Override
 	public IOperation onInHandStackChange( IItem newItem )
 	{
-		if( ( ( IMag< ? > ) newItem ).isFull() )
-			return this.terminate();
+		if( ( ( IMag< ? > ) newItem ).isFull() ) return NONE;
 		
 		this.contexted = ( IMag< ? > ) newItem;
 		return this;
@@ -64,7 +63,7 @@ public class OpLoadAmmo extends Operation< IMag< ? > >
 	protected IOperation onComplete() { return this.next.launch( this ); }
 	
 	@Override
-	protected void dohandleEffect()
+	protected void doHandleEffect()
 	{
 		final InventoryPlayer inv = this.player.inventory;
 		final ItemStack stack = inv.getStackInSlot( this.invSlot );

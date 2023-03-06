@@ -26,7 +26,8 @@ public abstract class TogglableOperation< T extends IContexted > extends Operati
 	{
 		// Use forward controller for launch
 		this.controller = this.forwardController;
-		return super.launch( oldOp );
+		this.clearProgress();
+		return this;
 	}
 	
 	@Override

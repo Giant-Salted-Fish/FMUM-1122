@@ -32,7 +32,7 @@ public class FolderPack extends LocalPack
 		for( final File dir : this.source.listFiles() )
 		{
 			final String dirName = dir.getName();
-			if( dir.isDirectory() && !dirName.contentEquals( "assets" ) )
+			if( dir.isDirectory() && !this.ignoreEntires.contains( dirName ) )
 				this.tryLoadFrom( dir, this.getFallbackType( dirName ), () -> dirName );
 		}
 	}

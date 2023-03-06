@@ -8,8 +8,17 @@ import javax.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.gun.IGunPartRenderer;
+import com.mcwb.client.input.IKeyBind;
+import com.mcwb.client.input.Key;
+import com.mcwb.client.player.OpLoadAmmoClient;
+import com.mcwb.client.player.OpUnloadAmmoClient;
+import com.mcwb.client.player.PlayerPatchClient;
+import com.mcwb.common.ammo.IAmmoType;
+import com.mcwb.common.item.IItemTypeHost;
+import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.module.IModular;
+import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.OperationController;
 
@@ -17,16 +26,17 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-
-import com.mcwb.common.ammo.IAmmoType;
-import com.mcwb.common.item.IItemTypeHost;
-import com.mcwb.common.load.BuildableLoader;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class MagType< C extends IMag< ? >, R extends IGunPartRenderer< ? super C > >
 	extends GunPartType< C, R >
 {
 	public static final BuildableLoader< IMeta >
 		LOADER = new BuildableLoader<>( "mag", MagJson.class );
+	
+	protected static final OpLoadAmmoClient OP_LOAD_AMMO = new OpLoadAmmoClient();
+	protected static final OpUnloadAmmoClient OP_UNLOAD_AMMO = new OpUnloadAmmoClient();
 	
 	protected static final OperationController
 		PUSH_AMMO_CONTROLLER = new OperationController(
@@ -103,6 +113,40 @@ public abstract class MagType< C extends IMag< ? >, R extends IGunPartRenderer< 
 		public IOperationController popAmmoController() { return MagType.this.popAmmoController; }
 		
 		@Override
+		@SideOnly( Side.CLIENT )
+		public void onKeyPress( IKeyBind key )
+		{
+			switch( key.name() )
+			{
+			case Key.PULL_TRIGGER:
+				PlayerPatchClient.instance.tryLaunch( OP_LOAD_AMMO.reset( this ) );
+				break;
+				
+			case Key.AIM_HOLD:
+			case Key.AIM_TOGGLE:
+				PlayerPatchClient.instance.tryLaunch( OP_UNLOAD_AMMO.reset( this ) );
+				break;
+				
+			default: super.onKeyPress( key );
+			}
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public void onKeyRelease( IKeyBind key )
+		{
+			switch( key.name() )
+			{
+			case Key.PULL_TRIGGER:
+			case Key.AIM_HOLD:
+			case Key.AIM_TOGGLE:
+				final IOperation op = PlayerPatchClient.instance.executing();
+				if( op instanceof OpLoadAmmoClient || op instanceof OpUnloadAmmoClient )
+					PlayerPatchClient.instance.ternimateExecuting();
+			}
+		}
+		
+		@Override
 		public void deserializeNBT( NBTTagCompound nbt )
 		{
 			super.deserializeNBT( nbt );
@@ -152,6 +196,9 @@ public abstract class MagType< C extends IMag< ? >, R extends IGunPartRenderer< 
 		public boolean isFull() { return this.primary.isFull(); }
 		
 		@Override
+		public boolean isEmpty() { return this.primary.isEmpty(); }
+		
+		@Override
 		public int ammoCount() { return this.primary.ammoCount(); }
 		
 		@Override
@@ -162,6 +209,9 @@ public abstract class MagType< C extends IMag< ? >, R extends IGunPartRenderer< 
 		
 		@Override
 		public IAmmoType popAmmo() { return this.primary.popAmmo(); }
+		
+		@Override
+		public IAmmoType peek() { return this.primary.peek(); }
 		
 		@Override
 		public IAmmoType getAmmo( int idx ) { return this.primary.getAmmo( idx ); }

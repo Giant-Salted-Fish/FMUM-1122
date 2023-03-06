@@ -246,7 +246,7 @@ public class MCWB extends URLClassLoader
 	{
 		// Check content pack folder
 		// TODO: if load packs from mods dir then allow the player to disable content pack folder
-		final File packDir = new File( this.gameDir, ID );
+		final File packDir = new File( this.gameDir, "fmum" ); // ID );
 		if( !packDir.exists() )
 		{
 			packDir.mkdirs();

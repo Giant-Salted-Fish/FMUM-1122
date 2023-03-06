@@ -35,22 +35,6 @@ public abstract class Operation< T extends IContexted > implements IOperation
 	}
 	
 	@Override
-	public IOperation launch( IOperation oldOp )
-	{
-		this.clearProgress(); // TODO: if this is necessary?
-		this.ieffect = 0;
-		this.isound = 0;
-		return this;
-	}
-	
-	@Override
-	public IOperation terminate()
-	{
-		this.clearProgress(); // TODO: if this is necessary?
-		return NONE;
-	}
-	
-	@Override
 	public IOperation tick()
 	{
 		// Update progress
@@ -63,7 +47,7 @@ public abstract class Operation< T extends IContexted > implements IOperation
 			this.ieffect < effectCount
 				&& this.controller.getEffectTime( this.ieffect ) <= this.progress;
 			++this.ieffect
-		) this.dohandleEffect();
+		) this.doHandleEffect();
 		
 		// Handle sounds
 		for(
@@ -86,6 +70,8 @@ public abstract class Operation< T extends IContexted > implements IOperation
 	{
 		this.prevProgress = 0F;
 		this.progress = 0F;
+		this.ieffect = 0;
+		this.isound = 0;
 	}
 	
 	protected IOperation onComplete() { return NONE; }
@@ -93,5 +79,5 @@ public abstract class Operation< T extends IContexted > implements IOperation
 	/**
 	 * Handle effect specified by {@link #ieffect}
 	 */
-	protected void dohandleEffect() { }
+	protected void doHandleEffect() { }
 }
