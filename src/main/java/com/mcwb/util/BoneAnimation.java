@@ -6,14 +6,20 @@ import java.util.TreeMap;
 
 public class BoneAnimation
 {
-	public BoneAnimation parent;
+	public static final BoneAnimation NONE = new BoneAnimation() { {
+		this.mat.setIdentity();
+	} };
+	
+	public BoneAnimation parent = NONE; // TODO
 	public LinkedList< BoneAnimation > children = new LinkedList<>();
 	
 	public TreeMap< Float, Vec3f > pos = new TreeMap<>();
 	public TreeMap< Float, Quat4f > rot = new TreeMap<>();
+	public TreeMap< Float, Float > alpha = new TreeMap<>();
 	
 	public final Mat4f mat = new Mat4f();
 	public final Quat4f quat = new Quat4f();
+	public float a;
 	
 	public void addChild( BoneAnimation child )
 	{
@@ -27,16 +33,32 @@ public class BoneAnimation
 			this.pos.put( 0F, Vec3f.ORIGIN );
 		if( this.pos.ceilingKey( 1F ) == null )
 			this.pos.put( 1F, this.pos.lowerEntry( 1F ).getValue() );
+		
 		if( this.rot.floorKey( 0F ) == null )
 			this.rot.put( 0F, Quat4f.ORIGIN );
 		if( this.rot.ceilingKey( 1F ) == null )
 			this.rot.put( 1F, this.rot.lowerEntry( 1F ).getValue() );
+		
+		if( this.alpha.floorKey( 0F ) == null )
+			this.alpha.put( 0F, 1F );
+		if( this.alpha.ceilingEntry( 1F ) == null )
+			this.alpha.put( 1F, this.alpha.lowerEntry( 1F ).getValue() );
 	}
 	
 	public void update( float progress )
 	{
 		this.mat.set( this.parent.mat );
 		this.quat.set( this.parent.quat );
+		
+		/// *** Alpha *** ///
+		{
+			final Entry< Float, Float > floor = this.alpha.floorEntry( progress );
+			final Entry< Float, Float > ceiling = this.alpha.ceilingEntry( progress );
+			final float floorTime = floor.getKey();
+			final float delta = ceiling.getKey() - floorTime;
+			final float alpha = delta > 0F ? ( progress - floorTime ) / delta : floorTime;
+			this.a = ( 1F - alpha ) * floor.getValue() + alpha * ceiling.getValue();
+		}
 		
 		/// *** Position *** ///
 		{

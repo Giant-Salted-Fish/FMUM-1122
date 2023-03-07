@@ -28,11 +28,12 @@ public class TDGrip extends GripRenderer< IGunPart< ? > >
 	@Override
 	protected void doSetupArmToRender( ArmTracker arm, IAnimator animator )
 	{
+		final float smoother = this.smoother();
 		final Mat4f mat = Mat4f.locate();
-		animator.getChannel( CHANNEL_ITEM, this.smoother(), mat );
+		IAnimator.getChannel( animator, CHANNEL_ITEM, smoother, mat );
 		final float gunRotZ = mat.getEulerAngleZ();
 		
-		animator.getChannel( CHANNEL_INSTALL, this.smoother(), mat );
+		IAnimator.getChannel( animator, CHANNEL_INSTALL, smoother, mat );
 		final float installRotZ = mat.getEulerAngleZ();
 		mat.release();
 //		leftArm.handPos.set( DevHelper.get( 0 ).getPos() );

@@ -122,7 +122,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 	
 	@Override
 	@SuppressWarnings( "unchecked" )
-	public int install( int slot, IModular< ? > module )
+	public int install( final int slot, final IModular< ? > module )
 	{
 		final T mod = ( T ) module.onBeingInstalled();
 		mod.setBase( this, slot );
@@ -140,14 +140,14 @@ public abstract class Module< T extends IModular< ? extends T > >
 		
 		// Update indices
 		final int[] data = this.nbt.getIntArray( DATA_TAG );
-		while( slot++ < this.indices.length )
+		for( int islot = slot; islot++ < this.indices.length; )
 		{
-			final int val = 1 + this.getIdx( slot );
-			this.setIdx( slot, val );
-			this.setIdx( data, slot, val );
+			final int val = 1 + this.getIdx( islot );
+			this.setIdx( islot, val );
+			this.setIdx( data, islot, val );
 		}
 		this.syncAndUpdate();
-		return idx;
+		return idx - this.getIdx( slot );
 	}
 	
 	@Override

@@ -4,6 +4,7 @@ import com.mcwb.client.MCWBClient;
 import com.mcwb.client.player.OpModifyClient;
 import com.mcwb.common.item.ModifiableItemType;
 import com.mcwb.util.Mat4f;
+import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -18,24 +19,40 @@ public class ModifiableItemAnimatorState extends ItemAnimatorState
 	public Vec3f modifyPos = Vec3f.ORIGIN;
 	
 	@Override
-	public void applyChannel( String channel, float smoother, Mat4f dst )
+	public void getPos( String channel, float smoother, Vec3f dst )
 	{
-		final Vec3f vec = this.v0;
 		switch( channel )
 		{
 		case IItemRenderer.CHANNEL_ITEM:
+			// TODO: move this part to Animation
 			final float modifyProgress = this.modifyOp.getProgress( smoother );
 			
-			// Translation
-			this.holdPos.get( vec, smoother );
-			this.v0.scale( 1F - modifyProgress );
-			dst.translate( vec );
+			this.holdPos.get( dst, smoother );
+			dst.scale( 1F - modifyProgress );
 			
+			final Vec3f vec = Vec3f.locate();
 			vec.set( this.modifyPos );
 			vec.scale( modifyProgress );
-			dst.translate( vec );
+			dst.add( vec );
+			vec.release();
+			break;
 			
-			// Rotation
+		default: dst.setZero();
+		}
+	}
+	
+	@Override
+	public void getRot( String channel, float smoother, Quat4f dst )
+	{
+		switch( channel )
+		{
+		case IItemRenderer.CHANNEL_ITEM:
+			// TODO: move this part to Animation
+			final float modifyProgress = this.modifyOp.getProgress( smoother );
+			
+			final Mat4f mat = Mat4f.locate();
+			final Vec3f vec = Vec3f.locate();
+			
 			this.holdRot.get( vec, smoother );
 			vec.scale( 1F - modifyProgress );
 			
@@ -46,12 +63,16 @@ public class ModifiableItemAnimatorState extends ItemAnimatorState
 			final float modifyYawDelta = refPlayerYaw - player.rotationYaw; // TODO: get this from camera controller
 			final float modifyYaw = modifyYawBase - modifyYawDelta;
 			
-			dst.rotateX( -player.rotationPitch * modifyProgress );
-			dst.eulerRotateYXZ( vec.x, vec.y + modifyYaw * modifyProgress, vec.z );
+			mat.setIdentity();
+			mat.rotateX( -player.rotationPitch * modifyProgress );
+			mat.eulerRotateYXZ( vec.x, vec.y + modifyYaw * modifyProgress, vec.z );
+			dst.set( mat );
 			
+			vec.release();
+			mat.release();
 			break;
 			
-		default: //super.applyChannel( channel, smoother, dst );
+		default: dst.clearRot();
 		}
 	}
 }

@@ -60,6 +60,6 @@ public class OpUnloadMagClient extends Operation< IGun< ? > >
 		return this;
 	}
 	
-	@Override
-	protected void doHandleEffect() { } //this.contexted.unloadMag(); }
+//	@Override
+//	protected void doHandleEffect() { this.contexted.unloadMag(); }
 }

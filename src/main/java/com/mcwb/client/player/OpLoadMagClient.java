@@ -79,10 +79,10 @@ public class OpLoadMagClient extends Operation< IGun< ? > >
 		return this;
 	}
 	
-	@Override
-	protected void doHandleEffect()
-	{
-		// Calling install will change the state of the mag itself, hence copy before use
+//	@Override
+//	protected void doHandleEffect()
+//	{
+//		// Calling install will change the state of the mag itself, hence copy before use
 //		final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot ).copy();
 //		final IItem item = IItemTypeHost.getTypeOrDefault( stack ).getContexted( stack );
 //		if( !( item instanceof IMag< ? > ) ) return;
@@ -90,7 +90,7 @@ public class OpLoadMagClient extends Operation< IGun< ? > >
 //		final IMag< ? > mag = ( IMag< ? > ) item;
 //		if( this.contexted.isAllowed( mag ) )
 //			this.contexted.loadMag( mag );
-	}
+//	}
 	
 	protected int getValidMagSlot()
 	{

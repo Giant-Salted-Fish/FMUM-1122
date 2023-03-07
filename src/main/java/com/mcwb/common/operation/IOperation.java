@@ -28,7 +28,7 @@ public interface IOperation
 	public default float progress() { return 1F; }
 	
 	@SideOnly( Side.CLIENT )
-	public default float getProgress( float alpha ) { return 1F; }
+	public default float getProgress( float smoother ) { return 1F; }
 	
 	/// *** Methods for operation life cycle *** ///
 	/**

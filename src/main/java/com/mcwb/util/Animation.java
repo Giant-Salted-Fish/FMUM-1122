@@ -17,20 +17,26 @@ public class Animation extends BoneAnimation implements IAnimator
 	public Animation( String channel ) { this.channels.put( channel, this ); }
 	
 	@Override
-	public void applyChannel( String channel, float smoother, Mat4f dst )
+	public void getPos( String channel, float smoother, Vec3f dst )
 	{
-		this.channels.computeIfPresent( channel, ( key, bone ) -> {
-			dst.mul( bone.mat );
-			return bone;
-		} );
+		final BoneAnimation ani = this.channels.get( channel );
+		if( ani != null ) ani.mat.get( dst );
+		else dst.setZero(); // TODO: use computeIfPresent maybe?
 	}
 	
 	@Override
-	public void applyChannel( String channel, float smoother, Quat4f dst )
+	public void getRot( String channel, float smoother, Quat4f dst )
 	{
-		this.channels.computeIfPresent( channel, ( key, bone ) -> {
-			dst.mul( bone.quat );
-			return bone;
-		} );
+		final BoneAnimation ani = this.channels.get( channel );
+		if( ani != null ) dst.set( ani.quat );
+		else dst.clearRot();
+	}
+	
+	@Override
+	public float getAlpha( String channel, float smoother )
+	{
+		final BoneAnimation ani = this.channels.get( channel );
+		if( ani != null ) return ani.a;
+		else return 1F;
 	}
 }

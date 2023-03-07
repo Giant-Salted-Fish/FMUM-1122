@@ -21,6 +21,11 @@ public final class Quat4f extends javax.vecmath.Quat4f implements IReleasable
 	}
 	
 	/**
+	 * @see #Quat4f(float, float, float)
+	 */
+	public Quat4f( Vec3f eulerRot ) { this.set( eulerRot ); }
+	
+	/**
 	 * Create a quaternion with (x,y,z,w) to be (0,0,0,1)
 	 */
 	public Quat4f() { super( 0F, 0F, 0F, 1F ); }
@@ -28,7 +33,21 @@ public final class Quat4f extends javax.vecmath.Quat4f implements IReleasable
 	/**
 	 * Initialize this quaternion with given euler rotation applied in order ZXY
 	 */
-	public Quat4f( float x, float y, float z )
+	public Quat4f( float x, float y, float z ) { this.set( x, y, z ); }
+	
+	public Quat4f( AngleAxis4f rot ) { this.set( rot ); }
+	
+	public Quat4f( float x, float y, float z, float w ) { super( x, y, z, w ); }
+	
+	/**
+	 * @see #set(float, float, float)
+	 */
+	public void set( Vec3f eulerRot ) { this.set( eulerRot.x, eulerRot.y, eulerRot.z ); }
+	
+	/**
+	 * Set this quaternion with corresponding euler rotation applied in order ZXY
+	 */
+	public void set( float x, float y, float z )
 	{
 		final Mat4f mat = Mat4f.locate();
 		mat.setIdentity();
@@ -36,10 +55,6 @@ public final class Quat4f extends javax.vecmath.Quat4f implements IReleasable
 		this.set( mat );
 		mat.release();
 	}
-	
-	public Quat4f( AngleAxis4f rot ) { this.set( rot ); }
-	
-	public Quat4f( float x, float y, float z, float w ) { super( x, y, z, w ); }
 	
 	/**
 	 * Reset this quaternion to (0,0,0,1)

@@ -65,6 +65,7 @@ public class BBAnimationExport
 		public String parent;
 		public Map< Float, Vec3f > rotation = Collections.emptyMap();
 		public Map< Float, Vec3f > position = Collections.emptyMap();
+		public Map< Float, Float > alpha = Collections.emptyMap();
 		
 		@Override
 		public String toString() {

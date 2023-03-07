@@ -56,7 +56,7 @@ public class GripRenderer< T extends IGunPart< ? > > extends GunPartRenderer< T 
 	protected void doSetupArmToRender( ArmTracker arm, IAnimator animator )
 	{
 		final Mat4f mat = Mat4f.locate();
-		animator.getChannel( CHANNEL_ITEM, this.smoother(), mat );
+		IAnimator.getChannel( animator, CHANNEL_ITEM, this.smoother(), mat );
 		final float gunRotZ = mat.getEulerAngleZ();
 		mat.release();
 		

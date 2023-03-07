@@ -33,6 +33,8 @@ import com.mcwb.common.paintjob.IPaintableType;
 import com.mcwb.common.paintjob.IPaintjob;
 import com.mcwb.devtool.Dev;
 import com.mcwb.util.Mat4f;
+import com.mcwb.util.Quat4f;
+import com.mcwb.util.Vec3f;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -414,17 +416,46 @@ public abstract class ModifiableItemType<
 			return wrapper;
 		}
 		
+		/**
+		 * Creates an animator that provides {@link IModuleRenderer#CHANNEL_INSTALL}
+		 */
 		@SideOnly( Side.CLIENT )
 		protected IAnimator wrapAnimator( IAnimator animator )
 		{
-			return ( channel, smoother, dst ) -> {
-				switch( channel )
+			return new IAnimator()
+			{
+				@Override
+				@SideOnly( Side.CLIENT )
+				public void getPos( String channel, float smoother, Vec3f dst )
 				{
-				case IModuleRenderer.CHANNEL_INSTALL:
-					dst.mul( this.mat );
-					break;
-					
-				default: animator.applyChannel( channel, smoother, dst );
+					switch( channel )
+					{
+					case IModuleRenderer.CHANNEL_INSTALL:
+						ModifiableItem.this.mat.get( dst );
+						break;
+						
+					default: animator.getPos( channel, smoother, dst );
+					}
+				}
+				
+				@Override
+				@SideOnly( Side.CLIENT )
+				public void getRot( String channel, float smoother, Quat4f dst )
+				{
+					switch( channel )
+					{
+					case IModuleRenderer.CHANNEL_INSTALL:
+						dst.set( ModifiableItem.this.mat );
+						break;
+						
+					default: animator.getRot( channel, smoother, dst );
+					}
+				}
+				
+				@Override
+				@SideOnly( Side.CLIENT )
+				public float getAlpha( String channel, float smoother ) {
+					return animator.getAlpha( channel, smoother );
 				}
 			};
 		}

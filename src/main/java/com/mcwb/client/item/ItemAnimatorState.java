@@ -3,6 +3,7 @@ package com.mcwb.client.item;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.util.DynamicPos;
 import com.mcwb.util.Mat4f;
+import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -16,26 +17,38 @@ public class ItemAnimatorState implements IAnimator
 	public final DynamicPos holdPos = new DynamicPos();
 	public final DynamicPos holdRot = new DynamicPos();
 	
-	/**
-	 * Buffered instance to avoid frequent allocation
-	 */
-	protected final Vec3f v0 = new Vec3f();
-	
 	@Override
-	public void applyChannel( String channel, float smoother, Mat4f dst )
+	public void getPos( String channel, float smoother, Vec3f dst )
 	{
-		final Vec3f vec = this.v0;
 		switch( channel )
 		{
 		case IItemRenderer.CHANNEL_ITEM:
-			this.holdPos.get( vec, smoother );
-			dst.translate( vec );
-			
-			this.holdRot.get( vec, smoother );
-			dst.eulerRotateYXZ( vec );
+			this.holdPos.get( dst, smoother );
 			break;
 			
-		default:
+		default: dst.setZero();
+		}
+	}
+	
+	@Override
+	public void getRot( String channel, float smoother, Quat4f dst )
+	{
+		switch( channel )
+		{
+		case IItemRenderer.CHANNEL_ITEM:
+			final Mat4f mat = Mat4f.locate();
+			final Vec3f vec = Vec3f.locate();
+			
+			this.holdRot.get( vec, smoother );
+			mat.setIdentity();
+			mat.eulerRotateYXZ( vec );
+			dst.set( mat );
+			
+			vec.release();
+			mat.release();
+			break;
+			
+		default: dst.clearRot();
 		}
 	}
 }

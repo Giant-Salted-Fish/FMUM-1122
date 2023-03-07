@@ -63,8 +63,6 @@ public final class InputHandler
 		PULL_TRIGGER = new KeyBind( Key.PULL_TRIGGER, Category.GUN, 0 - 100, GLOBAL_KEYS ),
 		AIM_HOLD = new KeyBind( Key.AIM_HOLD, Category.GUN, 1 - 100, GLOBAL_KEYS ),
 		AIM_TOGGLE = new KeyBind( Key.AIM_TOGGLE, Category.GUN, Keyboard.KEY_NONE, GLOBAL_KEYS ),
-		RELOAD = new KeyBind( Key.RELOAD, Category.GUN, Keyboard.KEY_R ),
-		LOAD_UNLOAD_MAG = new KeyBind( Key.LOAD_UNLOAD_MAG, Category.GUN, Keyboard.KEY_T ),
 		
 		// TODO: change the default bind key for this maybe
 		SELECT_TOGGLE = new KeyBind( Key.SELECT_TOGGLE, Category.MODIFY, Keyboard.KEY_V ),
@@ -82,7 +80,11 @@ public final class InputHandler
 	 */
 	public static final KeyBind
 		FREE_VIEW = new KeyBind( Key.FREE_VIEW, Category.GENERAL, Keyboard.KEY_LMENU ),
-		TOGGLE_MODIFY = new KeyBind( Key.TOGGLE_MODIFY, Category.GUN, Keyboard.KEY_I );
+		TOGGLE_MODIFY = new KeyBind( Key.TOGGLE_MODIFY, Category.GUN, Keyboard.KEY_I ),
+		
+		RELOAD = new KeyBind( Key.RELOAD, Category.GUN, Keyboard.KEY_R ),
+		LOAD_UNLOAD_MAG = new KeyBind( Key.LOAD_UNLOAD_MAG, Category.GUN, Keyboard.KEY_T ),
+		INSPECT = new KeyBind( Key.INSPECT, Category.GUN, Keyboard.KEY_V );
 	
 	/**
 	 * These keys will update if {@link #CO} is down
@@ -90,9 +92,8 @@ public final class InputHandler
 	public static final KeyBind
 		CO_FREE_VIEW = new KeyBind( Key.CO_FREE_VIEW, Category.ASSIST, Keyboard.KEY_NONE ),
 		CO_RELOAD = new KeyBind( Key.CO_RELOAD, Category.ASSIST, Keyboard.KEY_NONE ),
-		CO_LOAD_UNLOAD_MAG = new KeyBind(
-			Key.CO_LOAD_UNLOAD_MAG, Category.ASSIST, Keyboard.KEY_NONE
-		),
+		CO_LOAD_UNLOAD_MAG = new KeyBind( Key.CO_LOAD_UNLOAD_MAG, Category.ASSIST, Keyboard.KEY_NONE ),
+		CO_INSPECT = new KeyBind( Key.CO_INSPECT, Category.ASSIST, Keyboard.KEY_NONE ),
 		CO_TOGGLE_MODIFY = new KeyBind( Key.CO_TOGGLE_MODIFY, Category.ASSIST, Keyboard.KEY_NONE );
 	
 	private static final HashMultimap< Integer, IKeyBind > GLOBAL_MAPPER = HashMultimap.create();

@@ -11,7 +11,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IModuleRenderer< T extends IContexted > extends IRenderer
 {
-	public static final String CHANNEL_INSTALL = "install_trans";
+	public static final String CHANNEL_INSTALL = "install";
 	
 	@SideOnly( Side.CLIENT )
 	public default void prepareInHandRender(

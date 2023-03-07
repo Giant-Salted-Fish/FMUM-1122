@@ -6,6 +6,7 @@ import com.mcwb.client.IAutowireBindTexture;
 import com.mcwb.client.IAutowireSmoother;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.player.PlayerPatchClient;
+import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.client.render.Renderer;
 import com.mcwb.common.item.IItem;
@@ -148,7 +149,7 @@ public class ItemRenderer< T extends IItem > extends Renderer
 	{
 		final Mat4f mat = Mat4f.locate();
 		final ItemAnimatorState state = this.animator( hand );
-		state.getChannel( CHANNEL_ITEM, this.smoother(), mat );
+		IAnimator.getChannel( state, CHANNEL_ITEM, this.smoother(), mat );
 		glMultMatrix( mat );
 		mat.release();
 		

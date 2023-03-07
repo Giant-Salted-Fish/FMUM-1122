@@ -117,8 +117,8 @@ public class OpticSightRenderer< T extends IGunPart< ? > > extends GunPartRender
 			private final Mat4f mat = Mat4f.locate();
 			{
 				final float smoother = OpticSightRenderer.this.smoother();
-				animator.getChannel( CHANNEL_ITEM, smoother, this.mat );
-				animator.applyChannel( CHANNEL_INSTALL, smoother, this.mat );
+				IAnimator.getChannel( animator, CHANNEL_ITEM, smoother, this.mat );
+				IAnimator.applyChannel( animator, CHANNEL_INSTALL, smoother, this.mat );
 			}
 			
 			@Override

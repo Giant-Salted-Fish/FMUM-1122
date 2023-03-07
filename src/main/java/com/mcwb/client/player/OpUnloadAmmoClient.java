@@ -59,6 +59,6 @@ public class OpUnloadAmmoClient extends Operation< IMag< ? > > implements IAutow
 		return this.launch( this );
 	}
 	
-	@Override
-	protected void doHandleEffect() { this.contexted.popAmmo(); }
+//	@Override
+//	protected void doHandleEffect() { this.contexted.popAmmo(); }
 }

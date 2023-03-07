@@ -23,7 +23,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class MagRenderer< T extends IMag< ? > > extends GunPartRenderer< T >
+public class MagRenderer< T extends IMag< ? > >
+	extends GunPartRenderer< T > implements IMagRenderer< T >
 {
 	public static final BuildableLoader< IRenderer > LOADER
 		= new BuildableLoader<>( "mag", json -> MCWB.GSON.fromJson( json, MagRenderer.class ) );
@@ -107,8 +108,12 @@ public class MagRenderer< T extends IMag< ? > > extends GunPartRenderer< T >
 			
 			final Mat4f mat = Mat4f.locate();
 			final float smoother = this.smoother();
-			animator.getChannel( CHANNEL_ITEM, smoother, mat );
-			animator.applyChannel( CHANNEL_INSTALL, smoother, mat );
+			IAnimator.getChannel( animator, CHANNEL_ITEM, smoother, mat );
+			
+			// Blend install and mag channel
+			final float alpha = animator.getAlpha( CHANNEL_MAG, smoother );
+			IAnimator.blendPos( animator, smoother, CHANNEL_INSTALL, CHANNEL_MAG, alpha, mat );
+			IAnimator.blendRot( animator, smoother, CHANNEL_INSTALL, CHANNEL_MAG, alpha, mat );
 			glMultMatrix( mat );
 			mat.release();
 			

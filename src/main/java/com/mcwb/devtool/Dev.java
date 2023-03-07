@@ -1,7 +1,5 @@
 package com.mcwb.devtool;
 
-import java.io.File;
-import java.io.FileReader;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.function.Consumer;
@@ -23,12 +21,6 @@ import com.mcwb.common.item.IItem;
 import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.Operation;
 import com.mcwb.common.operation.OperationController;
-import com.mcwb.devtool.BBAnimationExport.BBAnimation;
-import com.mcwb.devtool.BBAnimationExport.Bone;
-import com.mcwb.util.Animation;
-import com.mcwb.util.BoneAnimation;
-import com.mcwb.util.Mat4f;
-import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.util.ResourceLocation;
@@ -84,66 +76,66 @@ public class Dev implements IAutowirePlayerChat
 	
 //	public HitBoxes hbs0 = null, hbs1 = null;
 	
-	private static BoneAnimation fromBone( BBAnimation bb, String boneS )
-	{
-		final Bone bone = bb.bones.get( boneS );
-		
-		final BoneAnimation ani = new BoneAnimation();
-		final float factor = 1F / bb.animation_length;
-		
-		bone.position.entrySet().forEach( e -> {
-			final Vec3f v = e.getValue();
-			v.z = -v.z;
-			ani.pos.put( e.getKey() * factor, v );
-		} );
-		
-		final Mat4f mat = new Mat4f();
-		bone.rotation.entrySet().forEach( e -> {
-			final Quat4f quat = new Quat4f();
-			final Vec3f rot = e.getValue();
-			mat.setIdentity();
-			mat.rotateZ( -rot.z );
-			mat.rotateY( -rot.y );
-			mat.rotateX( rot.x );
-			quat.set( mat );
-			ani.rot.put( e.getKey() * factor, quat );
-		} );
-		ani.addGuard();
-		return ani;
-	}
+//	private static BoneAnimation fromBone( BBAnimation bb, String boneS )
+//	{
+//		final Bone bone = bb.bones.get( boneS );
+//		
+//		final BoneAnimation ani = new BoneAnimation();
+//		final float factor = 1F / bb.animation_length;
+//		
+//		bone.position.entrySet().forEach( e -> {
+//			final Vec3f v = e.getValue();
+//			v.z = -v.z;
+//			ani.pos.put( e.getKey() * factor, v );
+//		} );
+//		
+//		final Mat4f mat = new Mat4f();
+//		bone.rotation.entrySet().forEach( e -> {
+//			final Quat4f quat = new Quat4f();
+//			final Vec3f rot = e.getValue();
+//			mat.setIdentity();
+//			mat.rotateZ( -rot.z );
+//			mat.rotateY( -rot.y );
+//			mat.rotateX( rot.x );
+//			quat.set( mat );
+//			ani.rot.put( e.getKey() * factor, quat );
+//		} );
+//		ani.addGuard();
+//		return ani;
+//	}
 	
-	public static BoneAnimation bone;
-	public static BoneAnimation rightArm;
-	public static BoneAnimation left;
-	public static BoneAnimation leftArm;
-	public static BoneAnimation mag;
+//	public static BoneAnimation bone;
+//	public static BoneAnimation rightArm;
+//	public static BoneAnimation left;
+//	public static BoneAnimation leftArm;
+//	public static BoneAnimation mag;
 	static
 	{
-		final String path = new File( "." ).getAbsolutePath();
-		
-		try( FileReader in = new FileReader( new File( "../z-dev/model.animation.json" ) ) )
-		{
-			final BBAnimation bb = MCWB.GSON.fromJson( in, BBAnimationExport.class ).animations.get( "Reload" );
-			
-			final Animation ani = new Animation( "hello" )
-			{
-				@Override
-				public void update( float progress ) { }
-			};
-			
-			bone = fromBone( bb, "gun" );
-			leftArm = fromBone( bb, "leftArm" );
-			rightArm = fromBone( bb, "rightArm" );
-			left = fromBone( bb, "left" );
-			mag = fromBone( bb, "mag" );
-			
-			bone.parent = ani;
-			rightArm.parent = bone;
-			left.parent = bone;
-			leftArm.parent = left;
-			mag.parent = left;
-		}
-		catch( Exception e ) { throw new RuntimeException( e ); }
+//		final String path = new File( "." ).getAbsolutePath();
+//		
+//		try( FileReader in = new FileReader( new File( "../z-dev/model.animation.json" ) ) )
+//		{
+//			final BBAnimation bb = MCWB.GSON.fromJson( in, BBAnimationExport.class ).animations.get( "Reload" );
+//			
+//			final Animation ani = new Animation( "hello" )
+//			{
+//				@Override
+//				public void update( float progress ) { }
+//			};
+//			
+//			bone = fromBone( bb, "gun" );
+//			leftArm = fromBone( bb, "leftArm" );
+//			rightArm = fromBone( bb, "rightArm" );
+//			left = fromBone( bb, "left" );
+//			mag = fromBone( bb, "mag" );
+//			
+//			bone.parent = ani;
+//			rightArm.parent = bone;
+//			left.parent = bone;
+//			leftArm.parent = left;
+//			mag.parent = left;
+//		}
+//		catch( Exception e ) { throw new RuntimeException( e ); }
 		
 		final String group = "test";
 		final Collection< IKeyBind > updateGroup = InputHandler.GLOBAL_KEYS;

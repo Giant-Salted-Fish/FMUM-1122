@@ -63,7 +63,7 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModular< ? > >
 		contexted.prepareInHandRender(
 			IN_HAND_QUEUE_0,
 			IN_HAND_QUEUE_1,
-			IAnimator.INSTANCE // this.animator( hand )
+			this.animator( hand )
 		);
 		// TODO: better comparator?
 		IN_HAND_QUEUE_1.sort( ( r0, r1 ) -> r0.priority() > r1.priority() ? -1 : 1 );
@@ -96,10 +96,10 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModular< ? > >
 	) {
 		renderQueue0.add( () -> {
 			GL11.glPushMatrix();
-			final Mat4f mat = Mat4f.locate();
 			final float smoother = this.smoother();
-			animator.getChannel( CHANNEL_ITEM, smoother, mat );
-			animator.applyChannel( CHANNEL_INSTALL, smoother, mat );
+			final Mat4f mat = Mat4f.locate();
+			IAnimator.getChannel( animator, CHANNEL_ITEM, smoother, mat );
+			IAnimator.applyChannel( animator, CHANNEL_INSTALL, smoother, mat );
 			glMultMatrix( mat );
 			mat.release();
 			

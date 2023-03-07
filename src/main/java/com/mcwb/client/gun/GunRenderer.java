@@ -8,15 +8,12 @@ import org.lwjgl.util.glu.Project;
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.InputHandler;
-import com.mcwb.client.module.IDeferredRenderer;
+import com.mcwb.client.operation.IGunOperation;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IGun;
-import com.mcwb.common.gun.IMag;
-import com.mcwb.common.item.IItem;
-import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.devtool.BBAnimationExport;
@@ -36,7 +33,6 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.math.MathHelper;
@@ -44,7 +40,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
+public class GunRenderer< T extends IGun< ? > >
+	extends GunPartRenderer< T > implements IGunRenderer< T >
 {
 	public static final BuildableLoader< IRenderer > LOADER =
 		new BuildableLoader<>( "gun", json -> MCWB.GSON.fromJson( json, GunRenderer.class ) );
@@ -109,6 +106,12 @@ public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
 		this.modifyPos = MODIFY_POS;
 	}
 	
+	@Override
+	public void startLoadMag( IGunOperation op )
+	{
+		this.animator( EnumHand.MAIN_HAND ).animtion = this.loadMagAnimation;
+	}
+	
 	private static BoneAnimation fromBone( BBAnimation bb, String bone, BoneAnimation dst )
 	{
 		final BoneAnimation ddst = dst == null ? new BoneAnimation() : dst;
@@ -132,6 +135,8 @@ public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
 			ddst.rot.put( time * factor, quat );
 		} );
 		
+		bbBone.alpha.forEach( ( time, alpha ) -> ddst.alpha.put( time * factor, alpha ) );
+		
 		ddst.addGuard();
 		return ddst;
 	}
@@ -149,24 +154,28 @@ public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
 		try( FileReader in = new FileReader( aniPath ) )
 		{
 			final BBAnimation bb = MCWB.GSON.fromJson( in, BBAnimationExport.class ).animations.get( aniName );
-			final Animation gun = new Animation( "gun" );
-			fromBone( bb, "gun", gun );
+			final Animation item = new Animation( CHANNEL_ITEM );
+			fromBone( bb, CHANNEL_ITEM, item );
 			final BoneAnimation left = fromBone( bb, "left", null );
-			final BoneAnimation leftArm = fromBone( bb, "leftArm", null );
-			final BoneAnimation mag = fromBone( bb, "mag", null );
-			final BoneAnimation rightArm = fromBone( bb, "rightArm", null );
+			final BoneAnimation leftArm = fromBone( bb, CHANNEL_LEFT_ARM, null );
+			final BoneAnimation mag = fromBone( bb, IMagRenderer.CHANNEL_MAG, null );
+			final BoneAnimation rightArm = fromBone( bb, CHANNEL_RIGHT_ARM, null );
 			
-			gun.addChild( left );
-			gun.addChild( rightArm );
+			item.addChild( left );
+			item.addChild( rightArm );
+			left.parent = BoneAnimation.NONE; // Avoid gun channel apply
+			rightArm.parent = BoneAnimation.NONE;
+			
 			left.addChild( leftArm );
 			left.addChild( mag );
 			
-			gun.channels.put( "left", left );
-			gun.channels.put( "rightArm", rightArm );
-			gun.channels.put( "leftArm", leftArm );
-			gun.channels.put( "mag", mag );
+			item.channels.put( "left", left );
+			item.channels.put( CHANNEL_RIGHT_ARM, rightArm );
+			item.channels.put( CHANNEL_LEFT_ARM, leftArm );
+			item.channels.put( IMagRenderer.CHANNEL_MAG, mag );
 			
-			this.loadMagAnimation = gun;
+			this.loadMagAnimation = item;
+			GunAnimatorState.INSTANCE.animtion = item;
 		}
 		catch( Exception e ) { throw new RuntimeException( e ); }
 		
@@ -178,7 +187,7 @@ public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
 	@Override
 	public void tickInHand( T contexted, EnumHand hand )
 	{
-		/// Prepare necessary variables ///
+		/// *** Prepare necessary variables *** ///
 		final GunAnimatorState state = this.animator( hand );
 		state.modifyOp = contexted.opModify();
 		state.modifyPos = this.modifyPos;
@@ -201,13 +210,13 @@ public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
 		
 		// TODO: Check drop impact
 		
-		/// Camera acceleration impact ///
+		/// *** Camera acceleration impact *** ///
 		// TODO: camera control
 		
 		final Vec3f vec = Vec3f.locate();
 		final Mat4f mat = Mat4f.locate();
 		
-		/// Weapon acceleration impact ///
+		/// *** Weapon acceleration impact *** ///
 		{
 			// Translate acceleration into walk direction
 			final Vec3f acc = vec;
@@ -226,7 +235,7 @@ public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
 			state.holdRot.velocity.add( acc.y * ir.x, acc.x * ir.y, acc.x * ir.z );
 		}
 		
-		/// Weapon walk/sprint bobbing ///
+		/// *** Weapon walk/sprint bobbing *** ///
 		{
 			final Vec3f velo = vec;
 			velo.set( patch.playerVelocity );
@@ -241,7 +250,7 @@ public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
 			state.holdRot.velocity.add( sin * ar.x, cos * ar.y, cos * ar.z );
 		}
 		
-		/// Smooth on view rotation ///
+		/// *** Smooth on view rotation *** ///
 		{
 			final float deltaPitch = player.rotationPitch - GunAnimatorState.prevPlayerPitch;
 			final float deltaYaw = player.rotationYaw - GunAnimatorState.prevPlayerYaw;
@@ -254,7 +263,7 @@ public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
 			GunAnimatorState.prevPlayerYaw = player.rotationYaw;
 		}
 		
-		/// Setup target orientation and update ///
+		/// *** Setup target orientation and update *** ///
 		{
 			final Vec3f pos = state.holdPos.tarPos;
 			pos.set(
@@ -327,6 +336,15 @@ public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
 	}
 	
 	@Override
+	public void prepareRenderInHand( T contexted, EnumHand hand )
+	{
+		// Update animator before prepare
+		GunAnimatorState.INSTANCE.animtion.update( PlayerPatchClient.instance.executing().getProgress( this.smoother() ) );
+		
+		super.prepareRenderInHand( contexted, hand );
+	}
+	
+	@Override
 	protected void doRenderInHand( T contexted, EnumHand hand )
 	{
 		// Re-setup projection matrix
@@ -353,79 +371,79 @@ public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
 		}
 		
 		// Render hand // TODO: hand animation
-//		contexted.modifyState().doRenderArm( () -> {
-//			final GunAnimatorState animator = this.animator( hand );
-//			final ArmTracker leftArm = animator.leftArm;
-//			final ArmTracker rightArm = animator.rightArm;
-//			contexted.setupRenderArm( leftArm, rightArm, animator );
-//			
-//			this.renderArm( leftArm );
-//			this.renderArm( rightArm );
-//		} );
-		final float progress = PlayerPatchClient.instance.executing().getProgress( smoother() );
-		if( InputHandler.CO.down )
-		{
-			MCWB.MOD.info( "progress: " + progress );
-			Dev.flag = false;
-		}
-		Dev.bone.parent.mat.setIdentity();
-		Dev.bone.update( progress );
-		Dev.rightArm.update( progress );
-		Dev.left.update( progress );
-		Dev.leftArm.update( progress );
-		Dev.mag.update( progress );
-		
-		glTranslatef( this.holdPos );
-		
-		GL11.glPushMatrix();
-		
-		glScalef( 1F / 16F );
-		glMultMatrix( Dev.bone.mat );
-		glScalef( 16F );
+		contexted.modifyState().doRenderArm( () -> {
+			final GunAnimatorState animator = this.animator( hand );
+			final ArmTracker leftArm = animator.leftArm;
+			final ArmTracker rightArm = animator.rightArm;
+			contexted.setupRenderArm( leftArm, rightArm, animator );
+			
+			this.renderArm( animator, CHANNEL_LEFT_ARM );
+			this.renderArm( animator, CHANNEL_RIGHT_ARM );
+		} );
+//		final float progress = PlayerPatchClient.instance.executing().getProgress( smoother() );
+//		if( InputHandler.CO.down )
+//		{
+//			MCWB.MOD.info( "progress: " + progress );
+//			Dev.flag = false;
+//		}
+//		Dev.bone.parent.mat.setIdentity();
+//		Dev.bone.update( progress );
+//		Dev.rightArm.update( progress );
+//		Dev.left.update( progress );
+//		Dev.leftArm.update( progress );
+//		Dev.mag.update( progress );
+//		
+//		glTranslatef( this.holdPos );
+//		
+//		GL11.glPushMatrix();
+//		
+//		glScalef( 1F / 16F );
+//		glMultMatrix( Dev.bone.mat );
+//		glScalef( 16F );
 		
 		super.doRenderInHand( contexted, hand );
 		
-		GL11.glPopMatrix();
+//		GL11.glPopMatrix();
+//		
+//		GL11.glPushMatrix();
+//		
+//		glScalef( 1F / 16F );
+//		glMultMatrix( Dev.mag.mat );
+//		glScalef( 16F );
 		
-		GL11.glPushMatrix();
-		
-		glScalef( 1F / 16F );
-		glMultMatrix( Dev.mag.mat );
-		glScalef( 16F );
-		
-		final ItemStack stack = MCWBClient.MC.player.inventory.getStackInSlot( 0 );
-		final IItem item = IItemTypeHost.getTypeOrDefault( stack ).getContexted( stack );
-		if( item instanceof IMag< ? > )
-		{
-			RENDER_QUEUE_0.clear();
-			RENDER_QUEUE_1.clear();
-			final IMag< ? > mag = ( IMag< ? > ) item;
-			mag.getInstalled( null, 0 ).prepareRender( RENDER_QUEUE_0, RENDER_QUEUE_1, IAnimator.INSTANCE );
-			RENDER_QUEUE_0.forEach( IDeferredRenderer::render );
-		}
-		
-		GL11.glPopMatrix();
-		
-		this.bindTexture( TEXTURE_ALEX );
-		GL11.glPushMatrix();
-		
-		glScalef( 1F / 16F );
-		glMultMatrix( Dev.leftArm.mat );
-		glScalef( 16F );
-		
-		ALEX_ARM.render();
-		
-		GL11.glPopMatrix();
-		
-		GL11.glPushMatrix();
-		
-		glScalef( 1F / 16F );
-		glMultMatrix( Dev.rightArm.mat );
-		glScalef( 16F );
-		
-		ALEX_ARM.render();
-		
-		GL11.glPopMatrix();
+//		final ItemStack stack = MCWBClient.MC.player.inventory.getStackInSlot( 0 );
+//		final IItem item = IItemTypeHost.getTypeOrDefault( stack ).getContexted( stack );
+//		if( item instanceof IMag< ? > )
+//		{
+//			RENDER_QUEUE_0.clear();
+//			RENDER_QUEUE_1.clear();
+//			final IMag< ? > mag = ( IMag< ? > ) item;
+//			mag.getInstalled( null, 0 ).prepareRender( RENDER_QUEUE_0, RENDER_QUEUE_1, IAnimator.INSTANCE );
+//			RENDER_QUEUE_0.forEach( IDeferredRenderer::render );
+//		}
+//		
+//		GL11.glPopMatrix();
+//		
+//		this.bindTexture( TEXTURE_ALEX );
+//		GL11.glPushMatrix();
+//		
+//		glScalef( 1F / 16F );
+//		glMultMatrix( Dev.leftArm.mat );
+//		glScalef( 16F );
+//		
+//		ALEX_ARM.render();
+//		
+//		GL11.glPopMatrix();
+//		
+//		GL11.glPushMatrix();
+//		
+//		glScalef( 1F / 16F );
+//		glMultMatrix( Dev.rightArm.mat );
+//		glScalef( 16F );
+//		
+//		ALEX_ARM.render();
+//		
+//		GL11.glPopMatrix();
 	}
 	
 	protected void doSetupArmToRender(
@@ -436,7 +454,7 @@ public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
 		float armRotZ
 	) {
 		final Mat4f mat = Mat4f.locate();
-		animator.getChannel( CHANNEL_ITEM, this.smoother(), mat );
+		IAnimator.getChannel( animator, CHANNEL_ITEM, this.smoother(), mat );
 		final float gunRotZ = mat.getEulerAngleZ();
 		mat.release();
 		
@@ -451,20 +469,21 @@ public class GunRenderer< T extends IGun< ? > > extends GunPartRenderer< T >
 		this.updateArm( arm, animator );
 	}
 	
-	protected void renderArm( ArmTracker arm )
+	protected void renderArm( IAnimator animator, String channel )
 	{
 		GL11.glPushMatrix(); {
 		
-		glTranslatef( arm.handPos );
+		final Mat4f mat = Mat4f.locate();
+		IAnimator.getChannel( animator, channel, this.smoother(), mat );
+		glMultMatrix( mat );
+		mat.release();
 //		DevHelper.DEBUG_BOX.render();
 		
-		glEulerRotateYXZ( arm.handRot );
-		
-		this.bindTexture( TEXTURE_ALEX );
+		this.bindTexture( TEXTURE_STEVE );
 		
 		GL11.glEnable( GL11.GL_BLEND );
 //		GL11.glColor4f( 1F, 1F, 1F, 0.5F );
-		ALEX_ARM.render();
+		STEVE_ARM.render();
 		GL11.glDisable( GL11.GL_BLEND );
 		
 		} GL11.glPopMatrix();

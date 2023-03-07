@@ -541,7 +541,14 @@ public class OpModifyClient extends TogglableOperation< IModular< ? > >
 			this.curPaintjob = paintjob;
 			this.oriPaintjob = paintjob;
 		}
-		else this.setupIndicator();
+		else
+		{
+			this.curOffset = 0;
+			this.oriOffset = 0;
+			this.curStep = 0;
+			this.oriStep = 0;
+			this.setupIndicator();
+		}
 	}
 	
 	protected void setupIndicator()
