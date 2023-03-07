@@ -1,8 +1,12 @@
 package com.mcwb.devtool;
 
+import java.io.File;
+import java.io.FileReader;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.function.Consumer;
+
+import javax.annotation.Nullable;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
@@ -12,8 +16,19 @@ import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
+import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
+import com.mcwb.common.item.IItem;
+import com.mcwb.common.operation.IOperation;
+import com.mcwb.common.operation.Operation;
+import com.mcwb.common.operation.OperationController;
+import com.mcwb.devtool.BBAnimationExport.BBAnimation;
+import com.mcwb.devtool.BBAnimationExport.Bone;
+import com.mcwb.util.Animation;
+import com.mcwb.util.BoneAnimation;
+import com.mcwb.util.Mat4f;
+import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.util.ResourceLocation;
@@ -69,74 +84,126 @@ public class Dev implements IAutowirePlayerChat
 	
 //	public HitBoxes hbs0 = null, hbs1 = null;
 	
+	private static BoneAnimation fromBone( BBAnimation bb, String boneS )
+	{
+		final Bone bone = bb.bones.get( boneS );
+		
+		final BoneAnimation ani = new BoneAnimation();
+		final float factor = 1F / bb.animation_length;
+		
+		bone.position.entrySet().forEach( e -> {
+			final Vec3f v = e.getValue();
+			v.z = -v.z;
+			ani.pos.put( e.getKey() * factor, v );
+		} );
+		
+		final Mat4f mat = new Mat4f();
+		bone.rotation.entrySet().forEach( e -> {
+			final Quat4f quat = new Quat4f();
+			final Vec3f rot = e.getValue();
+			mat.setIdentity();
+			mat.rotateZ( -rot.z );
+			mat.rotateY( -rot.y );
+			mat.rotateX( rot.x );
+			quat.set( mat );
+			ani.rot.put( e.getKey() * factor, quat );
+		} );
+		ani.addGuard();
+		return ani;
+	}
+	
+	public static BoneAnimation bone;
+	public static BoneAnimation rightArm;
+	public static BoneAnimation left;
+	public static BoneAnimation leftArm;
+	public static BoneAnimation mag;
 	static
 	{
-//		final String group = "test";
-//		final Collection< IKeyBind > updateGroup = InputHandler.GLOBAL_KEYS;
-//		new KeyBind( "test_up", group, Keyboard.KEY_UP, updateGroup ) {
-//			@Override
-//			protected void onFire() { Dev.tu = true; }
-//		};
-//		new KeyBind( "test_down", group, Keyboard.KEY_DOWN, updateGroup ) {
-//			@Override
-//			protected void onFire() { Dev.td = true; }
-//		};
-//		new KeyBind( "test_left", group, Keyboard.KEY_LEFT, updateGroup ) {
-//			@Override
-//			protected void onFire() { Dev.tl = true; }
-//		};
-//		new KeyBind( "test_right", group, Keyboard.KEY_RIGHT, updateGroup ) {
-//			@Override
-//			protected void onFire() { Dev.tr = true; }
-//		};
-//		new KeyBind( "test_enter", group, Keyboard.KEY_NUMPAD5, updateGroup ) {
-//			@Override
-//			protected void onFire() { Dev.te = true; }
-//		};
-//		new KeyBind( "test_quit", group, Keyboard.KEY_NUMPAD2, updateGroup ) {
-//			@Override
-//			protected void onFire() { Dev.tq = true; }
-//		};
-//		new KeyBind( "test_flag", group, Keyboard.KEY_F10, updateGroup ) {
-//			@Override
-//			protected void onFire()
-//			{
-//				Dev.flag = !Dev.flag;
-//				// FIXME: add check for vector and matrix pool
-////				final Vec3f rot = cur().getRot();
-////				
-////				Mat4f mat = new Mat4f();
-////				mat.setIdentity();
-////				mat.eulerRotateYXZ( rot );
-////				mat.translate( 0F, 0F, 3F );
-////				MCWBClient.MOD.sendPlayerMsg( mat.toString() + "^ Mat4f" );
-////				
-////				rot.scale( Util.TO_RADIANS );
-////				Matrix4f mat0 = new Matrix4f();
-////				Matrix4f mat1 = new Matrix4f();
-////				Matrix4f mat2 = new Matrix4f();
-////				Matrix4f mat3 = new Matrix4f();
-////				mat0.rotY( rot.y );
-////				mat1.rotX( rot.x );
-////				mat2.rotZ( rot.z );
-////				mat3.setIdentity();
-////				mat3.setTranslation( new Vector3f( 0F, 0F, 3F ) );
-////				
-////				mat0.mul( mat1 );
-////				mat0.mul( mat2 );
-////				mat0.mul( mat3 );
-////				MCWBClient.MOD.sendPlayerMsg( mat0.toString() + "^ Matrix4f" );
-//			}
-//		};
-//		
-//		MinecraftForge.EVENT_BUS.register( new Object() {
-//			@SubscribeEvent
-//			public void onGuiOpen( GuiOpenEvent evt )
-//			{
-//				InputHandler.updateMappers();
-//				MinecraftForge.EVENT_BUS.unregister( this );
-//			}
-//		} );
+		final String path = new File( "." ).getAbsolutePath();
+		
+		try( FileReader in = new FileReader( new File( "../z-dev/model.animation.json" ) ) )
+		{
+			final BBAnimation bb = MCWB.GSON.fromJson( in, BBAnimationExport.class ).animations.get( "Reload" );
+			
+			final Animation ani = new Animation( "hello" )
+			{
+				@Override
+				public void update( float progress ) { }
+			};
+			
+			bone = fromBone( bb, "gun" );
+			leftArm = fromBone( bb, "leftArm" );
+			rightArm = fromBone( bb, "rightArm" );
+			left = fromBone( bb, "left" );
+			mag = fromBone( bb, "mag" );
+			
+			bone.parent = ani;
+			rightArm.parent = bone;
+			left.parent = bone;
+			leftArm.parent = left;
+			mag.parent = left;
+		}
+		catch( Exception e ) { throw new RuntimeException( e ); }
+		
+		final String group = "test";
+		final Collection< IKeyBind > updateGroup = InputHandler.GLOBAL_KEYS;
+		new KeyBind( "test_up", group, Keyboard.KEY_UP, updateGroup ) {
+			@Override
+			protected void onFire() { tu = true; }
+		};
+		new KeyBind( "test_down", group, Keyboard.KEY_DOWN, updateGroup ) {
+			@Override
+			protected void onFire() { td = true; }
+		};
+		new KeyBind( "test_left", group, Keyboard.KEY_LEFT, updateGroup ) {
+			@Override
+			protected void onFire() { tl = true; }
+		};
+		new KeyBind( "test_right", group, Keyboard.KEY_RIGHT, updateGroup ) {
+			@Override
+			protected void onFire() { tr = true; }
+		};
+		new KeyBind( "test_enter", group, Keyboard.KEY_NUMPAD5, updateGroup ) {
+			@Override
+			protected void onFire() { te = true; }
+		};
+		new QuitKey( "test_quit", group, Keyboard.KEY_NUMPAD2, updateGroup );
+		new KeyBind( "test_flag", group, Keyboard.KEY_F10, updateGroup )
+		{
+			@Override
+			protected void onFire() { flag = !flag; }
+		};
+		
+		MinecraftForge.EVENT_BUS.register( new Object() {
+			@SubscribeEvent
+			public void onGuiOpen( GuiOpenEvent evt )
+			{
+				InputHandler.updateMappers();
+				MinecraftForge.EVENT_BUS.unregister( this );
+			}
+		} );
+	}
+	
+	private static class QuitKey extends KeyBind
+	{
+		public QuitKey(
+			String name,
+			String category,
+			int keyCode,
+			@Nullable Collection< IKeyBind > updateGroup
+		) { super( name, category, keyCode, updateGroup ); }
+		
+		@Override
+		protected void onFire()
+		{
+			tq = true;
+			final OperationController controller = new OperationController( 1F / 20F / 2.375F );
+			PlayerPatchClient.instance.tryLaunch( new Operation<IItem>( null, null, controller )
+			{
+				@Override
+				public IOperation onInHandStackChange( IItem newItem ) { return this; }
+			} );
+		}
 	}
 	
 	public static void tick()

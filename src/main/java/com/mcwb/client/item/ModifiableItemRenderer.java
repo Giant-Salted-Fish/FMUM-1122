@@ -63,7 +63,7 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModular< ? > >
 		contexted.prepareInHandRender(
 			IN_HAND_QUEUE_0,
 			IN_HAND_QUEUE_1,
-			this.animator( hand )
+			IAnimator.INSTANCE // this.animator( hand )
 		);
 		// TODO: better comparator?
 		IN_HAND_QUEUE_1.sort( ( r0, r1 ) -> r0.priority() > r1.priority() ? -1 : 1 );

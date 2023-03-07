@@ -1,6 +1,7 @@
 package com.mcwb.client.player;
 
 import com.mcwb.client.MCWBClient;
+import com.mcwb.client.operation.IGunOperation;
 import com.mcwb.common.IAutowirePacketHandler;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.gun.IMag;
@@ -18,7 +19,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class OpLoadMagClient extends Operation< IGun< ? > > implements IAutowirePacketHandler
+public class OpLoadMagClient extends Operation< IGun< ? > >
+	implements IGunOperation, IAutowirePacketHandler
 {
 	protected int invSlot;
 	
@@ -33,6 +35,10 @@ public class OpLoadMagClient extends Operation< IGun< ? > > implements IAutowire
 		this.controller = gun.loadMagController();
 		return this;
 	}
+	
+	@Override
+	@SideOnly( Side.CLIENT )
+	public IMag< ? > suppliedMag() { return this.mag; }
 	
 	@Override
 	public IOperation launch( IOperation oldOp )

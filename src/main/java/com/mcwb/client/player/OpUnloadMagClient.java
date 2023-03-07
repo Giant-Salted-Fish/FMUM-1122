@@ -1,8 +1,10 @@
 package com.mcwb.client.player;
 
 import com.mcwb.client.MCWBClient;
+import com.mcwb.client.operation.IGunOperation;
 import com.mcwb.common.IAutowirePacketHandler;
 import com.mcwb.common.gun.IGun;
+import com.mcwb.common.gun.IMag;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.network.PacketCode;
 import com.mcwb.common.network.PacketCode.Code;
@@ -13,7 +15,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class OpUnloadMagClient extends Operation< IGun< ? > > implements IAutowirePacketHandler
+public class OpUnloadMagClient extends Operation< IGun< ? > >
+	implements IGunOperation, IAutowirePacketHandler
 {
 	public OpUnloadMagClient() { super( null, null, null ); }
 	
@@ -24,6 +27,10 @@ public class OpUnloadMagClient extends Operation< IGun< ? > > implements IAutowi
 		this.controller = gun.unloadMagController();
 		return this;
 	}
+	
+	@Override
+	@SideOnly( Side.CLIENT )
+	public IMag< ? > suppliedMag() { return null; }
 	
 	@Override
 	public IOperation launch( IOperation oldOp )
