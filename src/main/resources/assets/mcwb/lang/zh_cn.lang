@@ -38,6 +38,7 @@ mcwb.error_loading_pack_info=加载内容包 info 文件 %s 时遇到错误
 mcwb.type_loader_not_found=找不到 %s 需要的类型加载器 %s
 mcwb.mcwb.error_loading_type=加载 %s 时遇到意外错误
 mcwb.duplicate_meta_regis=重复的元注册 %s : %s
+mcwb.error_loading_renderer=加载渲染代理 %s 时遇到错误
 mcwb.fail_to_find_tab=找不到 %s 指定的创造模式物品栏 %s
 mcwb.fail_to_find_indicator=找不到 %s 指定的改装指示器 %s
 mcwb.expaintjob_target_not_found=找不到皮肤 %s 指定的注入目标 %s
@@ -61,8 +62,8 @@ mcwb.on_post_init=正在后初始化 MCWB...
 mcwb.post_init_complete=MCWB 后初始化完成 \
 
 # 运行时日志
-mcwb.error_loading_renderer=加载渲染代理 %s 时遇到错误
 mcwb.error_loading_mesh=加载模型网格 %s 时遇到错误
+mcwb.error_loading_animation=加载动画 %s 时遇到错误
 mcwb.exception_call_model_load=执行 %s 的模型加载方法时出现异常，这很有可能导致游戏崩溃
 
 # 内容包摘要

@@ -15,11 +15,13 @@ public class BoneAnimation
 	
 	public TreeMap< Float, Vec3f > pos = new TreeMap<>();
 	public TreeMap< Float, Quat4f > rot = new TreeMap<>();
+	
+	// TODO: may not need a separate alpha channel
 	public TreeMap< Float, Float > alpha = new TreeMap<>();
 	
-	public final Mat4f mat = new Mat4f();
-	public final Quat4f quat = new Quat4f();
-	public float a;
+	protected final Mat4f mat = new Mat4f();
+	protected final Quat4f quat = new Quat4f();
+	protected float a;
 	
 	public void addChild( BoneAnimation child )
 	{
@@ -49,6 +51,7 @@ public class BoneAnimation
 	{
 		this.mat.set( this.parent.mat );
 		this.quat.set( this.parent.quat );
+		this.a = this.parent.a;
 		
 		/// *** Alpha *** ///
 		{
@@ -57,7 +60,7 @@ public class BoneAnimation
 			final float floorTime = floor.getKey();
 			final float delta = ceiling.getKey() - floorTime;
 			final float alpha = delta > 0F ? ( progress - floorTime ) / delta : floorTime;
-			this.a = ( 1F - alpha ) * floor.getValue() + alpha * ceiling.getValue();
+			this.a *= ( 1F - alpha ) * floor.getValue() + alpha * ceiling.getValue();
 		}
 		
 		/// *** Position *** ///

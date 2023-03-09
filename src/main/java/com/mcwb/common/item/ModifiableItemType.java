@@ -28,6 +28,7 @@ import com.mcwb.common.module.IModuleSlot;
 import com.mcwb.common.module.Module;
 import com.mcwb.common.module.ModuleSnapshot;
 import com.mcwb.common.module.ModuleWrapper;
+import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.paintjob.IPaintable;
 import com.mcwb.common.paintjob.IPaintableType;
 import com.mcwb.common.paintjob.IPaintjob;
@@ -54,9 +55,6 @@ public abstract class ModifiableItemType<
 	R extends IItemRenderer< ? super C > & IModuleRenderer< ? super C >
 > extends ItemType< C, R > implements IModularType, IPaintableType, IPaintjob
 {
-	// TODO: side only
-	public static final OpModifyClient OP_MODIFY = new OpModifyClient();
-	
 	@SerializedName( value = "category", alternate = "group" )
 	protected String category;
 	
@@ -319,16 +317,28 @@ public abstract class ModifiableItemType<
 			case Key.TOGGLE_MODIFY:
 			case Key.CO_TOGGLE_MODIFY:
 				final PlayerPatchClient patch = PlayerPatchClient.instance;
-				final OpModifyClient opModify = this.opModify();
-				if( patch.executing() == opModify )
+//				final OpModifyClient opModify = this.opModify();
+//				if( patch.executing() == opModify )
+//					patch.toggleExecuting();
+//				else patch.tryLaunch( opModify.reset() );
+				if( patch.executing() instanceof OpModifyClient )
 					patch.toggleExecuting();
-				else patch.tryLaunch( opModify.reset() );
+				else patch.tryLaunch( new OpModifyClient() {
+					@Override
+					protected void setRenderDelegate( IModular< ? > delegate ) {
+						ModifiableItem.this.base.setBase( delegate, 0 );
+					}
+				} );
 				break;
 			}
 			
 			// For keys of category modify, just send to operation to handle them
 			if( key.category().equals( Category.MODIFY ) )
-				this.opModify().handleInput( key );
+			{
+				final IOperation op = PlayerPatchClient.instance.executing();
+				if( op instanceof OpModifyClient )
+					( ( OpModifyClient ) op ).handleInput( key );
+			}
 		}
 		
 		@Override
@@ -381,10 +391,6 @@ public abstract class ModifiableItemType<
 		public ResourceLocation texture() {
 			return ModifiableItemType.this.paintjobs.get( this.paintjob ).texture();
 		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public OpModifyClient opModify() { return OP_MODIFY; }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -507,19 +513,17 @@ public abstract class ModifiableItemType<
 		@Override
 		@SideOnly( Side.CLIENT )
 		public void prepareRenderInHand( EnumHand hand ) {
-			this.primary.opModify().delegate( this.primary ).prepareRenderInHand( hand );
+			this.primary.prepareRenderInHand( hand );
 		}
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean renderInHand( EnumHand hand ) {
-			return this.primary.opModify().delegate( this.primary ).renderInHand( hand );
-		}
+		public boolean renderInHand( EnumHand hand ) { return this.primary.renderInHand( hand ); }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
 		public boolean onRenderSpecificHand( EnumHand hand ) {
-			return this.primary.opModify().delegate( this.primary ).onRenderSpecificHand( hand );
+			return this.primary.onRenderSpecificHand( hand );
 		}
 		
 		@Override

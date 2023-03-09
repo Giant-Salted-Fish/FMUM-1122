@@ -44,7 +44,7 @@ public class OpLoadMag extends Operation< IGun< ? > >
 	public IOperation onInHandStackChange( IItem newItem )
 	{
 		this.contexted = ( IGun< ? > ) newItem;
-		return this.contexted.hasMag() ? NONE : this;
+		return this.contexted.hasMag() ? this.terminate() : this;
 	}
 	
 	@Override

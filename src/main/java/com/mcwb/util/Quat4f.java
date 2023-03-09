@@ -39,6 +39,8 @@ public final class Quat4f extends javax.vecmath.Quat4f implements IReleasable
 	
 	public Quat4f( float x, float y, float z, float w ) { super( x, y, z, w ); }
 	
+	public Quat4f( Mat4f mat ) { this.set( mat ); }
+	
 	/**
 	 * @see #set(float, float, float)
 	 */

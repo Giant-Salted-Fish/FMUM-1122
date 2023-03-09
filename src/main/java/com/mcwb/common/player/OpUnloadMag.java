@@ -20,10 +20,8 @@ public class OpUnloadMag extends Operation< IGun< ? > >
 	@Override
 	public IOperation onInHandStackChange( IItem newItem )
 	{
-		if( !( ( IGun< ? > ) newItem ).hasMag() ) return NONE;
-		
 		this.contexted = ( IGun< ? > ) newItem;
-		return this;
+		return this.contexted.hasMag() ? this : this.terminate();
 	}
 	
 	@Override

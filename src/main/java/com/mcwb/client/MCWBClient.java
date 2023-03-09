@@ -3,8 +3,10 @@ package com.mcwb.client;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
 
@@ -26,6 +28,7 @@ import com.mcwb.client.gun.OpticSightRenderer;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.item.ItemRenderer;
+import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.client.render.Renderer;
 import com.mcwb.common.MCWB;
@@ -34,8 +37,13 @@ import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.load.IMeshLoadSubscriber;
 import com.mcwb.common.meta.Registry;
+import com.mcwb.util.Animation;
+import com.mcwb.util.BoneAnimation;
+import com.mcwb.util.Mat4f;
 import com.mcwb.util.Mesh;
 import com.mcwb.util.ObjMeshBuilder;
+import com.mcwb.util.Quat4f;
+import com.mcwb.util.Vec3f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
@@ -92,9 +100,11 @@ public final class MCWBClient extends MCWB
 	/**
 	 * Buffered textures
 	 * 
-	 * TODO: clear this after use maybe?
+	 * TODO: clear pools after use maybe?
 	 */
 	private final HashMap< String, ResourceLocation > texturePool = new HashMap<>();
+	
+	private final HashMap< String, IAnimator > animationPool = new HashMap<>();
 	
 	private MCWBClient() { }
 	
@@ -201,14 +211,11 @@ public final class MCWBClient extends MCWB
 			{
 				if( key.endsWith( ".json" ) )
 				{
-					try(
-						IResource res = MC.getResourceManager()
-							.getResource( new MCWBResource( path ) )
-					) {
-						final JsonObject obj = GSON.fromJson(
-							new InputStreamReader( res.getInputStream() ),
-							JsonObject.class
-						);
+					final MCWBResource identifier = new MCWBResource( key );
+					try( IResource res = MC.getResourceManager().getResource( identifier ) )
+					{
+						final InputStreamReader in = new InputStreamReader( res.getInputStream() );
+						final JsonObject obj = GSON.fromJson( in, JsonObject.class );
 						
 						// Try get required loader and load
 						final JsonElement type = obj.get( "__type__" );
@@ -217,10 +224,10 @@ public final class MCWBClient extends MCWB
 						final BuildableLoader< ? extends IRenderer >
 							loader = MODEL_LOADERS.get( entry );
 						if( loader != null )
-							return loader.parser.apply( obj ).build( path, provider );
+							return loader.parser.apply( obj ).build( key, provider );
 						
 						throw new RuntimeException(
-							this.format( "mcwb.model_loader_not_found", path, entry )
+							this.format( "mcwb.model_loader_not_found", key, entry )
 						);
 					}
 				}
@@ -228,7 +235,7 @@ public final class MCWBClient extends MCWB
 				{
 					return ( IRenderer ) this.loadClass( key.substring( 0, key.length() - 6 ) )
 						.getConstructor( String.class, IContentProvider.class )
-							.newInstance( path, provider );
+							.newInstance( key, provider );
 				}
 				
 				// Unknown renderer type
@@ -275,6 +282,70 @@ public final class MCWBClient extends MCWB
 	}
 	
 	@Override
+	public IAnimator loadAnimation( String path )
+	{
+		return this.animationPool.computeIfAbsent( path, key -> {
+			try
+			{
+				if( key.endsWith( ".json" ) )
+				{
+					// For animation exported from blockbench
+					final MCWBResource identifier = new MCWBResource( key );
+					try( IResource res = MC.getResourceManager().getResource( identifier ) )
+					{
+						final InputStreamReader in = new InputStreamReader( res.getInputStream() );
+						final BBAnimationJson json = GSON.fromJson( in, BBAnimationJson.class );
+						
+						final Animation ani = new Animation();
+						final HashMap< BBBoneJson, BoneAnimation > mapper = new HashMap<>();
+						
+						final float timeFactor = 1F / json.animation_length;
+						final float scale = json.positionScale;
+						final Mat4f mat = Mat4f.locate();
+						json.bones.forEach( ( channel, bbBone ) -> {
+							final BoneAnimation bone = new BoneAnimation();
+							bbBone.position.forEach( ( time, pos ) -> {
+								pos.z = -pos.z; // TODO: remove this
+								pos.scale( scale );
+								bone.pos.put( time * timeFactor, pos );
+							} );
+							bbBone.rotation.forEach( ( time, rot ) -> {
+								mat.setIdentity();
+								mat.rotateZ( -rot.z );
+								mat.rotateY( -rot.y );
+								mat.rotateX( rot.x );
+								bone.rot.put( time * timeFactor, new Quat4f( mat ) );
+							} );
+							bbBone.alpha.forEach(
+								( time, alpha ) -> bone.alpha.put( time * timeFactor, alpha )
+							);
+							bone.addGuard();
+							
+							ani.channels.put( channel, bone );
+							mapper.put( bbBone, bone );
+						} );
+						mat.release();
+						
+						mapper.forEach( ( bbBone, bone ) -> {
+							final BoneAnimation parent = ani.channels.get( bbBone.parent );
+							if( parent != null ) bone.parent = parent;
+							else ani.rootBones.add( bone );
+						} );
+						return ani;
+					}
+				}
+				
+				if( key.endsWith( ".class" ) )
+					
+				
+				throw new RuntimeException( "Unsupported animation file type" );
+			}
+			catch( Exception e ) { this.except( e, "mcwb.error_loading_animation", key ); }
+			return IAnimator.INSTANCE;
+		} );
+	}
+	
+	@Override
 	public boolean isClient() { return true; }
 	
 	@Override
@@ -311,5 +382,27 @@ public final class MCWBClient extends MCWB
 		builder.registerTypeAdapter( ResourceLocation.class, TEXTURE_ADAPTER );
 		
 		return builder;
+	}
+	
+	private static class BBAnimationJson
+	{
+//		boolean loop = false;
+		float animation_length;
+		Map< String, BBBoneJson > bones = Collections.emptyMap();
+		
+		/**
+		 * Additional scale applied on animation upon load
+		 */
+		float positionScale = 1F;
+	}
+	
+	private static class BBBoneJson
+	{
+		String parent;
+		Map< Float, Vec3f > position = Collections.emptyMap();
+		Map< Float, Float > alpha = Collections.emptyMap();
+		
+		// Notice that the euler rotation order of bb animation is actually xyz
+		Map< Float, Vec3f > rotation = Collections.emptyMap();
 	}
 }

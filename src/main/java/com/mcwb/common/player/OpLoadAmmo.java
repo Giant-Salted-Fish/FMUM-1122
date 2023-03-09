@@ -53,10 +53,8 @@ public class OpLoadAmmo extends Operation< IMag< ? > >
 	@Override
 	public IOperation onInHandStackChange( IItem newItem )
 	{
-		if( ( ( IMag< ? > ) newItem ).isFull() ) return NONE;
-		
 		this.contexted = ( IMag< ? > ) newItem;
-		return this;
+		return this.contexted.isFull() ? this.terminate() : this;
 	}
 	
 	@Override

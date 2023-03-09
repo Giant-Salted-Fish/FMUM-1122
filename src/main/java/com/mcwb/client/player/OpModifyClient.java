@@ -27,11 +27,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class OpModifyClient extends TogglableOperation< IModular< ? > >
+public abstract class OpModifyClient extends TogglableOperation< IModular< ? > >
 	implements IAutowirePacketHandler, IAutowirePlayerChat
 {
-	protected static final Runnable IDLE = () -> { };
-	
 	protected static final IPaintable PAINTABLE = new IPaintable()
 	{
 		@Override
@@ -60,7 +58,6 @@ public class OpModifyClient extends TogglableOperation< IModular< ? > >
 	protected int locLen;
 	
 	protected ItemStack stack;
-	protected IModular< ? > renderDelegate;
 	
 	/**
 	 * None null. Should be the currently selected module or the preview module or the indicator.
@@ -85,23 +82,22 @@ public class OpModifyClient extends TogglableOperation< IModular< ? > >
 	protected IPreviewPredicate previewState = IPreviewPredicate.NO_PREVIEW;
 	protected IModifyPredicate positionState = IModifyPredicate.OK;
 	
-	protected Runnable inputHandler = IDLE;
+	protected Runnable inputHandler = () -> { };
 	
-	public OpModifyClient() {
-		super( null, null, new OperationController( 0.1F ), new OperationController( -0.1F ) );
-	}
-	
-	@SuppressWarnings( "unchecked" )
-	public final < T extends IModular< ? > > T delegate( T original ) {
-		return this.renderDelegate != null ? ( T ) this.renderDelegate : original;
-	}
-	
-	public IOperation reset()
+	public OpModifyClient()
 	{
+		super( null, null, new OperationController( 0.1F ), new OperationController( -0.1F ) );
+		
 		this.player = MCWBClient.MC.player;
 		this.stack = this.player.inventory.getCurrentItem();
-		return this;
 	}
+	
+//	public IOperation reset()
+//	{
+//		this.player = MCWBClient.MC.player;
+//		this.stack = this.player.inventory.getCurrentItem();
+//		return this;
+//	}
 	
 	public void handleInput( IKeyBind key )
 	{
@@ -398,20 +394,23 @@ public class OpModifyClient extends TogglableOperation< IModular< ? > >
 	@Override
 	public IOperation tick()
 	{
-		if( super.tick() == NONE ) return this.terminate();
+		if( super.tick() == NONE ) return NONE;
 		
 		// Do not do modification if operation has not been fully launched
-		if( this.prevProgress != 1F ) return this;
-		
-		this.inputHandler.run();
-		this.inputHandler = IDLE;
+		if( this.prevProgress >= 1F )
+		{
+			this.inputHandler.run();
+			this.inputHandler = () -> { };
+		}
 		return this;
 	}
 	
 	@Override
 	public IOperation terminate()
 	{
-		this.renderDelegate = null;
+		final IItemType type = IItemTypeHost.getTypeA( this.stack );
+		this.setRenderDelegate( ( IModular< ? > ) type.getContexted( this.stack ) );
+		
 		this.clearProgress();
 		return NONE;
 	}
@@ -497,7 +496,7 @@ public class OpModifyClient extends TogglableOperation< IModular< ? > >
 		final ItemStack copiedStack = this.stack.copy();
 		final IItemType type = IItemTypeHost.getTypeA( copiedStack );
 		this.contexted = ( IModular< ? > ) type.getContexted( copiedStack );
-		this.renderDelegate = this.contexted.getInstalled( this.loc, 0 );
+		this.setRenderDelegate( this.contexted );
 	}
 	
 	protected void fetchCursorAndSetup()
@@ -572,6 +571,8 @@ public class OpModifyClient extends TogglableOperation< IModular< ? > >
 				: this.previewState.ok() && this.positionState.ok()
 					? IModifyState.SELECTED_OK : IModifyState.SELECTED_CONFLICT;
 	}
+	
+	protected abstract void setRenderDelegate( IModular< ? > delegate );
 	
 	protected static enum ModifyMode
 	{

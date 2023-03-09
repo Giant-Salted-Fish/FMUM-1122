@@ -25,7 +25,7 @@ public interface IAnimator
 	};
 	
 	@SideOnly( Side.CLIENT )
-	public default void update( float smoother ) { }
+	public default void update( float progress ) { }
 	
 	@SideOnly( Side.CLIENT )
 	public void getPos( String channel, float smoother, Vec3f dst );

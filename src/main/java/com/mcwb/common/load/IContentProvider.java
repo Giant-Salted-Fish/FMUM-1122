@@ -3,6 +3,7 @@ package com.mcwb.common.load;
 import java.util.function.Function;
 
 import com.mcwb.client.MCWBClient;
+import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.meta.IMeta;
@@ -73,6 +74,11 @@ public interface IContentProvider extends IMeta
 	@SideOnly( Side.CLIENT )
 	public default ResourceLocation loadTexture( String path ) {
 		return MCWBClient.MOD.loadTexture( path );
+	}
+	
+	@SideOnly( Side.CLIENT )
+	public default IAnimator loadAnimation( String path ) {
+		return MCWBClient.MOD.loadAnimation( path );
 	}
 	
 	public default boolean isClient() { return MCWB.MOD.isClient(); }

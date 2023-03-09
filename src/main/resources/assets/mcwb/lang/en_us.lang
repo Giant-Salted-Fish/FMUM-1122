@@ -38,6 +38,7 @@ mcwb.error_loading_pack_info=An error has occurred while attempting to load pack
 mcwb.type_loader_not_found=Can not find type loader <%2$s> required by <%1$s>
 mcwb.mcwb.error_loading_type=An error has occurred while attempting to load <%s>
 mcwb.duplicate_meta_regis=Duplicate meta registration <%s> : <%s>
+mcwb.error_loading_renderer=An error has occurred while loading renderer <%s>
 mcwb.fail_to_find_tab=Can not find creative tab <%2$s> required by <%1$s>
 mcwb.fail_to_find_indicator=Can not find modify indicator <%2$s> required by <%1$s>
 mcwb.expaintjob_target_not_found=Can not find inject target <%2$s> required by external paintjob <%1$s>
@@ -61,8 +62,8 @@ mcwb.on_post_init=Post-initializing MCWB...
 mcwb.post_init_complete=MCWB post-initialization complete \
 
 # Runtime info
-mcwb.error_loading_renderer=An error has occurred while loading renderer <%s>
 mcwb.error_loading_mesh=An error has occurred while attempting to load mesh <%s>
+mcwb.error_loading_animation=An error has occurred while attempting to load animation <%s>
 mcwb.exception_call_model_load=An exception was thrown from the model load method of <%s>. This will be highly possible to crash the game.
 
 # Content pack

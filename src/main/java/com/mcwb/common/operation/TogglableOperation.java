@@ -26,7 +26,6 @@ public abstract class TogglableOperation< T extends IContexted > extends Operati
 	{
 		// Use forward controller for launch
 		this.controller = this.forwardController;
-		this.clearProgress();
 		return this;
 	}
 	
@@ -49,6 +48,6 @@ public abstract class TogglableOperation< T extends IContexted > extends Operati
 		
 		// TODO: Handle sound and effect
 		
-		return progressor < 0F && this.prevProgress == 0F ? NONE : this;
+		return progressor < 0F && this.prevProgress == 0F ? this.terminate() : this;
 	}
 }

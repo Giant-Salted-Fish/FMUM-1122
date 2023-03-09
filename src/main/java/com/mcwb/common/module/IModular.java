@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 
 import com.mcwb.client.module.IDeferredPriorityRenderer;
 import com.mcwb.client.module.IDeferredRenderer;
-import com.mcwb.client.player.OpModifyClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.meta.IContexted;
 import com.mcwb.util.Mat4f;
@@ -126,9 +125,6 @@ public interface IModular< T extends IModular< ? extends T > >
 		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
 	);
-	
-	@SideOnly( Side.CLIENT )
-	public OpModifyClient opModify();
 	
 	@SideOnly( Side.CLIENT )
 	public IModular< ? > newModifyIndicator();

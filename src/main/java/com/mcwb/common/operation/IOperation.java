@@ -8,7 +8,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * Represents something that the player is doing with the item in main hand
+ * <p> Represents something that the player is doing with the item in main hand. </p>
+ * 
+ * <p> In default your implementation should guarantee that {@link #terminate()} is called whenever
+ * the operation is left for execution. </p>
  * 
  * @author Giant_Salted_Fish
  */

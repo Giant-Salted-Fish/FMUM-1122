@@ -1,6 +1,7 @@
 package com.mcwb.util;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import com.mcwb.client.render.IAnimator;
@@ -10,11 +11,17 @@ import com.mcwb.client.render.IAnimator;
  * 
  * @author Giant_SaltedF_Fish
  */
-public class Animation extends BoneAnimation implements IAnimator
+public class Animation implements IAnimator
 {
 	public final Map< String, BoneAnimation > channels = new HashMap<>();
 	
-	public Animation( String channel ) { this.channels.put( channel, this ); }
+	/**
+	 * Will call {@link BoneAnimation#update(float)} on these bones
+	 */
+	public final LinkedList< BoneAnimation > rootBones = new LinkedList<>();
+	
+	@Override
+	public void update( float progress ) { this.rootBones.forEach( b -> b.update( progress ) ); }
 	
 	@Override
 	public void getPos( String channel, float smoother, Vec3f dst )

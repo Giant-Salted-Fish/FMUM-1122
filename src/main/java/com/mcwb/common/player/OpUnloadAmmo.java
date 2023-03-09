@@ -30,10 +30,8 @@ public class OpUnloadAmmo extends Operation< IMag< ? > >
 	@Override
 	public IOperation onInHandStackChange( IItem newItem )
 	{
-		if( ( ( IMag< ? > ) newItem ).isEmpty() ) return NONE;
-		
 		this.contexted = ( IMag< ? > ) newItem;
-		return this;
+		return this.contexted.isEmpty() ? this.terminate() : this;
 	}
 	
 	@Override

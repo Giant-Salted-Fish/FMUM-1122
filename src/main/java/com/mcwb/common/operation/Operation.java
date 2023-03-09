@@ -64,7 +64,12 @@ public abstract class Operation< T extends IContexted > implements IOperation
 	public IOperation onOtherTryLaunch( IOperation op ) { return this; }
 	
 	@Override
-	public String toString() { return "Operation::" + this.getClass().getTypeName(); }
+	public String toString()
+	{
+		final String typeName = this.getClass().getTypeName();
+		final String className = typeName.substring( typeName.lastIndexOf( '.' ) );
+		return "Operation::" + className + "<" + this.contexted + ">";
+	}
 	
 	protected void clearProgress()
 	{
@@ -74,7 +79,7 @@ public abstract class Operation< T extends IContexted > implements IOperation
 		this.isound = 0;
 	}
 	
-	protected IOperation onComplete() { return NONE; }
+	protected IOperation onComplete() { return this.terminate(); }
 	
 	/**
 	 * Handle effect specified by {@link #ieffect}

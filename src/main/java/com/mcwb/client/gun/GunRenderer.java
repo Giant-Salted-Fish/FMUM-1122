@@ -1,7 +1,5 @@
 package com.mcwb.client.gun;
 
-import java.io.FileReader;
-
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
@@ -16,11 +14,9 @@ import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
-import com.mcwb.devtool.BBAnimationExport;
 import com.mcwb.devtool.BBAnimationExport.BBAnimation;
 import com.mcwb.devtool.BBAnimationExport.Bone;
 import com.mcwb.devtool.Dev;
-import com.mcwb.util.Animation;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.BoneAnimation;
 import com.mcwb.util.Constants;
@@ -53,7 +49,7 @@ public class GunRenderer< T extends IGun< ? > >
 	
 	@SerializedName( value = "loadMagAnimationPath", alternate = "loadMagAnimation" )
 	protected String loadMagAnimationPath = "Reload:../z-dev/model.animation.json";
-	protected transient Animation loadMagAnimation;
+	protected transient IAnimator loadMagAnimation;
 	
 	protected final Vec3f rightHandPos = Vec3f.ORIGIN;
 	protected float rightHandRotZ = 0F;
@@ -147,37 +143,7 @@ public class GunRenderer< T extends IGun< ? > >
 		super.build( path, provider );
 		
 		// Load animation
-		final String discriptor = this.loadMagAnimationPath;
-		final int i = discriptor.indexOf( ':' );
-		final String aniName = discriptor.substring( 0, i );
-		final String aniPath = discriptor.substring( i + 1 );
-		try( FileReader in = new FileReader( aniPath ) )
-		{
-			final BBAnimation bb = MCWB.GSON.fromJson( in, BBAnimationExport.class ).animations.get( aniName );
-			final Animation item = new Animation( CHANNEL_ITEM );
-			fromBone( bb, CHANNEL_ITEM, item );
-			final BoneAnimation left = fromBone( bb, "left", null );
-			final BoneAnimation leftArm = fromBone( bb, CHANNEL_LEFT_ARM, null );
-			final BoneAnimation mag = fromBone( bb, IMagRenderer.CHANNEL_MAG, null );
-			final BoneAnimation rightArm = fromBone( bb, CHANNEL_RIGHT_ARM, null );
-			
-			item.addChild( left );
-			item.addChild( rightArm );
-			left.parent = BoneAnimation.NONE; // Avoid gun channel apply
-			rightArm.parent = BoneAnimation.NONE;
-			
-			left.addChild( leftArm );
-			left.addChild( mag );
-			
-			item.channels.put( "left", left );
-			item.channels.put( CHANNEL_RIGHT_ARM, rightArm );
-			item.channels.put( CHANNEL_LEFT_ARM, leftArm );
-			item.channels.put( IMagRenderer.CHANNEL_MAG, mag );
-			
-			this.loadMagAnimation = item;
-			GunAnimatorState.INSTANCE.animtion = item;
-		}
-		catch( Exception e ) { throw new RuntimeException( e ); }
+		this.loadMagAnimation = provider.loadAnimation( this.loadMagAnimationPath );
 		
 		this.leftHandPos.scale( this.scale );
 		this.rightHandPos.scale( this.scale );
