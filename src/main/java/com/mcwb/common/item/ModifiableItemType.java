@@ -355,15 +355,19 @@ public abstract class ModifiableItemType<
 			Collection< IDeferredPriorityRenderer > renderQueue1,
 			IAnimator animator
 		) {
+			IAnimator.getChannel( animator, IModuleRenderer.CHANNEL_MODULE, this.mat );
+			this.base.getSlot( this.baseSlot ).applyTransform( this, this.mat );
+			final IAnimator wrappedAnimator = this.wrapAnimator( animator );
+			
 			ModifiableItemType.this.renderer.prepareInHandRender(
 				this.self(),
-				this.wrapAnimator( animator ),
+				wrappedAnimator,
 				renderQueue0,
 				renderQueue1
 			);
 			
 			this.installed.forEach(
-				mod -> mod.prepareInHandRender( renderQueue0, renderQueue1, animator )
+				mod -> mod.prepareInHandRender( renderQueue0, renderQueue1, wrappedAnimator )
 			);
 		}
 		
@@ -374,15 +378,19 @@ public abstract class ModifiableItemType<
 			Collection< IDeferredPriorityRenderer > renderQueue1,
 			IAnimator animator
 		) {
+			IAnimator.getChannel( animator, IModuleRenderer.CHANNEL_MODULE, this.mat );
+			this.base.getSlot( this.baseSlot ).applyTransform( this, this.mat );
+			final IAnimator wrappedAnimator = this.wrapAnimator( animator );
+			
 			ModifiableItemType.this.renderer.prepareRender(
 				this.self(),
-				this.wrapAnimator( animator ),
+				wrappedAnimator,
 				renderQueue0,
 				renderQueue1
 			);
 			
 			this.installed.forEach(
-				mod -> mod.prepareRender( renderQueue0, renderQueue1, animator )
+				mod -> mod.prepareRender( renderQueue0, renderQueue1, wrappedAnimator )
 			);
 		}
 		
@@ -423,46 +431,43 @@ public abstract class ModifiableItemType<
 		}
 		
 		/**
-		 * Creates an animator that provides {@link IModuleRenderer#CHANNEL_INSTALL}
+		 * Creates an animator that provides correct {@link IModuleRenderer#CHANNEL_MODULE}
 		 */
 		@SideOnly( Side.CLIENT )
 		protected IAnimator wrapAnimator( IAnimator animator )
 		{
 			return new IAnimator()
 			{
+				// For default case and #getFactor(...) will forward the call to wrapped animator \
+				// until it reaches the base animator. TODO: for performance?
 				@Override
-				@SideOnly( Side.CLIENT )
-				public void getPos( String channel, float smoother, Vec3f dst )
+				public void getPos( String channel, Vec3f dst )
 				{
 					switch( channel )
 					{
-					case IModuleRenderer.CHANNEL_INSTALL:
-						ModifiableItem.this.mat.get( dst );
+					case IModuleRenderer.CHANNEL_MODULE:
+						ModifiableItem.this.mat.set( dst );
 						break;
 						
-					default: animator.getPos( channel, smoother, dst );
+					default: animator.getPos( channel, dst );
 					}
 				}
 				
 				@Override
-				@SideOnly( Side.CLIENT )
-				public void getRot( String channel, float smoother, Quat4f dst )
+				public void getRot( String channel, Quat4f dst )
 				{
 					switch( channel )
 					{
-					case IModuleRenderer.CHANNEL_INSTALL:
+					case IModuleRenderer.CHANNEL_MODULE:
 						dst.set( ModifiableItem.this.mat );
 						break;
 						
-					default: animator.getRot( channel, smoother, dst );
+					default: animator.getRot( channel, dst );
 					}
 				}
 				
 				@Override
-				@SideOnly( Side.CLIENT )
-				public float getAlpha( String channel, float smoother ) {
-					return animator.getAlpha( channel, smoother );
-				}
+				public float getFactor( String channel ) { return animator.getFactor( channel ); }
 			};
 		}
 		

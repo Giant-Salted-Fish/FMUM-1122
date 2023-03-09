@@ -24,22 +24,6 @@ public class GunAnimatorState extends GunPartAnimatorState
 	public final ArmTracker leftArm = new ArmTracker();
 	public final ArmTracker rightArm = new ArmTracker();
 	
-	public IAnimator animtion = IAnimator.INSTANCE;
-	
-	// Hack way to get orientation from super
-	protected final IAnimator superAnimator = new IAnimator()
-	{
-		@Override
-		public void getRot( String channel, float smoother, Quat4f dst ) {
-			GunAnimatorState.super.getRot( channel, smoother, dst );
-		}
-		
-		@Override
-		public void getPos( String channel, float smoother, Vec3f dst ) {
-			GunAnimatorState.super.getPos( channel, smoother, dst );
-		}
-	};
-	
 	public GunAnimatorState()
 	{
 		this.leftArm.shoulderPos.set( 5F / 16F, -4F / 16F, 0F );
@@ -47,85 +31,92 @@ public class GunAnimatorState extends GunPartAnimatorState
 	}
 	
 	@Override
-	public void getPos( String channel, float smoother, Vec3f dst )
+	public void getPos( String channel, Vec3f dst )
 	{
 		switch( channel )
 		{
-		case IItemRenderer.CHANNEL_ITEM:
-			{
-				final Mat4f mat = Mat4f.locate();
-				IAnimator.getChannel( this.superAnimator, channel, smoother, mat );
-				IAnimator.applyChannel( this.animtion, channel, smoother, mat );
-				mat.get( dst );
-				mat.release();
-			}
+		case IGunRenderer.CHANNEL_GUN:
+		case IMagRenderer.CHANNEL_MAG:
+		case IMagRenderer.CHANNEL_LOADING_MAG:
+			this.animtion.getPos( channel, dst );
 			break;
 			
-		case IMagRenderer.CHANNEL_MAG:
-			this.animtion.getPos( channel, smoother, dst );
-			break;
+//		case IModuleRenderer.CHANNEL_MODULE:
+//			// Apply gun animation channel for gun module
+//			{
+//				final Mat4f mat = Mat4f.locate();
+//				IAnimator.getChannel( this, IItemRenderer.CHANNEL_ITEM, mat );
+//				IAnimator.applyChannel( this.animtion, IGunRenderer.CHANNEL_GUN, mat );
+//				mat.get( dst );
+//				mat.release();
+//			}
+//			break;
 			
 		case IGunRenderer.CHANNEL_LEFT_ARM:
 			{
 				// TODO: maybe left gun render to blend the animation
-				this.animtion.getPos( channel, smoother, dst );
+				this.animtion.getPos( channel, dst );
 				
 				final Mat4f mat = Mat4f.locate();
-				IAnimator.getChannel( this, IItemRenderer.CHANNEL_ITEM, smoother, mat );
+				IAnimator.getChannel( this, IItemRenderer.CHANNEL_ITEM, mat );
 				mat.transformAsPoint( dst );
 				mat.release();
 				
-				final float alpha = this.animtion.getAlpha( channel, smoother );
+				final float alpha = this.animtion.getFactor( channel );
 				dst.interpolate( this.leftArm.handPos, 1F - alpha );
 			}
 			break;
 			
 		case IGunRenderer.CHANNEL_RIGHT_ARM:
 			{
-				this.animtion.getPos( channel, smoother, dst );
+				this.animtion.getPos( channel, dst );
 				
 				final Mat4f mat = Mat4f.locate();
-				IAnimator.getChannel( this, IItemRenderer.CHANNEL_ITEM, smoother, mat );
+				IAnimator.getChannel( this, IItemRenderer.CHANNEL_ITEM, mat );
 				mat.transformAsPoint( dst );
 				mat.release();
 				
-				final float alpha = this.animtion.getAlpha( channel, smoother );
+				final float alpha = this.animtion.getFactor( channel );
 				dst.interpolate( this.rightArm.handPos, 1F - alpha );
 			}
 			break;
 			
-		default: dst.setZero();
+		default: super.getPos( channel, dst );
 		}
 	}
 	
 	@Override
-	public void getRot( String channel, float smoother, Quat4f dst )
+	public void getRot( String channel, Quat4f dst )
 	{
 		switch( channel )
 		{
-		case IItemRenderer.CHANNEL_ITEM:
-			{
-				final Quat4f quat = Quat4f.locate();
-				super.getRot( channel, smoother, dst );
-				this.animtion.getRot( channel, smoother, quat );
-				dst.mul( quat );
-				quat.release();
-			}
+		case IGunRenderer.CHANNEL_GUN:
+		case IMagRenderer.CHANNEL_MAG:
+		case IMagRenderer.CHANNEL_LOADING_MAG:
+			this.animtion.getRot( channel, dst );
 			break;
 			
-		case IMagRenderer.CHANNEL_MAG:
-			this.animtion.getRot( channel, smoother, dst );
-			break;
+//		case IModuleRenderer.CHANNEL_MODULE:
+//			{
+//				super.getRot( IItemRenderer.CHANNEL_ITEM, dst );
+//				
+//				final Quat4f quat = Quat4f.locate();
+//				this.animtion.getRot( IGunRenderer.CHANNEL_GUN, quat );
+//				dst.mul( quat );
+//				quat.release();
+//			}
+//			break;
 			
 		case IGunRenderer.CHANNEL_LEFT_ARM:
 			{
+				this.getRot( IItemRenderer.CHANNEL_ITEM, dst );
+				
 				// TODO: re-check the order of quat mul
-				final float alpha = this.animtion.getAlpha( channel, smoother );
 				final Quat4f quat = Quat4f.locate();
-				this.getRot( IItemRenderer.CHANNEL_ITEM, smoother, dst );
-				this.animtion.getRot( channel, smoother, quat );
+				this.animtion.getRot( channel, quat );
 				dst.mul( quat );
 				
+				final float alpha = this.animtion.getFactor( channel );
 				quat.set( this.leftArm.handRot );
 				dst.interpolate( quat, 1F - alpha );
 				quat.release();
@@ -134,24 +125,23 @@ public class GunAnimatorState extends GunPartAnimatorState
 			
 		case IGunRenderer.CHANNEL_RIGHT_ARM:
 			{
-				final float alpha = this.animtion.getAlpha( channel, smoother );
+				this.getRot( IItemRenderer.CHANNEL_ITEM, dst );
+				
 				final Quat4f quat = Quat4f.locate();
-				this.getRot( IItemRenderer.CHANNEL_ITEM, smoother, dst );
-				this.animtion.getRot( channel, smoother, quat );
+				this.animtion.getRot( channel, quat );
 				dst.mul( quat );
 				
+				final float alpha = this.animtion.getFactor( channel );
 				quat.set( this.rightArm.handRot );
 				dst.interpolate( quat, 1F - alpha );
 				quat.release();
 			}
 			break;
 			
-		default: dst.clearRot();
+		default: super.getRot( channel, dst );
 		}
 	}
 	
 	@Override
-	public float getAlpha( String channel, float smoother ) {
-		return this.animtion.getAlpha( channel, smoother );
-	}
+	public float getFactor( String channel ) { return this.animtion.getFactor( channel ); }
 }

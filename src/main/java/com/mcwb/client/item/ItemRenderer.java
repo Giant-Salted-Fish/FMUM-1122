@@ -74,6 +74,11 @@ public class ItemRenderer< T extends IItem > extends Renderer
 		);
 	}
 	
+	@Override
+	public void prepareRenderInHand( T contexted, EnumHand hand ) {
+		this.animator( hand ).update( this.smoother() );
+	}
+	
 	/**
 	 * Do not modify this method unless you understand what it does. If you need to do a customized
 	 * rendering then override {@link #doRenderInHand()} as your first choice.
@@ -149,7 +154,7 @@ public class ItemRenderer< T extends IItem > extends Renderer
 	{
 		final Mat4f mat = Mat4f.locate();
 		final ItemAnimatorState state = this.animator( hand );
-		IAnimator.getChannel( state, CHANNEL_ITEM, this.smoother(), mat );
+		IAnimator.getChannel( state, CHANNEL_ITEM, mat );
 		glMultMatrix( mat );
 		mat.release();
 		

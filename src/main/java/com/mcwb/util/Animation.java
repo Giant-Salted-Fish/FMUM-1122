@@ -24,7 +24,7 @@ public class Animation implements IAnimator
 	public void update( float progress ) { this.rootBones.forEach( b -> b.update( progress ) ); }
 	
 	@Override
-	public void getPos( String channel, float smoother, Vec3f dst )
+	public void getPos( String channel, Vec3f dst )
 	{
 		final BoneAnimation ani = this.channels.get( channel );
 		if( ani != null ) ani.mat.get( dst );
@@ -32,7 +32,7 @@ public class Animation implements IAnimator
 	}
 	
 	@Override
-	public void getRot( String channel, float smoother, Quat4f dst )
+	public void getRot( String channel, Quat4f dst )
 	{
 		final BoneAnimation ani = this.channels.get( channel );
 		if( ani != null ) dst.set( ani.quat );
@@ -40,7 +40,7 @@ public class Animation implements IAnimator
 	}
 	
 	@Override
-	public float getAlpha( String channel, float smoother )
+	public float getFactor( String channel )
 	{
 		final BoneAnimation ani = this.channels.get( channel );
 		if( ani != null ) return ani.a;

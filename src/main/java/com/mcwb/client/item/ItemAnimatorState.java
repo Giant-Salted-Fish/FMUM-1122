@@ -2,7 +2,6 @@ package com.mcwb.client.item;
 
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.util.DynamicPos;
-import com.mcwb.util.Mat4f;
 import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
 
@@ -17,13 +16,27 @@ public class ItemAnimatorState implements IAnimator
 	public final DynamicPos holdPos = new DynamicPos();
 	public final DynamicPos holdRot = new DynamicPos();
 	
+	protected final Vec3f pos = new Vec3f();
+	protected final Quat4f rot = new Quat4f();
+	
+	// TODO: make sure this is called before render
 	@Override
-	public void getPos( String channel, float smoother, Vec3f dst )
+	public void update( float smoother )
+	{
+		final Vec3f eulerRot = this.pos;
+		this.holdRot.get( eulerRot, smoother );
+		this.rot.set( eulerRot );
+		
+		this.holdPos.get( this.pos, smoother );
+	}
+	
+	@Override
+	public void getPos( String channel, Vec3f dst )
 	{
 		switch( channel )
 		{
 		case IItemRenderer.CHANNEL_ITEM:
-			this.holdPos.get( dst, smoother );
+			dst.set( this.pos );
 			break;
 			
 		default: dst.setZero();
@@ -31,21 +44,12 @@ public class ItemAnimatorState implements IAnimator
 	}
 	
 	@Override
-	public void getRot( String channel, float smoother, Quat4f dst )
+	public void getRot( String channel, Quat4f dst )
 	{
 		switch( channel )
 		{
 		case IItemRenderer.CHANNEL_ITEM:
-			final Mat4f mat = Mat4f.locate();
-			final Vec3f vec = Vec3f.locate();
-			
-			this.holdRot.get( vec, smoother );
-			mat.setIdentity();
-			mat.eulerRotateYXZ( vec );
-			dst.set( mat );
-			
-			vec.release();
-			mat.release();
+			dst.set( this.rot );
 			break;
 			
 		default: dst.clearRot();

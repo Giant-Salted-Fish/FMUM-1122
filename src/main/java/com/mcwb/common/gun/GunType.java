@@ -3,10 +3,13 @@ package com.mcwb.common.gun;
 import java.util.function.BiConsumer;
 
 import com.mcwb.client.gun.IGunPartRenderer;
+import com.mcwb.client.gun.IGunRenderer;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.Key;
+import com.mcwb.client.module.IModuleRenderer;
 import com.mcwb.client.player.OpLoadMagClient;
+import com.mcwb.client.player.OpModifyClient;
 import com.mcwb.client.player.OpUnloadMagClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
@@ -18,6 +21,8 @@ import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.OperationController;
 import com.mcwb.util.ArmTracker;
+import com.mcwb.util.Quat4f;
+import com.mcwb.util.Vec3f;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -114,7 +119,8 @@ public abstract class GunType< C extends IGun< ? >, R extends IGunPartRenderer< 
 		@SideOnly( Side.CLIENT )
 		public boolean hideCrosshair()
 		{
-			final boolean modifying = PlayerPatchClient.instance.executing() == this.opModify();
+			final IOperation executing = PlayerPatchClient.instance.executing();
+			final boolean modifying = executing instanceof OpModifyClient;
 			final boolean freeView = InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down;
 			return !( modifying && freeView );
 		}
@@ -125,6 +131,50 @@ public abstract class GunType< C extends IGun< ? >, R extends IGunPartRenderer< 
 		{
 			this.leftHandHolding.setupLeftArmToRender( leftArm, animator );
 			this.rightHandHolding.setupRightArmToRender( rightArm, animator );
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		protected IAnimator wrapAnimator( IAnimator animator )
+		{
+			return new IAnimator()
+			{
+				// Apply gun animation channel
+				@Override
+				public void getPos( String channel, Vec3f dst )
+				{
+					switch( channel )
+					{
+					case IModuleRenderer.CHANNEL_MODULE:
+						animator.getPos( channel, dst );
+						Gun.this.mat.transformAsPoint( dst );
+						break;
+						
+					default: animator.getPos( channel, dst );
+					}
+				}
+				
+				@Override
+				public void getRot( String channel, Quat4f dst )
+				{
+					switch( channel )
+					{
+					case IModuleRenderer.CHANNEL_MODULE:
+						dst.set( Gun.this.mat );
+						
+						final Quat4f quat = Quat4f.locate();
+						animator.getRot( IGunRenderer.CHANNEL_GUN, quat );
+						dst.mul( quat );
+						quat.release();
+						break;
+						
+					default: animator.getRot( channel, dst );
+					}
+				}
+				
+				@Override
+				public float getFactor( String channel ) { return animator.getFactor( channel ); }
+			};
 		}
 	}
 	

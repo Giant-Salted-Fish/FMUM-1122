@@ -8,11 +8,14 @@ import javax.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.gun.IGunPartRenderer;
+import com.mcwb.client.gun.IMagRenderer;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.Key;
+import com.mcwb.client.module.IModuleRenderer;
 import com.mcwb.client.player.OpLoadAmmoClient;
 import com.mcwb.client.player.OpUnloadAmmoClient;
 import com.mcwb.client.player.PlayerPatchClient;
+import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.ammo.IAmmoType;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.load.BuildableLoader;
@@ -21,6 +24,8 @@ import com.mcwb.common.module.IModular;
 import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.OperationController;
+import com.mcwb.util.Quat4f;
+import com.mcwb.util.Vec3f;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -182,6 +187,50 @@ public abstract class MagType< C extends IMag< ? >, R extends IGunPartRenderer< 
 			
 			final Item item = Item.getItemById( id );
 			return ( IAmmoType ) ( ( IItemTypeHost ) item ).meta();
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		protected IAnimator wrapAnimator( IAnimator animator )
+		{
+			return new IAnimator()
+			{
+				// Apply magazine animation
+				@Override
+				public void getPos( String channel, Vec3f dst )
+				{
+					switch( channel )
+					{
+					case IModuleRenderer.CHANNEL_MODULE:
+						animator.getPos( IMagRenderer.CHANNEL_MAG, dst );
+						Mag.this.mat.transformAsPoint( dst );
+						break;
+						
+					default: animator.getPos( channel, dst );
+					}
+				}
+				
+				@Override
+				public void getRot( String channel, Quat4f dst )
+				{
+					switch( channel )
+					{
+					case IModuleRenderer.CHANNEL_MODULE:
+						dst.set( Mag.this.mat );
+						
+						final Quat4f quat = Quat4f.locate();
+						animator.getRot( IMagRenderer.CHANNEL_MAG, quat );
+						dst.mul( quat );
+						quat.release();
+						break;
+						
+					default: animator.getRot( channel, dst );
+					}
+				}
+				
+				@Override
+				public float getFactor( String channel ) { return animator.getFactor( channel ); }
+			};
 		}
 	}
 	

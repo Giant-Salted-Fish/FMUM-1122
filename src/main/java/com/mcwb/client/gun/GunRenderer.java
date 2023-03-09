@@ -14,14 +14,10 @@ import com.mcwb.common.MCWB;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
-import com.mcwb.devtool.BBAnimationExport.BBAnimation;
-import com.mcwb.devtool.BBAnimationExport.Bone;
 import com.mcwb.devtool.Dev;
 import com.mcwb.util.ArmTracker;
-import com.mcwb.util.BoneAnimation;
 import com.mcwb.util.Constants;
 import com.mcwb.util.Mat4f;
-import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.block.material.Material;
@@ -108,34 +104,34 @@ public class GunRenderer< T extends IGun< ? > >
 		this.animator( EnumHand.MAIN_HAND ).animtion = this.loadMagAnimation;
 	}
 	
-	private static BoneAnimation fromBone( BBAnimation bb, String bone, BoneAnimation dst )
-	{
-		final BoneAnimation ddst = dst == null ? new BoneAnimation() : dst;
-		
-		final float factor = 1F / bb.animation_length;
-		final Bone bbBone = bb.bones.get( bone );
-		bbBone.position.forEach( ( time, pos ) -> {
-			final Vec3f vec = new Vec3f( pos.x, pos.y, -pos.z );
-			vec.scale( 1F / 16F );
-			ddst.pos.put( time * factor, vec );
-		} );
-		
-		final Mat4f mat = new Mat4f();
-		bbBone.rotation.forEach( ( time, rot ) -> {
-			mat.setIdentity();
-			mat.rotateZ( -rot.z );
-			mat.rotateY( -rot.y );
-			mat.rotateX( rot.x );
-			final Quat4f quat = new Quat4f();
-			quat.set( mat );
-			ddst.rot.put( time * factor, quat );
-		} );
-		
-		bbBone.alpha.forEach( ( time, alpha ) -> ddst.alpha.put( time * factor, alpha ) );
-		
-		ddst.addGuard();
-		return ddst;
-	}
+//	private static BoneAnimation fromBone( BBAnimation bb, String bone, BoneAnimation dst )
+//	{
+//		final BoneAnimation ddst = dst == null ? new BoneAnimation() : dst;
+//		
+//		final float factor = 1F / bb.animation_length;
+//		final Bone bbBone = bb.bones.get( bone );
+//		bbBone.position.forEach( ( time, pos ) -> {
+//			final Vec3f vec = new Vec3f( pos.x, pos.y, -pos.z );
+//			vec.scale( 1F / 16F );
+//			ddst.pos.put( time * factor, vec );
+//		} );
+//		
+//		final Mat4f mat = new Mat4f();
+//		bbBone.rotation.forEach( ( time, rot ) -> {
+//			mat.setIdentity();
+//			mat.rotateZ( -rot.z );
+//			mat.rotateY( -rot.y );
+//			mat.rotateX( rot.x );
+//			final Quat4f quat = new Quat4f();
+//			quat.set( mat );
+//			ddst.rot.put( time * factor, quat );
+//		} );
+//		
+//		bbBone.alpha.forEach( ( time, alpha ) -> ddst.alpha.put( time * factor, alpha ) );
+//		
+//		ddst.addGuard();
+//		return ddst;
+//	}
 	
 	@Override
 	public IRenderer build( String path, IContentProvider provider )
@@ -155,7 +151,7 @@ public class GunRenderer< T extends IGun< ? > >
 	{
 		/// *** Prepare necessary variables *** ///
 		final GunAnimatorState state = this.animator( hand );
-		state.modifyOp = contexted.opModify();
+//		state.modifyOp = contexted.opModify();
 		state.modifyPos = this.modifyPos;
 		
 		final EntityPlayerSP player = MCWBClient.MC.player;
@@ -420,7 +416,7 @@ public class GunRenderer< T extends IGun< ? > >
 		float armRotZ
 	) {
 		final Mat4f mat = Mat4f.locate();
-		IAnimator.getChannel( animator, CHANNEL_ITEM, this.smoother(), mat );
+		IAnimator.getChannel( animator, CHANNEL_ITEM, mat );
 		final float gunRotZ = mat.getEulerAngleZ();
 		mat.release();
 		
@@ -440,7 +436,7 @@ public class GunRenderer< T extends IGun< ? > >
 		GL11.glPushMatrix(); {
 		
 		final Mat4f mat = Mat4f.locate();
-		IAnimator.getChannel( animator, channel, this.smoother(), mat );
+		IAnimator.getChannel( animator, channel, mat );
 		glMultMatrix( mat );
 		mat.release();
 //		DevHelper.DEBUG_BOX.render();

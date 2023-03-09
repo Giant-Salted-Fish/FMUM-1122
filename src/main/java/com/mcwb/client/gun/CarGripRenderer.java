@@ -26,7 +26,7 @@ public class CarGripRenderer< T extends IGunPart< ? > > extends GripRenderer< T 
 	protected void doSetupArmToRender( ArmTracker arm, IAnimator animator )
 	{
 		final Mat4f mat = Mat4f.locate();
-		IAnimator.getChannel( animator, CHANNEL_ITEM, this.smoother(), mat );
+		IAnimator.getChannel( animator, CHANNEL_ITEM, mat ); // TODO: change to module
 		final float gunRotZ = mat.getEulerAngleZ();
 		mat.release();
 		

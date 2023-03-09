@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 import com.google.common.collect.TreeMultimap;
 import com.mcwb.client.module.IDeferredPriorityRenderer;
 import com.mcwb.client.module.IDeferredRenderer;
-import com.mcwb.client.player.OpModifyClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.paintjob.IPaintable;
@@ -209,10 +208,6 @@ public abstract class ModuleWrapper<
 		Collection< IDeferredPriorityRenderer > renderQueue1,
 		IAnimator animator
 	) { throw new RuntimeException(); }
-	
-	@Override
-	@SideOnly( Side.CLIENT )
-	public OpModifyClient opModify() { throw new RuntimeException(); }
 	
 	@Override
 	@SideOnly( Side.CLIENT )

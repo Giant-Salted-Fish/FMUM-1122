@@ -11,7 +11,7 @@ public interface IGunRenderer< T extends IContexted > extends IGunPartRenderer< 
 	/**
 	 * Animation that applied on gun
 	 */
-//	public static final String CHANNEL_GUN = "gun";
+	public static final String CHANNEL_GUN = "gun";
 	
 	/**
 	 * Animated left arm orientation in 3D space

@@ -43,10 +43,8 @@ public class GunPartRenderer< T extends IGunPart< ? > >
 	
 	protected void updateArm( ArmTracker arm, IAnimator animator )
 	{
-		final float smoother = this.smoother();
 		final Mat4f mat = Mat4f.locate();
-		IAnimator.getChannel( animator, CHANNEL_ITEM, smoother, mat );
-		IAnimator.applyChannel( animator, CHANNEL_INSTALL, smoother, mat );
+		IAnimator.getChannel( animator, CHANNEL_MODULE, mat );
 		mat.transformAsPoint( arm.handPos );
 		mat.release();
 		

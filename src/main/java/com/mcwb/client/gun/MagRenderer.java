@@ -107,13 +107,7 @@ public class MagRenderer< T extends IMag< ? > >
 			GL11.glPushMatrix(); {
 			
 			final Mat4f mat = Mat4f.locate();
-			final float smoother = this.smoother();
-			IAnimator.getChannel( animator, CHANNEL_ITEM, smoother, mat );
-			
-			// Blend install and mag channel
-			final float alpha = animator.getAlpha( CHANNEL_MAG, smoother );
-			IAnimator.blendPos( animator, smoother, CHANNEL_INSTALL, CHANNEL_MAG, alpha, mat );
-			IAnimator.blendRot( animator, smoother, CHANNEL_INSTALL, CHANNEL_MAG, alpha, mat );
+			IAnimator.getChannel( animator, CHANNEL_MODULE, mat );
 			glMultMatrix( mat );
 			mat.release();
 			

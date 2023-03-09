@@ -44,7 +44,7 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModular< ? > >
 	public void tickInHand( T contexted, EnumHand hand )
 	{
 		final ModifiableItemAnimatorState state = this.animator( hand );
-		state.modifyOp = contexted.opModify();
+//		state.modifyOp = contexted.opModify();
 		state.modifyPos = this.modifyPos;
 		
 		super.tickInHand( contexted, hand );
@@ -96,10 +96,8 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModular< ? > >
 	) {
 		renderQueue0.add( () -> {
 			GL11.glPushMatrix();
-			final float smoother = this.smoother();
 			final Mat4f mat = Mat4f.locate();
-			IAnimator.getChannel( animator, CHANNEL_ITEM, smoother, mat );
-			IAnimator.applyChannel( animator, CHANNEL_INSTALL, smoother, mat );
+			IAnimator.getChannel( animator, CHANNEL_MODULE, mat );
 			glMultMatrix( mat );
 			mat.release();
 			

@@ -79,6 +79,7 @@ public interface IModular< T extends IModular< ? extends T > >
 	
 	public IModular< ? > onBeingRemoved();
 	
+	// TODO: maybe always copy before testing the hit box as #mat may be used for render in client side
 	public IModifyPredicate checkHitboxConflict( IModular< ? > module );
 	
 	/**
