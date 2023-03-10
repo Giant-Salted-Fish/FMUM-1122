@@ -115,7 +115,8 @@ public class OpticSightRenderer< T extends IGunPart< ? > > extends GunPartRender
 		// For the lens and reticle
 		renderQueue1.add( new IDeferredPriorityRenderer() {
 			private final Mat4f mat = Mat4f.locate(); {
-				IAnimator.getChannel( animator, CHANNEL_MODULE, this.mat );
+				IAnimator.getChannel( animator, CHANNEL_ITEM, this.mat );
+				IAnimator.applyChannel( animator, CHANNEL_INSTALL, this.mat );
 			}
 			
 			@Override

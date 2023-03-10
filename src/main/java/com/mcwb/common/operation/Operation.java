@@ -1,12 +1,12 @@
 package com.mcwb.common.operation;
 
-import com.mcwb.common.meta.IContexted;
+import com.mcwb.common.item.IInUseItem;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class Operation< T extends IContexted > implements IOperation
+public abstract class Operation< T extends IInUseItem > implements IOperation
 {
 	protected EntityPlayer player;
 	protected T contexted;

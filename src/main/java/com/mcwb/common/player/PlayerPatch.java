@@ -3,8 +3,8 @@ package com.mcwb.common.player;
 import javax.annotation.Nullable;
 
 import com.mcwb.common.MCWB;
+import com.mcwb.common.item.IInUseItem;
 import com.mcwb.common.item.IItem;
-import com.mcwb.common.item.IItem.IUseContext;
 import com.mcwb.common.item.IItemType;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.operation.IOperation;
@@ -39,17 +39,15 @@ public class PlayerPatch implements ICapabilityProvider
 	protected IOperation executing = IOperation.NONE;
 	
 	/// *** Stuffs for main hand item *** ///
+	protected int invSlot = -1; // TODO: better initialization?
 	protected ItemStack mainStack = ItemStack.EMPTY;
 	protected IItemType mainType = IItemType.VANILLA;
-	protected IItem mainItem = IItem.EMPTY;
-	protected int invSlot = -1; // TODO: better initialization?
-	protected IUseContext mainUseContext = IItem.USE_CONTEXT;
+	protected IInUseItem mainItem = IInUseItem.EMPTY;
 	
 	/// *** Stuffs for off-hand item *** ///
 	protected ItemStack offStack = ItemStack.EMPTY;
 	protected IItemType offType = IItemType.VANILLA;
-	protected IItem offItem = IItem.EMPTY;
-	protected IUseContext offUseContext = IItem.USE_CONTEXT;
+	protected IInUseItem offItem = IInUseItem.EMPTY;
 	
 	public PlayerPatch( EntityPlayer player ) { this.player = player; }
 	
@@ -59,62 +57,62 @@ public class PlayerPatch implements ICapabilityProvider
 		
 		/// *** Main hand stuff *** ///
 		{
+			final EnumHand hand = EnumHand.MAIN_HAND;
 			final ItemStack stack = inv.getCurrentItem();
 			final IItemType type = IItemTypeHost.getTypeOrDefault( stack );
-			final IItem item = type.getContexted( stack );
 			
 			/// Check and fire callback for each condition
 			if( inv.currentItem != this.invSlot || type != this.mainType )
 			{
-				this.executing = this.executing.onInHandItemChange( item );
-				this.mainUseContext = item.onTakeOut(
-					this.mainItem, this.player, EnumHand.MAIN_HAND
-				);
+				final IItem item = type.getContexted( stack );
+				this.mainItem = item.onTakeOut( this.mainItem, this.player, hand );
+				this.executing = this.executing.onInHandItemChange( this.mainItem );
+				
+				this.invSlot = inv.currentItem;
+				this.mainStack = stack;
+				this.mainType = type;
 			}
 			else if( stack != this.mainStack )
 			{
 				// Actually still can be changing to another item but we literally has no way to \
 				// distinguish those cases with the NBT update.
-				this.executing = this.executing.onInHandStackChange( item );
-				this.mainUseContext = item.onInHandStackChanged(
-					this.mainItem, this.player, EnumHand.MAIN_HAND
-				);
+				final IItem item = type.getContexted( stack );
+				this.mainItem = item.onInHandStackChanged( this.mainItem, this.player, hand );
+				this.executing = this.executing.onInHandStackChange( this.mainItem );
+				
+				this.mainStack = stack;
 			}
 			
-			item.tickInHand( this.player, EnumHand.MAIN_HAND );
-			this.mainStack = stack;
-			this.mainType = type;
-			this.mainItem = item; // Should always be updated. See {@link IItem}
-			this.invSlot = inv.currentItem;
+			this.mainItem.tickInHand( this.player, hand );
 		}
 		
 		/// *** Off-hand stuff *** ///
 		{
+			final EnumHand hand = EnumHand.OFF_HAND;
 			final ItemStack stack = inv.offHandInventory.get( 0 );
 			final IItemType type = IItemTypeHost.getTypeOrDefault( stack );
-			final IItem item = type.getContexted( stack );
 			
 			if( type != this.offType )
-				this.offUseContext = item.onTakeOut( this.offItem, this.player, EnumHand.OFF_HAND );
+			{
+				final IItem item = type.getContexted( stack );
+				this.offItem = item.onTakeOut( this.offItem, this.player, hand );
+				
+				this.offStack = stack;
+				this.offType = type;
+			}
 			else if( stack != this.offStack )
 			{
-				this.offUseContext = item.onInHandStackChanged(
-					this.offItem, this.player, EnumHand.OFF_HAND
-				);
+				final IItem item = type.getContexted( stack );
+				this.offItem = item.onInHandStackChanged( this.offItem, this.player, hand );
+				
+				this.offStack = stack;
 			}
 			
 			this.offItem.tickInHand( this.player, EnumHand.OFF_HAND );
-			this.offStack = stack;
-			this.offType = type;
-			this.offItem = item; // Always. See main hand part.
 		}
 		
 		// Tick operation executing
 		this.executing = this.executing.tick();
-	}
-	
-	public final IUseContext getUseContext( EnumHand hand ) {
-		return hand == EnumHand.MAIN_HAND ? this.mainUseContext : this.offUseContext;
 	}
 	
 	public final IOperation executing() { return this.executing; }
@@ -139,7 +137,7 @@ public class PlayerPatch implements ICapabilityProvider
 		
 		final ItemStack mstack = this.offStack;
 		final IItemType mtype = this.offType;
-		final IItem mitem = this.offItem;
+		final IInUseItem mitem = this.offItem;
 		
 		this.offStack = this.mainStack;
 		this.offType = this.mainType;

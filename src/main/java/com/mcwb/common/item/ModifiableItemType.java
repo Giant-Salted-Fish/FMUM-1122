@@ -292,8 +292,10 @@ public abstract class ModifiableItemType<
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public void prepareRenderInHand( EnumHand hand ) {
-			ModifiableItemType.this.renderer.prepareRenderInHand( this.self(), hand );
+		public void prepareRenderInHand( IUseContext context, EnumHand hand )
+		{
+			final R renderer = ModifiableItemType.this.renderer;
+			renderer.prepareRenderInHand( this.self(), context.animator(), hand );
 		}
 		
 		@Override
@@ -317,16 +319,19 @@ public abstract class ModifiableItemType<
 			case Key.TOGGLE_MODIFY:
 			case Key.CO_TOGGLE_MODIFY:
 				final PlayerPatchClient patch = PlayerPatchClient.instance;
-//				final OpModifyClient opModify = this.opModify();
-//				if( patch.executing() == opModify )
-//					patch.toggleExecuting();
-//				else patch.tryLaunch( opModify.reset() );
 				if( patch.executing() instanceof OpModifyClient )
 					patch.toggleExecuting();
 				else patch.tryLaunch( new OpModifyClient() {
 					@Override
-					protected void setRenderDelegate( IModular< ? > delegate ) {
+					protected void setRenderDelegate( IModular< ? > delegate )
+					{
 						ModifiableItem.this.base.setBase( delegate, 0 );
+					}
+					
+					@Override
+					protected void setBackRenderDelegate( IModular< ? > delegate )
+					{
+						
 					}
 				} );
 				break;
@@ -355,7 +360,7 @@ public abstract class ModifiableItemType<
 			Collection< IDeferredPriorityRenderer > renderQueue1,
 			IAnimator animator
 		) {
-			IAnimator.getChannel( animator, IModuleRenderer.CHANNEL_MODULE, this.mat );
+			IAnimator.getChannel( animator, IModuleRenderer.CHANNEL_INSTALL, this.mat );
 			this.base.getSlot( this.baseSlot ).applyTransform( this, this.mat );
 			final IAnimator wrappedAnimator = this.wrapAnimator( animator );
 			
@@ -378,7 +383,7 @@ public abstract class ModifiableItemType<
 			Collection< IDeferredPriorityRenderer > renderQueue1,
 			IAnimator animator
 		) {
-			IAnimator.getChannel( animator, IModuleRenderer.CHANNEL_MODULE, this.mat );
+			IAnimator.getChannel( animator, IModuleRenderer.CHANNEL_INSTALL, this.mat );
 			this.base.getSlot( this.baseSlot ).applyTransform( this, this.mat );
 			final IAnimator wrappedAnimator = this.wrapAnimator( animator );
 			
@@ -445,7 +450,7 @@ public abstract class ModifiableItemType<
 				{
 					switch( channel )
 					{
-					case IModuleRenderer.CHANNEL_MODULE:
+					case IModuleRenderer.CHANNEL_INSTALL:
 						ModifiableItem.this.mat.set( dst );
 						break;
 						
@@ -458,7 +463,7 @@ public abstract class ModifiableItemType<
 				{
 					switch( channel )
 					{
-					case IModuleRenderer.CHANNEL_MODULE:
+					case IModuleRenderer.CHANNEL_INSTALL:
 						dst.set( ModifiableItem.this.mat );
 						break;
 						
@@ -517,8 +522,10 @@ public abstract class ModifiableItemType<
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public void prepareRenderInHand( EnumHand hand ) {
-			this.primary.prepareRenderInHand( hand );
+		public void prepareRenderInHand( EnumHand hand )
+		{
+			final IUseContext useContext = PlayerPatchClient.instance.getUseContext( hand );
+			this.primary.prepareRenderInHand( useContext.animator(), hand );
 		}
 		
 		@Override

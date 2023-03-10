@@ -280,6 +280,13 @@ public class GunRenderer< T extends IGun< ? > >
 	}
 	
 	@Override
+	public IAnimator onTakeOut( T contexted, EnumHand hand )
+	{
+		// TODO: set target position
+		return GunAnimatorState.INSTANCE;
+	}
+	
+	@Override
 	public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator )
 	{
 		this.doSetupArmToRender(

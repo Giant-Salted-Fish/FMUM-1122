@@ -3,16 +3,15 @@ package com.mcwb.common.gun;
 import java.util.function.BiConsumer;
 
 import com.mcwb.client.gun.IGunPartRenderer;
-import com.mcwb.client.gun.IGunRenderer;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.Key;
-import com.mcwb.client.module.IModuleRenderer;
 import com.mcwb.client.player.OpLoadMagClient;
 import com.mcwb.client.player.OpModifyClient;
 import com.mcwb.client.player.OpUnloadMagClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
+import com.mcwb.common.item.IItem;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.module.IModular;
@@ -21,11 +20,11 @@ import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.OperationController;
 import com.mcwb.util.ArmTracker;
-import com.mcwb.util.Quat4f;
-import com.mcwb.util.Vec3f;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumHand;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -70,6 +69,27 @@ public abstract class GunType< C extends IGun< ? >, R extends IGunPartRenderer< 
 		protected Gun() { }
 		
 		protected Gun( boolean unused ) { super( unused ); }
+		
+		public IUseContext onTakeOut( IItem oldItem, EntityPlayer player, EnumHand hand )
+		{
+			return player.world.isRemote
+				? new IUseContext()
+				{
+					private final IAnimator animator =
+						GunType.this.renderer.onTakeOut( Gun.this.self(), hand );
+					
+					@Override
+					public NBTTagCompound data()
+					{
+						return new NBTTagCompound();
+					}
+					
+					@Override
+					@SideOnly( Side.CLIENT )
+					public IAnimator animator() { return this.animator; }
+				}
+				: () -> new NBTTagCompound();
+		}
 		
 		@Override
 		public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry )
@@ -131,50 +151,6 @@ public abstract class GunType< C extends IGun< ? >, R extends IGunPartRenderer< 
 		{
 			this.leftHandHolding.setupLeftArmToRender( leftArm, animator );
 			this.rightHandHolding.setupRightArmToRender( rightArm, animator );
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		protected IAnimator wrapAnimator( IAnimator animator )
-		{
-			return new IAnimator()
-			{
-				// Apply gun animation channel
-				@Override
-				public void getPos( String channel, Vec3f dst )
-				{
-					switch( channel )
-					{
-					case IModuleRenderer.CHANNEL_MODULE:
-						animator.getPos( channel, dst );
-						Gun.this.mat.transformAsPoint( dst );
-						break;
-						
-					default: animator.getPos( channel, dst );
-					}
-				}
-				
-				@Override
-				public void getRot( String channel, Quat4f dst )
-				{
-					switch( channel )
-					{
-					case IModuleRenderer.CHANNEL_MODULE:
-						dst.set( Gun.this.mat );
-						
-						final Quat4f quat = Quat4f.locate();
-						animator.getRot( IGunRenderer.CHANNEL_GUN, quat );
-						dst.mul( quat );
-						quat.release();
-						break;
-						
-					default: animator.getRot( channel, dst );
-					}
-				}
-				
-				@Override
-				public float getFactor( String channel ) { return animator.getFactor( channel ); }
-			};
 		}
 	}
 	

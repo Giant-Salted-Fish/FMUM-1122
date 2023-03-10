@@ -1,6 +1,5 @@
 package com.mcwb.client.item;
 
-import com.mcwb.client.module.IModuleRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
@@ -23,7 +22,7 @@ public class ModifiableItemAnimatorState extends ItemAnimatorState
 		switch( channel )
 		{
 		case IItemRenderer.CHANNEL_ITEM:
-		case IModuleRenderer.CHANNEL_MODULE:
+//		case IModuleRenderer.CHANNEL_MODULE:
 			// Reserved for modify operation
 			this.animtion.getPos( IItemRenderer.CHANNEL_ITEM, dst );
 			dst.interpolate( this.pos, 1F - this.animtion.getFactor( IItemRenderer.CHANNEL_ITEM ) );
@@ -52,7 +51,7 @@ public class ModifiableItemAnimatorState extends ItemAnimatorState
 		switch( channel )
 		{
 		case IItemRenderer.CHANNEL_ITEM:
-		case IModuleRenderer.CHANNEL_MODULE:
+//		case IModuleRenderer.CHANNEL_MODULE:
 			this.animtion.getRot( IItemRenderer.CHANNEL_ITEM, dst );
 			dst.interpolate( this.rot, 1F - this.animtion.getFactor( IItemRenderer.CHANNEL_ITEM ) );
 			break;

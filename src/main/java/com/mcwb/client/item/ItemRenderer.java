@@ -74,8 +74,12 @@ public class ItemRenderer< T extends IItem > extends Renderer
 		);
 	}
 	
+	// TODO: 
 	@Override
-	public void prepareRenderInHand( T contexted, EnumHand hand ) {
+	public IAnimator onTakeOut( T contexted, EnumHand hand ) { return IAnimator.INSTANCE; }
+	
+	@Override
+	public void prepareRenderInHand( T contexted, IAnimator animator, EnumHand hand ) {
 		this.animator( hand ).update( this.smoother() );
 	}
 	

@@ -51,7 +51,7 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModular< ? > >
 	}
 	
 	@Override
-	public void prepareRenderInHand( T contexted, EnumHand hand )
+	public void prepareRenderInHand( T contexted, IAnimator animator, EnumHand hand )
 	{
 		// Clear previous state
 		IN_HAND_QUEUE_0.forEach( IDeferredRenderer::release );
@@ -60,11 +60,8 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModular< ? > >
 		IN_HAND_QUEUE_1.clear();
 		
 		// Prepare render queue
-		contexted.prepareInHandRender(
-			IN_HAND_QUEUE_0,
-			IN_HAND_QUEUE_1,
-			this.animator( hand )
-		);
+		contexted.prepareInHandRender( IN_HAND_QUEUE_0, IN_HAND_QUEUE_1, animator );
+		
 		// TODO: better comparator?
 		IN_HAND_QUEUE_1.sort( ( r0, r1 ) -> r0.priority() > r1.priority() ? -1 : 1 );
 		IN_HAND_QUEUE_1.forEach( IDeferredPriorityRenderer::prepare );
@@ -97,7 +94,8 @@ public abstract class ModifiableItemRenderer< T extends IItem & IModular< ? > >
 		renderQueue0.add( () -> {
 			GL11.glPushMatrix();
 			final Mat4f mat = Mat4f.locate();
-			IAnimator.getChannel( animator, CHANNEL_MODULE, mat );
+			IAnimator.getChannel( animator, CHANNEL_ITEM, mat ); // TODO: for wrapped animator this takes time to get back to base
+			IAnimator.applyChannel( animator, CHANNEL_INSTALL, mat );
 			glMultMatrix( mat );
 			mat.release();
 			

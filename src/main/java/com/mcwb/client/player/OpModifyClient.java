@@ -409,7 +409,7 @@ public abstract class OpModifyClient extends TogglableOperation< IModular< ? > >
 	public IOperation terminate()
 	{
 		final IItemType type = IItemTypeHost.getTypeA( this.stack );
-		this.setRenderDelegate( ( IModular< ? > ) type.getContexted( this.stack ) );
+		this.setBackRenderDelegate( ( IModular< ? > ) type.getContexted( this.stack ) );
 		
 		this.clearProgress();
 		return NONE;
@@ -573,6 +573,8 @@ public abstract class OpModifyClient extends TogglableOperation< IModular< ? > >
 	}
 	
 	protected abstract void setRenderDelegate( IModular< ? > delegate );
+	
+	protected abstract void setBackRenderDelegate( IModular< ? > delegate );
 	
 	protected static enum ModifyMode
 	{

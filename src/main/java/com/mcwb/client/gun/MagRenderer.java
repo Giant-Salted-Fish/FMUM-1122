@@ -107,7 +107,8 @@ public class MagRenderer< T extends IMag< ? > >
 			GL11.glPushMatrix(); {
 			
 			final Mat4f mat = Mat4f.locate();
-			IAnimator.getChannel( animator, CHANNEL_MODULE, mat );
+			IAnimator.getChannel( animator, CHANNEL_ITEM, mat );
+			IAnimator.applyChannel( animator, CHANNEL_INSTALL, mat );
 			glMultMatrix( mat );
 			mat.release();
 			

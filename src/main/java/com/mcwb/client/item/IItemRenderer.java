@@ -1,5 +1,6 @@
 package com.mcwb.client.item;
 
+import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.meta.IContexted;
@@ -18,11 +19,18 @@ public interface IItemRenderer< T extends IContexted > extends IRenderer
 	@SideOnly( Side.CLIENT )
 	public void tickInHand( T contexted, EnumHand hand );
 	
+	@SideOnly( Side.CLIENT )
+	public IAnimator onTakeOut( T contexted, EnumHand hand );
+	
+	// TODO: validate if this is needed
+//	@SideOnly( Side.CLIENT )
+//	public IAnimator onInHandStackChanged
+	
 	/**
 	 * Called before the hand render if it is holden in hand
 	 */
 	@SideOnly( Side.CLIENT )
-	public default void prepareRenderInHand( T contexted, EnumHand hand ) { }
+	public default void prepareRenderInHand( T contexted, IAnimator animator, EnumHand hand ) { }
 	
 	/**
 	 * @see IItem#renderInHand(EnumHand)

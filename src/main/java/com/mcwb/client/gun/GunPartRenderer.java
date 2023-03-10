@@ -44,7 +44,8 @@ public class GunPartRenderer< T extends IGunPart< ? > >
 	protected void updateArm( ArmTracker arm, IAnimator animator )
 	{
 		final Mat4f mat = Mat4f.locate();
-		IAnimator.getChannel( animator, CHANNEL_MODULE, mat );
+		IAnimator.getChannel( animator, CHANNEL_ITEM, mat );
+		IAnimator.applyChannel( animator, CHANNEL_INSTALL, mat );
 		mat.transformAsPoint( arm.handPos );
 		mat.release();
 		
@@ -53,6 +54,6 @@ public class GunPartRenderer< T extends IGunPart< ? > >
 	
 	@Override
 	protected GunPartAnimatorState animator( EnumHand hand ) {
-		return GunAnimatorState.INSTANCE;
+		return GunPartAnimatorState.INSTANCE;
 	}
 }

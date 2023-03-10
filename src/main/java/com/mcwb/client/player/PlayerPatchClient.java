@@ -8,7 +8,7 @@ import com.mcwb.client.camera.CameraAnimator;
 import com.mcwb.client.camera.ICameraController;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.common.IAutowirePacketHandler;
-import com.mcwb.common.item.IItem;
+import com.mcwb.common.item.IInUseItem;
 import com.mcwb.common.network.PacketCode;
 import com.mcwb.common.network.PacketCode.Code;
 import com.mcwb.common.player.PlayerPatch;
@@ -163,7 +163,7 @@ public final class PlayerPatchClient extends PlayerPatch implements IAutowirePac
 	
 	public boolean onRenderSpecificHand( EnumHand hand )
 	{
-		final IItem item = hand == EnumHand.MAIN_HAND ? this.mainItem : this.offItem;
+		final IInUseItem item = hand == EnumHand.MAIN_HAND ? this.mainItem : this.offItem;
 		return item.onRenderSpecificHand( hand );
 	}
 	

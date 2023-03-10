@@ -195,13 +195,13 @@ public abstract class MagType< C extends IMag< ? >, R extends IGunPartRenderer< 
 		{
 			return new IAnimator()
 			{
-				// Apply magazine animation
+				// Apply magazine animation to channel <install>
 				@Override
 				public void getPos( String channel, Vec3f dst )
 				{
 					switch( channel )
 					{
-					case IModuleRenderer.CHANNEL_MODULE:
+					case IModuleRenderer.CHANNEL_INSTALL:
 						animator.getPos( IMagRenderer.CHANNEL_MAG, dst );
 						Mag.this.mat.transformAsPoint( dst );
 						break;
@@ -215,7 +215,7 @@ public abstract class MagType< C extends IMag< ? >, R extends IGunPartRenderer< 
 				{
 					switch( channel )
 					{
-					case IModuleRenderer.CHANNEL_MODULE:
+					case IModuleRenderer.CHANNEL_INSTALL:
 						dst.set( Mag.this.mat );
 						
 						final Quat4f quat = Quat4f.locate();
