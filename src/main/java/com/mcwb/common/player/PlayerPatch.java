@@ -3,7 +3,7 @@ package com.mcwb.common.player;
 import javax.annotation.Nullable;
 
 import com.mcwb.common.MCWB;
-import com.mcwb.common.item.IInUseItem;
+import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.IItemType;
 import com.mcwb.common.item.IItemTypeHost;
@@ -42,12 +42,12 @@ public class PlayerPatch implements ICapabilityProvider
 	protected int invSlot = -1; // TODO: better initialization?
 	protected ItemStack mainStack = ItemStack.EMPTY;
 	protected IItemType mainType = IItemType.VANILLA;
-	protected IInUseItem mainItem = IInUseItem.EMPTY;
+	protected IEquippedItem mainItem = IEquippedItem.EMPTY;
 	
 	/// *** Stuffs for off-hand item *** ///
 	protected ItemStack offStack = ItemStack.EMPTY;
 	protected IItemType offType = IItemType.VANILLA;
-	protected IInUseItem offItem = IInUseItem.EMPTY;
+	protected IEquippedItem offItem = IEquippedItem.EMPTY;
 	
 	public PlayerPatch( EntityPlayer player ) { this.player = player; }
 	
@@ -115,7 +115,15 @@ public class PlayerPatch implements ICapabilityProvider
 		this.executing = this.executing.tick();
 	}
 	
+	public final IEquippedItem getEquipped( EnumHand hand ) {
+		return hand == EnumHand.MAIN_HAND ? this.mainItem : this.offItem;
+	}
+	
 	public final IOperation executing() { return this.executing; }
+	
+//	public final IOperation tryLaunch( Function< IEquippedItem, IOperation > supplier ) {
+//		return this.executing = this.executing.onOtherTryLaunch( supplier.apply( this.mainItem ) );
+//	}
 	
 	public final IOperation tryLaunch( IOperation op ) {
 		return this.executing = this.executing.onOtherTryLaunch( op );
@@ -137,7 +145,7 @@ public class PlayerPatch implements ICapabilityProvider
 		
 		final ItemStack mstack = this.offStack;
 		final IItemType mtype = this.offType;
-		final IInUseItem mitem = this.offItem;
+		final IEquippedItem mitem = this.offItem;
 		
 		this.offStack = this.mainStack;
 		this.offType = this.mainType;

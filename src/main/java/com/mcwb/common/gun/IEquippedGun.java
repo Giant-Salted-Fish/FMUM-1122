@@ -1,7 +1,7 @@
 package com.mcwb.common.gun;
 
 import com.mcwb.client.render.IAnimator;
-import com.mcwb.common.item.IInUseItem;
+import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.operation.IOperationController;
 import com.mcwb.util.ArmTracker;
 
@@ -9,10 +9,10 @@ import net.minecraftforge.fml.relauncher.Side;
 
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public interface IInUseGun extends IInUseItem
+public interface IEquippedGun extends IEquippedItem
 {
 	@Override
-	public IGun< ? > using();
+	public IGun< ? > item();
 	
 	public IOperationController loadMagController();
 	

@@ -15,15 +15,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * 
  * @author Giant_Salted_Fish
  */
-public interface IInUseItem
+public interface IEquippedItem
 {
 	/**
 	 * For empty stack. Cancel item render if is place in off-hand.
 	 */
-	public static final IInUseItem EMPTY = new IInUseItem()
+	public static final IEquippedItem EMPTY = new IEquippedItem()
 	{
 		@Override
-		public IItem using() { return IItem.EMPTY; }
+		public IItem item() { return IItem.EMPTY; }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -37,10 +37,10 @@ public interface IInUseItem
 	/**
 	 * For vanilla item that is not empty. They will be rendered in original ways.
 	 */
-	public static final IInUseItem VANILLA = new IInUseItem()
+	public static final IEquippedItem VANILLA = new IEquippedItem()
 	{
 		@Override
-		public IItem using() { return IItem.VANILLA; }
+		public IItem item() { return IItem.VANILLA; }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -51,7 +51,7 @@ public interface IInUseItem
 		public boolean onRenderSpecificHand( EnumHand hand ) { return false; }
 	};
 	
-	public IItem using();
+	public IItem item();
 	
 	/**
 	 * Called when this item is holden in player's hand

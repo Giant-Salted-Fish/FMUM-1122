@@ -18,16 +18,16 @@ public interface IItem extends IContexted
 	public static final IItem EMPTY = new IItem()
 	{
 		@Override
-		public IInUseItem onTakeOut( IInUseItem oldItem, EntityPlayer player, EnumHand hand ) {
-			return IInUseItem.EMPTY;
+		public IEquippedItem onTakeOut( IEquippedItem oldItem, EntityPlayer player, EnumHand hand ) {
+			return IEquippedItem.EMPTY;
 		}
 		
 		@Override
-		public IInUseItem onInHandStackChanged(
-			IInUseItem oldItem,
+		public IEquippedItem onInHandStackChanged(
+			IEquippedItem oldItem,
 			EntityPlayer player,
 			EnumHand hand
-		) { return IInUseItem.EMPTY; }
+		) { return IEquippedItem.EMPTY; }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -37,26 +37,26 @@ public interface IItem extends IContexted
 	public static final IItem VANILLA = new IItem()
 	{
 		@Override
-		public IInUseItem onTakeOut( IInUseItem oldItem, EntityPlayer player, EnumHand hand ) {
-			return IInUseItem.VANILLA;
+		public IEquippedItem onTakeOut( IEquippedItem oldItem, EntityPlayer player, EnumHand hand ) {
+			return IEquippedItem.VANILLA;
 		}
 		
 		@Override
-		public IInUseItem onInHandStackChanged(
-			IInUseItem oldItem,
+		public IEquippedItem onInHandStackChanged(
+			IEquippedItem oldItem,
 			EntityPlayer player,
 			EnumHand hand
-		) { return IInUseItem.VANILLA; }
+		) { return IEquippedItem.VANILLA; }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
 		public ResourceLocation texture() { return null; }
 	};
 	
-	public IInUseItem onTakeOut( IInUseItem oldItem, EntityPlayer player, EnumHand hand );
+	public IEquippedItem onTakeOut( IEquippedItem oldItem, EntityPlayer player, EnumHand hand );
 	
-	public IInUseItem onInHandStackChanged(
-		IInUseItem oldItem,
+	public IEquippedItem onInHandStackChanged(
+		IEquippedItem oldItem,
 		EntityPlayer player,
 		EnumHand hand
 	);

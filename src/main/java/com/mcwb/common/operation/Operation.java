@@ -1,15 +1,15 @@
 package com.mcwb.common.operation;
 
-import com.mcwb.common.item.IInUseItem;
+import com.mcwb.common.item.IEquippedItem;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class Operation< T extends IInUseItem > implements IOperation
+public abstract class Operation< T extends IEquippedItem > implements IOperation
 {
 	protected EntityPlayer player;
-	protected T contexted;
+	protected T equipped;
 	protected IOperationController controller;
 	
 	protected float prevProgress;
@@ -18,10 +18,10 @@ public abstract class Operation< T extends IInUseItem > implements IOperation
 	protected int ieffect;
 	protected int isound;
 	
-	protected Operation( EntityPlayer player, T contexted, IOperationController controller )
+	protected Operation( EntityPlayer player, T equipped, IOperationController controller )
 	{
 		this.player = player;
-		this.contexted = contexted;
+		this.equipped = equipped;
 		this.controller = controller;
 	}
 	
@@ -68,7 +68,7 @@ public abstract class Operation< T extends IInUseItem > implements IOperation
 	{
 		final String typeName = this.getClass().getTypeName();
 		final String className = typeName.substring( typeName.lastIndexOf( '.' ) );
-		return "Operation::" + className + "<" + this.contexted + ">";
+		return "Operation::" + className + "<" + this.equipped.item() + ">";
 	}
 	
 	protected void clearProgress()

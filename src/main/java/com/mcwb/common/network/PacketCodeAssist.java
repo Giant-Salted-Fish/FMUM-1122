@@ -1,7 +1,9 @@
 package com.mcwb.common.network;
 
+import com.mcwb.common.gun.IEquippedGun;
+import com.mcwb.common.gun.IEquippedMag;
 import com.mcwb.common.gun.IGun;
-import com.mcwb.common.gun.IMag;
+import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.player.OpLoadAmmo;
@@ -11,6 +13,7 @@ import com.mcwb.common.player.PlayerPatch;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public final class PacketCodeAssist implements IPacket
@@ -23,12 +26,11 @@ public final class PacketCodeAssist implements IPacket
 			@Override
 			protected void handle( PacketCodeAssist packet, EntityPlayerMP player )
 			{
-				final ItemStack stack = player.inventory.getCurrentItem();
-				final IItem item = IItemTypeHost.getTypeOrDefault( stack ).getContexted( stack );
-				if( !( item instanceof IMag< ? > ) ) return;
+				final PlayerPatch patch = PlayerPatch.get( player );
+				final IEquippedItem item = patch.getEquipped( EnumHand.MAIN_HAND );
+				if( !( item instanceof IEquippedMag ) ) return;
 				
-				final IMag< ? > mag = ( IMag< ? > ) item;
-				PlayerPatch.get( player ).tryLaunch( new OpLoadAmmo( player, mag, packet.assist ) );
+				patch.tryLaunch( new OpLoadAmmo( player, ( IEquippedMag ) item, packet.assist ) );
 			}
 		},
 		LOAD_MAG
@@ -40,8 +42,9 @@ public final class PacketCodeAssist implements IPacket
 				final IItem item = IItemTypeHost.getTypeOrDefault( stack ).getContexted( stack );
 				if( !( item instanceof IGun< ? > ) ) return;
 				
-				final IGun< ? > gun = ( IGun< ? > ) item;
-				PlayerPatch.get( player ).tryLaunch( new OpLoadMag( player, gun, packet.assist ) );
+				PlayerPatch.get( player ).tryLaunch(
+					equipped -> new OpLoadMag( player, ( IEquippedGun ) equipped, packet.assist )
+				);
 			}
 		};
 		

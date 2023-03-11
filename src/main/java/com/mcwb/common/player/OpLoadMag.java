@@ -1,7 +1,9 @@
 package com.mcwb.common.player;
 
+import com.mcwb.common.gun.IEquippedGun;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.gun.IMag;
+import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.operation.IOperation;
@@ -11,11 +13,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 
-public class OpLoadMag extends Operation< IGun< ? > >
+public class OpLoadMag extends Operation< IEquippedGun >
 {
 	protected final int invSlot;
 	
-	public OpLoadMag( EntityPlayer player, IGun< ? > gun, int invSlot )
+	public OpLoadMag( EntityPlayer player, IEquippedGun gun, int invSlot )
 	{
 		super( player, gun, gun.loadMagController() );
 		
@@ -28,12 +30,13 @@ public class OpLoadMag extends Operation< IGun< ? > >
 		switch( 0 )
 		{
 		default:
-			if( this.contexted.hasMag() ) break;
+			final IGun< ? > gun = this.equipped.item();
+			if( gun.hasMag() ) break;
 			
 			final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot );
 			final IItem item = IItemTypeHost.getTypeOrDefault( stack ).getContexted( stack );
 			final boolean isMag = item instanceof IMag< ? >;
-			if( !isMag || !this.contexted.isAllowed( ( IMag< ? > ) item ) ) break;
+			if( !isMag || !gun.isAllowed( ( IMag< ? > ) item ) ) break;
 			
 			return this;
 		}
@@ -41,10 +44,10 @@ public class OpLoadMag extends Operation< IGun< ? > >
 	}
 	
 	@Override
-	public IOperation onInHandStackChange( IItem newItem )
+	public IOperation onInHandStackChange( IEquippedItem newItem )
 	{
-		this.contexted = ( IGun< ? > ) newItem;
-		return this.contexted.hasMag() ? this.terminate() : this;
+		this.equipped = ( IEquippedGun ) newItem;
+		return this.equipped.item().hasMag() ? this.terminate() : this;
 	}
 	
 	@Override
@@ -57,9 +60,10 @@ public class OpLoadMag extends Operation< IGun< ? > >
 		if( !isMag ) return;
 		
 		final IMag< ? > mag = ( IMag< ? > ) item;
-		if( !this.contexted.isAllowed( mag ) ) return;
+		final IGun< ? > gun = this.equipped.item();
+		if( !gun.isAllowed( mag ) ) return;
 		
-		this.contexted.loadMag( mag );
+		gun.loadMag( mag );
 		inv.setInventorySlotContents( this.invSlot, ItemStack.EMPTY );
 	}
 }

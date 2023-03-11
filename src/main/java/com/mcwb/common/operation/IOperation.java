@@ -1,6 +1,6 @@
 package com.mcwb.common.operation;
 
-import com.mcwb.common.item.IInUseItem;
+import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItemType;
 
 import net.minecraft.entity.player.InventoryPlayer;
@@ -20,9 +20,10 @@ public interface IOperation
 	/**
 	 * Placeholder operation instance. Represent no operation running.
 	 */
-	public static final IOperation NONE = new IOperation() {
+	public static final IOperation NONE = new IOperation()
+	{
 		@Override
-		public IOperation onInHandStackChange( IInUseItem newItem ) { return this; }
+		public IOperation onInHandStackChange( IEquippedItem newItem ) { return this; }
 		
 		@Override
 		public String toString() { return "Operation::None"; }
@@ -75,7 +76,7 @@ public interface IOperation
 	 * 
 	 * @return {@link #NONE} if this operation should terminate on hand swap
 	 */
-	public default IOperation onSwapHand( IInUseItem newItem ) { return this.terminate(); }
+	public default IOperation onSwapHand( IEquippedItem newItem ) { return this.terminate(); }
 	
 	/**
 	 * <p> Called when player's main hand item has changed. </p>
@@ -88,7 +89,7 @@ public interface IOperation
 	 * 
 	 * @return {@link #NONE} if this operation should terminate on item switch
 	 */
-	public default IOperation onInHandItemChange( IInUseItem newItem ) { return this.terminate(); }
+	public default IOperation onInHandItemChange( IEquippedItem newItem ) { return this.terminate(); }
 	
 	/**
 	 * <p> Called when the {holding stack} != {last tick holding stack}. </p>
@@ -103,5 +104,5 @@ public interface IOperation
 	 * 
 	 * @return {@link #NONE} if this operation should terminate on stack change
 	 */
-	public IOperation onInHandStackChange( IInUseItem newItem );
+	public IOperation onInHandStackChange( IEquippedItem newItem );
 }

@@ -1,8 +1,9 @@
 package com.mcwb.common.player;
 
 import com.mcwb.common.ammo.IAmmoType;
+import com.mcwb.common.gun.IEquippedMag;
 import com.mcwb.common.gun.IMag;
-import com.mcwb.common.item.IItem;
+import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItemType;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.operation.IOperation;
@@ -12,13 +13,13 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 
-public class OpLoadAmmo extends Operation< IMag< ? > >
+public class OpLoadAmmo extends Operation< IEquippedMag >
 {
 	protected final int invSlot;
 	
 	protected IOperation next = NONE;
 	
-	public OpLoadAmmo( EntityPlayer player, IMag< ? > mag, int invSlot )
+	public OpLoadAmmo( EntityPlayer player, IEquippedMag mag, int invSlot )
 	{
 		super( player, mag, mag.pushAmmoController() );
 		
@@ -31,12 +32,13 @@ public class OpLoadAmmo extends Operation< IMag< ? > >
 		switch( 0 )
 		{
 		default:
-			if( this.contexted.isFull() ) break;
+			final IMag< ? > mag = this.equipped.item();
+			if( mag.isFull() ) break;
 			
 			final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot );
 			final IItemType type = IItemTypeHost.getTypeOrDefault( stack );
 			final boolean isAmmo = type instanceof IAmmoType;
-			if( !isAmmo || !this.contexted.isAllowed( ( IAmmoType ) type ) ) break;
+			if( !isAmmo || !mag.isAllowed( ( IAmmoType ) type ) ) break;
 			
 			return this;
 		}
@@ -51,10 +53,10 @@ public class OpLoadAmmo extends Operation< IMag< ? > >
 	}
 	
 	@Override
-	public IOperation onInHandStackChange( IItem newItem )
+	public IOperation onInHandStackChange( IEquippedItem newItem )
 	{
-		this.contexted = ( IMag< ? > ) newItem;
-		return this.contexted.isFull() ? this.terminate() : this;
+		this.equipped = ( IEquippedMag ) newItem;
+		return this.equipped.item().isFull() ? this.terminate() : this;
 	}
 	
 	@Override
@@ -69,9 +71,10 @@ public class OpLoadAmmo extends Operation< IMag< ? > >
 		if( !( type instanceof IAmmoType ) ) return;
 		
 		final IAmmoType ammo = ( IAmmoType ) type;
-		if( !this.contexted.isAllowed( ammo ) ) return;
+		final IMag< ? > mag = this.equipped.item();
+		if( !mag.isAllowed( ammo ) ) return;
 		
-		this.contexted.pushAmmo( ammo );
+		mag.pushAmmo( ammo );
 //		if( !this.player.isCreative() )
 			stack.shrink( 1 );
 	}

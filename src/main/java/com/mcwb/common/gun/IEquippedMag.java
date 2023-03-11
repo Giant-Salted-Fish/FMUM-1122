@@ -1,12 +1,12 @@
 package com.mcwb.common.gun;
 
-import com.mcwb.common.item.IInUseItem;
+import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.operation.IOperationController;
 
-public interface IInUseMag extends IInUseItem
+public interface IEquippedMag extends IEquippedItem
 {
 	@Override
-	public IMag< ? > using();
+	public IMag< ? > item();
 	
 	public IOperationController pushAmmoController();
 	
