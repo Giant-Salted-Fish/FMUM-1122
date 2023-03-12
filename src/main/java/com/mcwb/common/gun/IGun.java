@@ -4,11 +4,10 @@ import javax.annotation.Nullable;
 
 public interface IGun< T extends IGunPart< ? extends T > > extends IGunPart< T >
 {
-	
 	public default boolean hasMag() { return this.getInstalledCount( 0 ) > 0; }
 	
 	@Nullable
-	public default IMag< ? > mag() {
+	public default IMag< ? > mag() { 
 		return this.hasMag() ? ( IMag< ? > ) this.getInstalled( 0, 0 ) : null;
 	}
 	

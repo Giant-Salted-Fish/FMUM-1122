@@ -5,21 +5,19 @@ import com.mcwb.common.meta.Registry;
 
 import net.minecraft.nbt.NBTTagCompound;
 
-public interface IModularType extends IMeta
+public interface IModuleType extends IMeta
 {
-	public static final Registry< IModularType > REGISTRY = new Registry<>();
-	
-//	public IModular< ? > getContexted( ICapabilityProvider provider );
+	public static final Registry< IModuleType > REGISTRY = new Registry<>();
 	
 	/**
 	 * WARNNING: Never use this unless you understand what it is doing. This is only designed to be
 	 * used by {@link ModuleSnapshot}
 	 */
-	public IModular< ? > newRawContexted();
+	public IModule< ? > newRawContexted();
 	
 	/**
 	 * WARNNING: Never use this unless you understand what it is doing. This is only designed to be
 	 * used by {@link IModular#deserializeNBT(NBTTagCompound)}
 	 */
-	public IModular< ? > deserializeContexted( NBTTagCompound nbt );
+	public IModule< ? > deserializeContexted( NBTTagCompound nbt );
 }

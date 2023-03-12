@@ -1,7 +1,5 @@
 package com.mcwb.common.item;
 
-import com.mcwb.common.meta.IContexted;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -13,37 +11,23 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * 
  * @author Giant_Salted_Fish
  */
-public interface IItem extends IContexted
+public interface IItem
 {
-	public static final IItem EMPTY = new IItem()
-	{
-		@Override
-		public IEquippedItem onTakeOut( IEquippedItem oldItem, EntityPlayer player, EnumHand hand ) {
-			return IEquippedItem.EMPTY;
-		}
-		
-		@Override
-		public IEquippedItem onInHandStackChanged(
-			IEquippedItem oldItem,
-			EntityPlayer player,
-			EnumHand hand
-		) { return IEquippedItem.EMPTY; }
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public ResourceLocation texture() { return null; }
-	};
-	
 	public static final IItem VANILLA = new IItem()
 	{
 		@Override
-		public IEquippedItem onTakeOut( IEquippedItem oldItem, EntityPlayer player, EnumHand hand ) {
-			return IEquippedItem.VANILLA;
-		}
+		public int stackId() { return 0; }
 		
 		@Override
-		public IEquippedItem onInHandStackChanged(
-			IEquippedItem oldItem,
+		public IEquippedItem< ? > onTakeOut(
+			IEquippedItem< ? > prevItem,
+			EntityPlayer player,
+			EnumHand hand
+		) { return IEquippedItem.VANILLA; }
+		
+		@Override
+		public IEquippedItem< ? > onStackUpdate(
+			IEquippedItem< ? > prevItem,
 			EntityPlayer player,
 			EnumHand hand
 		) { return IEquippedItem.VANILLA; }
@@ -53,14 +37,31 @@ public interface IItem extends IContexted
 		public ResourceLocation texture() { return null; }
 	};
 	
-	public IEquippedItem onTakeOut( IEquippedItem oldItem, EntityPlayer player, EnumHand hand );
+	/**
+	 * This will be used to determinate whether the item in hand has changed
+	 * 
+	 * @return An universe id that identifies an item stack
+	 */
+	public int stackId();
 	
-	public IEquippedItem onInHandStackChanged(
-		IEquippedItem oldItem,
+	/**
+	 * Called when player is trying to take out this item
+	 */
+	public IEquippedItem< ? > onTakeOut(
+		IEquippedItem< ? > prevEquipped,
+		EntityPlayer player,
+		EnumHand hand
+	);
+	
+	/**
+	 * Called when the corresponding stack in hand has changed
+	 */
+	public IEquippedItem< ? > onStackUpdate(
+		IEquippedItem< ? > prevEquipped,
 		EntityPlayer player,
 		EnumHand hand
 	);
 	
 	@SideOnly( Side.CLIENT )
-	public ResourceLocation texture(); // TODO: check if this is used
+	public ResourceLocation texture();
 }

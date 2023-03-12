@@ -1,9 +1,7 @@
 package com.mcwb.common.operation;
 
 import com.mcwb.common.item.IEquippedItem;
-import com.mcwb.common.item.IItemType;
 
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -18,15 +16,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface IOperation
 {
 	/**
-	 * Placeholder operation instance. Represent no operation running.
+	 * Placeholder operation instance. Represents that no operation is currently running.
 	 */
 	public static final IOperation NONE = new IOperation()
 	{
 		@Override
-		public IOperation onInHandStackChange( IEquippedItem newItem ) { return this; }
+		public IOperation onStackUpdate( IEquippedItem< ? > newEquipped ) { return this; }
 		
 		@Override
-		public String toString() { return "Operation::None"; }
+		public String toString() { return "Operation::NONE"; }
 	};
 	
 	public default float progress() { return 1F; }
@@ -34,7 +32,6 @@ public interface IOperation
 	@SideOnly( Side.CLIENT )
 	public default float getProgress( float smoother ) { return 1F; }
 	
-	/// *** Methods for operation life cycle *** ///
 	/**
 	 * Prepare for the execution
 	 */
@@ -76,33 +73,23 @@ public interface IOperation
 	 * 
 	 * @return {@link #NONE} if this operation should terminate on hand swap
 	 */
-	public default IOperation onSwapHand( IEquippedItem newItem ) { return this.terminate(); }
+	public default IOperation onSwapHand( IEquippedItem< ? > newEquipped ) {
+		return this.terminate();
+	}
 	
 	/**
-	 * <p> Called when player's main hand item has changed. </p>
-	 * 
-	 * <p> Two cases included: </p>
-	 * <ol>
-	 *     <li> On {@link InventoryPlayer#currentItem} change </li>
-	 *     <li> On {@link IItemType} change </li>
-	 * </ol>
+	 * Called when the item in player's main hand has changed
 	 * 
 	 * @return {@link #NONE} if this operation should terminate on item switch
 	 */
-	public default IOperation onInHandItemChange( IEquippedItem newItem ) { return this.terminate(); }
+	public default IOperation onItemChange( IEquippedItem< ? > newEquipped ) {
+		return this.terminate();
+	}
 	
 	/**
-	 * <p> Called when the {holding stack} != {last tick holding stack}. </p>
+	 * Called when the corresponding stack of the current item has been updated
 	 * 
-	 * <p> This can be triggered in two ways: </p>
-	 * <ol>
-	 *     <li> Item stack in current selected slot being replaced with another stack(drop current
-	 *     item, click to replace stack in inventory GUI, etc). </li>
-	 *     
-	 *     <li> NBT tag of the stack being updated </li>
-	 * </ol>
-	 * 
-	 * @return {@link #NONE} if this operation should terminate on stack change
+	 * @return {@link #NONE} if this operation should terminate on stack update
 	 */
-	public IOperation onInHandStackChange( IEquippedItem newItem );
+	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped );
 }

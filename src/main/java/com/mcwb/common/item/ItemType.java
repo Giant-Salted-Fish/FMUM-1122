@@ -8,20 +8,19 @@ import com.mcwb.common.MCWB;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.load.IPostLoadSubscriber;
 import com.mcwb.common.load.RenderableMeta;
-import com.mcwb.common.meta.IContexted;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.tab.ICreativeTab;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumHand;
-import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
-public abstract class ItemType< C extends IItem, R extends IItemRenderer< ? super C > >
-	extends RenderableMeta< R > implements IItemType, IPostLoadSubscriber
+public abstract class ItemType<
+	C extends IItem,
+	E extends IEquippedItem< C >,
+	R extends IItemRenderer< ? super E >
+> extends RenderableMeta< R > implements IItemType, IPostLoadSubscriber
 {
 	protected transient Item item;
 	
@@ -53,10 +52,11 @@ public abstract class ItemType< C extends IItem, R extends IItemRenderer< ? supe
 	@Override
 	public Item item() { return this.item; }
 	
+	// TODO: may not be necessary
 	@Override
 	@SuppressWarnings( "unchecked" )
-	public C getContexted( ICapabilityProvider provider ) {
-		return ( C ) provider.getCapability( IContexted.CAPABILITY, null );
+	public C getContexted( ItemStack stack ) {
+		return ( C ) stack.getCapability( IMeta.CONTEXTED, null );
 	}
 	
 	protected abstract Item createItem();
@@ -92,21 +92,5 @@ public abstract class ItemType< C extends IItem, R extends IItemRenderer< ? supe
 			ItemStack stack,
 			@Nullable NBTTagCompound capTag
 		);
-		
-		@Override
-		public void onUpdate(
-			ItemStack stack,
-			World worldIn,
-			Entity entityIn,
-			int itemSlot,
-			boolean isSelected
-		) {
-			// TODO: maybe move to context? // TODO: check hand and entity
-			if( worldIn.isRemote && isSelected )
-				ItemType.this.renderer.tickInHand(
-					ItemType.this.getContexted( stack ),
-					EnumHand.MAIN_HAND
-				);
-		}
 	}
 }

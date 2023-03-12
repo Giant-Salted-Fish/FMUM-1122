@@ -12,9 +12,9 @@ public interface IModifyState
 {
 	public static final IModifyState NOT_SELECTED = new IModifyState()
 	{
-		@Override
-		@SideOnly( Side.CLIENT )
-		public void doRenderArm( IRenderer renderer ) { renderer.render(); }
+//		@Override
+//		@SideOnly( Side.CLIENT )
+//		public void doRenderArm( IRenderer renderer ) { renderer.render(); }
 	};
 	
 	public static final IModifyState PRIMARY_START = new IModifyState() { };
@@ -51,7 +51,7 @@ public interface IModifyState
 		MCWBClient.MOD.bindTexture( texture );
 		renderer.render();
 	}
-	
-	@SideOnly( Side.CLIENT )
-	public default void doRenderArm( IRenderer renderer ) { }
+//	TODO: remove this if no longer needed
+//	@SideOnly( Side.CLIENT )
+//	public default void doRenderArm( IRenderer renderer ) { }
 }

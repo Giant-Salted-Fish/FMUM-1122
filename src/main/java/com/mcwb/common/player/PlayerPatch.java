@@ -5,7 +5,6 @@ import javax.annotation.Nullable;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
-import com.mcwb.common.item.IItemType;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.operation.IOperation;
 
@@ -39,15 +38,14 @@ public class PlayerPatch implements ICapabilityProvider
 	protected IOperation executing = IOperation.NONE;
 	
 	/// *** Stuffs for main hand item *** ///
-	protected int invSlot = -1; // TODO: better initialization?
 	protected ItemStack mainStack = ItemStack.EMPTY;
-	protected IItemType mainType = IItemType.VANILLA;
-	protected IEquippedItem mainItem = IEquippedItem.EMPTY;
+	protected int mainStackId = IItem.VANILLA.stackId();
+	protected IEquippedItem< ? > mainEquipped = IEquippedItem.VANILLA;
 	
 	/// *** Stuffs for off-hand item *** ///
 	protected ItemStack offStack = ItemStack.EMPTY;
-	protected IItemType offType = IItemType.VANILLA;
-	protected IEquippedItem offItem = IEquippedItem.EMPTY;
+	protected int offStackId = IItem.VANILLA.stackId();
+	protected IEquippedItem< ? > offEquipped = IEquippedItem.VANILLA;
 	
 	public PlayerPatch( EntityPlayer player ) { this.player = player; }
 	
@@ -59,74 +57,57 @@ public class PlayerPatch implements ICapabilityProvider
 		{
 			final EnumHand hand = EnumHand.MAIN_HAND;
 			final ItemStack stack = inv.getCurrentItem();
-			final IItemType type = IItemTypeHost.getTypeOrDefault( stack );
+			final IItem item = IItemTypeHost.getItemOrDefault( stack );
+			final int stackId = item.stackId();
 			
-			/// Check and fire callback for each condition
-			if( inv.currentItem != this.invSlot || type != this.mainType )
+			if( stackId != this.mainStackId )
 			{
-				final IItem item = type.getContexted( stack );
-				this.mainItem = item.onTakeOut( this.mainItem, this.player, hand );
-				this.executing = this.executing.onInHandItemChange( this.mainItem );
-				
-				this.invSlot = inv.currentItem;
-				this.mainStack = stack;
-				this.mainType = type;
+				this.mainStackId = stackId;
+				this.mainEquipped = item.onTakeOut( this.mainEquipped, this.player, hand );
+				this.executing = this.executing.onItemChange( this.mainEquipped );
 			}
 			else if( stack != this.mainStack )
 			{
-				// Actually still can be changing to another item but we literally has no way to \
-				// distinguish those cases with the NBT update.
-				final IItem item = type.getContexted( stack );
-				this.mainItem = item.onInHandStackChanged( this.mainItem, this.player, hand );
-				this.executing = this.executing.onInHandStackChange( this.mainItem );
-				
 				this.mainStack = stack;
+				this.mainEquipped = item.onStackUpdate( this.mainEquipped, this.player, hand );
+				this.executing = this.executing.onStackUpdate( this.mainEquipped );
 			}
 			
-			this.mainItem.tickInHand( this.player, hand );
+			this.mainEquipped.tick( this.player, hand );
 		}
 		
 		/// *** Off-hand stuff *** ///
 		{
 			final EnumHand hand = EnumHand.OFF_HAND;
 			final ItemStack stack = inv.offHandInventory.get( 0 );
-			final IItemType type = IItemTypeHost.getTypeOrDefault( stack );
+			final IItem item = IItemTypeHost.getItemOrDefault( stack );
+			final int stackId = item.stackId();
 			
-			if( type != this.offType )
+			if( stackId != this.offStackId )
 			{
-				final IItem item = type.getContexted( stack );
-				this.offItem = item.onTakeOut( this.offItem, this.player, hand );
-				
-				this.offStack = stack;
-				this.offType = type;
+				this.offStackId = stackId;
+				this.offEquipped = item.onTakeOut( this.offEquipped, this.player, hand );
 			}
 			else if( stack != this.offStack )
 			{
-				final IItem item = type.getContexted( stack );
-				this.offItem = item.onInHandStackChanged( this.offItem, this.player, hand );
-				
 				this.offStack = stack;
+				this.offEquipped = item.onStackUpdate( this.offEquipped, this.player, hand );
 			}
 			
-			this.offItem.tickInHand( this.player, EnumHand.OFF_HAND );
+			this.offEquipped.tick( this.player, hand );
 		}
 		
-		// Tick operation executing
 		this.executing = this.executing.tick();
 	}
 	
-	public final IEquippedItem getEquipped( EnumHand hand ) {
-		return hand == EnumHand.MAIN_HAND ? this.mainItem : this.offItem;
+	public final IEquippedItem< ? > getEquipped( EnumHand hand ) {
+		return hand == EnumHand.MAIN_HAND ? this.mainEquipped : this.offEquipped;
 	}
 	
 	public final IOperation executing() { return this.executing; }
 	
-//	public final IOperation tryLaunch( Function< IEquippedItem, IOperation > supplier ) {
-//		return this.executing = this.executing.onOtherTryLaunch( supplier.apply( this.mainItem ) );
-//	}
-	
-	public final IOperation tryLaunch( IOperation op ) {
-		return this.executing = this.executing.onOtherTryLaunch( op );
+	public final IOperation tryLaunch( IOperation operation ) {
+		return this.executing = this.executing.onOtherTryLaunch( operation );
 	}
 	
 	public final IOperation ternimateExecuting() {
@@ -135,31 +116,8 @@ public class PlayerPatch implements ICapabilityProvider
 	
 	public final IOperation toggleExecuting() { return this.executing = this.executing.toggle(); }
 	
-	public void trySwapHand()
-	{
-		if( this.player.isSpectator() || this.mainItem.onSwapHand( this.player ) ) return;
-		
-		final InventoryPlayer inv = this.player.inventory;
-		inv.setInventorySlotContents( this.invSlot, this.offStack );
-		inv.offHandInventory.set( 0, this.mainStack );
-		
-		final ItemStack mstack = this.offStack;
-		final IItemType mtype = this.offType;
-		final IEquippedItem mitem = this.offItem;
-		
-		this.offStack = this.mainStack;
-		this.offType = this.mainType;
-		this.offItem = this.mainItem;
-		
-		this.mainStack = mstack;
-		this.mainType = mtype;
-		this.mainItem = mitem;
-		
-		this.executing = this.executing.onSwapHand( mitem );
-	}
-	
 	@Override
-	public final boolean hasCapability( Capability<?> capability, @Nullable EnumFacing facing ) {
+	public final boolean hasCapability( Capability< ? > capability, @Nullable EnumFacing facing ) {
 		return capability == CAPABILITY;
 	}
 	

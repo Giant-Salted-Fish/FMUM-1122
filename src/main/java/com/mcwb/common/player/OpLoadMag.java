@@ -13,11 +13,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 
-public class OpLoadMag extends Operation< IEquippedGun >
+public class OpLoadMag extends Operation< IEquippedGun< ? > >
 {
 	protected final int invSlot;
 	
-	public OpLoadMag( EntityPlayer player, IEquippedGun gun, int invSlot )
+	public OpLoadMag( EntityPlayer player, IEquippedGun< ? > gun, int invSlot )
 	{
 		super( player, gun, gun.loadMagController() );
 		
@@ -34,7 +34,7 @@ public class OpLoadMag extends Operation< IEquippedGun >
 			if( gun.hasMag() ) break;
 			
 			final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot );
-			final IItem item = IItemTypeHost.getTypeOrDefault( stack ).getContexted( stack );
+			final IItem item = IItemTypeHost.getItemOrDefault( stack );
 			final boolean isMag = item instanceof IMag< ? >;
 			if( !isMag || !gun.isAllowed( ( IMag< ? > ) item ) ) break;
 			
@@ -44,9 +44,9 @@ public class OpLoadMag extends Operation< IEquippedGun >
 	}
 	
 	@Override
-	public IOperation onInHandStackChange( IEquippedItem newItem )
+	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped )
 	{
-		this.equipped = ( IEquippedGun ) newItem;
+		this.equipped = ( IEquippedGun< ? > ) newEquipped;
 		return this.equipped.item().hasMag() ? this.terminate() : this;
 	}
 	
@@ -55,9 +55,8 @@ public class OpLoadMag extends Operation< IEquippedGun >
 	{
 		final InventoryPlayer inv = this.player.inventory;
 		final ItemStack stack = inv.getStackInSlot( this.invSlot );
-		final IItem item = IItemTypeHost.getTypeOrDefault( stack ).getContexted( stack );
-		final boolean isMag = item instanceof IMag< ? >;
-		if( !isMag ) return;
+		final IItem item = IItemTypeHost.getItemOrDefault( stack );
+		if( !( item instanceof IMag< ? > ) ) return;
 		
 		final IMag< ? > mag = ( IMag< ? > ) item;
 		final IGun< ? > gun = this.equipped.item();

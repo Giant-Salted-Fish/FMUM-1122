@@ -11,17 +11,17 @@ public interface IModuleEventSubscriber< T >
 	
 	public static class ModuleInstallEvent
 	{
-		public IModular< ? > base;
+		public IModule< ? > base;
 		
-		public IModular< ? > module;
+		public IModule< ? > module;
 		
 		public int slot;
 		
 		public Supplier< IPreviewPredicate > action;
 		
 		public ModuleInstallEvent(
-			IModular< ? > base,
-			int slot, IModular< ? > module,
+			IModule< ? > base,
+			int slot, IModule< ? > module,
 			Supplier< IPreviewPredicate > action
 		) {
 			this.base = base;
@@ -33,18 +33,18 @@ public interface IModuleEventSubscriber< T >
 	
 	public static class ModuleRemoveEvent
 	{
-		public IModular< ? > base;
+		public IModule< ? > base;
 		
 		public int slot;
 		public int idx;
 		
 		// TODO: onBeingRemoved
-		public Supplier< IModular< ? > > action;
+		public Supplier< IModule< ? > > action;
 		
 		public ModuleRemoveEvent(
-			IModular< ? > base,
+			IModule< ? > base,
 			int slot, int idx,
-			Supplier< IModular< ? > > action
+			Supplier< IModule< ? > > action
 		) {
 			this.base = base;
 			this.slot = slot;

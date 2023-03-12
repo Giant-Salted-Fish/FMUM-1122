@@ -1,7 +1,6 @@
 package com.mcwb.common.item;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -10,34 +9,23 @@ import javax.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
-import com.mcwb.client.input.IKeyBind;
-import com.mcwb.client.input.Key;
-import com.mcwb.client.input.Key.Category;
 import com.mcwb.client.item.IItemRenderer;
-import com.mcwb.client.module.IDeferredPriorityRenderer;
-import com.mcwb.client.module.IDeferredRenderer;
 import com.mcwb.client.module.IModuleRenderer;
-import com.mcwb.client.player.OpModifyClient;
-import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
-import com.mcwb.common.module.IModular;
-import com.mcwb.common.module.IModularType;
+import com.mcwb.common.module.IModule;
 import com.mcwb.common.module.IModuleSlot;
+import com.mcwb.common.module.IModuleType;
 import com.mcwb.common.module.Module;
 import com.mcwb.common.module.ModuleSnapshot;
 import com.mcwb.common.module.ModuleWrapper;
-import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.paintjob.IPaintable;
 import com.mcwb.common.paintjob.IPaintableType;
 import com.mcwb.common.paintjob.IPaintjob;
 import com.mcwb.devtool.Dev;
 import com.mcwb.util.Mat4f;
-import com.mcwb.util.Quat4f;
-import com.mcwb.util.Vec3f;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -51,9 +39,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class ModifiableItemType<
-	C extends IItem & IModular< ? > & IPaintable,
-	R extends IItemRenderer< ? super C > & IModuleRenderer< ? super C >
-> extends ItemType< C, R > implements IModularType, IPaintableType, IPaintjob
+	C extends IItem & IModule< ? > & IPaintable,
+	E extends IEquippedItem< C >,
+	R extends IItemRenderer< ? super E > & IModuleRenderer< ? super E >
+> extends ItemType< C, E, R > implements IModuleType, IPaintableType, IPaintjob
 {
 	@SerializedName( value = "category", alternate = "group" )
 	protected String category;
@@ -79,7 +68,7 @@ public abstract class ModifiableItemType<
 	{
 		super.build( name, provider );
 		
-		IModularType.REGISTRY.regis( this );
+		IModuleType.REGISTRY.regis( this );
 		IPaintableType.REGISTRY.regis( this );
 		
 		// If not category set then set it is its name
@@ -106,7 +95,7 @@ public abstract class ModifiableItemType<
 		super.onPostLoad();
 		
 		this.provider.clientOnly( () -> {
-			if( IModularType.REGISTRY.get( this.modifyIndicator ) == null )
+			if( IModuleType.REGISTRY.get( this.modifyIndicator ) == null )
 			{
 				this.error( "mcwb.fail_to_find_indicator", this, this.modifyIndicator );
 				this.modifyIndicator = MCWBClient.MODIFY_INDICATOR;
@@ -114,7 +103,7 @@ public abstract class ModifiableItemType<
 		} );
 		
 		// TODO: call update state maybe?
-		final Function< String, IModular< ? > > func = name -> this.newRawContexted();
+		final Function< String, IModule< ? > > func = name -> this.newRawContexted();
 		this.compiledSnapshotNBT = this.snapshot.setSnapshot( func ).serializeNBT();
 	}
 	
@@ -129,10 +118,10 @@ public abstract class ModifiableItemType<
 	@Override
 	protected Item createItem() { return this.new ModifiableVanillaItem( 1, 0 ); }
 	
-	protected final IModular< ? > fromTag( NBTTagCompound tag )
+	protected final IModule< ? > fromTag( NBTTagCompound tag )
 	{
-		final Item item = Item.getItemById( IModular.getId( tag ) );
-		final IModularType type = ( IModularType ) IItemTypeHost.getType( item );
+		final Item item = Item.getItemById( IModule.getId( tag ) );
+		final IModuleType type = ( IModuleType ) IItemTypeHost.getType( item );
 		return type.deserializeContexted( tag );
 	}
 	
@@ -150,23 +139,22 @@ public abstract class ModifiableItemType<
 			ItemStack stack,
 			@Nullable NBTTagCompound capTag
 		) {
-//			
-//			// 4 case to handle: \
-//			// has-stackTag | has-capTag}: {deserialized from local storage} \
-//			// has-stackTag | no--capTag}: \
-//			// no--stackTag | has-capTag}: {copy stack} \
-//			// no--stackTag | no--capTag}: {create stack}, {deserialize from network packet} \
+			// 4 case to handle: \
+			// has-stackTag | has-capTag}: {ItemStack#ItemStack(NBTTagCompound)} \
+			// has-stackTag | no--capTag}: \
+			// no--stackTag | has-capTag}: {ItemStack#copy()} \
+			// no--stackTag | no--capTag}: {new ItemStack(...)}, {PacketBuffer#readItemStack()} \
 			final NBTTagCompound stackTag = stack.getTagCompound();
-			final ModifiableItemType< ?, ? > $this = ModifiableItemType.this;
+			final ModifiableItemType< C, E, R > $this = ModifiableItemType.this;
 			
 			if( capTag != null )
 			{
-//				// 2 cases possible:
-//				// no--stackTag | has-capTag: {copy stack}
-//				// has-stackTag | has-capTag: {deserialize from local storage}
+				// 2 cases possible:
+				// no--stackTag | has-capTag: {ItemStack#copy()}
+				// has-stackTag | has-capTag: {ItemStack#ItemStack(NBTTagCompound)}
 				final NBTTagCompound nbt = capTag.getCompoundTag( "Parent" );
-//				
-//				// Remove "Parent" tag to prevent repeat deserialization
+				
+				// Remove "Parent" tag to prevent repeat deserialization
 				// See CapabilityDispatcher#deserializeNBT(NBTTagCompound)
 				capTag.removeTag( "Parent" );
 				
@@ -183,8 +171,7 @@ public abstract class ModifiableItemType<
 				else primaryTag = nbt;
 				
 				final C primary = ( C ) $this.fromTag( primaryTag );
-				final ICapabilityProvider wrapper =
-					ModifiableItemType.this.newWrapper( primary, stack );
+				final ICapabilityProvider wrapper = $this.newWrapper( primary, stack );
 				primary.syncAndUpdate();
 				return wrapper;
 			}
@@ -196,18 +183,18 @@ public abstract class ModifiableItemType<
 				throw new RuntimeException( "has-stackTag | no--capTag: should never happen" );
 			}
 			
-			// no--stackTag | no--capTag: {create stack}, {deserialize from network packet}
+			// no--stackTag | no--capTag: {new ItemStack(...)}, {PacketBuffer#readItemStack()}
 			// We basically has no way to distinguish from these two cases. But it will work fine \
-			// if we simply deserialize and setup it with the compiled snapshot NBT. The down side \
-			// is that it will actually deserialize twice for the network packet case.
+			// if we simply deserialize and setup it with the compiled snapshot NBT. That is \
+			// because Item#readNBTShareTag(ItemStack, NBTTagCompound) will later be called in the \
+			// second case. Down side is that we do deserialization twice in the second case.
 			stack.setTagCompound( new NBTTagCompound() );
 			
 			final NBTTagCompound primaryTag = $this.compiledSnapshotNBT.copy();
 			final C primary = ( C ) $this.deserializeContexted( primaryTag );
-			final ICapabilityProvider provider =
-				ModifiableItemType.this.newWrapper( primary, stack );
+			final ICapabilityProvider wrapper = $this.newWrapper( primary, stack );
 			primary.syncAndUpdate();
-			return provider;
+			return wrapper;
 		}
 		
 		@Override
@@ -216,24 +203,12 @@ public abstract class ModifiableItemType<
 			stack.setTagCompound( nbt ); // Copied from super
 			
 			final NBTTagCompound primaryTag = nbt.getCompoundTag( "_" );
-			final IModular< ? > primary = ModifiableItemType.this.fromTag( primaryTag );
+			final IModule< ? > primary = ModifiableItemType.this.fromTag( primaryTag );
 			
-			// Set ModuleWrapper#setBase(...)
-			final IModular< ? > wrapper = ModifiableItemType.this.getContexted( stack );
-			wrapper.setBase( primary, 0 );
+			final IModule< ? > wrapper = ModifiableItemType.this.getContexted( stack );
+			wrapper.setBase( primary, 0 ); // Set ModuleWrapper#setBase(...)
 			wrapper.syncAndUpdate();
 		}
-		
-		// Cause we now have the wrapper so avoid to tick render from item
-		// See ModifiableItem#tickInHand(...)
-		@Override
-		public void onUpdate(
-			ItemStack stack,
-			World worldIn,
-			Entity entityIn,
-			int itemSlot,
-			boolean isSelected
-		) { }
 		
 		/**
 		 * <p> {@inheritDoc} </p>
@@ -261,12 +236,29 @@ public abstract class ModifiableItemType<
 		) { return false; }
 	}
 	
-	protected abstract class ModifiableItem< T extends IModular< ? extends T > >
+	protected abstract class ModifiableItem< T extends IModule< ? extends T > >
 		extends Module< T > implements IItem
 	{
 		protected ModifiableItem() { }
 		
 		protected ModifiableItem( boolean unused ) { super( unused ); }
+		
+		@Override
+		public IEquippedItem< ? > onTakeOut(
+			IEquippedItem< ? > prevEquipped,
+			EntityPlayer player,
+			EnumHand hand
+		) {
+			final R renderer = ModifiableItemType.this.renderer;
+			return this.newEquipped( renderer.onTakeOut( prevEquipped, hand ) );
+		}
+		
+		@Override
+		public IEquippedItem< ? > onStackUpdate(
+			IEquippedItem< ? > prevEquipped,
+			EntityPlayer player,
+			EnumHand hand
+		) { return this.newEquipped( prevEquipped.animator() ); }
 		
 		@Override
 		public String name() { return ModifiableItemType.this.name; }
@@ -283,120 +275,12 @@ public abstract class ModifiableItemType<
 		@Override
 		public IModuleSlot getSlot( int idx ) { return ModifiableItemType.this.slots.get( idx ); }
 		
-		@Override
-		public void tickInHand( EntityPlayer player, EnumHand hand )
-		{
-			if( player.world.isRemote )
-				ModifiableItemType.this.renderer.tickInHand( this.self(), hand );
-		}
 		
 		@Override
-		@SideOnly( Side.CLIENT )
-		public void prepareRenderInHand( IUseContext context, EnumHand hand )
-		{
-			final R renderer = ModifiableItemType.this.renderer;
-			renderer.prepareRenderInHand( this.self(), context.animator(), hand );
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public boolean renderInHand( EnumHand hand ) {
-			return ModifiableItemType.this.renderer.renderInHand( this.self(), hand );
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public boolean onRenderSpecificHand( EnumHand hand ) {
-			return ModifiableItemType.this.renderer.onRenderSpecificHand( this.self(), hand );
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public void onKeyPress( IKeyBind key )
-		{
-			switch( key.name() )
-			{
-			case Key.TOGGLE_MODIFY:
-			case Key.CO_TOGGLE_MODIFY:
-				final PlayerPatchClient patch = PlayerPatchClient.instance;
-				if( patch.executing() instanceof OpModifyClient )
-					patch.toggleExecuting();
-				else patch.tryLaunch( new OpModifyClient() {
-					@Override
-					protected void setRenderDelegate( IModular< ? > delegate )
-					{
-						ModifiableItem.this.base.setBase( delegate, 0 );
-					}
-					
-					@Override
-					protected void setBackRenderDelegate( IModular< ? > delegate )
-					{
-						
-					}
-				} );
-				break;
-			}
-			
-			// For keys of category modify, just send to operation to handle them
-			if( key.category().equals( Category.MODIFY ) )
-			{
-				final IOperation op = PlayerPatchClient.instance.executing();
-				if( op instanceof OpModifyClient )
-					( ( OpModifyClient ) op ).handleInput( key );
-			}
-		}
-		
-		@Override
-		public void applyTransform( int slot, IModular< ? > module, Mat4f dst )
+		public void applyTransform( int slot, IModule< ? > module, Mat4f dst )
 		{
 			dst.mul( this.mat );
 			ModifiableItemType.this.slots.get( slot ).applyTransform( module, dst );
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public void prepareInHandRender(
-			Collection< IDeferredRenderer > renderQueue0,
-			Collection< IDeferredPriorityRenderer > renderQueue1,
-			IAnimator animator
-		) {
-			IAnimator.getChannel( animator, IModuleRenderer.CHANNEL_INSTALL, this.mat );
-			this.base.getSlot( this.baseSlot ).applyTransform( this, this.mat );
-			final IAnimator wrappedAnimator = this.wrapAnimator( animator );
-			
-			ModifiableItemType.this.renderer.prepareInHandRender(
-				this.self(),
-				wrappedAnimator,
-				renderQueue0,
-				renderQueue1
-			);
-			
-			this.installed.forEach(
-				mod -> mod.prepareInHandRender( renderQueue0, renderQueue1, wrappedAnimator )
-			);
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public void prepareRender(
-			Collection< IDeferredRenderer > renderQueue0,
-			Collection< IDeferredPriorityRenderer > renderQueue1,
-			IAnimator animator
-		) {
-			IAnimator.getChannel( animator, IModuleRenderer.CHANNEL_INSTALL, this.mat );
-			this.base.getSlot( this.baseSlot ).applyTransform( this, this.mat );
-			final IAnimator wrappedAnimator = this.wrapAnimator( animator );
-			
-			ModifiableItemType.this.renderer.prepareRender(
-				this.self(),
-				wrappedAnimator,
-				renderQueue0,
-				renderQueue1
-			);
-			
-			this.installed.forEach(
-				mod -> mod.prepareRender( renderQueue0, renderQueue1, wrappedAnimator )
-			);
 		}
 		
 		@Override
@@ -407,73 +291,34 @@ public abstract class ModifiableItemType<
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public IModular< ? > newModifyIndicator()
+		public IModule< ? > newModifyIndicator()
 		{
 			final String indicator = ModifiableItemType.this.modifyIndicator;
-			return IModularType.REGISTRY.get( indicator ).newRawContexted();
+			return IModuleType.REGISTRY.get( indicator ).newRawContexted();
 			// TODO: maybe a buffered instance
 		}
 		
 		@Override
 		public String toString() { return "Contexted<" + ModifiableItemType.this + ">"; }
 		
+		protected abstract IEquippedItem< ? > newEquipped( IAnimator animator );
+		
 		@Override
 		protected int id() { return Item.getIdFromItem( ModifiableItemType.this.item ); }
 		
 		@Override
-		protected IModular< ? > fromTag( NBTTagCompound tag ) {
+		protected final IModule< ? > fromTag( NBTTagCompound tag ) {
 			return ModifiableItemType.this.fromTag( tag );
 		}
 		
+		// Maybe a bit of too hacky...
 		@Override
-		protected IModular< ? > wrapOnBeingRemoved()
+		protected IModule< ? > wrapOnBeingRemoved()
 		{
-			// Maybe a bit of too hacky...
 			final ItemStack stack = new ItemStack( ModifiableItemType.this.item );
-			final IModular< ? > wrapper = ModifiableItemType.this.getContexted( stack );
+			final IModule< ? > wrapper = ModifiableItemType.this.getContexted( stack );
 			wrapper.setBase( this, 0 ); // See ModuleWrapper#setBase(...)
 			return wrapper;
-		}
-		
-		/**
-		 * Creates an animator that provides correct {@link IModuleRenderer#CHANNEL_MODULE}
-		 */
-		@SideOnly( Side.CLIENT )
-		protected IAnimator wrapAnimator( IAnimator animator )
-		{
-			return new IAnimator()
-			{
-				// For default case and #getFactor(...) will forward the call to wrapped animator \
-				// until it reaches the base animator. TODO: for performance?
-				@Override
-				public void getPos( String channel, Vec3f dst )
-				{
-					switch( channel )
-					{
-					case IModuleRenderer.CHANNEL_INSTALL:
-						ModifiableItem.this.mat.set( dst );
-						break;
-						
-					default: animator.getPos( channel, dst );
-					}
-				}
-				
-				@Override
-				public void getRot( String channel, Quat4f dst )
-				{
-					switch( channel )
-					{
-					case IModuleRenderer.CHANNEL_INSTALL:
-						dst.set( ModifiableItem.this.mat );
-						break;
-						
-					default: animator.getRot( channel, dst );
-					}
-				}
-				
-				@Override
-				public float getFactor( String channel ) { return animator.getFactor( channel ); }
-			};
 		}
 		
 		@SideOnly( Side.CLIENT )
@@ -482,8 +327,8 @@ public abstract class ModifiableItemType<
 	}
 	
 	protected static class ModifiableItemWrapper<
-		M extends IModular< ? extends M >,
-		T extends IItem & IModular< ? extends M > & IPaintable
+		M extends IModule< ? extends M >,
+		T extends IItem & IModule< ? extends M > & IPaintable
 	> extends ModuleWrapper< M, T > implements IItem
 	{
 		protected final ItemStack stack;
@@ -496,78 +341,31 @@ public abstract class ModifiableItemType<
 		}
 		
 		@Override
-		public ItemStack toStack() { return this.stack; }
+		public final ItemStack toStack() { return this.stack; }
 		
 		@Override
-		public void tickInHand( EntityPlayer player, EnumHand hand ) {
-			this.primary.tickInHand( player, hand );
-		}
+		public final int stackId() { return this.primary.stackId(); }
 		
 		@Override
-		public IUseContext onTakeOut( IItem oldItem, EntityPlayer player, EnumHand hand ) {
-			return this.primary.onTakeOut( oldItem, player, hand );
-		}
-		
-		@Override
-		public IUseContext onInHandStackChanged(
-			IItem oldItem,
+		public final IEquippedItem< ? > onTakeOut(
+			IEquippedItem< ? > prevEquipped,
 			EntityPlayer player,
 			EnumHand hand
-		) { return this.primary.onInHandStackChanged( oldItem, player, hand ); }
+		) { return this.primary.onTakeOut( prevEquipped, player, hand ); }
 		
 		@Override
-		public boolean onSwapHand( EntityPlayer player ) {
-			return this.primary.onSwapHand( player );
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public void prepareRenderInHand( EnumHand hand )
-		{
-			final IUseContext useContext = PlayerPatchClient.instance.getUseContext( hand );
-			this.primary.prepareRenderInHand( useContext.animator(), hand );
-		}
+		public final IEquippedItem< ? > onStackUpdate(
+			IEquippedItem< ? > prevEquipped,
+			EntityPlayer player,
+			EnumHand hand
+		) { return this.primary.onStackUpdate( prevEquipped, player, hand ); }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean renderInHand( EnumHand hand ) { return this.primary.renderInHand( hand ); }
+		public final ResourceLocation texture() { throw new RuntimeException(); }
 		
 		@Override
-		@SideOnly( Side.CLIENT )
-		public boolean onRenderSpecificHand( EnumHand hand ) {
-			return this.primary.onRenderSpecificHand( hand );
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public void onKeyPress( IKeyBind key ) { this.primary.onKeyPress( key ); }
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public void onKeyRelease( IKeyBind key ) { this.primary.onKeyRelease( key ); }
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public boolean onMouseWheelInput( int dWheel ) {
-			return this.primary.onMouseWheelInput( dWheel );
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public boolean updateViewBobbing( boolean original ) {
-			return this.primary.updateViewBobbing( original );
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public boolean hideCrosshair() { return this.primary.hideCrosshair(); }
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public ResourceLocation texture() { throw new RuntimeException(); }
-		
-		@Override
-		protected void syncNBTData() {
+		protected final void syncNBTData() {
 			this.stack.getTagCompound().setTag( "_", this.primary.serializeNBT() );
 		}
 	}

@@ -1,11 +1,9 @@
 package com.mcwb.common.operation;
 
-import com.mcwb.common.item.IEquippedItem;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 
-public abstract class TogglableOperation< T extends IEquippedItem > extends Operation< T >
+public abstract class TogglableOperation< T > extends Operation< T >
 {
 	protected IOperationController forwardController;
 	protected IOperationController backwardController;

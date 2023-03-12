@@ -8,9 +8,9 @@ import com.mcwb.common.operation.Operation;
 
 import net.minecraft.entity.player.EntityPlayer;
 
-public class OpUnloadMag extends Operation< IEquippedGun >
+public class OpUnloadMag extends Operation< IEquippedGun< ? > >
 {
-	public OpUnloadMag( EntityPlayer player, IEquippedGun gun ) {
+	public OpUnloadMag( EntityPlayer player, IEquippedGun< ? > gun ) {
 		super( player, gun, gun.unloadMagController() );
 	}
 	
@@ -20,9 +20,9 @@ public class OpUnloadMag extends Operation< IEquippedGun >
 	}
 	
 	@Override
-	public IOperation onInHandStackChange( IEquippedItem newItem )
+	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped )
 	{
-		this.equipped = ( IEquippedGun ) newItem;
+		this.equipped = ( IEquippedGun< ? > ) newEquipped;
 		return this.equipped.item().hasMag() ? this : this.terminate();
 	}
 	

@@ -1,12 +1,10 @@
 package com.mcwb.common.operation;
 
-import com.mcwb.common.item.IEquippedItem;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class Operation< T extends IEquippedItem > implements IOperation
+public abstract class Operation< T > implements IOperation
 {
 	protected EntityPlayer player;
 	protected T equipped;
@@ -68,7 +66,7 @@ public abstract class Operation< T extends IEquippedItem > implements IOperation
 	{
 		final String typeName = this.getClass().getTypeName();
 		final String className = typeName.substring( typeName.lastIndexOf( '.' ) );
-		return "Operation::" + className + "<" + this.equipped.item() + ">";
+		return "Operation::" + className + "<" + this.equipped + ">";
 	}
 	
 	protected void clearProgress()

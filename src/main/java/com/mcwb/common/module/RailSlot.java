@@ -38,7 +38,7 @@ public class RailSlot extends SimpleSlot
 	}
 	
 	@Override
-	public void applyTransform( IModular< ? > module, Mat4f dst )
+	public void applyTransform( IModule< ? > module, Mat4f dst )
 	{
 		final Vec3f v = this.origin;
 		dst.translate( v.x, v.y, v.z + this.stepLen * module.step() );

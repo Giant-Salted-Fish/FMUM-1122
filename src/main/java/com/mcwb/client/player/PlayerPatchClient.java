@@ -7,10 +7,6 @@ import com.mcwb.client.MCWBClient;
 import com.mcwb.client.camera.CameraAnimator;
 import com.mcwb.client.camera.ICameraController;
 import com.mcwb.client.input.IKeyBind;
-import com.mcwb.common.IAutowirePacketHandler;
-import com.mcwb.common.item.IEquippedItem;
-import com.mcwb.common.network.PacketCode;
-import com.mcwb.common.network.PacketCode.Code;
 import com.mcwb.common.player.PlayerPatch;
 import com.mcwb.util.Vec3f;
 
@@ -25,13 +21,8 @@ import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-/**
- * Can only have one instance at one time for client player
- * 
- * @author Giant_Salted_Fish
- */
 @SideOnly( Side.CLIENT )
-public final class PlayerPatchClient extends PlayerPatch implements IAutowirePacketHandler
+public final class PlayerPatchClient extends PlayerPatch
 {
 	/**
 	 * As there could only be one client player hence only one client patch instance here
@@ -79,8 +70,8 @@ public final class PlayerPatchClient extends PlayerPatch implements IAutowirePac
 			// Hence is the proper place to fire prepare render callback.
 			final PlayerPatchClient patch = PlayerPatchClient.this;
 			patch.cameraController.prepareRender( this );
-			patch.mainItem.prepareRenderInHand( EnumHand.MAIN_HAND );
-			patch.offItem.prepareRenderInHand( EnumHand.OFF_HAND );
+			patch.mainEquipped.prepareRenderInHand();
+			patch.offEquipped.prepareRenderInHand();
 		}
 	};
 	
@@ -101,8 +92,8 @@ public final class PlayerPatchClient extends PlayerPatch implements IAutowirePac
 		if( MCWBClient.MC.currentScreen == null )
 		{
 			final GameSettings settings = MCWBClient.SETTINGS;
-			settings.viewBobbing = this.mainItem
-				.updateViewBobbing( EventHandlerClient.oriViewBobbing );
+			final boolean flag = EventHandlerClient.oriViewBobbing;
+			settings.viewBobbing = this.mainEquipped.updateViewBobbing( flag );
 		}
 		
 		// Update player velocity and acceleration
@@ -138,16 +129,11 @@ public final class PlayerPatchClient extends PlayerPatch implements IAutowirePac
 		final Entity entity = mc.getRenderViewEntity();
 		if(
 			settings.thirdPersonView != 0
-			|| (
-				entity instanceof EntityLivingBase
+			|| entity instanceof EntityLivingBase
 				&& ( ( EntityLivingBase ) entity ).isPlayerSleeping()
-			)
 			|| settings.hideGUI
 			|| mc.playerController.isSpectator()
-			|| (
-				this.mainItem.renderInHand( EnumHand.MAIN_HAND )
-				&& this.offItem.renderInHand( EnumHand.OFF_HAND )
-			)
+			|| this.mainEquipped.renderInHand() && this.offEquipped.renderInHand()
 		) return true;
 		
 		// Otherwise, setup orientation for vanilla item rendering
@@ -163,8 +149,8 @@ public final class PlayerPatchClient extends PlayerPatch implements IAutowirePac
 	
 	public boolean onRenderSpecificHand( EnumHand hand )
 	{
-		final IEquippedItem item = hand == EnumHand.MAIN_HAND ? this.mainItem : this.offItem;
-		return item.onRenderSpecificHand( hand );
+		final boolean isMainHand = hand == EnumHand.MAIN_HAND;
+		return ( isMainHand ? this.mainEquipped : this.offEquipped ).onRenderSpecificHand();
 	}
 	
 	public void onCameraSetup( CameraSetup evt )
@@ -177,20 +163,13 @@ public final class PlayerPatchClient extends PlayerPatch implements IAutowirePac
 		cameraRot.release();
 	}
 	
-	public boolean hideCrosshair() { return this.mainItem.hideCrosshair(); }
+	public boolean hideCrosshair() { return this.mainEquipped.hideCrosshair(); }
 	
 	public boolean onMouseWheelInput( int dWheel ) {
-		return this.mainItem.onMouseWheelInput( dWheel );
+		return this.mainEquipped.onMouseWheelInput( dWheel );
 	}
 	
-	public void onKeyPress( IKeyBind key ) { this.mainItem.onKeyPress( key ); }
+	public void onKeyPress( IKeyBind key ) { this.mainEquipped.onKeyPress( key ); }
 	
-	public void onKeyRelease( IKeyBind key ) { this.mainItem.onKeyRelease( key ); }
-	
-	@Override
-	public void trySwapHand()
-	{
-		if( !this.player.isSpectator() && !this.mainItem.onSwapHand( this.player ) )
-			this.sendToServer( new PacketCode( Code.SWAP_HAND ) );
-	}
+	public void onKeyRelease( IKeyBind key ) { this.mainEquipped.onKeyRelease( key ); }
 }

@@ -6,14 +6,10 @@ import com.mcwb.common.operation.IOperationController;
 import com.mcwb.util.ArmTracker;
 
 import net.minecraftforge.fml.relauncher.Side;
-
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public interface IEquippedGun extends IEquippedItem
+public interface IEquippedGun< T extends IGun< ? > > extends IEquippedItem< T >
 {
-	@Override
-	public IGun< ? > item();
-	
 	public IOperationController loadMagController();
 	
 	public IOperationController unloadMagController();

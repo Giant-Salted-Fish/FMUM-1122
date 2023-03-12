@@ -41,7 +41,7 @@ public class SimpleSlot implements IModuleSlot
 	protected Vec3f origin = Vec3f.ORIGIN;
 	
 	@Override
-	public boolean isAllowed( IModular< ? > module )
+	public boolean isAllowed( IModule< ? > module )
 	{
 		final String name = module.name();
 		final String category = module.category();
@@ -62,5 +62,5 @@ public class SimpleSlot implements IModuleSlot
 	public void scale( float scale ) { this.origin.scale( scale ); }
 	
 	@Override
-	public void applyTransform( IModular< ? > module, Mat4f dst ) { dst.translate( this.origin ); }
+	public void applyTransform( IModule< ? > module, Mat4f dst ) { dst.translate( this.origin ); }
 }

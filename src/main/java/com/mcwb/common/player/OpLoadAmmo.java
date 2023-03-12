@@ -10,16 +10,15 @@ import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.Operation;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 
-public class OpLoadAmmo extends Operation< IEquippedMag >
+public class OpLoadAmmo extends Operation< IEquippedMag< ? > >
 {
 	protected final int invSlot;
 	
 	protected IOperation next = NONE;
 	
-	public OpLoadAmmo( EntityPlayer player, IEquippedMag mag, int invSlot )
+	public OpLoadAmmo( EntityPlayer player, IEquippedMag< ? > mag, int invSlot )
 	{
 		super( player, mag, mag.pushAmmoController() );
 		
@@ -36,7 +35,7 @@ public class OpLoadAmmo extends Operation< IEquippedMag >
 			if( mag.isFull() ) break;
 			
 			final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot );
-			final IItemType type = IItemTypeHost.getTypeOrDefault( stack );
+			final IItemType type = IItemTypeHost.getTypeOrDefault( stack.getItem() );
 			final boolean isAmmo = type instanceof IAmmoType;
 			if( !isAmmo || !mag.isAllowed( ( IAmmoType ) type ) ) break;
 			
@@ -53,9 +52,9 @@ public class OpLoadAmmo extends Operation< IEquippedMag >
 	}
 	
 	@Override
-	public IOperation onInHandStackChange( IEquippedItem newItem )
+	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped )
 	{
-		this.equipped = ( IEquippedMag ) newItem;
+		this.equipped = ( IEquippedMag< ? > ) newEquipped;
 		return this.equipped.item().isFull() ? this.terminate() : this;
 	}
 	
@@ -65,9 +64,8 @@ public class OpLoadAmmo extends Operation< IEquippedMag >
 	@Override
 	protected void doHandleEffect()
 	{
-		final InventoryPlayer inv = this.player.inventory;
-		final ItemStack stack = inv.getStackInSlot( this.invSlot );
-		final IItemType type = IItemTypeHost.getTypeOrDefault( stack );
+		final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot );
+		final IItemType type = IItemTypeHost.getTypeOrDefault( stack.getItem() );
 		if( !( type instanceof IAmmoType ) ) return;
 		
 		final IAmmoType ammo = ( IAmmoType ) type;

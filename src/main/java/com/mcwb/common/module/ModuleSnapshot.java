@@ -19,8 +19,8 @@ public class ModuleSnapshot implements IAutowireLogger
 {
 	public static final ModuleSnapshot DEFAULT = new ModuleSnapshot();
 	
-	protected static final Function< String, IModular< ? > > SUPPLIER = name -> {
-		final IModularType type = IModularType.REGISTRY.get( name );
+	protected static final Function< String, IModule< ? > > SUPPLIER = name -> {
+		final IModuleType type = IModuleType.REGISTRY.get( name );
 		return type != null ? type.newRawContexted() : null;
 	};
 	
@@ -36,7 +36,7 @@ public class ModuleSnapshot implements IAutowireLogger
 	protected short paintjob;
 	
 	@Nullable
-	public < T extends IModular< ? > > T setSnapshot( Function< String, T > supplier )
+	public < T extends IModule< ? > > T setSnapshot( Function< String, T > supplier )
 	{
 		final T module = supplier.apply( this.module );
 		if( module == null )
@@ -55,7 +55,7 @@ public class ModuleSnapshot implements IAutowireLogger
 		{
 			final int slot = i;
 			this.slots.get( i ).forEach( snapshot -> {
-				final IModular< ? > tarMod = snapshot.setSnapshot( SUPPLIER );
+				final IModule< ? > tarMod = snapshot.setSnapshot( SUPPLIER );
 				if( tarMod != null ) module.install( slot, tarMod );
 				// This is the special case that we do not use #tryInstall(...)
 			} );

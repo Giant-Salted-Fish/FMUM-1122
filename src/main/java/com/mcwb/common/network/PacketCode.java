@@ -1,23 +1,22 @@
 package com.mcwb.common.network;
 
-import com.mcwb.common.gun.IGun;
-import com.mcwb.common.gun.IMag;
-import com.mcwb.common.item.IItem;
-import com.mcwb.common.item.IItemTypeHost;
+import com.mcwb.common.gun.IEquippedGun;
+import com.mcwb.common.gun.IEquippedMag;
+import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.player.OpUnloadAmmo;
 import com.mcwb.common.player.OpUnloadMag;
 import com.mcwb.common.player.PlayerPatch;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public final class PacketCode implements IPacket
 {
 	public static enum Code
 	{
-		TERMINATE_OP()
+		TERMINATE_OP
 		{
 			@Override
 			protected void handle( EntityPlayerMP player )
@@ -26,37 +25,26 @@ public final class PacketCode implements IPacket
 				// TODO: notify other players to stop animation
 			}
 		},
-		UNLOAD_AMMO()
+		UNLOAD_AMMO
 		{
 			@Override
 			protected void handle( EntityPlayerMP player )
 			{
-				final ItemStack stack = player.inventory.getCurrentItem();
-				final IItem item = IItemTypeHost.getTypeOrDefault( stack ).getContexted( stack );
-				if( !( item instanceof IMag< ? > ) ) return;
-				
-				PlayerPatch.get( player ).tryLaunch( new OpUnloadAmmo( player, ( IMag< ? > ) item ) );
+				final PlayerPatch patch = PlayerPatch.get( player );
+				final IEquippedItem< ? > equipped = patch.getEquipped( EnumHand.MAIN_HAND );
+				if( equipped instanceof IEquippedMag< ? > )
+					patch.tryLaunch( new OpUnloadAmmo( player, ( IEquippedMag< ? > ) equipped ) );
 			}
 		},
-		UNLOAD_MAG()
+		UNLOAD_MAG
 		{
 			@Override
 			protected void handle( EntityPlayerMP player )
 			{
-				final ItemStack stack = player.inventory.getCurrentItem();
-				final IItem item = IItemTypeHost.getTypeOrDefault( stack ).getContexted( stack );
-				if( !( item instanceof IGun< ? > ) ) return;
-				
-				final IGun< ? > gun = ( IGun< ? > ) item;
-				PlayerPatch.get( player ).tryLaunch( new OpUnloadMag( player, gun ) );
-			}
-		},
-		
-		SWAP_HAND()
-		{
-			@Override
-			protected void handle( EntityPlayerMP player ) {
-				PlayerPatch.get( player ).trySwapHand();
+				final PlayerPatch patch = PlayerPatch.get( player );
+				final IEquippedItem< ? > equipped = patch.getEquipped( EnumHand.MAIN_HAND );
+				if( equipped instanceof IEquippedGun< ? > ) 
+					patch.tryLaunch( new OpUnloadMag( player, ( IEquippedGun< ? > ) equipped ) );
 			}
 		};
 		

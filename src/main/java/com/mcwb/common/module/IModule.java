@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 import com.mcwb.client.module.IDeferredPriorityRenderer;
 import com.mcwb.client.module.IDeferredRenderer;
 import com.mcwb.client.render.IAnimator;
-import com.mcwb.common.meta.IContexted;
 import com.mcwb.util.Mat4f;
 
 import net.minecraft.item.ItemStack;
@@ -16,8 +15,8 @@ import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public interface IModular< T extends IModular< ? extends T > >
-	extends IContexted, INBTSerializable< NBTTagCompound >
+public interface IModule< T extends IModule< ? extends T > >
+	extends INBTSerializable< NBTTagCompound >
 {
 	/**
 	 * @see #getId(NBTTagCompound)
@@ -33,11 +32,9 @@ public interface IModular< T extends IModular< ? extends T > >
 	 */
 	public ItemStack toStack();
 	
-	public IModular< ? > base();
+	public IModule< ? > base();
 	
-//	public IModular< ? > primary();
-	
-	public void setBase( IModular< ? > base, int baseSlot );
+	public void setBase( IModule< ? > base, int baseSlot );
 	
 	public void postEvent( Object evt );
 	
@@ -53,19 +50,19 @@ public interface IModular< T extends IModular< ? extends T > >
 	 */
 	public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry );
 	
-	public IPreviewPredicate tryInstall( int slot, IModular< ? > module );
+	public IPreviewPredicate tryInstall( int slot, IModule< ? > module );
 	
-	public IModular< ? > doRemove( int slot, int idx );
+	public IModule< ? > doRemove( int slot, int idx );
 	
 	/**
 	 * <p> Simply install the given module without posting the event. </p>
 	 * 
-	 * <p> In most cases you should use {@link #tryInstall(int, IModular)} rather than this to
+	 * <p> In most cases you should use {@link #tryInstall(int, IModule)} rather than this to
 	 * install a new module. </p>
 	 * 
 	 * @return The actual index of the installed module in given slot
 	 */
-	public int install( int slot, IModular< ? > module );
+	public int install( int slot, IModule< ? > module );
 	
 	/**
 	 * <p> Simply remove the given module without posting the event. </p>
@@ -73,14 +70,14 @@ public interface IModular< T extends IModular< ? extends T > >
 	 * <p> In most cases you should use {@link #doRemove(int, int)} rather this to remove an
 	 * installed module. </p>
 	 */
-	public IModular< ? > remove( int slot, int idx );
+	public IModule< ? > remove( int slot, int idx );
 	
-	public IModular< ? > onBeingInstalled();
+	public IModule< ? > onBeingInstalled();
 	
-	public IModular< ? > onBeingRemoved();
+	public IModule< ? > onBeingRemoved();
 	
 	// TODO: maybe always copy before testing the hit box as #mat may be used for render in client side
-	public IModifyPredicate checkHitboxConflict( IModular< ? > module );
+	public IModifyPredicate checkHitboxConflict( IModule< ? > module );
 	
 	/**
 	 * Notice that for each will not visit itself
@@ -91,9 +88,9 @@ public interface IModular< T extends IModular< ? extends T > >
 	
 	public T getInstalled( int slot, int idx );
 	
-	public IModular< ? > getInstalled( byte[] loc, int locLen );
+	public IModule< ? > getInstalled( byte[] loc, int locLen );
 	
-	public void setInstalled( int slot, int idx, IModular< ? > module );
+	public void setInstalled( int slot, int idx, IModule< ? > module );
 	
 	public int slotCount();
 	
@@ -111,14 +108,7 @@ public interface IModular< T extends IModular< ? extends T > >
 	
 	public void setModifyState( IModifyState state );
 	
-	public void applyTransform( int slot, IModular< ? > module, Mat4f dst );
-	
-	@SideOnly( Side.CLIENT )
-	public void prepareInHandRender(
-		Collection< IDeferredRenderer > renderQueue0,
-		Collection< IDeferredPriorityRenderer > renderQueue1,
-		IAnimator animator
-	);
+	public void applyTransform( int slot, IModule< ? > module, Mat4f dst );
 	
 	@SideOnly( Side.CLIENT )
 	public void prepareRender(
@@ -128,7 +118,7 @@ public interface IModular< T extends IModular< ? extends T > >
 	);
 	
 	@SideOnly( Side.CLIENT )
-	public IModular< ? > newModifyIndicator();
+	public IModule< ? > newModifyIndicator();
 	
 	/**
 	 * <p> Simply return the bounden NBT tag. </p>

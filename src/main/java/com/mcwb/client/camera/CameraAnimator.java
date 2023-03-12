@@ -145,8 +145,9 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 //			camOffAxis.smoothedPos( offAxis, smoother );
 			
 			// Apply delta rot and make the rotation would not exceed the limit
-			final float yawLimit = MathHelper
-				.sqrt( MCWBClient.freeViewLimitSquared - cameraRot.x * cameraRot.x );
+			final float yawLimit = MathHelper.sqrt(
+				MCWBClient.freeViewLimitSquared - cameraRot.x * cameraRot.x
+			);
 			offAxis.y = MathHelper.clamp( offAxis.y + deltaYaw , -yawLimit, yawLimit );
 			offAxis.x += deltaPitch;
 			

@@ -9,11 +9,11 @@ import com.mcwb.common.operation.Operation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
-public class OpUnloadAmmo extends Operation< IEquippedMag >
+public class OpUnloadAmmo extends Operation< IEquippedMag< ? > >
 {
 	protected IOperation next = NONE;
 	
-	public OpUnloadAmmo( EntityPlayer player, IEquippedMag mag ) {
+	public OpUnloadAmmo( EntityPlayer player, IEquippedMag< ? > mag ) {
 		super( player, mag, mag.popAmmoController() );
 	}
 	
@@ -30,9 +30,9 @@ public class OpUnloadAmmo extends Operation< IEquippedMag >
 	}
 	
 	@Override
-	public IOperation onInHandStackChange( IEquippedItem newItem )
+	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped )
 	{
-		this.equipped = ( IEquippedMag ) newItem;
+		this.equipped = ( IEquippedMag< ? > ) newEquipped;
 		return this.equipped.item().isEmpty() ? this.terminate() : this;
 	}
 	
@@ -44,7 +44,6 @@ public class OpUnloadAmmo extends Operation< IEquippedMag >
 	{
 		final IAmmoType ammo = this.equipped.item().popAmmo();
 		final ItemStack stack = new ItemStack( ammo.item() );
-		
 		this.player.addItemStackToInventory( stack );
 	}
 }

@@ -2,13 +2,22 @@ package com.mcwb.common.meta;
 
 import com.mcwb.common.MCWB;
 
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityInject;
+
 /**
  * Root interface for all elements managed by {@link MCWB}
  * 
  * @author Giant_Salted_Fish
  */
-public interface IMeta extends Comparable< IMeta >
+public interface IMeta //extends Comparable< IMeta >
 {
+	/**
+	 * For contexted meta
+	 */
+	@CapabilityInject( Object.class )
+	public static final Capability< Object > CONTEXTED = null;
+	
 	/**
 	 * @return Name of the meta
 	 */
@@ -26,6 +35,6 @@ public interface IMeta extends Comparable< IMeta >
 	/**
 	 * In default the meta will be compared via their name
 	 */
-	@Override
-	public default int compareTo( IMeta m ) { return this.name().compareTo( m.name() ); }
+//	@Override
+//	public default int compareTo( IMeta m ) { return this.name().compareTo( m.name() ); }
 }

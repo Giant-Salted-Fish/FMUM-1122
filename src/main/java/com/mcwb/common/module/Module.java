@@ -20,14 +20,13 @@ import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class Module< T extends IModular< ? extends T > >
-	implements IModular< T >, IPaintable
+public abstract class Module< T extends IModule< ? extends T > > implements IModule< T >, IPaintable
 {
 	protected static final String MODULE_TAG = "m";
 	
 	protected transient final Mat4f mat = new Mat4f();
 	
-	protected transient IModular< ? > base;
+	protected transient IModule< ? > base;
 	protected transient short baseSlot;
 	
 	protected short paintjob = 0;
@@ -64,10 +63,10 @@ public abstract class Module< T extends IModular< ? extends T > >
 	public ItemStack toStack() { throw new RuntimeException(); }
 	
 	@Override
-	public IModular< ? > base() { return this.base; }
+	public IModule< ? > base() { return this.base; }
 	
 	@Override
-	public void setBase( IModular< ? > base, int baseSlot )
+	public void setBase( IModule< ? > base, int baseSlot )
 	{
 		this.base = base;
 		this.baseSlot = ( short ) baseSlot;
@@ -82,6 +81,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 	@Override
 	public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry )
 	{
+		// TODO: Further consider when to call mat update
 		this.mat.setIdentity();
 		this.base.applyTransform( this.baseSlot, this, this.mat );
 		
@@ -89,7 +89,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 	}
 	
 	@Override
-	public IPreviewPredicate tryInstall( int islot, IModular< ? > module )
+	public IPreviewPredicate tryInstall( int islot, IModule< ? > module )
 	{
 		final IModuleSlot slot = this.getSlot( islot );
 		if( !slot.isAllowed( module ) ) return IPreviewPredicate.NO_PREVIEW;
@@ -100,6 +100,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 			final String msg = "mcwb.msg.arrive_max_module_capacity";
 			return ( IPreviewPredicate.NotOk ) () -> I18n.format( msg, capacity );
 		}
+		// TODO: check layer limitation
 		
 		final Supplier< IPreviewPredicate > action = () -> {
 			// Do not delay actual installation to #index() as it may not be called by outer
@@ -112,9 +113,9 @@ public abstract class Module< T extends IModular< ? extends T > >
 	}
 	
 	@Override
-	public IModular< ? > doRemove( int slot, int idx )
+	public IModule< ? > doRemove( int slot, int idx )
 	{
-		final Supplier< IModular< ? > > action = () -> this.remove( slot, idx );
+		final Supplier< IModule< ? > > action = () -> this.remove( slot, idx );
 		final ModuleRemoveEvent evt = new ModuleRemoveEvent( this, slot, idx, action );
 		this.postEvent( evt );
 		return evt.action.get();
@@ -122,7 +123,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 	
 	@Override
 	@SuppressWarnings( "unchecked" )
-	public int install( final int slot, final IModular< ? > module )
+	public int install( final int slot, final IModule< ? > module )
 	{
 		final T mod = ( T ) module.onBeingInstalled();
 		mod.setBase( this, slot );
@@ -151,7 +152,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 	}
 	
 	@Override
-	public IModular< ? > remove( int slot, int idx )
+	public IModule< ? > remove( int slot, int idx )
 	{
 		// Update installed list
 		final int i = this.getIdx( slot ) + idx;
@@ -174,18 +175,18 @@ public abstract class Module< T extends IModular< ? extends T > >
 	}
 	
 	@Override
-	public IModular< ? > onBeingInstalled() { return this; }
+	public IModule< ? > onBeingInstalled() { return this; }
 	
 	@Override
-	public IModular< ? > onBeingRemoved()
+	public IModule< ? > onBeingRemoved()
 	{
-		final IModular< ? > wrapper = this.wrapOnBeingRemoved();
+		final IModule< ? > wrapper = this.wrapOnBeingRemoved();
 		wrapper.syncAndUpdate();
 		return wrapper;
 	}
 	
 	@Override
-	public IModifyPredicate checkHitboxConflict( IModular< ? > module ) {
+	public IModifyPredicate checkHitboxConflict( IModule< ? > module ) {
 		throw new RuntimeException();
 	}
 	
@@ -209,9 +210,9 @@ public abstract class Module< T extends IModular< ? extends T > >
 	}
 	
 	@Override
-	public IModular< ? > getInstalled( byte[] loc, int locLen )
+	public IModule< ? > getInstalled( byte[] loc, int locLen )
 	{
-		IModular< ? > mod = this;
+		IModule< ? > mod = this;
 		for( int i = 0; i < locLen; i += 2 )
 			mod = mod.getInstalled( 0xFF & loc[ i ], 0xFF & loc[ i + 1 ] );
 		return mod;
@@ -219,7 +220,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 	
 	@Override
 	@SuppressWarnings( "unchecked" )
-	public void setInstalled( int slot, int idx, IModular< ? > module )
+	public void setInstalled( int slot, int idx, IModule< ? > module )
 	{
 		final T mod = ( T ) module;
 		final int actualIdx = this.getIdx( slot ) + idx;
@@ -283,7 +284,7 @@ public abstract class Module< T extends IModular< ? extends T > >
 		for( int i = 0, size = modList.tagCount(), slot = 0; i < size; ++i )
 		{
 			final NBTTagCompound modTag = modList.getCompoundTagAt( i );
-			final IModular< ? > module = this.fromTag( modTag );
+			final IModule< ? > module = this.fromTag( modTag );
 			
 			while( i >= this.getIdx( slot + 1 ) ) ++slot;
 			module.setBase( this, slot );
@@ -306,9 +307,9 @@ public abstract class Module< T extends IModular< ? extends T > >
 	 * Used in {@link #onBeingRemoved()} to wrap this module on being removed.
 	 * {@link #syncAndUpdate()} will be called on returned wrapper.
 	 */
-	protected abstract IModular< ? > wrapOnBeingRemoved();
+	protected abstract IModule< ? > wrapOnBeingRemoved();
 	
-	protected abstract IModular< ? > fromTag( NBTTagCompound tag );
+	protected abstract IModule< ? > fromTag( NBTTagCompound tag );
 	
 	protected final int getIdx( int slot ) {
 		return slot > 0 ? 0xFF & this.indices[ slot - 1 ] : 0;

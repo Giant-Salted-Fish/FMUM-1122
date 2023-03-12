@@ -16,7 +16,6 @@ import com.google.common.collect.Multimap;
 import com.google.gson.JsonObject;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.Key.Category;
-import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.IAutowireLogger;
 import com.mcwb.common.MCWB;
 
@@ -102,18 +101,18 @@ public final class InputHandler
 	
 	private static final HashMultimap< Integer, IKeyBind > INCO_MAPPER = HashMultimap.create();
 	
-	static
-	{
-		new VanillaKeyBindProxy(
-			"swap_hand",
-			MCWBClient.MOD,
-			Category.OTHER,
-			MCWBClient.SETTINGS.keyBindSwapHands
-		) {
-			@Override
-			protected void onAction() { PlayerPatchClient.instance.trySwapHand(); }
-		};
-	}
+//	static
+//	{
+//		new VanillaKeyBindProxy(
+//			"swap_hand",
+//			MCWBClient.MOD,
+//			Category.OTHER,
+//			MCWBClient.SETTINGS.keyBindSwapHands
+//		) {
+//			@Override
+//			protected void onAction() { PlayerPatchClient.instance.trySwapHand(); }
+//		};
+//	}
 	
 	private static final IAutowireLogger LOGGER = MCWBClient.MOD;
 	

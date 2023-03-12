@@ -26,7 +26,6 @@ import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.load.IMeshLoadSubscriber;
 import com.mcwb.common.load.IPostLoadSubscriber;
-import com.mcwb.common.meta.IContexted;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.meta.Registry;
 import com.mcwb.common.module.IModuleSlot;
@@ -228,8 +227,8 @@ public class MCWB extends URLClassLoader
 	public void preLoad()
 	{
 		// Register capabilities
+		this.regisCapability( Object.class ); // See IMeta#CONTEXTED
 		this.regisCapability( PlayerPatch.class );
-		this.regisCapability( IContexted.class );
 		
 		// Register meta loaders
 		TYPE_LOADERS.regis( CreativeTab.LOADER );

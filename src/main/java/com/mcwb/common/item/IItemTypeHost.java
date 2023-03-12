@@ -1,69 +1,45 @@
 package com.mcwb.common.item;
 
-import java.util.function.BiFunction;
-
-import javax.annotation.Nullable;
-
 import com.mcwb.common.meta.IMetaHost;
 
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-@FunctionalInterface
 public interface IItemTypeHost extends IMetaHost
 {
 	@Override
 	public IItemType meta();
 	
 	/**
-	 * @see #getTypeOrDefault(ItemStack)
-	 * @param stack Must be an non-empty stack and its item must be a valid type item
-	 */
-	public static IItemType getTypeA( ItemStack stack ) { return getType( stack.getItem() ); }
-	
-	/**
-	 * Use {@link #getTypeA(ItemStack)} instead if you can guarantee that the stack is not empty and
-	 * its item is a valid type item
+	 * Use {@link #getItemOrDefault(ItemStack)} instead of this if you can guarantee the stack has a
+	 * a valid type item
 	 * 
-	 * @return {@link IItemType#VANILLA} if stack is empty or is not a valid type item
+	 * @return {@link IItem#VANILLA} if stack does not have a valid type host item
 	 */
-	public static IItemType getTypeOrDefault( ItemStack stack ) {
-		return stack.isEmpty() ? IItemType.VANILLA : getTypeOrDefault( stack.getItem() );
+	public static IItem getItemOrDefault( ItemStack stack ) {
+		return getTypeOrDefault( stack.getItem() ).getContexted( stack );
 	}
 	
 	/**
-	 * @see #getTypeOrDefault(Item)
-	 * @param item Must be a valid type item
+	 * @see #getItemOrDefault(ItemStack)
+	 * @param stack Must have a valid type host item
 	 */
-	public static IItemType getType( Item item ) { return ( ( IItemTypeHost ) item ).meta(); }
+	public static IItem getItem( ItemStack stack ) {
+		return getType( stack.getItem() ).getContexted( stack );
+	}
 	
 	/**
-	 * Use {@link #getType(Item)} instead if you can guarantee the item is valid type item
+	 * Use {@link #getType(Item)} instead of this if you can guarantee the item is valid type host
 	 * 
-	 * @return {@link IItemType#VANILLA} if the item is not a valid type item
+	 * @return {@link IItemType#VANILLA} if the item is not a valid type host
 	 */
 	public static IItemType getTypeOrDefault( Item item ) {
 		return item instanceof IItemTypeHost ? getType( item ) : IItemType.VANILLA;
 	}
 	
 	/**
-	 * Iterate through the given inventory
-	 * 
-	 * @param visitor Return something not {@code null} if should stop further iteration
-	 * @return Value returned by visitor
+	 * @see #getTypeOrDefault(Item)
+	 * @param item Must be a valid type host
 	 */
-	@Nullable
-	public static < T > T streamInv(
-		IInventory inv,
-		BiFunction< IItemType, ItemStack, T > visitor
-	) {
-		for( int i = 0, size = inv.getSizeInventory(); i < size; ++i )
-		{
-			final ItemStack stack = inv.getStackInSlot( i );
-			final T ret = visitor.apply( getTypeA( stack ), stack );
-			if( ret != null ) return ret;
-		}
-		return null;
-	}
+	public static IItemType getType( Item item ) { return ( ( IItemTypeHost) item ).meta(); }
 }

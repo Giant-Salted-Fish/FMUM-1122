@@ -1,13 +1,10 @@
 package com.mcwb.common.paintjob;
 
-import com.mcwb.common.meta.IContexted;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
-
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public interface IPaintable extends IContexted
+public interface IPaintable
 {
 	public int paintjobCount();
 	
