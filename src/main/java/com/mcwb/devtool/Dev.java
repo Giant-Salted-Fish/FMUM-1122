@@ -17,12 +17,14 @@ import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
+import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.Operation;
 import com.mcwb.common.operation.OperationController;
 import com.mcwb.util.Vec3f;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -190,10 +192,12 @@ public class Dev implements IAutowirePlayerChat
 		{
 			tq = true;
 			final OperationController controller = new OperationController( 1F / 20F / 2.375F );
-			PlayerPatchClient.instance.tryLaunch( new Operation<IItem>( null, null, controller )
+			PlayerPatchClient.instance.tryLaunch( new Operation<IItem>( null, controller )
 			{
 				@Override
-				public IOperation onInHandStackChange( IItem newItem ) { return this; }
+				public IOperation onStackUpdate(
+					IEquippedItem< ? > newEquipped, EntityPlayer player
+				) { return this; }
 			} );
 		}
 	}

@@ -70,8 +70,8 @@ public final class PlayerPatchClient extends PlayerPatch
 			// Hence is the proper place to fire prepare render callback.
 			final PlayerPatchClient patch = PlayerPatchClient.this;
 			patch.cameraController.prepareRender( this );
-			patch.mainEquipped.prepareRenderInHand();
-			patch.offEquipped.prepareRenderInHand();
+			patch.mainEquipped.prepareRenderInHandSP( EnumHand.MAIN_HAND );
+			patch.offEquipped.prepareRenderInHandSP( EnumHand.OFF_HAND );
 		}
 	};
 	
@@ -120,7 +120,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		MCWBClient.MC.mouseHelper = this.mouseHelper;
 	}
 	
-	public boolean onRenderHand()
+	public boolean onRenderHandSP()
 	{
 		// Check if hand should be rendered or not
 		// Copied from {@link EntityRenderer#renderHand(float, int)}
@@ -133,7 +133,8 @@ public final class PlayerPatchClient extends PlayerPatch
 				&& ( ( EntityLivingBase ) entity ).isPlayerSleeping()
 			|| settings.hideGUI
 			|| mc.playerController.isSpectator()
-			|| this.mainEquipped.renderInHand() && this.offEquipped.renderInHand()
+			|| this.mainEquipped.renderInHandSP( EnumHand.MAIN_HAND )
+				&& this.offEquipped.renderInHandSP( EnumHand.OFF_HAND )
 		) return true;
 		
 		// Otherwise, setup orientation for vanilla item rendering
@@ -147,10 +148,10 @@ public final class PlayerPatchClient extends PlayerPatch
 		return false;
 	}
 	
-	public boolean onRenderSpecificHand( EnumHand hand )
+	public boolean onRenderSpecificHandSP( EnumHand hand )
 	{
 		final boolean isMainHand = hand == EnumHand.MAIN_HAND;
-		return ( isMainHand ? this.mainEquipped : this.offEquipped ).onRenderSpecificHand();
+		return ( isMainHand ? this.mainEquipped : this.offEquipped ).onRenderSpecificHandSP( hand );
 	}
 	
 	public void onCameraSetup( CameraSetup evt )

@@ -18,8 +18,8 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
 public abstract class ItemType<
 	C extends IItem,
-	E extends IEquippedItem< C >,
-	R extends IItemRenderer< ? super E >
+	E extends IEquippedItem< ? extends C >,
+	R extends IItemRenderer< ? super C, ? super E >
 > extends RenderableMeta< R > implements IItemType, IPostLoadSubscriber
 {
 	protected transient Item item;

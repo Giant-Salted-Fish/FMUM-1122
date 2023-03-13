@@ -1,6 +1,5 @@
 package com.mcwb.util;
 
-import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -11,7 +10,6 @@ public class BoneAnimation
 	} };
 	
 	public BoneAnimation parent = NONE; // TODO
-	public LinkedList< BoneAnimation > children = new LinkedList<>();
 	
 	public TreeMap< Float, Vec3f > pos = new TreeMap<>();
 	public TreeMap< Float, Quat4f > rot = new TreeMap<>();
@@ -22,12 +20,6 @@ public class BoneAnimation
 	protected final Mat4f mat = new Mat4f();
 	protected final Quat4f quat = new Quat4f();
 	protected float a;
-	
-	public void addChild( BoneAnimation child )
-	{
-		child.parent = this;
-		this.children.add( child );
-	}
 	
 	public void addGuard() // TODO
 	{
@@ -96,8 +88,6 @@ public class BoneAnimation
 		
 		/// *** Scale *** ///
 		{ }
-		
-		this.children.forEach( bone -> bone.update( progress ) );
 	}
 	
 	public static class Builder

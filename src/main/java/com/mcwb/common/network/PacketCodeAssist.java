@@ -26,8 +26,7 @@ public final class PacketCodeAssist implements IPacket
 				final IEquippedItem< ? > equipped = patch.getEquipped( EnumHand.MAIN_HAND );
 				if( !( equipped instanceof IEquippedMag< ? > ) ) return;
 				
-				final IEquippedMag< ? > mag = ( IEquippedMag< ? > ) equipped;
-				patch.tryLaunch( new OpLoadAmmo( player, mag, packet.assist ) );
+				patch.tryLaunch( new OpLoadAmmo( ( IEquippedMag< ? > ) equipped, packet.assist ) );
 			}
 		},
 		LOAD_MAG
@@ -39,8 +38,7 @@ public final class PacketCodeAssist implements IPacket
 				final IEquippedItem< ? > equipped = patch.getEquipped( EnumHand.MAIN_HAND );
 				if( !( equipped instanceof IEquippedGun< ? > ) ) return;
 				
-				final IEquippedGun< ? > gun = ( IEquippedGun< ? > ) equipped;
-				patch.tryLaunch( new OpLoadMag( player, gun, packet.assist ) );
+				patch.tryLaunch( new OpLoadMag( ( IEquippedGun< ? > ) equipped, packet.assist ) );
 			}
 		};
 		

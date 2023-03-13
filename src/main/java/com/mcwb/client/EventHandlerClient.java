@@ -146,7 +146,7 @@ public final class EventHandlerClient
 	
 	@SubscribeEvent
 	public static void onRenderHand( RenderHandEvent evt ) {
-		evt.setCanceled( PlayerPatchClient.instance.onRenderHand() );
+		evt.setCanceled( PlayerPatchClient.instance.onRenderHandSP() );
 	}
 	
 	/**
@@ -154,7 +154,7 @@ public final class EventHandlerClient
 	 */
 	@SubscribeEvent
 	public static void onRenderSpecificHand( RenderSpecificHandEvent evt ) {
-		evt.setCanceled( PlayerPatchClient.instance.onRenderSpecificHand( evt.getHand() ) );
+		evt.setCanceled( PlayerPatchClient.instance.onRenderSpecificHandSP( evt.getHand() ) );
 	}
 	
 	/**

@@ -24,6 +24,7 @@ public interface IAnimator
 		public void getRot( String channel, Quat4f dst ) { dst.clearRot(); }
 	};
 	
+	// TODO: add update for animation progress
 	@SideOnly( Side.CLIENT )
 	public default void update( float factor ) { }
 	

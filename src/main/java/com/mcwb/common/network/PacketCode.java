@@ -33,7 +33,7 @@ public final class PacketCode implements IPacket
 				final PlayerPatch patch = PlayerPatch.get( player );
 				final IEquippedItem< ? > equipped = patch.getEquipped( EnumHand.MAIN_HAND );
 				if( equipped instanceof IEquippedMag< ? > )
-					patch.tryLaunch( new OpUnloadAmmo( player, ( IEquippedMag< ? > ) equipped ) );
+					patch.tryLaunch( new OpUnloadAmmo( ( IEquippedMag< ? > ) equipped ) );
 			}
 		},
 		UNLOAD_MAG
@@ -44,7 +44,7 @@ public final class PacketCode implements IPacket
 				final PlayerPatch patch = PlayerPatch.get( player );
 				final IEquippedItem< ? > equipped = patch.getEquipped( EnumHand.MAIN_HAND );
 				if( equipped instanceof IEquippedGun< ? > ) 
-					patch.tryLaunch( new OpUnloadMag( player, ( IEquippedGun< ? > ) equipped ) );
+					patch.tryLaunch( new OpUnloadMag( ( IEquippedGun< ? > ) equipped ) );
 			}
 		};
 		

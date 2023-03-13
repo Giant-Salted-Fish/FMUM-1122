@@ -6,7 +6,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class Operation< T > implements IOperation
 {
-	protected EntityPlayer player;
 	protected T equipped;
 	protected IOperationController controller;
 	
@@ -16,9 +15,8 @@ public abstract class Operation< T > implements IOperation
 	protected int ieffect;
 	protected int isound;
 	
-	protected Operation( EntityPlayer player, T equipped, IOperationController controller )
+	protected Operation( T equipped, IOperationController controller )
 	{
-		this.player = player;
 		this.equipped = equipped;
 		this.controller = controller;
 	}
@@ -33,7 +31,7 @@ public abstract class Operation< T > implements IOperation
 	}
 	
 	@Override
-	public IOperation tick()
+	public IOperation tick( EntityPlayer player )
 	{
 		// Update progress
 		this.prevProgress = this.progress;
@@ -45,7 +43,7 @@ public abstract class Operation< T > implements IOperation
 			this.ieffect < effectCount
 				&& this.controller.getEffectTime( this.ieffect ) <= this.progress;
 			++this.ieffect
-		) this.doHandleEffect();
+		) this.doHandleEffect( player );
 		
 		// Handle sounds
 		for(
@@ -53,13 +51,13 @@ public abstract class Operation< T > implements IOperation
 			this.isound < soundCount
 				&& this.controller.getSoundTime( this.isound ) <= this.progress;
 			++this.isound
-		) this.controller.handlePlaySound( this.isound, this.player );
+		) this.controller.handlePlaySound( this.isound, player );
 		
-		return this.prevProgress == 1F ? this.onComplete() : this;
+		return this.prevProgress == 1F ? this.onComplete( player ) : this;
 	}
 	
 	@Override
-	public IOperation onOtherTryLaunch( IOperation op ) { return this; }
+	public IOperation onOtherTryLaunch( IOperation op, EntityPlayer player ) { return this; }
 	
 	@Override
 	public String toString()
@@ -77,10 +75,10 @@ public abstract class Operation< T > implements IOperation
 		this.isound = 0;
 	}
 	
-	protected IOperation onComplete() { return this.terminate(); }
+	protected IOperation onComplete( EntityPlayer player ) { return this.terminate( player ); }
 	
 	/**
 	 * Handle effect specified by {@link #ieffect}
 	 */
-	protected void doHandleEffect() { }
+	protected void doHandleEffect( EntityPlayer player ) { }
 }

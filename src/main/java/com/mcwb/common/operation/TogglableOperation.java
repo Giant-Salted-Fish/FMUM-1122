@@ -9,18 +9,18 @@ public abstract class TogglableOperation< T > extends Operation< T >
 	protected IOperationController backwardController;
 	
 	protected TogglableOperation(
-		EntityPlayer player, T context,
+		T equipped,
 		IOperationController forwardController,
 		IOperationController backwardController
 	) {
-		super( player, context, forwardController );
+		super( equipped, forwardController );
 		
 		this.forwardController = forwardController;
 		this.backwardController = backwardController;
 	}
 	
 	@Override
-	public IOperation launch( IOperation oldOp )
+	public IOperation launch( EntityPlayer player )
 	{
 		// Use forward controller for launch
 		this.controller = this.forwardController;
@@ -28,7 +28,7 @@ public abstract class TogglableOperation< T > extends Operation< T >
 	}
 	
 	@Override
-	public IOperation toggle()
+	public IOperation toggle( EntityPlayer player )
 	{
 		this.controller = this.controller == this.forwardController
 			? this.backwardController : this.forwardController;
@@ -36,7 +36,7 @@ public abstract class TogglableOperation< T > extends Operation< T >
 	}
 	
 	@Override
-	public IOperation tick()
+	public IOperation tick( EntityPlayer player )
 	{
 		final float progressor = this.controller.progressor();
 		
@@ -46,6 +46,6 @@ public abstract class TogglableOperation< T > extends Operation< T >
 		
 		// TODO: Handle sound and effect
 		
-		return progressor < 0F && this.prevProgress == 0F ? this.terminate() : this;
+		return progressor < 0F && this.prevProgress == 0F ? this.terminate( player ) : this;
 	}
 }

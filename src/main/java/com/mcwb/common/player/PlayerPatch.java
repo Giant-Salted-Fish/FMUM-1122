@@ -63,14 +63,14 @@ public class PlayerPatch implements ICapabilityProvider
 			if( stackId != this.mainStackId )
 			{
 				this.mainStackId = stackId;
-				this.mainEquipped = item.onTakeOut( this.mainEquipped, this.player, hand );
-				this.executing = this.executing.onItemChange( this.mainEquipped );
+				this.mainEquipped = item.onTakeOut( this.player, hand );
+				this.executing = this.executing.onItemChange( this.mainEquipped, this.player );
 			}
 			else if( stack != this.mainStack )
 			{
 				this.mainStack = stack;
-				this.mainEquipped = item.onStackUpdate( this.mainEquipped, this.player, hand );
-				this.executing = this.executing.onStackUpdate( this.mainEquipped );
+				this.mainEquipped = this.mainEquipped.onStackUpdate( item, this.player, hand );
+				this.executing = this.executing.onStackUpdate( this.mainEquipped, this.player );
 			}
 			
 			this.mainEquipped.tick( this.player, hand );
@@ -86,18 +86,18 @@ public class PlayerPatch implements ICapabilityProvider
 			if( stackId != this.offStackId )
 			{
 				this.offStackId = stackId;
-				this.offEquipped = item.onTakeOut( this.offEquipped, this.player, hand );
+				this.offEquipped = item.onTakeOut( this.player, hand );
 			}
 			else if( stack != this.offStack )
 			{
 				this.offStack = stack;
-				this.offEquipped = item.onStackUpdate( this.offEquipped, this.player, hand );
+				this.offEquipped = this.offEquipped.onStackUpdate( item, this.player, hand );
 			}
 			
 			this.offEquipped.tick( this.player, hand );
 		}
 		
-		this.executing = this.executing.tick();
+		this.executing = this.executing.tick( this.player );
 	}
 	
 	public final IEquippedItem< ? > getEquipped( EnumHand hand ) {
@@ -107,14 +107,16 @@ public class PlayerPatch implements ICapabilityProvider
 	public final IOperation executing() { return this.executing; }
 	
 	public final IOperation tryLaunch( IOperation operation ) {
-		return this.executing = this.executing.onOtherTryLaunch( operation );
+		return this.executing = this.executing.onOtherTryLaunch( operation, this.player );
 	}
 	
 	public final IOperation ternimateExecuting() {
-		return this.executing = this.executing.terminate();
+		return this.executing = this.executing.terminate( this.player );
 	}
 	
-	public final IOperation toggleExecuting() { return this.executing = this.executing.toggle(); }
+	public final IOperation toggleExecuting() {
+		return this.executing = this.executing.toggle( this.player );
+	}
 	
 	@Override
 	public final boolean hasCapability( Capability< ? > capability, @Nullable EnumFacing facing ) {

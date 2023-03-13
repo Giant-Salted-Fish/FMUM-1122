@@ -10,26 +10,24 @@ import net.minecraft.entity.player.EntityPlayer;
 
 public class OpUnloadMag extends Operation< IEquippedGun< ? > >
 {
-	public OpUnloadMag( EntityPlayer player, IEquippedGun< ? > gun ) {
-		super( player, gun, gun.unloadMagController() );
-	}
+	public OpUnloadMag( IEquippedGun< ? > gun ) { super( gun, gun.unloadMagController() ); }
 	
 	@Override
-	public IOperation launch( IOperation oldOp ) {
+	public IOperation launch( EntityPlayer player ) {
 		return this.equipped.item().hasMag() ? this : NONE;
 	}
 	
 	@Override
-	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped )
+	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
 	{
 		this.equipped = ( IEquippedGun< ? > ) newEquipped;
-		return this.equipped.item().hasMag() ? this : this.terminate();
+		return this.equipped.item().hasMag() ? this : this.terminate( player );
 	}
 	
 	@Override
-	protected void doHandleEffect()
+	protected void doHandleEffect( EntityPlayer player )
 	{
 		final IMag< ? > mag = this.equipped.item().unloadMag();
-		this.player.addItemStackToInventory( mag.toStack() );
+		player.addItemStackToInventory( mag.toStack() );
 	}
 }

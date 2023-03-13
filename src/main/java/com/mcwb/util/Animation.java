@@ -4,26 +4,38 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import com.mcwb.client.render.IAnimator;
-
 /**
  * Root bone joint
  * 
  * @author Giant_SaltedF_Fish
  */
-public class Animation implements IAnimator
+public class Animation
 {
+	public static final Animation INSTANCE = new Animation()
+	{
+		@Override
+		public void update( float progress ) { }
+		
+		@Override
+		public void getPos( String channel, Vec3f dst ) { dst.setZero(); }
+		
+		@Override
+		public void getRot( String channel, Quat4f dst ) { dst.clearRot(); }
+		
+		@Override
+		public float getFactor( String channel ) { return 0F; }
+	};
+	
 	public final Map< String, BoneAnimation > channels = new HashMap<>();
 	
 	/**
 	 * Will call {@link BoneAnimation#update(float)} on these bones
 	 */
 	public final LinkedList< BoneAnimation > rootBones = new LinkedList<>();
+	// FIXME: make sure the bones all called in correct order in regard to their dependent relationship
 	
-	@Override
 	public void update( float progress ) { this.rootBones.forEach( b -> b.update( progress ) ); }
 	
-	@Override
 	public void getPos( String channel, Vec3f dst )
 	{
 		final BoneAnimation ani = this.channels.get( channel );
@@ -31,7 +43,6 @@ public class Animation implements IAnimator
 		else dst.setZero(); // TODO: use computeIfPresent maybe?
 	}
 	
-	@Override
 	public void getRot( String channel, Quat4f dst )
 	{
 		final BoneAnimation ani = this.channels.get( channel );
@@ -39,7 +50,6 @@ public class Animation implements IAnimator
 		else dst.clearRot();
 	}
 	
-	@Override
 	public float getFactor( String channel )
 	{
 		final BoneAnimation ani = this.channels.get( channel );

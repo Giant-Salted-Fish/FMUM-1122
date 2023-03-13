@@ -18,15 +18,15 @@ public class OpLoadAmmo extends Operation< IEquippedMag< ? > >
 	
 	protected IOperation next = NONE;
 	
-	public OpLoadAmmo( EntityPlayer player, IEquippedMag< ? > mag, int invSlot )
+	public OpLoadAmmo( IEquippedMag< ? > mag, int invSlot )
 	{
-		super( player, mag, mag.pushAmmoController() );
+		super( mag, mag.pushAmmoController() );
 		
 		this.invSlot = invSlot;
 	}
 	
 	@Override
-	public IOperation launch( IOperation oldOp )
+	public IOperation launch( EntityPlayer player )
 	{
 		switch( 0 )
 		{
@@ -34,7 +34,7 @@ public class OpLoadAmmo extends Operation< IEquippedMag< ? > >
 			final IMag< ? > mag = this.equipped.item();
 			if( mag.isFull() ) break;
 			
-			final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot );
+			final ItemStack stack = player.inventory.getStackInSlot( this.invSlot );
 			final IItemType type = IItemTypeHost.getTypeOrDefault( stack.getItem() );
 			final boolean isAmmo = type instanceof IAmmoType;
 			if( !isAmmo || !mag.isAllowed( ( IAmmoType ) type ) ) break;
@@ -45,26 +45,26 @@ public class OpLoadAmmo extends Operation< IEquippedMag< ? > >
 	}
 	
 	@Override
-	public IOperation onOtherTryLaunch( IOperation op )
+	public IOperation onOtherTryLaunch( IOperation op, EntityPlayer player )
 	{
 		this.next = op;
 		return this;
 	}
 	
 	@Override
-	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped )
+	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
 	{
 		this.equipped = ( IEquippedMag< ? > ) newEquipped;
-		return this.equipped.item().isFull() ? this.terminate() : this;
+		return this.equipped.item().isFull() ? this.terminate( player ) : this;
 	}
 	
 	@Override
-	protected IOperation onComplete() { return this.next.launch( this ); }
+	protected IOperation onComplete( EntityPlayer player ) { return this.next.launch( player ); }
 	
 	@Override
-	protected void doHandleEffect()
+	protected void doHandleEffect( EntityPlayer player )
 	{
-		final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot );
+		final ItemStack stack = player.inventory.getStackInSlot( this.invSlot );
 		final IItemType type = IItemTypeHost.getTypeOrDefault( stack.getItem() );
 		if( !( type instanceof IAmmoType ) ) return;
 		

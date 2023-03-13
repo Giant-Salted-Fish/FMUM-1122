@@ -17,15 +17,15 @@ public class OpLoadMag extends Operation< IEquippedGun< ? > >
 {
 	protected final int invSlot;
 	
-	public OpLoadMag( EntityPlayer player, IEquippedGun< ? > gun, int invSlot )
+	public OpLoadMag( IEquippedGun< ? > gun, int invSlot )
 	{
-		super( player, gun, gun.loadMagController() );
+		super( gun, gun.loadMagController() );
 		
 		this.invSlot = invSlot;
 	}
 	
 	@Override
-	public IOperation launch( IOperation oldOp )
+	public IOperation launch( EntityPlayer player )
 	{
 		switch( 0 )
 		{
@@ -33,7 +33,7 @@ public class OpLoadMag extends Operation< IEquippedGun< ? > >
 			final IGun< ? > gun = this.equipped.item();
 			if( gun.hasMag() ) break;
 			
-			final ItemStack stack = this.player.inventory.getStackInSlot( this.invSlot );
+			final ItemStack stack = player.inventory.getStackInSlot( this.invSlot );
 			final IItem item = IItemTypeHost.getItemOrDefault( stack );
 			final boolean isMag = item instanceof IMag< ? >;
 			if( !isMag || !gun.isAllowed( ( IMag< ? > ) item ) ) break;
@@ -44,16 +44,16 @@ public class OpLoadMag extends Operation< IEquippedGun< ? > >
 	}
 	
 	@Override
-	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped )
+	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
 	{
 		this.equipped = ( IEquippedGun< ? > ) newEquipped;
-		return this.equipped.item().hasMag() ? this.terminate() : this;
+		return this.equipped.item().hasMag() ? this.terminate( player ) : this;
 	}
 	
 	@Override
-	protected void doHandleEffect()
+	protected void doHandleEffect( EntityPlayer player )
 	{
-		final InventoryPlayer inv = this.player.inventory;
+		final InventoryPlayer inv = player.inventory;
 		final ItemStack stack = inv.getStackInSlot( this.invSlot );
 		final IItem item = IItemTypeHost.getItemOrDefault( stack );
 		if( !( item instanceof IMag< ? > ) ) return;

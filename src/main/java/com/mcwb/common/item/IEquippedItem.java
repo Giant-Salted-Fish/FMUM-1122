@@ -23,15 +23,31 @@ public interface IEquippedItem< T extends IItem >
 		public IItem item() { return IItem.VANILLA; }
 		
 		@Override
-		@SideOnly( Side.CLIENT )
-		public boolean renderInHand() { return false; }
+		public IEquippedItem< ? > onStackUpdate(
+			IItem newItem,
+			EntityPlayer player,
+			EnumHand hand
+		) { return this; }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean onRenderSpecificHand() { return false; }
+		public boolean renderInHandSP( EnumHand hand ) { return false; }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public boolean onRenderSpecificHandSP( EnumHand hand ) { return false; }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public IAnimator animator() { return IAnimator.INSTANCE; }
 	};
 	
 	public T item();
+	
+	/**
+	 * Called when the corresponding stack in hand has changed
+	 */
+	public IEquippedItem< ? > onStackUpdate( IItem newItem, EntityPlayer player, EnumHand hand );
 	
 	/**
 	 * Called when this item is holden in player's hand
@@ -48,24 +64,21 @@ public interface IEquippedItem< T extends IItem >
 //	public default boolean onSwapHand( EntityPlayer player ) { return false; }
 	
 	/**
-	 * <p> It is not the appropriate time to render your models. Instead it gives you a chance to
-	 * prepare something before you do the actual rendering. </p>
+	 * Called before actual render of first person in hand. You can apply camera control and other
+	 * setup works here to prepare the actual render.
 	 * 
-	 * <p> You better apply camera control here if it is required as the camera setup is right after
-	 * this method call. </p>
-	 * 
-	 * @see #renderInHand()
+	 * @see #renderInHandSP(EnumHand)
 	 */
 	@SideOnly( Side.CLIENT )
-	public default void prepareRenderInHand() { }
+	public default void prepareRenderInHandSP( EnumHand hand ) { }
 	
 	/**
-	 * @see PlayerPatchClient#onRenderHand()
+	 * @see PlayerPatchClient#onRenderHandSP()
 	 * @param hand Actual hand to render in
 	 * @return {@code true} if should cancel original hand render
 	 */
 	@SideOnly( Side.CLIENT )
-	public boolean renderInHand();
+	public boolean renderInHandSP( EnumHand hand );
 	
 	/**
 	 * @see PlayerPatchClient#onRenderSpecificHand(EnumHand)
@@ -73,7 +86,10 @@ public interface IEquippedItem< T extends IItem >
 	 * @return {@code true} if should cancel original hand render
 	 */
 	@SideOnly( Side.CLIENT )
-	public boolean onRenderSpecificHand();
+	public boolean onRenderSpecificHandSP( EnumHand hand );
+	
+	@SideOnly( Side.CLIENT )
+	public default void renderInHand( EntityPlayer player, EnumHand hand ) { }
 	
 	/**
 	 * This method is called when a key bind is triggered(pressed) when holding this item
@@ -101,6 +117,6 @@ public interface IEquippedItem< T extends IItem >
 	@SideOnly( Side.CLIENT )
 	public default boolean hideCrosshair() { return false; }
 	
-//	@SideOnly( Side.CLIENT )
-	public default IAnimator animator() { return IAnimator.INSTANCE; }
+	@SideOnly( Side.CLIENT )
+	public IAnimator animator();
 }

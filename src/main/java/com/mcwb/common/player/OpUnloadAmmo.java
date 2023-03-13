@@ -13,37 +13,35 @@ public class OpUnloadAmmo extends Operation< IEquippedMag< ? > >
 {
 	protected IOperation next = NONE;
 	
-	public OpUnloadAmmo( EntityPlayer player, IEquippedMag< ? > mag ) {
-		super( player, mag, mag.popAmmoController() );
-	}
+	public OpUnloadAmmo( IEquippedMag< ? > mag ) { super( mag, mag.popAmmoController() ); }
 	
 	@Override
-	public IOperation launch( IOperation oldOp ) {
+	public IOperation launch( EntityPlayer player ) {
 		return this.equipped.item().isEmpty() ? NONE : this;
 	}
 	
 	@Override
-	public IOperation onOtherTryLaunch( IOperation op )
+	public IOperation onOtherTryLaunch( IOperation op, EntityPlayer player )
 	{
 		this.next = op;
 		return this;
 	}
 	
 	@Override
-	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped )
+	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
 	{
 		this.equipped = ( IEquippedMag< ? > ) newEquipped;
-		return this.equipped.item().isEmpty() ? this.terminate() : this;
+		return this.equipped.item().isEmpty() ? this.terminate( player ) : this;
 	}
 	
 	@Override
-	protected IOperation onComplete() { return this.next.launch( this ); }
+	protected IOperation onComplete( EntityPlayer player ) { return this.next.launch( player ); }
 	
 	@Override
-	protected void doHandleEffect()
+	protected void doHandleEffect( EntityPlayer player )
 	{
 		final IAmmoType ammo = this.equipped.item().popAmmo();
 		final ItemStack stack = new ItemStack( ammo.item() );
-		this.player.addItemStackToInventory( stack );
+		player.addItemStackToInventory( stack );
 	}
 }
