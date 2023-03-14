@@ -6,9 +6,9 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.google.gson.annotations.SerializedName;
+import com.mcwb.client.MCWBClient;
 import com.mcwb.common.IAutowireLogger;
 import com.mcwb.common.MCWBResource;
-import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IBuildable;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.load.IMeshLoadSubscriber;
@@ -22,41 +22,46 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class Renderer implements IRenderer, IBuildable< IRenderer >, IAutowireLogger //, IAutowireBindTexture
+public class Renderer implements IBuildable< Object >, IAutowireLogger //, IAutowireBindTexture
 {
-	public static final BuildableLoader< IRenderer >
-		LOADER = new BuildableLoader<>( "", Renderer.class );
-	
 	public static final ResourceLocation
 		TEXTURE_RED = new MCWBResource( "textures/0xff0000.png" ),
 		TEXTURE_GREEN = new MCWBResource( "textures/0x00ff00.png" ),
 		TEXTURE_BLUE = new MCWBResource( "textures/0x0000ff.png" );
 	
-	@SerializedName( value = "meshes" )
-	protected String[] meshPaths; // TODO: maybe set to null after load?
+	@SerializedName( value = "mesh" )
+	protected String meshPath; // TODO: maybe set to null after load?
+	protected transient Mesh mesh;
 	
 	protected float scale = 1F;
 	
 	protected boolean tbObjAdapt = false;
 	
-	protected transient Mesh[] meshes;
+	public Renderer() { }
+	
+	/**
+	 * For convenience
+	 */
+	public Renderer( String mesh, float scale, boolean tbObjAdapt )
+	{
+		this.meshPath = mesh;
+		this.scale = scale;
+		this.tbObjAdapt = tbObjAdapt;
+		this.build( "", MCWBClient.MOD );
+	}
 	
 	@Override
-	public IRenderer build( String path, IContentProvider provider )
+	public Object build( String path, IContentProvider provider )
 	{
 		provider.regis( ( IMeshLoadSubscriber ) () -> this.onMeshLoad( provider ) );
 		return this;
 	}
 	
-	protected void onMeshLoad( IContentProvider provider )
-	{
-		this.meshes = new Mesh[ this.meshPaths.length ];
-		for( int i = this.meshPaths.length; i-- > 0; )
-			this.meshes[ i ] = this.loadMesh( this.meshPaths[ i ], provider );
+	protected void onMeshLoad( IContentProvider provider ) {
+		this.mesh = this.loadMesh( this.meshPath, provider );
 	}
 	
-	@Override
-	public void render() { for( Mesh mesh : this.meshes ) mesh.render(); }
+	public void render() { this.mesh.render(); }
 	
 	protected Mesh loadMesh( String path, IContentProvider provider )
 	{

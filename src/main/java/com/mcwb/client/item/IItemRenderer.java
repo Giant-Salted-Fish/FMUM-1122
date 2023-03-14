@@ -1,14 +1,12 @@
 package com.mcwb.client.item;
 
-import com.mcwb.client.render.IRenderer;
-
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public interface IItemRenderer< C, E > extends IRenderer
+public interface IItemRenderer< C, E >
 {
-	public static final String CHANNEL_ITEM = "item";
+	public static final String CHANNEL_ITEM = "__item__";
 	
 	@SideOnly( Side.CLIENT )
 	public IEquippedItemRenderer< E > onTakeOut( EnumHand hand );

@@ -22,11 +22,14 @@ public interface IAnimator
 		@Override
 		@SideOnly( Side.CLIENT )
 		public void getRot( String channel, Quat4f dst ) { dst.clearRot(); }
+		
+		@Override
+		public String toString() { return "Animator::NONE"; }
 	};
 	
 	// TODO: add update for animation progress
-	@SideOnly( Side.CLIENT )
-	public default void update( float factor ) { }
+//	@SideOnly( Side.CLIENT )
+//	public default void update( float factor ) { }
 	
 	@SideOnly( Side.CLIENT )
 	public void getPos( String channel, Vec3f dst );
@@ -46,59 +49,59 @@ public interface IAnimator
 	
 	// TODO: check if it is needed to remove this
 	@SideOnly( Side.CLIENT )
-	public static void getChannel( IAnimator animator, String channel, Mat4f dst )
+	public default void getChannel( String channel, Mat4f dst )
 	{
 		dst.setIdentity();
-		applyChannel( animator, channel, dst );
+		this.applyChannel( channel, dst );
 	}
 	
 	@SideOnly( Side.CLIENT )
-	public static void applyChannel( IAnimator animator, String channel, Mat4f dst )
+	public default void applyChannel( String channel, Mat4f dst )
 	{
 		final Vec3f vec = Vec3f.locate();
-		animator.getPos( channel, vec );
+		this.getPos( channel, vec );
 		dst.translate( vec );
 		vec.release();
 		
 		final Quat4f quat = Quat4f.locate();
-		animator.getRot( channel, quat );
+		this.getRot( channel, quat );
 		dst.rotate( quat );
 		quat.release();
 	}
 	
-	@SideOnly( Side.CLIENT )
-	public static void blendPos(
-		IAnimator animator,
-		String channel0, String channel1, float alpha,
-		Mat4f dst
-	) {
-		final Vec3f v0 = Vec3f.locate();
-		final Vec3f v1 = Vec3f.locate();
-		
-		animator.getPos( channel0, v0 );
-		animator.getPos( channel1, v1 );
-		v0.interpolate( v1, alpha );
-		dst.translate( v0 );
-		
-		v1.release();
-		v0.release();
-	}
-	
-	@SideOnly( Side.CLIENT )
-	public static void blendRot(
-		IAnimator animator,
-		String channel0, String channel1, float alpha,
-		Mat4f dst
-	) {
-		final Quat4f q0 = Quat4f.locate();
-		final Quat4f q1 = Quat4f.locate();
-		
-		animator.getRot( channel0, q0 );
-		animator.getRot( channel1, q1 );
-		q0.interpolate( q1, alpha );
-		dst.rotate( q0 );
-		
-		q1.release();
-		q0.release();
-	}
+//	@SideOnly( Side.CLIENT )
+//	public static void blendPos(
+//		IAnimator animator,
+//		String channel0, String channel1, float alpha,
+//		Mat4f dst
+//	) {
+//		final Vec3f v0 = Vec3f.locate();
+//		final Vec3f v1 = Vec3f.locate();
+//		
+//		animator.getPos( channel0, v0 );
+//		animator.getPos( channel1, v1 );
+//		v0.interpolate( v1, alpha );
+//		dst.translate( v0 );
+//		
+//		v1.release();
+//		v0.release();
+//	}
+//	
+//	@SideOnly( Side.CLIENT )
+//	public static void blendRot(
+//		IAnimator animator,
+//		String channel0, String channel1, float alpha,
+//		Mat4f dst
+//	) {
+//		final Quat4f q0 = Quat4f.locate();
+//		final Quat4f q1 = Quat4f.locate();
+//		
+//		animator.getRot( channel0, q0 );
+//		animator.getRot( channel1, q1 );
+//		q0.interpolate( q1, alpha );
+//		dst.rotate( q0 );
+//		
+//		q1.release();
+//		q0.release();
+//	}
 }

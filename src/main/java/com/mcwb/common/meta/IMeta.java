@@ -9,6 +9,7 @@ import net.minecraftforge.common.capabilities.CapabilityInject;
  * Root interface for all elements managed by {@link MCWB}
  * 
  * @author Giant_Salted_Fish
+ * TODO: validate if this needed(like IRenderer)
  */
 public interface IMeta //extends Comparable< IMeta >
 {

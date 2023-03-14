@@ -3,13 +3,14 @@ package com.mcwb.client.item;
 import org.lwjgl.opengl.GL11;
 
 import com.mcwb.client.IAutowireBindTexture;
+import com.mcwb.client.IAutowireSmoother;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
-import com.mcwb.client.render.IRenderer;
 import com.mcwb.client.render.Renderer;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
+import com.mcwb.util.Animation;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
@@ -37,11 +38,11 @@ public abstract class ItemRenderer< C extends IItem, E extends IEquippedItem< ? 
 	public static final ResourceLocation
 		TEXTURE_ALEX = new ResourceLocation( "textures/entity/alex.png" );
 	
-	protected static final IRenderer
-		STEVE_ARM = MCWBClient.MOD.loadRenderer( "renderers/steve_arm.json", "" );
+	protected static final Renderer
+		STEVE_ARM = new Renderer( "renderers/steve_arm.obj", 0.0625F, true );
 	
-	protected static final IRenderer
-		ALEX_ARM = MCWBClient.MOD.loadRenderer( "renderers/alex_arm.json", "" );
+	protected static final Renderer
+		ALEX_ARM = new Renderer( "renderers/alex_arm.obj", 0.0625F, true );
 	
 	private static final Vec3f HOLD_POS = new Vec3f( -40F / 160F, -50 / 160F, 100F / 160F );
 	
@@ -57,23 +58,34 @@ public abstract class ItemRenderer< C extends IItem, E extends IEquippedItem< ? 
 	protected float holdRotMaxForce = 4.25F;
 	protected float holdRotDampingFactor = 0.4F;
 	
+	/**
+	 * Channel of animation that should be applied to this item
+	 */
+	protected String animationChannel = "";
+	
 //	@Override
 //	public IEquippedItemRenderer< E > onTakeOut( EnumHand hand ) {
 //		return this.new EquippedItemRenderer();
 //	}
 	
-	protected abstract class EquippedItemRenderer implements IEquippedItemRenderer< E >, IAnimator
+	protected abstract class EquippedItemRenderer
+		implements IEquippedItemRenderer< E >, IAnimator, IAutowireSmoother
 	{
+		protected Animation animation = Animation.INSTANCE;
+		
+		protected final Vec3f pos = new Vec3f();
+		protected final Quat4f rot = new Quat4f();
+		
 		@Override
 		public void getPos( String channel, Vec3f dst )
 		{
 			switch( channel )
 			{
 			case CHANNEL_ITEM:
-				dst.set( ItemRenderer.this.holdPos );
+				dst.set( this.pos );
 				break;
 				
-			default: dst.setZero();
+			default: this.animation.getPos( channel, dst );
 			}
 		}
 		
@@ -83,18 +95,38 @@ public abstract class ItemRenderer< C extends IItem, E extends IEquippedItem< ? 
 			switch( channel )
 			{
 			case CHANNEL_ITEM:
-				dst.set( ItemRenderer.this.holdRot );
+				dst.set( this.rot );
 				break;
 				
-			default: dst.clearRot();
+			default: this.animation.getRot( channel, dst );
 			}
 		}
 		
+		@Override
+		public float getFactor( String channel ) { return this.animation.getFactor( channel ); }
+		
 //		@Override
 //		public void tickInHand( E equipped, EnumHand hand ) { }
-//		
-//		@Override
-//		public void prepareRenderInHandSP( E equipped, EnumHand hand ) { }
+		
+		@Override
+		public void prepareRenderInHandSP( E equipped, EnumHand hand )
+		{
+			// Update animation and in hand position as well as rotation before render
+			final float smoother = this.smoother();
+			this.animation.update( PlayerPatchClient.instance.executing().getProgress( smoother ) );
+			this.updatePosRot( smoother ); // TODO: before or after animation update?
+			
+			final Mat4f mat = Mat4f.locate();
+			mat.setIdentity();
+			mat.translate( this.pos );
+			mat.rotate( this.rot );
+			equipped.animator().applyChannel( ItemRenderer.this.animationChannel, mat );
+			// TODO: equipped#animator() actually should be #this
+			
+			mat.get( this.pos );
+			this.rot.set( mat );
+			mat.release();
+		}
 		
 		@Override
 		public boolean renderInHandSP( E equipped, EnumHand hand )
@@ -157,11 +189,21 @@ public abstract class ItemRenderer< C extends IItem, E extends IEquippedItem< ? 
 		protected void doRenderInHandSP( E equipped, EnumHand hand )
 		{
 			final Mat4f mat = Mat4f.locate();
-			IAnimator.getChannel( equipped.animator(), CHANNEL_ITEM, mat );
+			equipped.animator().getChannel( CHANNEL_ITEM, mat ); // TODO: equipped#animtor() should actually be #this
 			glMultMatrix( mat );
 			mat.release();
 			
 			ItemRenderer.this.render( equipped.item() );
+		}
+		
+		/**
+		 * Called in {@link #prepareRenderInHandSP(IEquippedItem, EnumHand)} to setup position and
+		 * rotation before applying the animation
+		 */
+		protected void updatePosRot( float smoother )
+		{
+			this.pos.set( ItemRenderer.this.holdPos );
+			this.rot.set( ItemRenderer.this.holdRot );
 		}
 	}
 	

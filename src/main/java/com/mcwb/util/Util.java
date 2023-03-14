@@ -1,13 +1,13 @@
 package com.mcwb.util;
 
-public final class Constants
+public final class Util
 {
 	public static final float PI = ( float ) Math.PI;
 	
 	public static final float TO_RADIANS = PI / 180F;
 	public static final float TO_DEGREES = 180F / PI;
 	
-	private Constants() { }
+	private Util() { }
 	
 //	public static float lerp( float start, float end, float factor ) {
 //		return start + ( end - start ) * factor;

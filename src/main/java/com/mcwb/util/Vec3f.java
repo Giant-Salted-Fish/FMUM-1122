@@ -50,8 +50,8 @@ public class Vec3f extends Vector3f implements IReleasable
 		final float pitch = ( float ) -Math.asin( this.y / this.length() );
 		final float yaw = ( float ) Math.atan2( this.x, this.z );
 		
-		dst.y = yaw * Constants.TO_DEGREES;
-		dst.x = pitch * Constants.TO_DEGREES;
+		dst.y = yaw * Util.TO_DEGREES;
+		dst.x = pitch * Util.TO_DEGREES;
 	}
 	
 	@Override

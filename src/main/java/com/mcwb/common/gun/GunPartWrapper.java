@@ -50,9 +50,9 @@ public class GunPartWrapper<
 	@Override
 	@SideOnly( Side.CLIENT )
 	public void prepareInHandRenderSP(
+		IAnimator animator,
 		Collection< IDeferredRenderer > renderQueue0,
-		Collection< IDeferredPriorityRenderer > renderQueue1,
-		IAnimator animator
+		Collection< IDeferredPriorityRenderer > renderQueue1
 	) { throw new RuntimeException(); }
 	
 	@Override

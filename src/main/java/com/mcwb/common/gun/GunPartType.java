@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
@@ -15,10 +15,12 @@ import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.module.IDeferredPriorityRenderer;
 import com.mcwb.client.module.IDeferredRenderer;
 import com.mcwb.client.render.IAnimator;
+import com.mcwb.common.MCWB;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.item.ItemType;
+import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.module.IModule;
@@ -44,12 +46,19 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class GunPartType<
+public class GunPartType<
 	C extends IGunPart< ? >,
 	E extends IEquippedItem< ? extends C >,
 	R extends IGunPartRenderer< ? super C, ? super E >
 > extends ItemType< C, E, R > implements IModuleType, IPaintableType, IPaintjob
 {
+	// Can not directly use class as the generic infer will fail on that. My guess is that the \
+	// generic information was wiped from the class instance before compile tries to infer the \
+	// generic parameter.
+	public static final BuildableLoader< IMeta > LOADER = new BuildableLoader<>( "gun_part",
+		json -> MCWB.GSON.fromJson( json, GunPartType.class )
+	);
+	
 	protected static final float[] OFFSETS = { 0F };
 	
 	@SerializedName( value = "category", alternate = "group" )
@@ -139,7 +148,31 @@ public abstract class GunPartType<
 		return type.deserializeContexted( tag );
 	}
 	
-	protected abstract ICapabilityProvider newWrapper( C primary, ItemStack stack );
+	@Override
+	public IModule< ? > newRawContexted()
+	{
+		return this.new GunPart< IGunPart< ? > >()
+		{
+			// Override this so that we do not need to create a wrapper for it
+			@Override
+			public void syncAndUpdate() { }
+		};
+	}
+	
+	@Override
+	public IModule< ? > deserializeContexted( NBTTagCompound nbt )
+	{
+		final GunPart< ? > gunPart = this.new GunPart<>();
+		gunPart.deserializeNBT( nbt );
+		return gunPart;
+	}
+	
+	protected ICapabilityProvider newWrapper( C primary, ItemStack stack ) {
+		return new GunPartWrapper< IGunPart< ? >, C >( primary, stack );
+	}
+	
+	@Override
+	protected IMeta loader() { return LOADER; }
 	
 	protected class GunPartVanillaItem extends VanillaItem
 	{
@@ -174,8 +207,8 @@ public abstract class GunPartType<
 				NBTTagCompound primaryTag;
 				if( stackTag == null )
 				{
-					// Has to copy before use if is first case as the capability tag provided here \
-					// could be the same as the bounden tag of copy target.
+					// Has to copy before use if it is the first case as the capability tag \
+					// provided here could be the same as the bounden tag of copy target.
 					primaryTag = nbt.copy();
 					
 					// To ensure #syncAndUpdate() call will not crash on null
@@ -221,7 +254,7 @@ public abstract class GunPartType<
 			final NBTTagCompound primaryTag = nbt.getCompoundTag( "_" );
 			final IModule< ? > primary = GunPartType.this.fromTag( primaryTag );
 			
-			final IModule< ? > wrapper = GunPartType.this.getContexted( stack );
+			final C wrapper = GunPartType.this.getContexted( stack );
 			wrapper.setBase( primary, -1 ); // See GunPartWrapper#setBase(...)
 			wrapper.syncAndUpdate();
 		}
@@ -269,9 +302,9 @@ public abstract class GunPartType<
 		public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand )
 		{
 			return this.newEquipped(
-				player.world.isRemote
-				? setter -> setter.accept( GunPartType.this.renderer.onTakeOut( hand ) )
-				: setter -> { }
+				() -> GunPartType.this.renderer.onTakeOut( hand ),
+				player,
+				hand
 			);
 		}
 		
@@ -338,23 +371,26 @@ public abstract class GunPartType<
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public void prepareRender(
+		public void prepareInHandRenderSP(
+			IAnimator animator,
 			Collection< IDeferredRenderer > renderQueue0,
-			Collection< IDeferredPriorityRenderer > renderQueue1,
-			IAnimator animator
+			Collection< IDeferredPriorityRenderer > renderQueue1
 		) {
+			this.base.applyTransform( this.baseSlot, this, this.mat );
+//			IAnimator.applyChannel( animator, channel, dst );
+			
 			
 		}
 		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public void prepareInHandRenderSP(
-			Collection< IDeferredRenderer > renderQueue0,
-			Collection< IDeferredPriorityRenderer > renderQueue1,
-			IAnimator animator
-		) {
-			
-		}
+//		@Override
+//		@SideOnly( Side.CLIENT )
+//		public void prepareRender(
+//			IAnimator animator,
+//			Collection< IDeferredRenderer > renderQueue0,
+//			Collection< IDeferredPriorityRenderer > renderQueue1
+//		) {
+//			
+//		}
 		
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -390,8 +426,10 @@ public abstract class GunPartType<
 		
 		// TODO: move to outer layer
 		protected IEquippedItem< ? > newEquipped(
-			Consumer< Consumer< IEquippedItemRenderer< ? super E > > > setter
-		) { return this.new EquippedGunPart( setter ); }
+			Supplier< IEquippedItemRenderer< ? super E > > renderer,
+			EntityPlayer player,
+			EnumHand hand
+		) { return this.new EquippedGunPart( renderer, player, hand ); }
 		
 		@Override
 		protected int dataSize() { return super.dataSize() + 1; }
@@ -418,7 +456,7 @@ public abstract class GunPartType<
 		protected IAnimator wrapAnimator( IAnimator animtor )
 		{
 			// FIXME: 
-			return IAnimator.INSTANCE;
+			return animtor;
 		}
 		
 		@SuppressWarnings( "unchecked" )
@@ -429,14 +467,16 @@ public abstract class GunPartType<
 			@SideOnly( Side.CLIENT )
 			protected IEquippedItemRenderer< ? super E > renderer;
 			
-			// A bit of tricky to ensure that this will not break on server side
 			protected EquippedGunPart(
-				Consumer< Consumer< IEquippedItemRenderer< ? super E > > > setter
-			) { setter.accept( renderer -> this.renderer = renderer ); }
+				Supplier< IEquippedItemRenderer< ? super E > > renderer,
+				EntityPlayer player,
+				EnumHand hand
+			) { if( player.world.isRemote ) this.renderer = renderer.get(); }
 			
 			@Override
 			public C item() { return GunPart.this.self(); }
 			
+			// TODO: move to outer layer
 			@Override
 			@SuppressWarnings( "unchecked" )
 			public IEquippedItem< ? > onStackUpdate(
@@ -444,11 +484,8 @@ public abstract class GunPartType<
 				EntityPlayer player,
 				EnumHand hand
 			) {
-				return ( ( GunPart< T > ) newItem ).new EquippedGunPart(
-					player.world.isRemote
-					? setter -> setter.accept( this.renderer )
-					: setter -> { }
-				);
+				final GunPart< T > gunPart = ( GunPart< T > ) newItem;
+				return gunPart.new EquippedGunPart( () -> this.renderer, player, hand );
 			}
 			
 			@Override

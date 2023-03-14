@@ -10,6 +10,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public interface IAutowireSmoother
 {
+	/**
+	 * @return Render partial tick time
+	 */
 	@SideOnly( Side.CLIENT )
 	public default float smoother() { return MCWBClient.MC.getRenderPartialTicks(); }
 }

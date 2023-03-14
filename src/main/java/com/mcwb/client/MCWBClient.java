@@ -18,18 +18,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mcwb.client.ammo.AmmoRenderer;
-import com.mcwb.client.gun.CarGripRenderer;
-import com.mcwb.client.gun.GripRenderer;
 import com.mcwb.client.gun.GunPartRenderer;
 import com.mcwb.client.gun.GunRenderer;
-import com.mcwb.client.gun.MagRenderer;
-import com.mcwb.client.gun.OpticSightRenderer;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.item.ItemRenderer;
-import com.mcwb.client.render.IAnimator;
-import com.mcwb.client.render.IRenderer;
 import com.mcwb.client.render.Renderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.MCWBResource;
@@ -70,8 +63,7 @@ public final class MCWBClient extends MCWB
 	
 	public static final MCWBClient MOD = new MCWBClient();
 	
-	public static final Registry< BuildableLoader< ? extends IRenderer > >
-		MODEL_LOADERS = new Registry<>();
+	public static final Registry< BuildableLoader< ? > > MODEL_LOADERS = new Registry<>();
 	
 	// TODO: mesh loaders? to support other types of model
 	
@@ -88,7 +80,7 @@ public final class MCWBClient extends MCWB
 	
 	final LinkedList< IMeshLoadSubscriber > meshLoadSubscribers = new LinkedList<>();
 	
-	final HashMap< String, IRenderer > rendererPool = new HashMap<>();
+	final HashMap< String, Object > rendererPool = new HashMap<>();
 	
 	final HashMap< String, Mesh > meshPool = new HashMap<>();
 	
@@ -104,7 +96,7 @@ public final class MCWBClient extends MCWB
 	 */
 	private final HashMap< String, ResourceLocation > texturePool = new HashMap<>();
 	
-	private final HashMap< String, IAnimator > animationPool = new HashMap<>();
+	private final HashMap< String, Animation > animationPool = new HashMap<>();
 	
 	private MCWBClient() { }
 	
@@ -123,14 +115,13 @@ public final class MCWBClient extends MCWB
 		super.preLoad();
 		
 		// Register model loaders
-		MODEL_LOADERS.regis( Renderer.LOADER );
 		MODEL_LOADERS.regis( GunPartRenderer.LOADER );
 		MODEL_LOADERS.regis( GunRenderer.LOADER );
-		MODEL_LOADERS.regis( MagRenderer.LOADER );
-		MODEL_LOADERS.regis( GripRenderer.LOADER );
-		MODEL_LOADERS.regis( CarGripRenderer.LOADER );
-		MODEL_LOADERS.regis( OpticSightRenderer.LOADER );
-		MODEL_LOADERS.regis( AmmoRenderer.LOADER );
+//		MODEL_LOADERS.regis( MagRenderer.LOADER );
+//		MODEL_LOADERS.regis( GripRenderer.LOADER );
+//		MODEL_LOADERS.regis( CarGripRenderer.LOADER );
+//		MODEL_LOADERS.regis( OpticSightRenderer.LOADER );
+//		MODEL_LOADERS.regis( AmmoRenderer.LOADER );
 		
 		// Register default textures
 		this.texturePool.put( Renderer.TEXTURE_RED.getPath(), Renderer.TEXTURE_RED );
@@ -204,7 +195,7 @@ public final class MCWBClient extends MCWB
 	 * TODO: maybe a null object to avoid null pointer
 	 */
 	@Nullable
-	public IRenderer loadRenderer( String path, String fallbackType, IContentProvider provider )
+	public Object loadRenderer( String path, String fallbackType, IContentProvider provider )
 	{
 		return this.rendererPool.computeIfAbsent( path, key -> {
 			try
@@ -221,8 +212,7 @@ public final class MCWBClient extends MCWB
 						final JsonElement type = obj.get( "__type__" );
 						final String entry = type != null
 							? type.getAsString().toLowerCase() : fallbackType;
-						final BuildableLoader< ? extends IRenderer >
-							loader = MODEL_LOADERS.get( entry );
+						final BuildableLoader< ? > loader = MODEL_LOADERS.get( entry );
 						if( loader != null )
 							return loader.parser.apply( obj ).build( key, provider );
 						
@@ -233,7 +223,7 @@ public final class MCWBClient extends MCWB
 				}
 				else if( key.endsWith( ".class" ) )
 				{
-					return ( IRenderer ) this.loadClass( key.substring( 0, key.length() - 6 ) )
+					return this.loadClass( key.substring( 0, key.length() - 6 ) )
 						.getConstructor( String.class, IContentProvider.class )
 							.newInstance( key, provider );
 				}
@@ -247,7 +237,7 @@ public final class MCWBClient extends MCWB
 	}
 	
 	@Override
-	public IRenderer loadRenderer( String path, String fallBackType ) {
+	public Object loadRenderer( String path, String fallBackType ) {
 		return this.loadRenderer( path, fallBackType, this );
 	}
 	
@@ -282,7 +272,7 @@ public final class MCWBClient extends MCWB
 	}
 	
 	@Override
-	public IAnimator loadAnimation( String path )
+	public Animation loadAnimation( String path )
 	{
 		return this.animationPool.computeIfAbsent( path, key -> {
 			try
@@ -341,7 +331,7 @@ public final class MCWBClient extends MCWB
 				throw new RuntimeException( "Unsupported animation file type" );
 			}
 			catch( Exception e ) { this.except( e, "mcwb.error_loading_animation", key ); }
-			return IAnimator.INSTANCE;
+			return Animation.INSTANCE;
 		} );
 	}
 	

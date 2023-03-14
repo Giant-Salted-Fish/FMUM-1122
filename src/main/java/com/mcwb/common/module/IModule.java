@@ -1,12 +1,8 @@
 package com.mcwb.common.module;
 
-import java.util.Collection;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import com.mcwb.client.module.IDeferredPriorityRenderer;
-import com.mcwb.client.module.IDeferredRenderer;
-import com.mcwb.client.render.IAnimator;
 import com.mcwb.util.Mat4f;
 
 import net.minecraft.item.ItemStack;
@@ -110,12 +106,12 @@ public interface IModule< T extends IModule< ? extends T > >
 	
 	public void applyTransform( int slot, IModule< ? > module, Mat4f dst );
 	
-	@SideOnly( Side.CLIENT )
-	public void prepareRender(
-		Collection< IDeferredRenderer > renderQueue0,
-		Collection< IDeferredPriorityRenderer > renderQueue1,
-		IAnimator animator
-	);
+//	@SideOnly( Side.CLIENT )
+//	public void prepareRender(
+//		IAnimator animator,
+//		Collection< IDeferredRenderer > renderQueue0,
+//		Collection< IDeferredPriorityRenderer > renderQueue1
+//	);
 	
 	@SideOnly( Side.CLIENT )
 	public IModule< ? > newModifyIndicator();

@@ -1,15 +1,11 @@
 package com.mcwb.common.module;
 
-import java.util.Collection;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
 import com.google.common.collect.TreeMultimap;
-import com.mcwb.client.module.IDeferredPriorityRenderer;
-import com.mcwb.client.module.IDeferredRenderer;
-import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.paintjob.IPaintable;
@@ -195,13 +191,13 @@ public abstract class ModuleWrapper<
 	@Override
 	public final void applyTransform( int slot, IModule< ? > module, Mat4f dst ) { }
 	
-	@Override
-	@SideOnly( Side.CLIENT )
-	public final void prepareRender(
-		Collection< IDeferredRenderer > renderQueue0,
-		Collection< IDeferredPriorityRenderer > renderQueue1,
-		IAnimator animator
-	) { throw new RuntimeException(); }
+//	@Override
+//	@SideOnly( Side.CLIENT )
+//	public final void prepareRender(
+//		IAnimator animator,
+//		Collection< IDeferredRenderer > renderQueue0,
+//		Collection< IDeferredPriorityRenderer > renderQueue1
+//	) { throw new RuntimeException(); }
 	
 	@Override
 	@SideOnly( Side.CLIENT )

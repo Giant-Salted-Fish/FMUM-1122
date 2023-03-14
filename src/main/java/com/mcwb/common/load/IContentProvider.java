@@ -3,10 +3,9 @@ package com.mcwb.common.load;
 import java.util.function.Function;
 
 import com.mcwb.client.MCWBClient;
-import com.mcwb.client.render.IAnimator;
-import com.mcwb.client.render.IRenderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.meta.IMeta;
+import com.mcwb.util.Animation;
 import com.mcwb.util.Mesh;
 
 import net.minecraft.util.ResourceLocation;
@@ -62,7 +61,7 @@ public interface IContentProvider extends IMeta
 	public default SoundEvent loadSound( String path ) { return MCWB.MOD.loadSound( path ); }
 	
 	@SideOnly( Side.CLIENT )
-	public default IRenderer loadRenderer( String path, String fallbackType ) {
+	public default Object loadRenderer( String path, String fallbackType ) {
 		return MCWBClient.MOD.loadRenderer( path, fallbackType, this );
 	}
 	
@@ -77,7 +76,7 @@ public interface IContentProvider extends IMeta
 	}
 	
 	@SideOnly( Side.CLIENT )
-	public default IAnimator loadAnimation( String path ) {
+	public default Animation loadAnimation( String path ) {
 		return MCWBClient.MOD.loadAnimation( path );
 	}
 	
