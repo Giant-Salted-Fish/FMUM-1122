@@ -18,12 +18,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mcwb.client.gun.GunPartRenderer;
-import com.mcwb.client.gun.GunRenderer;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
-import com.mcwb.client.item.ItemRenderer;
-import com.mcwb.client.render.Renderer;
+import com.mcwb.client.item.ItemModel;
+import com.mcwb.client.render.Model;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.MCWBResource;
 import com.mcwb.common.load.BuildableLoader;
@@ -115,8 +113,8 @@ public final class MCWBClient extends MCWB
 		super.preLoad();
 		
 		// Register model loaders
-		MODEL_LOADERS.regis( GunPartRenderer.LOADER );
-		MODEL_LOADERS.regis( GunRenderer.LOADER );
+//		MODEL_LOADERS.regis( GunPartRenderer.LOADER );
+//		MODEL_LOADERS.regis( GunRenderer.LOADER );
 //		MODEL_LOADERS.regis( MagRenderer.LOADER );
 //		MODEL_LOADERS.regis( GripRenderer.LOADER );
 //		MODEL_LOADERS.regis( CarGripRenderer.LOADER );
@@ -124,11 +122,11 @@ public final class MCWBClient extends MCWB
 //		MODEL_LOADERS.regis( AmmoRenderer.LOADER );
 		
 		// Register default textures
-		this.texturePool.put( Renderer.TEXTURE_RED.getPath(), Renderer.TEXTURE_RED );
-		this.texturePool.put( Renderer.TEXTURE_GREEN.getPath(), Renderer.TEXTURE_RED );
-		this.texturePool.put( Renderer.TEXTURE_BLUE.getPath(), Renderer.TEXTURE_RED );
-		this.texturePool.put( ItemRenderer.TEXTURE_STEVE.getPath(), ItemRenderer.TEXTURE_STEVE );
-		this.texturePool.put( ItemRenderer.TEXTURE_ALEX.getPath(), ItemRenderer.TEXTURE_ALEX );
+		this.texturePool.put( Model.TEXTURE_RED.getPath(), Model.TEXTURE_RED );
+		this.texturePool.put( Model.TEXTURE_GREEN.getPath(), Model.TEXTURE_RED );
+		this.texturePool.put( Model.TEXTURE_BLUE.getPath(), Model.TEXTURE_RED );
+		this.texturePool.put( ItemModel.TEXTURE_STEVE.getPath(), ItemModel.TEXTURE_STEVE );
+		this.texturePool.put( ItemModel.TEXTURE_ALEX.getPath(), ItemModel.TEXTURE_ALEX );
 		
 		// The default NONE mesh
 		this.meshPool.put( "", Mesh.NONE );

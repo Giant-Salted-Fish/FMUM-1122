@@ -49,8 +49,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class GunPartType<
 	C extends IGunPart< ? >,
 	E extends IEquippedItem< ? extends C >,
-	R extends IGunPartRenderer< ? super C, ? super E >
-> extends ItemType< C, E, R > implements IModuleType, IPaintableType, IPaintjob
+	M extends IGunPartRenderer< ? super C, ? super E >
+> extends ItemType< C, E, M > implements IModuleType, IPaintableType, IPaintjob
 {
 	// Can not directly use class as the generic infer will fail on that. My guess is that the \
 	// generic information was wiped from the class instance before compile tries to infer the \
@@ -374,7 +374,7 @@ public class GunPartType<
 		public void prepareInHandRenderSP(
 			IAnimator animator,
 			Collection< IDeferredRenderer > renderQueue0,
-			Collection< IDeferredPriorityRenderer > renderQueue1
+			Collection< IDeferredRenderer > renderQueue1
 		) {
 			this.base.applyTransform( this.baseSlot, this, this.mat );
 //			IAnimator.applyChannel( animator, channel, dst );

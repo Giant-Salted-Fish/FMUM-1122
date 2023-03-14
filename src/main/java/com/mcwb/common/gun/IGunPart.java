@@ -2,7 +2,6 @@ package com.mcwb.common.gun;
 
 import java.util.Collection;
 
-import com.mcwb.client.module.IDeferredPriorityRenderer;
 import com.mcwb.client.module.IDeferredRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.item.IItem;
@@ -24,7 +23,7 @@ public interface IGunPart< T extends IGunPart< ? extends T > >
 	public void prepareInHandRenderSP(
 		IAnimator animator,
 		Collection< IDeferredRenderer > renderQueue0,
-		Collection< IDeferredPriorityRenderer > renderQueue1
+		Collection< IDeferredRenderer > renderQueue1
 	);
 	
 	// TODO: rename to track arm?

@@ -1,7 +1,7 @@
 package com.mcwb.common.module;
 
 import com.mcwb.client.MCWBClient;
-import com.mcwb.client.render.Renderer;
+import com.mcwb.client.render.Model;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -24,10 +24,10 @@ public interface IModifyState
 		@SideOnly( Side.CLIENT )
 		public void doRecommendedRender( ResourceLocation texture, Runnable renderer )
 		{
-			Renderer.glowOn();
-			MCWBClient.MOD.bindTexture( Renderer.TEXTURE_GREEN );
+			Model.glowOn();
+			MCWBClient.MOD.bindTexture( Model.TEXTURE_GREEN );
 			renderer.run();
-			Renderer.glowOff();
+			Model.glowOff();
 		}
 	};
 	
@@ -37,10 +37,10 @@ public interface IModifyState
 		@SideOnly( Side.CLIENT )
 		public void doRecommendedRender( ResourceLocation texture, Runnable renderer )
 		{
-			Renderer.glowOn();
-			MCWBClient.MOD.bindTexture( Renderer.TEXTURE_RED );
+			Model.glowOn();
+			MCWBClient.MOD.bindTexture( Model.TEXTURE_RED );
 			renderer.run();
-			Renderer.glowOff();
+			Model.glowOff();
 		}
 	};
 	

@@ -22,7 +22,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class Renderer implements IBuildable< Object >, IAutowireLogger //, IAutowireBindTexture
+public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowireBindTexture
 {
 	public static final ResourceLocation
 		TEXTURE_RED = new MCWBResource( "textures/0xff0000.png" ),
@@ -37,12 +37,12 @@ public class Renderer implements IBuildable< Object >, IAutowireLogger //, IAuto
 	
 	protected boolean tbObjAdapt = false;
 	
-	public Renderer() { }
+	public Model() { }
 	
 	/**
 	 * For convenience
 	 */
-	public Renderer( String mesh, float scale, boolean tbObjAdapt )
+	public Model( String mesh, float scale, boolean tbObjAdapt )
 	{
 		this.meshPath = mesh;
 		this.scale = scale;

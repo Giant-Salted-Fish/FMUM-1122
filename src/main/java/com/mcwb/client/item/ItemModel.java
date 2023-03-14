@@ -7,7 +7,7 @@ import com.mcwb.client.IAutowireSmoother;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
-import com.mcwb.client.render.Renderer;
+import com.mcwb.client.render.Model;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
 import com.mcwb.util.Animation;
@@ -27,10 +27,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-// TODO: EquippedRenderer?
 @SideOnly( Side.CLIENT )
-public abstract class ItemRenderer< C extends IItem, E extends IEquippedItem< ? extends C > >
-	extends Renderer implements IItemRenderer< C, E >, IAutowireBindTexture
+public abstract class ItemModel<
+	C extends IItem,
+	E extends IEquippedItem< ? extends C >,
+	ER extends IEquippedItemRenderer< ? super E >,
+	R extends IItemRenderer< ? super C, ? extends ER >
+> extends Model implements IItemModel< R >, IItemRenderer< C, ER >, IAutowireBindTexture
 {
 	public static final ResourceLocation
 		TEXTURE_STEVE = new ResourceLocation( "textures/entity/steve.png" );
@@ -38,37 +41,30 @@ public abstract class ItemRenderer< C extends IItem, E extends IEquippedItem< ? 
 	public static final ResourceLocation
 		TEXTURE_ALEX = new ResourceLocation( "textures/entity/alex.png" );
 	
-	protected static final Renderer
-		STEVE_ARM = new Renderer( "renderers/steve_arm.obj", 0.0625F, true );
+	protected static final Model
+		STEVE_ARM = new Model( "renderers/steve_arm.obj", 0.0625F, true );
 	
-	protected static final Renderer
-		ALEX_ARM = new Renderer( "renderers/alex_arm.obj", 0.0625F, true );
+	protected static final Model
+		ALEX_ARM = new Model( "renderers/alex_arm.obj", 0.0625F, true );
 	
 	private static final Vec3f HOLD_POS = new Vec3f( -40F / 160F, -50 / 160F, 100F / 160F );
 	
 	protected Vec3f holdPos = HOLD_POS;
 	protected Vec3f holdRot = Vec3f.ORIGIN;
 	
-	// TODO: move these things to gun
-	protected float holdPosForceMult = 0.25F;
-	protected float holdPosMaxForce = 0.125F;
-	protected float holdPosDampingFactor = 0.4F;
-	
-	protected float holdRotForceMult = 1F;
-	protected float holdRotMaxForce = 4.25F;
-	protected float holdRotDampingFactor = 0.4F;
-	
 	/**
 	 * Channel of animation that should be applied to this item
 	 */
 	protected String animationChannel = "";
 	
-//	@Override
-//	public IEquippedItemRenderer< E > onTakeOut( EnumHand hand ) {
-//		return this.new EquippedItemRenderer();
-//	}
+	@Override
+	public void render( C contexted )
+	{
+		this.bindTexture( contexted.texture() );
+		this.render();
+	}
 	
-	protected abstract class EquippedItemRenderer
+	protected class EquippedItemRenderer
 		implements IEquippedItemRenderer< E >, IAnimator, IAutowireSmoother
 	{
 		protected Animation animation = Animation.INSTANCE;
@@ -105,8 +101,8 @@ public abstract class ItemRenderer< C extends IItem, E extends IEquippedItem< ? 
 		@Override
 		public float getFactor( String channel ) { return this.animation.getFactor( channel ); }
 		
-//		@Override
-//		public void tickInHand( E equipped, EnumHand hand ) { }
+		@Override
+		public void tickInHand( E equipped, EnumHand hand ) { }
 		
 		@Override
 		public void prepareRenderInHandSP( E equipped, EnumHand hand )
@@ -120,7 +116,7 @@ public abstract class ItemRenderer< C extends IItem, E extends IEquippedItem< ? 
 			mat.setIdentity();
 			mat.translate( this.pos );
 			mat.rotate( this.rot );
-			equipped.animator().applyChannel( ItemRenderer.this.animationChannel, mat );
+			equipped.animator().applyChannel( ItemModel.this.animationChannel, mat );
 			// TODO: equipped#animator() actually should be #this
 			
 			mat.get( this.pos );
@@ -179,7 +175,7 @@ public abstract class ItemRenderer< C extends IItem, E extends IEquippedItem< ? 
 			GL11.glPopMatrix();
 			return true;
 		}
-		
+
 		@Override
 		public boolean onRenderSpecificHandSP( E equipped, EnumHand hand ) { return true; }
 		
@@ -193,7 +189,7 @@ public abstract class ItemRenderer< C extends IItem, E extends IEquippedItem< ? 
 			glMultMatrix( mat );
 			mat.release();
 			
-			ItemRenderer.this.render( equipped.item() );
+			ItemModel.this.render( equipped.item() );
 		}
 		
 		/**
@@ -202,15 +198,8 @@ public abstract class ItemRenderer< C extends IItem, E extends IEquippedItem< ? 
 		 */
 		protected void updatePosRot( float smoother )
 		{
-			this.pos.set( ItemRenderer.this.holdPos );
-			this.rot.set( ItemRenderer.this.holdRot );
+			this.pos.set( ItemModel.this.holdPos );
+			this.rot.set( ItemModel.this.holdRot );
 		}
-	}
-	
-	@Override
-	public void render( C contexted )
-	{
-		this.bindTexture( contexted.texture() );
-		this.render();
 	}
 }

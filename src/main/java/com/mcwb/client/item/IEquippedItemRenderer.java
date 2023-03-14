@@ -10,9 +10,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface IEquippedItemRenderer< E > // Animated item renderer
 {
 	@SideOnly( Side.CLIENT )
-	public IAnimator animator();
-	
-	@SideOnly( Side.CLIENT )
 	public void tickInHand( E equipped, EnumHand hand );
 	
 	/**
@@ -34,4 +31,7 @@ public interface IEquippedItemRenderer< E > // Animated item renderer
 	 */
 	@SideOnly( Side.CLIENT )
 	public boolean onRenderSpecificHandSP( E equipped, EnumHand hand );
+	
+	@SideOnly( Side.CLIENT )
+	public IAnimator animator();
 }

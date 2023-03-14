@@ -15,7 +15,7 @@ import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.player.PlayerPatchClient;
-import com.mcwb.client.render.Renderer;
+import com.mcwb.client.render.Model;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
@@ -43,7 +43,7 @@ public class Dev implements IAutowirePlayerChat
 {
 	public static final Consumer< Boolean > DEBUG_BOX = new Consumer< Boolean >()
 	{
-		private final Renderer renderer = new Renderer( "renderers/debug_box.obj", 0.0625F, true );
+		private final Model renderer = new Model( "renderers/debug_box.obj", 0.0625F, true );
 		
 		private final ResourceLocation texture = MCWBClient.MOD.loadTexture( "textures/debug_box.png" );
 		

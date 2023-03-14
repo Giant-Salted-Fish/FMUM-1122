@@ -37,27 +37,11 @@ public interface IAnimator
 	@SideOnly( Side.CLIENT )
 	public void getRot( String channel, Quat4f dst );
 	
-	/**
-	 * @see #blendPos(IAnimator, float, String, String, float, Mat4f)
-	 * @see #blendRot(IAnimator, float, String, String, float, Mat4f)
-	 * @return
-	 *     Blend factor for animation. Usually {@code 0F} for static position and {@code 1F} for
-	 *     animation.
-	 */
-	@SideOnly( Side.CLIENT )
-	public default float getFactor( String channel ) { return 0F; }
-	
-	// TODO: check if it is needed to remove this
 	@SideOnly( Side.CLIENT )
 	public default void getChannel( String channel, Mat4f dst )
 	{
 		dst.setIdentity();
-		this.applyChannel( channel, dst );
-	}
-	
-	@SideOnly( Side.CLIENT )
-	public default void applyChannel( String channel, Mat4f dst )
-	{
+		
 		final Vec3f vec = Vec3f.locate();
 		this.getPos( channel, vec );
 		dst.translate( vec );
@@ -68,6 +52,27 @@ public interface IAnimator
 		dst.rotate( quat );
 		quat.release();
 	}
+	
+	// Check if this is needed
+	@SideOnly( Side.CLIENT )
+	public default void applyChannel( String channel, Mat4f dst )
+	{
+		final Mat4f mat = Mat4f.locate();
+		this.getChannel( channel, mat );
+		dst.mul( mat );
+		mat.release();
+	}
+	
+	/**
+	 * TODO: proper intro
+	 * @see #blendPos(IAnimator, float, String, String, float, Mat4f)
+	 * @see #blendRot(IAnimator, float, String, String, float, Mat4f)
+	 * @return
+	 *     Blend factor for animation. Usually {@code 0F} for static position and {@code 1F} for
+	 *     animation.
+	 */
+	@SideOnly( Side.CLIENT )
+	public default float getFactor( String channel ) { return 0F; }
 	
 //	@SideOnly( Side.CLIENT )
 //	public static void blendPos(
