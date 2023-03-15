@@ -1,6 +1,6 @@
 {
 	"creativeTab": "oc",
-	"renderer": "renderers/gun/hk416/receiver_extension_nut.json",
+	"model": "models/gun/hk416/receiver_extension_nut.json",
 	"texture": "textures/guns/hk416_d10rs.png",
 	
 	"category": "ar_receiver_extension_nut"

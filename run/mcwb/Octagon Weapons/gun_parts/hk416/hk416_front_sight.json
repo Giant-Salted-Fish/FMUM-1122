@@ -1,5 +1,5 @@
 {
 	"creativeTab": "oc",
-	"renderer": "renderers/gun/hk416/front_sight.json",
+	"model": "models/gun/hk416/front_sight.json",
 	"texture": "textures/guns/iron_sight.png"
 }

@@ -23,13 +23,6 @@ public interface IEquippedItem< T extends IItem >
 		public IItem item() { return IItem.VANILLA; }
 		
 		@Override
-		public IEquippedItem< ? > onStackUpdate(
-			IItem newItem,
-			EntityPlayer player,
-			EnumHand hand
-		) { return this; }
-		
-		@Override
 		@SideOnly( Side.CLIENT )
 		public boolean renderInHandSP( EnumHand hand ) { return false; }
 		
@@ -45,14 +38,9 @@ public interface IEquippedItem< T extends IItem >
 	public T item();
 	
 	/**
-	 * Called when the corresponding stack in hand has changed
-	 */
-	public IEquippedItem< ? > onStackUpdate( IItem newItem, EntityPlayer player, EnumHand hand );
-	
-	/**
 	 * Called when this item is holden in player's hand
 	 */
-	public default void tick( EntityPlayer player, EnumHand hand ) { }
+	public default void tickInHand( EntityPlayer player, EnumHand hand ) { }
 	
 //	public default void onPutAway( IEquippedItem oldItem, EntityPlayer player, EnumHand hand ) { }
 //	

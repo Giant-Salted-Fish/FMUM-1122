@@ -23,7 +23,11 @@ public class Mesh implements IReleasable
 	/**
 	 * A fixed instance that renders nothing
 	 */
-	public static final Mesh NONE = new Mesh( 0, () -> { } );
+	public static final Mesh NONE = new Mesh( 0, () -> { } )
+	{
+		@Override
+		public String toString() { return "Mesh::NONE"; }
+	};
 	
 	protected final int vao;
 	

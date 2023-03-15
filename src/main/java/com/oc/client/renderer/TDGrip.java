@@ -17,7 +17,7 @@
 //{
 //	public TDGrip( String path, IContentProvider provider )
 //	{
-//		this.meshPaths = new String[] { "renderers/grip/td_grip.obj" };
+//		this.meshPaths = new String[] { "models/grip/td_grip.obj" };
 //		this.tbObjAdapt = true;
 //		this.scale = 1F / 160F;
 //		this.handPos = new Vec3f( 0F, 20F, 0F );

@@ -22,8 +22,8 @@ public interface IGunPartRenderer< C, ER > extends IItemRenderer< C, ER >, IModu
 	) { this.prepareRender( contexted, animator, renderQueue0, renderQueue1 ); }
 	
 	@SideOnly( Side.CLIENT )
-	public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator );
+	public void setupLeftArmToRender( IAnimator animator, ArmTracker leftArm );
 	
 	@SideOnly( Side.CLIENT )
-	public void setupRightArmToRender( ArmTracker rightArm, IAnimator animator );
+	public void setupRightArmToRender( IAnimator animator, ArmTracker rightArm );
 }

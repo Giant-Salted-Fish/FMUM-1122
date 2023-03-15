@@ -18,6 +18,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mcwb.client.gun.GunModel;
+import com.mcwb.client.gun.GunPartModel;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.item.ItemModel;
@@ -78,7 +80,7 @@ public final class MCWBClient extends MCWB
 	
 	final LinkedList< IMeshLoadSubscriber > meshLoadSubscribers = new LinkedList<>();
 	
-	final HashMap< String, Object > rendererPool = new HashMap<>();
+	final HashMap< String, Object > modelPool = new HashMap<>();
 	
 	final HashMap< String, Mesh > meshPool = new HashMap<>();
 	
@@ -113,8 +115,8 @@ public final class MCWBClient extends MCWB
 		super.preLoad();
 		
 		// Register model loaders
-//		MODEL_LOADERS.regis( GunPartRenderer.LOADER );
-//		MODEL_LOADERS.regis( GunRenderer.LOADER );
+		MODEL_LOADERS.regis( GunPartModel.LOADER );
+		MODEL_LOADERS.regis( GunModel.LOADER );
 //		MODEL_LOADERS.regis( MagRenderer.LOADER );
 //		MODEL_LOADERS.regis( GripRenderer.LOADER );
 //		MODEL_LOADERS.regis( CarGripRenderer.LOADER );
@@ -148,7 +150,7 @@ public final class MCWBClient extends MCWB
 		// Construct a default indicator
 		final JsonObject indicator = new JsonObject();
 		indicator.addProperty( "creativeTab", MCWB.HIDE_TAB.name() );
-		indicator.addProperty( "renderer", "renderers/modify_indicator.json" );
+		indicator.addProperty( "model", "models/modify_indicator.json" );
 		indicator.addProperty( "texture", "textures/0x00ff00.png" );
 		TYPE_LOADERS.get( "gun_part" ).parser.apply( indicator ).build( MODIFY_INDICATOR, this );
 		
@@ -187,15 +189,15 @@ public final class MCWBClient extends MCWB
 	/**
 	 * Load .json or .class renderer from the given path.
 	 * 
-	 * @param path Path of the renderer to load
-	 * @param fallBackType Renderer type to use if "__type__" field does not exist in ".json" file
+	 * @param path Path of the model to load
+	 * @param fallBackType Model type to use if "__type__" field does not exist in ".json" file
 	 * @return {@code null} if required loader does not exist or an exception was thrown
 	 * TODO: maybe a null object to avoid null pointer
 	 */
 	@Nullable
-	public Object loadRenderer( String path, String fallbackType, IContentProvider provider )
+	public Object loadModel( String path, String fallbackType, IContentProvider provider )
 	{
-		return this.rendererPool.computeIfAbsent( path, key -> {
+		return this.modelPool.computeIfAbsent( path, key -> {
 			try
 			{
 				if( key.endsWith( ".json" ) )
@@ -235,8 +237,8 @@ public final class MCWBClient extends MCWB
 	}
 	
 	@Override
-	public Object loadRenderer( String path, String fallBackType ) {
-		return this.loadRenderer( path, fallBackType, this );
+	public Object loadModel( String path, String fallBackType ) {
+		return this.loadModel( path, fallBackType, this );
 	}
 	
 	/**

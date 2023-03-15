@@ -1,6 +1,6 @@
 {
 	"creativeTab": "oc",
-	"renderer": "renderers/gun/hk416/buffer_tube.json",
+	"model": "models/gun/hk416/buffer_tube.json",
 	"texture": "textures/guns/hk416_d10rs.png",
 	
 	"category": "ar_buffer_tube",

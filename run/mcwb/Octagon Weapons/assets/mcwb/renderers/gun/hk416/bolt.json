@@ -1,8 +1,0 @@
-{
-	"meshes": [
-		"renderers/gun/hk416/bolt_carrier.obj",
-		"renderers/gun/hk416/bolt.obj"
-	],
-	"scale": 0.00625,
-	"tbObjAdapt": true
-}

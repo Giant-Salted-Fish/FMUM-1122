@@ -1,5 +1,5 @@
 {
 	"creativeTab": "oc",
-	"renderer": "renderers/gun/hk416/bolt.json",
+	"model": "models/gun/hk416/bolt.json",
 	"texture": "textures/guns/hk416_d10rs.png"
 }

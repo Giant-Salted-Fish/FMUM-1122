@@ -1,6 +1,6 @@
 {
 	"creativeTab": "oc",
 	"category": "prb",
-	"renderer": "renderers/sight/eotech_exps30.json",
+	"model": "models/sight/eotech_exps30.json",
 	"texture": "textures/guns/eotech_exps30.png"
 }

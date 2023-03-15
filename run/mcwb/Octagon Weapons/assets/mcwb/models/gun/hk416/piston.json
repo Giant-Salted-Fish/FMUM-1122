@@ -1,0 +1,5 @@
+{
+	"mesh": "models/gun/hk416/piston.obj",
+	"scale": 0.00625,
+	"tbObjAdapt": true
+}

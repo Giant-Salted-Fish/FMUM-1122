@@ -28,6 +28,8 @@ public interface IModule< T extends IModule< ? extends T > >
 	 */
 	public ItemStack toStack();
 	
+	public int baseSlot();
+	
 	public IModule< ? > base();
 	
 	public void setBase( IModule< ? > base, int baseSlot );
@@ -104,7 +106,10 @@ public interface IModule< T extends IModule< ? extends T > >
 	
 	public void setModifyState( IModifyState state );
 	
-	public void applyTransform( int slot, IModule< ? > module, Mat4f dst );
+	public void getTransform( IModule< ? > installed, Mat4f dst );
+	
+	@SideOnly( Side.CLIENT )
+	public void getRenderTransform( IModule< ? > installed, Mat4f dst );
 	
 //	@SideOnly( Side.CLIENT )
 //	public void prepareRender(

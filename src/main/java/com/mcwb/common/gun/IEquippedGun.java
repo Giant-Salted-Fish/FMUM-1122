@@ -18,5 +18,5 @@ public interface IEquippedGun< T extends IGun< ? > > extends IEquippedItem< T >
 //	public float getAimProgress( float smoother );
 	
 	@SideOnly( Side.CLIENT )
-	public void setupRenderArm( ArmTracker leftArm, ArmTracker rightArm, IAnimator animator );
+	public void setupRenderArm( IAnimator animator, ArmTracker leftArm, ArmTracker rightArm );
 }

@@ -28,8 +28,8 @@ public interface IGunPart< T extends IGunPart< ? extends T > >
 	
 	// TODO: rename to track arm?
 	@SideOnly( Side.CLIENT )
-	public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator );
+	public void setupLeftArmToRender( IAnimator animator, ArmTracker leftArm );
 	
 	@SideOnly( Side.CLIENT )
-	public void setupRightArmToRender( ArmTracker rightArm, IAnimator animator );
+	public void setupRightArmToRender( IAnimator animator, ArmTracker rightArm );
 }

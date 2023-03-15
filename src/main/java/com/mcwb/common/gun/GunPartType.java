@@ -12,12 +12,11 @@ import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.item.IEquippedItemRenderer;
-import com.mcwb.client.module.IDeferredPriorityRenderer;
+import com.mcwb.client.item.IItemModel;
 import com.mcwb.client.module.IDeferredRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.item.IEquippedItem;
-import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.item.ItemType;
 import com.mcwb.common.load.BuildableLoader;
@@ -46,18 +45,17 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class GunPartType<
+public abstract class GunPartType<
+	I extends IGunPart< ? extends I >, // Not necessary, but to avoid filling in the generic argument on instantiating the abstract inner class
 	C extends IGunPart< ? >,
 	E extends IEquippedItem< ? extends C >,
-	M extends IGunPartRenderer< ? super C, ? super E >
-> extends ItemType< C, E, M > implements IModuleType, IPaintableType, IPaintjob
+	ER extends IEquippedItemRenderer< ? super E >,
+	R extends IGunPartRenderer< ? super C, ? extends ER >,
+	M extends IItemModel< ? extends R >
+> extends ItemType< C, M > implements IModuleType, IPaintableType, IPaintjob
 {
-	// Can not directly use class as the generic infer will fail on that. My guess is that the \
-	// generic information was wiped from the class instance before compile tries to infer the \
-	// generic parameter.
-	public static final BuildableLoader< IMeta > LOADER = new BuildableLoader<>( "gun_part",
-		json -> MCWB.GSON.fromJson( json, GunPartType.class )
-	);
+	public static final BuildableLoader< IMeta >
+		LOADER = new BuildableLoader<>( "gun_part", JsonGunPartType.class );
 	
 	protected static final float[] OFFSETS = { 0F };
 	
@@ -148,28 +146,7 @@ public class GunPartType<
 		return type.deserializeContexted( tag );
 	}
 	
-	@Override
-	public IModule< ? > newRawContexted()
-	{
-		return this.new GunPart< IGunPart< ? > >()
-		{
-			// Override this so that we do not need to create a wrapper for it
-			@Override
-			public void syncAndUpdate() { }
-		};
-	}
-	
-	@Override
-	public IModule< ? > deserializeContexted( NBTTagCompound nbt )
-	{
-		final GunPart< ? > gunPart = this.new GunPart<>();
-		gunPart.deserializeNBT( nbt );
-		return gunPart;
-	}
-	
-	protected ICapabilityProvider newWrapper( C primary, ItemStack stack ) {
-		return new GunPartWrapper< IGunPart< ? >, C >( primary, stack );
-	}
+	protected abstract ICapabilityProvider newWrapper( C primary, ItemStack stack );
 	
 	@Override
 	protected IMeta loader() { return LOADER; }
@@ -190,7 +167,7 @@ public class GunPartType<
 			// no--stackTag | has-capTag}: {ItemStack#copy()} \
 			// no--stackTag | no--capTag}: {new ItemStack(...)}, {PacketBuffer#readItemStack()} \
 			final NBTTagCompound stackTag = stack.getTagCompound();
-			final GunPartType< C, E, R > $this = GunPartType.this;
+			final GunPartType< I, C, E, ER, R, M > $this = GunPartType.this;
 			
 			C primary;
 			if( capTag != null )
@@ -234,6 +211,7 @@ public class GunPartType<
 				// twice for the network packet case.
 				final NBTTagCompound newStackTag = new NBTTagCompound();
 				newStackTag.setInteger( "i", new Random().nextInt() ); // TODO: better way to do this?
+				stack.setTagCompound( newStackTag );
 				// See GunPartWrapper#stackId()
 				
 				final NBTTagCompound primaryTag = $this.compiledSnapshotNBT.copy();
@@ -285,42 +263,29 @@ public class GunPartType<
 		) { return false; }
 	}
 	
-	protected class GunPart< T extends IGunPart< ? extends T > >
-		extends Module< T > implements IGunPart< T >
+	protected abstract class GunPart extends Module< I > implements IGunPart< I >
 	{
 		protected short offset;
 		protected short step;
 		
-		protected GunPart() { }
+		@SideOnly( Side.CLIENT )
+		protected transient R renderer;
 		
-		protected GunPart( boolean unused ) { super( unused ); }
+		protected GunPart() {
+			MCWB.MOD.clientOnly( () -> this.renderer = GunPartType.this.model.newRenderer() );
+		}
+		
+		protected GunPart( boolean unused )
+		{
+			super( unused );
+			
+			// TODO: This will create renderer on local server
+			// TODO: maybe provide more information on instantiation
+			MCWB.MOD.clientOnly( () -> this.renderer = GunPartType.this.model.newRenderer() );
+		}
 		
 		@Override
 		public int stackId() { throw new RuntimeException(); }
-		
-		@Override
-		public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand )
-		{
-			return this.newEquipped(
-				() -> GunPartType.this.renderer.onTakeOut( hand ),
-				player,
-				hand
-			);
-		}
-		
-//		@Override
-//		@SuppressWarnings( "unchecked" )
-//		public IEquippedItem< ? > onStackUpdate(
-//			IEquippedItem< ? > prevEquipped,
-//			EntityPlayer player,
-//			EnumHand hand
-//		) {
-//			return this.newEquipped(
-//				player.world.isRemote
-//				? setter -> setter.accept( ( ( EquippedGunPart ) prevEquipped ).renderer )
-//				: setter -> { }
-//			);
-//		}
 		
 		@Override
 		public String name() { return GunPartType.this.name; }
@@ -363,10 +328,22 @@ public class GunPartType<
 		public int rightHandPriority() { return GunPartType.this.rightHandPriority; }
 		
 		@Override
-		public void applyTransform( int slot, IModule< ? > module, Mat4f dst )
+		public void getTransform( IModule< ? > installed, Mat4f dst )
 		{
-			dst.mul( this.mat );
-			GunPartType.this.slots.get( slot ).applyTransform( module, dst );
+			dst.set( this.mat );
+			
+			final IModuleSlot slot = GunPartType.this.slots.get( installed.baseSlot() );
+			slot.applyTransform( installed, dst );
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public void getRenderTransform( IModule< ? > installed, Mat4f dst )
+		{
+			this.renderer.getTransform( dst );
+			
+			final IModuleSlot slot = GunPartType.this.slots.get( installed.baseSlot() );
+			slot.applyTransform( installed, dst );
 		}
 		
 		@Override
@@ -376,10 +353,11 @@ public class GunPartType<
 			Collection< IDeferredRenderer > renderQueue0,
 			Collection< IDeferredRenderer > renderQueue1
 		) {
-			this.base.applyTransform( this.baseSlot, this, this.mat );
-//			IAnimator.applyChannel( animator, channel, dst );
+			this.renderer.prepareInHandRender( this.self(), animator, renderQueue0, renderQueue1 );
 			
-			
+			this.installed.forEach(
+				mod -> mod.prepareInHandRenderSP( animator, renderQueue0, renderQueue1 )
+			);
 		}
 		
 //		@Override
@@ -394,18 +372,14 @@ public class GunPartType<
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator )
-		{
-			final IAnimator wrappedAnimator = this.wrapAnimator( animator );
-			GunPartType.this.renderer.setupLeftArmToRender( leftArm, wrappedAnimator );
+		public void setupLeftArmToRender( IAnimator animator, ArmTracker leftArm ) {
+			this.renderer.setupLeftArmToRender( animator, leftArm );
 		}
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public void setupRightArmToRender( ArmTracker rightArm, IAnimator animator )
-		{
-			final IAnimator wrappedAnimator = this.wrapAnimator( animator );
-			GunPartType.this.renderer.setupRightArmToRender( rightArm, wrappedAnimator );
+		public void setupRightArmToRender( IAnimator animator, ArmTracker rightArm ) {
+			this.renderer.setupRightArmToRender( animator, rightArm );
 		}
 		
 		@Override
@@ -416,20 +390,15 @@ public class GunPartType<
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public IModule< ? > newModifyIndicator() {
-			return IModuleType.REGISTRY.get( GunPartType.this.modifyIndicator ).newRawContexted();
+		public IModule< ? > newModifyIndicator()
+		{
+			// TODO: obtain from item as new raw context will not create #renderer
 			// TODO: maybe a buffered instance
+			return IModuleType.REGISTRY.get( GunPartType.this.modifyIndicator ).newRawContexted();
 		}
 		
 		@Override
 		public String toString() { return "Contexted<" + GunPartType.this + ">"; }
-		
-		// TODO: move to outer layer
-		protected IEquippedItem< ? > newEquipped(
-			Supplier< IEquippedItemRenderer< ? super E > > renderer,
-			EntityPlayer player,
-			EnumHand hand
-		) { return this.new EquippedGunPart( renderer, player, hand ); }
 		
 		@Override
 		protected int dataSize() { return super.dataSize() + 1; }
@@ -452,40 +421,30 @@ public class GunPartType<
 			return wrapper;
 		}
 		
-		@SideOnly( Side.CLIENT )
-		protected IAnimator wrapAnimator( IAnimator animtor )
-		{
-			// FIXME: 
-			return animtor;
-		}
-		
 		@SuppressWarnings( "unchecked" )
 		protected final C self() { return ( C ) this; }
 		
 		protected class EquippedGunPart implements IEquippedItem< C >
 		{
 			@SideOnly( Side.CLIENT )
-			protected IEquippedItemRenderer< ? super E > renderer;
+			protected ER renderer;
 			
 			protected EquippedGunPart(
-				Supplier< IEquippedItemRenderer< ? super E > > renderer,
+				Supplier< ER > equippedRenderer,
 				EntityPlayer player,
 				EnumHand hand
-			) { if( player.world.isRemote ) this.renderer = renderer.get(); }
+			) {
+//				if( player.world.isRemote )
+				// TODO: This will create renderer on local server
+				MCWB.MOD.clientOnly( () -> this.renderer = equippedRenderer.get() );
+			}
 			
 			@Override
 			public C item() { return GunPart.this.self(); }
 			
-			// TODO: move to outer layer
 			@Override
-			@SuppressWarnings( "unchecked" )
-			public IEquippedItem< ? > onStackUpdate(
-				IItem newItem,
-				EntityPlayer player,
-				EnumHand hand
-			) {
-				final GunPart< T > gunPart = ( GunPart< T > ) newItem;
-				return gunPart.new EquippedGunPart( () -> this.renderer, player, hand );
+			public void tickInHand( EntityPlayer player, EnumHand hand ) {
+				if( player.world.isRemote ) this.renderer.tickInHand( this.self(), hand );
 			}
 			
 			@Override
@@ -509,6 +468,9 @@ public class GunPartType<
 			@Override
 			@SideOnly( Side.CLIENT )
 			public IAnimator animator() { return this.renderer.animator(); }
+			
+			@Override
+			public String toString() { return "Equipped<" + GunPartType.this + ">"; }
 			
 			@SideOnly( Side.CLIENT )
 			@SuppressWarnings( "unchecked" )

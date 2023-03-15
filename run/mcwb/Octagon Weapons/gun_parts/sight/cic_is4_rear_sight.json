@@ -1,6 +1,6 @@
 {
 	"creativeTab": "oc",
 	"category": "prb",
-	"renderer": "renderers/sight/cic_is4_rear_sight.json",
+	"model": "models/sight/cic_is4_rear_sight.json",
 	"texture": "textures/guns/iron_sight.png"
 }

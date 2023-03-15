@@ -69,11 +69,11 @@ public class PlayerPatch implements ICapabilityProvider
 			else if( stack != this.mainStack )
 			{
 				this.mainStack = stack;
-				this.mainEquipped = this.mainEquipped.onStackUpdate( item, this.player, hand );
+				this.mainEquipped = item.onStackUpdate( this.mainEquipped, this.player, hand );
 				this.executing = this.executing.onStackUpdate( this.mainEquipped, this.player );
 			}
 			
-			this.mainEquipped.tick( this.player, hand );
+			this.mainEquipped.tickInHand( this.player, hand );
 		}
 		
 		/// *** Off-hand stuff *** ///
@@ -91,10 +91,10 @@ public class PlayerPatch implements ICapabilityProvider
 			else if( stack != this.offStack )
 			{
 				this.offStack = stack;
-				this.offEquipped = this.offEquipped.onStackUpdate( item, this.player, hand );
+				this.offEquipped = item.onStackUpdate( this.offEquipped, this.player, hand );
 			}
 			
-			this.offEquipped.tick( this.player, hand );
+			this.offEquipped.tickInHand( this.player, hand );
 		}
 		
 		this.executing = this.executing.tick( this.player );

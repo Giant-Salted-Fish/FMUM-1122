@@ -63,6 +63,9 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	public ItemStack toStack() { throw new RuntimeException(); }
 	
 	@Override
+	public int baseSlot() { return this.baseSlot; }
+	
+	@Override
 	public IModule< ? > base() { return this.base; }
 	
 	@Override
@@ -82,9 +85,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry )
 	{
 		// TODO: Further consider when to call mat update
-		this.mat.setIdentity();
-		this.base.applyTransform( this.baseSlot, this, this.mat );
-		
+		this.base.getTransform( this, this.mat );
 		this.installed.forEach( mod -> mod.updateState( registry ) );
 	}
 	

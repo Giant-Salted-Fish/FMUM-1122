@@ -20,5 +20,5 @@ public interface IModuleSlot
 	
 	public void scale( float scale );
 	
-	public void applyTransform( IModule< ? > module, Mat4f dst );
+	public void applyTransform( IModule< ? > installed, Mat4f dst );
 }

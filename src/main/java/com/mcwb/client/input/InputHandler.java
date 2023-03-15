@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.TreeSet;
+import java.util.HashSet;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -43,17 +43,17 @@ public final class InputHandler
 	/**
 	 * Keys that will always update
 	 */
-	public static final TreeSet< IKeyBind > GLOBAL_KEYS = new TreeSet<>();
+	public static final HashSet< IKeyBind > GLOBAL_KEYS = new HashSet<>();
 	
 	/**
 	 * Keys that will update when {@link #CO} is pressed
 	 */
-	public static final TreeSet< IKeyBind > CO_KEYS = new TreeSet<>();
+	public static final HashSet< IKeyBind > CO_KEYS = new HashSet<>();
 	
 	/**
 	 * Keys that will update when {@link #CO} is not pressed
 	 */
-	public static final TreeSet< IKeyBind > INCO_KEYS = new TreeSet<>();
+	public static final HashSet< IKeyBind > INCO_KEYS = new HashSet<>();
 	
 	/**
 	 * These keys always update

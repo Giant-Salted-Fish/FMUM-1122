@@ -1,7 +1,7 @@
 {
 	"creativeTab": "oc",
 	"category": "ar_pistol_grip",
-	"renderer": "renderers/gun/hk416/pistol_grip.json",
+	"model": "models/gun/hk416/pistol_grip.json",
 	"texture": "textures/guns/hk416_d10rs.png",
 	
 	"rightHandPriority": 512

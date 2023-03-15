@@ -51,18 +51,18 @@ public interface IContentProvider extends IMeta
 	 * <p> Register the given instance to receive {@link IMeshLoadSubscriber#onMeshLoad()} callback
 	 * if the game is running on physical client side. </p>
 	 * 
-	 * <p> Be aware that most types that load their renderers via
-	 * {@link #loadRenderer(String, String)} do not need to register for this callback as renderers
-	 * loaded in that way will be buffered and processed automatically by {@link MCWB}. Only
-	 * register for this callback if your type loads its renderers in other ways. </p>
+	 * <p> Be aware that most types that load their models via {@link #loadModel(String, String)}
+	 * do not need to register for this callback as models loaded in that way will be buffered and
+	 * processed automatically by {@link MCWB}. Only register for this callback if your type loads
+	 * its models in other ways. </p>
 	 */
 	public default void regis( IMeshLoadSubscriber subscriber ) { MCWB.MOD.regis( subscriber ); }
 	
 	public default SoundEvent loadSound( String path ) { return MCWB.MOD.loadSound( path ); }
 	
 	@SideOnly( Side.CLIENT )
-	public default Object loadRenderer( String path, String fallbackType ) {
-		return MCWBClient.MOD.loadRenderer( path, fallbackType, this );
+	public default Object loadModel( String path, String fallbackType ) {
+		return MCWBClient.MOD.loadModel( path, fallbackType, this );
 	}
 	
 	@SideOnly( Side.CLIENT )

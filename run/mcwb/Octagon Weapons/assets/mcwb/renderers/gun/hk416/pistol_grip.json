@@ -1,8 +1,0 @@
-{
-	"__type__": "grip",
-	
-	"meshes": [ "renderers/gun/hk416/pistol_grip.obj" ],
-	"scale": 0.00625,
-	"tbObjAdapt": true,
-	"handPos": [ 0, 15, -5 ]
-}

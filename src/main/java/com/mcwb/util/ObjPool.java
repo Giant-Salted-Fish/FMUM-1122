@@ -1,7 +1,6 @@
 package com.mcwb.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -29,7 +28,7 @@ public final class ObjPool< T >
 	}
 	
 	public ObjPool( Supplier< T > factory, BiConsumer< T, List< T > > recycler ) {
-		this( Collections.synchronizedList( new ArrayList<>() ), factory, recycler );
+		this( new ArrayList<>(), factory, recycler );
 	}
 	
 	public ObjPool( List< T > pool, Supplier< T > factory, BiConsumer< T, List< T > > recycler )
@@ -39,7 +38,8 @@ public final class ObjPool< T >
 		this.recycler = recycler;
 	}
 	
-	public T poll()
+	// TODO: maybe synchronize at outer layer
+	public synchronized T poll()
 	{
 		return (
 			this.pool.size() > 0
@@ -48,5 +48,5 @@ public final class ObjPool< T >
 		);
 	}
 	
-	public void back( T instance ) { this.recycler.accept( instance, this.pool ); }
+	public synchronized void back( T instance ) { this.recycler.accept( instance, this.pool ); }
 }

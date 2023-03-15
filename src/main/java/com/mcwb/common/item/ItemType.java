@@ -4,7 +4,6 @@ import javax.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.item.IItemModel;
-import com.mcwb.client.item.IItemRenderer;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.load.IPostLoadSubscriber;
@@ -17,11 +16,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
-public abstract class ItemType<
-	C extends IItem,
-	E extends IEquippedItem< ? extends C >,
-	M extends IItemModel< ? extends IItemRenderer< ? super C, ? super E > >
-> extends RenderableMeta< M > implements IItemType, IPostLoadSubscriber
+public abstract class ItemType< C extends IItem, M extends IItemModel< ? > >
+	extends RenderableMeta< M > implements IItemType, IPostLoadSubscriber
 {
 	protected transient Item item;
 	

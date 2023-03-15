@@ -16,9 +16,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class GunPartWrapper<
-	M extends IGunPart< ? extends M >,
-	T extends IGunPart< ? extends M >
-> extends ModuleWrapper< M, T > implements IGunPart< M >
+	I extends IGunPart< ? extends I >,
+	T extends IGunPart< ? extends I >
+> extends ModuleWrapper< I, T > implements IGunPart< I >
 {
 	protected final ItemStack stack;
 	
@@ -41,6 +41,13 @@ public class GunPartWrapper<
 	}
 	
 	@Override
+	public IEquippedItem< ? > onStackUpdate(
+		IEquippedItem< ? > prevEquipped,
+		EntityPlayer player,
+		EnumHand hand
+	) { return this.primary.onStackUpdate( prevEquipped, player, hand ); }
+	
+	@Override
 	public int leftHandPriority() { return this.primary.leftHandPriority(); }
 	
 	@Override
@@ -56,13 +63,13 @@ public class GunPartWrapper<
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator ) {
+	public void setupLeftArmToRender( IAnimator animator, ArmTracker leftArm ) {
 		throw new RuntimeException();
 	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public void setupRightArmToRender( ArmTracker rightArm, IAnimator animator ) {
+	public void setupRightArmToRender( IAnimator animator, ArmTracker rightArm ) {
 		throw new RuntimeException();
 	}
 	

@@ -1,0 +1,5 @@
+{
+	"mesh": "models/gun/hk416/receiver_extension_nut.obj",
+	"scale": 0.00625,
+	"tbObjAdapt": true
+}

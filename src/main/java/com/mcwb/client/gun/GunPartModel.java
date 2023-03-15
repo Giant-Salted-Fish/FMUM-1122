@@ -5,12 +5,14 @@ import java.util.Collection;
 
 import org.lwjgl.opengl.GL11;
 
+import com.mcwb.client.IAutowireBindTexture;
 import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.ItemModel;
 import com.mcwb.client.module.IDeferredRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
+import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Quat4f;
@@ -29,6 +31,8 @@ public abstract class GunPartModel<
 	R extends IGunPartRenderer< ? super C, ? extends ER >
 > extends ItemModel< C, E, ER, R >
 {
+	public static final BuildableLoader< ? >
+		LOADER = new BuildableLoader<>( "gun_part", JsonGunPartModel.class );
 	
 	/**
 	 * Render queue is introduced here to help with rendering the objects that is transparent
@@ -51,55 +55,13 @@ public abstract class GunPartModel<
 	 */
 	protected String moduleAnimationChannel = ""; // TODO: optimize performance
 	
-	protected abstract class GunPartRenderer implements IGunPartRenderer< C, ER >, IAnimator
+	protected abstract class GunPartRenderer
+		implements IGunPartRenderer< C, ER >, IAutowireBindTexture
 	{
 		protected final Mat4f mat = new Mat4f();
-		protected IAnimator wrapped;
 		
 		@Override
-		public void getPos( String channel, Vec3f dst )
-		{
-			switch( channel )
-			{
-			case CHANNEL_INSTALL:
-				this.mat.get( dst );
-				break;
-				
-			default: this.wrapped.getPos( channel, dst );
-			}
-		}
-		
-		@Override
-		public void getRot( String channel, Quat4f dst )
-		{
-			switch( channel )
-			{
-			case CHANNEL_INSTALL:
-				dst.set( this.mat );
-				break;
-				
-			default: this.wrapped.getRot( channel, dst );
-			}
-		}
-		
-		@Override
-		public void getChannel( String channel, Mat4f dst )
-		{
-			switch( channel )
-			{
-			case CHANNEL_INSTALL:
-				dst.set( this.mat );
-				break;
-				
-			default: this.wrapped.getChannel( channel, dst );
-			}
-		}
-		
-		@Override
-		public float getFactor( String channel ) { return this.wrapped.getFactor( channel ); }
-		
-		@Override
-		public void render( C contexted ) { GunPartModel.this.render( contexted ); }
+		public void getTransform( Mat4f dst ) { dst.set( this.mat ); }
 		
 		@Override
 		public void prepareRender(
@@ -107,14 +69,14 @@ public abstract class GunPartModel<
 			Collection< IDeferredRenderer > renderQueue0,
 			Collection< IDeferredRenderer > renderQueue1
 		) {
-			this.wrapped = animator;
-			animator.getChannel( CHANNEL_INSTALL, this.mat );
+			contexted.base().getRenderTransform( contexted, this.mat );
 			animator.applyChannel( GunPartModel.this.moduleAnimationChannel, this.mat );
 			
+			// TODO: we can buffer animator so no instance will be created for this closure
 			renderQueue0.add( () -> {
 				GL11.glPushMatrix();
 				final Mat4f mat = Mat4f.locate();
-				this.wrapped.getChannel( CHANNEL_ITEM, mat );
+				animator.getChannel( CHANNEL_ITEM, mat );
 				mat.mul( this.mat ); // TODO: validate order
 				glMultMatrix( mat );
 				mat.release();
@@ -126,7 +88,7 @@ public abstract class GunPartModel<
 		}
 		
 		@Override
-		public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator )
+		public void setupLeftArmToRender( IAnimator animator, ArmTracker leftArm )
 		{
 			leftArm.handPos.setZero();
 			leftArm.armRotZ = 0F;
@@ -135,12 +97,19 @@ public abstract class GunPartModel<
 		}
 		
 		@Override
-		public void setupRightArmToRender( ArmTracker rightArm, IAnimator animator )
+		public void setupRightArmToRender( IAnimator animator, ArmTracker rightArm )
 		{
 			rightArm.handPos.setZero();
 			rightArm.armRotZ = 0F;
 			rightArm.$handRotZ( 0F );
 			this.updateArm( rightArm, animator );
+		}
+		
+		@Override
+		public void render( C contexted, IAnimator animator )
+		{
+			this.bindTexture( contexted.texture() );
+			GunPartModel.this.render();
 		}
 		
 		protected void updateArm( ArmTracker arm, IAnimator animator )

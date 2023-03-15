@@ -1,5 +1,5 @@
 {
 	"creativeTab": "oc",
-	"renderer": "renderers/gun/hk416/piston_guide.json",
+	"model": "models/gun/hk416/piston_guide.json",
 	"texture": "textures/guns/hk416_d10rs.png"
 }

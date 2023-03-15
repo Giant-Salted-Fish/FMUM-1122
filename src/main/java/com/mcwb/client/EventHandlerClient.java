@@ -69,7 +69,7 @@ public final class EventHandlerClient
 				
 				// Clear resources after model load
 				mod.meshLoadSubscribers.clear();
-				mod.rendererPool.clear(); // TODO: check if this is needed
+				mod.modelPool.clear(); // TODO: check if this is needed
 				mod.meshPool.clear();
 				
 				// Only load model once. Unregister after complete

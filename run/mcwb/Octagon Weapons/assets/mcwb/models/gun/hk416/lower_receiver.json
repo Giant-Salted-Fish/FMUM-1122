@@ -1,0 +1,13 @@
+{
+	"mesh": "models/gun/hk416/lower_receiver.obj",
+	"_animatedMeshes": [
+		"models/gun/hk416/mag_release.obj",
+		"models/gun/hk416/bolt_catch-release.obj",
+		"models/gun/hk416/fire_switch-safe.obj"
+	],
+	"scale": 0.00625,
+	"tbObjAdapt": true,
+	
+	"leftHandPos": [ 5, 20, 5 ],
+	"rightHandPos": [ -5, 25, -35 ]
+}

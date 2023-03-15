@@ -1,6 +1,6 @@
 {
 	"creativeTab": "oc",
-	"renderer": "renderers/stock/lmt_stock.json",
+	"model": "models/stock/lmt_stock.json",
 	"texture": "textures/guns/hk416_d10rs.png",
 	
 	"category": "ar_stock",

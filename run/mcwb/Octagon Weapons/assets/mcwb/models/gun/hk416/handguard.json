@@ -1,0 +1,10 @@
+{
+	"__type__": "car_grip",
+	
+	"mesh": "models/gun/hk416/handguard.obj",
+	"scale": 0.00625,
+	"tbObjAdapt": true,
+	"handPos": [ 5, -10, 55 ],
+	"handRotZ": -25,
+	"armRotZ": 35
+}

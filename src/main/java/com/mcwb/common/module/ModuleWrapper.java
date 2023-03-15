@@ -23,14 +23,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * Exists to satisfy the requirement of {@link IItem}. It forwards most method calls to the wrapped
  * primary module and should have the same behavior with the wrapped module when calling by outer.
  * 
- * @param <M> Type parameter of the wrapped module
- * @param <T> Type of the primary that this wraps
+ * @param <I> Type parameter of the wrapped module
+ * @param <T> Type of the primary that is wrapped
  * @author Giant_Salted_Fish
  */
 public abstract class ModuleWrapper<
-	M extends IModule< ? extends M >,
-	T extends IModule< ? extends M > & IPaintable
-> implements IModule< M >, IPaintable, ICapabilityProvider
+	I extends IModule< ? extends I >,
+	T extends IModule< ? extends I > & IPaintable
+> implements IModule< I >, IPaintable, ICapabilityProvider
 {
 	protected transient final TreeMultimap< Class< ? >, IModuleEventSubscriber< ? > >
 		eventSubscribers = TreeMultimap.create(
@@ -61,6 +61,9 @@ public abstract class ModuleWrapper<
 	
 	@Override
 	public final String category() { return this.primary.category(); }
+	
+	@Override
+	public int baseSlot() { throw new RuntimeException(); }
 	
 	// TODO: add proper error string. Also for sub-classes
 	@Override
@@ -126,13 +129,13 @@ public abstract class ModuleWrapper<
 	}
 	
 	@Override
-	public final void forEach( Consumer< ? super M > visitor ) { this.primary.forEach( visitor ); }
+	public final void forEach( Consumer< ? super I > visitor ) { this.primary.forEach( visitor ); }
 	
 	@Override
 	public final int getInstalledCount( int slot ) { throw new RuntimeException(); }
 	
 	@Override
-	public final M getInstalled( int slot, int idx ) { throw new RuntimeException(); }
+	public final I getInstalled( int slot, int idx ) { throw new RuntimeException(); }
 	
 	@Override
 	public final IModule< ? > getInstalled( byte[] loc, int locLen ) {
@@ -189,7 +192,15 @@ public abstract class ModuleWrapper<
 	public final void setModifyState( IModifyState state ) { this.primary.setModifyState( state ); }
 	
 	@Override
-	public final void applyTransform( int slot, IModule< ? > module, Mat4f dst ) { }
+	public final void getTransform( IModule< ? > installed, Mat4f dst ) {
+		dst.setIdentity();
+	}
+	
+	@Override
+	@SideOnly( Side.CLIENT )
+	public final void getRenderTransform( IModule< ? > installed, Mat4f dst ) {
+		dst.setIdentity();
+	}
 	
 //	@Override
 //	@SideOnly( Side.CLIENT )

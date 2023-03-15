@@ -38,10 +38,10 @@ public class RailSlot extends SimpleSlot
 	}
 	
 	@Override
-	public void applyTransform( IModule< ? > module, Mat4f dst )
+	public void applyTransform( IModule< ? > installed, Mat4f dst )
 	{
 		final Vec3f v = this.origin;
-		dst.translate( v.x, v.y, v.z + this.stepLen * module.step() );
+		dst.translate( v.x, v.y, v.z + this.stepLen * installed.step() );
 		dst.rotateZ( this.rotZ );
 	}
 }

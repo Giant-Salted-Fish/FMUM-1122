@@ -33,8 +33,11 @@ public abstract class ItemModel<
 	E extends IEquippedItem< ? extends C >,
 	ER extends IEquippedItemRenderer< ? super E >,
 	R extends IItemRenderer< ? super C, ? extends ER >
-> extends Model implements IItemModel< R >, IItemRenderer< C, ER >, IAutowireBindTexture
+> extends Model implements IItemModel< R >
 {
+	// TODO: these channels seems no need to expose
+	public static final String CHANNEL_ITEM = "__item__";
+	
 	public static final ResourceLocation
 		TEXTURE_STEVE = new ResourceLocation( "textures/entity/steve.png" );
 	
@@ -42,10 +45,10 @@ public abstract class ItemModel<
 		TEXTURE_ALEX = new ResourceLocation( "textures/entity/alex.png" );
 	
 	protected static final Model
-		STEVE_ARM = new Model( "renderers/steve_arm.obj", 0.0625F, true );
+		STEVE_ARM = new Model( "models/steve_arm.obj", 0.0625F, true );
 	
 	protected static final Model
-		ALEX_ARM = new Model( "renderers/alex_arm.obj", 0.0625F, true );
+		ALEX_ARM = new Model( "models/alex_arm.obj", 0.0625F, true );
 	
 	private static final Vec3f HOLD_POS = new Vec3f( -40F / 160F, -50 / 160F, 100F / 160F );
 	
@@ -57,15 +60,8 @@ public abstract class ItemModel<
 	 */
 	protected String animationChannel = "";
 	
-	@Override
-	public void render( C contexted )
-	{
-		this.bindTexture( contexted.texture() );
-		this.render();
-	}
-	
 	protected class EquippedItemRenderer
-		implements IEquippedItemRenderer< E >, IAnimator, IAutowireSmoother
+		implements IEquippedItemRenderer< E >, IAnimator, IAutowireBindTexture, IAutowireSmoother
 	{
 		protected Animation animation = Animation.INSTANCE;
 		
@@ -189,7 +185,8 @@ public abstract class ItemModel<
 			glMultMatrix( mat );
 			mat.release();
 			
-			ItemModel.this.render( equipped.item() );
+			this.bindTexture( equipped.item().texture() );
+			ItemModel.this.render();
 		}
 		
 		/**

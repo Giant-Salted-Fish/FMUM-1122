@@ -1,6 +1,6 @@
 {
 	"creativeTab": "oc",
 	"category": "556x45mm",
-	"renderer": "renderers/ammo/556x45mm_case.json",
+	"model": "models/ammo/556x45mm_case.json",
 	"texture": "textures/guns/bullets.png"
 }

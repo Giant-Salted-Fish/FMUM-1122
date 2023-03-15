@@ -8,6 +8,7 @@ import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.gun.IEquippedGun;
 import com.mcwb.common.gun.IGun;
+import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.DynamicPos;
@@ -30,6 +31,8 @@ public abstract class GunModel<
 	R extends IGunRenderer< ? super C, ? extends ER >
 > extends GunPartModel< C, E, ER, R >
 {
+	public static final BuildableLoader< ? >
+		LOADER = new BuildableLoader<>( "gun", JsonGunModel.class );
 	
 	private static final Vec3f HOLD_POS = new Vec3f( -14F / 160F, -72F / 160F, 87.5F / 160F );
 	private static final Vec3f HOLD_ROT = new Vec3f( 0F, 0F, -5F );
@@ -114,10 +117,10 @@ public abstract class GunModel<
 		return this;
 	}
 	
-	protected abstract class GunRenderer extends GunPartRenderer
+	protected abstract class GunRenderer extends GunPartRenderer implements IGunRenderer< C, ER >
 	{
 		@Override
-		public void setupLeftArmToRender( ArmTracker leftArm, IAnimator animator )
+		public void setupLeftArmToRender( IAnimator animator, ArmTracker leftArm )
 		{
 			final GunModel< ?, ?, ?, ? > $this = GunModel.this;
 			this.doSetupArmToRender(
@@ -127,7 +130,7 @@ public abstract class GunModel<
 		}
 		
 		@Override
-		public void setupRightArmToRender( ArmTracker rightArm, IAnimator animator )
+		public void setupRightArmToRender( IAnimator animator, ArmTracker rightArm )
 		{
 			final GunModel< ?, ?, ?, ? > $this = GunModel.this;
 			this.doSetupArmToRender(
@@ -195,8 +198,9 @@ public abstract class GunModel<
 				
 				vec.y = 0F;
 				final float moveSpeed = player.onGround ? vec.length() : 0F;
-				final float walkCycle = crouching ? $this.crouchWalkCycle : $this.walkCycle;
-				walkDistanceCycle += moveSpeed * walkCycle;
+//				final float walkCycle = crouching ? $this.crouchWalkCycle : $this.walkCycle;
+//				walkDistanceCycle += moveSpeed * walkCycle;
+				walkDistanceCycle += moveSpeed * ( crouching ? $this.crouchWalkCycle : $this.walkCycle );
 				
 				// TODO: Check drop impact
 				

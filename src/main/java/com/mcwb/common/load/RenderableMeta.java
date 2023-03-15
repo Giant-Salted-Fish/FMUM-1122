@@ -9,31 +9,36 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public abstract class RenderableMeta< T > extends TexturedMeta
 {
 	@SideOnly( Side.CLIENT )
-	@SerializedName( value = "renderer", alternate = "model" )
-	protected String rendererPath;
+	@SerializedName( value = "model" )
+	protected String modelPath;
 	
 	@SideOnly( Side.CLIENT )
-	protected transient T renderer;
+	protected transient T model;
 	
 	@Override
 	public IMeta build( String name, IContentProvider provider )
 	{
 		super.build( name, provider );
 		
-		provider.clientOnly( this::loadRenderer );
+		provider.clientOnly( this::loadModel );
 		return this;
 	}
 	
 	@SideOnly( Side.CLIENT )
 	@SuppressWarnings( "unchecked" )
-	protected void loadRenderer()
+	protected void loadModel()
 	{
 		// Set a default model path if does not have
 		final String fallbackType = this.loader().name();
-		final String path = this.rendererPath != null ? this.rendererPath
-			: "renderers/" + fallbackType + "/" + this.name + ".json";
+		final String path = this.modelPath != null ? this.modelPath
+			: "models/" + fallbackType + "/" + this.name + ".json";
 		
-		this.renderer = ( T ) this.provider.loadRenderer( path, fallbackType );
-		this.rendererPath = null; // TODO: if this is needed to reload the model?
+		this.model = ( T ) this.provider.loadModel( path, fallbackType );
+		if( this.model == null ) this.model = this.fallbackModel();
+		
+		this.modelPath = null; // TODO: if this is needed to reload the model?
 	}
+	
+	@SideOnly( Side.CLIENT )
+	protected abstract T fallbackModel();
 }
