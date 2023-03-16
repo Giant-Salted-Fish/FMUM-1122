@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
@@ -135,8 +138,9 @@ public final class MCWBClient extends MCWB
 		this.texturePool.put( ItemModel.TEXTURE_STEVE.getPath(), ItemModel.TEXTURE_STEVE );
 		this.texturePool.put( ItemModel.TEXTURE_ALEX.getPath(), ItemModel.TEXTURE_ALEX );
 		
-		// The default NONE mesh
-		this.meshPool.put( "", Mesh.NONE );
+		// The default NONE mesh and animation
+		this.meshPool.put( null, Mesh.NONE );
+		this.animationPool.put( null, Animation.NONE );
 	}
 	
 	@Override
@@ -292,7 +296,8 @@ public final class MCWBClient extends MCWB
 						final BBAnimationJson json = GSON.fromJson( in, BBAnimationJson.class );
 						
 						final Animation ani = new Animation();
-						final HashMap< BBBoneJson, BoneAnimation > mapper = new HashMap<>();
+						// <Bone> : <Its parent>
+						final LinkedList< Entry< String, String > > mapper = new LinkedList<>();
 						
 						final float timeFactor = 1F / json.animation_length;
 						final float scale = json.positionScale;
@@ -300,14 +305,16 @@ public final class MCWBClient extends MCWB
 						json.bones.forEach( ( channel, bbBone ) -> {
 							final BoneAnimation bone = new BoneAnimation();
 							bbBone.position.forEach( ( time, pos ) -> {
-								pos.z = -pos.z; // TODO: remove this
+//								pos.z = -pos.z; // TODO: remove this
 								pos.scale( scale );
 								bone.pos.put( time * timeFactor, pos );
 							} );
 							bbBone.rotation.forEach( ( time, rot ) -> {
 								mat.setIdentity();
-								mat.rotateZ( -rot.z );
-								mat.rotateY( -rot.y );
+//								mat.rotateZ( -rot.z );
+//								mat.rotateY( -rot.y );
+								mat.rotateZ( rot.z );
+								mat.rotateY( rot.y );
 								mat.rotateX( rot.x );
 								bone.rot.put( time * timeFactor, new Quat4f( mat ) );
 							} );
@@ -317,26 +324,54 @@ public final class MCWBClient extends MCWB
 							bone.addGuard();
 							
 							ani.channels.put( channel, bone );
-							mapper.put( bbBone, bone );
+							mapper.add( new SimpleEntry<>( channel, bbBone.parent ) );
 						} );
 						mat.release();
 						
-						mapper.forEach( ( bbBone, bone ) -> {
-							final BoneAnimation parent = ani.channels.get( bbBone.parent );
-							if( parent != null ) bone.parent = parent;
-							else ani.rootBones.add( bone );
-						} );
+						while( mapper.size() > 0 )
+						{
+							final Iterator< Entry< String, String > > itr = mapper.iterator();
+							while( true )
+							{
+//								if( !itr.hasNext() )
+//								{
+//									// TODO: circle dependent
+//									mapper.clear();
+//									break;
+//								}
+								
+								// Find next bone that do not depend on other bones
+								final Entry< String, String > entry = itr.next();
+								if( entry.getValue() != null ) continue;
+								
+								// Add it to the update queue and remove it from mapper
+								final String bone = entry.getKey();
+								final BoneAnimation boneAni = ani.channels.get( bone );
+								ani.updateQueue.add( boneAni );
+								itr.remove();
+								
+								// Set parent for all bones depend on this bone
+								mapper.forEach( e -> {
+									if( e.getValue().equals( bone ) )
+									{
+										e.setValue( null );
+										ani.channels.get( e.getKey() ).parent = boneAni;
+									}
+								} );
+								break; // Start next round after after dependency update
+							}
+						}
 						return ani;
 					}
 				}
 				
-				if( key.endsWith( ".class" ) )
-					
+				if( key.endsWith( ".class" ) );
+					// TODO: class animation?
 				
 				throw new RuntimeException( "Unsupported animation file type" );
 			}
 			catch( Exception e ) { this.except( e, "mcwb.error_loading_animation", key ); }
-			return Animation.INSTANCE;
+			return Animation.NONE;
 		} );
 	}
 	

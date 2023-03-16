@@ -42,7 +42,7 @@ public abstract class MagModel<
 	private static final AngleAxis4f[] FOLLOER_ROT = { AngleAxis4f.ORIGIN };
 	
 	@SerializedName( value = "followerMesh" )
-	protected String followerMeshPath = "";
+	protected String followerMeshPath;
 	protected transient Mesh followerMesh;
 	
 	// TODO: change rotation to quatarnion

@@ -53,7 +53,7 @@ public abstract class GunPartModel<
 	/**
 	 * This animation channel will be applied to each module as part of installed transform
 	 */
-	protected String moduleAnimationChannel = ""; // TODO: optimize performance
+	protected String moduleAnimationChannel = "";
 	
 	protected abstract class GunPartRenderer
 		implements IGunPartRenderer< C, ER >, IAutowireBindTexture

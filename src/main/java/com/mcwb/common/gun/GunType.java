@@ -5,13 +5,22 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.gun.IGunPartRenderer;
+import com.mcwb.client.input.IKeyBind;
+import com.mcwb.client.input.Key;
 import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.IItemModel;
+import com.mcwb.client.player.OpLoadMagClient;
+import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.load.BuildableLoader;
+import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.module.IModuleEventSubscriber;
+import com.mcwb.common.operation.IOperationController;
+import com.mcwb.common.operation.OperationController;
+import com.mcwb.util.Animation;
 import com.mcwb.util.ArmTracker;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,6 +39,48 @@ public abstract class GunType<
 {
 	public static final BuildableLoader< IMeta >
 		LOADER = new BuildableLoader<>( "gun", JsonGunType.class );
+	
+	protected static final OperationController
+		LOAD_MAG_CONTROLLER = new OperationController(
+			1F / 40F,
+			new float[] { 0.8F },
+			new String[ 0 ],
+			new float[] { 0.8F },
+			"load_mag"
+		),
+		UNLOAD_MAG_CONTROLLER = new OperationController(
+			1F / 40F,
+			new float[] { 0.5F },
+			new String[ 0 ],
+			new float[] { 0.5F },
+			"unload_mag"
+		);
+	
+	protected IOperationController loadMagController = LOAD_MAG_CONTROLLER;
+	@SideOnly( Side.CLIENT )
+	@SerializedName( value = "loadMagAnimation" )
+	protected String loadMagAnimationPath;
+	@SideOnly( Side.CLIENT )
+	protected transient Animation loadMagAnimation;
+	
+	protected IOperationController unloadMagController = UNLOAD_MAG_CONTROLLER;
+	@SideOnly( Side.CLIENT )
+	@SerializedName( value = "unloadMagAnimation" )
+	protected String unloadMagAnimationPath;
+	@SideOnly( Side.CLIENT )
+	protected transient Animation unloadMagAnimation;
+	
+	@Override
+	public IMeta build( String name, IContentProvider provider )
+	{
+		super.build( name, provider );
+		
+		provider.clientOnly( () -> {
+			this.loadMagAnimation = provider.loadAnimation( this.loadMagAnimationPath );
+			this.unloadMagAnimation = provider.loadAnimation( this.unloadMagAnimationPath );
+		} );
+		return this;
+	}
 	
 	@Override
 	protected IMeta loader() { return LOADER; }
@@ -85,6 +136,33 @@ public abstract class GunType<
 				EntityPlayer player,
 				EnumHand hand
 			) { super( equippedRenderer, player, hand ); }
+			
+			@Override
+			@SideOnly( Side.CLIENT )
+			public void onKeyPress( IKeyBind key )
+			{
+				switch( key.name() )
+				{
+				case Key.LOAD_UNLOAD_MAG:
+				case Key.CO_LOAD_UNLOAD_MAG:
+					PlayerPatchClient.instance.tryLaunch(
+						Gun.this.hasMag()
+						? new OpLoadMagClient(
+							this,
+							GunType.this.loadMagController,
+							GunType.this.loadMagAnimation
+						)
+						: new OpLoadMagClient(
+							this,
+							GunType.this.loadMagController,
+							GunType.this.loadMagAnimation
+						)
+					);
+					break;
+					
+				default: super.onKeyPress( key );
+				}
+			}
 			
 			@Override
 			@SideOnly( Side.CLIENT )

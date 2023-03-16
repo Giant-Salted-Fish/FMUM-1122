@@ -37,7 +37,6 @@ public abstract class AmmoType<
 	>
 > extends ItemType< C, M > implements IAmmoType
 {
-	
 	public static final BuildableLoader< IMeta >
 		LOADER = new BuildableLoader<>( "ammo", JsonAmmoType.class );
 	

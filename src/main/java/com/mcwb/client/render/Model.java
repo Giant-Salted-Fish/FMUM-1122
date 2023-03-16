@@ -31,7 +31,7 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 		TEXTURE_BLUE = new MCWBResource( "textures/0x0000ff.png" );
 	
 	@SerializedName( value = "mesh" )
-	protected String meshPath = ""; // TODO: maybe set to null after load?
+	protected String meshPath; // TODO: maybe set to null after load?
 	protected transient Mesh mesh;
 	
 	protected float scale = 1F;

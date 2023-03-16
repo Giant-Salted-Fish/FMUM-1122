@@ -62,12 +62,15 @@ public abstract class ItemModel<
 	protected class EquippedItemRenderer
 		implements IEquippedItemRenderer< E >, IAnimator, IAutowireBindTexture, IAutowireSmoother
 	{
-		protected Animation animation = Animation.INSTANCE;
+		protected Animation animation = Animation.NONE;
 		
 		protected final Vec3f pos = new Vec3f();
 		protected final Quat4f rot = new Quat4f();
 		
 		public EquippedItemRenderer() { } // Visibility problem from AmmoModel
+		
+		@Override
+		public void playAnimation( Animation animation ) { this.animation = animation; }
 		
 		@Override
 		public void getPos( String channel, Vec3f dst )

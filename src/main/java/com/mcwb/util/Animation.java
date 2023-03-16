@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class Animation
 {
-	public static final Animation INSTANCE = new Animation()
+	public static final Animation NONE = new Animation()
 	{
 		@Override
 		public void update( float progress ) { }
@@ -31,10 +31,10 @@ public class Animation
 	/**
 	 * Will call {@link BoneAnimation#update(float)} on these bones
 	 */
-	public final LinkedList< BoneAnimation > rootBones = new LinkedList<>();
+	public final LinkedList< BoneAnimation > updateQueue = new LinkedList<>();
 	// FIXME: make sure the bones all called in correct order in regard to their dependent relationship
 	
-	public void update( float progress ) { this.rootBones.forEach( b -> b.update( progress ) ); }
+	public void update( float progress ) { this.updateQueue.forEach( b -> b.update( progress ) ); }
 	
 	public void getPos( String channel, Vec3f dst )
 	{

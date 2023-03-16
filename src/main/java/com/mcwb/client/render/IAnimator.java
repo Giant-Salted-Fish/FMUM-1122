@@ -1,5 +1,6 @@
 package com.mcwb.client.render;
 
+import com.mcwb.util.Animation;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
@@ -17,6 +18,10 @@ public interface IAnimator
 	{
 		@Override
 		@SideOnly( Side.CLIENT )
+		public void playAnimation( Animation animation ) { }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
 		public void getPos( String channel, Vec3f dst ) { dst.setZero(); }
 		
 		@Override
@@ -27,9 +32,8 @@ public interface IAnimator
 		public String toString() { return "Animator::NONE"; }
 	};
 	
-	// TODO: add update for animation progress
-//	@SideOnly( Side.CLIENT )
-//	public default void update( float factor ) { }
+	@SideOnly( Side.CLIENT )
+	public void playAnimation( Animation animation );
 	
 	@SideOnly( Side.CLIENT )
 	public void getPos( String channel, Vec3f dst );

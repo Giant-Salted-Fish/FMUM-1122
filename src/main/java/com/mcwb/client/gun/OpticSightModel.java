@@ -33,11 +33,11 @@ public abstract class OpticSightModel<
 		LOADER = new BuildableLoader<>( "optic_sight", JsonOpticSightModel.class );
 	
 	@SerializedName( value = "lenMesh" )
-	protected String lenMeshPath = "";
+	protected String lenMeshPath;
 	protected transient Mesh lenMesh;
 	
 	@SerializedName( value = "reticleMesh" )
-	protected String reticleMeshPath = "";
+	protected String reticleMeshPath;
 	protected transient Mesh reticleMesh;
 	
 	protected Vec3f reticlePos = Vec3f.ORIGIN;
