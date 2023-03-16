@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.common.IAutowireLogger;
+import com.mcwb.common.MCWB;
 import com.mcwb.common.paintjob.IPaintable;
 
 /**
@@ -44,6 +45,9 @@ public class ModuleSnapshot implements IAutowireLogger
 			this.error( "mcwb.fail_to_find_module", this.module );
 			return null;
 		}
+		
+		if( this.module.equals( "lmt_stock" ) )
+			MCWB.MOD.author();
 		
 		// Setup settings
 		module.setOffsetStep( this.offset, this.step );

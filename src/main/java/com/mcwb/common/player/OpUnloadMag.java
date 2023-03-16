@@ -4,13 +4,16 @@ import com.mcwb.common.gun.IEquippedGun;
 import com.mcwb.common.gun.IMag;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.operation.IOperation;
+import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.Operation;
 
 import net.minecraft.entity.player.EntityPlayer;
 
 public class OpUnloadMag extends Operation< IEquippedGun< ? > >
 {
-	public OpUnloadMag( IEquippedGun< ? > gun ) { super( gun, gun.unloadMagController() ); }
+	public OpUnloadMag( IEquippedGun< ? > gun, IOperationController controller ) {
+		super( gun, controller );
+	}
 	
 	@Override
 	public IOperation launch( EntityPlayer player ) {

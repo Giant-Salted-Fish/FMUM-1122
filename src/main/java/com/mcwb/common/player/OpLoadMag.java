@@ -7,6 +7,7 @@ import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.operation.IOperation;
+import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.Operation;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,9 +18,9 @@ public class OpLoadMag extends Operation< IEquippedGun< ? > >
 {
 	protected final int invSlot;
 	
-	public OpLoadMag( IEquippedGun< ? > gun, int invSlot )
+	public OpLoadMag( IEquippedGun< ? > gun, IOperationController controller, int invSlot )
 	{
-		super( gun, gun.loadMagController() );
+		super( gun, controller );
 		
 		this.invSlot = invSlot;
 	}

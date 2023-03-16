@@ -18,8 +18,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
+import com.mcwb.common.ammo.AmmoType;
 import com.mcwb.common.gun.GunPartType;
 import com.mcwb.common.gun.GunType;
+import com.mcwb.common.gun.MagType;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.load.IMeshLoadSubscriber;
@@ -232,9 +234,9 @@ public class MCWB extends URLClassLoader
 		TYPE_LOADERS.regis( CreativeTab.LOADER );
 		TYPE_LOADERS.regis( GunPartType.LOADER );
 		TYPE_LOADERS.regis( GunType.LOADER );
-//		TYPE_LOADERS.regis( MagType.LOADER );
-//		TYPE_LOADERS.regis( AmmoType.LOADER );
-//		TYPE_LOADERS.regis( Paintjob.LOADER );
+		TYPE_LOADERS.regis( MagType.LOADER );
+		TYPE_LOADERS.regis( AmmoType.LOADER );
+		TYPE_LOADERS.regis( Paintjob.LOADER );
 		this.regisSideDependentLoaders();
 	}
 	

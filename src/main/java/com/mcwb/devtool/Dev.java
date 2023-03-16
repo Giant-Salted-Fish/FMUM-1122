@@ -191,14 +191,14 @@ public class Dev implements IAutowirePlayerChat
 		protected void onFire()
 		{
 			tq = true;
-			final OperationController controller = new OperationController( 1F / 20F / 2.375F );
-			PlayerPatchClient.instance.tryLaunch( new Operation<IItem>( null, controller )
-			{
-				@Override
-				public IOperation onStackUpdate(
-					IEquippedItem< ? > newEquipped, EntityPlayer player
-				) { return this; }
-			} );
+//			final OperationController controller = new OperationController( 1F / 20F / 2.375F );
+//			PlayerPatchClient.instance.tryLaunch( new Operation<IItem>( null, controller )
+//			{
+//				@Override
+//				public IOperation onStackUpdate(
+//					IEquippedItem< ? > newEquipped, EntityPlayer player
+//				) { return this; }
+//			} );
 		}
 	}
 	

@@ -11,6 +11,9 @@ public class GunWrapper< I extends IGunPart< ? extends I >, T extends IGun< ? ex
 	public boolean hasMag() { return this.primary.hasMag(); }
 	
 	@Override
+	public IMag< ? > mag() { return this.primary.mag(); }
+	
+	@Override
 	public boolean isAllowed( IMag< ? > mag ) { return this.primary.isAllowed( mag ); }
 	
 	@Override

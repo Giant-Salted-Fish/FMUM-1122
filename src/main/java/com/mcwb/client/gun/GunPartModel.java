@@ -29,7 +29,7 @@ public abstract class GunPartModel<
 	E extends IEquippedItem< ? extends C >,
 	ER extends IEquippedItemRenderer< ? super E >,
 	R extends IGunPartRenderer< ? super C, ? extends ER >
-> extends ItemModel< C, E, ER, R >
+> extends ItemModel< C, E, R >
 {
 	public static final BuildableLoader< ? >
 		LOADER = new BuildableLoader<>( "gun_part", JsonGunPartModel.class );
@@ -92,7 +92,7 @@ public abstract class GunPartModel<
 		{
 			leftArm.handPos.setZero();
 			leftArm.armRotZ = 0F;
-			leftArm.$handRotZ( 0F );
+			leftArm.setHandRotZ( 0F );
 			this.updateArm( leftArm, animator );
 		}
 		
@@ -101,7 +101,7 @@ public abstract class GunPartModel<
 		{
 			rightArm.handPos.setZero();
 			rightArm.armRotZ = 0F;
-			rightArm.$handRotZ( 0F );
+			rightArm.setHandRotZ( 0F );
 			this.updateArm( rightArm, animator );
 		}
 		
@@ -112,6 +112,7 @@ public abstract class GunPartModel<
 			GunPartModel.this.render();
 		}
 		
+		// TODO: caller of this method may also have get the same item channel
 		protected void updateArm( ArmTracker arm, IAnimator animator )
 		{
 			final Mat4f mat = Mat4f.locate();
@@ -119,12 +120,12 @@ public abstract class GunPartModel<
 			mat.mul( this.mat ); // TODO: animator?
 			mat.transformAsPoint( arm.handPos );
 			mat.release();
-			
-			arm.updateArmOrientation();
 		}
 		
 		protected class EquippedGunPartRenderer extends EquippedItemRenderer
 		{
+			public EquippedGunPartRenderer() { } // Visibility problem from TDGripModel
+
 			@Override
 			public void prepareRenderInHandSP( E equipped, EnumHand hand )
 			{

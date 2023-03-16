@@ -39,6 +39,9 @@ public abstract class RenderableMeta< T > extends TexturedMeta
 		this.modelPath = null; // TODO: if this is needed to reload the model?
 	}
 	
+	/**
+	 * This will be used if failed to load required model to avoid null pointer
+	 */
 	@SideOnly( Side.CLIENT )
 	protected abstract T fallbackModel();
 }

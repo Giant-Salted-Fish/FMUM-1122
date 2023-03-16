@@ -31,8 +31,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public abstract class ItemModel<
 	C extends IItem,
 	E extends IEquippedItem< ? extends C >,
-	ER extends IEquippedItemRenderer< ? super E >,
-	R extends IItemRenderer< ? super C, ? extends ER >
+	R extends IItemRenderer< ? super C, ? extends IEquippedItemRenderer< ? super E > >
 > extends Model implements IItemModel< R >
 {
 	// TODO: these channels seems no need to expose
@@ -67,6 +66,8 @@ public abstract class ItemModel<
 		
 		protected final Vec3f pos = new Vec3f();
 		protected final Quat4f rot = new Quat4f();
+		
+		public EquippedItemRenderer() { } // Visibility problem from AmmoModel
 		
 		@Override
 		public void getPos( String channel, Vec3f dst )

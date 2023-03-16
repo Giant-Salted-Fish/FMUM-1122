@@ -12,6 +12,7 @@ import com.mcwb.common.MCWBResource;
 import com.mcwb.common.load.IBuildable;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.load.IMeshLoadSubscriber;
+import com.mcwb.util.AngleAxis4f;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Mesh;
 import com.mcwb.util.Vec3f;
@@ -144,6 +145,10 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 	
 	protected static void glTranslatef( Vec3f trans ) {
 		GL11.glTranslatef( trans.x, trans.y, trans.z );
+	}
+	
+	protected static void glRotatef( AngleAxis4f rot ) {
+		GL11.glRotatef( rot.angle, rot.x, rot.y, rot.z );
 	}
 	
 	protected static void glEulerRotateYXZ( Vec3f rot )

@@ -3,6 +3,8 @@ package com.mcwb.common.gun;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import javax.annotation.Nullable;
+
 import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.IItemModel;
@@ -10,7 +12,6 @@ import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.module.IModuleEventSubscriber;
-import com.mcwb.common.operation.IOperationController;
 import com.mcwb.util.ArmTracker;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -41,6 +42,26 @@ public abstract class GunType<
 		protected Gun() { }
 		
 		protected Gun( boolean unused ) { super( unused ); }
+		
+		@Override
+		public boolean hasMag() { return this.getInstalledCount( 0 ) > 0; }
+		
+		@Nullable
+		@Override
+		public IMag< ? > mag() {
+			return this.hasMag() ? ( IMag< ? > ) this.getInstalled( 0, 0 ) : null;
+		}
+		
+		@Override
+		public boolean isAllowed( IMag< ? > mag ) {
+			return GunType.this.slots.get( 0 ).isAllowed( mag );
+		}
+		
+		@Override
+		public void loadMag( IMag< ? > mag ) { this.install( 0, mag ); }
+		
+		@Override
+		public IMag< ? > unloadMag() { return ( IMag< ? > ) this.remove( 0, 0 ); }
 		
 		@Override
 		public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry )
@@ -79,17 +100,7 @@ public abstract class GunType<
 //				return !( modifying && freeView );
 				return true;
 			}
-
-			@Override
-			public IOperationController loadMagController()
-			{ // TODO Auto-generated method stub
-			return null; }
-
-			@Override
-			public IOperationController unloadMagController()
-			{ // TODO Auto-generated method stub
-			return null; }
-
+			
 			@Override
 			@SideOnly( Side.CLIENT )
 			public void setupRenderArm(

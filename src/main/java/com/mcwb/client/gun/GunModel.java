@@ -1,5 +1,8 @@
 package com.mcwb.client.gun;
 
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.Project;
+
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.InputHandler;
@@ -10,13 +13,18 @@ import com.mcwb.common.gun.IEquippedGun;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
+import com.mcwb.devtool.Dev;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.DynamicPos;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Util;
 import com.mcwb.util.Vec3f;
 
+import net.minecraft.block.material.Material;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.math.MathHelper;
@@ -117,6 +125,23 @@ public abstract class GunModel<
 		return this;
 	}
 	
+	/**
+	 * Copied from {@link EntityRenderer#getFOVModifier(float, boolean)}
+	 */
+	protected final float getFovModifier( float smoother )
+	{
+		final float fov = MCWBClient.SETTINGS.fovSetting;
+		return(
+			ActiveRenderInfo.getBlockStateAtEntityViewpoint(
+				MCWBClient.MC.world,
+				MCWBClient.MC.getRenderViewEntity(),
+				smoother
+			).getMaterial() == Material.WATER
+			? 6F / 7F * fov
+			: fov
+		);
+	}
+	
 	protected abstract class GunRenderer extends GunPartRenderer implements IGunRenderer< C, ER >
 	{
 		@Override
@@ -156,7 +181,7 @@ public abstract class GunModel<
 //			arm.armRotZ = DevHelper.get( 0 ).getRot().x;
 			
 			arm.handPos.set( handPos );
-			arm.$handRotZ( gunRotZ + handRotZ );
+			arm.setHandRotZ( gunRotZ + handRotZ );
 			arm.armRotZ = armRotZ;
 			
 			this.updateArm( arm, animator ); // TODO: refactor this: it will actually get ITEM channel again
@@ -314,6 +339,64 @@ public abstract class GunModel<
 				
 				mat.release();
 				vec.release();
+			}
+			
+			@Override
+			protected void doRenderInHandSP( E equipped, EnumHand hand )
+			{
+				// Re-setup projection matrix
+				GL11.glMatrixMode( GL11.GL_PROJECTION );
+				GL11.glLoadIdentity();
+				Project.gluPerspective(
+					GunModel.this.getFovModifier( this.smoother() ),
+					( float ) MCWBClient.MC.displayWidth / MCWBClient.MC.displayHeight,
+					0.05F, // TODO: maybe smaller this value to avoid seeing through the parts
+					MCWBClient.SETTINGS.renderDistanceChunks * 16 * MathHelper.SQRT_2
+				);
+				GL11.glMatrixMode( GL11.GL_MODELVIEW );
+				
+				/* For arm adjust */
+				if( Dev.flag )
+				{
+					GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
+					
+					final EntityPlayer player = MCWBClient.MC.player;
+					GL11.glRotatef( -player.rotationPitch, 1F, 0F, 0F );
+					GL11.glRotatef( player.rotationYaw, 0F, 1F, 0F );
+					
+					GL11.glTranslatef( 0F, 0F, -5F/16f );
+				}
+				
+				final IAnimator animator = equipped.animator();
+				equipped.setupRenderArm( animator, this.leftArm, this.rightArm );
+				this.leftArm.updateArmOrientation();
+				this.rightArm.updateArmOrientation();
+				
+				this.renderArm( animator, this.leftArm, GunModel.this.leftArmAnimationChannel );
+				this.renderArm( animator, this.rightArm, GunModel.this.rightArmAnimationChannel );
+				
+				super.doRenderInHandSP( equipped, hand );
+			}
+			
+			protected void renderArm( IAnimator animator, ArmTracker arm, String channel )
+			{
+				GL11.glPushMatrix();
+				
+				final Mat4f mat = Mat4f.locate();
+				mat.setIdentity();
+				mat.translate( arm.handPos );
+				mat.eulerRotateYXZ( arm.handRot );
+				glMultMatrix( mat );
+				mat.release();
+				
+				this.bindTexture( TEXTURE_STEVE );
+				
+//				GL11.glEnable( GL11.GL_BLEND );
+//				GL11.glColor4f( 1F, 1F, 1F, 0.5F );
+				STEVE_ARM.render();
+//				GL11.glDisable( GL11.GL_BLEND );
+				
+				GL11.glPopMatrix();
 			}
 			
 			@Override

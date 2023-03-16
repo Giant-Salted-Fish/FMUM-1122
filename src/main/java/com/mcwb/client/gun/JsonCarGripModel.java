@@ -1,6 +1,5 @@
 package com.mcwb.client.gun;
 
-import com.mcwb.client.MCWBClient;
 import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
@@ -10,7 +9,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class JsonGunPartModel extends GunPartModel<
+public class JsonCarGripModel extends CarGripModel<
 	IGunPart< ? >,
 	IEquippedItem< ? extends IGunPart< ? > >,
 	IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >,
@@ -19,16 +18,13 @@ public class JsonGunPartModel extends GunPartModel<
 		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 	>
 > {
-	public static final JsonGunPartModel NONE = new JsonGunPartModel();
-	static { NONE.build( "", MCWBClient.MOD ); }
-	
 	@Override
 	public IGunPartRenderer<
 		? super IGunPart< ? >,
 		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 	> newRenderer()
 	{
-		return this.new GunPartRenderer()
+		return this.new CarGripRenderer()
 		{
 			@Override
 			public IEquippedItemRenderer<

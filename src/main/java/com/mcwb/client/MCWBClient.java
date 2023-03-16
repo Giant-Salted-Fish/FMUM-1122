@@ -18,8 +18,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mcwb.client.ammo.AmmoModel;
+import com.mcwb.client.gun.CarGripModel;
+import com.mcwb.client.gun.GripModel;
 import com.mcwb.client.gun.GunModel;
 import com.mcwb.client.gun.GunPartModel;
+import com.mcwb.client.gun.MagModel;
+import com.mcwb.client.gun.OpticSightModel;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.item.ItemModel;
@@ -117,11 +122,11 @@ public final class MCWBClient extends MCWB
 		// Register model loaders
 		MODEL_LOADERS.regis( GunPartModel.LOADER );
 		MODEL_LOADERS.regis( GunModel.LOADER );
-//		MODEL_LOADERS.regis( MagRenderer.LOADER );
-//		MODEL_LOADERS.regis( GripRenderer.LOADER );
-//		MODEL_LOADERS.regis( CarGripRenderer.LOADER );
-//		MODEL_LOADERS.regis( OpticSightRenderer.LOADER );
-//		MODEL_LOADERS.regis( AmmoRenderer.LOADER );
+		MODEL_LOADERS.regis( MagModel.LOADER );
+		MODEL_LOADERS.regis( GripModel.LOADER );
+		MODEL_LOADERS.regis( CarGripModel.LOADER );
+		MODEL_LOADERS.regis( OpticSightModel.LOADER );
+		MODEL_LOADERS.regis( AmmoModel.LOADER );
 		
 		// Register default textures
 		this.texturePool.put( Model.TEXTURE_RED.getPath(), Model.TEXTURE_RED );

@@ -126,6 +126,7 @@ public abstract class GunPartType<
 		// TODO: call update state maybe?
 		final Function< String, IModule< ? > > func = name -> this.newRawContexted();
 		this.compiledSnapshotNBT = this.snapshot.setSnapshot( func ).serializeNBT();
+		this.snapshot = null; // Release snapshot after use
 	}
 	
 	@Override
@@ -395,6 +396,17 @@ public abstract class GunPartType<
 			// TODO: obtain from item as new raw context will not create #renderer
 			// TODO: maybe a buffered instance
 			return IModuleType.REGISTRY.get( GunPartType.this.modifyIndicator ).newRawContexted();
+		}
+		
+		@Override
+		public void deserializeNBT( NBTTagCompound nbt )
+		{
+			super.deserializeNBT( nbt );
+			
+			final int[] data = nbt.getIntArray( DATA_TAG );
+			final int value = data[ super.dataSize() ];
+			this.offset = ( short ) value;
+			this.step = ( short ) ( value >>> 16 );
 		}
 		
 		@Override

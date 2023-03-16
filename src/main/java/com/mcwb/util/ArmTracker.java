@@ -47,7 +47,7 @@ public class ArmTracker
 		this.upperArmLen = upperArmLen;
 	}
 	
-	public void $handRotZ( float angle ) { this.handRot.z = angle; }
+	public void setHandRotZ( float angle ) { this.handRot.z = angle; }
 	
 	/**
 	 * Update current hand rotation and set previous rotation value. Note that x value of the
