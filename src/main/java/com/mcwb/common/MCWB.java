@@ -403,14 +403,11 @@ public class MCWB extends URLClassLoader
 			if( json.isJsonArray() )
 			{
 				final JsonArray arr = json.getAsJsonArray();
-				final Vec3f vec = new Vec3f();
-				switch( arr.size() )
-				{
-				case 3: vec.z = arr.get( 2 ).getAsFloat();
-				case 2: vec.y = arr.get( 1 ).getAsFloat();
-				case 1: vec.x = arr.get( 0 ).getAsFloat();
-				}
-				return vec;
+				return new Vec3f(
+					arr.get( 0 ).getAsFloat(),
+					arr.get( 1 ).getAsFloat(),
+					arr.get( 2 ).getAsFloat()
+				);
 			}
 			
 			return json.isJsonObject() ? innerParser.fromJson( json, Vec3f.class )

@@ -37,6 +37,7 @@ item.hk416_upper_receiver.name=H&K416 上机匣
 
 # 弹匣
 item.556x45mm_30_round_mag.name=5.56x45mm 30发北约标准弹匣
+item.x_products_x15_556x45mm_50_round_drum.name=X Products X-15 5.56x45mm 50发弹鼓
 
 # 机械瞄具
 item.cic_is2_front_sight.name=CIC IS-2 准星
