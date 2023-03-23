@@ -1,5 +1,7 @@
 package com.mcwb.common.gun;
 
+import java.util.function.Supplier;
+
 import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.gun.JsonGunPartModel;
 import com.mcwb.client.item.IEquippedItemRenderer;
@@ -37,14 +39,12 @@ public class JsonGunPartType extends GunPartType<
 			@Override
 			public void syncAndUpdate() { }
 			
+			// This should never be equipped hence return null
 			@Override
-			public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand ) {
-				return null;
-			}
-			
-			@Override
-			public IEquippedItem< ? > onStackUpdate(
-				IEquippedItem< ? > prevEquipped,
+			protected IEquippedItem< ? extends IGunPart< ? > > newEquipped(
+				Supplier<
+					IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
+				> equippedRenderer,
 				EntityPlayer player,
 				EnumHand hand
 			) { return null; }
@@ -57,24 +57,13 @@ public class JsonGunPartType extends GunPartType<
 		final GunPart gunPart = this.new GunPart( false )
 		{
 			@Override
-			public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand )
-			{
-				return this.new EquippedGunPart(
-					() -> this.renderer.onTakeOut( hand ),
-					player, hand
-				);
-			}
-			
-			@Override
-			@SuppressWarnings( "unchecked" )
-			public IEquippedItem< ? > onStackUpdate(
-				IEquippedItem< ? > prevEquipped,
+			protected IEquippedItem< ? extends IGunPart< ? > > newEquipped(
+				Supplier<
+					IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
+				> equippedRenderer,
 				EntityPlayer player,
 				EnumHand hand
-			) {
-				final EquippedGunPart prev = ( EquippedGunPart ) prevEquipped;
-				return this.new EquippedGunPart( () -> prev.renderer, player, hand );
-			}
+			) { return this.new EquippedGunPart( equippedRenderer, player, hand ); }
 		};
 		gunPart.deserializeNBT( nbt );
 		return gunPart;

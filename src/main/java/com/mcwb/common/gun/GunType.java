@@ -1,6 +1,7 @@
 package com.mcwb.common.gun;
 
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
@@ -14,9 +15,11 @@ import com.mcwb.client.item.IItemModel;
 import com.mcwb.client.player.OpLoadMagClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
+import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
+import com.mcwb.common.module.IModule;
 import com.mcwb.common.module.IModuleEventSubscriber;
 import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.OperationController;
@@ -95,6 +98,17 @@ public abstract class GunType<
 		protected Gun( boolean unused ) { super( unused ); }
 		
 		@Override
+		public IEquippedItem< ? > onStackUpdate(
+			IEquippedItem< ? > prevEquipped,
+			EntityPlayer player,
+			EnumHand hand
+		) {
+			final EquippedGun prev = ( EquippedGun ) prevEquipped;
+			final E cur = this.newEquipped( () -> prev.renderer, player, hand );
+			
+		}
+		
+		@Override
 		public boolean hasMag() { return this.getInstalledCount( 0 ) > 0; }
 		
 		@Nullable
@@ -131,6 +145,8 @@ public abstract class GunType<
 		
 		protected class EquippedGun extends EquippedGunPart implements IEquippedGun< C >
 		{
+//			protected Function< IModule< ? >,  >
+			
 			protected EquippedGun(
 				Supplier< ER > equippedRenderer,
 				EntityPlayer player,
@@ -192,4 +208,6 @@ public abstract class GunType<
 			}
 		}
 	}
+	
+	protected static interface Inf { }
 }

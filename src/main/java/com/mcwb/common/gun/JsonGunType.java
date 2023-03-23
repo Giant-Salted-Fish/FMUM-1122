@@ -1,10 +1,11 @@
 package com.mcwb.common.gun;
 
+import java.util.function.Supplier;
+
 import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.gun.JsonGunModel;
 import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.IItemModel;
-import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.module.IModule;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -36,14 +37,12 @@ public class JsonGunType extends GunType<
 			@Override
 			public void syncAndUpdate() { }
 			
+			// This should never be equipped hence return null
 			@Override
-			public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand ) { // TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public IEquippedItem< ? > onStackUpdate(
-				IEquippedItem< ? > prevEquipped,
+			protected IEquippedGun< ? extends IGun< ? > > newEquipped(
+				Supplier<
+					IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+				> equippedRenderer,
 				EntityPlayer player,
 				EnumHand hand
 			) { return null; }
@@ -56,27 +55,18 @@ public class JsonGunType extends GunType<
 		final Gun gun = this.new Gun( false )
 		{
 			@Override
-			public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand ) {
-				return this.new EquippedGun( () -> this.renderer.onTakeOut( hand ), player, hand );
-			}
-			
-			@Override
-			@SuppressWarnings( "unchecked" )
-			public IEquippedItem< ? > onStackUpdate(
-				IEquippedItem< ? > prevEquipped,
+			protected IEquippedGun< ? extends IGun< ? > > newEquipped(
+				Supplier<
+					IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+				> equippedRenderer,
 				EntityPlayer player,
 				EnumHand hand
-			) {
-				final EquippedGun prev = ( EquippedGun ) prevEquipped;
-				final EquippedGun cur = this.new EquippedGun( () -> prev.renderer, player, hand );
-				// TODO: copy useful data
-				return cur;
-			}
+			) { return this.new EquippedGun( equippedRenderer, player, hand ); }
 		};
 		gun.deserializeNBT( nbt );
 		return gun;
 	}
-
+	
 	@Override
 	protected ICapabilityProvider newWrapper( IGun< ? > primary, ItemStack stack ) {
 		return new GunWrapper<>( primary, stack );

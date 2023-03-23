@@ -29,12 +29,11 @@ public class Animation
 	public final Map< String, BoneAnimation > channels = new HashMap<>();
 	
 	/**
-	 * Will call {@link BoneAnimation#update(float)} on these bones
+	 * {@link BoneAnimation#update(float)} will be called on these bones to start update
 	 */
-	public final LinkedList< BoneAnimation > updateQueue = new LinkedList<>();
-	// FIXME: make sure the bones all called in correct order in regard to their dependent relationship
+	public final LinkedList< BoneAnimation > rootBones = new LinkedList<>();
 	
-	public void update( float progress ) { this.updateQueue.forEach( b -> b.update( progress ) ); }
+	public void update( float progress ) { this.rootBones.forEach( b -> b.update( progress ) ); }
 	
 	public void getPos( String channel, Vec3f dst )
 	{

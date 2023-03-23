@@ -286,6 +286,22 @@ public abstract class GunPartType<
 		}
 		
 		@Override
+		public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand ) {
+			return this.newEquipped( () -> this.renderer.onTakeOut( hand ), player, hand );
+		}
+		
+		@Override
+		@SuppressWarnings( "unchecked" )
+		public IEquippedItem< ? > onStackUpdate(
+			IEquippedItem< ? > prevEquipped,
+			EntityPlayer player,
+			EnumHand hand
+		) {
+			final EquippedGunPart prev = ( EquippedGunPart ) prevEquipped;
+			return this.newEquipped( () -> prev.renderer, player, hand );
+		}
+		
+		@Override
 		public int stackId() { throw new RuntimeException(); }
 		
 		@Override
@@ -411,6 +427,12 @@ public abstract class GunPartType<
 		
 		@Override
 		public String toString() { return "Contexted<" + GunPartType.this + ">"; }
+		
+		protected abstract E newEquipped(
+			Supplier< ER > equippedRenderer,
+			EntityPlayer player,
+			EnumHand hand
+		);
 		
 		@Override
 		protected int dataSize() { return super.dataSize() + 1; }

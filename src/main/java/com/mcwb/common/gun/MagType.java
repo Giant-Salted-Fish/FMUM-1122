@@ -119,7 +119,7 @@ public abstract class MagType<
 			return ( IAmmoType ) ( ( IItemTypeHost ) item ).meta();
 		}
 		
-		protected class EquippedMag extends EquippedGunPart
+		protected class EquippedMag extends EquippedGunPart implements IEquippedMag< C >
 		{
 			protected EquippedMag(
 				Supplier< ER > equippedRenderer,

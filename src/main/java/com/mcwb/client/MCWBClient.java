@@ -3,14 +3,13 @@ package com.mcwb.client;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
@@ -297,7 +296,8 @@ public final class MCWBClient extends MCWB
 						
 						final Animation ani = new Animation();
 						// <Bone> : <Its parent>
-						final LinkedList< Entry< String, String > > mapper = new LinkedList<>();
+						final LinkedList< Entry< String, String > >
+							bone2Parent = new LinkedList<>();
 						
 						final float timeFactor = 1F / json.animation_length;
 						final float scale = json.positionScale;
@@ -324,43 +324,17 @@ public final class MCWBClient extends MCWB
 							bone.addGuard();
 							
 							ani.channels.put( channel, bone );
-							mapper.add( new SimpleEntry<>( channel, bbBone.parent ) );
+							bone2Parent.add( new SimpleEntry<>( channel, bbBone.parent ) );
 						} );
 						mat.release();
 						
-						while( mapper.size() > 0 )
-						{
-							final Iterator< Entry< String, String > > itr = mapper.iterator();
-							while( true )
-							{
-//								if( !itr.hasNext() )
-//								{
-//									// TODO: circle dependent
-//									mapper.clear();
-//									break;
-//								}
-								
-								// Find next bone that do not depend on other bones
-								final Entry< String, String > entry = itr.next();
-								if( entry.getValue() != null ) continue;
-								
-								// Add it to the update queue and remove it from mapper
-								final String bone = entry.getKey();
-								final BoneAnimation boneAni = ani.channels.get( bone );
-								ani.updateQueue.add( boneAni );
-								itr.remove();
-								
-								// Set parent for all bones depend on this bone
-								mapper.forEach( e -> {
-									if( e.getValue().equals( bone ) )
-									{
-										e.setValue( null );
-										ani.channels.get( e.getKey() ).parent = boneAni;
-									}
-								} );
-								break; // Start next round after after dependency update
-							}
-						}
+						// Setup bone & parent dependency
+						bone2Parent.forEach( e -> {
+							final String parent = e.getValue();
+							final BoneAnimation bone = ani.channels.get( e.getKey() );
+							if( parent == null ) ani.rootBones.add( bone );
+							else ani.channels.get( parent ).children.add( bone );
+						} );
 						return ani;
 					}
 				}

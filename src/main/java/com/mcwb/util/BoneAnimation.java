@@ -1,5 +1,6 @@
 package com.mcwb.util;
 
+import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -7,15 +8,16 @@ public class BoneAnimation
 {
 	public static final BoneAnimation NONE = new BoneAnimation() { {
 		this.mat.setIdentity();
-	} };
+	} }; // TODO: maybe a better none
 	
-	public BoneAnimation parent = NONE; // TODO
+	public BoneAnimation parent = NONE;
+	public final LinkedList< BoneAnimation > children = new LinkedList<>();
 	
-	public TreeMap< Float, Vec3f > pos = new TreeMap<>();
-	public TreeMap< Float, Quat4f > rot = new TreeMap<>();
+	public final TreeMap< Float, Vec3f > pos = new TreeMap<>();
+	public final TreeMap< Float, Quat4f > rot = new TreeMap<>();
 	
 	// TODO: may not need a separate alpha channel
-	public TreeMap< Float, Float > alpha = new TreeMap<>();
+	public final TreeMap< Float, Float > alpha = new TreeMap<>();
 	
 	protected final Mat4f mat = new Mat4f();
 	protected final Quat4f quat = new Quat4f();
@@ -88,10 +90,7 @@ public class BoneAnimation
 		
 		/// *** Scale *** ///
 		{ }
-	}
-	
-	public static class Builder
-	{
 		
+		this.children.forEach( child -> child.update( progress ) );
 	}
 }

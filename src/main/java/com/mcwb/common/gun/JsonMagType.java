@@ -1,5 +1,7 @@
 package com.mcwb.common.gun;
 
+import java.util.function.Supplier;
+
 import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.gun.JsonGunPartModel;
 import com.mcwb.client.item.IEquippedItemRenderer;
@@ -17,14 +19,14 @@ public class JsonMagType extends MagType<
 	IGunPart< ? >,
 	IMag< ? >,
 	IEquippedMag< ? extends IMag< ? > >,
-	IEquippedItemRenderer< ? super IEquippedMag< ? extends IMag< ? > > >,
+	IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > >,
 	IGunPartRenderer<
 		? super IMag< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedMag< ? extends IMag< ? > > >
+		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > >
 	>,
 	IItemModel< ? extends IGunPartRenderer<
 		? super IMag< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedMag< ? extends IMag< ? > > >
+		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > >
 	> >
 > {
 	@Override
@@ -36,14 +38,12 @@ public class JsonMagType extends MagType<
 			@Override
 			public void syncAndUpdate() { }
 			
+			// This should never be equipped hence return null
 			@Override
-			public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand ) {
-				return null;
-			}
-			
-			@Override
-			public IEquippedItem< ? > onStackUpdate(
-				IEquippedItem< ? > prevEquipped,
+			protected IEquippedMag< ? extends IMag< ? > > newEquipped(
+				Supplier<
+					IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > >
+				> equippedRenderer,
 				EntityPlayer player,
 				EnumHand hand
 			) { return null; }
@@ -56,20 +56,13 @@ public class JsonMagType extends MagType<
 		final Mag mag = this.new Mag( false )
 		{
 			@Override
-			public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand ) {
-				return this.new EquippedMag( () -> this.renderer.onTakeOut( hand ), player, hand );
-			}
-			
-			@Override
-			@SuppressWarnings( "unchecked" )
-			public IEquippedItem< ? > onStackUpdate(
-				IEquippedItem< ? > prevEquipped,
+			protected IEquippedMag< ? extends IMag< ? > > newEquipped(
+				Supplier<
+					IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > >
+				> equippedRenderer,
 				EntityPlayer player,
 				EnumHand hand
-			) {
-				final EquippedMag prev = ( EquippedMag ) prevEquipped;
-				return this.new EquippedMag( () -> prev.renderer, player, hand );
-			}
+			) { return this.new EquippedMag( equippedRenderer, player, hand ); }
 		};
 		mag.deserializeNBT( nbt );
 		return mag;
@@ -83,6 +76,6 @@ public class JsonMagType extends MagType<
 	@Override
 	protected IItemModel< ? extends IGunPartRenderer<
 		? super IMag< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedMag< ? extends IMag< ? > > > >
+		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > > >
 	> fallbackModel() { return JsonGunPartModel.NONE; }
 }

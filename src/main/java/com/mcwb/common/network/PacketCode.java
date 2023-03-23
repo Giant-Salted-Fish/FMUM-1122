@@ -1,10 +1,8 @@
 package com.mcwb.common.network;
 
-import com.mcwb.common.gun.IEquippedGun;
 import com.mcwb.common.gun.IEquippedMag;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.player.OpUnloadAmmo;
-import com.mcwb.common.player.OpUnloadMag;
 import com.mcwb.common.player.PlayerPatch;
 
 import io.netty.buffer.ByteBuf;
@@ -30,10 +28,10 @@ public final class PacketCode implements IPacket
 			@Override
 			protected void handle( EntityPlayerMP player )
 			{
-				final PlayerPatch patch = PlayerPatch.get( player );
-				final IEquippedItem< ? > equipped = patch.getEquipped( EnumHand.MAIN_HAND );
-				if( equipped instanceof IEquippedMag< ? > )
-					patch.tryLaunch( new OpUnloadAmmo( ( IEquippedMag< ? > ) equipped ) );
+//				final PlayerPatch patch = PlayerPatch.get( player );
+//				final IEquippedItem< ? > equipped = patch.getEquipped( EnumHand.MAIN_HAND );
+//				if( equipped instanceof IEquippedMag< ? > )
+//					patch.tryLaunch( new OpUnloadAmmo( ( IEquippedMag< ? > ) equipped ) );
 			}
 		},
 		UNLOAD_MAG

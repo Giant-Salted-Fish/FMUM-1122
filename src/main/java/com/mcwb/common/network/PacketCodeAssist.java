@@ -4,7 +4,6 @@ import com.mcwb.common.gun.IEquippedGun;
 import com.mcwb.common.gun.IEquippedMag;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.player.OpLoadAmmo;
-import com.mcwb.common.player.OpLoadMag;
 import com.mcwb.common.player.PlayerPatch;
 
 import io.netty.buffer.ByteBuf;
@@ -26,7 +25,7 @@ public final class PacketCodeAssist implements IPacket
 				final IEquippedItem< ? > equipped = patch.getEquipped( EnumHand.MAIN_HAND );
 				if( !( equipped instanceof IEquippedMag< ? > ) ) return;
 				
-				patch.tryLaunch( new OpLoadAmmo( ( IEquippedMag< ? > ) equipped, packet.assist ) );
+//				patch.tryLaunch( new OpLoadAmmo( ( IEquippedMag< ? > ) equipped, packet.assist ) );
 			}
 		},
 		LOAD_MAG

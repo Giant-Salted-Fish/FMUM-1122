@@ -61,6 +61,9 @@ public class Vec3f extends Vector3f implements IReleasable
 		POOL.back( this );
 	}
 	
+	/**
+	 * Parse {@code "(x,y,z)"} into a Vec3f
+	 */
 	public static Vec3f parse( String text )
 	{
 		final String[] split = text.split( "," );

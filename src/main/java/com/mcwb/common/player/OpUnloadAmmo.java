@@ -4,6 +4,7 @@ import com.mcwb.common.ammo.IAmmoType;
 import com.mcwb.common.gun.IEquippedMag;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.operation.IOperation;
+import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.Operation;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,7 +14,9 @@ public class OpUnloadAmmo extends Operation< IEquippedMag< ? > >
 {
 	protected IOperation next = NONE;
 	
-	public OpUnloadAmmo( IEquippedMag< ? > mag ) { super( mag, mag.popAmmoController() ); }
+	public OpUnloadAmmo( IEquippedMag< ? > mag, IOperationController controller ) {
+		super( mag, controller );
+	}
 	
 	@Override
 	public IOperation launch( EntityPlayer player ) {
