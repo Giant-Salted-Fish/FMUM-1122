@@ -70,7 +70,7 @@ public final class DynamicPos
 		this.curPos.add( delta );
 	}
 	
-	public void get( Vec3f dst, float smoother )
+	public void get( float smoother, Vec3f dst )
 	{
 		dst.set( this.curPos );
 		dst.sub( this.prevPos );

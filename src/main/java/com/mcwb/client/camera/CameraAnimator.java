@@ -187,7 +187,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	@Override
 	public void getCameraRot( Vec3f dst )
 	{
-		this.cameraEasing.get( dst, this.smoother() );
+		this.cameraEasing.get( this.smoother(), dst );
 		dst.add( this.cameraRot );
 	}
 	
