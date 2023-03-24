@@ -61,6 +61,7 @@ import net.minecraftforge.fml.common.discovery.ModCandidate;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+// 做第三人称玩家移动动画时可以考虑让双脚运动轨迹等于错相的半圆然后通过 ik 控制腿部移动
 @SideOnly( Side.CLIENT )
 public final class MCWBClient extends MCWB
 	implements IAutowirePlayerChat, IAutowireBindTexture, IAutowireSmoother

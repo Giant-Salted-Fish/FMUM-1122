@@ -32,10 +32,12 @@ public final class ObjReformator
 		
 		for( File file : new File( inDir ).listFiles() )
 		{
+			// Only process .obj files
 			final String fName = file.getName();
 			if( !fName.endsWith( ".obj" ) )
 				continue;
 			
+			// If has .obj.obj suffix then remove it
 			final String outFileName = fName.endsWith( ".obj.obj" )
 				? fName.substring( 0, fName.length() - 4 ) : fName;
 			process( inDir + fName, outDir + outFileName );
@@ -52,6 +54,7 @@ public final class ObjReformator
 			BufferedWriter out = new BufferedWriter( new FileWriter( outPath ) );
 		) {
 			for( String line; ( line = in.readLine() ) != null; out.newLine() )
+			{
 				if( line.startsWith( "vt" ) )
 				{
 					final String[] split = line.split( " " );
@@ -83,10 +86,14 @@ public final class ObjReformator
 					if( i < 0 )
 						out.write( line );
 				}
-				// Remove "mtllib" and "usemtl" label
-				else out.write(
-					line.startsWith( "mtllib" ) || line.startsWith( "usemtl" ) ? "#" + line : line
-				);
+				else
+				{
+					// Remove "mtllib" and "usemtl" label
+					if( line.startsWith( "mtllib" ) || line.startsWith( "usemtl" ) )
+						out.write( '#' );
+					out.write( line );
+				}
+			}
 		}
 		catch( IOException e ) { e.printStackTrace(); }
 	}

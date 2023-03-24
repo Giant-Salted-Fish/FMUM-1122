@@ -8,6 +8,10 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * @see InputHandler
+ * @author Giant_Salted_Fish
+ */
 @SideOnly( Side.CLIENT )
 public interface IKeyBind extends IMeta
 {

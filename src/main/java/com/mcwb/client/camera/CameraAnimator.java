@@ -26,7 +26,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 {
 	public static final CameraAnimator INSTANCE = new CameraAnimator();
 	
-	protected static final float VIEW_SHIFTER = Float
+	protected static final float PITCH_SHIFTER = Float
 		.intBitsToFloat( ( Float.floatToIntBits( 90F ) >>> 23 ) - 23 << 23 );
 	
 	/**
@@ -51,6 +51,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	 * Off-axis view angle that triggered by free view
 	 */
 	protected final DynamicPos cameraOffAxis = new DynamicPos();
+	protected final Vec3f prevCameraOffAxis = new Vec3f();
 	
 	/**
 	 * Handles easing animation on camera. For example the drop camera shake.
@@ -109,59 +110,78 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	{
 		final EntityPlayerSP player = MCWBClient.MC.player;
 		final DynamicPos camOffAxis = this.cameraOffAxis;
+		final Vec3f playerRot = this.playerRot;
 		final float smoother = this.smoother();
 		
-		// Apply a tiny change to player's view to force chunk load
-		player.rotationPitch += VIEW_SHIFTER;
-		player.prevRotationPitch += VIEW_SHIFTER;
-		
-		// Get input mouse delta
+		// Process input mouse delta
 		final float mouseFactor = this.getMouseFactor();
-		final float deltaYaw = mouse.deltaX * mouseFactor;
+		final float mouseDeltaY = MCWBClient.SETTINGS.invertMouse ? mouse.deltaY : -mouse.deltaY;
+		final float rawDeltaPitch = mouseDeltaY * mouseFactor;
+		final float rawDeltaYaw = mouse.deltaX * mouseFactor;
 		
 		// Make sure delta pitch is inside the limit
-		final Vec3f cameraRot = this.cameraRot;
-		cameraRot.x = player.rotationPitch + camOffAxis.getX( smoother );
-		
-		final float deltaY = mouse.deltaY * mouseFactor;
-		final float deltaPitch = MathHelper.clamp(
-			MCWBClient.SETTINGS.invertMouse ? deltaY : -deltaY,
-			-90F - cameraRot.x,
-			90F - cameraRot.x
-		);
-		cameraRot.x += deltaPitch;
+		final float camOffAxisX = camOffAxis.getX( smoother );
+		final float rawCameraPitch = player.rotationPitch + camOffAxisX;
+		final float newCameraPitch = MathHelper.clamp( rawCameraPitch + rawDeltaPitch, -90F, 90F );
+		final float deltaPitch = newCameraPitch - rawCameraPitch;
 		
 		// If looking around, apply view rot to off-axis
 		if( InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down )
 		{
-			this.playerRot.set( player.rotationPitch, player.rotationYaw, 0F );
+			playerRot.set( player.rotationPitch, player.rotationYaw, 0F );
 			
 			final Vec3f offAxis = camOffAxis.curPos;
 			// This is commented as the state of look around key is updated by tick so there is no \
 			// way it can change in between the ticks. And may be the key update event is earlier \
 			// than the item tick hence set it with smoothed value will actually cause that view \
-			// jump effect. TODO: This may have to be add back once tick method of item is moved \
-			// to Item#update( ... ) method.
+			// jump effect.
 //			camOffAxis.smoothedPos( offAxis, smoother );
-			
-			// Apply delta rot and make the rotation would not exceed the limit
-			final float yawLimit = MathHelper.sqrt(
-				MCWBClient.freeViewLimitSquared - cameraRot.x * cameraRot.x
-			);
-			offAxis.y = MathHelper.clamp( offAxis.y + deltaYaw , -yawLimit, yawLimit );
 			offAxis.x += deltaPitch;
+			
+			// Make the yaw rotation would not exceed the limit
+			final float pitchSquared = newCameraPitch * newCameraPitch;
+			final float yawLimitSquared = MCWBClient.freeViewLimitSquared - pitchSquared;
+			final float yawLimit = MathHelper.sqrt( yawLimitSquared );
+			offAxis.y = MathHelper.clamp( offAxis.y + rawDeltaYaw, -yawLimit, yawLimit );
 			
 			// Set previous with current value to avoid bobbing
 			camOffAxis.prevPos.set( offAxis );
 			
-			// Clear mouse input to avoid changing walking direction
-			mouse.deltaX = mouse.deltaY = 0;
+			// Clear mouse input to prevent walking direction change
+			mouse.deltaX = 0;
+			mouse.deltaY = 0;
+			
+			this.updateCameraRot( offAxis.x, offAxis.y );
 		}
-		else this.playerRot
-			.set( player.rotationPitch + deltaPitch, player.rotationYaw + deltaYaw, 0F );
+		else
+		{
+			playerRot.set(
+				player.rotationPitch + deltaPitch,
+				player.rotationYaw + rawDeltaYaw,
+				0F
+			);
+			this.updateCameraRot( camOffAxisX, camOffAxis.getY( smoother ) );
+		}
+	}
+	
+	protected final void updateCameraRot( float camOffAxisX, float camOffAxisY )
+	{
+		this.cameraRot.x = this.playerRot.x + camOffAxisX;
+		this.cameraRot.y = this.playerRot.y + camOffAxisY;
 		
-		// Do not forget to update camera rot yaw
-		cameraRot.y = this.playerRot.y + camOffAxis.getY( smoother );
+		// Apply a tiny change to player's view to force view frustum update if off-axis has changed
+		final EntityPlayerSP player = MCWBClient.MC.player;
+		final Vec3f prevOffAxis = this.prevCameraOffAxis;
+		final float pitchChange = Math.abs( camOffAxisX - prevOffAxis.x );
+		final float yawChange   = Math.abs( camOffAxisY - prevOffAxis.y );
+		
+		final float rawShifter = Math.min( PITCH_SHIFTER, pitchChange + yawChange );
+		final float clampedShifter = rawShifter < PITCH_SHIFTER ? 0F : rawShifter;
+		player.rotationPitch += clampedShifter;
+		player.prevRotationPitch = player.rotationPitch;
+		
+		prevOffAxis.x = camOffAxisX;
+		prevOffAxis.y = camOffAxisY;
 	}
 	
 	@Override
