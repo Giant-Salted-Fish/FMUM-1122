@@ -9,8 +9,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 /**
  * <p> Represents something that the player is doing with the item in main hand. </p>
  * 
- * <p> In default your implementation should guarantee that {@link #terminate()} is called whenever
- * the operation is left for execution. </p>
+ * <p> In default your implementation should guarantee that {@link #terminate()} is always called
+ * when the operation is left for execution. </p>
+ * 
+ * <p> Notice that we supply {@link EntityPlayer} for every life cycle method of operation. This is
+ * because we know the outer caller should have the reference to the corresponding player and this
+ * helps to eliminate the memory cost to have the identical reference to the same instance. On the
+ * other side, this also helps to prevent others from calling these methods as they do not have the
+ * corresponding context. </p>
  * 
  * @author Giant_Salted_Fish
  */
@@ -47,8 +53,11 @@ public interface IOperation
 	public default IOperation toggle( EntityPlayer player ) { return this; }
 	
 	/**
-	 * Called when the outer requires to terminate this operation. Be aware that the executing
-	 * operation may refuse to terminate.
+	 * <p> Called when the outer requires to terminate this operation. Be aware that the executing
+	 * operation may refuse to terminate. </p>
+	 * 
+	 * <p> In default, your implementation should guarantee that this method is always called when
+	 * this operation is left for execution. </p>
 	 * 
 	 * @return {@link #NONE} if execution is aborted
 	 */

@@ -38,7 +38,12 @@ public interface IEquippedItem< T extends IItem >
 	public T item();
 	
 	/**
-	 * Called when this item is holden in player's hand
+	 * <p> Called when this item is holden in player's hand. </p>
+	 * 
+	 * <p> {@link EntityPlayer} and {@link EnumHand} is supplied here because we know outer caller
+	 * should have a reference to them and this allows this class to eliminate the memory cost to
+	 * refer to same instance. And this also helps to prevent others from calling this method as
+	 * they do not have the corresponding context to supply. </p>
 	 */
 	public default void tickInHand( EntityPlayer player, EnumHand hand ) { }
 	
