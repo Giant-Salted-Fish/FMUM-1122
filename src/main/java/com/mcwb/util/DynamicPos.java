@@ -45,7 +45,7 @@ public final class DynamicPos
 		force.sub( this.curPos );
 		
 		final float forceSquared = force.lengthSquared();
-		if( forceSquared > maxForce * maxForce )
+		if ( forceSquared > maxForce * maxForce )
 			force.scale( maxForce / MathHelper.sqrt( forceSquared ) );
 		
 		// Assume that mess=1 then acceleration equals force

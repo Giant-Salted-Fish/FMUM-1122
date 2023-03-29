@@ -43,7 +43,7 @@
 //		
 //		// Actually should be twice of this angle
 //		final float deltaAngle = ( float ) Math.acos( deltaRot.w );
-//		if( deltaAngle > 0F )
+//		if ( deltaAngle > 0F )
 //		{
 //			// This if statement actually can be removed by testing the divisor on divide. But \
 //			// considering the work amount inside it, keep it here may be a better choice.

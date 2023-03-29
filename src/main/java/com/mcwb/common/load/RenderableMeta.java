@@ -34,7 +34,7 @@ public abstract class RenderableMeta< T > extends TexturedMeta
 			: "models/" + fallbackType + "/" + this.name + ".json";
 		
 		this.model = ( T ) this.provider.loadModel( path, fallbackType );
-		if( this.model == null ) this.model = this.fallbackModel();
+		if ( this.model == null ) this.model = this.fallbackModel();
 		
 		this.modelPath = null; // TODO: if this is needed to reload the model?
 	}

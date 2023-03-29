@@ -113,11 +113,11 @@ public final class MCWBClient extends MCWB
 	public void preLoad()
 	{
 		// Check OpenGL support
-		if( !GLContext.getCapabilities().OpenGL30 )
+		if ( !GLContext.getCapabilities().OpenGL30 )
 			throw new RuntimeException( I18n.format( "mcwb.opengl_version_too_low" ) );
 		
 		final Framebuffer framebuffer = MC.getFramebuffer();
-		if( !framebuffer.isStencilEnabled() && !framebuffer.enableStencil() )
+		if ( !framebuffer.isStencilEnabled() && !framebuffer.enableStencil() )
 			throw new RuntimeException( I18n.format( "mcwb.stencil_not_supported" ) );
 		
 		// Do prepare load
@@ -149,10 +149,10 @@ public final class MCWBClient extends MCWB
 	{
 		// Load key binds before the content load
 		this.keyBindsFile = new File( this.gameDir, "config/mcwb-keys.json" );
-		if( !this.keyBindsFile.exists() )
+		if ( !this.keyBindsFile.exists() )
 		{
 			try { this.keyBindsFile.createNewFile(); }
-			catch( IOException e ) { this.except( e, "mcwb.error_creating_key_binds_file" ); }
+			catch ( IOException e ) { this.except( e, "mcwb.error_creating_key_binds_file" ); }
 			InputHandler.saveTo( this.keyBindsFile );
 		}
 		else InputHandler.readFrom( this.keyBindsFile );
@@ -210,10 +210,10 @@ public final class MCWBClient extends MCWB
 		return this.modelPool.computeIfAbsent( path, key -> {
 			try
 			{
-				if( key.endsWith( ".json" ) )
+				if ( key.endsWith( ".json" ) )
 				{
 					final MCWBResource identifier = new MCWBResource( key );
-					try( IResource res = MC.getResourceManager().getResource( identifier ) )
+					try ( IResource res = MC.getResourceManager().getResource( identifier ) )
 					{
 						final InputStreamReader in = new InputStreamReader( res.getInputStream() );
 						final JsonObject obj = GSON.fromJson( in, JsonObject.class );
@@ -223,7 +223,7 @@ public final class MCWBClient extends MCWB
 						final String entry = type != null
 							? type.getAsString().toLowerCase() : fallbackType;
 						final BuildableLoader< ? > loader = MODEL_LOADERS.get( entry );
-						if( loader != null )
+						if ( loader != null )
 							return loader.parser.apply( obj ).build( key, provider );
 						
 						throw new RuntimeException(
@@ -231,7 +231,7 @@ public final class MCWBClient extends MCWB
 						);
 					}
 				}
-				else if( key.endsWith( ".class" ) )
+				else if ( key.endsWith( ".class" ) )
 				{
 					return this.loadClass( key.substring( 0, key.length() - 6 ) )
 						.getConstructor( String.class, IContentProvider.class )
@@ -241,7 +241,7 @@ public final class MCWBClient extends MCWB
 				// Unknown renderer type
 				else throw new RuntimeException( "Unsupported renderer file type" ); // TODO: format this?
 			}
-			catch( Exception e ) { this.except( e, "mcwb.error_loading_renderer", key ); }
+			catch ( Exception e ) { this.except( e, "mcwb.error_loading_renderer", key ); }
 			return null;
 		} );
 	}
@@ -262,16 +262,16 @@ public final class MCWBClient extends MCWB
 			try
 			{
 				// TODO: switch by suffix to support other types of models?
-				if( key.endsWith( ".obj" ) )
+				if ( key.endsWith( ".obj" ) )
 					return processor.apply( new ObjMeshBuilder().load( key ) ).quickBuild();
-//				if( key.endsWith( ".class" ) )
+//				if ( key.endsWith( ".class" ) )
 //					return ( Mesh ) this.loadClass( key.substring( 0, key.length() - 6 ) )
 //						.getConstructor().newInstance();
 				
 				// Unknown mesh type
 				throw new RuntimeException( "Unsupported model file type" ); // TODO: format this?
 			}
-			catch( Exception e ) { this.except( e, "mcwb.error_loading_mesh", key ); }
+			catch ( Exception e ) { this.except( e, "mcwb.error_loading_mesh", key ); }
 			return Mesh.NONE;
 		} );
 	}
@@ -287,11 +287,11 @@ public final class MCWBClient extends MCWB
 		return this.animationPool.computeIfAbsent( path, key -> {
 			try
 			{
-				if( key.endsWith( ".json" ) )
+				if ( key.endsWith( ".json" ) )
 				{
 					// For animation exported from blockbench
 					final MCWBResource identifier = new MCWBResource( key );
-					try( IResource res = MC.getResourceManager().getResource( identifier ) )
+					try ( IResource res = MC.getResourceManager().getResource( identifier ) )
 					{
 						final InputStreamReader in = new InputStreamReader( res.getInputStream() );
 						final BBAnimationJson json = GSON.fromJson( in, BBAnimationJson.class );
@@ -334,7 +334,7 @@ public final class MCWBClient extends MCWB
 							final Iterator< Entry< String, String > > itr = mapper.iterator();
 							while( true )
 							{
-//								if( !itr.hasNext() )
+//								if ( !itr.hasNext() )
 //								{
 //									// TODO: circle dependent
 //									mapper.clear();
@@ -343,7 +343,7 @@ public final class MCWBClient extends MCWB
 								
 								// Find next bone that do not depend on other bones
 								final Entry< String, String > entry = itr.next();
-								if( entry.getValue() != null ) continue;
+								if ( entry.getValue() != null ) continue;
 								
 								// Add it to the update queue and remove it from mapper
 								final String bone = entry.getKey();
@@ -353,7 +353,7 @@ public final class MCWBClient extends MCWB
 								
 								// Set parent for all bones depend on this bone
 								mapper.forEach( e -> {
-									if( e.getValue().equals( bone ) )
+									if ( e.getValue().equals( bone ) )
 									{
 										e.setValue( null );
 										ani.channels.get( e.getKey() ).parent = boneAni;
@@ -366,12 +366,12 @@ public final class MCWBClient extends MCWB
 					}
 				}
 				
-				if( key.endsWith( ".class" ) );
+				if ( key.endsWith( ".class" ) );
 					// TODO: class animation?
 				
 				throw new RuntimeException( "Unsupported animation file type" );
 			}
-			catch( Exception e ) { this.except( e, "mcwb.error_loading_animation", key ); }
+			catch ( Exception e ) { this.except( e, "mcwb.error_loading_animation", key ); }
 			return Animation.NONE;
 		} );
 	}

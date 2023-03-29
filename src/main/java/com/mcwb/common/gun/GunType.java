@@ -122,9 +122,9 @@ public abstract class GunType<
 			this.leftHandHolding = this;
 			this.rightHandHolding = this;
 			this.forEach( gunPart -> {
-				if( gunPart.leftHandPriority() > this.leftHandHolding.leftHandPriority() )
+				if ( gunPart.leftHandPriority() > this.leftHandHolding.leftHandPriority() )
 					this.leftHandHolding = gunPart;
-				if( gunPart.rightHandPriority() > this.rightHandHolding.rightHandPriority() )
+				if ( gunPart.rightHandPriority() > this.rightHandHolding.rightHandPriority() )
 					this.rightHandHolding = gunPart;
 			} );
 		}
@@ -141,7 +141,7 @@ public abstract class GunType<
 			@SideOnly( Side.CLIENT )
 			public void onKeyPress( IKeyBind key )
 			{
-				switch( key.name() )
+				switch ( key.name() )
 				{
 				case Key.LOAD_UNLOAD_MAG:
 				case Key.CO_LOAD_UNLOAD_MAG:

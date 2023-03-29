@@ -66,19 +66,19 @@ public class ArmTracker
 		
 		/// Get elbow coordinate
 		// Case: distance is too short to organize a triangle
-		if(
+		if (
 			this.forearmLen >= this.upperArmLen + distance
 			|| this.upperArmLen >= this.forearmLen + distance
 		) {
-			if( !vec.nonZero() ) vec.set( 0F, -1F, 0F );
-			else if( this.forearmLen > this.upperArmLen ) vec.negate();
+			if ( !vec.nonZero() ) vec.set( 0F, -1F, 0F );
+			else if ( this.forearmLen > this.upperArmLen ) vec.negate();
 			
 			vec.scale( this.forearmLen / vec.length() );
 			vec.add( this.handPos );
 			this.elbowPos.add( vec );
 		}
 		// Case: distance it too long and arm is not enough
-		else if( distance >= this.forearmLen + this.upperArmLen )
+		else if ( distance >= this.forearmLen + this.upperArmLen )
 		{
 			vec.negate();
 			vec.scale( this.forearmLen / vec.length() );

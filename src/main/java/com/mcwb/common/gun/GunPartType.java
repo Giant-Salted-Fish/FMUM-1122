@@ -100,7 +100,7 @@ public abstract class GunPartType<
 		);
 		
 		// Add itself as the default paintjob
-		if( this.paintjobs.size() == 0 )
+		if ( this.paintjobs.size() == 0 )
 			this.paintjobs = new ArrayList<>();
 		this.paintjobs.add( 0, this );
 		
@@ -116,7 +116,7 @@ public abstract class GunPartType<
 		super.onPostLoad();
 		
 		this.provider.clientOnly( () -> {
-			if( IModuleType.REGISTRY.get( this.modifyIndicator ) == null )
+			if ( IModuleType.REGISTRY.get( this.modifyIndicator ) == null )
 			{
 				this.error( "mcwb.fail_to_find_indicator", this, this.modifyIndicator );
 				this.modifyIndicator = MCWBClient.MODIFY_INDICATOR;
@@ -171,7 +171,7 @@ public abstract class GunPartType<
 			final GunPartType< I, C, E, ER, R, M > $this = GunPartType.this;
 			
 			C primary;
-			if( capTag != null )
+			if ( capTag != null )
 			{
 				// 2 cases possible:
 				// no--stackTag | has-capTag: {ItemStack#copy()}
@@ -183,7 +183,7 @@ public abstract class GunPartType<
 				capTag.removeTag( "Parent" );
 				
 				NBTTagCompound primaryTag;
-				if( stackTag == null )
+				if ( stackTag == null )
 				{
 					// Has to copy before use if it is the first case as the capability tag \
 					// provided here could be the same as the bounden tag of copy target.
@@ -196,7 +196,7 @@ public abstract class GunPartType<
 				
 				primary = ( C ) $this.fromTag( primaryTag );
 			}
-			else if( stackTag != null )
+			else if ( stackTag != null )
 			{
 				// has-stackTag | no--capTag: should never happen
 				Dev.cur();
@@ -446,7 +446,7 @@ public abstract class GunPartType<
 				EntityPlayer player,
 				EnumHand hand
 			) {
-//				if( player.world.isRemote )
+//				if ( player.world.isRemote )
 				// TODO: This will create renderer on local server
 				MCWB.MOD.clientOnly( () -> this.renderer = equippedRenderer.get() );
 			}
@@ -456,7 +456,7 @@ public abstract class GunPartType<
 			
 			@Override
 			public void tickInHand( EntityPlayer player, EnumHand hand ) {
-				if( player.world.isRemote ) this.renderer.tickInHand( this.self(), hand );
+				if ( player.world.isRemote ) this.renderer.tickInHand( this.self(), hand );
 			}
 			
 			@Override

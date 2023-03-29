@@ -28,7 +28,7 @@ public class ObjMeshBuilder extends Mesh.Builder
 		model.getMatLib().getGroups().entrySet().forEach(
 			e -> e.getValue().getFaces().forEach( face -> {
 				final OBJModel.Normal faceNorm = face.getNormal();
-				for( final OBJModel.Vertex vert : face.getVertices() )
+				for ( final OBJModel.Vertex vert : face.getVertices() )
 				{
 					final Vector4f vec = vert.getPos();
 					final OBJModel.TextureCoordinate uv = vert.getTextureCoordinate();

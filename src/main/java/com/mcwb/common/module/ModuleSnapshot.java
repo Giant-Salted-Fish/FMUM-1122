@@ -40,27 +40,27 @@ public class ModuleSnapshot implements IAutowireLogger
 	public < T extends IModule< ? > > T setSnapshot( Function< String, T > supplier )
 	{
 		final T module = supplier.apply( this.module );
-		if( module == null )
+		if ( module == null )
 		{
 			this.error( "mcwb.fail_to_find_module", this.module );
 			return null;
 		}
 		
-		if( this.module.equals( "lmt_stock" ) )
+		if ( this.module.equals( "lmt_stock" ) )
 			MCWB.MOD.author();
 		
 		// Setup settings
 		module.setOffsetStep( this.offset, this.step );
-		if( module instanceof IPaintable )
+		if ( module instanceof IPaintable )
 			( ( IPaintable ) module ).setPaintjob( this.paintjob );
 		
 		// Install modules
-		for( int i = 0, size = this.slots.size(); i < size; ++i )
+		for ( int i = 0, size = this.slots.size(); i < size; ++i )
 		{
 			final int slot = i;
 			this.slots.get( i ).forEach( snapshot -> {
 				final IModule< ? > tarMod = snapshot.setSnapshot( SUPPLIER );
-				if( tarMod != null ) module.install( slot, tarMod );
+				if ( tarMod != null ) module.install( slot, tarMod );
 				// This is the special case that we do not use #tryInstall(...)
 			} );
 		}

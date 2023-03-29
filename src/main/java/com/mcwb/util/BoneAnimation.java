@@ -23,20 +23,20 @@ public class BoneAnimation
 	
 	public void addGuard() // TODO
 	{
-		if( this.pos.floorKey( 0F ) == null )
+		if ( this.pos.floorKey( 0F ) == null )
 			this.pos.put( 0F, Vec3f.ORIGIN );
-		if( this.pos.ceilingKey( 1F ) == null )
-			this.pos.put( 1F, this.pos.lowerEntry( 1F ).getValue() );
+		if ( this.pos.ceilingKey( 1F ) == null )
+			this.pos.put( 1F, this.pos.lowerEntry ( 1F ).getValue() );
 		
-		if( this.rot.floorKey( 0F ) == null )
+		if ( this.rot.floorKey( 0F ) == null )
 			this.rot.put( 0F, Quat4f.ORIGIN );
-		if( this.rot.ceilingKey( 1F ) == null )
-			this.rot.put( 1F, this.rot.lowerEntry( 1F ).getValue() );
+		if ( this.rot.ceilingKey( 1F ) == null )
+			this.rot.put( 1F, this.rot.lowerEntry ( 1F ).getValue() );
 		
-		if( this.alpha.floorKey( 0F ) == null )
+		if ( this.alpha.floorKey( 0F ) == null )
 			this.alpha.put( 0F, 1F );
-		if( this.alpha.ceilingEntry( 1F ) == null )
-			this.alpha.put( 1F, this.alpha.lowerEntry( 1F ).getValue() );
+		if ( this.alpha.ceilingEntry ( 1F ) == null )
+			this.alpha.put( 1F, this.alpha.lowerEntry ( 1F ).getValue() );
 	}
 	
 	public void update( float progress )
@@ -47,8 +47,8 @@ public class BoneAnimation
 		
 		/// *** Alpha *** ///
 		{
-			final Entry< Float, Float > floor = this.alpha.floorEntry( progress );
-			final Entry< Float, Float > ceiling = this.alpha.ceilingEntry( progress );
+			final Entry< Float, Float > floor = this.alpha.floorEntry ( progress );
+			final Entry< Float, Float > ceiling = this.alpha.ceilingEntry ( progress );
 			final float floorTime = floor.getKey();
 			final float delta = ceiling.getKey() - floorTime;
 			final float alpha = delta > 0F ? ( progress - floorTime ) / delta : floorTime;
@@ -57,8 +57,8 @@ public class BoneAnimation
 		
 		/// *** Position *** ///
 		{
-			final Entry< Float, Vec3f > floor = this.pos.floorEntry( progress );
-			final Entry< Float, Vec3f > ceiling = this.pos.ceilingEntry( progress );
+			final Entry< Float, Vec3f > floor = this.pos.floorEntry ( progress );
+			final Entry< Float, Vec3f > ceiling = this.pos.ceilingEntry ( progress );
 			final float floorTime = floor.getKey();
 			final float delta = ceiling.getKey() - floorTime;
 			final float alpha = delta > 0F ? ( progress - floorTime ) / delta : floorTime;
@@ -72,8 +72,8 @@ public class BoneAnimation
 		
 		/// *** Rotation *** ///
 		{
-			final Entry< Float, Quat4f > floor = this.rot.floorEntry( progress );
-			final Entry< Float, Quat4f > ceiling = this.rot.ceilingEntry( progress );
+			final Entry< Float, Quat4f > floor = this.rot.floorEntry ( progress );
+			final Entry< Float, Quat4f > ceiling = this.rot.ceilingEntry ( progress );
 			final float floorTime = floor.getKey();
 			final float delta = ceiling.getKey() - floorTime;
 			final float alpha = delta > 0F ? ( progress - floorTime ) / delta : floorTime;

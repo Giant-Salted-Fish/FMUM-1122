@@ -97,7 +97,7 @@ public class MCWB extends URLClassLoader
 	public static final MCWB MOD;
 	static
 	{
-		if( FMLCommonHandler.instance().getSide().isServer() )
+		if ( FMLCommonHandler.instance().getSide().isServer() )
 			MOD = new MCWB();
 		else try
 		{
@@ -105,7 +105,7 @@ public class MCWB extends URLClassLoader
 			final String className = "com.mcwb.client.MCWBClient";
 			MOD = ( MCWB ) Class.forName( className ).getField( "MOD" ).get( null );
 		}
-		catch( Exception e ) {
+		catch ( Exception e ) {
 			throw new RuntimeException( "Can not get client proxy. Should be impossible", e );
 		}
 	}
@@ -246,7 +246,7 @@ public class MCWB extends URLClassLoader
 		// Check content pack folder
 		// TODO: if load packs from mods dir then allow the player to disable content pack folder
 		final File packDir = new File( this.gameDir, ID );
-		if( !packDir.exists() )
+		if ( !packDir.exists() )
 		{
 			packDir.mkdirs();
 			this.info( "mcwb.pack_dir_created", ID );
@@ -258,12 +258,12 @@ public class MCWB extends URLClassLoader
 		
 		// Find all content packs and load them
 		final HashSet< IContentProvider > providers = new HashSet<>();
-		for( final File file : packDir.listFiles() )
+		for ( final File file : packDir.listFiles() )
 		{
 			LocalPack pack;
-			if( file.isDirectory() )
+			if ( file.isDirectory() )
 				pack = new FolderPack( file );
-			else if( jarRegex.matcher( file.getName() ).matches() )
+			else if ( jarRegex.matcher( file.getName() ).matches() )
 				pack = new JarPack( file );
 			else
 			{
@@ -296,7 +296,7 @@ public class MCWB extends URLClassLoader
 	public void addResourceDomain( File file )
 	{
 		try { this.addURL( file.toURI().toURL() ); }
-		catch( MalformedURLException e ) {
+		catch ( MalformedURLException e ) {
 			this.except( e, "mcwb.error_adding_classpath", file.getName() );
 		}
 	}
@@ -400,7 +400,7 @@ public class MCWB extends URLClassLoader
 		
 		final Gson innerParser = new GsonBuilder().setLenient().create();
 		final JsonDeserializer< Vec3f > vecAdapter = ( json, typeOfT, context ) -> {
-			if( json.isJsonArray() )
+			if ( json.isJsonArray() )
 			{
 				final JsonArray arr = json.getAsJsonArray();
 				return new Vec3f(
@@ -414,7 +414,7 @@ public class MCWB extends URLClassLoader
 				: Vec3f.parse( json.getAsString() );
 		};
 		final JsonDeserializer< AngleAxis4f > angleAxisAdapter = ( json, typeOfT, context ) -> {
-			if( !json.isJsonArray() )
+			if ( !json.isJsonArray() )
 				return innerParser.fromJson( json, AngleAxis4f.class );
 			
 			final JsonArray arr = json.getAsJsonArray();

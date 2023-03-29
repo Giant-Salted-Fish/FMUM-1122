@@ -60,13 +60,13 @@ public class PlayerPatch implements ICapabilityProvider
 			final IItem item = IItemTypeHost.getItemOrDefault( stack );
 			final int stackId = item.stackId();
 			
-			if( stackId != this.mainStackId )
+			if ( stackId != this.mainStackId )
 			{
 				this.mainStackId = stackId;
 				this.mainEquipped = item.onTakeOut( this.player, hand );
 				this.executing = this.executing.onItemChange( this.mainEquipped, this.player );
 			}
-			else if( stack != this.mainStack )
+			else if ( stack != this.mainStack )
 			{
 				this.mainStack = stack;
 				this.mainEquipped = item.onStackUpdate( this.mainEquipped, this.player, hand );
@@ -83,12 +83,12 @@ public class PlayerPatch implements ICapabilityProvider
 			final IItem item = IItemTypeHost.getItemOrDefault( stack );
 			final int stackId = item.stackId();
 			
-			if( stackId != this.offStackId )
+			if ( stackId != this.offStackId )
 			{
 				this.offStackId = stackId;
 				this.offEquipped = item.onTakeOut( this.player, hand );
 			}
-			else if( stack != this.offStack )
+			else if ( stack != this.offStack )
 			{
 				this.offStack = stack;
 				this.offEquipped = item.onStackUpdate( this.offEquipped, this.player, hand );

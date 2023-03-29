@@ -53,7 +53,7 @@ public abstract class AmmoType<
 		
 		IAmmoType.REGISTRY.regis( this );
 		
-		if( this.category == null )
+		if ( this.category == null )
 			this.category = this.name;
 		return this;
 	}

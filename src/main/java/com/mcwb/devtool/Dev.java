@@ -50,7 +50,7 @@ public class Dev implements IAutowirePlayerChat
 		@Override
 		public void accept( Boolean useDefaultTexture )
 		{
-			if( useDefaultTexture )
+			if ( useDefaultTexture )
 				MCWBClient.MOD.bindTexture( this.texture );
 			this.renderer.render();
 		}
@@ -115,7 +115,7 @@ public class Dev implements IAutowirePlayerChat
 	{
 //		final String path = new File( "." ).getAbsolutePath();
 //		
-//		try( FileReader in = new FileReader( new File( "../z-dev/model.animation.json" ) ) )
+//		try ( FileReader in = new FileReader( new File( "../z-dev/model.animation.json" ) ) )
 //		{
 //			final BBAnimation bb = MCWB.GSON.fromJson( in, BBAnimationExport.class ).animations.get( "Reload" );
 //			
@@ -137,7 +137,7 @@ public class Dev implements IAutowirePlayerChat
 //			leftArm.parent = left;
 //			mag.parent = left;
 //		}
-//		catch( Exception e ) { throw new RuntimeException( e ); }
+//		catch ( Exception e ) { throw new RuntimeException( e ); }
 		
 		final String group = "test";
 		final Collection< IKeyBind > updateGroup = InputHandler.GLOBAL_KEYS;
@@ -207,31 +207,31 @@ public class Dev implements IAutowirePlayerChat
 		final TestPosRot instance = testList.get( testInsNum );
 		final boolean co = InputHandler.CO.down;
 		
-		if( tu || td )
+		if ( tu || td )
 			instance.testValue[ testNum ] += ( tu ? 1F : -1F ) * ( co ? 0.5F : 5F );
 		
-		else if( co )
+		else if ( co )
 		{
-			if( tl || tr )
+			if ( tl || tr )
 			{
 				final int size = testList.size();
 				testInsNum = ( testInsNum + ( tl ? size - 1 : 1 ) ) % size;
 				MCWBClient.MOD.sendPlayerMsg( "Move upon " + testList.get( testInsNum ).name );
 			}
-			else if( te )
+			else if ( te )
 			{
-				for( int i = instance.testValue.length; i-- > 0; instance.testValue[ i ] = 0F );
+				for ( int i = instance.testValue.length; i-- > 0; instance.testValue[ i ] = 0F );
 				MCWBClient.MOD.sendPlayerMsg( "Reset " + instance.name );
 			}
 		}
 		
-		else if( tl || tr )
+		else if ( tl || tr )
 		{
 			final int size = instance.testValue.length;
 			testNum = ( testNum + ( tl ? size - 1 : 1 ) ) % size;
 			MCWBClient.MOD.sendPlayerMsg( "Switch to " + instance.getTestString( testNum ) );
 		}
-		else if( te )
+		else if ( te )
 			MCWBClient.MOD.sendPlayerMsg(
 				"On " + instance.name + " :: " + instance.getTestString( testNum ),
 				instance.toString()
@@ -242,7 +242,7 @@ public class Dev implements IAutowirePlayerChat
 	
 	public static void toggleFlagTell( String... msg )
 	{
-		if( flag )
+		if ( flag )
 		{
 			MCWBClient.MOD.sendPlayerMsg( msg );
 			flag = false;
@@ -251,7 +251,7 @@ public class Dev implements IAutowirePlayerChat
 	
 	public static void toggleFlagDo( Runnable task )
 	{
-		if( flag )
+		if ( flag )
 		{
 			task.run();
 			flag = false;
@@ -316,7 +316,7 @@ public class Dev implements IAutowirePlayerChat
 		
 		public String getTestString( int num )
 		{
-			switch( num )
+			switch ( num )
 			{
 			case 0: return "Translate - x";
 			case 1: return "Translate - y";

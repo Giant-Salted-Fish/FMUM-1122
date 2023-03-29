@@ -32,7 +32,7 @@ public final class PacketCode implements IPacket
 			{
 				final PlayerPatch patch = PlayerPatch.get( player );
 				final IEquippedItem< ? > equipped = patch.getEquipped( EnumHand.MAIN_HAND );
-				if( equipped instanceof IEquippedMag< ? > )
+				if ( equipped instanceof IEquippedMag< ? > )
 					patch.tryLaunch( new OpUnloadAmmo( ( IEquippedMag< ? > ) equipped ) );
 			}
 		},
@@ -43,7 +43,7 @@ public final class PacketCode implements IPacket
 			{
 				final PlayerPatch patch = PlayerPatch.get( player );
 				final IEquippedItem< ? > equipped = patch.getEquipped( EnumHand.MAIN_HAND );
-//				if( equipped instanceof IEquippedGun< ? > ) 
+//				if ( equipped instanceof IEquippedGun< ? > ) 
 //					patch.tryLaunch( new OpUnloadMag( ( IEquippedGun< ? > ) equipped ) );
 			}
 		};

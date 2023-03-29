@@ -356,7 +356,7 @@ public abstract class GunModel<
 				GL11.glMatrixMode( GL11.GL_MODELVIEW );
 				
 				/* For arm adjust */
-				if( Dev.flag )
+				if ( Dev.flag )
 				{
 					GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
 					

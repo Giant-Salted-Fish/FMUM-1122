@@ -51,7 +51,7 @@ public final class EventHandlerClient
 			public void onWorldLoad( WorldEvent.Load evt )
 			{
 				// Avoid model load on player local server
-				if( !evt.getWorld().isRemote ) return; // Just return, do not unregister!
+				if ( !evt.getWorld().isRemote ) return; // Just return, do not unregister!
 				
 				// Call load for all subscribers
 				final MCWBClient mod = MCWBClient.MOD;
@@ -62,7 +62,7 @@ public final class EventHandlerClient
 					// you think of that #onModelLoad method could be overridden by the pack \
 					// makers who do not know this.
 					try { sub.onMeshLoad(); }
-					catch( Exception e ) {
+					catch ( Exception e ) {
 						LOGGER.except( e, "mcwb.exception_call_model_load", sub );
 					}
 				} );
@@ -96,24 +96,24 @@ public final class EventHandlerClient
 		final GameSettings settings = MCWBClient.SETTINGS;
 		
 		// Show key binds if control GUI is activated
-		if( gui instanceof GuiControls )
+		if ( gui instanceof GuiControls )
 		{
 			InputHandler.restoreMcKeyBinds();
 			settings.mouseSensitivity = oriMouseSensi;
 		}
-		else if( prevGui instanceof GuiControls )
+		else if ( prevGui instanceof GuiControls )
 		{
 			InputHandler.clearKeyMcBinds( MCWBClient.MOD.keyBindsFile );
 			oriMouseSensi = settings.mouseSensitivity;
 		}
 		
 		// Restore video settings if corresponding GUI is activated
-		else if( gui instanceof GuiVideoSettings )
+		else if ( gui instanceof GuiVideoSettings )
 		{
 			settings.viewBobbing = oriViewBobbing;
 			// TODO: gamma lock
 		}
-		else if( prevGui instanceof GuiVideoSettings )
+		else if ( prevGui instanceof GuiVideoSettings )
 		{
 			oriViewBobbing = settings.viewBobbing;
 		}
@@ -135,7 +135,7 @@ public final class EventHandlerClient
 	@SubscribeEvent
 	public static void onRenderGameOverlay$Pre( RenderGameOverlayEvent.Pre evt )
 	{
-		switch( evt.getType() )
+		switch ( evt.getType() )
 		{
 		case CROSSHAIRS:
 			evt.setCanceled( PlayerPatchClient.instance.hideCrosshair() );
@@ -184,7 +184,7 @@ public final class EventHandlerClient
 	public static void onMouseInput( MouseEvent evt )
 	{
 		final int dWheel = evt.getDwheel();
-		if( dWheel != 0 )
+		if ( dWheel != 0 )
 			evt.setCanceled( PlayerPatchClient.instance.onMouseWheelInput( dWheel ) );
 	}
 	
@@ -192,7 +192,7 @@ public final class EventHandlerClient
 	public static void onConfigChanged( OnConfigChangedEvent evt )
 	{
 		// Save config if has changed
-		if( MCWB.ID.equals( evt.getModID() ) )
+		if ( MCWB.ID.equals( evt.getModID() ) )
 			ConfigManager.sync( MCWB.ID, Config.Type.INSTANCE );
 	}
 }

@@ -47,7 +47,7 @@ public interface IItemType extends IMeta
 	public IItem getContexted( ItemStack stack );
 	
 	public default void onRegisterItem( RegistryEvent.Register< Item > evt ) {
-		evt.getRegistry().register( this.item() );
+		evt.getRegistry ().register( this.item() );
 	}
 	
 	// FIXME: model register need to be override if item has sub types

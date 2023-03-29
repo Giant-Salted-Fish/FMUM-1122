@@ -30,11 +30,11 @@ public final class ObjReformator
 		
 		new File( outDir ).mkdirs();
 		
-		for( File file : new File( inDir ).listFiles() )
+		for ( File file : new File( inDir ).listFiles() )
 		{
 			// Only process .obj files
 			final String fName = file.getName();
-			if( !fName.endsWith( ".obj" ) )
+			if ( !fName.endsWith( ".obj" ) )
 				continue;
 			
 			// If has .obj.obj suffix then remove it
@@ -49,17 +49,17 @@ public final class ObjReformator
 	
 	private static void process( String inPath, String outPath )
 	{
-		try(
+		try (
 			BufferedReader in = new BufferedReader( new FileReader( inPath ) );
 			BufferedWriter out = new BufferedWriter( new FileWriter( outPath ) );
 		) {
-			for( String line; ( line = in.readLine() ) != null; out.newLine() )
+			for ( String line; ( line = in.readLine() ) != null; out.newLine() )
 			{
-				if( line.startsWith( "vt" ) )
+				if ( line.startsWith( "vt" ) )
 				{
 					final String[] split = line.split( " " );
 					final double[] value = new double[ split.length - 1 ];
-					for(
+					for (
 						int i = split.length;
 						--i > 0;
 						value[ i - 1 ] = Double.parseDouble( split[ i ] )
@@ -67,13 +67,13 @@ public final class ObjReformator
 					
 					int i = value.length;
 					while( i-- > 0 )
-						if( value[ i ] < 0D || value[ i ] > 1D )
+						if ( value[ i ] < 0D || value[ i ] > 1D )
 						{
 							out.write( "vt" );
-							for( int j = 0; j < value.length; ++j )
+							for ( int j = 0; j < value.length; ++j )
 							{
 								double val = value[ j ];
-								for(
+								for (
 									final double step = value[ j ] < 0D ? 1D : -1D;
 									val < 0D || val > 1D;
 									val += step
@@ -83,18 +83,18 @@ public final class ObjReformator
 							break;
 						}
 					
-					if( i < 0 )
+					if ( i < 0 )
 						out.write( line );
 				}
 				else
 				{
 					// Remove "mtllib" and "usemtl" label
-					if( line.startsWith( "mtllib" ) || line.startsWith( "usemtl" ) )
+					if ( line.startsWith( "mtllib" ) || line.startsWith( "usemtl" ) )
 						out.write( '#' );
 					out.write( line );
 				}
 			}
 		}
-		catch( IOException e ) { e.printStackTrace(); }
+		catch ( IOException e ) { e.printStackTrace(); }
 	}
 }

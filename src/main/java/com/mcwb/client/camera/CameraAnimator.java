@@ -65,7 +65,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	public void tick()
 	{
 		// If looking around, clear camera recover speed
-		if( InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down )
+		if ( InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down )
 			this.cameraOffAxis.velocity.setZero();
 		
 		// Otherwise, update off-axis rotation
@@ -81,14 +81,14 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 			* MathHelper.sin( dropDistanceCycle );
 		
 		// Apply drop impact on camera if upon hitting the ground
-		if( patch.prevPlayerVelocity.y < 0F && patch.playerAcceleration.y > 0F )
+		if ( patch.prevPlayerVelocity.y < 0F && patch.playerAcceleration.y > 0F )
 		{
 			final Vec3f headVelocity = this.cameraEasing.velocity;
 
 //			boolean positive = MCWB.rand.nextBoolean();
 			// Make sure the drop impact always makes the head tilt harder on its original direction
 			boolean positive = headVelocity.z > 0F;
-			if( positive ^ this.cameraEasing.curPos.z > 0F )
+			if ( positive ^ this.cameraEasing.curPos.z > 0F )
 			{
 				headVelocity.z = -headVelocity.z;
 				positive = !positive;
@@ -126,7 +126,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		final float deltaPitch = newCameraPitch - rawCameraPitch;
 		
 		// If looking around, apply view rot to off-axis
-		if( InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down )
+		if ( InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down )
 		{
 			playerRot.set( player.rotationPitch, player.rotationYaw, 0F );
 			

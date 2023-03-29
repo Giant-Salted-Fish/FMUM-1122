@@ -28,7 +28,7 @@ public abstract class TexturedMeta extends BuildableMeta
 	@SideOnly( Side.CLIENT )
 	protected void checkTextureSetup()
 	{
-		if( this.texture == null )
+		if ( this.texture == null )
 			this.texture = this.provider.loadTexture( "textures/" + this.name + ".png" );
 	}
 }
