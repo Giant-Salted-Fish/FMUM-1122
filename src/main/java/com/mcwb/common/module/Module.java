@@ -165,7 +165,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 		
 		// Update indices
 		final int[] data = this.nbt.getIntArray( DATA_TAG );
-		while( slot++ < this.indices.length )
+		while ( slot++ < this.indices.length )
 		{
 			final int val = -1 + this.getIdx( slot );
 			this.setIdx( slot, val );
@@ -287,7 +287,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 			final NBTTagCompound modTag = modList.getCompoundTagAt( i );
 			final IModule< ? > module = this.fromTag( modTag );
 			
-			while( i >= this.getIdx( slot + 1 ) ) ++slot;
+			while ( i >= this.getIdx( slot + 1 ) ) ++slot;
 			module.setBase( this, slot );
 			this.installed.add( ( T ) module );
 		}

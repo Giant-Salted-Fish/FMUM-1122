@@ -329,10 +329,10 @@ public final class MCWBClient extends MCWB
 						} );
 						mat.release();
 						
-						while( mapper.size() > 0 )
+						while ( mapper.size() > 0 )
 						{
 							final Iterator< Entry< String, String > > itr = mapper.iterator();
-							while( true )
+							while ( true )
 							{
 //								if ( !itr.hasNext() )
 //								{

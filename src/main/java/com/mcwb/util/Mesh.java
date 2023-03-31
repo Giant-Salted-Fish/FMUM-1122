@@ -225,7 +225,7 @@ public class Mesh implements IReleasable
 			final Vec3f vec1 = Vec3f.locate();
 			
 			final Vertex[] arr = new Vertex[ 4 ];
-			while( itr.hasNext() )
+			while ( itr.hasNext() )
 			{
 				for ( int i = 0; i < 4; arr[ i++ ] = itr.next() );
 				for ( int j = 0; j < 4; j += 2 )

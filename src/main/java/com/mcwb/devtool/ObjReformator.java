@@ -66,7 +66,7 @@ public final class ObjReformator
 					);
 					
 					int i = value.length;
-					while( i-- > 0 )
+					while ( i-- > 0 )
 						if ( value[ i ] < 0D || value[ i ] > 1D )
 						{
 							out.write( "vt" );

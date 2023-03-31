@@ -128,6 +128,7 @@ public final class InputHandler
 		final int charCode = Keyboard.getEventCharacter();
 		final int key = keyCode == 0 ? charCode + 256 : keyCode;
 		final boolean state = Keyboard.getEventKeyState();
+		
 		GLOBAL_MAPPER.get( key ).forEach( kb -> kb.update( state ) );
 		( CO.down ? CO_MAPPER : INCO_MAPPER ).get( key ).forEach( kb -> kb.update( state ) );
 		( CO.down ? INCO_MAPPER : CO_MAPPER ).get( key )
@@ -141,6 +142,7 @@ public final class InputHandler
 		
 		final int button = Mouse.getEventButton() - 100;
 		final boolean state = Mouse.getEventButtonState();
+		
 		GLOBAL_MAPPER.get( button ).forEach( kb -> kb.update( state ) );
 		( CO.down ? CO_MAPPER : INCO_MAPPER ).get( button ).forEach( kb -> kb.update( state ) );
 		( CO.down ? INCO_MAPPER : CO_MAPPER ).get( button )
