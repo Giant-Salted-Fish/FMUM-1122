@@ -27,7 +27,7 @@ public class ExternalPaintjob extends Paintjob implements IPostLoadSubscriber
 	public void onPostLoad()
 	{
 		final IPaintableType target = IPaintableType.REGISTRY.get( this.injectTarget );
-		if( target != null ) target.injectPaintjob( this );
+		if ( target != null ) target.injectPaintjob( this );
 		else this.warn( "mcwb.expaintjob_target_not_found", this, this.injectTarget );
 	}
 }

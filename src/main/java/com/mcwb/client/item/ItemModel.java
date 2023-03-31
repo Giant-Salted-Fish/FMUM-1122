@@ -75,7 +75,7 @@ public abstract class ItemModel<
 		@Override
 		public void getPos( String channel, Vec3f dst )
 		{
-			switch( channel )
+			switch ( channel )
 			{
 			case CHANNEL_ITEM:
 				dst.set( this.pos );
@@ -88,7 +88,7 @@ public abstract class ItemModel<
 		@Override
 		public void getRot( String channel, Quat4f dst )
 		{
-			switch( channel )
+			switch ( channel )
 			{
 			case CHANNEL_ITEM:
 				dst.set( this.rot );

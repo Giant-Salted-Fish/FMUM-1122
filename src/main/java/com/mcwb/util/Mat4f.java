@@ -20,7 +20,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	// FIXME: count
 	public static Mat4f locate()
 	{
-		if( ++count > 64 ) MCWB.MOD.error( "count mat over 64! could be something wrong!" );
+		if ( ++count > 64 ) MCWB.MOD.error( "count mat over 64! could be something wrong!" );
 		return POOL.poll();
 	}
 	
@@ -309,7 +309,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	@Override
 	public void release()
 	{
-		if( --count < 0 ) MCWB.MOD.error( "count mat below 0! could be something wrong!" );
+		if ( --count < 0 ) MCWB.MOD.error( "count mat below 0! could be something wrong!" );
 		POOL.back( this );
 	}
 }

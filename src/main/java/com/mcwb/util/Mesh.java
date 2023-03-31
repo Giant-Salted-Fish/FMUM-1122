@@ -42,7 +42,7 @@ public class Mesh implements IReleasable
 	public Mesh( List< Vertex > vertices, @Nullable List< Integer > indices )
 	{
 		this.vao = genVao( vertices, indices );
-		if( indices != null && indices.size() > 0 )
+		if ( indices != null && indices.size() > 0 )
 		{
 			final int size = indices.size();
 			this.drawCall = () -> GL11.glDrawElements(
@@ -77,7 +77,7 @@ public class Mesh implements IReleasable
 		final FloatBuffer normData = BufferUtils.createFloatBuffer( 3 * count );
 		// TODO: maybe buffer these buffers for reuse?
 		
-		for( Vertex v : vertices )
+		for ( Vertex v : vertices )
 		{
 			posData.put( v.x );
 			posData.put( v.y );
@@ -119,10 +119,10 @@ public class Mesh implements IReleasable
 		
 		// Create EBO if has
 		int ebo = -1;
-		if( indices != null && ( count = indices.size() ) > 0 )
+		if ( indices != null && ( count = indices.size() ) > 0 )
 		{
 			final IntBuffer indexData = BufferUtils.createIntBuffer( count );
-			for( Integer i : indices )
+			for ( Integer i : indices )
 				indexData.put( i );
 			indexData.flip();
 			
@@ -138,7 +138,7 @@ public class Mesh implements IReleasable
 		GL15.glDeleteBuffers( posVBO );
 		GL15.glDeleteBuffers( normVBO );
 		GL15.glDeleteBuffers( texCoordVBO );
-		if( ebo != -1 ) GL15.glDeleteBuffers( ebo );
+		if ( ebo != -1 ) GL15.glDeleteBuffers( ebo );
 		
 		return vao;
 	}
@@ -225,10 +225,10 @@ public class Mesh implements IReleasable
 			final Vec3f vec1 = Vec3f.locate();
 			
 			final Vertex[] arr = new Vertex[ 4 ];
-			while( itr.hasNext() )
+			while ( itr.hasNext() )
 			{
-				for( int i = 0; i < 4; arr[ i++ ] = itr.next() );
-				for( int j = 0; j < 4; j += 2 )
+				for ( int i = 0; i < 4; arr[ i++ ] = itr.next() );
+				for ( int j = 0; j < 4; j += 2 )
 				{
 					final Vertex vert0 = arr[ j ];
 					final Vertex vert1 = arr[ j + 1 ];
@@ -240,11 +240,11 @@ public class Mesh implements IReleasable
 					vec1.sub( vert2 );
 					vec0.cross( vec0, vec1 );
 					
-					if( vec0.nonZero() )
+					if ( vec0.nonZero() )
 					{
 						vec0.normalize();
 						
-						for( int k = 0; k < 4; ++k )
+						for ( int k = 0; k < 4; ++k )
 						{
 							final Vertex v = arr[ k ];
 							v.normX = vec0.x;
@@ -289,7 +289,7 @@ public class Mesh implements IReleasable
 		public Mesh build()
 		{
 			final int size = this.indices.size() > 0 ? this.indices.size() : this.vertices.size();
-			if( ( size % 4 ) != 0 ) // if( ( size & 3 ) != 0 )
+			if ( ( size % 4 ) != 0 ) // if ( ( size & 3 ) != 0 )
 				throw new IllegalArgumentException(
 					"Mesh currently only support quads: "
 					+ this.vertices.size() + " vertices, " + this.indices.size() + " indices"

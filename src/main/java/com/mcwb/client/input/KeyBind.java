@@ -63,8 +63,8 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 		this.build( name, MCWBClient.MOD );
 		
 		/// Assign update group
-		if( updateGroup != null ) updateGroup.add( this );
-		else switch( category )
+		if ( updateGroup != null ) updateGroup.add( this );
+		else switch ( category )
 		{
 		case Category.MODIFY:
 			InputHandler.GLOBAL_KEYS.add( this );
@@ -112,10 +112,10 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	@Override
 	public void update( boolean down )
 	{
-		if( down ^ this.down )
+		if ( down ^ this.down )
 		{
 			this.down = down;
-			if( down ) this.onFire();
+			if ( down ) this.onFire();
 			else this.onRelease();
 		}
 	}
@@ -124,7 +124,7 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	public void inactiveUpdate( boolean down )
 	{
 		// Only handle release if inactive
-		if( !down && this.down )
+		if ( !down && this.down )
 		{
 			this.down = false;
 			this.onRelease();
@@ -138,7 +138,7 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	public boolean clearMcKeyBind()
 	{
 		final int code = this.keyBind.getKeyCode();
-		if( code == this.keyCode ) return false;
+		if ( code == this.keyCode ) return false;
 		
 		this.keyCode = code;
 		this.keyBind.setKeyCode( Keyboard.KEY_NONE );

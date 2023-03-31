@@ -16,7 +16,7 @@ public class ExternalKeyBind extends KeyBind
 	{
 		super.build( name, provider );
 		
-		switch( this.updateGroup.toLowerCase() )
+		switch ( this.updateGroup.toLowerCase() )
 		{
 		case "global":
 		case "always":

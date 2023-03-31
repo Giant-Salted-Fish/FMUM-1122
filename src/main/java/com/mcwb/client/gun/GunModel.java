@@ -356,7 +356,7 @@ public abstract class GunModel<
 				GL11.glMatrixMode( GL11.GL_MODELVIEW );
 				
 				/* For arm adjust */
-				if( Dev.flag )
+				if ( Dev.flag )
 				{
 					GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
 					
@@ -403,9 +403,9 @@ public abstract class GunModel<
 			protected void updatePosRot( float smoother )
 			{
 				// Use #pos temporarily to avoid locate vector3f
-				this.holdRot.get( this.pos, smoother );
+				this.holdRot.get( smoother, this.pos );
 				this.rot.set( this.pos );
-				this.holdPos.get( this.pos, smoother );
+				this.holdPos.get( smoother, this.pos );
 			}
 		}
 	}

@@ -28,7 +28,7 @@ public final class Util
 //	) {
 //		// Avoid zero divisor
 //		float var = lineDirection.dot( planeNormal );
-//		if( var == 0F ) return false;
+//		if ( var == 0F ) return false;
 //		
 //		dst.set( planeOrigin );
 //		dst.subtract( lineOrigin );
@@ -66,7 +66,7 @@ public final class Util
 //		Vec3f dst
 //	) {
 //		float var = A1 * A2 + B1 * B2 + C1 * C2;
-//		if( var == 0F ) return false;
+//		if ( var == 0F ) return false;
 //		
 //		var = ( ( a2 - a1 ) * A2 + ( b2 - b1 ) * B2 + ( c2 - c1 ) * C2 ) / var;
 //		dst.set(

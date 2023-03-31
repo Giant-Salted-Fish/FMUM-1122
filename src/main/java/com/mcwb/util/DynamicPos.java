@@ -45,7 +45,7 @@ public final class DynamicPos
 		force.sub( this.curPos );
 		
 		final float forceSquared = force.lengthSquared();
-		if( forceSquared > maxForce * maxForce )
+		if ( forceSquared > maxForce * maxForce )
 			force.scale( maxForce / MathHelper.sqrt( forceSquared ) );
 		
 		// Assume that mess=1 then acceleration equals force
@@ -70,7 +70,7 @@ public final class DynamicPos
 		this.curPos.add( delta );
 	}
 	
-	public void get( Vec3f dst, float smoother )
+	public void get( float smoother, Vec3f dst )
 	{
 		dst.set( this.curPos );
 		dst.sub( this.prevPos );

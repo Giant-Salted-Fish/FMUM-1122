@@ -97,11 +97,11 @@ mcwb.key_category.assist=MCWB Assist
 mcwb.key.co=Co-Key
 mcwb.key.co_free_view=Co-Free View
 mcwb.key.co_reload=Co-Reload Weapon
-mcwb.key.co_load_unload_mag=Co-Load Unload Magazine
-mcwb.key.co_toggle_modify=Co-Modify Holding Weapon
+mcwb.key.co_load_unload_mag=Co-Load/Unload Magazine
+mcwb.key.co_toggle_modify=Co-Modify Weapon
 
 mcwb.key_category.modify=MCWB Modify
-mcwb.key.toggle_modify=Modify Holding Weapon
+mcwb.key.toggle_modify=Modify Weapon
 mcwb.key.select_toggle=Switch Modify Mode
 mcwb.key.select_up=Select Up
 mcwb.key.select_down=Select Down

@@ -44,7 +44,7 @@ public final class EventHandler
 	{
 		LOGGER.info( "mcwb.on_sound_regis" ); // TODO: translation
 		
-		final IForgeRegistry< SoundEvent > registry = evt.getRegistry();
+		final IForgeRegistry< SoundEvent > registry = evt.getRegistry ();
 		final Collection< SoundEvent > sounds = MCWB.MOD.soundPool.values();
 		sounds.forEach( sound -> registry.register( sound ) );
 		
@@ -58,7 +58,7 @@ public final class EventHandler
 	{
 		// Attach logic patch for entity player
 		final Entity e = evt.getObject();
-		if( !( e instanceof EntityPlayer ) ) return;
+		if ( !( e instanceof EntityPlayer ) ) return;
 		
 		// TODO: check if it is ok for other players in the world
 		final EntityPlayer player = ( EntityPlayer ) e;
@@ -72,7 +72,7 @@ public final class EventHandler
 	@SubscribeEvent
 	public static void onPlayerTick( PlayerTickEvent evt )
 	{
-		switch( evt.phase )
+		switch ( evt.phase )
 		{
 		case START: break;
 		case END: PlayerPatch.get( evt.player ).tick();

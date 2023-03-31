@@ -28,10 +28,17 @@ public final class PacketCode implements IPacket
 			@Override
 			protected void handle( EntityPlayerMP player )
 			{
+<<<<<<< HEAD
 //				final PlayerPatch patch = PlayerPatch.get( player );
 //				final IEquippedItem< ? > equipped = patch.getEquipped( EnumHand.MAIN_HAND );
 //				if( equipped instanceof IEquippedMag< ? > )
 //					patch.tryLaunch( new OpUnloadAmmo( ( IEquippedMag< ? > ) equipped ) );
+=======
+				final PlayerPatch patch = PlayerPatch.get( player );
+				final IEquippedItem< ? > equipped = patch.getEquipped( EnumHand.MAIN_HAND );
+				if ( equipped instanceof IEquippedMag< ? > )
+					patch.tryLaunch( new OpUnloadAmmo( ( IEquippedMag< ? > ) equipped ) );
+>>>>>>> master
 			}
 		},
 		UNLOAD_MAG
@@ -41,7 +48,7 @@ public final class PacketCode implements IPacket
 			{
 				final PlayerPatch patch = PlayerPatch.get( player );
 				final IEquippedItem< ? > equipped = patch.getEquipped( EnumHand.MAIN_HAND );
-//				if( equipped instanceof IEquippedGun< ? > ) 
+//				if ( equipped instanceof IEquippedGun< ? > ) 
 //					patch.tryLaunch( new OpUnloadMag( ( IEquippedGun< ? > ) equipped ) );
 			}
 		};

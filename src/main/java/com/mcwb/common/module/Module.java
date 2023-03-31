@@ -93,10 +93,10 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	public IPreviewPredicate tryInstall( int islot, IModule< ? > module )
 	{
 		final IModuleSlot slot = this.getSlot( islot );
-		if( !slot.isAllowed( module ) ) return IPreviewPredicate.NO_PREVIEW;
+		if ( !slot.isAllowed( module ) ) return IPreviewPredicate.NO_PREVIEW;
 		
 		final int capacity = Math.min( MCWB.maxSlotCapacity, slot.capacity() );
-		if( this.getInstalledCount( islot ) > capacity )
+		if ( this.getInstalledCount( islot ) > capacity )
 		{
 			final String msg = "mcwb.msg.arrive_max_module_capacity";
 			return ( IPreviewPredicate.NotOk ) () -> I18n.format( msg, capacity );
@@ -137,12 +137,12 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 		final NBTTagList modList = this.nbt.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
 		final NBTTagCompound tarTag = mod.serializeNBT();
 		modList.appendTag( tarTag );
-		for( int i = modList.tagCount(); --i > idx; modList.set( i, modList.get( i - 1 ) ) );
+		for ( int i = modList.tagCount(); --i > idx; modList.set( i, modList.get( i - 1 ) ) );
 		modList.set( idx, tarTag );
 		
 		// Update indices
 		final int[] data = this.nbt.getIntArray( DATA_TAG );
-		for( int islot = slot; islot++ < this.indices.length; )
+		for ( int islot = slot; islot++ < this.indices.length; )
 		{
 			final int val = 1 + this.getIdx( islot );
 			this.setIdx( islot, val );
@@ -165,7 +165,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 		
 		// Update indices
 		final int[] data = this.nbt.getIntArray( DATA_TAG );
-		while( slot++ < this.indices.length )
+		while ( slot++ < this.indices.length )
 		{
 			final int val = -1 + this.getIdx( slot );
 			this.setIdx( slot, val );
@@ -214,7 +214,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	public IModule< ? > getInstalled( byte[] loc, int locLen )
 	{
 		IModule< ? > mod = this;
-		for( int i = 0; i < locLen; i += 2 )
+		for ( int i = 0; i < locLen; i += 2 )
 			mod = mod.getInstalled( 0xFF & loc[ i ], 0xFF & loc[ i + 1 ] );
 		return mod;
 	}
@@ -276,18 +276,18 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 		this.paintjob = ( short ) ( data[ 0 ] >>> 16 );
 		
 		// Read install indices
-		for( int i = this.indices.length; i > 0; --i )
+		for ( int i = this.indices.length; i > 0; --i )
 			this.setIdx( i, this.getIdx( data, i ) );
 		
 		// Read installed modules
 		this.installed.clear();
 		final NBTTagList modList = nbt.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
-		for( int i = 0, size = modList.tagCount(), slot = 0; i < size; ++i )
+		for ( int i = 0, size = modList.tagCount(), slot = 0; i < size; ++i )
 		{
 			final NBTTagCompound modTag = modList.getCompoundTagAt( i );
 			final IModule< ? > module = this.fromTag( modTag );
 			
-			while( i >= this.getIdx( slot + 1 ) ) ++slot;
+			while ( i >= this.getIdx( slot + 1 ) ) ++slot;
 			module.setBase( this, slot );
 			this.installed.add( ( T ) module );
 		}

@@ -28,16 +28,16 @@ public class OpLoadMag extends Operation< IEquippedGun< ? > >
 	@Override
 	public IOperation launch( EntityPlayer player )
 	{
-		switch( 0 )
+		switch ( 0 )
 		{
 		default:
 			final IGun< ? > gun = this.equipped.item();
-			if( gun.hasMag() ) break;
+			if ( gun.hasMag() ) break;
 			
 			final ItemStack stack = player.inventory.getStackInSlot( this.invSlot );
 			final IItem item = IItemTypeHost.getItemOrDefault( stack );
 			final boolean isMag = item instanceof IMag< ? >;
-			if( !isMag || !gun.isAllowed( ( IMag< ? > ) item ) ) break;
+			if ( !isMag || !gun.isAllowed( ( IMag< ? > ) item ) ) break;
 			
 			return this;
 		}
@@ -57,11 +57,11 @@ public class OpLoadMag extends Operation< IEquippedGun< ? > >
 		final InventoryPlayer inv = player.inventory;
 		final ItemStack stack = inv.getStackInSlot( this.invSlot );
 		final IItem item = IItemTypeHost.getItemOrDefault( stack );
-		if( !( item instanceof IMag< ? > ) ) return;
+		if ( !( item instanceof IMag< ? > ) ) return;
 		
 		final IMag< ? > mag = ( IMag< ? > ) item;
 		final IGun< ? > gun = this.equipped.item();
-		if( !gun.isAllowed( mag ) ) return;
+		if ( !gun.isAllowed( mag ) ) return;
 		
 		gun.loadMag( mag );
 		inv.setInventorySlotContents( this.invSlot, ItemStack.EMPTY );

@@ -38,7 +38,7 @@ public abstract class Operation< T > implements IOperation
 		this.progress = Math.min( 1F, this.progress + this.controller.progressor() );
 		
 		// Handle effects
-		for(
+		for (
 			final int effectCount = this.controller.effectCount();
 			this.ieffect < effectCount
 				&& this.controller.getEffectTime( this.ieffect ) <= this.progress;
@@ -46,7 +46,7 @@ public abstract class Operation< T > implements IOperation
 		) this.doHandleEffect( player );
 		
 		// Handle sounds
-		for(
+		for (
 			final int soundCount = this.controller.soundCount();
 			this.isound < soundCount
 				&& this.controller.getSoundTime( this.isound ) <= this.progress;

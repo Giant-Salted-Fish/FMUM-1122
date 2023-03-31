@@ -38,21 +38,21 @@ public class Animation
 	public void getPos( String channel, Vec3f dst )
 	{
 		final BoneAnimation ani = this.channels.get( channel );
-		if( ani != null ) ani.mat.get( dst );
+		if ( ani != null ) ani.mat.get( dst );
 		else dst.setZero(); // TODO: use computeIfPresent maybe?
 	}
 	
 	public void getRot( String channel, Quat4f dst )
 	{
 		final BoneAnimation ani = this.channels.get( channel );
-		if( ani != null ) dst.set( ani.quat );
+		if ( ani != null ) dst.set( ani.quat );
 		else dst.clearRot();
 	}
 	
 	public float getFactor( String channel )
 	{
 		final BoneAnimation ani = this.channels.get( channel );
-		if( ani != null ) return ani.a;
+		if ( ani != null ) return ani.a;
 		else return 1F;
 	}
 }

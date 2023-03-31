@@ -48,7 +48,7 @@ public abstract class VanillaKeyBindProxy extends KeyBind
 	public void $keyCode( int code ) { } // Always get its key code from #keyBind
 	
 	@Override
-	protected void onFire() { while( this.keyBind.isPressed() ) this.onAction(); }
+	protected void onFire() { while ( this.keyBind.isPressed() ) this.onAction(); }
 	
 	@Override
 	protected void onRelease() { } // Avoid normal notification

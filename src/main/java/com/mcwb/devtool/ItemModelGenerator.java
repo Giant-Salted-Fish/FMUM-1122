@@ -17,18 +17,18 @@ public final class ItemModelGenerator
 	
 	private static void processDir( File srcDir, File dstDir )
 	{
-		for( File file : srcDir.listFiles() )
+		for ( File file : srcDir.listFiles() )
 		{
 			final String fName = file.getName();
 			
-			if( file.isDirectory() )
+			if ( file.isDirectory() )
 				processDir( file, dstDir );
-			else if( fName.endsWith( ".json" ) )
+			else if ( fName.endsWith( ".json" ) )
 			{
 				final File dstFile = new File( dstDir, fName );
-				if( dstFile.exists() )
+				if ( dstFile.exists() )
 					System.out.println( "Skipped file " + fName );
-				else try( BufferedWriter out = new BufferedWriter( new FileWriter( dstFile ) ) )
+				else try ( BufferedWriter out = new BufferedWriter( new FileWriter( dstFile ) ) )
 					{
 						out.write(
 							"{\n" +
@@ -39,7 +39,7 @@ public final class ItemModelGenerator
 							"}\n"
 						);
 					}
-					catch( IOException e )
+					catch ( IOException e )
 					{
 						e.printStackTrace();
 						System.exit( -1 );

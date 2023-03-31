@@ -47,11 +47,11 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 		
 		this.tab = this.createTab();
 		provider.clientOnly( () -> {
-			if( this.iconItem == null )
+			if ( this.iconItem == null )
 				this.iconItem = "" + Items.FISH.getRegistryName();
-			if( this.noScrollBar )
+			if ( this.noScrollBar )
 				this.tab.setNoScrollbar();
-			if( this.noTitle )
+			if ( this.noTitle )
 				this.tab.setNoTitle();
 		} );
 		return this;
@@ -67,7 +67,7 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 	protected void checkTextureSetup()
 	{
 		// Use a default background image if does not have
-		if( this.texture == null )
+		if ( this.texture == null )
 			this.texture = CreativeTabs.BUILDING_BLOCKS.getBackgroundImage();
 	}
 	
@@ -90,7 +90,7 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 			// Check if required item is defined in MCWB
 			final IItemType type = IItemType.REGISTRY.get( icon );
 			final Item item = type != null ? type.item() : Item.getByNameOrId( icon );
-			if( item != null )
+			if ( item != null )
 				return new ItemStack( item, 1, CreativeTab.this.iconItemDam );
 			
 			CreativeTab.this.error(

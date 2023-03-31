@@ -88,10 +88,10 @@ public abstract class MagType<
 			
 			this.ammo.clear();
 			final int[] data = nbt.getIntArray( DATA_TAG );
-			for( int i = 0; i < MagType.this.ammoCapacity; ++i )
+			for ( int i = 0; i < MagType.this.ammoCapacity; ++i )
 			{
 				final IAmmoType ammo = this.getAmmo( data, i );
-				if( ammo != null ) this.ammo.add( ammo );
+				if ( ammo != null ) this.ammo.add( ammo );
 				else break;
 			}
 		}
@@ -113,7 +113,7 @@ public abstract class MagType<
 			final int i = super.dataSize() + idx / 2;
 			final int offset = idx % 2 != 0 ? 16 : 0;
 			final int id = 0xFFFF & data[ i ] >>> offset;
-			if( id == 0 ) return null;
+			if ( id == 0 ) return null;
 			
 			final Item item = Item.getItemById( id );
 			return ( IAmmoType ) ( ( IItemTypeHost ) item ).meta();

@@ -83,14 +83,14 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 	protected void setupInfoWith( Reader in )
 	{
 		final JsonObject obj = MCWB.GSON.fromJson( in, JsonObject.class );
-		if( obj.has( "name" ) )
+		if ( obj.has( "name" ) )
 			this.name = obj.get( "name" ).getAsString();
-		if( obj.has( "author" ) )
+		if ( obj.has( "author" ) )
 			this.author = obj.get( "author" ).getAsString();
-		if( obj.has( "ignoreEntries" ) )
+		if ( obj.has( "ignoreEntries" ) )
 		{
 			final JsonArray arr = obj.get( "ignoreEntries" ).getAsJsonArray();
-			for( int i = arr.size(); i-- > 0; )
+			for ( int i = arr.size(); i-- > 0; )
 				this.ignoreEntires.add( arr.get( i ).getAsString() );
 		}
 		// TODO: handle version check
@@ -116,7 +116,7 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 		final JsonElement type = obj.get( "__type__" );
 		final String entry = type != null ? type.getAsString().toLowerCase() : fallbackType;
 		final BuildableLoader< ? extends IMeta > loader = MCWB.TYPE_LOADERS.get( entry );
-		if( loader != null )
+		if ( loader != null )
 			return loader.parser.apply( obj ).build( name, this );
 		
 		this.error( "mcwb.type_loader_not_found", sourceTrace.get(), entry );

@@ -70,7 +70,7 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 			path,
 			builder -> {
 				float scale = this.scale;
-				if( this.tbObjAdapt )
+				if ( this.tbObjAdapt )
 				{
 					builder.swapXZ();
 					scale *= 16F;
@@ -101,7 +101,7 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 	public static void glowOn( float glowFactor )
 	{
 		// Only glow when it is first time calling
-		if( glowStack++ != 0 ) return;
+		if ( glowStack++ != 0 ) return;
 		
 		// Push light bits and record previous brightness
 		GL11.glPushAttrib( GL11.GL_LIGHTING_BIT );
@@ -122,7 +122,7 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 	 */
 	public static void glowOff()
 	{
-		if( --glowStack != 0 ) return;
+		if ( --glowStack != 0 ) return;
 		
 		OpenGlHelper.setLightmapTextureCoords(
 			OpenGlHelper.lightmapTexUnit,

@@ -18,13 +18,13 @@ public class Vec3f extends Vector3f implements IReleasable
 	
 	public static Vec3f locate()
 	{
-		if( ++count > 64 ) MCWB.MOD.error( "count vec over 64! could be something wrong!" );
+		if ( ++count > 64 ) MCWB.MOD.error( "count vec over 64! could be something wrong!" );
 		return POOL.poll();
 	}
 	
 	public static Vec3f locate( float x, float y, float z )
 	{
-		if( ++count > 64 ) MCWB.MOD.error( "count vec over 64! could be something wrong!" );
+		if ( ++count > 64 ) MCWB.MOD.error( "count vec over 64! could be something wrong!" );
 		final Vec3f vec = POOL.poll();
 		vec.set( x, y, z );
 		return vec;
@@ -57,7 +57,7 @@ public class Vec3f extends Vector3f implements IReleasable
 	@Override
 	public final void release()
 	{
-		if( --count < 0 ) MCWB.MOD.error( "count vec below 0! could be something wrong!" );
+		if ( --count < 0 ) MCWB.MOD.error( "count vec below 0! could be something wrong!" );
 		POOL.back( this );
 	}
 	

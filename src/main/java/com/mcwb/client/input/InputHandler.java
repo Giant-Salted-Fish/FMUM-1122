@@ -122,12 +122,13 @@ public final class InputHandler
 	public static void onKeyInput( KeyInputEvent evt )
 	{
 		// TODO: check #player
-		if( MCWBClient.MC.currentScreen != null ) return;
+		if ( MCWBClient.MC.currentScreen != null ) return;
 		
 		final int keyCode = Keyboard.getEventKey();
 		final int charCode = Keyboard.getEventCharacter();
 		final int key = keyCode == 0 ? charCode + 256 : keyCode;
 		final boolean state = Keyboard.getEventKeyState();
+		
 		GLOBAL_MAPPER.get( key ).forEach( kb -> kb.update( state ) );
 		( CO.down ? CO_MAPPER : INCO_MAPPER ).get( key ).forEach( kb -> kb.update( state ) );
 		( CO.down ? INCO_MAPPER : CO_MAPPER ).get( key )
@@ -137,10 +138,11 @@ public final class InputHandler
 	@SubscribeEvent
 	public static void onMouseInput( MouseInputEvent evt )
 	{
-		if( MCWBClient.MC.currentScreen != null ) return;
+		if ( MCWBClient.MC.currentScreen != null ) return;
 		
 		final int button = Mouse.getEventButton() - 100;
 		final boolean state = Mouse.getEventButtonState();
+		
 		GLOBAL_MAPPER.get( button ).forEach( kb -> kb.update( state ) );
 		( CO.down ? CO_MAPPER : INCO_MAPPER ).get( button ).forEach( kb -> kb.update( state ) );
 		( CO.down ? INCO_MAPPER : CO_MAPPER ).get( button )
@@ -157,12 +159,12 @@ public final class InputHandler
 	public static void clearKeyMcBinds( File file )
 	{
 		boolean changed = false;
-		for( IKeyBind key : IKeyBind.REGISTRY.values() )
+		for ( IKeyBind key : IKeyBind.REGISTRY.values() )
 			changed |= key.clearMcKeyBind();
 		
 		// Make sure there is only one aim key bounden
 		final int none = Keyboard.KEY_NONE;
-		if( AIM_HOLD.keyCode != none && AIM_TOGGLE.keyCode != none )
+		if ( AIM_HOLD.keyCode != none && AIM_TOGGLE.keyCode != none )
 		{
 			prevAimKey.$keyCode( none );
 			changed = true;
@@ -171,7 +173,7 @@ public final class InputHandler
 		KeyBinding.resetKeyBindingArrayAndHash();
 		
 		// If key bind has changed then save it
-		if( changed )
+		if ( changed )
 		{
 			updateMappers();
 			saveTo( file );
@@ -183,13 +185,13 @@ public final class InputHandler
 	 */
 	public static void saveTo( File file )
 	{
-		try( FileWriter out = new FileWriter( file ) )
+		try ( FileWriter out = new FileWriter( file ) )
 		{
 			final HashMap< String, Integer > mapper = new HashMap<>();
 			IKeyBind.REGISTRY.values().forEach( key -> mapper.put( key.name(), key.keyCode() ) );
 			out.write( MCWB.GSON.toJson( mapper ) );
 		}
-		catch( IOException e ) { LOGGER.except( e, "mcwb.error_saving_key_binds" ); }
+		catch ( IOException e ) { LOGGER.except( e, "mcwb.error_saving_key_binds" ); }
 	}
 	
 	/**
@@ -197,20 +199,20 @@ public final class InputHandler
 	 */
 	public static void readFrom( File file )
 	{
-		try( FileReader in = new FileReader( file ) )
+		try ( FileReader in = new FileReader( file ) )
 		{
 			final JsonObject obj = MCWB.GSON.fromJson( in, JsonObject.class );
 			obj.entrySet().forEach( e -> {
 				try { IKeyBind.REGISTRY.get( e.getKey() ).$keyCode( e.getValue().getAsInt() ); }
-				catch( NullPointerException ee ) {
+				catch ( NullPointerException ee ) {
 					LOGGER.error( "mcwb.unrecognized_key_bind", e.getKey() );
 				}
-				catch( Exception ee ) {
+				catch ( Exception ee ) {
 					LOGGER.error( "mcwb.key_code_format_error", e.toString() );
 				}
 			} );
 		}
-		catch( IOException e ) { LOGGER.except( e, "mcwb.error_reading_key_binds" ); }
+		catch ( IOException e ) { LOGGER.except( e, "mcwb.error_reading_key_binds" ); }
 		
 		updateMappers();
 	}
@@ -229,7 +231,7 @@ public final class InputHandler
 		mapper.clear();
 		group.forEach( key -> {
 			final int code = key.keyCode();
-			if( code != 0 ) mapper.put( code, key );
+			if ( code != 0 ) mapper.put( code, key );
 		} );
 	}
 }

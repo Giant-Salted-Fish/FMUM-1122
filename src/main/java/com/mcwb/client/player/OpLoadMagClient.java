@@ -30,13 +30,13 @@ public class OpLoadMagClient extends OperationClient< IEquippedGun< ? > >
 	@Override
 	public IOperation launch( EntityPlayer player )
 	{
-		switch( 0 )
+		switch ( 0 )
 		{
 		default:
-			if( this.equipped.item().hasMag() ) break;
+			if ( this.equipped.item().hasMag() ) break;
 			
 			this.invSlot = this.getValidMagInvSlot( player );
-			if( this.invSlot == -1 ) break;
+			if ( this.invSlot == -1 ) break;
 			
 			this.clearProgress();
 //			this.sendToServer( message );
@@ -60,11 +60,11 @@ public class OpLoadMagClient extends OperationClient< IEquippedGun< ? > >
 		// Calling install will change the state of the mag itself, hence copy before use
 		final ItemStack stack = player.inventory.getStackInSlot( this.invSlot ).copy();
 		final IItem item = IItemTypeHost.getItemOrDefault( stack );
-		if( !( item instanceof IMag< ? > ) ) return NONE;
+		if ( !( item instanceof IMag< ? > ) ) return NONE;
 		
 		final IMag< ? > mag = ( IMag< ? > ) item;
 		final IGun< ? > gun = this.equipped.item();
-		if( gun.isAllowed( mag ) ) gun.loadMag( mag );
+		if ( gun.isAllowed( mag ) ) gun.loadMag( mag );
 		return NONE;
 	}
 	
@@ -73,11 +73,11 @@ public class OpLoadMagClient extends OperationClient< IEquippedGun< ? > >
 		final IGun< ? > gun = this.equipped.item();
 		final InventoryPlayer inv = player.inventory;
 		final int size = inv.getSizeInventory();
-		for( int i = 0; i < size; ++i )
+		for ( int i = 0; i < size; ++i )
 		{
 			final ItemStack stack = inv.getStackInSlot( i );
 			final IItem item = IItemTypeHost.getItemOrDefault( stack );
-			if( item instanceof IMag< ? > && gun.isAllowed( ( IMag< ? > ) item ) )
+			if ( item instanceof IMag< ? > && gun.isAllowed( ( IMag< ? > ) item ) )
 				return i;
 		}
 		return -1;

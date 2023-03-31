@@ -89,7 +89,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		
 		// TODO: can only update by setting a runner in gui event
 		// Only update game settings when there is no GUI activated
-		if( MCWBClient.MC.currentScreen == null )
+		if ( MCWBClient.MC.currentScreen == null )
 		{
 			final GameSettings settings = MCWBClient.SETTINGS;
 			final boolean flag = EventHandlerClient.oriViewBobbing;
@@ -127,7 +127,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		final Minecraft mc = MCWBClient.MC;
 		final GameSettings settings = MCWBClient.SETTINGS;
 		final Entity entity = mc.getRenderViewEntity();
-		if(
+		if (
 			settings.thirdPersonView != 0
 			|| entity instanceof EntityLivingBase
 				&& ( ( EntityLivingBase ) entity ).isPlayerSleeping()

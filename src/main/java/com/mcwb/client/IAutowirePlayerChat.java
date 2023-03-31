@@ -13,14 +13,14 @@ public interface IAutowirePlayerChat
 	public default void sendPlayerMsg( String... msg )
 	{
 		final GuiNewChat chatGui = MCWBClient.MC.ingameGUI.getChatGUI();
-		for( String s : msg ) chatGui.printChatMessage( new TextComponentString( s ) );
+		for ( String s : msg ) chatGui.printChatMessage( new TextComponentString( s ) );
 	}
 	
 	@SideOnly( Side.CLIENT )
 	public default void sendPlayerPrompt( String... msg )
 	{
 		final GuiNewChat chatGui = MCWBClient.MC.ingameGUI.getChatGUI();
-		for( int i = 0; i < msg.length; ++i )
+		for ( int i = 0; i < msg.length; ++i )
 		{
 			chatGui.printChatMessageWithOptionalDeletion(
 				new TextComponentString( msg[ i ] ),

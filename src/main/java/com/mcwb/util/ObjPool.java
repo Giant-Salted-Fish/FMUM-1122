@@ -24,7 +24,7 @@ public final class ObjPool< T >
 	 * @param factory Instance factory which provides instance when there is none left in pool
 	 */
 	public ObjPool( Supplier< T > factory ) {
-		this( factory, ( instance, pool ) -> { if( pool.size() < 64 ) pool.add( instance ); } );
+		this( factory, ( instance, pool ) -> { if ( pool.size() < 64 ) pool.add( instance ); } );
 	}
 	
 	public ObjPool( Supplier< T > factory, BiConsumer< T, List< T > > recycler ) {
