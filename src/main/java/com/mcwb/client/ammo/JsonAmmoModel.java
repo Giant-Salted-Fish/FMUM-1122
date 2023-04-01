@@ -6,6 +6,7 @@ import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.ammo.IAmmoType;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
+import com.mcwb.common.load.BuildableLoader;
 
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
@@ -24,6 +25,9 @@ public class JsonAmmoModel extends AmmoModel<
 	IItem,
 	IEquippedItemRenderer< ? super IEquippedItem< ? extends IItem > >
 > {
+	public static final BuildableLoader< ? >
+		LOADER = new BuildableLoader<>( "ammo", JsonAmmoModel.class );
+	
 	public static final JsonAmmoModel NONE = new JsonAmmoModel();
 	
 	@Override

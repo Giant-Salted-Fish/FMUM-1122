@@ -10,7 +10,6 @@ import com.mcwb.common.MCWB;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.ItemType;
-import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
 
@@ -37,9 +36,6 @@ public abstract class AmmoType<
 	>
 > extends ItemType< C, M > implements IAmmoType
 {
-	public static final BuildableLoader< IMeta >
-		LOADER = new BuildableLoader<>( "ammo", JsonAmmoType.class );
-	
 	protected String category;
 	
 	protected boolean isCase = false;
@@ -71,9 +67,6 @@ public abstract class AmmoType<
 	@Override
 	@SideOnly( Side.CLIENT )
 	public ResourceLocation texture() { return this.texture; }
-	
-	@Override
-	protected IMeta loader() { return LOADER; }
 	
 	@Override
 	protected Item createItem()

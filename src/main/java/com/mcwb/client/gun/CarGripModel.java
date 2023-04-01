@@ -4,7 +4,6 @@ import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
-import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.Mat4f;
 
@@ -20,9 +19,6 @@ public abstract class CarGripModel<
 	R extends IGunPartRenderer< ? super C, ? extends ER >
 > extends GripModel< C, E, ER, R >
 {
-	public static final BuildableLoader< ? >
-		LOADER = new BuildableLoader<>( "car_grip", JsonCarGripModel.class );
-	
 	protected float armRotGunFactor = 1F;
 	
 	protected abstract class CarGripRenderer extends GripRenderer

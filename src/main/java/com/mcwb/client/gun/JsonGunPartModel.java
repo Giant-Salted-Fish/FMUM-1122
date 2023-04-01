@@ -4,6 +4,7 @@ import com.mcwb.client.MCWBClient;
 import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
+import com.mcwb.common.load.BuildableLoader;
 
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
@@ -19,6 +20,9 @@ public class JsonGunPartModel extends GunPartModel<
 		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 	>
 > {
+	public static final BuildableLoader< ? >
+		LOADER = new BuildableLoader<>( "gun_part", JsonGunPartModel.class );
+	
 	public static final JsonGunPartModel NONE = new JsonGunPartModel();
 	static { NONE.build( "", MCWBClient.MOD ); }
 	

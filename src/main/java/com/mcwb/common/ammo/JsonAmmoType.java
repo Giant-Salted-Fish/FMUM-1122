@@ -6,6 +6,8 @@ import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.IItemRenderer;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
+import com.mcwb.common.load.BuildableLoader;
+import com.mcwb.common.meta.IMeta;
 
 public class JsonAmmoType extends AmmoType<
 	IItem,
@@ -17,6 +19,9 @@ public class JsonAmmoType extends AmmoType<
 		>
 	>
 > {
+	public static final BuildableLoader< IMeta >
+		LOADER = new BuildableLoader<>( "ammo", JsonAmmoType.class );
+	
 	@Override
 	protected IAmmoModel<
 		? super IAmmoType,
@@ -25,4 +30,7 @@ public class JsonAmmoType extends AmmoType<
 			? extends IEquippedItemRenderer< ? super IEquippedItem< ? > >
 		>
 	> fallbackModel() { return JsonAmmoModel.NONE; }
+	
+	@Override
+	protected IMeta loader() { return LOADER; }
 }

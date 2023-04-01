@@ -6,9 +6,7 @@ import com.mcwb.client.item.IItemRenderer;
 import com.mcwb.client.item.ItemModel;
 import com.mcwb.common.ammo.IAmmoType;
 import com.mcwb.common.item.IEquippedItem;
-
 import com.mcwb.common.item.IItem;
-import com.mcwb.common.load.BuildableLoader;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -21,9 +19,6 @@ public abstract class AmmoModel<
 	R extends IItemRenderer< ? super C, ? extends IEquippedItemRenderer< ? super E > >
 > extends ItemModel< C, E, R > implements IAmmoModel< T, R >, IAutowireBindTexture
 {
-	public static final BuildableLoader< ? >
-		LOADER = new BuildableLoader<>( "ammo", JsonAmmoModel.class );
-	
 	@Override
 	public void render( T type )
 	{

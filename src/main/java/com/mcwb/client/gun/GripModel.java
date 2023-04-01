@@ -4,7 +4,6 @@ import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
-import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.Mat4f;
@@ -21,9 +20,6 @@ public abstract class GripModel<
 	R extends IGunPartRenderer< ? super C, ? extends ER >
 > extends GunPartModel< C, E, ER, R >
 {
-	public static final BuildableLoader< ? >
-		LOADER = new BuildableLoader<>( "grip", JsonGripModel.class );
-	
 	protected Vec3f handPos = Vec3f.ORIGIN;
 	protected float handRotZ = 0F;
 	protected float armRotZ = 0F;

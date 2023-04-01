@@ -12,7 +12,6 @@ import com.mcwb.client.module.IDeferredRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
-import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Quat4f;
@@ -31,9 +30,6 @@ public abstract class GunPartModel<
 	R extends IGunPartRenderer< ? super C, ? extends ER >
 > extends ItemModel< C, E, R >
 {
-	public static final BuildableLoader< ? >
-		LOADER = new BuildableLoader<>( "gun_part", JsonGunPartModel.class );
-	
 	/**
 	 * Render queue is introduced here to help with rendering the objects that is transparent
 	 * FIXME: do not use same queue for first person hand and third-person view!

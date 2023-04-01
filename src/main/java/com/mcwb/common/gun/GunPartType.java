@@ -19,7 +19,6 @@ import com.mcwb.common.MCWB;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.item.ItemType;
-import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.module.IModule;
@@ -54,9 +53,6 @@ public abstract class GunPartType<
 	M extends IItemModel< ? extends R >
 > extends ItemType< C, M > implements IModuleType, IPaintableType, IPaintjob
 {
-	public static final BuildableLoader< IMeta >
-		LOADER = new BuildableLoader<>( "gun_part", JsonGunPartType.class );
-	
 	protected static final float[] OFFSETS = { 0F };
 	
 	@SerializedName( value = "category", alternate = "group" )
@@ -148,9 +144,6 @@ public abstract class GunPartType<
 	}
 	
 	protected abstract ICapabilityProvider newWrapper( C primary, ItemStack stack );
-	
-	@Override
-	protected IMeta loader() { return LOADER; }
 	
 	protected class GunPartVanillaItem extends VanillaItem
 	{

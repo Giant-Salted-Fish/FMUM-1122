@@ -11,7 +11,6 @@ import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.gun.IEquippedGun;
 import com.mcwb.common.gun.IGun;
-import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.devtool.Dev;
 import com.mcwb.util.ArmTracker;
@@ -39,9 +38,6 @@ public abstract class GunModel<
 	R extends IGunRenderer< ? super C, ? extends ER >
 > extends GunPartModel< C, E, ER, R >
 {
-	public static final BuildableLoader< ? >
-		LOADER = new BuildableLoader<>( "gun", JsonGunModel.class );
-	
 	private static final Vec3f HOLD_POS = new Vec3f( -14F / 160F, -72F / 160F, 87.5F / 160F );
 	private static final Vec3f HOLD_ROT = new Vec3f( 0F, 0F, -5F );
 	

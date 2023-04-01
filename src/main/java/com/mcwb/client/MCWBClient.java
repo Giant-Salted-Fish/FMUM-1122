@@ -20,13 +20,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mcwb.client.ammo.AmmoModel;
-import com.mcwb.client.gun.CarGripModel;
-import com.mcwb.client.gun.GripModel;
-import com.mcwb.client.gun.GunModel;
-import com.mcwb.client.gun.GunPartModel;
-import com.mcwb.client.gun.MagModel;
-import com.mcwb.client.gun.OpticSightModel;
+import com.mcwb.client.ammo.JsonAmmoModel;
+import com.mcwb.client.gun.JsonCarGripModel;
+import com.mcwb.client.gun.JsonGripModel;
+import com.mcwb.client.gun.JsonGunModel;
+import com.mcwb.client.gun.JsonGunPartModel;
+import com.mcwb.client.gun.JsonMagModel;
+import com.mcwb.client.gun.JsonOpticSightModel;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.item.ItemModel;
@@ -123,13 +123,13 @@ public final class MCWBClient extends MCWB
 		super.preLoad();
 		
 		// Register model loaders
-		MODEL_LOADERS.regis( GunPartModel.LOADER );
-		MODEL_LOADERS.regis( GunModel.LOADER );
-		MODEL_LOADERS.regis( MagModel.LOADER );
-		MODEL_LOADERS.regis( GripModel.LOADER );
-		MODEL_LOADERS.regis( CarGripModel.LOADER );
-		MODEL_LOADERS.regis( OpticSightModel.LOADER );
-		MODEL_LOADERS.regis( AmmoModel.LOADER );
+		MODEL_LOADERS.regis( JsonGunPartModel.LOADER );
+		MODEL_LOADERS.regis( JsonGunModel.LOADER );
+		MODEL_LOADERS.regis( JsonMagModel.LOADER );
+		MODEL_LOADERS.regis( JsonGripModel.LOADER );
+		MODEL_LOADERS.regis( JsonCarGripModel.LOADER );
+		MODEL_LOADERS.regis( JsonOpticSightModel.LOADER );
+		MODEL_LOADERS.regis( JsonAmmoModel.LOADER );
 		
 		// Register default textures
 		this.texturePool.put( Model.TEXTURE_RED.getPath(), Model.TEXTURE_RED );
@@ -140,7 +140,7 @@ public final class MCWBClient extends MCWB
 		
 		// The default NONE mesh and animation
 		this.meshPool.put( null, Mesh.NONE );
-		this.animationPool.put( null, Animation.NONE );
+		this.animationPool.put( null, Animation.NONE ); // Null usually is not a good choice but have to here
 	}
 	
 	@Override

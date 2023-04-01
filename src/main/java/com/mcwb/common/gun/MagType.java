@@ -13,8 +13,6 @@ import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.IItemModel;
 import com.mcwb.common.ammo.IAmmoType;
 import com.mcwb.common.item.IItemTypeHost;
-import com.mcwb.common.load.BuildableLoader;
-import com.mcwb.common.meta.IMeta;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -30,16 +28,10 @@ public abstract class MagType<
 	M extends IItemModel< ? extends R >
 > extends GunPartType< I, C, E, ER, R, M >
 {
-	public static final BuildableLoader< IMeta >
-		LOADER = new BuildableLoader<>( "mag", JsonMagType.class );
-	
 	protected Set< String > allowedAmmoCategory = Collections.emptySet();
 	
 	@SerializedName( value = "ammoCapacity", alternate = "capacity" )
 	protected int ammoCapacity = 1;
-	
-	@Override
-	protected IMeta loader() { return LOADER; }
 	
 	protected abstract class Mag extends GunPart implements IMag< I >
 	{

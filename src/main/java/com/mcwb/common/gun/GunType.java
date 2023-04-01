@@ -40,9 +40,6 @@ public abstract class GunType<
 	M extends IItemModel< ? extends R >
 > extends GunPartType< I, C, E, ER, R, M >
 {
-	public static final BuildableLoader< IMeta >
-		LOADER = new BuildableLoader<>( "gun", JsonGunType.class );
-	
 	protected static final OperationController
 		LOAD_MAG_CONTROLLER = new OperationController(
 			1F / 40F,
@@ -84,9 +81,6 @@ public abstract class GunType<
 		} );
 		return this;
 	}
-	
-	@Override
-	protected IMeta loader() { return LOADER; }
 	
 	protected abstract class Gun extends GunPart implements IGun< I >
 	{

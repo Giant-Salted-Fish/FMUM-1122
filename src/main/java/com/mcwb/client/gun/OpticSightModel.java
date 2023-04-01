@@ -11,7 +11,6 @@ import com.mcwb.client.module.IDeferredRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
-import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Mesh;
@@ -29,9 +28,6 @@ public abstract class OpticSightModel<
 	R extends IGunPartRenderer< ? super C, ? extends ER >
 > extends GunPartModel< C, E, ER, R >
 {
-	public static final BuildableLoader< ? >
-		LOADER = new BuildableLoader<>( "optic_sight", JsonOpticSightModel.class );
-	
 	@SerializedName( value = "lenMesh" )
 	protected String lenMeshPath;
 	protected transient Mesh lenMesh;

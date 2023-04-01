@@ -3,6 +3,7 @@ package com.mcwb.client.gun;
 import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.common.gun.IEquippedMag;
 import com.mcwb.common.gun.IMag;
+import com.mcwb.common.load.BuildableLoader;
 
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
@@ -18,6 +19,9 @@ public class JsonMagModel extends MagModel<
 		? extends IEquippedItemRenderer< ? super IEquippedMag< ? extends IMag< ? > > >
 	>
 > {
+	public static final BuildableLoader< ? >
+		LOADER = new BuildableLoader<>( "mag", JsonMagModel.class );
+	
 	@Override
 	public IGunPartRenderer<
 		? super IMag< ? >,

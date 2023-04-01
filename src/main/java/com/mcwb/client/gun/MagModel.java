@@ -11,7 +11,6 @@ import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.ammo.IAmmoType;
 import com.mcwb.common.gun.IEquippedMag;
 import com.mcwb.common.gun.IMag;
-import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.util.AngleAxis4f;
 import com.mcwb.util.Mat4f;
@@ -29,9 +28,6 @@ public abstract class MagModel<
 	R extends IGunPartRenderer< ? super C, ? extends ER >
 > extends GunPartModel< C, E, ER, R >
 {
-	public static final BuildableLoader< ? >
-		LOADER = new BuildableLoader<>( "mag", JsonMagModel.class );
-	
 	private static final Vec3f HOLD_POS = new Vec3f( -25F / 160F, -30F / 160F, 70F / 160F );
 	private static final Vec3f HOLD_ROT = new Vec3f( -15F, 0F, -10F );
 	

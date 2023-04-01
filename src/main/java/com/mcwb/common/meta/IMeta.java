@@ -11,6 +11,7 @@ import net.minecraftforge.common.capabilities.CapabilityInject;
  * @author Giant_Salted_Fish
  * TODO: validate if this needed(like IRenderer)
  */
+@FunctionalInterface
 public interface IMeta //extends Comparable< IMeta >
 {
 	/**

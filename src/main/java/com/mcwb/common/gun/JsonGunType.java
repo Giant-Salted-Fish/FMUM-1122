@@ -6,6 +6,8 @@ import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.gun.JsonGunModel;
 import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.IItemModel;
+import com.mcwb.common.load.BuildableLoader;
+import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.module.IModule;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,6 +30,9 @@ public class JsonGunType extends GunType<
 		? extends IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 	> >
 > {
+	public static final BuildableLoader< IMeta >
+		LOADER = new BuildableLoader<>( "gun", JsonGunType.class );
+	
 	@Override
 	public IModule< ? > newRawContexted()
 	{
@@ -77,4 +82,7 @@ public class JsonGunType extends GunType<
 		? super IGun< ? >,
 		? extends IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 	> > fallbackModel() { return JsonGunModel.NONE; }
+	
+	@Override
+	protected IMeta loader() { return LOADER; }
 }
