@@ -333,7 +333,7 @@ public final class MCWBClient extends MCWB
 						bone2Parent.forEach( e -> {
 							final String parent = e.getValue();
 							final BoneAnimation bone = ani.channels.get( e.getKey() );
-							if( parent == null ) ani.rootBones.add( bone );
+							if ( parent == null ) ani.rootBones.add( bone );
 							else ani.channels.get( parent ).children.add( bone );
 						} );
 						return ani;
