@@ -29,7 +29,7 @@ public abstract class RenderableMeta< T > extends TexturedMeta
 	protected void loadModel()
 	{
 		// Set a default model path if does not have
-		final String fallbackType = this.loader().name();
+		final String fallbackType = this.typer().name();
 		final String path = this.modelPath != null ? this.modelPath
 			: "models/" + fallbackType + "/" + this.name + ".json";
 		

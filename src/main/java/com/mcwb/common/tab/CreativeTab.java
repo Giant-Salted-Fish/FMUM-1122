@@ -72,7 +72,7 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 	}
 	
 	@Override
-	protected IMeta loader() { return LOADER; }
+	protected IMeta typer() { return LOADER; }
 	
 	protected class VanillaCreativeTab extends CreativeTabs implements IMetaHost
 	{

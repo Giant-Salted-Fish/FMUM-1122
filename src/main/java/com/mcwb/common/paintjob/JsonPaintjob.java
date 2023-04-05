@@ -1,5 +1,6 @@
 package com.mcwb.common.paintjob;
 
+import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.load.IPostLoadSubscriber;
 import com.mcwb.common.meta.IMeta;
@@ -10,8 +11,11 @@ import com.mcwb.common.meta.IMeta;
  * 
  * @author Giant_Salted_Fish
  */
-public class ExternalPaintjob extends Paintjob implements IPostLoadSubscriber
+public class JsonPaintjob extends Paintjob implements IPostLoadSubscriber
 {
+	public static final BuildableLoader< IMeta >
+		LOADER = new BuildableLoader<>( "paintjob", JsonPaintjob.class );
+	
 	protected String injectTarget = "unspecified";
 	
 	@Override
@@ -30,4 +34,7 @@ public class ExternalPaintjob extends Paintjob implements IPostLoadSubscriber
 		if ( target != null ) target.injectPaintjob( this );
 		else this.warn( "mcwb.expaintjob_target_not_found", this, this.injectTarget );
 	}
+	
+	@Override
+	protected IMeta typer() { return LOADER; }
 }

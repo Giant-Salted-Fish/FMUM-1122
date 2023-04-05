@@ -1,5 +1,6 @@
 package com.mcwb.client.input;
 
+import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
 
@@ -7,8 +8,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class ExternalKeyBind extends KeyBind
+public class JsonKeyBind extends KeyBind
 {
+	public static final BuildableLoader< IMeta >
+		LOADER = new BuildableLoader<>( "key_bind", JsonKeyBind.class );
+	
 	protected String updateGroup = "default";
 	
 	@Override
@@ -41,4 +45,7 @@ public class ExternalKeyBind extends KeyBind
 		}
 		return this;
 	}
+	
+	@Override
+	protected IMeta typer() { return LOADER; }
 }

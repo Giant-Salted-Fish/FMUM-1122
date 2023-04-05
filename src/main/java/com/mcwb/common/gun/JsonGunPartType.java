@@ -86,5 +86,5 @@ public class JsonGunPartType extends GunPartType<
 	> > fallbackModel() { return JsonGunPartModel.NONE; }
 	
 	@Override
-	protected IMeta loader() { return LOADER; }
+	protected IMeta typer() { return LOADER; }
 }

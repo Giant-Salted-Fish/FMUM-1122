@@ -85,5 +85,5 @@ public class JsonMagType extends MagType<
 	> fallbackModel() { return JsonGunPartModel.NONE; }
 	
 	@Override
-	protected IMeta loader() { return LOADER; }
+	protected IMeta typer() { return LOADER; }
 }

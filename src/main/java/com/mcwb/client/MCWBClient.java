@@ -27,8 +27,8 @@ import com.mcwb.client.gun.JsonGunModel;
 import com.mcwb.client.gun.JsonGunPartModel;
 import com.mcwb.client.gun.JsonMagModel;
 import com.mcwb.client.gun.JsonOpticSightModel;
+import com.mcwb.client.input.JsonKeyBind;
 import com.mcwb.client.input.InputHandler;
-import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.item.ItemModel;
 import com.mcwb.client.render.Model;
 import com.mcwb.common.MCWB;
@@ -362,7 +362,7 @@ public final class MCWBClient extends MCWB
 	}
 	
 	@Override
-	protected void regisSideDependentLoaders() { TYPE_LOADERS.regis( KeyBind.LOADER ); }
+	protected void regisSideDependentLoaders() { TYPE_LOADERS.regis( JsonKeyBind.LOADER ); }
 	
 	@Override
 	protected void reloadResources() // TODO: make this part more clear?

@@ -36,6 +36,7 @@ import com.mcwb.common.operation.OperationController;
 import com.mcwb.common.pack.FolderPack;
 import com.mcwb.common.pack.JarPack;
 import com.mcwb.common.pack.LocalPack;
+import com.mcwb.common.paintjob.JsonPaintjob;
 import com.mcwb.common.paintjob.IPaintjob;
 import com.mcwb.common.paintjob.Paintjob;
 import com.mcwb.common.player.PlayerPatch;
@@ -236,7 +237,7 @@ public class MCWB extends URLClassLoader
 		TYPE_LOADERS.regis( JsonGunType.LOADER );
 		TYPE_LOADERS.regis( JsonMagType.LOADER );
 		TYPE_LOADERS.regis( JsonAmmoType.LOADER );
-		TYPE_LOADERS.regis( Paintjob.LOADER );
+		TYPE_LOADERS.regis( JsonPaintjob.LOADER );
 		this.regisSideDependentLoaders();
 	}
 	

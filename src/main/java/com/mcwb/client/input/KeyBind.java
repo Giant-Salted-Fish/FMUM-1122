@@ -10,7 +10,6 @@ import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.Key.Category;
 import com.mcwb.client.player.PlayerPatchClient;
-import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.BuildableMeta;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
@@ -29,9 +28,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public class KeyBind extends BuildableMeta implements IKeyBind
 {
-	public static final BuildableLoader< IMeta >
-		LOADER = new BuildableLoader<>( "key_bind", ExternalKeyBind.class );
-	
 	/**
 	 * Whether this key is down or not
 	 */
@@ -160,5 +156,5 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	protected void onRelease() { PlayerPatchClient.instance.onKeyRelease( this ); }
 	
 	@Override
-	protected IMeta loader() { return LOADER; }
+	protected IMeta typer() { return () -> "KEYBIND"; }
 }

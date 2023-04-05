@@ -17,10 +17,10 @@ public abstract class BuildableMeta extends Meta implements IBuildable< IMeta >,
 	}
 	
 	@Override
-	public String toString() { return this.loader() + "::" + this.provider + "." + this.name; }
+	public String toString() { return this.typer() + "::" + this.provider + "." + this.name; }
 	
 	/**
-	 * @return The loader of this meta. Usually is the corresponding {@link BuildableLoader}.
+	 * @return Type identifier of this meta. Usually is the corresponding {@link BuildableLoader}.
 	 */
-	protected abstract IMeta loader();
+	protected abstract IMeta typer();
 }
