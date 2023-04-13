@@ -12,7 +12,7 @@ public final class Quat4f extends javax.vecmath.Quat4f implements IReleasable
 	public static final Quat4f ORIGIN = new Quat4f();
 	
 	private static final ObjPool< Quat4f > POOL = new ObjPool<>( Quat4f::new );
-	private static int count = Dev.REFER;
+	private static int count = Dev.rememberToChangeOnRelease();
 	
 	public static Quat4f locate()
 	{

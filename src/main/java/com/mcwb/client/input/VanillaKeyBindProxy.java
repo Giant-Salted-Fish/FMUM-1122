@@ -45,7 +45,7 @@ public abstract class VanillaKeyBindProxy extends KeyBind
 	}
 	
 	@Override
-	public void $keyCode( int code ) { } // Always get its key code from #keyBind
+	public void setKeyCode( int code ) { } // Always get its key code from #keyBind
 	
 	@Override
 	protected void onFire() { while ( this.keyBind.isPressed() ) this.onAction(); }
