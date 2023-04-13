@@ -199,7 +199,7 @@ public abstract class GunPartType<
 			else if ( stackTag != null )
 			{
 				// has-stackTag | no--capTag: should never happen
-				Dev.cur();
+				Dev.rememberToChangeOnRelease();
 				throw new RuntimeException( "has-stackTag | no--capTag: should never happen" );
 			}
 			else

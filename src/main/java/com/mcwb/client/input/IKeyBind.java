@@ -62,7 +62,7 @@ public interface IKeyBind extends IMeta
 	 * 
 	 * @param code Key code to set
 	 */
-	public void $keyCode( int code );
+	public void setKeyCode( int code );
 	
 	/**
 	 * <p> Usually to trigger the function of this key bind. If your key only trigger once the key

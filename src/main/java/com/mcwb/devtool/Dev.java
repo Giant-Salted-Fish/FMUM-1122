@@ -14,17 +14,10 @@ import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.KeyBind;
-import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.Model;
 import com.mcwb.common.MCWB;
-import com.mcwb.common.item.IEquippedItem;
-import com.mcwb.common.item.IItem;
-import com.mcwb.common.operation.IOperation;
-import com.mcwb.common.operation.Operation;
-import com.mcwb.common.operation.OperationController;
 import com.mcwb.util.Vec3f;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -41,6 +34,8 @@ import net.minecraftforge.fml.relauncher.Side;
 @EventBusSubscriber( modid = MCWB.ID, value = Side.CLIENT )
 public class Dev implements IAutowirePlayerChat
 {
+	public static int rememberToChangeOnRelease() { return 0; }
+	
 	public static final Consumer< Boolean > DEBUG_BOX = new Consumer< Boolean >()
 	{
 		private final Model renderer = new Model( "models/debug_box.obj", 0.0625F, true );
@@ -55,8 +50,6 @@ public class Dev implements IAutowirePlayerChat
 			this.renderer.render();
 		}
 	};
-	
-	public static final int REFER = 0;
 	
 	public static boolean flag = false;
 	

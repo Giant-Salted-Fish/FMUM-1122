@@ -56,7 +56,7 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 		String category,
 		int keyCode,
 		@Nullable Collection< IKeyBind > updateGroup
-	) { Dev.cur();
+	) { Dev.rememberToChangeOnRelease();
 		this.keyCode = keyCode;
 		this.category = category;
 		
@@ -123,7 +123,7 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	@Override
 	public void inactiveUpdate( boolean down )
 	{
-		// Only handle release if inactive
+		// Only handle release if it is inactive
 		if ( !down && this.down )
 		{
 			this.down = false;
@@ -149,7 +149,7 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	public int keyCode() { return this.keyCode; }
 	
 	@Override
-	public void $keyCode( int code ) { this.keyCode = code; }
+	public void setKeyCode( int code ) { this.keyCode = code; }
 	
 	@Override
 	public boolean down() { return this.down; }

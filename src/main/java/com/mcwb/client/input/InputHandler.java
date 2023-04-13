@@ -166,7 +166,7 @@ public final class InputHandler
 		final int none = Keyboard.KEY_NONE;
 		if ( AIM_HOLD.keyCode != none && AIM_TOGGLE.keyCode != none )
 		{
-			prevAimKey.$keyCode( none );
+			prevAimKey.setKeyCode( none );
 			changed = true;
 		}
 		
@@ -203,7 +203,7 @@ public final class InputHandler
 		{
 			final JsonObject obj = MCWB.GSON.fromJson( in, JsonObject.class );
 			obj.entrySet().forEach( e -> {
-				try { IKeyBind.REGISTRY.get( e.getKey() ).$keyCode( e.getValue().getAsInt() ); }
+				try { IKeyBind.REGISTRY.get( e.getKey() ).setKeyCode( e.getValue().getAsInt() ); }
 				catch ( NullPointerException ee ) {
 					LOGGER.error( "mcwb.unrecognized_key_bind", e.getKey() );
 				}

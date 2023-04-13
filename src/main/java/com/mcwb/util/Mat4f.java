@@ -15,7 +15,7 @@ import net.minecraft.util.math.MathHelper;
 public final class Mat4f extends Matrix4f implements IReleasable
 {
 	private static final ObjPool< Mat4f > POOL = new ObjPool<>( Mat4f::new );
-	private static int count = Dev.REFER;
+	private static int count = Dev.rememberToChangeOnRelease();
 	
 	// FIXME: count
 	public static Mat4f locate()

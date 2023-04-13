@@ -14,7 +14,7 @@ public class Vec3f extends Vector3f implements IReleasable
 	public static final Vec3f ORIGIN = new Vec3f();
 	
 	private static final ObjPool< Vec3f > POOL = new ObjPool<>( Vec3f::new );
-	private static int count = Dev.REFER;
+	private static int count = Dev.rememberToChangeOnRelease();
 	
 	public static Vec3f locate()
 	{
