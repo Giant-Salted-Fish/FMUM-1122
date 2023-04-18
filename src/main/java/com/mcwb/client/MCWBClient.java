@@ -65,7 +65,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public final class MCWBClient extends MCWB
 	implements IAutowirePlayerChat, IAutowireBindTexture, IAutowireSmoother
 {
-	/// *** For easy referencing *** ///
+	/// *** For easy referencing. *** ///
 	public static final Minecraft MC = Minecraft.getMinecraft();
 	public static final GameSettings SETTINGS = MC.gameSettings;
 	
@@ -93,12 +93,12 @@ public final class MCWBClient extends MCWB
 	final HashMap< String, Mesh > meshPool = new HashMap<>();
 	
 	/**
-	 * Where key binds will be saved to
+	 * Where key binds will be saved to.
 	 */
 	File keyBindsFile;
 	
 	/**
-	 * Buffered textures
+	 * Buffered textures.
 	 * 
 	 * TODO: clear pools after use maybe?
 	 */
@@ -111,18 +111,20 @@ public final class MCWBClient extends MCWB
 	@Override
 	public void preLoad()
 	{
-		// Check OpenGL support
-		if ( !GLContext.getCapabilities().OpenGL30 )
+		// Check render capabilities.
+		if ( !GLContext.getCapabilities().OpenGL30 ) {
 			throw new RuntimeException( I18n.format( "mcwb.opengl_version_too_low" ) );
+		}
 		
 		final Framebuffer framebuffer = MC.getFramebuffer();
-		if ( !framebuffer.isStencilEnabled() && !framebuffer.enableStencil() )
+		if ( !framebuffer.isStencilEnabled() && !framebuffer.enableStencil() ) {
 			throw new RuntimeException( I18n.format( "mcwb.stencil_not_supported" ) );
+		}
 		
-		// Do prepare load
+		// Call super for pre-load.
 		super.preLoad();
 		
-		// Register model loaders
+		// Register model loaders.
 		MODEL_LOADERS.regis( JsonGunPartModel.LOADER );
 		MODEL_LOADERS.regis( JsonGunModel.LOADER );
 		MODEL_LOADERS.regis( JsonMagModel.LOADER );
@@ -131,32 +133,33 @@ public final class MCWBClient extends MCWB
 		MODEL_LOADERS.regis( JsonOpticSightModel.LOADER );
 		MODEL_LOADERS.regis( JsonAmmoModel.LOADER );
 		
-		// Register default textures
+		// Register default textures.
 		this.texturePool.put( Model.TEXTURE_RED.getPath(), Model.TEXTURE_RED );
 		this.texturePool.put( Model.TEXTURE_GREEN.getPath(), Model.TEXTURE_RED );
 		this.texturePool.put( Model.TEXTURE_BLUE.getPath(), Model.TEXTURE_RED );
 		this.texturePool.put( ItemModel.TEXTURE_STEVE.getPath(), ItemModel.TEXTURE_STEVE );
 		this.texturePool.put( ItemModel.TEXTURE_ALEX.getPath(), ItemModel.TEXTURE_ALEX );
 		
-		// The default NONE mesh and animation
+		// The default NONE mesh and animation.
+		// Null usually is not a good choice but have to do it for animation pool.
 		this.meshPool.put( null, Mesh.NONE );
-		this.animationPool.put( null, Animation.NONE ); // Null usually is not a good choice but have to here
+		this.animationPool.put( null, Animation.NONE );
 	}
 	
 	@Override
 	public void load()
 	{
-		// Load key binds before the content load
+		// Load key binds before the content load.
 		this.keyBindsFile = new File( this.gameDir, "config/mcwb-keys.json" );
 		if ( !this.keyBindsFile.exists() )
 		{
 			try { this.keyBindsFile.createNewFile(); }
-			catch ( IOException e ) { this.except( e, "mcwb.error_creating_key_binds_file" ); }
+			catch ( IOException e ) { this.logException( e, "mcwb.error_creating_key_binds_file" ); }
 			InputHandler.saveTo( this.keyBindsFile );
 		}
-		else InputHandler.readFrom( this.keyBindsFile );
+		else { InputHandler.readFrom( this.keyBindsFile ); }
 		
-		// Construct a default indicator
+		// Construct a default indicator.
 		final JsonObject indicator = new JsonObject();
 		indicator.addProperty( "creativeTab", MCWB.HIDE_TAB.name() );
 		indicator.addProperty( "model", "models/modify_indicator.json" );
@@ -168,7 +171,7 @@ public final class MCWBClient extends MCWB
 	}
 	
 	@Override
-	public void regis( IMeshLoadSubscriber subscriber ) {
+	public void regisMeshLoadSubscriber( IMeshLoadSubscriber subscriber ) {
 		this.meshLoadSubscribers.add( subscriber );
 	}
 	
@@ -177,11 +180,11 @@ public final class MCWBClient extends MCWB
 	{
 		super.addResourceDomain( resource );
 		
-		// Register it as a resource pack to load textures and sounds
-		// Reference: Flan's Mod content pack load
+		// Register it as a resource pack to load textures and sounds.
+		// Reference: Flan's Mod content pack load.
 		final TreeMap< String, Object > descriptor = new TreeMap<>();
-		descriptor.put( "modid", ID );
-		descriptor.put( "name", NAME + ":" + resource.getName() );
+		descriptor.put( "modid", MODID );
+		descriptor.put( "name", MOD_NAME + ":" + resource.getName() );
 		descriptor.put( "version", "1" ); // TODO: from pack info maybe
 		final FMLModContainer container = new FMLModContainer(
 			MCWB.class.getName(),
@@ -198,9 +201,9 @@ public final class MCWBClient extends MCWB
 	/**
 	 * Load .json or .class renderer from the given path.
 	 * 
-	 * @param path Path of the model to load
-	 * @param fallBackType Model type to use if "__type__" field does not exist in ".json" file
-	 * @return {@code null} if required loader does not exist or an exception was thrown
+	 * @param path Path of the model to load.
+	 * @param fallBackType Model type to use if "__type__" field does not exist in ".json" file.
+	 * @return {@code null} if required loader does not exist or an exception was thrown.
 	 * TODO: maybe a null object to avoid null pointer
 	 */
 	@Nullable
@@ -217,13 +220,14 @@ public final class MCWBClient extends MCWB
 						final InputStreamReader in = new InputStreamReader( res.getInputStream() );
 						final JsonObject obj = GSON.fromJson( in, JsonObject.class );
 						
-						// Try get required loader and load
+						// Try get required loader and load.
 						final JsonElement type = obj.get( "__type__" );
 						final String entry = type != null
 							? type.getAsString().toLowerCase() : fallbackType;
 						final BuildableLoader< ? > loader = MODEL_LOADERS.get( entry );
-						if ( loader != null )
+						if ( loader != null ) {
 							return loader.parser.apply( obj ).build( key, provider );
+						}
 						
 						throw new RuntimeException(
 							this.format( "mcwb.model_loader_not_found", key, entry )
@@ -237,10 +241,10 @@ public final class MCWBClient extends MCWB
 							.newInstance( key, provider );
 				}
 				
-				// Unknown renderer type
-				else throw new RuntimeException( "Unsupported renderer file type" ); // TODO: format this?
+				// Unknown renderer type.
+				else { throw new RuntimeException( "Unsupported renderer file type" ); } // TODO: format this?
 			}
-			catch ( Exception e ) { this.except( e, "mcwb.error_loading_renderer", key ); }
+			catch ( Exception e ) { this.logException( e, "mcwb.error_loading_renderer", key ); }
 			return null;
 		} );
 	}
@@ -251,8 +255,8 @@ public final class MCWBClient extends MCWB
 	}
 	
 	/**
-	 * @param processor Use this to process .obj model before compiling it to mesh
-	 * @return {@link Mesh#NONE} if any error has occurred
+	 * @param processor Use this to process .obj model before compiling it to mesh.
+	 * @return {@link Mesh#NONE} if any error has occurred.
 	 */
 	@Override
 	public Mesh loadMesh( String path, Function< Mesh.Builder, Mesh.Builder > processor )
@@ -261,16 +265,19 @@ public final class MCWBClient extends MCWB
 			try
 			{
 				// TODO: switch by suffix to support other types of models?
-				if ( key.endsWith( ".obj" ) )
+				if ( key.endsWith( ".obj" ) ) {
 					return processor.apply( new ObjMeshBuilder().load( key ) ).quickBuild();
-//				if ( key.endsWith( ".class" ) )
+				}
+				
+//				if ( key.endsWith( ".class" ) ) {
 //					return ( Mesh ) this.loadClass( key.substring( 0, key.length() - 6 ) )
 //						.getConstructor().newInstance();
+//				}
 				
-				// Unknown mesh type
+				// Unknown mesh type.
 				throw new RuntimeException( "Unsupported model file type" ); // TODO: format this?
 			}
-			catch ( Exception e ) { this.except( e, "mcwb.error_loading_mesh", key ); }
+			catch ( Exception e ) { this.logException( e, "mcwb.error_loading_mesh", key ); }
 			return Mesh.NONE;
 		} );
 	}
@@ -288,7 +295,7 @@ public final class MCWBClient extends MCWB
 			{
 				if ( key.endsWith( ".json" ) )
 				{
-					// For animation exported from blockbench
+					// For animation exported from BlockBench.
 					final MCWBResource identifier = new MCWBResource( key );
 					try ( IResource res = MC.getResourceManager().getResource( identifier ) )
 					{
@@ -296,7 +303,6 @@ public final class MCWBClient extends MCWB
 						final BBAnimationJson json = GSON.fromJson( in, BBAnimationJson.class );
 						
 						final Animation ani = new Animation();
-						// <Bone> : <Its parent>
 						final LinkedList< Entry< String, String > >
 							bone2Parent = new LinkedList<>();
 						
@@ -329,23 +335,25 @@ public final class MCWBClient extends MCWB
 						} );
 						mat.release();
 						
-						// Setup bone & parent dependency
+						// Setup bone & parent dependency.
 						bone2Parent.forEach( e -> {
 							final String parent = e.getValue();
 							final BoneAnimation bone = ani.channels.get( e.getKey() );
-							if ( parent == null ) ani.rootBones.add( bone );
-							else ani.channels.get( parent ).children.add( bone );
+							if ( parent == null ) { ani.rootBones.add( bone ); }
+							else { ani.channels.get( parent ).children.add( bone ); }
 						} );
 						return ani;
 					}
 				}
 				
-				if ( key.endsWith( ".class" ) );
-					// TODO: class animation?
+//				if ( key.endsWith( ".class" ) )
+//				{
+//					// TODO: class animation?
+//				}
 				
 				throw new RuntimeException( "Unsupported animation file type" );
 			}
-			catch ( Exception e ) { this.except( e, "mcwb.error_loading_animation", key ); }
+			catch ( Exception e ) { this.logException( e, "mcwb.error_loading_animation", key ); }
 			return Animation.NONE;
 		} );
 	}
@@ -367,7 +375,7 @@ public final class MCWBClient extends MCWB
 	@Override
 	protected void reloadResources() // TODO: make this part more clear?
 	{
-		// Force resource reload to load those in domain of content packs
+		// Force resource reload to load those in domain of content packs.
 		// TODO: maybe check if is only mod based content pack
 		FMLClientHandler.instance().refreshResources(
 			VanillaResourceType.MODELS,

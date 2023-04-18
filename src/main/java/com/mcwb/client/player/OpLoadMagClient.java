@@ -33,10 +33,10 @@ public class OpLoadMagClient extends OperationClient< IEquippedGun< ? > >
 		switch ( 0 )
 		{
 		default:
-			if ( this.equipped.item().hasMag() ) break;
+			if ( this.equipped.item().hasMag() ) { break; }
 			
 			this.invSlot = this.getValidMagInvSlot( player );
-			if ( this.invSlot == -1 ) break;
+			if ( this.invSlot == -1 ) { break; }
 			
 			this.clearProgress();
 //			this.sendToServer( message );
@@ -60,11 +60,12 @@ public class OpLoadMagClient extends OperationClient< IEquippedGun< ? > >
 		// Calling install will change the state of the mag itself, hence copy before use
 		final ItemStack stack = player.inventory.getStackInSlot( this.invSlot ).copy();
 		final IItem item = IItemTypeHost.getItemOrDefault( stack );
-		if ( !( item instanceof IMag< ? > ) ) return NONE;
+		final boolean isMag = item instanceof IMag< ? >;
+		if ( !isMag ) { return NONE; }
 		
 		final IMag< ? > mag = ( IMag< ? > ) item;
 		final IGun< ? > gun = this.equipped.item();
-		if ( gun.isAllowed( mag ) ) gun.loadMag( mag );
+		if ( gun.isAllowed( mag ) ) { gun.loadMag( mag ); }
 		return NONE;
 	}
 	
@@ -77,8 +78,9 @@ public class OpLoadMagClient extends OperationClient< IEquippedGun< ? > >
 		{
 			final ItemStack stack = inv.getStackInSlot( i );
 			final IItem item = IItemTypeHost.getItemOrDefault( stack );
-			if ( item instanceof IMag< ? > && gun.isAllowed( ( IMag< ? > ) item ) )
-				return i;
+			final boolean isMag = item instanceof IMag< ? >;
+			final boolean isValidMag = isMag && gun.isAllowed( ( IMag< ? > ) item );
+			if ( isValidMag ) { return i; }
 		}
 		return -1;
 	}

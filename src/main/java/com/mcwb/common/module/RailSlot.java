@@ -12,18 +12,18 @@ public class RailSlot extends SimpleSlot
 		ADAPTER = ( json, typeOfT, context ) -> MCWB.GSON.fromJson( json, RailSlot.class );
 	
 	/**
-	 * Rotation(pointing) of this slot about z-axis
+	 * Rotation(pointing) of this slot about z-axis.
 	 */
 	protected float rotZ = 0F;
 	
 	/**
-	 * How far it goes for each adjustment step
+	 * How far it goes for each adjustment step.
 	 */
 	@SerializedName( value = "stepLen", alternate = "stepLength" )
 	protected float stepLen = 0F;
 	
 	/**
-	 * Max steps that the attachments can go on this slot
+	 * Max steps that the attachments can go on this slot.
 	 */
 	protected short maxStep = 0;
 	
@@ -41,7 +41,8 @@ public class RailSlot extends SimpleSlot
 	public void applyTransform( IModule< ? > installed, Mat4f dst )
 	{
 		final Vec3f v = this.origin;
-		dst.translate( v.x, v.y, v.z + this.stepLen * installed.step() );
+		final float step = this.stepLen * installed.step();
+		dst.translate( v.x, v.y, v.z + step );
 		dst.rotateZ( this.rotZ );
 	}
 }

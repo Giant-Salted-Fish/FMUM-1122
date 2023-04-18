@@ -31,10 +31,8 @@ public class JsonCarGripModel extends CarGripModel<
 		return this.new CarGripRenderer()
 		{
 			@Override
-			public IEquippedItemRenderer<
-				? super IEquippedItem< ? extends IGunPart< ? > >
-			> onTakeOut( EnumHand hand )
-			{ return this.new EquippedGunPartRenderer(); }
+			public IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
+				onTakeOut( EnumHand hand ) { return this.new EquippedGunPartRenderer(); }
 		};
 	}
 }

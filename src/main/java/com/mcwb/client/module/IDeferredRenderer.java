@@ -15,7 +15,7 @@ public interface IDeferredRenderer extends IReleasable
 	public default void prepare() { }
 	
 	/**
-	 * Called before first person render to determine the order of deferred render
+	 * Called before first person render to determine the order of deferred render.
 	 */
 	@SideOnly( Side.CLIENT )
 	public default float priority() { return 0F; }

@@ -5,18 +5,11 @@ import net.minecraft.util.math.MathHelper;
 public class ArmTracker
 {
 	/**
-	 * Recommended forearm and upper arm length. It is the typical value for standard steve model.
+	 * Recommended forearm and upper arm length. It is the typical value for standard Steve model.
 	 */
 	public static final float RECOMMENDED_ARM_LENGTH = 10F / 16F;
 	
-	/**
-	 * Length of forearm
-	 */
 	protected final float forearmLen;
-	
-	/**
-	 * Length of upper arm
-	 */
 	protected final float upperArmLen;
 	
 	public final Vec3f shoulderPos = new Vec3f();
@@ -33,7 +26,7 @@ public class ArmTracker
 	protected final Vec3f vec = new Vec3f();
 	
 	/**
-	 * Create an instance with forearm and upper arm length set to {@value #RECOMMENDED_ARM_LENGTH}
+	 * Create an instance with forearm and upper arm length set to {@value #RECOMMENDED_ARM_LENGTH}.
 	 * 
 	 * @see #RECOMMENDED_ARM_LENGTH
 	 */
@@ -58,14 +51,14 @@ public class ArmTracker
 		final Mat4f mat = this.mat;
 		final Vec3f vec = this.vec;
 		
-		// Get distance from hand to shoulder
+		// Get distance from hand to shoulder.
 		vec.set( this.handPos );
 		vec.sub( this.shoulderPos );
 		final float distanceSquared = vec.lengthSquared();
 		final float distance = MathHelper.sqrt( distanceSquared );
 		
-		/// Get elbow coordinate
-		// Case: distance is too short to organize a triangle
+		/// *** Get elbow coordinate. *** ///
+		// Case: distance is too short to organize a triangle.
 		if (
 			this.forearmLen >= this.upperArmLen + distance
 			|| this.upperArmLen >= this.forearmLen + distance
@@ -77,7 +70,7 @@ public class ArmTracker
 			vec.add( this.handPos );
 			this.elbowPos.add( vec );
 		}
-		// Case: distance it too long and arm is not enough
+		// Case: distance it too long and arm is not enough.
 		else if ( distance >= this.forearmLen + this.upperArmLen )
 		{
 			vec.negate();
@@ -85,7 +78,7 @@ public class ArmTracker
 			vec.add( this.handPos );
 			this.elbowPos.set( vec );
 		}
-		// Case: normal triangular shape
+		// Case: normal triangular shape.
 		else
 		{
 			final float a = this.forearmLen;
@@ -97,7 +90,7 @@ public class ArmTracker
 			final float sin = MathHelper.sqrt( 1F - cos * cos );
 			this.elbowPos.set( 0F, -this.forearmLen * sin, distance - this.forearmLen * cos );
 			
-			// Get elbow coordinate in 3D space
+			// Get elbow coordinate in 3D space.
 			mat.setIdentity();
 			vec.getEulerAngle( vec );
 			mat.eulerRotateYXZ( vec.x, vec.y, this.armRotZ );
@@ -105,7 +98,7 @@ public class ArmTracker
 			this.elbowPos.add( this.shoulderPos );
 		}
 		
-		// Get hand angle
+		// Get hand angle.
 		vec.set( this.handPos );
 		vec.sub( this.elbowPos );
 		vec.getEulerAngle( this.handRot );

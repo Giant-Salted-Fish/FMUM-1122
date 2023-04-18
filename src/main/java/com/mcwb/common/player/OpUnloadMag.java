@@ -1,6 +1,7 @@
 package com.mcwb.common.player;
 
 import com.mcwb.common.gun.IEquippedGun;
+import com.mcwb.common.gun.IGun;
 import com.mcwb.common.gun.IMag;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.operation.IOperation;
@@ -16,21 +17,25 @@ public class OpUnloadMag extends Operation< IEquippedGun< ? > >
 	}
 	
 	@Override
-	public IOperation launch( EntityPlayer player ) {
-		return this.equipped.item().hasMag() ? this : NONE;
+	public IOperation launch( EntityPlayer player )
+	{
+		final IGun< ? > gun = this.equipped.item();
+		return gun.hasMag() ? this : NONE;
 	}
 	
 	@Override
 	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
 	{
 		this.equipped = ( IEquippedGun< ? > ) newEquipped;
-		return this.equipped.item().hasMag() ? this : this.terminate( player );
+		final IGun< ? > gun = this.equipped.item();
+		return gun.hasMag() ? this : this.terminate( player );
 	}
 	
 	@Override
 	protected void doHandleEffect( EntityPlayer player )
 	{
-		final IMag< ? > mag = this.equipped.item().unloadMag();
+		final IGun< ? > gun = this.equipped.item();
+		final IMag< ? > mag = gun.unloadMag();
 		player.addItemStackToInventory( mag.toStack() );
 	}
 }

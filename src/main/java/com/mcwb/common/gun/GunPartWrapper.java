@@ -2,16 +2,21 @@ package com.mcwb.common.gun;
 
 import java.util.Collection;
 
+import javax.annotation.Nullable;
+
 import com.mcwb.client.module.IDeferredRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.item.IEquippedItem;
+import com.mcwb.common.item.ItemType;
 import com.mcwb.common.module.ModuleWrapper;
 import com.mcwb.util.ArmTracker;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -27,6 +32,16 @@ public class GunPartWrapper<
 		super( primary );
 		
 		this.stack = stack;
+	}
+	
+	@Override
+	public final boolean hasCapability( Capability< ? > capability, @Nullable EnumFacing facing ) {
+		return capability == ItemType.CAPABILITY;
+	}
+	
+	@Override
+	public final < C > C getCapability( Capability< C > capability, @Nullable EnumFacing facing ) {
+		return ItemType.CAPABILITY.cast( this );
 	}
 	
 	@Override

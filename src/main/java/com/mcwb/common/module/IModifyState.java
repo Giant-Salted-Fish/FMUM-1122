@@ -1,6 +1,7 @@
 package com.mcwb.common.module;
 
-import com.mcwb.client.MCWBClient;
+import static com.mcwb.client.MCWBClient.MOD;
+
 import com.mcwb.client.render.Model;
 
 import net.minecraft.util.ResourceLocation;
@@ -25,7 +26,7 @@ public interface IModifyState
 		public void doRecommendedRender( ResourceLocation texture, Runnable renderer )
 		{
 			Model.glowOn();
-			MCWBClient.MOD.bindTexture( Model.TEXTURE_GREEN );
+			MOD.bindTexture( Model.TEXTURE_GREEN );
 			renderer.run();
 			Model.glowOff();
 		}
@@ -38,7 +39,7 @@ public interface IModifyState
 		public void doRecommendedRender( ResourceLocation texture, Runnable renderer )
 		{
 			Model.glowOn();
-			MCWBClient.MOD.bindTexture( Model.TEXTURE_RED );
+			MOD.bindTexture( Model.TEXTURE_RED );
 			renderer.run();
 			Model.glowOff();
 		}
@@ -47,7 +48,7 @@ public interface IModifyState
 	@SideOnly( Side.CLIENT )
 	public default void doRecommendedRender( ResourceLocation texture, Runnable renderer )
 	{
-		MCWBClient.MOD.bindTexture( texture );
+		MOD.bindTexture( texture );
 		renderer.run();
 	}
 //	TODO: remove this if no longer needed

@@ -30,9 +30,8 @@ public class JsonMagModel extends MagModel<
 		return this.new MagRenderer()
 		{
 			@Override
-			public IEquippedItemRenderer< ? super IEquippedMag< ? extends IMag< ? > > > onTakeOut(
-				EnumHand hand
-			) { return this.new EquippedGunPartRenderer(); }
+			public IEquippedItemRenderer< ? super IEquippedMag< ? extends IMag< ? > > >
+				onTakeOut( EnumHand hand ) { return this.new EquippedGunPartRenderer(); }
 		};
 	}
 }

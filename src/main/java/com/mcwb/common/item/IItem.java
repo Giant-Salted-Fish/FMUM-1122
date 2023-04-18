@@ -7,7 +7,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * Represents {@link IItemType} with context
+ * Represents {@link IItemType} with context.
  * 
  * @author Giant_Salted_Fish
  */
@@ -36,19 +36,19 @@ public interface IItem
 	};
 	
 	/**
-	 * This will be used to determinate whether the item in hand has changed
+	 * This will be used to determinate whether the item in hand has changed.
 	 * 
-	 * @return An universe id that identifies an item stack
+	 * @return An universe id that identifies an item stack.
 	 */
 	public int stackId();
 	
 	/**
-	 * Called when player is trying to take out this item
+	 * Called when player is trying to take out this item.
 	 */
 	public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand );
 	
 	/**
-	 * Called when the corresponding stack in hand has changed
+	 * Called when the corresponding stack in hand has changed.
 	 */
 	public IEquippedItem< ? > onStackUpdate(
 		IEquippedItem< ? > prevEquipped,

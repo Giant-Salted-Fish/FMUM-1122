@@ -14,11 +14,19 @@ import com.mcwb.common.tab.ICreativeTab;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
 public abstract class ItemType< C extends IItem, M extends IItemModel< ? > >
 	extends RenderableMeta< M > implements IItemType, IPostLoadSubscriber
 {
+	/**
+	 * For contexted item.
+	 */
+	@CapabilityInject( Object.class )
+	public static final Capability< IItem > CAPABILITY = null;
+	
 	protected transient Item item;
 	
 	protected String description = "mcwb.description.missing";
@@ -34,7 +42,7 @@ public abstract class ItemType< C extends IItem, M extends IItemModel< ? > >
 		IItemType.REGISTRY.regis( this );
 		
 		this.item = this.createItem();
-		provider.regis( this );
+		provider.regisPostLoadSubscriber( this );
 		return this;
 	}
 	
@@ -53,7 +61,7 @@ public abstract class ItemType< C extends IItem, M extends IItemModel< ? > >
 	@Override
 	@SuppressWarnings( "unchecked" )
 	public C getContexted( ItemStack stack ) {
-		return ( C ) stack.getCapability( IMeta.CONTEXTED, null );
+		return ( C ) stack.getCapability( CAPABILITY, null );
 	}
 	
 	protected abstract Item createItem();
@@ -61,13 +69,13 @@ public abstract class ItemType< C extends IItem, M extends IItemModel< ? > >
 	protected void setupCreativeTab()
 	{
 		final ICreativeTab tab = ICreativeTab.REGISTRY.getOrElse( this.creativeTab, () -> {
-			this.error( "mcwb.fail_to_find_tab", this, this.creativeTab );
+			this.logError( "mcwb.fail_to_find_tab", this, this.creativeTab );
 			return MCWB.DEFAULT_TAB;
 		} );
 		this.item.setCreativeTab( tab.creativeTab() );
 		tab.itemSettledIn( this );
 		
-		// No longer needed, release it
+		// No longer needed, release it.
 		this.creativeTab = null;
 	}
 	

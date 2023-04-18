@@ -41,11 +41,11 @@ public class JsonKeyBind extends KeyBind
 			InputHandler.CO_KEYS.add( this );
 			break;
 			
-		default: this.error( "mcwb.can_not_find_update_group", this, this.updateGroup );
+		default: this.logError( "mcwb.can_not_find_update_group", this, this.updateGroup );
 		}
 		return this;
 	}
 	
 	@Override
-	protected IMeta typer() { return LOADER; }
+	protected IMeta descriptor() { return LOADER; }
 }

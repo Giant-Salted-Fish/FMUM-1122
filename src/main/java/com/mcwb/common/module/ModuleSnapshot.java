@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.common.IAutowireLogger;
-import com.mcwb.common.MCWB;
 import com.mcwb.common.paintjob.IPaintable;
 
 /**
@@ -42,25 +41,23 @@ public class ModuleSnapshot implements IAutowireLogger
 		final T module = supplier.apply( this.module );
 		if ( module == null )
 		{
-			this.error( "mcwb.fail_to_find_module", this.module );
+			this.logError( "mcwb.fail_to_find_module", this.module );
 			return null;
 		}
 		
-		if ( this.module.equals( "lmt_stock" ) )
-			MCWB.MOD.author();
-		
-		// Setup settings
+		// Setup settings.
 		module.setOffsetStep( this.offset, this.step );
-		if ( module instanceof IPaintable )
+		if ( module instanceof IPaintable ) {
 			( ( IPaintable ) module ).setPaintjob( this.paintjob );
+		}
 		
-		// Install modules
+		// Install modules.
 		for ( int i = 0, size = this.slots.size(); i < size; ++i )
 		{
 			final int slot = i;
 			this.slots.get( i ).forEach( snapshot -> {
 				final IModule< ? > tarMod = snapshot.setSnapshot( SUPPLIER );
-				if ( tarMod != null ) module.install( slot, tarMod );
+				if ( tarMod != null ) { module.install( slot, tarMod ); }
 				// This is the special case that we do not use #tryInstall(...)
 			} );
 		}

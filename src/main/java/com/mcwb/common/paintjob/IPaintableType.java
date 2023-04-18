@@ -7,10 +7,8 @@ public interface IPaintableType extends IMeta
 {
 	public static final Registry< IPaintableType > REGISTRY = new Registry<>();
 	
-//	public IPaintable getContexted( ICapabilityProvider provider );
-	
 	/**
-	 * Implement this to accept paintjob injection
+	 * Implement this to accept paintjob injection.
 	 */
 	public void injectPaintjob( IPaintjob paintjob );
 }

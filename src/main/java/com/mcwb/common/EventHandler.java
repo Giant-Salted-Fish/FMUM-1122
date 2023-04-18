@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 
-@EventBusSubscriber( modid = MCWB.ID )
+@EventBusSubscriber( modid = MCWB.MODID )
 public final class EventHandler
 {
 	private static final IAutowireLogger LOGGER = MCWB.MOD;
@@ -31,24 +31,24 @@ public final class EventHandler
 	@SubscribeEvent
 	public static void onRegisterItem( RegistryEvent.Register< Item > evt )
 	{
-		LOGGER.info( "mcwb.on_item_regis" );
+		LOGGER.logInfo( "mcwb.on_item_regis" );
 		
 		final Collection< IItemType > items = IItemType.REGISTRY.values();
 		items.forEach( it -> it.onRegisterItem( evt ) );
 		
-		LOGGER.info( "mcwb.item_regis_complete", items.size() );
+		LOGGER.logInfo( "mcwb.item_regis_complete", items.size() );
 	}
 	
 	@SubscribeEvent
 	public static void onRegisterSound( RegistryEvent.Register< SoundEvent > evt )
 	{
-		LOGGER.info( "mcwb.on_sound_regis" ); // TODO: translation
+		LOGGER.logInfo( "mcwb.on_sound_regis" ); // TODO: translation
 		
 		final IForgeRegistry< SoundEvent > registry = evt.getRegistry ();
 		final Collection< SoundEvent > sounds = MCWB.MOD.soundPool.values();
 		sounds.forEach( sound -> registry.register( sound ) );
 		
-		LOGGER.info( "mcwb.sound_regis_complete", sounds.size() );
+		LOGGER.logInfo( "mcwb.sound_regis_complete", sounds.size() );
 		
 		// TODO: clear sound pool?
 	}
@@ -56,17 +56,16 @@ public final class EventHandler
 	@SubscribeEvent
 	public static void onEntityCapAttach( AttachCapabilitiesEvent< Entity > evt )
 	{
-		// Attach logic patch for entity player
 		final Entity e = evt.getObject();
-		if ( !( e instanceof EntityPlayer ) ) return;
+		final boolean isPlayer = e instanceof EntityPlayer;
+		if ( !isPlayer ) { return; }
 		
 		// TODO: check if it is ok for other players in the world
 		final EntityPlayer player = ( EntityPlayer ) e;
-		final boolean client = e.world.isRemote && e instanceof EntityPlayerSP;
-		evt.addCapability(
-			new MCWBResource( "patch" ),
-			client ? new PlayerPatchClient( player ) : new PlayerPatch( player )
-		);
+		final boolean isPlayerSp = e.world.isRemote && e instanceof EntityPlayerSP;
+		final PlayerPatch patch = isPlayerSp
+			? new PlayerPatchClient( player ) : new PlayerPatch( player );
+		evt.addCapability( new MCWBResource( "patch" ), patch );
 	}
 	
 	@SubscribeEvent
@@ -74,14 +73,14 @@ public final class EventHandler
 	{
 		switch ( evt.phase )
 		{
-		case START: break;
+		case START: { } break;
 		case END: PlayerPatch.get( evt.player ).tick();
 		}
 	}
 	
-	// This seems to only be posted on server side
+	// This seems to only be posted on server side.
 	@SubscribeEvent
 	public static void onPlayerLogin( PlayerLoggedInEvent evt ) {
-		MCWB.MOD.sendTo( new PacketConfigSync(), ( EntityPlayerMP ) evt.player );
+		MCWB.MOD.sendPacketTo( new PacketConfigSync(), ( EntityPlayerMP ) evt.player );
 	}
 }

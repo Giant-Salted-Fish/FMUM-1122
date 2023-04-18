@@ -19,14 +19,14 @@ import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.meta.Meta;
 
 /**
- * Represents a content pack on local disk
+ * Represents a content pack on local disk.
  * 
  * @author Giant_Salted_Fish
  */
 public abstract class LocalPack extends Meta implements IContentProvider, IAutowireLogger
 {
 	/**
-	 * Map folder entries to proper type loaders
+	 * Map folder entries to proper type loaders.
 	 */
 	protected static final HashMap< String, String > ENTRY_MAP = new HashMap<>();
 	static
@@ -44,7 +44,7 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 	protected static final String ERROR_LOADING_TYPE = "mcwb.error_loading_type";
 	
 	/**
-	 * Source file of this pack on local disk
+	 * Source file of this pack on local disk.
 	 */
 	protected final File source;
 	
@@ -72,26 +72,29 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 	public String sourceName() { return this.source.getName(); }
 	
 	/**
-	 * @return Path of the pack info file to load
+	 * @return Path of the pack info file to load.
 	 */
 	protected String infoFile() { return "pack.json"; }
 	
 	/**
 	 * This is required to be complete before the actual type load to ensure the integrity of the
-	 * pack's information
+	 * pack's information.
 	 */
 	protected void setupInfoWith( Reader in )
 	{
 		final JsonObject obj = MCWB.GSON.fromJson( in, JsonObject.class );
-		if ( obj.has( "name" ) )
+		if ( obj.has( "name" ) ) {
 			this.name = obj.get( "name" ).getAsString();
-		if ( obj.has( "author" ) )
+		}
+		if ( obj.has( "author" ) ) {
 			this.author = obj.get( "author" ).getAsString();
+		}
 		if ( obj.has( "ignoreEntries" ) )
 		{
 			final JsonArray arr = obj.get( "ignoreEntries" ).getAsJsonArray();
-			for ( int i = arr.size(); i-- > 0; )
+			for ( int i = arr.size(); i-- > 0; ) {
 				this.ignoreEntires.add( arr.get( i ).getAsString() );
+			}
 		}
 		// TODO: handle version check
 	}
@@ -101,7 +104,7 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 	}
 	
 	/**
-	 * @return {@code null} if fails to find proper loader
+	 * @return {@code null} if fails to find proper loader.
 	 */
 	@Nullable
 	protected IMeta loadJsonType(
@@ -112,23 +115,24 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 	) {
 		final JsonObject obj = MCWB.GSON.fromJson( in, JsonObject.class );
 		
-		// Check if it has specified its type
+		// Check if it has specified its type.
 		final JsonElement type = obj.get( "__type__" );
 		final String entry = type != null ? type.getAsString().toLowerCase() : fallbackType;
 		final BuildableLoader< ? extends IMeta > loader = MCWB.TYPE_LOADERS.get( entry );
-		if ( loader != null )
-			return loader.parser.apply( obj ).build( name, this );
+		if ( loader != null ) { return loader.parser.apply( obj ).build( name, this ); }
 		
-		this.error( "mcwb.type_loader_not_found", sourceTrace.get(), entry );
+		this.logError( "mcwb.type_loader_not_found", sourceTrace.get(), entry );
 		return null;
 	}
 	
 	protected IMeta loadClassType( String filePath ) throws Exception
 	{
-		// Remove ".class" suffix
-		final String path = filePath.substring( 0, filePath.length() - 6 );
+		final int suffixLen = ".class".length();
+		final String path = filePath.substring( 0, filePath.length() - suffixLen );
+		final int lastCommaAt = Math.min( 0, path.lastIndexOf( '.' ) );
+		final String name = path.substring( lastCommaAt );
 		return ( IMeta ) MCWB.MOD.loadClass( path )
 			.getConstructor( String.class, IContentProvider.class )
-			.newInstance( path.substring( Math.min( 0, path.lastIndexOf( '.' ) ) ), this );
+			.newInstance( name, this );
 	}
 }

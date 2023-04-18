@@ -11,7 +11,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * Represents the {@link IItem} equipped in player's hand
+ * Represents the {@link IItem} equipped in player's hand.
  * 
  * @author Giant_Salted_Fish
  */
@@ -50,9 +50,9 @@ public interface IEquippedItem< T extends IItem >
 //	public default void onPutAway( IEquippedItem oldItem, EntityPlayer player, EnumHand hand ) { }
 //	
 //	/**
-//	 * Called when player is trying swap this main hand item to off-hand
+//	 * Called when player is trying swap this main hand item to off-hand.
 //	 * 
-//	 * @return {@code true} to prevent this swap
+//	 * @return {@code true} to prevent this swap.
 //	 */
 //	public default boolean onSwapHand( EntityPlayer player ) { return false; }
 	
@@ -67,16 +67,15 @@ public interface IEquippedItem< T extends IItem >
 	
 	/**
 	 * @see PlayerPatchClient#onRenderHandSP()
-	 * @param hand Actual hand to render in
-	 * @return {@code true} if should cancel original hand render
+	 * @param hand Actual hand to render in.
+	 * @return {@code true} if should cancel original hand render.
 	 */
 	@SideOnly( Side.CLIENT )
 	public boolean renderInHandSP( EnumHand hand );
 	
 	/**
 	 * @see PlayerPatchClient#onRenderSpecificHand(EnumHand)
-	 * @param hand Actual hand
-	 * @return {@code true} if should cancel original hand render
+	 * @return {@code true} if should cancel original hand render.
 	 */
 	@SideOnly( Side.CLIENT )
 	public boolean onRenderSpecificHandSP( EnumHand hand );
@@ -85,7 +84,7 @@ public interface IEquippedItem< T extends IItem >
 	public default void renderInHand( EntityPlayer player, EnumHand hand ) { }
 	
 	/**
-	 * This method is called when a key bind is triggered(pressed) when holding this item
+	 * This method is called when a key bind is triggered(pressed) when holding this item.
 	 * 
 	 * @see #onKeyRelease(IKeyBind)
 	 * @param key

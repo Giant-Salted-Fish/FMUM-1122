@@ -10,7 +10,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * This type of key bind can be used to proxy the vanilla {@link KeyBinding} in {@link Minecraft}
+ * This type of key bind can be used to proxy the vanilla {@link KeyBinding} in {@link Minecraft}.
  * 
  * @author Giant_Salted_Fish
  */
@@ -45,16 +45,18 @@ public abstract class VanillaKeyBindProxy extends KeyBind
 	}
 	
 	@Override
-	public void setKeyCode( int code ) { } // Always get its key code from #keyBind
+	public void setKeyCode( int code ) { } // Always get its key code from #keyBind.
 	
 	@Override
-	protected void onFire() { while ( this.keyBind.isPressed() ) this.onAction(); }
+	protected void onFire() {
+		while ( this.keyBind.isPressed() ) { this.onAction(); }
+	}
 	
 	@Override
-	protected void onRelease() { } // Avoid normal notification
+	protected void onRelease() { } // Avoid normal notification.
 	
 	/**
-	 * Do what you need to proxy the target vanilla key bind
+	 * Do what you need to proxy the target vanilla key bind.
 	 */
 	protected abstract void onAction();
 }

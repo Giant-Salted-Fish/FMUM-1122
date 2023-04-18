@@ -17,7 +17,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
-// Emmm... Looks like the vast generic sea
+// Emmm... Looks like the vast generic sea :-)
 public class JsonGunPartType extends GunPartType<
 	IGunPart< ? >,
 	IGunPart< ? >,
@@ -40,11 +40,11 @@ public class JsonGunPartType extends GunPartType<
 	{
 		return this.new GunPart()
 		{
-			// Override this so that we do not need to create a wrapper for it
+			// Override this so that we do not need to create a wrapper for it.
 			@Override
 			public void syncAndUpdate() { }
 			
-			// This should never be equipped hence return null
+			// This should never be equipped hence return null.
 			@Override
 			protected IEquippedItem< ? extends IGunPart< ? > > newEquipped(
 				Supplier<
@@ -86,5 +86,5 @@ public class JsonGunPartType extends GunPartType<
 	> > fallbackModel() { return JsonGunPartModel.NONE; }
 	
 	@Override
-	protected IMeta typer() { return LOADER; }
+	protected IMeta descriptor() { return LOADER; }
 }

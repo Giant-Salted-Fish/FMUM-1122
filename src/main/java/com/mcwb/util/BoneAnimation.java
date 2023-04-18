@@ -25,20 +25,26 @@ public class BoneAnimation
 	
 	public void addGuard() // TODO
 	{
-		if ( this.pos.floorKey( 0F ) == null )
+		if ( this.pos.floorKey( 0F ) == null ) {
 			this.pos.put( 0F, Vec3f.ORIGIN );
-		if ( this.pos.ceilingKey( 1F ) == null )
+		}
+		if ( this.pos.ceilingKey( 1F ) == null ) {
 			this.pos.put( 1F, this.pos.lowerEntry ( 1F ).getValue() );
+		}
 		
-		if ( this.rot.floorKey( 0F ) == null )
+		if ( this.rot.floorKey( 0F ) == null ) {
 			this.rot.put( 0F, Quat4f.ORIGIN );
-		if ( this.rot.ceilingKey( 1F ) == null )
+		}
+		if ( this.rot.ceilingKey( 1F ) == null ) {
 			this.rot.put( 1F, this.rot.lowerEntry ( 1F ).getValue() );
+		}
 		
-		if ( this.alpha.floorKey( 0F ) == null )
+		if ( this.alpha.floorKey( 0F ) == null ) {
 			this.alpha.put( 0F, 1F );
-		if ( this.alpha.ceilingEntry ( 1F ) == null )
+		}
+		if ( this.alpha.ceilingEntry ( 1F ) == null ) {
 			this.alpha.put( 1F, this.alpha.lowerEntry ( 1F ).getValue() );
+		}
 	}
 	
 	public void update( float progress )

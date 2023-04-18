@@ -25,26 +25,26 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public final class PlayerPatchClient extends PlayerPatch
 {
 	/**
-	 * As there could only be one client player hence only one client patch instance here
+	 * As there could only be one client player hence only one client patch instance here.
 	 */
 	public static PlayerPatchClient instance;
 	
 	/**
-	 * Player's eye position
+	 * Player's eye position.
 	 */
 	public final Vec3f
 		playerPos = new Vec3f(),
 		prevPlayerPos = new Vec3f();
 	
 	/**
-	 * Player's raw velocity(referenced to player's eyes)
+	 * Player's raw velocity(referenced to player's eyes).
 	 */
 	public final Vec3f
 		playerVelocity = new Vec3f(),
 		prevPlayerVelocity = new Vec3f();
 	
 	/**
-	 * Player's raw acceleration(referenced to player's eyes)
+	 * Player's raw acceleration(referenced to player's eyes).
 	 */
 	public final Vec3f
 		playerAcceleration = new Vec3f(),
@@ -88,7 +88,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		super.tick();
 		
 		// TODO: can only update by setting a runner in gui event
-		// Only update game settings when there is no GUI activated
+		// Only update game settings when there is no GUI activated.
 		if ( MCWBClient.MC.currentScreen == null )
 		{
 			final GameSettings settings = MCWBClient.SETTINGS;
@@ -96,7 +96,7 @@ public final class PlayerPatchClient extends PlayerPatch
 			settings.viewBobbing = this.mainEquipped.updateViewBobbing( flag );
 		}
 		
-		// Update player velocity and acceleration
+		// Update player velocity and acceleration.
 		this.prevPlayerPos.set( this.playerPos );
 		this.playerPos.set(
 			( float ) this.player.posX,
@@ -112,18 +112,18 @@ public final class PlayerPatchClient extends PlayerPatch
 		this.playerAcceleration.set( this.playerVelocity );
 		this.playerAcceleration.sub( this.prevPlayerVelocity );
 		
-		// Update camera effects
+		// Update camera effects.
 		this.cameraController.tick();
 		
-		// Ensure mouse helper(Mods like Flan's Mod may change mouse helper in certain conditions)
+		// Ensure mouse helper(Mods like Flan's Mod may change mouse helper in certain conditions).
 		// TODO: maybe do a wrapper if the mouse help is not the original one and also not this one
 		MCWBClient.MC.mouseHelper = this.mouseHelper;
 	}
 	
 	public boolean onRenderHandSP()
 	{
-		// Check if hand should be rendered or not
-		// Copied from {@link EntityRenderer#renderHand(float, int)}
+		// Check if hand should be rendered or not.
+		// Copied from {@link EntityRenderer#renderHand(float, int)}.
 		final Minecraft mc = MCWBClient.MC;
 		final GameSettings settings = MCWBClient.SETTINGS;
 		final Entity entity = mc.getRenderViewEntity();
@@ -135,9 +135,9 @@ public final class PlayerPatchClient extends PlayerPatch
 			|| mc.playerController.isSpectator()
 			|| this.mainEquipped.renderInHandSP( EnumHand.MAIN_HAND )
 				&& this.offEquipped.renderInHandSP( EnumHand.OFF_HAND )
-		) return true;
+		) { return true; }
 		
-		// Otherwise, setup orientation for vanilla item rendering
+		// Otherwise, setup orientation for vanilla item rendering.
 		final Vec3f cameraRot = Vec3f.locate();
 		this.cameraController.getCameraRot( cameraRot );
 		GL11.glRotatef( cameraRot.z, 0F, 0F, 1F );
@@ -150,8 +150,8 @@ public final class PlayerPatchClient extends PlayerPatch
 	
 	public boolean onRenderSpecificHandSP( EnumHand hand )
 	{
-		final boolean isMainHand = hand == EnumHand.MAIN_HAND;
-		return ( isMainHand ? this.mainEquipped : this.offEquipped ).onRenderSpecificHandSP( hand );
+		final boolean isOffHand = hand == EnumHand.OFF_HAND;
+		return ( isOffHand ? this.offEquipped : this.mainEquipped ).onRenderSpecificHandSP( hand );
 	}
 	
 	public void onCameraSetup( CameraSetup evt )

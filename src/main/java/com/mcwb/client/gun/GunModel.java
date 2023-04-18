@@ -20,13 +20,16 @@ import com.mcwb.util.Util;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -44,7 +47,6 @@ public abstract class GunModel<
 	private static final Vec3f MODIFY_POS = new Vec3f( 0F, -20F / 160F, 150F / 160F );
 	
 	// TODO: how to handle these static fields
-	protected static float dropDistanceCycle = 0F;
 	protected static float walkDistanceCycle = 0F;
 	
 	protected static float prevPlayerPitch = 0F;
@@ -98,7 +100,6 @@ public abstract class GunModel<
 	protected Vec3f crouchShoulderOffset = this.shoulderOffset;
 	protected Vec3f sprintShoulderOffset = this.shoulderOffset;
 	
-	protected float dropCycle = Util.PI * 0.3F;
 	protected float walkCycle = Util.PI * 0.6F;
 	
 	@SerializedName( value = "crouchWalkCycle", alternate = "sneakWalkCycle" )
@@ -122,20 +123,18 @@ public abstract class GunModel<
 	}
 	
 	/**
-	 * Copied from {@link EntityRenderer#getFOVModifier(float, boolean)}
+	 * Copied from {@link EntityRenderer#getFOVModifier(float, boolean)}.
 	 */
 	protected final float getFovModifier( float smoother )
 	{
+		final World world = MCWBClient.MC.world;
+		final Entity cameraEntity = MCWBClient.MC.getRenderViewEntity();
+		final IBlockState blockAtCamera = ActiveRenderInfo
+			.getBlockStateAtEntityViewpoint( world, cameraEntity, smoother );
+		boolean isInWater = blockAtCamera.getMaterial() == Material.WATER;
+		
 		final float fov = MCWBClient.SETTINGS.fovSetting;
-		return(
-			ActiveRenderInfo.getBlockStateAtEntityViewpoint(
-				MCWBClient.MC.world,
-				MCWBClient.MC.getRenderViewEntity(),
-				smoother
-			).getMaterial() == Material.WATER
-			? 6F / 7F * fov
-			: fov
-		);
+		return isInWater ? 6F / 7F * fov : fov;
 	}
 	
 	protected abstract class GunRenderer extends GunPartRenderer implements IGunRenderer< C, ER >
@@ -212,25 +211,22 @@ public abstract class GunModel<
 				final Vec3f vec = Vec3f.locate();
 				final Mat4f mat = Mat4f.locate();
 				
-				/// *** Get motion of the player *** ///
+				/// *** Get motion of the player. *** ///
 				vec.set( patch.playerVelocity );
-				final float dropSpeed = Math.min( 0F, vec.y );
-				dropDistanceCycle += dropSpeed * $this.dropCycle;
-				
 				vec.y = 0F;
+				
 				final float moveSpeed = player.onGround ? vec.length() : 0F;
-//				final float walkCycle = crouching ? $this.crouchWalkCycle : $this.walkCycle;
-//				walkDistanceCycle += moveSpeed * walkCycle;
-				walkDistanceCycle += moveSpeed * ( crouching ? $this.crouchWalkCycle : $this.walkCycle );
+				final float walkCycle = crouching ? $this.crouchWalkCycle : $this.walkCycle;
+				walkDistanceCycle += moveSpeed * walkCycle;
 				
 				// TODO: Check drop impact
 				
-				/// *** Camera acceleration impact *** ///
+				/// *** Camera acceleration impact. *** ///
 				// TODO: camera control
 				
-				/// *** Weapon acceleration impact *** ///
+				/// *** Weapon acceleration impact. *** ///
 				{
-					// Transform acceleration into walk direction space
+					// Transform acceleration into walk direction space.
 					patch.cameraController.getPlayerRot( vec );
 					mat.setIdentity();
 					mat.rotateX( -vec.x );
@@ -239,14 +235,14 @@ public abstract class GunModel<
 					vec.set( patch.playerAcceleration );
 					mat.transformAsPoint( vec );
 					
-					// Apply gun body shift
+					// Apply gun body shift.
 					final Vec3f ip = $this.motionInertiaPos;
 					final Vec3f ir = $this.motionInertiaRot;
 					this.holdPos.velocity.add( vec.x * ip.x, vec.y * ip.y, vec.z * ip.z );
 					this.holdRot.velocity.add( vec.y * ir.x, vec.x * ir.y, vec.x * ir.z );
 				}
 				
-				/// *** Weapon walk/sprint bobbing *** ///
+				/// *** Weapon walk/sprint bobbing. *** ///
 				{
 					vec.set( patch.playerVelocity );
 					mat.transformAsPoint( vec );
@@ -260,7 +256,7 @@ public abstract class GunModel<
 					this.holdRot.velocity.add( sin * ar.x, cos * ar.y, cos * ar.z );
 				}
 				
-				/// *** Smooth on view rotation *** ///
+				/// *** Smooth on view rotation. *** ///
 				{
 					final float deltaPitch = player.rotationPitch - prevPlayerPitch;
 					final float deltaYaw   = player.rotationYaw - prevPlayerYaw;
@@ -273,38 +269,42 @@ public abstract class GunModel<
 						deltaYaw   * ir.z
 					);
 					
-					// Do not forget to update previous pitch and yaw
+					// Do not forget to update previous pitch and yaw.
 					prevPlayerPitch = player.rotationPitch;
 					prevPlayerYaw = player.rotationYaw;
 				}
 				
-				/// *** Setup target position and update *** ///
+				/// *** Setup target position and update. *** ///
 				{
 					final Vec3f tarPos = this.holdPos.tarPos;
 					tarPos.set(
-						aiming ? $this.aimPos
-						: sprinting ? $this.sprintPos
-						: crouching ? $this.crouchPos
-						: $this.holdPos
+						aiming ? $this.aimPos :
+						sprinting ? $this.sprintPos :
+						crouching ? $this.crouchPos :
+						$this.holdPos
 					);
 					
 					final Vec3f moveOffset = (
-						aiming ? $this.aimMoveOffset
-						: sprinting ? $this.sprintMoveOffset
-						: crouching ? $this.crouchMoveOffset
-						: $this.moveOffset
+						aiming ? $this.aimMoveOffset :
+						sprinting ? $this.sprintMoveOffset :
+						crouching ? $this.crouchMoveOffset :
+						$this.moveOffset
 					);
 					final MovementInput input = player.movementInput;
-					final boolean moving = input.forwardKeyDown || input.backKeyDown
-						|| input.leftKeyDown || input.rightKeyDown;
+					final boolean moving = (
+						input.forwardKeyDown
+						|| input.backKeyDown
+						|| input.leftKeyDown
+						|| input.rightKeyDown
+					);
 					tarPos.add( moving ? moveOffset : Vec3f.ORIGIN );
 					
 					// TODO: maybe move to outer layer and avoid the delay introduce by motion tendency
 					final Vec3f shoulderOffset = (
-						aiming ? $this.aimShoulderOffset
-						: sprinting ? $this.sprintShoulderOffset
-						: crouching ? $this.crouchShoulderOffset
-						: $this.shoulderOffset
+						aiming ? $this.aimShoulderOffset :
+						sprinting ? $this.sprintShoulderOffset :
+						crouching ? $this.crouchShoulderOffset :
+						$this.shoulderOffset
 					);
 					patch.cameraController.getPlayerRot( vec ); // TODO: used twice
 					tarPos.scaleAdd( vec.x, shoulderOffset, tarPos );
@@ -316,14 +316,14 @@ public abstract class GunModel<
 					);
 				}
 				
-				/// *** Setup target rotation and update *** ///
+				/// *** Setup target rotation and update. *** ///
 				{
 					final Vec3f tarRot = this.holdRot.tarPos;
 					tarRot.set(
-						aiming ? $this.aimRot
-						: sprinting ? $this.sprintRot
-						: crouching ? $this.crouchRot
-						: $this.holdRot
+						aiming ? $this.aimRot :
+						sprinting ? $this.sprintRot :
+						crouching ? $this.crouchRot :
+						$this.holdRot
 					);
 					
 					this.holdRot.update(
@@ -340,7 +340,7 @@ public abstract class GunModel<
 			@Override
 			protected void doRenderInHandSP( E equipped, EnumHand hand )
 			{
-				// Re-setup projection matrix
+				// Re-setup projection matrix.
 				GL11.glMatrixMode( GL11.GL_PROJECTION );
 				GL11.glLoadIdentity();
 				Project.gluPerspective(
@@ -398,7 +398,7 @@ public abstract class GunModel<
 			@Override
 			protected void updatePosRot( float smoother )
 			{
-				// Use #pos temporarily to avoid locate vector3f
+				// Use #pos temporarily to avoid locate Vec3f.
 				this.holdRot.get( smoother, this.pos );
 				this.rot.set( this.pos );
 				this.holdPos.get( smoother, this.pos );

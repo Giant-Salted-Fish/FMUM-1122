@@ -7,7 +7,7 @@ import com.mcwb.common.meta.IMeta;
 
 /**
  * This provides the ability for third party packs to add paintjobs for {@link IPaintableType}s in
- * other content packs
+ * other content packs.
  * 
  * @author Giant_Salted_Fish
  */
@@ -23,7 +23,7 @@ public class JsonPaintjob extends Paintjob implements IPostLoadSubscriber
 	{
 		super.build( name, provider );
 		
-		provider.regis( this );
+		provider.regisPostLoadSubscriber( this );
 		return this;
 	}
 	
@@ -31,10 +31,14 @@ public class JsonPaintjob extends Paintjob implements IPostLoadSubscriber
 	public void onPostLoad()
 	{
 		final IPaintableType target = IPaintableType.REGISTRY.get( this.injectTarget );
-		if ( target != null ) target.injectPaintjob( this );
-		else this.warn( "mcwb.expaintjob_target_not_found", this, this.injectTarget );
+		if ( target == null )
+		{
+			final String translationKey = "mcwb.expaintjob_target_not_found";
+			this.logWarning( translationKey, this, this.injectTarget );
+		}
+		else { target.injectPaintjob( this ); }
 	}
 	
 	@Override
-	protected IMeta typer() { return LOADER; }
+	protected IMeta descriptor() { return LOADER; }
 }

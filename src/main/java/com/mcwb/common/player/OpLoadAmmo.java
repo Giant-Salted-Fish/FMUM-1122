@@ -33,12 +33,13 @@ public class OpLoadAmmo extends Operation< IEquippedMag< ? > >
 		{
 		default:
 			final IMag< ? > mag = this.equipped.item();
-			if ( mag.isFull() ) break;
+			if ( mag.isFull() ) { break; }
 			
 			final ItemStack stack = player.inventory.getStackInSlot( this.invSlot );
 			final IItemType type = IItemTypeHost.getTypeOrDefault( stack.getItem() );
 			final boolean isAmmo = type instanceof IAmmoType;
-			if ( !isAmmo || !mag.isAllowed( ( IAmmoType ) type ) ) break;
+			final boolean isValidAmmo = isAmmo && mag.isAllowed( ( IAmmoType ) type );
+			if ( !isValidAmmo ) { break; }
 			
 			return this;
 		}
@@ -56,7 +57,8 @@ public class OpLoadAmmo extends Operation< IEquippedMag< ? > >
 	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
 	{
 		this.equipped = ( IEquippedMag< ? > ) newEquipped;
-		return this.equipped.item().isFull() ? this.terminate( player ) : this;
+		final IMag< ? > mag = this.equipped.item();
+		return mag.isFull() ? this.terminate( player ) : this;
 	}
 	
 	@Override
@@ -67,11 +69,12 @@ public class OpLoadAmmo extends Operation< IEquippedMag< ? > >
 	{
 		final ItemStack stack = player.inventory.getStackInSlot( this.invSlot );
 		final IItemType type = IItemTypeHost.getTypeOrDefault( stack.getItem() );
-		if ( !( type instanceof IAmmoType ) ) return;
+		final boolean isAmmo = type instanceof IAmmoType;
+		if ( !isAmmo ) { return; }
 		
 		final IAmmoType ammo = ( IAmmoType ) type;
 		final IMag< ? > mag = this.equipped.item();
-		if ( !mag.isAllowed( ammo ) ) return;
+		if ( !mag.isAllowed( ammo ) ) { return; }
 		
 		mag.pushAmmo( ammo );
 //		if ( !this.player.isCreative() )

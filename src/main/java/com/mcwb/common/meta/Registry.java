@@ -22,9 +22,9 @@ public final class Registry< T extends IMeta > implements IAutowireLogger
 	public void regis( T meta )
 	{
 		this.mapper.compute( meta.name(), ( key, old ) -> {
-			if ( old == null ) return meta;
+			if ( old == null ) { return meta; }
 			
-			this.warn( "mcwb.duplicate_meta_regis", old, meta );
+			this.logWarning( "mcwb.duplicate_meta_regis", old, meta );
 			return old;
 		} );
 	}

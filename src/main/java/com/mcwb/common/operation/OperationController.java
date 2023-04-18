@@ -40,7 +40,9 @@ public class OperationController implements IOperationController
 		this.effects = effects;
 		this.soundTime = soundTime;
 		this.sounds = new SoundEvent[ sounds.length ];
-		for ( int i = sounds.length; i-- > 0; this.sounds[ i ] = MCWB.MOD.loadSound( sounds[ i ] ) );
+		for ( int i = sounds.length; i-- > 0; ) {
+			this.sounds[ i ] = MCWB.MOD.loadSound( sounds[ i ] );
+		}
 	}
 	
 	@Override

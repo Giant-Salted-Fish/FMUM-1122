@@ -6,7 +6,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * You can find the names of all {@link MCWB} pre-defined keys in this class
+ * You can find the names of all {@link MCWB} pre-defined keys in this class.
  * 
  * @see InputHandler
  * @author Giant_Salted_Fish
@@ -27,13 +27,13 @@ public final class Key
 	}
 	
 	/**
-	 * For keys that are general
+	 * For keys that are general.
 	 */
 	public static final String
 		FREE_VIEW = "free_view";
 	
 	/**
-	 * For keys that operate a gun
+	 * For keys that operate a gun.
 	 */
 	public static final String
 		PULL_TRIGGER    = "pull_trigger",
@@ -44,7 +44,7 @@ public final class Key
 		INSPECT         = "inspect";
 	
 	/**
-	 * For keys that provides assist
+	 * For keys that provides assist.
 	 */
 	public static final String
 		CO                 = "co",
@@ -55,7 +55,7 @@ public final class Key
 		CO_TOGGLE_MODIFY   = "co_toggle_modify";
 	
 	/**
-	 * For keys that being used to modify a weapon
+	 * For keys that being used to modify a weapon.
 	 */
 	public static final String
 		TOGGLE_MODIFY  = "toggle_modify",

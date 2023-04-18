@@ -20,12 +20,12 @@ public interface IKeyBind extends IMeta
 	public String category();
 	
 	/**
-	 * Called by {@link InputHandler} on input event to update the state of this key bind
+	 * Called by {@link InputHandler} on input event to update the state of this key bind.
 	 */
 	public void update( boolean down );
 	
 	/**
-	 * Called by {@link InputHandler} on input event if its update group is inactive
+	 * Called by {@link InputHandler} on input event if its update group is inactive.
 	 */
 	public void inactiveUpdate( boolean down );
 	
@@ -48,33 +48,19 @@ public interface IKeyBind extends IMeta
 	public boolean clearMcKeyBind();
 	
 	/**
-	 * @return Whether this key is currently being pressed
+	 * @return {@code true} if this key is currented pressed
 	 */
 	public boolean down();
 	
 	/**
-	 * @return Key code that bounden to this key
+	 * @return Key code that bounden to this key.
 	 */
 	public int keyCode();
 	
 	/**
-	 * Called by {@link InputHandler} to restore key bind since last time the game is closed
+	 * Called by {@link InputHandler} to restore key bind since last time the game is closed.
 	 * 
-	 * @param code Key code to set
+	 * @param code Key code to set.
 	 */
 	public void setKeyCode( int code );
-	
-	/**
-	 * <p> Usually to trigger the function of this key bind. If your key only trigger once the key
-	 * is pressed then you can simply override this method to setup its effect. </p>
-	 * 
-	 * <p> Notice that you should not assume that calling this method will always trigger the effect
-	 * of the key bind as it is possible to implement its functionality in {@link #update(boolean)}
-	 * method although it is the recommended practice. </p>
-	 * 
-	 * TODO: really need this?
-	 */
-//	public default void fire() {
-//		
-//	}
 }

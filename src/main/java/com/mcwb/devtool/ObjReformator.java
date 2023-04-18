@@ -12,8 +12,8 @@ import net.minecraftforge.client.model.obj.OBJLoader;
 /**
  * <p> Do two things: </p>
  * <ol>
- *     <li> Ensure all "vt" value is inside of {@code 0F-1F} (required by {@link OBJLoader} </li>
- *     <li> Comment "mtllib" and "usemtl" if represent </li>
+ *     <li> Ensure all "vt" value is inside of {@code 0F-1F} (required by {@link OBJLoader}. </li>
+ *     <li> Comment "mtllib" and "usemtl" if represent. </li>
  * </ol>
  * 
  * @author Giant_Salted_Fish
@@ -32,10 +32,9 @@ public final class ObjReformator
 		
 		for ( File file : new File( inDir ).listFiles() )
 		{
-			// Only process .obj files
 			final String fName = file.getName();
-			if ( !fName.endsWith( ".obj" ) )
-				continue;
+			final boolean isObjFile = fName.endsWith( ".obj" );
+			if ( !isObjFile ) { continue; }
 			
 			// If has .obj.obj suffix then remove it
 			final String outFileName = fName.endsWith( ".obj.obj" )
@@ -59,14 +58,13 @@ public final class ObjReformator
 				{
 					final String[] split = line.split( " " );
 					final double[] value = new double[ split.length - 1 ];
-					for (
-						int i = split.length;
-						--i > 0;
-						value[ i - 1 ] = Double.parseDouble( split[ i ] )
-					);
+					for ( int i = split.length; --i > 0; ) {
+						value[ i - 1 ] = Double.parseDouble( split[ i ] );
+					}
 					
 					int i = value.length;
 					while ( i-- > 0 )
+					{
 						if ( value[ i ] < 0D || value[ i ] > 1D )
 						{
 							out.write( "vt" );
@@ -82,15 +80,16 @@ public final class ObjReformator
 							}
 							break;
 						}
+					}
 					
-					if ( i < 0 )
-						out.write( line );
+					if ( i < 0 ) { out.write( line ); }
 				}
 				else
 				{
 					// Remove "mtllib" and "usemtl" label
-					if ( line.startsWith( "mtllib" ) || line.startsWith( "usemtl" ) )
+					if ( line.startsWith( "mtllib" ) || line.startsWith( "usemtl" ) ) {
 						out.write( '#' );
+					}
 					out.write( line );
 				}
 			}

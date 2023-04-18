@@ -28,13 +28,12 @@ public final class PacketConfigSync implements IPacket
 		MCWBClient.modifyLoc = new byte[ 2 * ( 0xFF & buf.readByte() ) ];
 		MCWB.maxSlotCapacity = 0xFF & buf.readByte();
 		
-		/// Camera settings ///
-		{
-			final float limit = buf.readFloat();
-			MCWBClient.freeViewLimitSquared = limit * limit;
-		}
+		/// *** Camera settings. *** ///
 		MCWBClient.camDropCycle  = buf.readFloat() * Util.PI * 0.3F;
 		MCWBClient.camDropAmpl   = buf.readFloat() * 3F;
 		MCWBClient.camDropImpact = buf.readFloat() * 7.5F;
+		
+		final float limit = buf.readFloat();
+		MCWBClient.freeViewLimitSquared = limit * limit;
 	}
 }

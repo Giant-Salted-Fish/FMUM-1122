@@ -35,9 +35,8 @@ public class JsonGunModel extends GunModel<
 		return this.new GunRenderer()
 		{
 			@Override
-			public IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > > onTakeOut(
-				EnumHand hand
-			) { return this.new EquippedGunRenderer(); }
+			public IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+				onTakeOut( EnumHand hand ) { return this.new EquippedGunRenderer(); }
 		};
 	};
 }

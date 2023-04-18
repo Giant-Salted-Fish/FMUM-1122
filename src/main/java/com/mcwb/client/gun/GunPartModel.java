@@ -31,11 +31,11 @@ public abstract class GunPartModel<
 > extends ItemModel< C, E, R >
 {
 	/**
-	 * Render queue is introduced here to help with rendering the objects that is transparent
-	 * FIXME: do not use same queue for first person hand and third-person view!
-	 *     Because rendering scope glass texture could also trigger other third-person render and
-	 *     this will break the queue state if they are the same
+	 * Render queue that helps to render transparent objects.
 	 */
+	// FIXME: do not use same queue for first person hand and third-person view!
+	//     Because rendering scope glass texture could also trigger other third-person render and \
+	//     this will break the queue state if they are the same.
 	protected static final ArrayList< IDeferredRenderer > HAND_QUEUE_0 = new ArrayList<>();
 	protected static final ArrayList< IDeferredRenderer > HAND_QUEUE_1 = new ArrayList<>();
 	
@@ -47,7 +47,7 @@ public abstract class GunPartModel<
 	protected Vec3f modifyPos = MODIFY_POS;
 	
 	/**
-	 * This animation channel will be applied to each module as part of installed transform
+	 * This animation channel will be applied to each module as part of installed transform.
 	 */
 	protected String moduleAnimationChannel = "";
 	
@@ -120,14 +120,15 @@ public abstract class GunPartModel<
 		
 		protected class EquippedGunPartRenderer extends EquippedItemRenderer
 		{
-			public EquippedGunPartRenderer() { } // Visibility problem from TDGripModel
+			// Not protected for the visibility problem of TDGripModel.
+			public EquippedGunPartRenderer() { }
 
 			@Override
 			public void prepareRenderInHandSP( E equipped, EnumHand hand )
 			{
 				super.prepareRenderInHandSP( equipped, hand );
 				
-				// Blend modify transform
+				// Blend modify transform.
 				final float alpha = this.animation.getFactor( CHANNEL_MODIFY );
 				this.pos.interpolate( GunPartModel.this.modifyPos, alpha );
 				
@@ -136,13 +137,13 @@ public abstract class GunPartModel<
 				this.rot.interpolate( quat, alpha );
 				quat.release();
 				
-				// Clear previous state
+				// Clear previous state.
 				HAND_QUEUE_0.forEach( IDeferredRenderer::release );
 				HAND_QUEUE_0.clear();
 				HAND_QUEUE_1.forEach( IDeferredRenderer::release );
 				HAND_QUEUE_1.clear();
 				
-				// Prepare render queue
+				// Prepare render queue.
 				equipped.item().prepareInHandRenderSP(
 					equipped.animator(), // TODO: equipped#animator() should actually be #this
 					HAND_QUEUE_0, HAND_QUEUE_1

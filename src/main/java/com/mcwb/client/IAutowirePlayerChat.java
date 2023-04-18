@@ -10,22 +10,24 @@ public interface IAutowirePlayerChat
 	public static final int CHAT_LINE_ID = 'F' + 'M' + 'U' + 'M';
 	
 	@SideOnly( Side.CLIENT )
-	public default void sendPlayerMsg( String... msg )
+	public default void sendPlayerMsg( String... messages )
 	{
 		final GuiNewChat chatGui = MCWBClient.MC.ingameGUI.getChatGUI();
-		for ( String s : msg ) chatGui.printChatMessage( new TextComponentString( s ) );
+		for ( String msg : messages )
+		{
+			final TextComponentString text = new TextComponentString( msg );
+			chatGui.printChatMessage( text );
+		}
 	}
 	
 	@SideOnly( Side.CLIENT )
-	public default void sendPlayerPrompt( String... msg )
+	public default void sendPlayerPrompt( String... messages )
 	{
 		final GuiNewChat chatGui = MCWBClient.MC.ingameGUI.getChatGUI();
-		for ( int i = 0; i < msg.length; ++i )
+		for ( int i = 0; i < messages.length; ++i )
 		{
-			chatGui.printChatMessageWithOptionalDeletion(
-				new TextComponentString( msg[ i ] ),
-				CHAT_LINE_ID + i
-			);
+			final TextComponentString text = new TextComponentString( messages[ i ] );
+			chatGui.printChatMessageWithOptionalDeletion( text, CHAT_LINE_ID + i );
 		}
 	}
 }

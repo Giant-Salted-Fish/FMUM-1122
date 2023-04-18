@@ -12,8 +12,8 @@ public abstract class Operation< T > implements IOperation
 	protected float prevProgress;
 	protected float progress;
 	
-	protected int ieffect;
-	protected int isound;
+	protected int currentEffect;
+	protected int currentSound;
 	
 	protected Operation( T equipped, IOperationController controller )
 	{
@@ -33,26 +33,34 @@ public abstract class Operation< T > implements IOperation
 	@Override
 	public IOperation tick( EntityPlayer player )
 	{
-		// Update progress
+		// Update progress.
+		final IOperationController controller = this.controller;
 		this.prevProgress = this.progress;
-		this.progress = Math.min( 1F, this.progress + this.controller.progressor() );
+		this.progress = this.progress + controller.progressor();
 		
-		// Handle effects
-		for (
-			final int effectCount = this.controller.effectCount();
-			this.ieffect < effectCount
-				&& this.controller.getEffectTime( this.ieffect ) <= this.progress;
-			++this.ieffect
-		) this.doHandleEffect( player );
+		// Handle effects.
+		final int effectCount = controller.effectCount();
+		while ( this.currentEffect < effectCount )
+		{
+			final float effectTime = controller.getEffectTime( this.currentEffect );
+			if ( effectTime > this.progress ) { break; }
+			
+			this.doHandleEffect( player );
+			this.currentEffect += 1;
+		}
 		
-		// Handle sounds
-		for (
-			final int soundCount = this.controller.soundCount();
-			this.isound < soundCount
-				&& this.controller.getSoundTime( this.isound ) <= this.progress;
-			++this.isound
-		) this.controller.handlePlaySound( this.isound, player );
+		// Handle sounds.
+		final int soundCount = controller.soundCount();
+		while ( this.currentSound < soundCount )
+		{
+			final float soundTime = controller.getSoundTime( this.currentSound );
+			if ( soundTime > this.progress ) { break; }
+			
+			controller.handlePlaySound( this.currentSound, player );
+			this.currentSound += 1;
+		}
 		
+		this.progress = Math.min( 1F, this.progress );
 		return this.prevProgress == 1F ? this.onComplete( player ) : this;
 	}
 	
@@ -71,14 +79,14 @@ public abstract class Operation< T > implements IOperation
 	{
 		this.prevProgress = 0F;
 		this.progress = 0F;
-		this.ieffect = 0;
-		this.isound = 0;
+		this.currentEffect = 0;
+		this.currentSound = 0;
 	}
 	
 	protected IOperation onComplete( EntityPlayer player ) { return this.terminate( player ); }
 	
 	/**
-	 * Handle effect specified by {@link #ieffect}
+	 * Handle effect specified by {@link #currentEffect}.
 	 */
 	protected void doHandleEffect( EntityPlayer player ) { }
 }

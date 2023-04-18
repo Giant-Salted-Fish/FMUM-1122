@@ -49,8 +49,7 @@ public abstract class AmmoType<
 		
 		IAmmoType.REGISTRY.regis( this );
 		
-		if ( this.category == null )
-			this.category = this.name;
+		this.category = this.category == null ? this.name : this.category;
 		return this;
 	}
 	
@@ -85,12 +84,12 @@ public abstract class AmmoType<
 	{
 		@Override
 		public boolean hasCapability( Capability< ? > capability, @Nullable EnumFacing facing ) {
-			return capability == IMeta.CONTEXTED;
+			return capability == CAPABILITY;
 		}
 		
 		@Override
 		public < T > T getCapability( Capability< T > capability, @Nullable EnumFacing facing ) {
-			return IMeta.CONTEXTED.cast( this );
+			return CAPABILITY.cast( this );
 		}
 		
 		@Override

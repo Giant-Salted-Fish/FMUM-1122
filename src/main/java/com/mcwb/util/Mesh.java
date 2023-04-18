@@ -14,14 +14,14 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 
 /**
- * This mesh implementation uses VAO to draw {@link GL11#GL_QUADS}
+ * This mesh implementation uses VAO to draw {@link GL11#GL_QUADS}.
  * 
  * @author Giant_Salted_Fish
  */
 public class Mesh implements IReleasable
 {
 	/**
-	 * A fixed instance that renders nothing
+	 * A fixed instance that renders nothing.
 	 */
 	public static final Mesh NONE = new Mesh( 0, () -> { } )
 	{
@@ -61,7 +61,7 @@ public class Mesh implements IReleasable
 		GL30.glBindVertexArray( this.vao );
 		this.drawCall.run();
 		
-		// Do not forget to bind back default VAO cause mc uses this without binding to it
+		// Do not forget to bind back default VAO cause mc uses this without binding to it.
 		GL30.glBindVertexArray( 0 );
 	}
 	
@@ -70,7 +70,7 @@ public class Mesh implements IReleasable
 	
 	public static int genVao( List< Vertex > vertices, @Nullable List< Integer > indices )
 	{
-		// Prepare vertex data data buffer
+		// Prepare vertex data data buffer.
 		int count = vertices.size();
 		final FloatBuffer posData = BufferUtils.createFloatBuffer( 3 * count );
 		final FloatBuffer texCoordData = BufferUtils.createFloatBuffer( 2 * count );
@@ -122,8 +122,9 @@ public class Mesh implements IReleasable
 		if ( indices != null && ( count = indices.size() ) > 0 )
 		{
 			final IntBuffer indexData = BufferUtils.createIntBuffer( count );
-			for ( Integer i : indices )
+			for ( Integer i : indices ) {
 				indexData.put( i );
+			}
 			indexData.flip();
 			
 			ebo = GL15.glGenBuffers();
@@ -134,7 +135,7 @@ public class Mesh implements IReleasable
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, 0 );
 		GL30.glBindVertexArray( 0 );
 		
-		// It seems that deleting the vbos will not crash the game
+		// It seems that deleting the vbos will not crash the game.
 		GL15.glDeleteBuffers( posVBO );
 		GL15.glDeleteBuffers( normVBO );
 		GL15.glDeleteBuffers( texCoordVBO );
@@ -144,7 +145,7 @@ public class Mesh implements IReleasable
 	}
 	
 	/**
-	 * A C like struct used to pass vertex data
+	 * A C like struct used to pass vertex data.
 	 * 
 	 * @author Giant_Salted_Fish
 	 */
@@ -156,7 +157,7 @@ public class Mesh implements IReleasable
 	}
 	
 	/**
-	 * Add all vertices and indices of a model into this builder to build a {@link Mesh}
+	 * Add all vertices and indices of a model into this builder to build a {@link Mesh}.
 	 * 
 	 * @author Giant_Salted_Fish
 	 */
@@ -256,7 +257,7 @@ public class Mesh implements IReleasable
 				}
 			}
 			
-			// Do not forget to release buffered vectors
+			// Do not forget to release buffered vectors.
 			vec1.release();
 			vec0.release();
 			return this;
@@ -298,7 +299,7 @@ public class Mesh implements IReleasable
 		}
 		
 		/**
-		 * Use the default recommended setting to build the mesh
+		 * Use the default recommended setting to build the mesh.
 		 */
 		public Mesh quickBuild() { return this.build(); }
 	}

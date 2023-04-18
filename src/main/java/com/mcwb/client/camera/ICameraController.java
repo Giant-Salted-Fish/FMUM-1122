@@ -22,7 +22,7 @@ public interface ICameraController
 	public void prepareRender( MouseHelper mouse );
 	
 	/**
-	 * @param dst Set camera orientation into destination vector
+	 * @param dst Will save camera orientation into this vector.
 	 */
 	public void getCameraRot( Vec3f dst );
 	

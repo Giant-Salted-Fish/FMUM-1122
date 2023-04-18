@@ -21,16 +21,13 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * Default implementation of {@link IKeyBind}
+ * Default implementation for {@link IKeyBind}.
  * 
  * @author Giant_Salted_Fish
  */
 @SideOnly( Side.CLIENT )
 public class KeyBind extends BuildableMeta implements IKeyBind
 {
-	/**
-	 * Whether this key is down or not
-	 */
 	public transient boolean down = false;
 	
 	protected transient KeyBinding keyBind;
@@ -46,20 +43,20 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	
 	KeyBind( String name, String category, int keyCode ) { this( name, category, keyCode, null ); }
 	
-	// This public is for develop helper
+	// This public is for develop helper.
 	public KeyBind(
 		String name,
 		String category,
 		int keyCode,
 		@Nullable Collection< IKeyBind > updateGroup
-	) { Dev.rememberToChangeOnRelease();
+	) { Dev.dirtyMark();
 		this.keyCode = keyCode;
 		this.category = category;
 		
 		this.build( name, MCWBClient.MOD );
 		
-		/// Assign update group
-		if ( updateGroup != null ) updateGroup.add( this );
+		// Assign update group.
+		if ( updateGroup != null ) { updateGroup.add( this ); }
 		else switch ( category )
 		{
 		case Category.MODIFY:
@@ -76,10 +73,9 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 			InputHandler.INCO_KEYS.add( this );
 			break;
 			
-		default: // Should never happen
-			throw new RuntimeException(
-				"Unexpected key category <" + this.category + "> from <" + this.name + ">"
-			);
+		default: // Should never happen.
+			final String prefix = "Unexpected key category <";
+			throw new RuntimeException( prefix + this.category + "> from <" + this.name + ">" );
 		}
 	}
 	
@@ -90,14 +86,11 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 		
 		IKeyBind.REGISTRY.regis( this );
 		
-		this.keyBind = new KeyBinding(
-			"mcwb.key." + this.name, // Add a prefix to avoid conflict
-			this.keyCode,
-			this.category
-		);
+		final String translationKey = "mcwb.key." + this.name;
+		this.keyBind = new KeyBinding( translationKey, this.keyCode, this.category );
 		ClientRegistry.registerKeyBinding( this.keyBind );
 		
-		// Clear key code to avoid key conflict
+		// Clear key code to avoid key conflict.
 		this.keyBind.setKeyCode( Keyboard.KEY_NONE );
 		return this;
 	}
@@ -111,8 +104,8 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 		if ( down ^ this.down )
 		{
 			this.down = down;
-			if ( down ) this.onFire();
-			else this.onRelease();
+			if ( down ) { this.onFire(); }
+			else { this.onRelease(); }
 		}
 	}
 	
@@ -134,7 +127,7 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	public boolean clearMcKeyBind()
 	{
 		final int code = this.keyBind.getKeyCode();
-		if ( code == this.keyCode ) return false;
+		if ( code == this.keyCode ) { return false; }
 		
 		this.keyCode = code;
 		this.keyBind.setKeyCode( Keyboard.KEY_NONE );
@@ -150,11 +143,11 @@ public class KeyBind extends BuildableMeta implements IKeyBind
 	@Override
 	public boolean down() { return this.down; }
 	
-	// In default just pass the key press notification to player
+	// In default just pass the key press notification to player.
 	protected void onFire() { PlayerPatchClient.instance.onKeyPress( this ); }
 	
 	protected void onRelease() { PlayerPatchClient.instance.onKeyRelease( this ); }
 	
 	@Override
-	protected IMeta typer() { return () -> "KEYBIND"; }
+	protected IMeta descriptor() { return () -> "KEYBIND"; }
 }

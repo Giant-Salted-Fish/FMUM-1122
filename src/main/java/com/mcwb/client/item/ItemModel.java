@@ -55,7 +55,7 @@ public abstract class ItemModel<
 	protected Vec3f holdRot = Vec3f.ORIGIN;
 	
 	/**
-	 * Channel of animation that should be applied to this item
+	 * Channel of animation that should be applied to this item.
 	 */
 	protected String animationChannel = "";
 	
@@ -67,7 +67,8 @@ public abstract class ItemModel<
 		protected final Vec3f pos = new Vec3f();
 		protected final Quat4f rot = new Quat4f();
 		
-		public EquippedItemRenderer() { } // Visibility problem from AmmoModel
+		// Not protected due to the visibility problem in AmmoModel.
+		public EquippedItemRenderer() { }
 		
 		@Override
 		public void playAnimation( Animation animation ) { this.animation = animation; }
@@ -107,7 +108,7 @@ public abstract class ItemModel<
 		@Override
 		public void prepareRenderInHandSP( E equipped, EnumHand hand )
 		{
-			// Update animation and in hand position as well as rotation before render
+			// Update animation and in hand position as well as rotation before render.
 			final float smoother = this.smoother();
 			this.animation.update( PlayerPatchClient.instance.executing().getProgress( smoother ) );
 			this.updatePosRot( smoother ); // TODO: before or after animation update?
@@ -129,16 +130,16 @@ public abstract class ItemModel<
 		{
 			GL11.glPushMatrix();
 			
-			// Do customized rendering
+			// Do customized rendering.
 			final Minecraft mc = MCWBClient.MC;
 			final EntityPlayerSP player = mc.player;
 			
-			// Copied from {@link EntityRenderer#renderHand(float, int)}
+			// Copied from {@link EntityRenderer#renderHand(float, int)}.
 			final EntityRenderer renderer = mc.entityRenderer;
 			renderer.enableLightmap();
 			
-			/// Copied from {@link ItemRenderer#renderItemInFirstPerson(float)} ///
-			// {@link ItemRenderer#rotateArroundXAndY(float, float)}
+			/// Copied from {@link ItemRenderer#renderItemInFirstPerson(float)}. ///
+			// {@link ItemRenderer#rotateArroundXAndY(float, float)}.
 			final Vec3f cameraRot = Vec3f.locate();
 			PlayerPatchClient.instance.cameraController.getCameraRot( cameraRot );
 			GL11.glRotatef( cameraRot.z, 0F, 0F, 1F );
@@ -147,7 +148,7 @@ public abstract class ItemModel<
 			RenderHelper.enableStandardItemLighting();
 			cameraRot.release();
 			
-			// {@link ItemRenderer#setLightmap()}
+			// {@link ItemRenderer#setLightmap()}.
 			final double eyeY = player.posY + player.getEyeHeight();
 			final BlockPos blockPos = new BlockPos( player.posX, eyeY, player.posZ );
 			int light = mc.world.getCombinedLight( blockPos, 0 );
@@ -156,7 +157,7 @@ public abstract class ItemModel<
 			final float y = light >> 16;
 			OpenGlHelper.setLightmapTextureCoords( OpenGlHelper.lightmapTexUnit, x, y );
 			
-			// {@link ItemRenderer#rotateArm(float)} is not applied to avoid shift
+			// {@link ItemRenderer#rotateArm(float)} is not applied to avoid shift.
 			
 			// TODO: Re-scale may not needed. Do not forget that there is a disable pair call.
 			GlStateManager.enableRescaleNormal();
@@ -168,7 +169,7 @@ public abstract class ItemModel<
 			
 			GlStateManager.disableRescaleNormal();
 			RenderHelper.disableStandardItemLighting();
-			/// End of {@link ItemRenderer#renderItemInFirstPerson(float)} ///
+			/// End of {@link ItemRenderer#renderItemInFirstPerson(float)}. ///
 			
 			renderer.disableLightmap();
 			
@@ -195,7 +196,7 @@ public abstract class ItemModel<
 		
 		/**
 		 * Called in {@link #prepareRenderInHandSP(IEquippedItem, EnumHand)} to setup position and
-		 * rotation before applying the animation
+		 * rotation before applying the animation.
 		 */
 		protected void updatePosRot( float smoother )
 		{

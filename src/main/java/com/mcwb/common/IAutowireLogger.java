@@ -6,7 +6,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 
 /**
- * Implement this interface if you need the logger
+ * Implement this interface if you need the logger.
  * 
  * @author Giant_Salted_Fish
  */
@@ -24,20 +24,20 @@ public interface IAutowireLogger
 		return MCWB.MOD.format( translateKey, parameters );
 	}
 	
-	/// *** Wrap commonly used calls *** ///
-	public default void info( String translateKey, Object... parameters ) {
+	/// *** Wrap commonly used calls. *** ///
+	public default void logInfo( String translateKey, Object... parameters ) {
 		this.logger().info( this.format( translateKey, parameters ) );
 	}
 	
-	public default void warn( String translateKey, Object... parameters ) {
+	public default void logWarning( String translateKey, Object... parameters ) {
 		this.logger().warn( this.format( translateKey, parameters ) );
 	}
 	
-	public default void error( String translateKey, Object... parameters ) {
+	public default void logError( String translateKey, Object... parameters ) {
 		this.logger().error( this.format( translateKey, parameters ) );
 	}
 	
-	public default void except( Throwable e, String translateKey, Object... parameters ) {
+	public default void logException( Throwable e, String translateKey, Object... parameters ) {
 		this.logger().error( this.format( translateKey, parameters ), e );
 	}
 }

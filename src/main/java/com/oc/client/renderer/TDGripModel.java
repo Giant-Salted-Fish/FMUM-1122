@@ -30,7 +30,10 @@ public class TDGripModel extends JsonGripModel
 	}
 	
 	@Override
-	public IGunPartRenderer< ? super IGunPart< ? >, ? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > > > newRenderer()
+	public IGunPartRenderer<
+		? super IGunPart< ? >,
+		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
+	> newRenderer()
 	{
 		return this.new GripRenderer()
 		{

@@ -15,7 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * Default implementation of {@link ICreativeTab}
+ * Default implementation of {@link ICreativeTab}.
  * 
  * @author Giant_Salted_Fish
  */
@@ -47,12 +47,9 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 		
 		this.tab = this.createTab();
 		provider.clientOnly( () -> {
-			if ( this.iconItem == null )
-				this.iconItem = "" + Items.FISH.getRegistryName();
-			if ( this.noScrollBar )
-				this.tab.setNoScrollbar();
-			if ( this.noTitle )
-				this.tab.setNoTitle();
+			if ( this.iconItem == null ) { this.iconItem = "" + Items.FISH.getRegistryName(); }
+			if ( this.noScrollBar ) { this.tab.setNoScrollbar(); }
+			if ( this.noTitle ) { this.tab.setNoTitle(); }
 		} );
 		return this;
 	}
@@ -66,13 +63,14 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 	@SideOnly( Side.CLIENT )
 	protected void checkTextureSetup()
 	{
-		// Use a default background image if does not have
-		if ( this.texture == null )
+		// Use a default background image if does not have.
+		if ( this.texture == null ) {
 			this.texture = CreativeTabs.BUILDING_BLOCKS.getBackgroundImage();
+		}
 	}
 	
 	@Override
-	protected IMeta typer() { return LOADER; }
+	protected IMeta descriptor() { return LOADER; }
 	
 	protected class VanillaCreativeTab extends CreativeTabs implements IMetaHost
 	{
@@ -87,13 +85,14 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 		{
 			final String icon = CreativeTab.this.iconItem;
 			
-			// Check if required item is defined in MCWB
+			// Check if required item is defined in MCWB.
 			final IItemType type = IItemType.REGISTRY.get( icon );
 			final Item item = type != null ? type.item() : Item.getByNameOrId( icon );
-			if ( item != null )
+			if ( item != null ) {
 				return new ItemStack( item, 1, CreativeTab.this.iconItemDam );
+			}
 			
-			CreativeTab.this.error(
+			CreativeTab.this.logError(
 				"mcwb.can_not_find_tab_icon_item",
 				this.getTabLabel(),
 				CreativeTab.this.iconItemDam

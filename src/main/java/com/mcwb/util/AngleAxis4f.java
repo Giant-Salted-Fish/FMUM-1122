@@ -11,7 +11,7 @@ public final class AngleAxis4f extends AxisAngle4f
 	public AngleAxis4f() { }
 	
 	/**
-	 * Initialize this instance with given euler rotation applied in order ZXY
+	 * Initialize this instance with given euler rotation applied in order ZXY.
 	 */
 	public AngleAxis4f( float x, float y, float z )
 	{

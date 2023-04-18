@@ -3,18 +3,13 @@ package com.mcwb.common.module;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import javax.annotation.Nullable;
-
 import com.google.common.collect.TreeMultimap;
 import com.mcwb.common.item.IItem;
-import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.paintjob.IPaintable;
 import com.mcwb.util.Mat4f;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -23,8 +18,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * Exists to satisfy the requirement of {@link IItem}. It forwards most method calls to the wrapped
  * primary module and should have the same behavior with the wrapped module when calling by outer.
  * 
- * @param <I> Type parameter of the wrapped module
- * @param <T> Type of the primary that is wrapped
+ * @param <I> Type parameter of the wrapped module.
+ * @param <T> Type of the primary that is wrapped.
  * @author Giant_Salted_Fish
  */
 public abstract class ModuleWrapper<
@@ -47,16 +42,6 @@ public abstract class ModuleWrapper<
 	}
 	
 	@Override
-	public final boolean hasCapability( Capability< ? > capability, @Nullable EnumFacing facing ) {
-		return capability == IMeta.CONTEXTED;
-	}
-	
-	@Override
-	public final < C > C getCapability( Capability< C > capability, @Nullable EnumFacing facing ) {
-		return IMeta.CONTEXTED.cast( this );
-	}
-	
-	@Override
 	public final String name() { return this.primary.name(); }
 	
 	@Override
@@ -70,7 +55,7 @@ public abstract class ModuleWrapper<
 	public final IModule< ? > base() { throw new RuntimeException(); }
 	
 	/**
-	 * Set base is meaningless for wrapper so it is used here to reset wrapped primary
+	 * Set base is meaningless for wrapper so it is used here to reset wrapped primary.
 	 */
 	@Override
 	@SuppressWarnings( "unchecked" )

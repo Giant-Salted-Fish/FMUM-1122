@@ -1,7 +1,6 @@
 package com.mcwb.common.gun;
 
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
@@ -16,10 +15,8 @@ import com.mcwb.client.player.OpLoadMagClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.item.IEquippedItem;
-import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
-import com.mcwb.common.module.IModule;
 import com.mcwb.common.module.IModuleEventSubscriber;
 import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.OperationController;
@@ -96,10 +93,10 @@ public abstract class GunType<
 			IEquippedItem< ? > prevEquipped,
 			EntityPlayer player,
 			EnumHand hand
-		) {
+		) {//要播放动画 播放动画的过程中应该保证渲染使用的对象不会发生改变 当动画完成或被打断时再使用最新状态的对象
 			final EquippedGun prev = ( EquippedGun ) prevEquipped;
 			final E cur = this.newEquipped( () -> prev.renderer, player, hand );
-			
+			return null;
 		}
 		
 		@Override
@@ -130,17 +127,17 @@ public abstract class GunType<
 			this.leftHandHolding = this;
 			this.rightHandHolding = this;
 			this.forEach( gunPart -> {
-				if ( gunPart.leftHandPriority() > this.leftHandHolding.leftHandPriority() )
+				if ( gunPart.leftHandPriority() > this.leftHandHolding.leftHandPriority() ) {
 					this.leftHandHolding = gunPart;
-				if ( gunPart.rightHandPriority() > this.rightHandHolding.rightHandPriority() )
+				}
+				if ( gunPart.rightHandPriority() > this.rightHandHolding.rightHandPriority() ) {
 					this.rightHandHolding = gunPart;
+				}
 			} );
 		}
 		
 		protected class EquippedGun extends EquippedGunPart implements IEquippedGun< C >
 		{
-//			protected Function< IModule< ? >,  >
-			
 			protected EquippedGun(
 				Supplier< ER > equippedRenderer,
 				EntityPlayer player,
@@ -170,7 +167,7 @@ public abstract class GunType<
 					);
 					break;
 					
-				default: super.onKeyPress( key );
+				default: // TODO: super.onKeyPress( key );
 				}
 			}
 			
@@ -202,6 +199,4 @@ public abstract class GunType<
 			}
 		}
 	}
-	
-	protected static interface Inf { }
 }

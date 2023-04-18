@@ -18,7 +18,7 @@ import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
 /**
- * Additional patch that added to the player to do extra logic required by {@link MCWB}
+ * Additional patch that added to the player to do extra logic required by {@link MCWB}.
  * 
  * @author Giant_Salted_Fish
  */
@@ -28,7 +28,7 @@ public class PlayerPatch implements ICapabilityProvider
 	private static final Capability< PlayerPatch > CAPABILITY = null;
 	
 	/**
-	 * Host player of this patch
+	 * Host player of this patch.
 	 */
 	protected final EntityPlayer player;
 	
@@ -37,12 +37,12 @@ public class PlayerPatch implements ICapabilityProvider
 	 */
 	protected IOperation executing = IOperation.NONE;
 	
-	/// *** Stuffs for main hand item *** ///
+	/// *** Stuffs for main hand item. *** ///
 	protected ItemStack mainStack = ItemStack.EMPTY;
 	protected int mainStackId = IItem.VANILLA.stackId();
 	protected IEquippedItem< ? > mainEquipped = IEquippedItem.VANILLA;
 	
-	/// *** Stuffs for off-hand item *** ///
+	/// *** Stuffs for off-hand item. *** ///
 	protected ItemStack offStack = ItemStack.EMPTY;
 	protected int offStackId = IItem.VANILLA.stackId();
 	protected IEquippedItem< ? > offEquipped = IEquippedItem.VANILLA;
@@ -53,7 +53,7 @@ public class PlayerPatch implements ICapabilityProvider
 	{
 		final InventoryPlayer inv = this.player.inventory;
 		
-		/// *** Main hand stuff *** ///
+		/// *** Main hand stuff. *** ///
 		{
 			final EnumHand hand = EnumHand.MAIN_HAND;
 			final ItemStack stack = inv.getCurrentItem();
@@ -76,7 +76,7 @@ public class PlayerPatch implements ICapabilityProvider
 			this.mainEquipped.tickInHand( this.player, hand );
 		}
 		
-		/// *** Off-hand stuff *** ///
+		/// *** Off-hand stuff. *** ///
 		{
 			final EnumHand hand = EnumHand.OFF_HAND;
 			final ItemStack stack = inv.offHandInventory.get( 0 );
@@ -101,7 +101,7 @@ public class PlayerPatch implements ICapabilityProvider
 	}
 	
 	public final IEquippedItem< ? > getEquipped( EnumHand hand ) {
-		return hand == EnumHand.MAIN_HAND ? this.mainEquipped : this.offEquipped;
+		return hand == EnumHand.OFF_HAND ? this.offEquipped : this.mainEquipped;
 	}
 	
 	public final IOperation executing() { return this.executing; }

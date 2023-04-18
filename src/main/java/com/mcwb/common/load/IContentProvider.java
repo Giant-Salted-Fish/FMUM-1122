@@ -21,7 +21,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface IContentProvider extends IMeta
 {
 	/**
-	 * Prepare for the {@link #load()}
+	 * Prepare for the {@link #load()}.
 	 */
 	public void preLoad();
 	
@@ -31,7 +31,7 @@ public interface IContentProvider extends IMeta
 	public void load();
 	
 	/**
-	 * @return Author of this content provider
+	 * @return Author of this content provider.
 	 */
 	public String author();
 	
@@ -43,9 +43,11 @@ public interface IContentProvider extends IMeta
 	public String sourceName();
 	
 	/**
-	 * Register the given instance to receive {@link IPostLoadSubscriber#onPostLoad()} callback
+	 * Register the given instance to receive {@link IPostLoadSubscriber#onPostLoad()} callback.
 	 */
-	public default void regis( IPostLoadSubscriber subscriber ) { MCWB.MOD.regis( subscriber ); }
+	public default void regisPostLoadSubscriber( IPostLoadSubscriber subscriber ) {
+		MCWB.MOD.regisPostLoadSubscriber( subscriber );
+	}
 	
 	/**
 	 * <p> Register the given instance to receive {@link IMeshLoadSubscriber#onMeshLoad()} callback
@@ -56,7 +58,9 @@ public interface IContentProvider extends IMeta
 	 * processed automatically by {@link MCWB}. Only register for this callback if your type loads
 	 * its models in other ways. </p>
 	 */
-	public default void regis( IMeshLoadSubscriber subscriber ) { MCWB.MOD.regis( subscriber ); }
+	public default void regisMeshLoadSubscriber( IMeshLoadSubscriber subscriber ) {
+		MCWB.MOD.regisMeshLoadSubscriber( subscriber );
+	}
 	
 	public default SoundEvent loadSound( String path ) { return MCWB.MOD.loadSound( path ); }
 	

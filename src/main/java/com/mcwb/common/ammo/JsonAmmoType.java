@@ -32,5 +32,5 @@ public class JsonAmmoType extends AmmoType<
 	> fallbackModel() { return JsonAmmoModel.NONE; }
 	
 	@Override
-	protected IMeta typer() { return LOADER; }
+	protected IMeta descriptor() { return LOADER; }
 }

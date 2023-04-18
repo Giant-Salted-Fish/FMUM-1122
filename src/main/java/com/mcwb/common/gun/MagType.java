@@ -83,8 +83,8 @@ public abstract class MagType<
 			for ( int i = 0; i < MagType.this.ammoCapacity; ++i )
 			{
 				final IAmmoType ammo = this.getAmmo( data, i );
-				if ( ammo != null ) this.ammo.add( ammo );
-				else break;
+				if ( ammo == null ) { break; }
+				this.ammo.add( ammo );
 			}
 		}
 		
@@ -103,9 +103,10 @@ public abstract class MagType<
 		protected IAmmoType getAmmo( int[] data, int idx )
 		{
 			final int i = super.dataSize() + idx / 2;
-			final int offset = idx % 2 != 0 ? 16 : 0;
+			final boolean isOddIdx = idx % 2 != 0;
+			final int offset = isOddIdx ? 16 : 0;
 			final int id = 0xFFFF & data[ i ] >>> offset;
-			if ( id == 0 ) return null;
+			if ( id == 0 ) { return null; }
 			
 			final Item item = Item.getItemById( id );
 			return ( IAmmoType ) ( ( IItemTypeHost ) item ).meta();

@@ -9,7 +9,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * @see IRenderer
  * @author Giant_Salted_Fish
  */
 public interface IAnimator
@@ -57,7 +56,7 @@ public interface IAnimator
 		quat.release();
 	}
 	
-	// Check if this is needed
+	// TODO: Check if this is needed
 	@SideOnly( Side.CLIENT )
 	public default void applyChannel( String channel, Mat4f dst )
 	{

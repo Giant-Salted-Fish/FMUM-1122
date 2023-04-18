@@ -23,12 +23,13 @@ public abstract class TexturedMeta extends BuildableMeta
 	}
 	
 	/**
-	 * Called in {@link #build(String, IContentProvider)} to ensure that texture setup
+	 * Called in {@link #build(String, IContentProvider)} to ensure that texture setup.
 	 */
 	@SideOnly( Side.CLIENT )
 	protected void checkTextureSetup()
 	{
-		if ( this.texture == null )
+		if ( this.texture == null ) {
 			this.texture = this.provider.loadTexture( "textures/" + this.name + ".png" );
+		}
 	}
 }

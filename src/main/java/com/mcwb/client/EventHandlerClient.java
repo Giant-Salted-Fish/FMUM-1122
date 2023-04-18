@@ -31,7 +31,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-@EventBusSubscriber( modid = MCWBClient.ID, value = Side.CLIENT )
+@EventBusSubscriber( modid = MCWBClient.MODID, value = Side.CLIENT )
 public final class EventHandlerClient
 {
 	private static final IAutowireLogger LOGGER = MCWBClient.MOD;
@@ -39,9 +39,6 @@ public final class EventHandlerClient
 	public static boolean oriViewBobbing = MCWBClient.SETTINGS.viewBobbing;
 	public static float oriMouseSensi = MCWBClient.SETTINGS.mouseSensitivity;
 	
-	/**
-	 * Game gui in last tick
-	 */
 	private static GuiScreen prevGui = null;
 	
 	static
@@ -50,10 +47,14 @@ public final class EventHandlerClient
 			@SubscribeEvent
 			public void onWorldLoad( WorldEvent.Load evt )
 			{
-				// Avoid model load on player local server
-				if ( !evt.getWorld().isRemote ) return; // Just return, do not unregister!
+				final boolean isLocalServer = !evt.getWorld().isRemote;
+				if ( isLocalServer )
+				{
+					// TODO: Just return, do not unregister!
+					return;
+				}
 				
-				// Call load for all subscribers
+				// Call load for all subscribers.
 				final MCWBClient mod = MCWBClient.MOD;
 				mod.meshLoadSubscribers.forEach( sub -> {
 					// Throwing any exception on world load could jam the load progress and print \
@@ -63,16 +64,16 @@ public final class EventHandlerClient
 					// makers who do not know this.
 					try { sub.onMeshLoad(); }
 					catch ( Exception e ) {
-						LOGGER.except( e, "mcwb.exception_call_model_load", sub );
+						LOGGER.logException( e, "mcwb.exception_call_model_load", sub );
 					}
 				} );
 				
-				// Clear resources after model load
+				// Clear resources after model load.
 				mod.meshLoadSubscribers.clear();
-				mod.modelPool.clear(); // TODO: check if this is needed
+				mod.modelPool.clear(); // TODO: check if this is needed.
 				mod.meshPool.clear();
 				
-				// Only load model once. Unregister after complete
+				// Only load model once. Unregister after complete.
 				MinecraftForge.EVENT_BUS.unregister( this );
 			}
 		} );
@@ -95,7 +96,7 @@ public final class EventHandlerClient
 		final GuiScreen gui = evt.getGui();
 		final GameSettings settings = MCWBClient.SETTINGS;
 		
-		// Show key binds if control GUI is activated
+		// Show key binds if control GUI is activated.
 		if ( gui instanceof GuiControls )
 		{
 			InputHandler.restoreMcKeyBinds();
@@ -107,7 +108,7 @@ public final class EventHandlerClient
 			oriMouseSensi = settings.mouseSensitivity;
 		}
 		
-		// Restore video settings if corresponding GUI is activated
+		// Restore video settings if corresponding GUI is activated.
 		else if ( gui instanceof GuiVideoSettings )
 		{
 			settings.viewBobbing = oriViewBobbing;
@@ -124,12 +125,12 @@ public final class EventHandlerClient
 	@SubscribeEvent
 	public static void onModelRegister( ModelRegistryEvent evt )
 	{
-		LOGGER.info( "mcwb.on_model_regis" );
+		LOGGER.logInfo( "mcwb.on_model_regis" );
 		
 		final Collection< IItemType > items = IItemType.REGISTRY.values();
 		items.forEach( it -> it.onModelRegister( evt ) );
 		
-		LOGGER.info( "mcwb.model_regis_complete", items.size() );
+		LOGGER.logInfo( "mcwb.model_regis_complete", items.size() );
 	}
 	
 	@SubscribeEvent
@@ -140,6 +141,7 @@ public final class EventHandlerClient
 		case CROSSHAIRS:
 			evt.setCanceled( PlayerPatchClient.instance.hideCrosshair() );
 			break;
+			
 		default:;
 		}
 	}
@@ -157,9 +159,6 @@ public final class EventHandlerClient
 		evt.setCanceled( PlayerPatchClient.instance.onRenderSpecificHandSP( evt.getHand() ) );
 	}
 	
-	/**
-	 * Apply camera roll
-	 */
 	@SubscribeEvent
 	public static void onCameraSetup( CameraSetup evt ) {
 		PlayerPatchClient.instance.onCameraSetup( evt );
@@ -174,9 +173,7 @@ public final class EventHandlerClient
 //		
 //	}
 	
-	/**
-	 * Disable dynamic FOV
-	 */
+	// Disable dynamic FOV.
 	@SubscribeEvent
 	public static void onFOVUpdate( FOVUpdateEvent evt ) { evt.setNewfov( 1F ); }
 	
@@ -184,15 +181,15 @@ public final class EventHandlerClient
 	public static void onMouseInput( MouseEvent evt )
 	{
 		final int dWheel = evt.getDwheel();
-		if ( dWheel != 0 )
+		if ( dWheel != 0 ) {
 			evt.setCanceled( PlayerPatchClient.instance.onMouseWheelInput( dWheel ) );
+		}
 	}
 	
 	@SubscribeEvent
 	public static void onConfigChanged( OnConfigChangedEvent evt )
 	{
-		// Save config if has changed
-		if ( MCWB.ID.equals( evt.getModID() ) )
-			ConfigManager.sync( MCWB.ID, Config.Type.INSTANCE );
+		final boolean isModConfigChanged = evt.getModID().equals( MCWB.MODID );
+		if ( isModConfigChanged ) { ConfigManager.sync( MCWB.MODID, Config.Type.INSTANCE ); }
 	}
 }

@@ -10,14 +10,12 @@ public interface IModuleType extends IMeta
 	public static final Registry< IModuleType > REGISTRY = new Registry<>();
 	
 	/**
-	 * WARNNING: Never use this unless you understand what it is doing. This is only designed to be
-	 * used by {@link ModuleSnapshot}
+	 * WARNNING: Never use this unless you understand what it is doing.
 	 */
 	public IModule< ? > newRawContexted();
 	
 	/**
-	 * WARNNING: Never use this unless you understand what it is doing. This is only designed to be
-	 * used by {@link IModular#deserializeNBT(NBTTagCompound)}
+	 * WARNNING: Never use this unless you understand what it is doing.
 	 */
 	public IModule< ? > deserializeContexted( NBTTagCompound nbt );
 }

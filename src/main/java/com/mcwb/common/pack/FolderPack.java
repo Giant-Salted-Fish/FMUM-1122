@@ -7,7 +7,7 @@ import java.io.IOException;
 import com.google.common.base.Supplier;
 
 /**
- * Content packs that organized as folders
+ * Content packs that organized as folders.
  * 
  * @author Giant_Salted_Fish
  */
@@ -18,22 +18,23 @@ public class FolderPack extends LocalPack
 	@Override
 	public void load()
 	{
-		// Read pack info first if has
+		// Read pack info first if has.
 		final File infoFile = new File( this.source, this.infoFile() );
 		if ( infoFile.exists() )
 		{
 			try ( FileReader in = new FileReader( infoFile ) ) { this.setupInfoWith( in ); }
 			catch ( IOException e ) {
-				this.except( e, ERROR_LOADING_INFO, this.sourceName() + "/" + this.infoFile() );
+				this.logException( e, ERROR_LOADING_INFO, this.sourceName() + "/" + this.infoFile() );
 			}
 		}
 		
-		// Load all types in rest folders except "assets/" folder
+		// Load all types in rest folders except "assets/" folder.
 		for ( final File dir : this.source.listFiles() )
 		{
 			final String dirName = dir.getName();
-			if ( dir.isDirectory() && !this.ignoreEntires.contains( dirName ) )
+			if ( dir.isDirectory() && !this.ignoreEntires.contains( dirName ) ) {
 				this.tryLoadFrom( dir, this.getFallbackType( dirName ), () -> dirName );
+			}
 		}
 	}
 	
@@ -48,26 +49,25 @@ public class FolderPack extends LocalPack
 				continue;
 			}
 			
-			final Supplier< String > sourceTrace = () -> this.sourceName()
-				+ "/" + parentPath.get() + "/" + fName;
+			final Supplier< String > sourceTrace =
+				() -> this.sourceName() + "/" + parentPath.get() + "/" + fName;
 			try
 			{
 				if ( fName.endsWith( ".json" ) )
 				{
 					try ( FileReader in = new FileReader( file ) )
 					{
-						this.loadJsonType(
-							in,
-							fallbackType,
-							fName.substring( 0, fName.length() - 5 ),
-							sourceTrace
-						);
+						final String name = fName.substring( 0, fName.length() - 5 );
+						this.loadJsonType( in, fallbackType, name, sourceTrace );
 					}
 				}
 				else if ( fName.endsWith( ".class" ) )
-					this.loadClassType( parentPath.get().replace( '/', '.' ) + "." + fName );
+				{
+					final String classPath = parentPath.get().replace( '/', '.' ) + "." + fName;
+					this.loadClassType( classPath );
+				}
 			}
-			catch ( Exception e ) { this.except( e, ERROR_LOADING_TYPE, sourceTrace.get() ); }
+			catch ( Exception e ) { this.logException( e, ERROR_LOADING_TYPE, sourceTrace.get() ); }
 		}
 	}
 }

@@ -24,7 +24,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	public String category();
 	
 	/**
-	 * @return An {@link ItemStack} that linked to this module
+	 * @return An {@link ItemStack} that linked to this module.
 	 */
 	public ItemStack toStack();
 	
@@ -37,14 +37,14 @@ public interface IModule< T extends IModule< ? extends T > >
 	public void postEvent( Object evt );
 	
 	/**
-	 * Synchronize NBT tag data and do update
+	 * Synchronize NBT tag data and do update.
 	 * 
 	 * @see #updateState(BiConsumer)
 	 */
 	public void syncAndUpdate();
 	
 	/**
-	 * Used in {@link #syncAndUpdate()}
+	 * Used in {@link #syncAndUpdate()}.
 	 */
 	public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry );
 	
@@ -58,7 +58,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	 * <p> In most cases you should use {@link #tryInstall(int, IModule)} rather than this to
 	 * install a new module. </p>
 	 * 
-	 * @return The actual index of the installed module in given slot
+	 * @return The actual index of the installed module in given slot.
 	 */
 	public int install( int slot, IModule< ? > module );
 	
@@ -78,7 +78,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	public IModifyPredicate checkHitboxConflict( IModule< ? > module );
 	
 	/**
-	 * Notice that for each will not visit itself
+	 * Notice that for each will not visit itself.
 	 */
 	public void forEach( Consumer< ? super T > visitor );
 	

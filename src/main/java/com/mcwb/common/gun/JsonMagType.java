@@ -39,11 +39,11 @@ public class JsonMagType extends MagType<
 	{
 		return this.new Mag()
 		{
-			// Override this so that we do not need to create a wrapper for it
+			// Override this so that we do not need to create a wrapper for it.
 			@Override
 			public void syncAndUpdate() { }
 			
-			// This should never be equipped hence return null
+			// This should never be equipped hence return null.
 			@Override
 			protected IEquippedMag< ? extends IMag< ? > > newEquipped(
 				Supplier<
@@ -85,5 +85,5 @@ public class JsonMagType extends MagType<
 	> fallbackModel() { return JsonGunPartModel.NONE; }
 	
 	@Override
-	protected IMeta typer() { return LOADER; }
+	protected IMeta descriptor() { return LOADER; }
 }

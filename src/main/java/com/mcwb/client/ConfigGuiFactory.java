@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Reference: <a href="https://harbinger.covertdragon.team/chapter-26/config-gui.html">
- *     https://harbinger.covertdragon.team/chapter-26/config-gui.html </a>
+ *     Harbinger: Chapter-26.1 </a>
  * 
  * @author Giant_Salted_Fish
  */
@@ -29,7 +29,7 @@ public final class ConfigGuiFactory implements IModGuiFactory
 	
 	@Override
 	public GuiScreen createConfigGui( GuiScreen parent ) {
-		return new GuiConfig( parent, MCWB.ID, "mcwb.cfg" );
+		return new GuiConfig( parent, MCWB.MODID, "mcwb.cfg" );
 	}
 	
 	@Override

@@ -6,9 +6,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
- * A simple pool to buffer instances like {@link Vec3f}
+ * A simple pool to buffer instances like {@link Vec3f}.
  *
- * @param <T> Class of buffered instance
+ * @param <T> Class of buffered instance.
  * 
  * @author Giant_Salted_Fish
  */
@@ -19,12 +19,15 @@ public final class ObjPool< T >
 	private final BiConsumer< T, List< T > > recycler;
 	
 	/**
-	 * In default it uses a synchronized {@link ArrayList} as pool which guarantee the thread safe
+	 * In default it uses a synchronized {@link ArrayList} as pool which guarantee the thread safe.
 	 * 
-	 * @param factory Instance factory which provides instance when there is none left in pool
+	 * @param factory Instance factory which provides instance when there is none left in pool.
 	 */
-	public ObjPool( Supplier< T > factory ) {
-		this( factory, ( instance, pool ) -> { if ( pool.size() < 64 ) pool.add( instance ); } );
+	public ObjPool( Supplier< T > factory )
+	{
+		this( factory, ( instance, pool ) -> {
+			if ( pool.size() < 64 ) { pool.add( instance ); }
+		} );
 	}
 	
 	public ObjPool( Supplier< T > factory, BiConsumer< T, List< T > > recycler ) {

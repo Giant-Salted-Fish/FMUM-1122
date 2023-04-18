@@ -21,13 +21,11 @@ public final class ItemModelGenerator
 		{
 			final String fName = file.getName();
 			
-			if ( file.isDirectory() )
-				processDir( file, dstDir );
+			if ( file.isDirectory() ) { processDir( file, dstDir ); }
 			else if ( fName.endsWith( ".json" ) )
 			{
 				final File dstFile = new File( dstDir, fName );
-				if ( dstFile.exists() )
-					System.out.println( "Skipped file " + fName );
+				if ( dstFile.exists() ) { System.out.println( "Skipped file " + fName ); }
 				else try ( BufferedWriter out = new BufferedWriter( new FileWriter( dstFile ) ) )
 					{
 						out.write(

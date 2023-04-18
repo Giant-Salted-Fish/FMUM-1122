@@ -7,11 +7,11 @@ import com.mcwb.common.MCWB;
 import com.mcwb.common.meta.IMeta;
 
 /**
- * Loader for specified {@link IBuildable}s
+ * Loader for specified {@link IBuildable}s.
  * 
  * @author Giant_Salted_Fish
  */
-public final class BuildableLoader< T > implements IMeta // Implements this to use Registry<>
+public final class BuildableLoader< T > implements IMeta // Implements this to use Registry<T>.
 {
 	public final String entry;
 	

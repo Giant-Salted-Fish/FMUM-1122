@@ -40,7 +40,7 @@ public interface IItemType extends IMeta
 //		TRANSLATION_SUFFIX = ".name";
 	
 	/**
-	 * @return Corresponding vanilla item
+	 * @return Corresponding vanilla item.
 	 */
 	public Item item();
 	
@@ -50,7 +50,7 @@ public interface IItemType extends IMeta
 		evt.getRegistry ().register( this.item() );
 	}
 	
-	// FIXME: model register need to be override if item has sub types
+	// FIXME: model register need to be override if item has sub-types
 	@SideOnly( Side.CLIENT )
 	public default void onModelRegister( ModelRegistryEvent evt )
 	{

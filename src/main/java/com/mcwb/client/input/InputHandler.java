@@ -37,26 +37,26 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @author Giant_Salted_Fish
  */
 @SideOnly( Side.CLIENT )
-@EventBusSubscriber( modid = MCWBClient.ID, value = Side.CLIENT )
+@EventBusSubscriber( modid = MCWBClient.MODID, value = Side.CLIENT )
 public final class InputHandler
 {
 	/**
-	 * Keys that will always update
+	 * Keys that will always update.
 	 */
 	public static final HashSet< IKeyBind > GLOBAL_KEYS = new HashSet<>();
 	
 	/**
-	 * Keys that will update when {@link #CO} is pressed
+	 * Keys that will update when {@link #CO} is pressed.
 	 */
 	public static final HashSet< IKeyBind > CO_KEYS = new HashSet<>();
 	
 	/**
-	 * Keys that will update when {@link #CO} is not pressed
+	 * Keys that will update when {@link #CO} is not pressed.
 	 */
 	public static final HashSet< IKeyBind > INCO_KEYS = new HashSet<>();
 	
 	/**
-	 * These keys always update
+	 * These keys always update.
 	 */
 	public static final KeyBind
 		PULL_TRIGGER = new KeyBind( Key.PULL_TRIGGER, Category.GUN, 0 - 100, GLOBAL_KEYS ),
@@ -75,7 +75,7 @@ public final class InputHandler
 		CO = new KeyBind( Key.CO, Category.ASSIST, Keyboard.KEY_Z, GLOBAL_KEYS );
 	
 	/**
-	 * These keys will update if {@link #CO} is not down
+	 * These keys will update if {@link #CO} is not down.
 	 */
 	public static final KeyBind
 		FREE_VIEW = new KeyBind( Key.FREE_VIEW, Category.GENERAL, Keyboard.KEY_LMENU ),
@@ -86,7 +86,7 @@ public final class InputHandler
 		INSPECT = new KeyBind( Key.INSPECT, Category.GUN, Keyboard.KEY_V );
 	
 	/**
-	 * These keys will update if {@link #CO} is down
+	 * These keys will update if {@link #CO} is down.
 	 */
 	public static final KeyBind
 		CO_FREE_VIEW = new KeyBind( Key.CO_FREE_VIEW, Category.ASSIST, Keyboard.KEY_NONE ),
@@ -122,7 +122,7 @@ public final class InputHandler
 	public static void onKeyInput( KeyInputEvent evt )
 	{
 		// TODO: check #player
-		if ( MCWBClient.MC.currentScreen != null ) return;
+		if ( MCWBClient.MC.currentScreen != null ) { return; }
 		
 		final int keyCode = Keyboard.getEventKey();
 		final int charCode = Keyboard.getEventCharacter();
@@ -138,7 +138,7 @@ public final class InputHandler
 	@SubscribeEvent
 	public static void onMouseInput( MouseInputEvent evt )
 	{
-		if ( MCWBClient.MC.currentScreen != null ) return;
+		if ( MCWBClient.MC.currentScreen != null ) { return; }
 		
 		final int button = Mouse.getEventButton() - 100;
 		final boolean state = Mouse.getEventButtonState();
@@ -159,10 +159,11 @@ public final class InputHandler
 	public static void clearKeyMcBinds( File file )
 	{
 		boolean changed = false;
-		for ( IKeyBind key : IKeyBind.REGISTRY.values() )
+		for ( IKeyBind key : IKeyBind.REGISTRY.values() ) {
 			changed |= key.clearMcKeyBind();
+		}
 		
-		// Make sure there is only one aim key bounden
+		// Make sure there is only one aim key bounden.
 		final int none = Keyboard.KEY_NONE;
 		if ( AIM_HOLD.keyCode != none && AIM_TOGGLE.keyCode != none )
 		{
@@ -172,7 +173,7 @@ public final class InputHandler
 		
 		KeyBinding.resetKeyBindingArrayAndHash();
 		
-		// If key bind has changed then save it
+		// If key bind has changed then save it.
 		if ( changed )
 		{
 			updateMappers();
@@ -181,7 +182,7 @@ public final class InputHandler
 	}
 	
 	/**
-	 * Save key bind settings into given ".json" file
+	 * Save key bind settings into given ".json" file.
 	 */
 	public static void saveTo( File file )
 	{
@@ -191,11 +192,11 @@ public final class InputHandler
 			IKeyBind.REGISTRY.values().forEach( key -> mapper.put( key.name(), key.keyCode() ) );
 			out.write( MCWB.GSON.toJson( mapper ) );
 		}
-		catch ( IOException e ) { LOGGER.except( e, "mcwb.error_saving_key_binds" ); }
+		catch ( IOException e ) { LOGGER.logException( e, "mcwb.error_saving_key_binds" ); }
 	}
 	
 	/**
-	 * Read key bind settings from the given ".json" file
+	 * Read key bind settings from the given ".json" file.
 	 */
 	public static void readFrom( File file )
 	{
@@ -205,14 +206,14 @@ public final class InputHandler
 			obj.entrySet().forEach( e -> {
 				try { IKeyBind.REGISTRY.get( e.getKey() ).setKeyCode( e.getValue().getAsInt() ); }
 				catch ( NullPointerException ee ) {
-					LOGGER.error( "mcwb.unrecognized_key_bind", e.getKey() );
+					LOGGER.logError( "mcwb.unrecognized_key_bind", e.getKey() );
 				}
 				catch ( Exception ee ) {
-					LOGGER.error( "mcwb.key_code_format_error", e.toString() );
+					LOGGER.logError( "mcwb.key_code_format_error", e.toString() );
 				}
 			} );
 		}
-		catch ( IOException e ) { LOGGER.except( e, "mcwb.error_reading_key_binds" ); }
+		catch ( IOException e ) { LOGGER.logException( e, "mcwb.error_reading_key_binds" ); }
 		
 		updateMappers();
 	}
@@ -229,9 +230,6 @@ public final class InputHandler
 		Multimap< Integer, IKeyBind > mapper
 	) {
 		mapper.clear();
-		group.forEach( key -> {
-			final int code = key.keyCode();
-			if ( code != 0 ) mapper.put( code, key );
-		} );
+		group.forEach( kb -> mapper.put( kb.keyCode(), kb ) );
 	}
 }

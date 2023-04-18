@@ -45,7 +45,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class GunPartType<
-	I extends IGunPart< ? extends I >, // Not necessary, but to avoid filling in the generic argument on instantiating the abstract inner class
+	I extends IGunPart< ? extends I >, // Not necessary, but to avoid filling in the generic argument on instantiating the abstract inner class.
 	C extends IGunPart< ? >,
 	E extends IEquippedItem< ? extends C >,
 	ER extends IEquippedItemRenderer< ? super E >,
@@ -88,19 +88,19 @@ public abstract class GunPartType<
 		IModuleType.REGISTRY.regis( this );
 		IPaintableType.REGISTRY.regis( this );
 		
-		// If not category set then set it is its name
+		// If not category set then set it is its name.
 		this.category = this.category != null ? this.category : this.name;
-		provider.clientOnly( () ->
-			this.modifyIndicator = this.modifyIndicator != null
+		provider.clientOnly(
+			() -> this.modifyIndicator = this.modifyIndicator != null
 				? this.modifyIndicator : MCWBClient.MODIFY_INDICATOR
 		);
 		
-		// Add itself as the default paintjob
+		// Add itself as the default paintjob.
 		if ( this.paintjobs.size() == 0 )
 			this.paintjobs = new ArrayList<>();
 		this.paintjobs.add( 0, this );
 		
-		// Apply model scale
+		// Apply model scale.
 		this.slots.forEach( slot -> slot.scale( this.paramScale ) );
 		// TODO: hitboxes
 		return this;
@@ -114,7 +114,7 @@ public abstract class GunPartType<
 		this.provider.clientOnly( () -> {
 			if ( IModuleType.REGISTRY.get( this.modifyIndicator ) == null )
 			{
-				this.error( "mcwb.fail_to_find_indicator", this, this.modifyIndicator );
+				this.logError( "mcwb.fail_to_find_indicator", this, this.modifyIndicator );
 				this.modifyIndicator = MCWBClient.MODIFY_INDICATOR;
 			}
 		} );
@@ -122,7 +122,7 @@ public abstract class GunPartType<
 		// TODO: call update state maybe?
 		final Function< String, IModule< ? > > func = name -> this.newRawContexted();
 		this.compiledSnapshotNBT = this.snapshot.setSnapshot( func ).serializeNBT();
-		this.snapshot = null; // Release snapshot after use
+		this.snapshot = null; // Release snapshot after use.
 	}
 	
 	@Override
@@ -155,24 +155,28 @@ public abstract class GunPartType<
 		@SuppressWarnings( "unchecked" )
 		public ICapabilityProvider initCapabilities( ItemStack stack, NBTTagCompound capTag )
 		{
+			final GunPartType< I, C, E, ER, R, M > $this = GunPartType.this;
+			final Function< C, ICapabilityProvider > finializer = primary -> {
+				final ICapabilityProvider wrapper = $this.newWrapper( primary, stack );
+				primary.syncAndUpdate();
+				return wrapper;
+			};
+			
 			// 4 case to handle: \
 			// has-stackTag | has-capTag}: {ItemStack#ItemStack(NBTTagCompound)} \
 			// has-stackTag | no--capTag}: \
 			// no--stackTag | has-capTag}: {ItemStack#copy()} \
 			// no--stackTag | no--capTag}: {new ItemStack(...)}, {PacketBuffer#readItemStack()} \
 			final NBTTagCompound stackTag = stack.getTagCompound();
-			final GunPartType< I, C, E, ER, R, M > $this = GunPartType.this;
-			
-			C primary;
 			if ( capTag != null )
 			{
 				// 2 cases possible:
-				// no--stackTag | has-capTag: {ItemStack#copy()}
-				// has-stackTag | has-capTag: {ItemStack#ItemStack(NBTTagCompound)}
+				// no--stackTag | has-capTag: {ItemStack#copy()}.
+				// has-stackTag | has-capTag: {ItemStack#ItemStack(NBTTagCompound)}.
 				final NBTTagCompound nbt = capTag.getCompoundTag( "Parent" );
 				
-				// Remove "Parent" tag to prevent repeat deserialization
-				// See CapabilityDispatcher#deserializeNBT(NBTTagCompound)
+				// Remove "Parent" tag to prevent repeat deserialization.
+				// See CapabilityDispatcher#deserializeNBT(NBTTagCompound).
 				capTag.removeTag( "Parent" );
 				
 				NBTTagCompound primaryTag;
@@ -182,52 +186,47 @@ public abstract class GunPartType<
 					// provided here could be the same as the bounden tag of copy target.
 					primaryTag = nbt.copy();
 					
-					// To ensure #syncAndUpdate() call will not crash on null
+					// To ensure #syncAndUpdate() call will not crash on null.
 					stack.setTagCompound( new NBTTagCompound() ); // TODO: static instance
 				}
 				else primaryTag = nbt;
 				
-				primary = ( C ) $this.fromTag( primaryTag );
-			}
-			else if ( stackTag != null )
-			{
-				// has-stackTag | no--capTag: should never happen
-				Dev.rememberToChangeOnRelease();
-				throw new RuntimeException( "has-stackTag | no--capTag: should never happen" );
-			}
-			else
-			{
-				// no--stackTag | no--capTag: {new ItemStack(...)}, {PacketBuffer#readItemStack()}
-				// We basically has no way to distinguish from these two cases. But it will work \
-				// fine if we simply deserialize and setup it with the compiled snapshot NBT. That \
-				// is because #readNBTShareTag(ItemStack, NBTTagCompound) will later be called for \
-				// the network packet case. The down side is that it will actually deserialize \
-				// twice for the network packet case.
-				final NBTTagCompound newStackTag = new NBTTagCompound();
-				newStackTag.setInteger( "i", new Random().nextInt() ); // TODO: better way to do this?
-				stack.setTagCompound( newStackTag );
-				// See GunPartWrapper#stackId()
-				
-				final NBTTagCompound primaryTag = $this.compiledSnapshotNBT.copy();
-				primary = ( C ) $this.deserializeContexted( primaryTag );
+				return finializer.apply( ( C ) $this.fromTag( primaryTag ) );
 			}
 			
-			final ICapabilityProvider wrapper = $this.newWrapper( primary, stack );
-			primary.syncAndUpdate();
-			return wrapper;
+			if ( stackTag != null )
+			{
+				// has-stackTag | no--capTag: should never happen.
+				Dev.dirtyMark();
+				throw new RuntimeException( "has-stackTag | no--capTag: should never happen" );
+			}
+			
+			// no--stackTag | no--capTag: {new ItemStack(...)}, {PacketBuffer#readItemStack()}
+			// We basically has no way to distinguish from these two cases. But it will work \
+			// fine if we simply deserialize and setup it with the compiled snapshot NBT. That \
+			// is because #readNBTShareTag(ItemStack, NBTTagCompound) will later be called for \
+			// the network packet case. The down side is that it will actually deserialize \
+			// twice for the network packet case.
+			final NBTTagCompound newStackTag = new NBTTagCompound();
+			newStackTag.setInteger( "i", new Random().nextInt() ); // TODO: better way to do this?
+			stack.setTagCompound( newStackTag );
+			// See GunPartWrapper#stackId().
+			
+			final NBTTagCompound primaryTag = $this.compiledSnapshotNBT.copy();
+			return finializer.apply( ( C ) $this.deserializeContexted( primaryTag ) );
 		}
 		
 		@Override
 		public void readNBTShareTag( ItemStack stack, NBTTagCompound nbt )
 		{
-			stack.setTagCompound( nbt ); // Copied from super
+			stack.setTagCompound( nbt ); // Copied from super.
 			
-			// See GunPartWrapper#syncNBTData()
+			// See GunPartWrapper#syncNBTData().
 			final NBTTagCompound primaryTag = nbt.getCompoundTag( "_" );
 			final IModule< ? > primary = GunPartType.this.fromTag( primaryTag );
 			
 			final C wrapper = GunPartType.this.getContexted( stack );
-			wrapper.setBase( primary, -1 ); // See GunPartWrapper#setBase(...)
+			wrapper.setBase( primary, -1 ); // See GunPartWrapper#setBase(...).
 			wrapper.syncAndUpdate();
 		}
 		
@@ -444,7 +443,7 @@ public abstract class GunPartType<
 		{
 			final ItemStack stack = new ItemStack( GunPartType.this.item );
 			final C wrapper = GunPartType.this.getContexted( stack );
-			wrapper.setBase( this, 0 ); // See ModuleWrapper#setBase(...)
+			wrapper.setBase( this, 0 ); // See ModuleWrapper#setBase(...).
 			return wrapper;
 		}
 		
@@ -456,13 +455,16 @@ public abstract class GunPartType<
 			@SideOnly( Side.CLIENT )
 			protected ER renderer;
 			
+			@SideOnly( Side.CLIENT )
+			protected Delegate< E > self;
+			
 			protected EquippedGunPart(
 				Supplier< ER > equippedRenderer,
 				EntityPlayer player,
 				EnumHand hand
 			) {
-//				if ( player.world.isRemote )
 				// TODO: This will create renderer on local server
+//				if ( player.world.isRemote )
 				MCWB.MOD.clientOnly( () -> this.renderer = equippedRenderer.get() );
 			}
 			
@@ -470,26 +472,29 @@ public abstract class GunPartType<
 			public C item() { return GunPart.this.self(); }
 			
 			@Override
-			public void tickInHand( EntityPlayer player, EnumHand hand ) {
-				if ( player.world.isRemote ) this.renderer.tickInHand( this.self(), hand );
+			public void tickInHand( EntityPlayer player, EnumHand hand )
+			{
+				if ( player.world.isRemote ) {
+					this.renderer.tickInHand( this.self.get(), hand );
+				}
 			}
 			
 			@Override
 			@SideOnly( Side.CLIENT )
 			public void prepareRenderInHandSP( EnumHand hand ) {
-				this.renderer.prepareRenderInHandSP( this.self(), hand );
+				this.renderer.prepareRenderInHandSP( this.self.get(), hand );
 			}
 			
 			@Override
 			@SideOnly( Side.CLIENT )
 			public boolean renderInHandSP( EnumHand hand ) {
-				return this.renderer.renderInHandSP( this.self(), hand );
+				return this.renderer.renderInHandSP( this.self.get(), hand );
 			}
 			
 			@Override
 			@SideOnly( Side.CLIENT )
 			public boolean onRenderSpecificHandSP( EnumHand hand ) {
-				return this.renderer.onRenderSpecificHandSP( this.self(), hand );
+				return this.renderer.onRenderSpecificHandSP( this.self.get(), hand );
 			}
 			
 			@Override
@@ -499,9 +504,18 @@ public abstract class GunPartType<
 			@Override
 			public String toString() { return "Equipped<" + GunPartType.this + ">"; }
 			
-			@SideOnly( Side.CLIENT )
-			@SuppressWarnings( "unchecked" )
-			protected final E self() { return ( E ) this; }
+//			@SideOnly( Side.CLIENT )
+//			@SuppressWarnings( "unchecked" )
+//			protected final E self() { return ( E ) this; }
 		}
+	}
+	
+	protected interface Delegate< E >
+	{
+		public E get();
+		
+		public void updateDelegate( E newDelegate );
+		
+		public void useLatestDelegate();
 	}
 }

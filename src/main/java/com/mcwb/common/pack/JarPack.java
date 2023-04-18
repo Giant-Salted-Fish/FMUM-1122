@@ -15,31 +15,36 @@ public class JarPack extends LocalPack
 	@Override
 	public void load()
 	{
-		// Load pack info first if has
+		// Load pack info first if has.
 		try ( ZipInputStream zipIn = new ZipInputStream( new FileInputStream( this.source ) ) )
 		{
 			final String infoFile = this.infoFile();
 			for ( ZipEntry e; ( e = zipIn.getNextEntry () ) != null; )
-				if ( e.getName().equals( infoFile ) )
-					this.setupInfoWith( new InputStreamReader( zipIn ) );
+			{
+				final boolean isInfoFile = e.getName().equals( infoFile );
+				if ( isInfoFile ) { this.setupInfoWith( new InputStreamReader( zipIn ) ); }
+			}
 		}
-		catch ( IOException e ) {
-			this.except( e, ERROR_LOADING_INFO, this.sourceName() + "/" + this.infoFile() );
+		catch ( IOException e )
+		{
+			final String filePath = this.sourceName() + "/" + this.infoFile();
+			this.logException( e, ERROR_LOADING_INFO, filePath );
 		}
 		
 		try ( ZipInputStream zipIn = new ZipInputStream( new FileInputStream( this.source ) ) )
 		{
-			for ( ZipEntry e; ( e = zipIn.getNextEntry () ) != null; )
+			for ( ZipEntry e; ( e = zipIn.getNextEntry() ) != null; )
 			{
-				if ( e.isDirectory() ) continue;
+				if ( e.isDirectory() ) { continue; }
 				
-				// Skip stuffs not in folder or in "assets/" folder
 				final String eName = e.getName();
 				final int i = eName.indexOf( '/' );
-				if ( i < 0 ) continue;
+				final boolean isInFolder = i != -1;
+				if ( !isInFolder ) { continue; }
 				
 				final String entry = eName.substring( 0, i );
-				if ( this.ignoreEntires.contains( entry ) ) continue;
+				final boolean isIgnoredFolder = this.ignoreEntires.contains( entry );
+				if ( isIgnoredFolder ) { continue; }
 				
 				final Supplier< String > sourceTrace = () -> this.sourceName() + "/" + eName;
 				try
@@ -53,14 +58,17 @@ public class JarPack extends LocalPack
 							sourceTrace
 						);
 					}
-					else if ( eName.endsWith( ".class" ) )
+					else if ( eName.endsWith( ".class" ) ) {
 						this.loadClassType( eName.replace( '/', '.' ) );
+					}
 				}
-				catch ( Exception ee ) { this.except( ee, ERROR_LOADING_TYPE, sourceTrace.get() ); }
+				catch ( Exception ee ) {
+					this.logException( ee, ERROR_LOADING_TYPE, sourceTrace.get() );
+				}
 			}
 		}
 		catch ( IOException e ) {
-			this.error( "An IO exception has occurred loading <%s>", this.sourceName() );
+			this.logError( "An IO exception has occurred loading <%s>", this.sourceName() );
 		}
 	}
 }

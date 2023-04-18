@@ -7,6 +7,8 @@ import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
@@ -22,6 +24,7 @@ import com.mcwb.common.ammo.JsonAmmoType;
 import com.mcwb.common.gun.JsonGunPartType;
 import com.mcwb.common.gun.JsonGunType;
 import com.mcwb.common.gun.JsonMagType;
+import com.mcwb.common.item.IItem;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.load.IMeshLoadSubscriber;
@@ -35,9 +38,8 @@ import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.OperationController;
 import com.mcwb.common.pack.FolderPack;
 import com.mcwb.common.pack.JarPack;
-import com.mcwb.common.pack.LocalPack;
-import com.mcwb.common.paintjob.JsonPaintjob;
 import com.mcwb.common.paintjob.IPaintjob;
+import com.mcwb.common.paintjob.JsonPaintjob;
 import com.mcwb.common.paintjob.Paintjob;
 import com.mcwb.common.player.PlayerPatch;
 import com.mcwb.common.tab.CreativeTab;
@@ -51,6 +53,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.Capability.IStorage;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
@@ -61,14 +64,14 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 /**
- * A weapon mod that provides highly customizable weapons
+ * A weapon mod that as a platform to supply highly customizable weapons.
  * 
  * @author Giant_Salted_Fish
  */
 @Mod(
-	modid = MCWB.ID,
-	name = MCWB.NAME,
-	version = MCWB.VERSION,
+	modid = MCWB.MODID,
+	name = MCWB.MOD_NAME,
+	version = MCWB.MOD_VERSION,
 	acceptedMinecraftVersions = "[1.12, 1.13)",
 	guiFactory = "com.mcwb.client.ConfigGuiFactory"
 //	, clientSideOnly = true
@@ -76,24 +79,14 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 public class MCWB extends URLClassLoader
 	implements IContentProvider, IAutowirePacketHandler, IAutowireLogger
 {
-	/**
-	 * Mod id
-	 */
-	public static final String ID = "mcwb";
+	public static final String MODID = "mcwb";
+	
+	public static final String MOD_NAME = "Minecraft Weapon Base";
+	
+	public static final String MOD_VERSION = "0.2.0-alpha";
 	
 	/**
-	 * A human friendly mod name
-	 */
-	public static final String NAME = "Minecraft Weapon Base";
-	
-	/**
-	 * Current mod version
-	 * TODO: update version before publish
-	 */
-	public static final String VERSION = "0.2.0-alpha";
-	
-	/**
-	 * Instantiate the mod instance by side to handle the side dependent content load
+	 * Mod instance based on physical side.
 	 */
 	public static final MCWB MOD;
 	static
@@ -114,23 +107,23 @@ public class MCWB extends URLClassLoader
 	public static MCWB instance() { return MOD; }
 	
 	/**
-	 * A default {@link Gson} parser to load types in content pack
+	 * Default json parser to load types in content pack.
 	 */
 	public static final Gson GSON = MOD.gsonBuilder().create();
 	
 	/**
-	 * Type loaders
+	 * Registered type loaders.
 	 */
 	public static final Registry< BuildableLoader< ? extends IMeta > >
 		TYPE_LOADERS = new Registry<>();
 	
 	/**
-	 * Default creative item tab
+	 * Default creative item tab for {@link MCWB}.
 	 */
-	public static final CreativeTab DEFAULT_TAB = new CreativeTab().build( ID, MOD );
+	public static final CreativeTab DEFAULT_TAB = new CreativeTab().build( MODID, MOD );
 	
 	/**
-	 * Items added into this tab will not be hidden from creative item tab
+	 * Items added into this tab will be hidden from creative mode item tab.
 	 */
 	public static final CreativeTab HIDE_TAB = new CreativeTab() {
 		@Override
@@ -138,35 +131,37 @@ public class MCWB extends URLClassLoader
 	}.build( "hide", MOD );
 	
 	/**
-	 * Loaded content packs
+	 * Loaded content packs.
 	 */
 	public static final Registry< IContentProvider > CONTENT_PROVIDERS = new Registry<>();
 	
 	/**
 	 * @see IAutowirePacketHandler
 	 */
-	public static final PacketHandler NET = new PacketHandler( ID );
+	public static final PacketHandler NET = new PacketHandler( MODID );
 	
 	/**
 	 * @see IAutowireLogger
 	 */
-	public static final Logger LOGGER = LogManager.getLogger( ID );
-	
-	// FIXME: Initialize this for pure server side, check this on server side independently?
-	public static int maxSlotCapacity; // TODO: why not directly refer it from mod config on server side?
+	public static final Logger LOGGER = LogManager.getLogger( MODID );
 	
 	/**
-	 * ".minecraft/" folder
+	 * Localized config from {@link ModConfig#maxSlotCapacity}.
+	 */
+	public static int maxSlotCapacity;
+	
+	/**
+	 * A reference to ".minecraft/" folder.
 	 */
 	protected final File gameDir = Loader.instance().getConfigDir().getParentFile();
 	
 	/**
-	 * Buffered sounds
+	 * Loaded sound pool.
 	 */
 	final HashMap< String, SoundEvent > soundPool = new HashMap<>();
 	
 	/**
-	 * Registered subscribers for post load callback
+	 * Registered subscribers for post load callback.
 	 */
 	private final LinkedList< IPostLoadSubscriber > postLoadSubscribers = new LinkedList<>();
 	
@@ -177,61 +172,59 @@ public class MCWB extends URLClassLoader
 	@EventHandler
 	public final void onPreInit( FMLPreInitializationEvent evt )
 	{
-		// Info load start
-		this.info( "mcwb.on_pre_init" );
+		// Info load start.
+		this.logInfo( "mcwb.on_pre_init" );
 		
-		// Prepare pack load
+		// Prepare pack load.
 		this.preLoad();
 		
-		// Load content packs
+		// Load content packs.
 		this.load();
 		
-		this.info( "mcwb.pre_init_complete" );
+		this.logInfo( "mcwb.pre_init_complete" );
 	}
 	
 	@EventHandler
 	public final void onInit( FMLInitializationEvent evt )
 	{
-		this.info( "mcwb.on_init" );
+		this.logInfo( "mcwb.on_init" );
 		
-		// Fire load callback
+		// Fire load callback.
 		this.postLoadSubscribers.forEach( IPostLoadSubscriber::onPostLoad );
 		this.postLoadSubscribers.clear();
 		
 		NET.regisPackets();
 		
-		this.info( "mcwb.init_complete" );
+		this.logInfo( "mcwb.init_complete" );
 		
-		// After initialization, info user all the packs being loaded
-		this.info( "mcwb.total_loaded_packs", "" + CONTENT_PROVIDERS.size() );
-		CONTENT_PROVIDERS.values().forEach(
-			p -> this.info(
-				"mcwb.info_loaded_pack",
-				this.format( p.name() ),
-				this.format( p.author() )
-			)
-		);
+		// After initialization, info user all the packs being loaded.
+		this.logInfo( "mcwb.total_loaded_packs", "" + CONTENT_PROVIDERS.size() );
+		CONTENT_PROVIDERS.values().forEach( pack -> {
+			final String packName = this.format( pack.name() );
+			final String packAuthor = this.format( pack.author() );
+			this.logInfo( "mcwb.info_loaded_pack", packName, packAuthor );
+		} );
 	}
 	
 	@EventHandler
 	public final void onPostInit( FMLPostInitializationEvent evt )
 	{
-		this.info( "mcwb.on_post_init" );
+		this.logInfo( "mcwb.on_post_init" );
 		
-		// may add possibility to register packets for packs?
+		// TODO: Whether to support packets registration for packs?
 //		NET.postInit();
 		
-		this.info( "mcwb.post_init_complete" );
+		this.logInfo( "mcwb.post_init_complete" );
 	}
 	
 	@Override
 	public void preLoad()
 	{
-		// Register capabilities
-		this.regisCapability( Object.class ); // See IMeta#CONTEXTED
+		// Register capabilities.
+		this.regisCapability( IItem.class ); // See ItemType#CONTEXTED.
 		this.regisCapability( PlayerPatch.class );
 		
-		// Register meta loaders
+		// Register meta loaders.
 		TYPE_LOADERS.regis( CreativeTab.LOADER );
 		TYPE_LOADERS.regis( JsonGunPartType.LOADER );
 		TYPE_LOADERS.regis( JsonGunType.LOADER );
@@ -244,53 +237,57 @@ public class MCWB extends URLClassLoader
 	@Override
 	public void load()
 	{
-		// Check content pack folder
+		// Check content pack folder.
 		// TODO: if load packs from mods dir then allow the player to disable content pack folder
-		final File packDir = new File( this.gameDir, ID );
+		final File packDir = new File( this.gameDir, MODID );
 		if ( !packDir.exists() )
 		{
 			packDir.mkdirs();
-			this.info( "mcwb.pack_dir_created", ID );
+			this.logInfo( "mcwb.pack_dir_created", MODID );
 		}
 		
-		// Compile a regex to match the supported content pack file types
+		// Compile a regex to match the supported content pack file types.
 		// TODO: check if zip is supported
 		final Pattern jarRegex = Pattern.compile( "(.+)\\.(zip|jar)$" );
 		
-		// Find all content packs and load them
+		// Find all content packs and load them.
 		final HashSet< IContentProvider > providers = new HashSet<>();
+		final Consumer< IContentProvider > addPack = pack -> {
+			providers.add( pack );
+			this.logInfo( "mcwb.detect_content_pack", pack.sourceName() );
+		};
 		for ( final File file : packDir.listFiles() )
 		{
-			LocalPack pack;
-			if ( file.isDirectory() )
-				pack = new FolderPack( file );
-			else if ( jarRegex.matcher( file.getName() ).matches() )
-				pack = new JarPack( file );
-			else
+			final boolean isFolderPack = file.isDirectory();
+			if ( isFolderPack )
 			{
-				this.warn(
-					"mcwb.unknown_pack_file_type",
-					packDir.getName() + "/" + file.getName()
-				);
+				addPack.accept( new FolderPack( file ) );
 				continue;
 			}
 			
-			providers.add( pack );
-			this.info( "mcwb.detect_content_pack", file.getName() );
+			final boolean isJarPack = jarRegex.matcher( file.getName() ).matches();
+			if ( isJarPack )
+			{
+				addPack.accept( new JarPack( file ) );
+				continue;
+			}
+			
+			final String filePath = packDir.getName() + "/" + file.getName();
+			this.logError( "mcwb.unknown_pack_file_type", filePath );
 		}
 		
 		// TODO: Post provider registry event to get providers from other mods?
 //		MinecraftForge.EVENT_BUS.post( new ContentProviderRegistryEvent( providers ) );
 		
-		// Let content packs register resource domains and reload Minecraft resources
+		// Let content packs register resource domains and reload Minecraft resources.
 		providers.forEach( IContentProvider::preLoad );
 		this.reloadResources(); // TODO: check if it works without this
 		
 		// Load content packs!
-		providers.forEach( p -> {
-			this.info( "mcwb.load_content_pack", p.sourceName() );
-			p.load();
-			CONTENT_PROVIDERS.regis( p );
+		providers.forEach( pack -> {
+			this.logInfo( "mcwb.load_content_pack", pack.sourceName() );
+			pack.load();
+			CONTENT_PROVIDERS.regis( pack );
 		} );
 	}
 	
@@ -298,41 +295,39 @@ public class MCWB extends URLClassLoader
 	{
 		try { this.addURL( file.toURI().toURL() ); }
 		catch ( MalformedURLException e ) {
-			this.except( e, "mcwb.error_adding_classpath", file.getName() );
+			this.logException( e, "mcwb.error_adding_classpath", file.getName() );
 		}
 	}
 	
 	public final < T > void regisCapability( Class< T > capabilityClass )
 	{
-		CapabilityManager.INSTANCE.register(
-			capabilityClass,
-			new Capability.IStorage< T >()
-			{
-				@Nullable
-				@Override
-				public NBTBase writeNBT( Capability< T > capability, T instance, EnumFacing side ) {
-					return null;
-				}
-				
-				@Override
-				public void readNBT(
-					Capability< T > capability,
-					T instance,
-					EnumFacing side,
-					NBTBase nbt
-				) { }
-			},
-			() -> null
-		);
+		final IStorage< T > defaultSerializer = new Capability.IStorage< T >()
+		{
+			@Nullable
+			@Override
+			public NBTBase writeNBT( Capability< T > capability, T instance, EnumFacing side ) {
+				return null;
+			}
+			
+			@Override
+			public void readNBT(
+				Capability< T > capability,
+				T instance,
+				EnumFacing side,
+				NBTBase nbt
+			) { }
+		};
+		final Callable< T > defaultFactory = () -> null;
+		CapabilityManager.INSTANCE.register( capabilityClass, defaultSerializer, defaultFactory );
 	}
 	
 	@Override
-	public void regis( IPostLoadSubscriber subscriber ) {
+	public void regisPostLoadSubscriber( IPostLoadSubscriber subscriber ) {
 		this.postLoadSubscribers.add( subscriber );
 	}
 	
 	@Override
-	public void regis( IMeshLoadSubscriber subscriber ) { }
+	public void regisMeshLoadSubscriber( IMeshLoadSubscriber subscriber ) { }
 	
 	@Override
 	public SoundEvent loadSound( String path )
@@ -364,22 +359,22 @@ public class MCWB extends URLClassLoader
 	public String author() { return "mcwb.author"; }
 	
 	@Override
-	public String sourceName() { return NAME; }
+	public String sourceName() { return MOD_NAME; }
 	
 	@Override
-	public String toString() { return ID; }
+	public String toString() { return MODID; }
 	
 	protected void regisSideDependentLoaders()
 	{
 		// Key binds is client only. But to avoid the errors when it is absent, set a loader that \
 		// simply does nothing on load.
-		TYPE_LOADERS.regis( new BuildableLoader<>(
-			"key_bind", json -> ( name, provider ) -> null
-		) );
+		TYPE_LOADERS.regis(
+			new BuildableLoader<>( "key_bind", json -> ( name, provider ) -> null )
+		);
 	}
 	
 	/**
-	 * client only to reload resources
+	 * Client only to reload resources.
 	 * 
 	 * TODO: check if needed server side to load languages
 	 */
@@ -415,8 +410,9 @@ public class MCWB extends URLClassLoader
 				: Vec3f.parse( json.getAsString() );
 		};
 		final JsonDeserializer< AngleAxis4f > angleAxisAdapter = ( json, typeOfT, context ) -> {
-			if ( !json.isJsonArray() )
+			if ( !json.isJsonArray() ) {
 				return innerParser.fromJson( json, AngleAxis4f.class );
+			}
 			
 			final JsonArray arr = json.getAsJsonArray();
 			final float f0 = arr.get( 0 ).getAsFloat();

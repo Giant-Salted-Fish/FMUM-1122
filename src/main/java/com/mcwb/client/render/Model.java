@@ -40,9 +40,7 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 	
 	public Model() { }
 	
-	/**
-	 * For convenience
-	 */
+	// For convenience.
 	public Model( String mesh, float scale, boolean tbObjAdapt )
 	{
 		this.meshPath = mesh;
@@ -54,7 +52,7 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 	@Override
 	public Object build( String path, IContentProvider provider )
 	{
-		provider.regis( ( IMeshLoadSubscriber ) () -> this.onMeshLoad( provider ) );
+		provider.regisMeshLoadSubscriber( ( IMeshLoadSubscriber ) () -> this.onMeshLoad( provider ) );
 		return this;
 	}
 	
@@ -80,7 +78,7 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 		);
 	}
 	
-	/// For glow stuff ///
+	/// *** For glow stuff. *** ///
 	private static float
 		lightmapLastX = 0F,
 		lightmapLastY = 0F;
@@ -88,7 +86,7 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 	private static int glowStack = 0;  // TODO: maybe avoid if?
 	
 	/**
-	 * Call {@link #glowOn(float)} with {@code 1F}
+	 * Call {@link #glowOn(float)} with {@code 1F}.
 	 */
 	public static void glowOn() { glowOn( 1F ); }
 	
@@ -96,44 +94,47 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 	 * Models rendered after this call will be glowed up. Call {@link #glowOff()} after you complete
 	 * light stuff render.
 	 * 
-	 * @param glowFactor Range from {@code 0F-1F} to control how much to glow
+	 * @param glowFactor Range from {@code 0F-1F} to control how much to glow.
 	 */
 	public static void glowOn( float glowFactor )
 	{
-		// Only glow when it is first time calling
-		if ( glowStack++ != 0 ) return;
-		
-		// Push light bits and record previous brightness
-		GL11.glPushAttrib( GL11.GL_LIGHTING_BIT );
-		lightmapLastX = OpenGlHelper.lastBrightnessX;
-		lightmapLastY = OpenGlHelper.lastBrightnessY;
-		
-		// Append extra brightness for glow
-		final float extraBrightness = glowFactor * 240F;
-		OpenGlHelper.setLightmapTextureCoords(
-			OpenGlHelper.lightmapTexUnit,
-			Math.min( lightmapLastX + extraBrightness, 240F ),
-			Math.min( lightmapLastY + extraBrightness, 240F )
-		);
+		final boolean firstPush = glowStack++ == 0;
+		if ( firstPush )
+		{
+			// Push light bits and record previous brightness.
+			GL11.glPushAttrib( GL11.GL_LIGHTING_BIT );
+			lightmapLastX = OpenGlHelper.lastBrightnessX;
+			lightmapLastY = OpenGlHelper.lastBrightnessY;
+			
+			// Append extra brightness for glow.
+			final float extraBrightness = glowFactor * 240F;
+			OpenGlHelper.setLightmapTextureCoords(
+				OpenGlHelper.lightmapTexUnit,
+				Math.min( lightmapLastX + extraBrightness, 240F ),
+				Math.min( lightmapLastY + extraBrightness, 240F )
+			);
+		}
 	}
 	
 	/**
-	 * Pair call for {@link #glowOn(float)}
+	 * Pair call for {@link #glowOn(float)}.
 	 */
 	public static void glowOff()
 	{
-		if ( --glowStack != 0 ) return;
-		
-		OpenGlHelper.setLightmapTextureCoords(
-			OpenGlHelper.lightmapTexUnit,
-			lightmapLastX, lightmapLastY
-		);
-		GL11.glPopAttrib();
+		final boolean lastPop = --glowStack != 0;
+		if ( lastPop )
+		{
+			OpenGlHelper.setLightmapTextureCoords(
+				OpenGlHelper.lightmapTexUnit,
+				lightmapLastX, lightmapLastY
+			);
+			GL11.glPopAttrib();
+		}
 	}
 	
 	private static final FloatBuffer MAT_BUF = BufferUtils.createFloatBuffer( 16 );
 	/**
-	 * Not thread safe!
+	 * THIS IS NOT THREAD SAFE!
 	 */
 	protected static void glMultMatrix( Mat4f mat ) // TODO: synchronize?
 	{

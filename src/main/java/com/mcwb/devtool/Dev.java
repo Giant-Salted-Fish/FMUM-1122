@@ -31,10 +31,10 @@ import net.minecraftforge.fml.relauncher.Side;
  * 
  * @author Giant_Salted_Fish
  */
-@EventBusSubscriber( modid = MCWB.ID, value = Side.CLIENT )
+@EventBusSubscriber( modid = MCWB.MODID, value = Side.CLIENT )
 public class Dev implements IAutowirePlayerChat
 {
-	public static int rememberToChangeOnRelease() { return 0; }
+	public static int dirtyMark() { return 0; }
 	
 	public static final Consumer< Boolean > DEBUG_BOX = new Consumer< Boolean >()
 	{
@@ -45,8 +45,9 @@ public class Dev implements IAutowirePlayerChat
 		@Override
 		public void accept( Boolean useDefaultTexture )
 		{
-			if ( useDefaultTexture )
+			if ( useDefaultTexture ) {
 				MCWBClient.MOD.bindTexture( this.texture );
+			}
 			this.renderer.render();
 		}
 	};

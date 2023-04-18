@@ -112,7 +112,7 @@ public abstract class MagModel<
 				glMultMatrix( mat );
 				mat.release();
 				
-				// Render ammo first as mag itself can be transparent
+				// Render ammo first as mag itself can be transparent.
 				final int ammoCount = contexted.ammoCount();
 				final boolean flipPosX = contexted.ammoCount() % 2 != 0;
 				final int size = Math.min( ammoCount, MagModel.this.ammoPos.length );
@@ -133,7 +133,7 @@ public abstract class MagModel<
 				contexted.modifyState().doRecommendedRender( contexted.texture(), () -> {
 					GL11.glPushMatrix();
 					
-					// Follower first for the same reason
+					// Follower first for the same reason.
 					final int idx = Math.min( ammoCount, MagModel.this.followerPos.length - 1 );
 					glTranslatef( MagModel.this.followerPos[ idx ] );
 					glRotatef( MagModel.this.followerRot[ idx ] );

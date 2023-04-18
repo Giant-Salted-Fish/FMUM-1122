@@ -37,7 +37,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	protected transient IModifyState modifyState = IModifyState.NOT_SELECTED;
 	
 	/**
-	 * Bounden NBT used for data persistence
+	 * Bounden NBT used for data persistence.
 	 */
 	protected transient NBTTagCompound nbt;
 	
@@ -55,7 +55,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	 * fields of the sub-class may not have been properly initialized. Hence it needs to be delay
 	 * after the constructor finishes its work.
 	 * 
-	 * @param unused To distinguish this from {@link #Module()}
+	 * @param unused To distinguish this from {@link #Module()}.
 	 */
 	protected Module( boolean unused ) { }
 	
@@ -93,7 +93,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	public IPreviewPredicate tryInstall( int islot, IModule< ? > module )
 	{
 		final IModuleSlot slot = this.getSlot( islot );
-		if ( !slot.isAllowed( module ) ) return IPreviewPredicate.NO_PREVIEW;
+		if ( !slot.isAllowed( module ) ) { return IPreviewPredicate.NO_PREVIEW; }
 		
 		final int capacity = Math.min( MCWB.maxSlotCapacity, slot.capacity() );
 		if ( this.getInstalledCount( islot ) > capacity )
@@ -104,7 +104,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 		// TODO: check layer limitation
 		
 		final Supplier< IPreviewPredicate > action = () -> {
-			// Do not delay actual installation to #index() as it may not be called by outer
+			// Do not delay actual installation to #index() as it may not be called by outer.
 			final int idx = this.install( islot, module );
 			return () -> idx;
 		};
@@ -129,18 +129,18 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 		final T mod = ( T ) module.onBeingInstalled();
 		mod.setBase( this, slot );
 		
-		// Update installed list
+		// Update installed list.
 		final int idx = this.getIdx( slot + 1 );
 		this.installed.add( idx, mod );
 		
-		// Update NBT tag
+		// Update NBT tag.
 		final NBTTagList modList = this.nbt.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
 		final NBTTagCompound tarTag = mod.serializeNBT();
 		modList.appendTag( tarTag );
 		for ( int i = modList.tagCount(); --i > idx; modList.set( i, modList.get( i - 1 ) ) );
 		modList.set( idx, tarTag );
 		
-		// Update indices
+		// Update indices.
 		final int[] data = this.nbt.getIntArray( DATA_TAG );
 		for ( int islot = slot; islot++ < this.indices.length; )
 		{
@@ -155,15 +155,15 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	@Override
 	public IModule< ? > remove( int slot, int idx )
 	{
-		// Update installed list
+		// Update installed list.
 		final int i = this.getIdx( slot ) + idx;
 		final T removed = this.installed.remove( i );
 		
-		// Update NBT tag
+		// Update NBT tag.
 		final NBTTagList modList = this.nbt.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
 		modList.removeTag( i );
 		
-		// Update indices
+		// Update indices.
 		final int[] data = this.nbt.getIntArray( DATA_TAG );
 		while ( slot++ < this.indices.length )
 		{
@@ -214,8 +214,9 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	public IModule< ? > getInstalled( byte[] loc, int locLen )
 	{
 		IModule< ? > mod = this;
-		for ( int i = 0; i < locLen; i += 2 )
+		for ( int i = 0; i < locLen; i += 2 ) {
 			mod = mod.getInstalled( 0xFF & loc[ i ], 0xFF & loc[ i + 1 ] );
+		}
 		return mod;
 	}
 	
@@ -247,7 +248,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	@Override
 	public boolean tryOffer( int paintjob, EntityPlayer player )
 	{
-		// TODO:  validate material
+		// TODO: validate material
 		return player.capabilities.isCreativeMode;
 	}
 	
@@ -255,6 +256,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	@SideOnly( Side.CLIENT )
 	public boolean tryOfferOrNotifyWhy( int paintjob, EntityPlayer player )
 	{
+		// TODO: proper material offer
 		return player.capabilities.isCreativeMode;
 	}
 	
@@ -271,15 +273,16 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	@SuppressWarnings( "unchecked" )
 	public void deserializeNBT( NBTTagCompound nbt )
 	{
-		// Read paintjob
+		// Read paintjob.
 		final int data[] = nbt.getIntArray( DATA_TAG );
 		this.paintjob = ( short ) ( data[ 0 ] >>> 16 );
 		
-		// Read install indices
-		for ( int i = this.indices.length; i > 0; --i )
+		// Read install indices.
+		for ( int i = this.indices.length; i > 0; --i ) {
 			this.setIdx( i, this.getIdx( data, i ) );
+		}
 		
-		// Read installed modules
+		// Read installed modules.
 		this.installed.clear();
 		final NBTTagList modList = nbt.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
 		for ( int i = 0, size = modList.tagCount(), slot = 0; i < size; ++i )
@@ -287,12 +290,12 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 			final NBTTagCompound modTag = modList.getCompoundTagAt( i );
 			final IModule< ? > module = this.fromTag( modTag );
 			
-			while ( i >= this.getIdx( slot + 1 ) ) ++slot;
+			while ( i >= this.getIdx( slot + 1 ) ) { ++slot; }
 			module.setBase( this, slot );
 			this.installed.add( ( T ) module );
 		}
 		
-		this.nbt = nbt; // Do not forget to bind to the given tag
+		this.nbt = nbt; // Do not forget to bind to the given tag.
 	}
 	
 	protected int dataSize() { return 1 + ( this.indices.length + 3 ) / 4; }
@@ -332,7 +335,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 		final int islot = slot - 1;
 		final int i = 1 + islot / 4;
 		final int offset = ( islot % 4 ) * 8;
-		data[ i ] &= ~( 0xFF << offset );       // Clear value
-		data[ i ] |= ( 0xFF & val ) << offset;  // Set value
+		data[ i ] &= ~( 0xFF << offset );       // Clear value.
+		data[ i ] |= ( 0xFF & val ) << offset;  // Set value.
 	}
 }

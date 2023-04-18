@@ -24,9 +24,6 @@ public final class DynamicPos
 	 */
 	public final Vec3f prevPos = new Vec3f();
 	
-	/**
-	 * Current velocity of the system
-	 */
 	public final Vec3f velocity = new Vec3f();
 	
 	/**
@@ -39,16 +36,17 @@ public final class DynamicPos
 		this.prevPos.set( this.curPos );
 		this.velocity.scale( dampingFactor );
 		
-		// For spring we have: f=k*x
+		// For spring we have: f=k*x.
 		final Vec3f force = this.vec;
 		force.set( this.tarPos );
 		force.sub( this.curPos );
 		
 		final float forceSquared = force.lengthSquared();
-		if ( forceSquared > maxForce * maxForce )
+		if ( forceSquared > maxForce * maxForce ) {
 			force.scale( maxForce / MathHelper.sqrt( forceSquared ) );
+		}
 		
-		// Assume that mess=1 then acceleration equals force
+		// Assume that mess=1 then acceleration equals force.
 		force.scale( forceMult );
 		this.velocity.add( force );
 		this.curPos.add( this.velocity );
@@ -58,7 +56,7 @@ public final class DynamicPos
 	 * Force current position to target position. When factor = 0, it simply keeps the current
 	 * position unchanged. When factor = 1, the current position will be set to target position.
 	 * 
-	 * @param factor Force factor
+	 * @param factor Force factor.
 	 */
 	public void approachTarPos( float factor )
 	{

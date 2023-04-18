@@ -15,12 +15,14 @@ import net.minecraft.util.math.MathHelper;
 public final class Mat4f extends Matrix4f implements IReleasable
 {
 	private static final ObjPool< Mat4f > POOL = new ObjPool<>( Mat4f::new );
-	private static int count = Dev.rememberToChangeOnRelease();
+	private static int count = Dev.dirtyMark();
 	
 	// FIXME: count
 	public static Mat4f locate()
 	{
-		if ( ++count > 64 ) MCWB.MOD.error( "count mat over 64! could be something wrong!" );
+		if ( ++count > 64 ) {
+			MCWB.MOD.logError( "count mat over 64! could be something wrong!" );
+		}
 		return POOL.poll();
 	}
 	
@@ -90,18 +92,18 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	}
 	
 	/**
-	 * Axis need to be normalized
+	 * Axis need to be normalized.
 	 * 
-	 * @param angle The angle to rotate about the axis in degrees
+	 * @param angle The angle to rotate about the axis in degrees.
 	 */
 	public void rotate( float angle, Vec3f axis ) {
 		this.rotate( angle, axis.x, axis.y, axis.z );
 	}
 	
 	/**
-	 * Axis need to be normalized
+	 * Axis need to be normalized.
 	 * 
-	 * @param angle The angle to rotate about the axis in degrees
+	 * @param angle The angle to rotate about the axis in degrees.
 	 */
 	public void rotate( float angle, float ax, float ay, float az )
 	{
@@ -147,7 +149,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	}
 	
 	/**
-	 * @param angle The angle to rotate about the X axis in degrees
+	 * @param angle The angle to rotate about the X axis in degrees.
 	 */
 	public void rotateX( float angle )
 	{
@@ -171,7 +173,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	}
 	
 	/**
-	 * @param angle The angle to rotate about the Y axis in degrees
+	 * @param angle The angle to rotate about the Y axis in degrees.
 	 */
 	public void rotateY( float angle )
 	{
@@ -195,7 +197,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	}
 	
 	/**
-	 * @param angle The angle to rotate about the Z axis in degrees
+	 * @param angle The angle to rotate about the Z axis in degrees.
 	 */
 	public void rotateZ( float angle )
 	{
@@ -219,11 +221,11 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	}
 	
 	/**
-	 * Equivalent as calling {@link GL11#glRotatef(float, float, float, float)} in same order
+	 * Equivalent as calling {@link GL11#glRotatef(float, float, float, float)} in same order.
 	 * 
-	 * @param x The angle to rotate about the X axis in degrees
-	 * @param y The angle to rotate about the Y axis in degrees
-	 * @param z The angle to rotate about the Z axis in degrees
+	 * @param x The angle to rotate about the X axis in degrees.
+	 * @param y The angle to rotate about the Y axis in degrees.
+	 * @param z The angle to rotate about the Z axis in degrees.
 	 */
 	public void eulerRotateYXZ( float x, float y, float z )
 	{
@@ -233,9 +235,9 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	}
 	
 	/**
-	 * Equivalent as calling {@link GL11#glRotatef(float, float, float, float)} in same order
+	 * Equivalent as calling {@link GL11#glRotatef(float, float, float, float)} in same order.
 	 * 
-	 * @param angle The angle to rotate about the three axis in degrees
+	 * @param angle The angle to rotate about the three axis in degrees.
 	 */
 	public void eulerRotateYXZ( Vec3f angle )
 	{
@@ -275,12 +277,12 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	}
 	
 	/**
-	 * Obtain euler angle applied in YXZ order in degrees
+	 * Obtain euler angle applied in YXZ order in degrees.
 	 * 
 	 * @note
 	 *     {@link #scale(Vec3f)} should not be applied to this matrix. Otherwise, the angle
 	 *     obtained via this method could be wrong.
-	 * @param dst Angle will be saved into this vector in degrees
+	 * @param dst Angle will be saved into this vector in degrees.
 	 */
 	public final void getEulerAngleYXZ( Vec3f dst )
 	{
@@ -292,7 +294,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	}
 	
 	/**
-	 * @return Z euler angle in YXZ order in degrees
+	 * @return Z euler angle in YXZ order in degrees.
 	 */
 	public final float getEulerAngleZ() {
 		return Util.TO_DEGREES * ( float ) Math.atan2( this.m10, this.m11 );
@@ -309,7 +311,9 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	@Override
 	public void release()
 	{
-		if ( --count < 0 ) MCWB.MOD.error( "count mat below 0! could be something wrong!" );
+		if ( --count < 0 ) {
+			MCWB.MOD.logError( "count mat below 0! could be something wrong!" );
+		}
 		POOL.back( this );
 	}
 }

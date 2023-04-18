@@ -42,7 +42,7 @@ public interface IOperation
 	public default float getProgress( float smoother ) { return 1F; }
 	
 	/**
-	 * Prepare for the execution
+	 * Prepare for the execution.
 	 */
 	public default IOperation launch( EntityPlayer player ) { return this; }
 	
@@ -59,12 +59,12 @@ public interface IOperation
 	 * <p> In default, your implementation should guarantee that this method is always called when
 	 * this operation is left for execution. </p>
 	 * 
-	 * @return {@link #NONE} if execution is aborted
+	 * @return {@link #NONE} if execution is aborted.
 	 */
 	public default IOperation terminate( EntityPlayer player ) { return NONE; }
 	
 	/**
-	 * Tick this operation
+	 * Tick this operation.
 	 * 
 	 * @return {@link #NONE} if this operation has complete. {@code this} otherwise.
 	 */
@@ -75,26 +75,26 @@ public interface IOperation
 	 * You can call {@link IOperation#launch(EntityPlayer)} on the new operation if this operation
 	 * should give up its execution and let new operation to run.
 	 * 
-	 * @param op New operation that requests to launch
-	 * @return {@link IOperation} that should be executed after this call
+	 * @param op New operation that requests to launch.
+	 * @return {@link IOperation} that should be executed after this call.
 	 */
 	public default IOperation onOtherTryLaunch( IOperation op, EntityPlayer player ) {
 		return op.launch( player );
 	}
 	
 	/**
-	 * Called when the item in player's main hand has changed
+	 * Called when the item in player's main hand has changed.
 	 * 
-	 * @return {@link #NONE} if this operation should terminate on item switch
+	 * @return {@link #NONE} if this operation should terminate on item switch.
 	 */
 	public default IOperation onItemChange( IEquippedItem< ? > newEquipped, EntityPlayer player ) {
 		return this.terminate( player );
 	}
 	
 	/**
-	 * Called when the corresponding stack of the current item has been updated
+	 * Called when the corresponding stack of the current item has been updated.
 	 * 
-	 * @return {@link #NONE} if this operation should terminate on stack update
+	 * @return {@link #NONE} if this operation should terminate on stack update.
 	 */
 	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player );
 }

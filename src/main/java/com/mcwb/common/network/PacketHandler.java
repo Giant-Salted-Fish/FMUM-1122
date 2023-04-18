@@ -8,9 +8,9 @@ import net.minecraftforge.fml.relauncher.Side;
 public final class PacketHandler extends SimpleNetworkWrapper
 {
 	/**
-	 * Count for registered packets to help assign discriminator
+	 * Count for registered packets to help assign discriminator.
 	 */
-	private int count = 0;
+	private int discriminator = 0;
 	
 	public PacketHandler( String channel ) { super( channel ); }
 	
@@ -36,11 +36,8 @@ public final class PacketHandler extends SimpleNetworkWrapper
 	
 	private void regis( Class< ? extends IPacket > packetClass, Side handleInSide )
 	{
-		this.registerMessage(
-			handleInSide == Side.SERVER ? S_HANDLER : C_HANDLER,
-			packetClass,
-			this.count++,
-			handleInSide
-		);
+		final boolean isServerSide = handleInSide == Side.SERVER;
+		final IMessageHandler< IPacket, IMessage > handler = isServerSide ? S_HANDLER : C_HANDLER;
+		this.registerMessage( handler, packetClass, this.discriminator++, handleInSide );
 	}
 }

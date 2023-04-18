@@ -13,9 +13,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface IMeshLoadSubscriber
 {
 	/**
-	 * Called on world load to load the meshes
+	 * Called on world load to load the meshes.
 	 * 
-	 * @see IContentProvider#regis(IMeshLoadSubscriber)
+	 * @see IContentProvider#regisMeshLoadSubscriber(IMeshLoadSubscriber)
 	 */
 	@SideOnly( Side.CLIENT )
 	public void onMeshLoad() throws Exception;

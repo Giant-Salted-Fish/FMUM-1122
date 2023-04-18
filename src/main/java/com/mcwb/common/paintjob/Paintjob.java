@@ -31,7 +31,7 @@ public class Paintjob extends TexturedMeta implements IPaintjob
 	public ResourceLocation texture() { return this.texture; }
 	
 	@Override
-	protected IMeta typer() { return () -> "PAINTJOB"; }
+	protected IMeta descriptor() { return () -> "PAINTJOB"; }
 	
 	// TODO: paintjob material
 	public static class PaintjobMaterial

@@ -16,7 +16,7 @@ public interface ICreativeTab extends IMeta
 	 * Called when an item requires to settle in this tab. Can be used to implement classical Flan's
 	 * Mod creative tab which its icon changes among the items in it through time.
 	 * 
-	 * @param item Item that has settled in
+	 * @param item Item that settled in.
 	 */
 	public default void itemSettledIn( IItemType item ) { }
 }
