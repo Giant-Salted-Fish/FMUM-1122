@@ -1,11 +1,11 @@
 package com.mcwb.client.player;
 
-import com.mcwb.common.IAutowirePacketHandler;
+import java.util.function.Consumer;
+
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.Operation;
-import com.mcwb.util.Animation;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -13,32 +13,33 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
 public abstract class OperationClient< T extends IEquippedItem< ? > > extends Operation< T >
-	implements IAutowirePacketHandler
 {
-	protected final Animation animation;
+	protected final Runnable launchCallback;
+	protected final Consumer< T > ternimateCallback;
 	
 	public OperationClient(
 		T equipped,
 		IOperationController controller,
-		Animation animtion
+		Runnable launchCallback,
+		Consumer< T > ternimateCallback
 	) {
 		super( equipped, controller );
 		
-		this.animation = animtion;
+		this.launchCallback = launchCallback;
+		this.ternimateCallback = ternimateCallback;
 	}
 	
 	@Override
 	public IOperation launch( EntityPlayer player )
 	{
-		this.equipped.animator().playAnimation( this.animation );
+		this.launchCallback.run();
 		return this;
 	}
 	
 	@Override
 	public IOperation terminate( EntityPlayer player )
 	{
-//		this.sendToServer( message );
-		this.equipped.animator().playAnimation( Animation.NONE );
+		this.ternimateCallback.accept( this.equipped );
 		return NONE;
 	}
 }

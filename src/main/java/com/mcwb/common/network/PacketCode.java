@@ -1,8 +1,8 @@
 package com.mcwb.common.network;
 
-import com.mcwb.common.gun.IEquippedMag;
+import com.mcwb.common.gun.IEquippedGun;
 import com.mcwb.common.item.IEquippedItem;
-import com.mcwb.common.player.OpUnloadAmmo;
+import com.mcwb.common.player.OpUnloadMag;
 import com.mcwb.common.player.PlayerPatch;
 
 import io.netty.buffer.ByteBuf;
@@ -51,7 +51,7 @@ public final class PacketCode implements IPacket
 		protected abstract void handle( EntityPlayerMP player );
 	}
 	
-	protected Code code;
+	private Code code;
 	
 	public PacketCode() { }
 	

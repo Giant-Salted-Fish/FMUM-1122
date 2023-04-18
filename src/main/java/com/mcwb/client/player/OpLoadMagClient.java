@@ -1,5 +1,7 @@
 package com.mcwb.client.player;
 
+import java.util.function.Consumer;
+
 import com.mcwb.common.gun.IEquippedGun;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.gun.IMag;
@@ -8,7 +10,6 @@ import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.IOperationController;
-import com.mcwb.util.Animation;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -24,8 +25,9 @@ public class OpLoadMagClient extends OperationClient< IEquippedGun< ? > >
 	public OpLoadMagClient(
 		IEquippedGun< ? > gun,
 		IOperationController controller,
-		Animation animtion
-	) { super( gun, controller, animtion ); }
+		Runnable launchCallback,
+		Consumer< IEquippedGun< ? > > ternimateCallback
+	) { super( gun, controller, launchCallback, ternimateCallback ); }
 	
 	@Override
 	public IOperation launch( EntityPlayer player )
@@ -50,24 +52,23 @@ public class OpLoadMagClient extends OperationClient< IEquippedGun< ? > >
 	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
 	{
 		this.equipped = ( IEquippedGun< ? > ) newEquipped;
-		return this.equipped.item().hasMag() ? this.terminate( player ) : this;
+		final IGun< ? > gun = this.equipped.item();
+		return gun.hasMag() ? this.terminate( player ) : this;
 	}
 	
-	@Override
+//	@Override
 //	protected void doHandleEffect( EntityPlayer player )
-	protected IOperation onComplete( EntityPlayer player )
-	{
-		// Calling install will change the state of the mag itself, hence copy before use
-		final ItemStack stack = player.inventory.getStackInSlot( this.invSlot ).copy();
-		final IItem item = IItemTypeHost.getItemOrDefault( stack );
-		final boolean isMag = item instanceof IMag< ? >;
-		if ( !isMag ) { return NONE; }
-		
-		final IMag< ? > mag = ( IMag< ? > ) item;
-		final IGun< ? > gun = this.equipped.item();
-		if ( gun.isAllowed( mag ) ) { gun.loadMag( mag ); }
-		return NONE;
-	}
+//	{
+//		// Calling install will change the state of the mag itself, hence copy before use
+//		final ItemStack stack = player.inventory.getStackInSlot( this.invSlot ).copy();
+//		final IItem item = IItemTypeHost.getItemOrDefault( stack );
+//		final boolean isMag = item instanceof IMag< ? >;
+//		if ( !isMag ) { return; }
+//		
+//		final IMag< ? > mag = ( IMag< ? > ) item;
+//		final IGun< ? > gun = this.equipped.item();
+//		if ( gun.isAllowed( mag ) ) { gun.loadMag( mag ); }
+//	}
 	
 	protected int getValidMagInvSlot( EntityPlayer player )
 	{

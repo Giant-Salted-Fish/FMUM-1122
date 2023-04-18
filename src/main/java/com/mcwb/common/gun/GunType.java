@@ -13,16 +13,25 @@ import com.mcwb.client.input.Key;
 import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.IItemModel;
 import com.mcwb.client.player.OpLoadMagClient;
+import com.mcwb.client.player.OpUnloadMagClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
+import com.mcwb.common.IAutowirePacketHandler;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.module.IModuleEventSubscriber;
+import com.mcwb.common.network.PacketCode;
+import com.mcwb.common.network.PacketCode.Code;
+import com.mcwb.common.network.PacketNotifyItem;
+import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.OperationController;
+import com.mcwb.common.player.OpUnloadMag;
+import com.mcwb.common.player.PlayerPatch;
 import com.mcwb.util.Animation;
 import com.mcwb.util.ArmTracker;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
@@ -125,7 +134,8 @@ public abstract class GunType<
 			} );
 		}
 		
-		protected class EquippedGun extends EquippedGunPart implements IEquippedGun< C >
+		protected class EquippedGun extends EquippedGunPart
+			implements IEquippedGun< C >, IAutowirePacketHandler
 		{
 			protected EquippedGun(
 				Supplier< ER > equippedRenderer,
@@ -135,7 +145,15 @@ public abstract class GunType<
 			) { super( equippedRenderer, renderDelegate, player, hand ); }
 			
 			@Override
+			public void handlePacket( ByteBuf buf, EntityPlayer player )
+			{
+				final IOperation op = new OpUnloadMag( this, GunType.this.unloadMagController );
+				PlayerPatch.get( player ).tryLaunch( op );
+			}
+			
+			@Override
 			@SideOnly( Side.CLIENT )
+			@SuppressWarnings( "unchecked" )
 			public void onKeyPress( IKeyBind key )
 			{
 				switch ( key.name() )
@@ -144,15 +162,36 @@ public abstract class GunType<
 				case Key.CO_LOAD_UNLOAD_MAG:
 					PlayerPatchClient.instance.tryLaunch(
 						Gun.this.hasMag()
-						? new OpLoadMagClient(
+						? new OpUnloadMagClient(
 							this,
-							GunType.this.loadMagController,
-							GunType.this.loadMagAnimation
+							GunType.this.unloadMagController,
+							() -> {
+								this.animator().playAnimation( GunType.this.loadMagAnimation );
+								EquippedGun.this.renderDelegate = original -> ( E ) EquippedGun.this;
+								this.sendPacketToServer( new PacketNotifyItem( buf -> {
+									
+								} ) );
+							},
+							equipped -> {
+								final EquippedGun egun = ( EquippedGun ) equipped;
+								egun.animator().playAnimation( Animation.NONE );
+								egun.renderDelegate = original -> original;
+								this.sendPacketToServer( new PacketCode( Code.TERMINATE_OP ) );
+							}
 						)
 						: new OpLoadMagClient(
 							this,
 							GunType.this.loadMagController,
-							GunType.this.loadMagAnimation
+							() -> {
+								this.animator().playAnimation( GunType.this.loadMagAnimation );
+								EquippedGun.this.renderDelegate = original -> ( E ) EquippedGun.this;
+							},
+							equipped -> {
+								final EquippedGun egun = ( EquippedGun ) equipped;
+								egun.animator().playAnimation( Animation.NONE );
+								egun.renderDelegate = original -> original;
+								this.sendPacketToServer( new PacketCode( Code.TERMINATE_OP ) );
+							}
 						)
 					);
 					break;

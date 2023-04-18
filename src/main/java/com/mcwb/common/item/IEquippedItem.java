@@ -5,6 +5,7 @@ import com.mcwb.client.input.Key;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
@@ -46,6 +47,8 @@ public interface IEquippedItem< T extends IItem >
 	 * they do not have the corresponding context to supply. </p>
 	 */
 	public default void tickInHand( EntityPlayer player, EnumHand hand ) { }
+	
+	public default void handlePacket( ByteBuf buf, EntityPlayer player ) { }
 	
 //	public default void onPutAway( IEquippedItem oldItem, EntityPlayer player, EnumHand hand ) { }
 //	

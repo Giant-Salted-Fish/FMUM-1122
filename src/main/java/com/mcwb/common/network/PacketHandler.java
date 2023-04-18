@@ -28,6 +28,7 @@ public final class PacketHandler extends SimpleNetworkWrapper
 	{
 		this.regis( PacketCode.class, Side.SERVER );
 		this.regis( PacketCodeAssist.class, Side.SERVER );
+		this.regis( PacketNotifyItem.class, Side.SERVER );
 //		this.regis( PacketModify.class, Side.SERVER );
 //		this.regis( PacketGunShoot.class, Side.SERVER );
 		
