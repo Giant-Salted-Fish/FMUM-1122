@@ -1,5 +1,6 @@
 package com.mcwb.common.gun;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.mcwb.client.gun.IGunPartRenderer;
@@ -46,9 +47,12 @@ public class JsonMagType extends MagType<
 			// This should never be equipped hence return null.
 			@Override
 			protected IEquippedMag< ? extends IMag< ? > > newEquipped(
-				Supplier<
-					IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > >
-				> equippedRenderer,
+				Supplier< IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > > >
+					equippedRenderer,
+				Supplier< Function<
+					IEquippedMag< ? extends IMag< ? > >,
+					IEquippedMag< ? extends IMag< ? > >
+				> > renderDelegate,
 				EntityPlayer player,
 				EnumHand hand
 			) { return null; }
@@ -62,12 +66,15 @@ public class JsonMagType extends MagType<
 		{
 			@Override
 			protected IEquippedMag< ? extends IMag< ? > > newEquipped(
-				Supplier<
-					IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > >
-				> equippedRenderer,
+				Supplier< IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > > >
+					equippedRenderer,
+				Supplier< Function<
+					IEquippedMag< ? extends IMag< ? > >,
+					IEquippedMag< ? extends IMag< ? > >
+				> > renderDelegate,
 				EntityPlayer player,
 				EnumHand hand
-			) { return this.new EquippedMag( equippedRenderer, player, hand ); }
+			) { return this.new EquippedMag( equippedRenderer, renderDelegate, player, hand ); }
 		};
 		mag.deserializeNBT( nbt );
 		return mag;

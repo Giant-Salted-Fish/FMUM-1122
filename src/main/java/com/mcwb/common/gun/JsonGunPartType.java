@@ -1,5 +1,6 @@
 package com.mcwb.common.gun;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.mcwb.client.gun.IGunPartRenderer;
@@ -50,6 +51,10 @@ public class JsonGunPartType extends GunPartType<
 				Supplier<
 					IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 				> equippedRenderer,
+				Supplier< Function<
+					IEquippedItem< ? extends IGunPart< ? > >,
+					IEquippedItem< ? extends IGunPart< ? > >
+				> > renderDelegate,
 				EntityPlayer player,
 				EnumHand hand
 			) { return null; }
@@ -66,9 +71,13 @@ public class JsonGunPartType extends GunPartType<
 				Supplier<
 					IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 				> equippedRenderer,
+				Supplier< Function<
+					IEquippedItem< ? extends IGunPart< ? > >,
+					IEquippedItem< ? extends IGunPart< ? > >
+				> > renderDelegate,
 				EntityPlayer player,
 				EnumHand hand
-			) { return this.new EquippedGunPart( equippedRenderer, player, hand ); }
+			) { return this.new EquippedGunPart( equippedRenderer, renderDelegate, player, hand ); }
 		};
 		gunPart.deserializeNBT( nbt );
 		return gunPart;

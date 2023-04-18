@@ -278,8 +278,10 @@ public abstract class GunPartType<
 		}
 		
 		@Override
-		public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand ) {
-			return this.newEquipped( () -> this.renderer.onTakeOut( hand ), player, hand );
+		public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand )
+		{
+			final Supplier< ER > renderer = () -> this.renderer.onTakeOut( hand );
+			return this.newEquipped( renderer, () -> original -> original, player, hand );
 		}
 		
 		@Override
@@ -289,8 +291,8 @@ public abstract class GunPartType<
 			EntityPlayer player,
 			EnumHand hand
 		) {
-			final EquippedGunPart prev = ( EquippedGunPart ) prevEquipped;
-			return this.newEquipped( () -> prev.renderer, player, hand );
+			final EquippedGunPart old = ( EquippedGunPart ) prevEquipped;
+			return this.newEquipped( () -> old.renderer, () -> old.renderDelegate, player, hand );
 		}
 		
 		@Override
@@ -422,6 +424,7 @@ public abstract class GunPartType<
 		
 		protected abstract E newEquipped(
 			Supplier< ER > equippedRenderer,
+			Supplier< Function< E, E > > prevDelegate,
 			EntityPlayer player,
 			EnumHand hand
 		);
@@ -456,16 +459,20 @@ public abstract class GunPartType<
 			protected ER renderer;
 			
 			@SideOnly( Side.CLIENT )
-			protected Delegate< E > self;
+			protected Function< E, E > renderDelegate;
 			
 			protected EquippedGunPart(
 				Supplier< ER > equippedRenderer,
+				Supplier< Function< E, E > > renderDelegate,
 				EntityPlayer player,
 				EnumHand hand
 			) {
 				// TODO: This will create renderer on local server
 //				if ( player.world.isRemote )
-				MCWB.MOD.clientOnly( () -> this.renderer = equippedRenderer.get() );
+				MCWB.MOD.clientOnly( () -> {
+					this.renderer = equippedRenderer.get();
+					this.renderDelegate = renderDelegate.get();
+				} );
 			}
 			
 			@Override
@@ -475,26 +482,26 @@ public abstract class GunPartType<
 			public void tickInHand( EntityPlayer player, EnumHand hand )
 			{
 				if ( player.world.isRemote ) {
-					this.renderer.tickInHand( this.self.get(), hand );
+					this.renderer.tickInHand( this.renderDelegate(), hand );
 				}
 			}
 			
 			@Override
 			@SideOnly( Side.CLIENT )
 			public void prepareRenderInHandSP( EnumHand hand ) {
-				this.renderer.prepareRenderInHandSP( this.self.get(), hand );
+				this.renderer.prepareRenderInHandSP( this.renderDelegate(), hand );
 			}
 			
 			@Override
 			@SideOnly( Side.CLIENT )
 			public boolean renderInHandSP( EnumHand hand ) {
-				return this.renderer.renderInHandSP( this.self.get(), hand );
+				return this.renderer.renderInHandSP( this.renderDelegate(), hand );
 			}
 			
 			@Override
 			@SideOnly( Side.CLIENT )
 			public boolean onRenderSpecificHandSP( EnumHand hand ) {
-				return this.renderer.onRenderSpecificHandSP( this.self.get(), hand );
+				return this.renderer.onRenderSpecificHandSP( this.renderDelegate(), hand );
 			}
 			
 			@Override
@@ -504,18 +511,9 @@ public abstract class GunPartType<
 			@Override
 			public String toString() { return "Equipped<" + GunPartType.this + ">"; }
 			
-//			@SideOnly( Side.CLIENT )
-//			@SuppressWarnings( "unchecked" )
-//			protected final E self() { return ( E ) this; }
+			@SideOnly( Side.CLIENT )
+			@SuppressWarnings( "unchecked" )
+			protected final E renderDelegate() { return this.renderDelegate.apply( ( E ) this ); }
 		}
-	}
-	
-	protected interface Delegate< E >
-	{
-		public E get();
-		
-		public void updateDelegate( E newDelegate );
-		
-		public void useLatestDelegate();
 	}
 }

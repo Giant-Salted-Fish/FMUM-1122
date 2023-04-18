@@ -3,6 +3,7 @@ package com.mcwb.common.gun;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
@@ -116,9 +117,10 @@ public abstract class MagType<
 		{
 			protected EquippedMag(
 				Supplier< ER > equippedRenderer,
+				Supplier< Function< E, E > > renderDelegate,
 				EntityPlayer player,
 				EnumHand hand
-			) { super( equippedRenderer, player, hand ); }
+			) { super( equippedRenderer, renderDelegate, player, hand ); }
 		}
 	}
 }

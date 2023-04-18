@@ -1,6 +1,7 @@
 package com.mcwb.common.gun;
 
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
@@ -14,7 +15,6 @@ import com.mcwb.client.item.IItemModel;
 import com.mcwb.client.player.OpLoadMagClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
-import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.module.IModuleEventSubscriber;
@@ -89,17 +89,6 @@ public abstract class GunType<
 		protected Gun( boolean unused ) { super( unused ); }
 		
 		@Override
-		public IEquippedItem< ? > onStackUpdate(
-			IEquippedItem< ? > prevEquipped,
-			EntityPlayer player,
-			EnumHand hand
-		) {//要播放动画 播放动画的过程中应该保证渲染使用的对象不会发生改变 当动画完成或被打断时再使用最新状态的对象
-			final EquippedGun prev = ( EquippedGun ) prevEquipped;
-			final E cur = this.newEquipped( () -> prev.renderer, player, hand );
-			return null;
-		}
-		
-		@Override
 		public boolean hasMag() { return this.getInstalledCount( 0 ) > 0; }
 		
 		@Nullable
@@ -140,9 +129,10 @@ public abstract class GunType<
 		{
 			protected EquippedGun(
 				Supplier< ER > equippedRenderer,
+				Supplier< Function< E, E > > renderDelegate,
 				EntityPlayer player,
 				EnumHand hand
-			) { super( equippedRenderer, player, hand ); }
+			) { super( equippedRenderer, renderDelegate, player, hand ); }
 			
 			@Override
 			@SideOnly( Side.CLIENT )

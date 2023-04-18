@@ -24,7 +24,7 @@ public abstract class ItemType< C extends IItem, M extends IItemModel< ? > >
 	/**
 	 * For contexted item.
 	 */
-	@CapabilityInject( Object.class )
+	@CapabilityInject( IItem.class )
 	public static final Capability< IItem > CAPABILITY = null;
 	
 	protected transient Item item;
