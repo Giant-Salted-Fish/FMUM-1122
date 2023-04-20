@@ -10,18 +10,24 @@ public class BoneAnimation
 		this.mat.setIdentity();
 	} }; // TODO: maybe a better none
 	
-	public BoneAnimation parent = NONE;
-	public final LinkedList< BoneAnimation > children = new LinkedList<>();
-	
 	public final TreeMap< Float, Vec3f > pos = new TreeMap<>();
 	public final TreeMap< Float, Quat4f > rot = new TreeMap<>();
 	
 	// TODO: may not need a separate alpha channel
 	public final TreeMap< Float, Float > alpha = new TreeMap<>();
 	
+	protected BoneAnimation parent = NONE;
+	protected final LinkedList< BoneAnimation > children = new LinkedList<>();
+	
 	protected final Mat4f mat = new Mat4f();
 	protected final Quat4f quat = new Quat4f();
 	protected float a;
+	
+	public void addChild( BoneAnimation child )
+	{
+		child.parent = this;
+		this.children.add( child );
+	}
 	
 	public void addGuard() // TODO
 	{
@@ -51,7 +57,7 @@ public class BoneAnimation
 	{
 		this.mat.set( this.parent.mat );
 		this.quat.set( this.parent.quat );
-		this.a = this.parent.a;
+		this.a = 1F; // TODO: this.parent.a;
 		
 		/// *** Alpha *** ///
 		{

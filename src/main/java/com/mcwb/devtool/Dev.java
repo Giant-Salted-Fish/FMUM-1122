@@ -70,69 +70,8 @@ public class Dev implements IAutowirePlayerChat
 	
 	public static TestPosRot get( int i ) { return testList.get( i ); }
 	
-//	public HitBoxes hbs0 = null, hbs1 = null;
-	
-//	private static BoneAnimation fromBone( BBAnimation bb, String boneS )
-//	{
-//		final Bone bone = bb.bones.get( boneS );
-//		
-//		final BoneAnimation ani = new BoneAnimation();
-//		final float factor = 1F / bb.animation_length;
-//		
-//		bone.position.entrySet().forEach( e -> {
-//			final Vec3f v = e.getValue();
-//			v.z = -v.z;
-//			ani.pos.put( e.getKey() * factor, v );
-//		} );
-//		
-//		final Mat4f mat = new Mat4f();
-//		bone.rotation.entrySet().forEach( e -> {
-//			final Quat4f quat = new Quat4f();
-//			final Vec3f rot = e.getValue();
-//			mat.setIdentity();
-//			mat.rotateZ( -rot.z );
-//			mat.rotateY( -rot.y );
-//			mat.rotateX( rot.x );
-//			quat.set( mat );
-//			ani.rot.put( e.getKey() * factor, quat );
-//		} );
-//		ani.addGuard();
-//		return ani;
-//	}
-	
-//	public static BoneAnimation bone;
-//	public static BoneAnimation rightArm;
-//	public static BoneAnimation left;
-//	public static BoneAnimation leftArm;
-//	public static BoneAnimation mag;
 	static
 	{
-//		final String path = new File( "." ).getAbsolutePath();
-//		
-//		try ( FileReader in = new FileReader( new File( "../z-dev/model.animation.json" ) ) )
-//		{
-//			final BBAnimation bb = MCWB.GSON.fromJson( in, BBAnimationExport.class ).animations.get( "Reload" );
-//			
-//			final Animation ani = new Animation( "hello" )
-//			{
-//				@Override
-//				public void update( float progress ) { }
-//			};
-//			
-//			bone = fromBone( bb, "gun" );
-//			leftArm = fromBone( bb, "leftArm" );
-//			rightArm = fromBone( bb, "rightArm" );
-//			left = fromBone( bb, "left" );
-//			mag = fromBone( bb, "mag" );
-//			
-//			bone.parent = ani;
-//			rightArm.parent = bone;
-//			left.parent = bone;
-//			leftArm.parent = left;
-//			mag.parent = left;
-//		}
-//		catch ( Exception e ) { throw new RuntimeException( e ); }
-		
 		final String group = "test";
 		final Collection< IKeyBind > updateGroup = InputHandler.GLOBAL_KEYS;
 		new KeyBind( "test_up", group, Keyboard.KEY_UP, updateGroup ) {

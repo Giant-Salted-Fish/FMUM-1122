@@ -10,6 +10,7 @@ import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.Model;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
+import com.mcwb.devtool.Dev;
 import com.mcwb.util.Animation;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Quat4f;
@@ -113,6 +114,11 @@ public abstract class ItemModel<
 			this.animation.update( PlayerPatchClient.instance.executing().getProgress( smoother ) );
 			this.updatePosRot( smoother ); // TODO: before or after animation update?
 			
+//			if ( Dev.flag )
+//			{
+//				Dev.flag = false;
+//			}
+			
 			final Mat4f mat = Mat4f.locate();
 			mat.setIdentity();
 			mat.translate( this.pos );
@@ -120,9 +126,20 @@ public abstract class ItemModel<
 			equipped.animator().applyChannel( ItemModel.this.animationChannel, mat );
 			// TODO: equipped#animator() actually should be #this
 			
+			if ( !Dev.flag )
+			{
+				mat.translate( Dev.cur().getPos() );
+				mat.eulerRotateYXZ( Dev.cur().getRot() );
+			}
+			
 			mat.get( this.pos );
 			this.rot.set( mat );
 			mat.release();
+			
+//			if ( Dev.flag )
+//			{
+//				MCWBClient.MOD.sendPlayerMsg( "pos: " + pos + ", rot: " + rot );
+//			}
 		}
 		
 		@Override

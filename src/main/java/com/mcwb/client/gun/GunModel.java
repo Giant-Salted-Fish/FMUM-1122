@@ -16,6 +16,7 @@ import com.mcwb.devtool.Dev;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.DynamicPos;
 import com.mcwb.util.Mat4f;
+import com.mcwb.util.Quat4f;
 import com.mcwb.util.Util;
 import com.mcwb.util.Vec3f;
 
@@ -380,16 +381,35 @@ public abstract class GunModel<
 				
 				final Mat4f mat = Mat4f.locate();
 				mat.setIdentity();
-				mat.translate( arm.handPos );
-				mat.eulerRotateYXZ( arm.handRot );
+				animator.getChannel( CHANNEL_ITEM, mat );
+				animator.applyChannel( channel, mat );
+				
+				final float alpha = 1F - animator.getFactor( channel );
+				final Vec3f pos = Vec3f.locate();
+				mat.get( pos );
+				pos.interpolate( arm.handPos, alpha );
+				
+				final Quat4f rot = Quat4f.locate();
+				final Quat4f gripRot = Quat4f.locate();
+				gripRot.set( arm.handRot );
+				rot.set( mat );
+				rot.interpolate( gripRot, alpha );
+				gripRot.release();
+				
+				mat.setIdentity();
+				mat.translate( pos );
+				mat.rotate( rot );
+				rot.release();
+				pos.release();
+				
 				glMultMatrix( mat );
 				mat.release();
 				
-				this.bindTexture( TEXTURE_STEVE );
+				this.bindTexture( TEXTURE_ALEX );
 				
 //				GL11.glEnable( GL11.GL_BLEND );
 //				GL11.glColor4f( 1F, 1F, 1F, 0.5F );
-				STEVE_ARM.render();
+				ALEX_ARM.render();
 //				GL11.glDisable( GL11.GL_BLEND );
 				
 				GL11.glPopMatrix();

@@ -14,7 +14,6 @@ import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.Mat4f;
-import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.util.EnumHand;
@@ -129,13 +128,13 @@ public abstract class GunPartModel<
 				super.prepareRenderInHandSP( equipped, hand );
 				
 				// Blend modify transform.
-				final float alpha = this.animation.getFactor( CHANNEL_MODIFY );
-				this.pos.interpolate( GunPartModel.this.modifyPos, alpha );
-				
-				final Quat4f quat = Quat4f.locate();
-				this.animation.getRot( CHANNEL_MODIFY, quat );
-				this.rot.interpolate( quat, alpha );
-				quat.release();
+//				final float alpha = this.animation.getFactor( CHANNEL_MODIFY );
+//				this.pos.interpolate( GunPartModel.this.modifyPos, alpha );
+//				
+//				final Quat4f quat = Quat4f.locate();
+//				this.animation.getRot( CHANNEL_MODIFY, quat );
+//				this.rot.interpolate( quat, alpha );
+//				quat.release();
 				
 				// Clear previous state.
 				HAND_QUEUE_0.forEach( IDeferredRenderer::release );

@@ -9,5 +9,7 @@
 	"tbObjAdapt": true,
 	
 	"leftHandPos": [ 5, 20, 5 ],
-	"rightHandPos": [ -5, 25, -35 ]
+	"rightHandPos": [ -5, 25, -35 ],
+	
+	"animationChannel": "item"
 }

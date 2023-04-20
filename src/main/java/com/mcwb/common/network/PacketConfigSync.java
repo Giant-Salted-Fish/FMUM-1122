@@ -15,10 +15,10 @@ public final class PacketConfigSync implements IPacket
 		buf.writeByte( ModConfig.maxModifyLayers );
 		buf.writeByte( ModConfig.maxSlotCapacity );
 		
-		buf.writeFloat( ModConfig.freeViewLimit );
 		buf.writeFloat( ModConfig.camDropCycle );
 		buf.writeFloat( ModConfig.camDropAmpl );
 		buf.writeFloat( ModConfig.camDropImpact );
+		buf.writeFloat( ModConfig.freeViewLimit );
 	}
 	
 	@Override

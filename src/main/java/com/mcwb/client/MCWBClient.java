@@ -312,17 +312,15 @@ public final class MCWBClient extends MCWB
 						json.bones.forEach( ( channel, bbBone ) -> {
 							final BoneAnimation bone = new BoneAnimation();
 							bbBone.position.forEach( ( time, pos ) -> {
-//								pos.z = -pos.z; // TODO: remove this
+								pos.x = -pos.x;
 								pos.scale( scale );
 								bone.pos.put( time * timeFactor, pos );
 							} );
 							bbBone.rotation.forEach( ( time, rot ) -> {
 								mat.setIdentity();
-//								mat.rotateZ( -rot.z );
-//								mat.rotateY( -rot.y );
 								mat.rotateZ( rot.z );
-								mat.rotateY( rot.y );
-								mat.rotateX( rot.x );
+								mat.rotateY( -rot.y );
+								mat.rotateX( -rot.x );
 								bone.rot.put( time * timeFactor, new Quat4f( mat ) );
 							} );
 							bbBone.alpha.forEach(
@@ -340,7 +338,7 @@ public final class MCWBClient extends MCWB
 							final String parent = e.getValue();
 							final BoneAnimation bone = ani.channels.get( e.getKey() );
 							if ( parent == null ) { ani.rootBones.add( bone ); }
-							else { ani.channels.get( parent ).children.add( bone ); }
+							else { ani.channels.get( parent ).addChild( bone ); }
 						} );
 						return ani;
 					}

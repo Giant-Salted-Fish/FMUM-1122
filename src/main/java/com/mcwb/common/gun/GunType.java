@@ -147,8 +147,8 @@ public abstract class GunType<
 			@Override
 			public void handlePacket( ByteBuf buf, EntityPlayer player )
 			{
-				final IOperation op = new OpUnloadMag( this, GunType.this.unloadMagController );
-				PlayerPatch.get( player ).tryLaunch( op );
+//				final IOperation op = new OpUnloadMag( this, GunType.this.unloadMagController );
+//				PlayerPatch.get( player ).tryLaunch( op );
 			}
 			
 			@Override
@@ -164,7 +164,7 @@ public abstract class GunType<
 						Gun.this.hasMag()
 						? new OpUnloadMagClient(
 							this,
-							GunType.this.unloadMagController,
+							GunType.this.loadMagController,
 							() -> {
 								this.animator().playAnimation( GunType.this.loadMagAnimation );
 								EquippedGun.this.renderDelegate = original -> ( E ) EquippedGun.this;

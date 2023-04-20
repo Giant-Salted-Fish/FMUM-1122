@@ -3,14 +3,26 @@
 	"model": "models/gun/hk416/lower_receiver.json",
 	"texture": "textures/guns/hk416_d10rs.png",
 	
+	"loadMagController": {
+		"progressor": 0.0324317,
+		"effectTime": [ 0.616203 ],
+		"soundTime": [ 0.454044 ],
+		"sounds": [ "load_mag" ]
+	},
+	"loadMagAnimation": "animations/hk416_load_mag.json",
+	"unloadMagController": {
+		"progressor": 0.04,
+		"effectTime": [ 0.328 ],
+		"soundTime": [ 0.2 ],
+		"sounds": [ "unload_mag" ]
+	},
+	"unloadMagAnimation": "animations/hk416_unload_mag.json",
+	
 	"paramScale": 0.00625,
 	"moduleSlots": [
 		{
 			"origin": [ 0, 40, -15.5 ],
-			"allowed": [
-				"556x45mm_mag",
-				"556x45mm_drum"
-			]
+			"allowed": [ "556x45mm_mag", "556x45mm_drum" ]
 		}, {
 			"origin": [ 0, 36.5, 4.5 ],
 			"allowed": [ "hk416_upper_receiver" ]
