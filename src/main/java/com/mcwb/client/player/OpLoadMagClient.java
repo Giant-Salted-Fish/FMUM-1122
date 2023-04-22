@@ -20,14 +20,20 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public class OpLoadMagClient extends OperationClient< IEquippedGun< ? > >
 {
+	protected final Consumer< Integer > launchCallback;
+	
 	protected int invSlot;
 	
 	public OpLoadMagClient(
 		IEquippedGun< ? > gun,
 		IOperationController controller,
-		Runnable launchCallback,
+		Consumer< Integer > launchCallback,
 		Consumer< IEquippedGun< ? > > ternimateCallback
-	) { super( gun, controller, launchCallback, ternimateCallback ); }
+	) {
+		super( gun, controller, ternimateCallback );
+		
+		this.launchCallback = launchCallback;
+	}
 	
 	@Override
 	public IOperation launch( EntityPlayer player )
@@ -35,14 +41,15 @@ public class OpLoadMagClient extends OperationClient< IEquippedGun< ? > >
 		switch ( 0 )
 		{
 		default:
-			if ( this.equipped.item().hasMag() ) { break; }
+			final IGun< ? > gun = this.equipped.item();
+			if ( gun.hasMag() ) { break; }
 			
 			this.invSlot = this.getValidMagInvSlot( player );
 			if ( this.invSlot == -1 ) { break; }
 			
 			this.clearProgress();
-//			this.sendToServer( message );
-			return super.launch( player );
+			this.launchCallback.accept( this.invSlot );
+			return this;
 		}
 		
 		return NONE;
@@ -52,23 +59,8 @@ public class OpLoadMagClient extends OperationClient< IEquippedGun< ? > >
 	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
 	{
 		this.equipped = ( IEquippedGun< ? > ) newEquipped;
-		final IGun< ? > gun = this.equipped.item();
-		return gun.hasMag() ? this.terminate( player ) : this;
+		return this;
 	}
-	
-//	@Override
-//	protected void doHandleEffect( EntityPlayer player )
-//	{
-//		// Calling install will change the state of the mag itself, hence copy before use
-//		final ItemStack stack = player.inventory.getStackInSlot( this.invSlot ).copy();
-//		final IItem item = IItemTypeHost.getItemOrDefault( stack );
-//		final boolean isMag = item instanceof IMag< ? >;
-//		if ( !isMag ) { return; }
-//		
-//		final IMag< ? > mag = ( IMag< ? > ) item;
-//		final IGun< ? > gun = this.equipped.item();
-//		if ( gun.isAllowed( mag ) ) { gun.loadMag( mag ); }
-//	}
 	
 	protected int getValidMagInvSlot( EntityPlayer player )
 	{

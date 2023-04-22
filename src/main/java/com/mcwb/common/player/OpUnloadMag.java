@@ -26,6 +26,7 @@ public class OpUnloadMag extends Operation< IEquippedGun< ? > >
 	@Override
 	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
 	{
+		// FIXME: It seems that the itemstack in server side will actually never change
 		this.equipped = ( IEquippedGun< ? > ) newEquipped;
 		final IGun< ? > gun = this.equipped.item();
 		return gun.hasMag() ? this : this.terminate( player );

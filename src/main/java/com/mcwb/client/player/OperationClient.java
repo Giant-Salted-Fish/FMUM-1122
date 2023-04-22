@@ -14,26 +14,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public abstract class OperationClient< T extends IEquippedItem< ? > > extends Operation< T >
 {
-	protected final Runnable launchCallback;
 	protected final Consumer< T > ternimateCallback;
 	
 	public OperationClient(
 		T equipped,
 		IOperationController controller,
-		Runnable launchCallback,
 		Consumer< T > ternimateCallback
 	) {
 		super( equipped, controller );
 		
-		this.launchCallback = launchCallback;
 		this.ternimateCallback = ternimateCallback;
-	}
-	
-	@Override
-	public IOperation launch( EntityPlayer player )
-	{
-		this.launchCallback.run();
-		return this;
 	}
 	
 	@Override

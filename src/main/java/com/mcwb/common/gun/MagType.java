@@ -19,6 +19,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class MagType<
 	I extends IGunPart< ? extends I >,
@@ -37,6 +39,9 @@ public abstract class MagType<
 	protected abstract class Mag extends GunPart implements IMag< I >
 	{
 		protected final ArrayList< IAmmoType > ammo = new ArrayList<>();
+		
+		@SideOnly( Side.CLIENT )
+		protected transient boolean isLoadingMag;
 		
 		protected Mag() { }
 		
@@ -73,6 +78,14 @@ public abstract class MagType<
 		
 		@Override
 		public IAmmoType getAmmo( int idx ) { return this.ammo.get( idx ); }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public boolean isLoadingMag() { return this.isLoadingMag; }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public void setAsLoadingMag() { this.isLoadingMag = true; }
 		
 		@Override
 		public void deserializeNBT( NBTTagCompound nbt )

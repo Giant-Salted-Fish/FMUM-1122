@@ -8,8 +8,8 @@
 	"scale": 0.00625,
 	"tbObjAdapt": true,
 	
-	"leftHandPos": [ 5, 20, 5 ],
-	"rightHandPos": [ -5, 25, -35 ],
+	"animationChannel": "item",
 	
-	"animationChannel": "item"
+	"leftHandPos": [ 5, 20, 5 ],
+	"rightHandPos": [ -5, 25, -35 ]
 }

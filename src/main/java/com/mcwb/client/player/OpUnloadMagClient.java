@@ -15,18 +15,27 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public class OpUnloadMagClient extends OperationClient< IEquippedGun< ? > >
 {
+	protected final Runnable launchCallback;
+	
 	public OpUnloadMagClient(
 		IEquippedGun< ? > gun,
 		IOperationController controller,
 		Runnable launchCallback,
 		Consumer< IEquippedGun< ? > > ternimateCallback
-	) { super( gun, controller, launchCallback, ternimateCallback ); }
+	) {
+		super( gun, controller, ternimateCallback );
+		
+		this.launchCallback = launchCallback;
+	}
 	
 	@Override
 	public IOperation launch( EntityPlayer player )
 	{
 		final IGun< ? > gun = this.equipped.item();
-		return gun.hasMag() ? super.launch( player ) : NONE;
+		if ( !gun.hasMag() ) { return NONE; }
+		
+		this.launchCallback.run();
+		return this;
 	}
 	
 	@Override

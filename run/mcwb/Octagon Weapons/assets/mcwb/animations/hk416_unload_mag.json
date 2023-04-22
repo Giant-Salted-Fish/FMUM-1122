@@ -3,7 +3,14 @@
 	"animation_length": 1.25,
 	"positionScale": 0.00625,
 	"bones": {
-		"left-arm": {
+		"left-0": {
+			"parent": "item",
+			"position": {
+				"0.0": [0, 40, -15.5]
+			}
+		},
+		"left-1": {
+			"parent": "left-0",
 			"rotation": {
 				"0.3333": [0, 0, 0],
 				"0.4167": [0, 0, 25],
@@ -19,8 +26,14 @@
 				"0.9167": [0, 0, 0]
 			}
 		},
+		"left-2": {
+			"parent": "left-1",
+			"position": {
+				"0.0": [0, -40, 15.5]
+			}
+		},
 		"left_arm": {
-			"parent": "left-arm",
+			"parent": "left-2",
 			"alpha": {
 				"0.0": 0,
 				"0.25": 1,
@@ -81,7 +94,7 @@
 				"0.5417": [0, 0, 0]
 			}
 		},
-		"left-mag": {
+		"left": {
 			"rotation": {
 				"0.3333": [0, 0, 0],
 				"0.4167": [0, 0, 25],
@@ -98,7 +111,7 @@
 			}
 		},
 		"mag": {
-			"parent": "left-mag",
+			"parent": "left",
 			"position": {
 				"0.7083": [0, 0, 0],
 				"0.9167": [0, -17, -159]

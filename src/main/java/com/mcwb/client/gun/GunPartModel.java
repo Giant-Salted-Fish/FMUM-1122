@@ -9,9 +9,11 @@ import com.mcwb.client.IAutowireBindTexture;
 import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.ItemModel;
 import com.mcwb.client.module.IDeferredRenderer;
+import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
+import com.mcwb.common.operation.IOperation;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Vec3f;
@@ -45,11 +47,6 @@ public abstract class GunPartModel<
 	
 	protected Vec3f modifyPos = MODIFY_POS;
 	
-	/**
-	 * This animation channel will be applied to each module as part of installed transform.
-	 */
-	protected String moduleAnimationChannel = "";
-	
 	protected abstract class GunPartRenderer
 		implements IGunPartRenderer< C, ER >, IAutowireBindTexture
 	{
@@ -65,7 +62,7 @@ public abstract class GunPartModel<
 			Collection< IDeferredRenderer > renderQueue1
 		) {
 			contexted.base().getRenderTransform( contexted, this.mat );
-			animator.applyChannel( GunPartModel.this.moduleAnimationChannel, this.mat );
+			animator.applyChannel( GunPartModel.this.animationChannel, this.mat );
 			
 			// TODO: we can buffer animator so no instance will be created for this closure
 			renderQueue0.add( () -> {
@@ -125,7 +122,23 @@ public abstract class GunPartModel<
 			@Override
 			public void prepareRenderInHandSP( E equipped, EnumHand hand )
 			{
-				super.prepareRenderInHandSP( equipped, hand );
+//				super.prepareRenderInHandSP( equipped, hand ); // Use this if #moduleAnimationChannel is used
+				
+				// Update animation and in hand position as well as rotation before render.
+				final float smoother = this.smoother();
+				final IOperation executing = PlayerPatchClient.instance.executing();
+				this.animation.update( executing.getProgress( smoother ) );
+				this.updatePosRot( smoother ); // TODO: before or after animation update?
+				
+				final Mat4f mat = Mat4f.locate();
+				mat.setIdentity();
+				mat.translate( this.pos );
+				mat.rotate( this.rot );
+				// TODO: equipped#animator() actually should be #this
+				
+				mat.get( this.pos );
+				this.rot.set( mat );
+				mat.release();
 				
 				// Blend modify transform.
 //				final float alpha = this.animation.getFactor( CHANNEL_MODIFY );

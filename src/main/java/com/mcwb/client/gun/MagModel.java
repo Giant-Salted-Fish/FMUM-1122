@@ -48,6 +48,8 @@ public abstract class MagModel<
 	protected Vec3f[] ammoPos = AMMO_POS;
 	protected AngleAxis4f[] ammoRot = AMMO_ROT;
 	
+	protected String loadingMagChannel = "";
+	
 	public MagModel()
 	{
 		this.holdPos = HOLD_POS;
@@ -102,7 +104,11 @@ public abstract class MagModel<
 			Collection< IDeferredRenderer > renderQueue1
 		) {
 			contexted.base().getRenderTransform( contexted, this.mat );
-			animator.applyChannel( MagModel.this.moduleAnimationChannel, this.mat );
+			
+			final boolean isLoadingMag = contexted.isLoadingMag();
+			final String animationChannel = isLoadingMag
+				? MagModel.this.loadingMagChannel : MagModel.this.animationChannel;
+			animator.applyChannel( animationChannel, this.mat );
 			
 			renderQueue0.add( () -> {
 				GL11.glPushMatrix();

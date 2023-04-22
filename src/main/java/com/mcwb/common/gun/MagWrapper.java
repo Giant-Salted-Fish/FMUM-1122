@@ -3,6 +3,8 @@ package com.mcwb.common.gun;
 import com.mcwb.common.ammo.IAmmoType;
 
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class MagWrapper< I extends IGunPart< ? extends I >, T extends IMag< ? extends I > >
 	extends GunPartWrapper< I, T > implements IMag< I >
@@ -26,4 +28,13 @@ public class MagWrapper< I extends IGunPart< ? extends I >, T extends IMag< ? ex
 	
 	@Override
 	public IAmmoType getAmmo( int idx ) { return this.primary.getAmmo( idx ); }
+	
+	// TODO: reformat exception
+	@Override
+	@SideOnly( Side.CLIENT )
+	public boolean isLoadingMag() { throw new RuntimeException(); }
+	
+	@Override
+	@SideOnly( Side.CLIENT )
+	public void setAsLoadingMag() { this.primary.setAsLoadingMag(); }
 }
