@@ -136,7 +136,7 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 	/**
 	 * THIS IS NOT THREAD SAFE!
 	 */
-	protected static void glMultMatrix( Mat4f mat ) // TODO: synchronize?
+	protected static void glMulMatrix( Mat4f mat ) // TODO: synchronize?
 	{
 		MAT_BUF.clear();
 		mat.store( MAT_BUF );

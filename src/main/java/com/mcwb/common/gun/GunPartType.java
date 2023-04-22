@@ -506,6 +506,10 @@ public abstract class GunPartType<
 			
 			@Override
 			@SideOnly( Side.CLIENT )
+			public void updateAnimationForRender() { this.animator().updateAnimation(); }
+			
+			@Override
+			@SideOnly( Side.CLIENT )
 			public IAnimator animator() { return this.renderer.animator(); }
 			
 			@Override

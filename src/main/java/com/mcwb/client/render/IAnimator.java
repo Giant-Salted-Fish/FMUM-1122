@@ -17,7 +17,11 @@ public interface IAnimator
 	{
 		@Override
 		@SideOnly( Side.CLIENT )
-		public void playAnimation( Animation animation ) { }
+		public void useAnimation( Animation animation ) { }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public void updateAnimation() { }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -32,7 +36,10 @@ public interface IAnimator
 	};
 	
 	@SideOnly( Side.CLIENT )
-	public void playAnimation( Animation animation );
+	public void useAnimation( Animation animation );
+	
+	@SideOnly( Side.CLIENT )
+	public void updateAnimation();
 	
 	@SideOnly( Side.CLIENT )
 	public void getPos( String channel, Vec3f dst );

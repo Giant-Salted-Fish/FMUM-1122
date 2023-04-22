@@ -41,7 +41,10 @@ public final class Key
 		AIM_TOGGLE      = "aim_toggle",
 		RELOAD          = "reload",
 		LOAD_UNLOAD_MAG = "load_unload_mag",
-		INSPECT         = "inspect";
+		INSPECT         = "inspect"
+//		, LOAD_AMMO       = "load_ammo",
+//		UNLOAD_AMMO     = "unload_ammo"
+		;
 	
 	/**
 	 * For keys that provides assist.

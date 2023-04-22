@@ -1,10 +1,7 @@
 package com.mcwb.client.player;
 
-import java.util.function.Consumer;
-
 import com.mcwb.common.gun.IEquippedGun;
 import com.mcwb.common.gun.IGun;
-import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.IOperationController;
 
@@ -13,19 +10,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class OpUnloadMagClient extends OperationClient< IEquippedGun< ? > >
+public abstract class OpUnloadMagClient extends OperationClient< IEquippedGun< ? > >
 {
-	protected final Runnable launchCallback;
-	
-	public OpUnloadMagClient(
-		IEquippedGun< ? > gun,
-		IOperationController controller,
-		Runnable launchCallback,
-		Consumer< IEquippedGun< ? > > ternimateCallback
-	) {
-		super( gun, controller, ternimateCallback );
-		
-		this.launchCallback = launchCallback;
+	public OpUnloadMagClient( IEquippedGun< ? > gun, IOperationController controller ) {
+		super( gun, controller );
 	}
 	
 	@Override
@@ -34,14 +22,6 @@ public class OpUnloadMagClient extends OperationClient< IEquippedGun< ? > >
 		final IGun< ? > gun = this.equipped.item();
 		if ( !gun.hasMag() ) { return NONE; }
 		
-		this.launchCallback.run();
-		return this;
-	}
-	
-	@Override
-	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
-	{
-		this.equipped = ( IEquippedGun< ? > ) newEquipped;
-		return this;
+		return super.launch( player );
 	}
 }

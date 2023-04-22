@@ -147,7 +147,7 @@ public abstract class OpticSightModel<
 				public void render()
 				{
 					GL11.glPushMatrix();
-					glMultMatrix( this.mat );
+					glMulMatrix( this.mat );
 					
 					contexted.modifyState().doRecommendedRender( contexted.texture(), () -> {
 						GL11.glEnable( GL11.GL_STENCIL_TEST );

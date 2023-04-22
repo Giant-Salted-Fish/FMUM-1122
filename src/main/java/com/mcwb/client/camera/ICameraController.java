@@ -1,6 +1,7 @@
 package com.mcwb.client.camera;
 
 import com.mcwb.client.input.Key;
+import com.mcwb.util.Animation;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.util.MouseHelper;
@@ -18,6 +19,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface ICameraController
 {
 	public void tick();
+	
+	public void useAnimation( Animation animation );
 	
 	public void prepareRender( MouseHelper mouse );
 	

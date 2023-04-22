@@ -46,7 +46,7 @@ public abstract class TogglableOperation< T > extends Operation< T >
 		
 		// TODO: Handle sound and effect
 		
-		final boolean shouldTernimate = progressor < 0F && this.prevProgress == 0F;
-		return shouldTernimate ? this.terminate( player ) : this;
+		final boolean completed = progressor < 0F && this.prevProgress == 0F;
+		return completed ? NONE : this;
 	}
 }

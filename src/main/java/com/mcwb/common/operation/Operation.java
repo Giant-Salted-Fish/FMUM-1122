@@ -1,5 +1,7 @@
 package com.mcwb.common.operation;
 
+import com.mcwb.common.item.IEquippedItem;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -68,6 +70,14 @@ public abstract class Operation< T > implements IOperation
 	public IOperation onOtherTryLaunch( IOperation op, EntityPlayer player ) { return this; }
 	
 	@Override
+	@SuppressWarnings( "unchecked" )
+	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
+	{
+		this.equipped = ( T ) newEquipped;
+		return this;
+	}
+	
+	@Override
 	public String toString()
 	{
 		final String typeName = this.getClass().getTypeName();
@@ -83,7 +93,7 @@ public abstract class Operation< T > implements IOperation
 		this.currentSound = 0;
 	}
 	
-	protected IOperation onComplete( EntityPlayer player ) { return this.terminate( player ); }
+	protected IOperation onComplete( EntityPlayer player ) { return NONE; }
 	
 	/**
 	 * Handle effect specified by {@link #currentEffect}.

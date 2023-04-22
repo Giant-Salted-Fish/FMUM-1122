@@ -10,6 +10,7 @@ import com.mcwb.client.render.IAnimator;
 import com.mcwb.client.render.Model;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
+import com.mcwb.common.operation.IOperation;
 import com.mcwb.util.Animation;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Quat4f;
@@ -71,7 +72,15 @@ public abstract class ItemModel<
 		public EquippedItemRenderer() { }
 		
 		@Override
-		public void playAnimation( Animation animation ) { this.animation = animation; }
+		public void useAnimation( Animation animation ) { this.animation = animation; }
+		
+		@Override
+		public void updateAnimation()
+		{
+			final IOperation executing = PlayerPatchClient.instance.executing();
+			final float progress = executing.getProgress( this.smoother() );
+			this.animation.update( progress );
+		}
 		
 		@Override
 		public void getPos( String channel, Vec3f dst )
@@ -108,10 +117,8 @@ public abstract class ItemModel<
 		@Override
 		public void prepareRenderInHandSP( E equipped, EnumHand hand )
 		{
-			// Update animation and in hand position as well as rotation before render.
-			final float smoother = this.smoother();
-			this.animation.update( PlayerPatchClient.instance.executing().getProgress( smoother ) );
-			this.updatePosRot( smoother ); // TODO: before or after animation update?
+			// Update in hand position as well as rotation before render.
+			this.updatePosRot(); // TODO: before or after animation update?
 			
 			final Mat4f mat = Mat4f.locate();
 			mat.setIdentity();
@@ -141,7 +148,7 @@ public abstract class ItemModel<
 			/// Copied from {@link ItemRenderer#renderItemInFirstPerson(float)}. ///
 			// {@link ItemRenderer#rotateArroundXAndY(float, float)}.
 			final Vec3f cameraRot = Vec3f.locate();
-			PlayerPatchClient.instance.cameraController.getCameraRot( cameraRot );
+			PlayerPatchClient.instance.camera.getCameraRot( cameraRot );
 			GL11.glRotatef( cameraRot.z, 0F, 0F, 1F );
 			GL11.glRotatef( cameraRot.x, 1F, 0F, 0F );
 			GL11.glRotatef( cameraRot.y, 0F, 1F, 0F );
@@ -187,7 +194,7 @@ public abstract class ItemModel<
 		{
 			final Mat4f mat = Mat4f.locate();
 			equipped.animator().getChannel( CHANNEL_ITEM, mat ); // TODO: equipped#animtor() should actually be #this
-			glMultMatrix( mat );
+			glMulMatrix( mat );
 			mat.release();
 			
 			this.bindTexture( equipped.item().texture() );
@@ -198,7 +205,7 @@ public abstract class ItemModel<
 		 * Called in {@link #prepareRenderInHandSP(IEquippedItem, EnumHand)} to setup position and
 		 * rotation before applying the animation.
 		 */
-		protected void updatePosRot( float smoother )
+		protected void updatePosRot()
 		{
 			this.pos.set( ItemModel.this.holdPos );
 			this.rot.set( ItemModel.this.holdRot );

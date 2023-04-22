@@ -56,9 +56,6 @@ public interface IOperation
 	 * <p> Called when the outer requires to terminate this operation. Be aware that the executing
 	 * operation may refuse to terminate. </p>
 	 * 
-	 * <p> In default, your implementation should guarantee that this method is always called when
-	 * this operation is left for execution. </p>
-	 * 
 	 * @return {@link #NONE} if execution is aborted.
 	 */
 	public default IOperation terminate( EntityPlayer player ) { return NONE; }

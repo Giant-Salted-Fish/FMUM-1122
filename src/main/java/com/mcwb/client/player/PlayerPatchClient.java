@@ -6,7 +6,7 @@ import com.mcwb.client.EventHandlerClient;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.camera.CameraAnimator;
 import com.mcwb.client.camera.ICameraController;
-import com.mcwb.client.input.IKeyBind;
+import com.mcwb.client.input.IInput;
 import com.mcwb.common.player.PlayerPatch;
 import com.mcwb.util.Vec3f;
 
@@ -51,7 +51,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		prevPlayerAcceleration = new Vec3f();
 	
 	// TODO: maybe wrapper this
-	public ICameraController cameraController = CameraAnimator.INSTANCE;
+	public ICameraController camera = CameraAnimator.INSTANCE;
 	
 	/**
 	 * <p> Hook mouse change method to do pre-render work. </p>
@@ -69,7 +69,10 @@ public final class PlayerPatchClient extends PlayerPatch
 			// This method is called right before the render and player rotation is also updated. \
 			// Hence is the proper place to fire prepare render callback.
 			final PlayerPatchClient patch = PlayerPatchClient.this;
-			patch.cameraController.prepareRender( this );
+			patch.mainEquipped.updateAnimationForRender();
+			patch.offEquipped.updateAnimationForRender();
+			
+			patch.camera.prepareRender( this );
 			patch.mainEquipped.prepareRenderInHandSP( EnumHand.MAIN_HAND );
 			patch.offEquipped.prepareRenderInHandSP( EnumHand.OFF_HAND );
 		}
@@ -113,7 +116,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		this.playerAcceleration.sub( this.prevPlayerVelocity );
 		
 		// Update camera effects.
-		this.cameraController.tick();
+		this.camera.tick();
 		
 		// Ensure mouse helper(Mods like Flan's Mod may change mouse helper in certain conditions).
 		// TODO: maybe do a wrapper if the mouse help is not the original one and also not this one
@@ -139,7 +142,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		
 		// Otherwise, setup orientation for vanilla item rendering.
 		final Vec3f cameraRot = Vec3f.locate();
-		this.cameraController.getCameraRot( cameraRot );
+		this.camera.getCameraRot( cameraRot );
 		GL11.glRotatef( cameraRot.z, 0F, 0F, 1F );
 		GL11.glRotatef( cameraRot.x, 1F, 0F, 0F );
 		GL11.glRotatef( cameraRot.y - this.player.rotationYaw, 0F, 1F, 0F );
@@ -157,7 +160,7 @@ public final class PlayerPatchClient extends PlayerPatch
 	public void onCameraSetup( CameraSetup evt )
 	{
 		final Vec3f cameraRot = Vec3f.locate();
-		this.cameraController.getCameraRot( cameraRot );
+		this.camera.getCameraRot( cameraRot );
 		evt.setYaw( 180F + cameraRot.y );
 		evt.setPitch( cameraRot.x );
 		evt.setRoll( cameraRot.z );
@@ -170,7 +173,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		return this.mainEquipped.onMouseWheelInput( dWheel );
 	}
 	
-	public void onKeyPress( IKeyBind key ) { this.mainEquipped.onKeyPress( key ); }
+	public void onKeyPress( IInput key ) { this.mainEquipped.onKeyPress( key ); }
 	
-	public void onKeyRelease( IKeyBind key ) { this.mainEquipped.onKeyRelease( key ); }
+	public void onKeyRelease( IInput key ) { this.mainEquipped.onKeyRelease( key ); }
 }

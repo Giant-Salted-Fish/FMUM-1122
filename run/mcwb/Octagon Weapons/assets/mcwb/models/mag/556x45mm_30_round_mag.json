@@ -7,7 +7,7 @@
 	"loadingMagChannel": "loading_mag",
 	"followerMesh": "models/mag/556x45mm_30_round_mag_follower.obj",
 	"followerPos": [
-		[ 0, 0,     0 ],
+		[ 0,     0, 0 ],
 		[ 0, -0.75, 0 ],
 		[ 0, -1.75, 0 ],
 		[ 0, -2.75, 0 ],

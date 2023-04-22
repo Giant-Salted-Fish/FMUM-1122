@@ -5,17 +5,18 @@ import java.util.Collection;
 
 import org.lwjgl.opengl.GL11;
 
+import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.IAutowireBindTexture;
 import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.ItemModel;
 import com.mcwb.client.module.IDeferredRenderer;
-import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
-import com.mcwb.common.operation.IOperation;
+import com.mcwb.common.load.IContentProvider;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.Mat4f;
+import com.mcwb.util.Mesh;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.util.EnumHand;
@@ -47,6 +48,47 @@ public abstract class GunPartModel<
 	
 	protected Vec3f modifyPos = MODIFY_POS;
 	
+	protected AnimatedMesh[] animatedMeshes = { };
+	
+	@Override
+	public Object build( String path, IContentProvider provider )
+	{
+		super.build( path, provider );
+		
+		for ( AnimatedMesh aniMesh : this.animatedMeshes ) {
+			aniMesh.origin.scale( this.scale );
+		}
+		return this;
+	}
+	@Override
+	protected void onMeshLoad( IContentProvider provider )
+	{
+		super.onMeshLoad( provider );
+		
+		for ( AnimatedMesh aniMesh : this.animatedMeshes ) {
+			aniMesh.mesh = this.loadMesh( aniMesh.meshPath, provider );
+		}
+	}
+	
+	protected void renderAnimatedMesh( IAnimator animator )
+	{
+		for ( AnimatedMesh aniMesh : this.animatedMeshes )
+		{
+			GL11.glPushMatrix();
+			
+			glTranslatef( aniMesh.origin );
+			
+			final Mat4f mat = Mat4f.locate();
+			animator.getChannel( aniMesh.animationChannel, mat );
+			glMulMatrix( mat );
+			mat.release();
+			
+			aniMesh.mesh.render();
+			
+			GL11.glPopMatrix();
+		}
+	}
+	
 	protected abstract class GunPartRenderer
 		implements IGunPartRenderer< C, ER >, IAutowireBindTexture
 	{
@@ -70,11 +112,14 @@ public abstract class GunPartModel<
 				final Mat4f mat = Mat4f.locate();
 				animator.getChannel( CHANNEL_ITEM, mat );
 				mat.mul( this.mat ); // TODO: validate order
-				glMultMatrix( mat );
+				glMulMatrix( mat );
 				mat.release();
 				
 				final ResourceLocation texture = contexted.texture();
-				contexted.modifyState().doRecommendedRender( texture, GunPartModel.this::render );
+				contexted.modifyState().doRecommendedRender( texture, () -> {
+					GunPartModel.this.renderAnimatedMesh( animator );
+					GunPartModel.this.render();
+				} );
 				GL11.glPopMatrix();
 			} );
 		}
@@ -125,10 +170,7 @@ public abstract class GunPartModel<
 //				super.prepareRenderInHandSP( equipped, hand ); // Use this if #moduleAnimationChannel is used
 				
 				// Update animation and in hand position as well as rotation before render.
-				final float smoother = this.smoother();
-				final IOperation executing = PlayerPatchClient.instance.executing();
-				this.animation.update( executing.getProgress( smoother ) );
-				this.updatePosRot( smoother ); // TODO: before or after animation update?
+				this.updatePosRot(); // TODO: before or after animation update?
 				
 				final Mat4f mat = Mat4f.locate();
 				mat.setIdentity();
@@ -173,5 +215,15 @@ public abstract class GunPartModel<
 				HAND_QUEUE_1.forEach( IDeferredRenderer::render );
 			}
 		}
+	}
+	
+	protected static class AnimatedMesh
+	{
+		@SerializedName( value = "mesh" )
+		protected String meshPath;
+		protected transient Mesh mesh;
+		
+		protected Vec3f origin = Vec3f.ORIGIN;
+		protected String animationChannel = "";
 	}
 }

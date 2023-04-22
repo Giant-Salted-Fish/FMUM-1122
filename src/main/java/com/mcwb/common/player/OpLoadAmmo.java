@@ -3,7 +3,6 @@ package com.mcwb.common.player;
 import com.mcwb.common.ammo.IAmmoType;
 import com.mcwb.common.gun.IEquippedMag;
 import com.mcwb.common.gun.IMag;
-import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItemType;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.operation.IOperation;
@@ -51,14 +50,6 @@ public class OpLoadAmmo extends Operation< IEquippedMag< ? > >
 	{
 		this.next = op;
 		return this;
-	}
-	
-	@Override
-	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
-	{
-		this.equipped = ( IEquippedMag< ? > ) newEquipped;
-		final IMag< ? > mag = this.equipped.item();
-		return mag.isFull() ? this.terminate( player ) : this;
 	}
 	
 	@Override

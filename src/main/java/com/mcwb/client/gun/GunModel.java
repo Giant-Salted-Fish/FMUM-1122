@@ -228,7 +228,7 @@ public abstract class GunModel<
 				/// *** Weapon acceleration impact. *** ///
 				{
 					// Transform acceleration into walk direction space.
-					patch.cameraController.getPlayerRot( vec );
+					patch.camera.getPlayerRot( vec );
 					mat.setIdentity();
 					mat.rotateX( -vec.x );
 					mat.rotateY(  vec.y );
@@ -307,7 +307,7 @@ public abstract class GunModel<
 						crouching ? $this.crouchShoulderOffset :
 						$this.shoulderOffset
 					);
-					patch.cameraController.getPlayerRot( vec ); // TODO: used twice
+					patch.camera.getPlayerRot( vec ); // TODO: used twice
 					tarPos.scaleAdd( vec.x, shoulderOffset, tarPos );
 					
 					this.holdPos.update(
@@ -402,7 +402,7 @@ public abstract class GunModel<
 				rot.release();
 				pos.release();
 				
-				glMultMatrix( mat );
+				glMulMatrix( mat );
 				mat.release();
 				
 				this.bindTexture( TEXTURE_ALEX );
@@ -416,8 +416,10 @@ public abstract class GunModel<
 			}
 			
 			@Override
-			protected void updatePosRot( float smoother )
+			protected void updatePosRot()
 			{
+				final float smoother = this.smoother();
+				
 				// Use #pos temporarily to avoid locate Vec3f.
 				this.holdRot.get( smoother, this.pos );
 				this.rot.set( this.pos );

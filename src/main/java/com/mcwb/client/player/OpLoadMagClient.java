@@ -1,11 +1,8 @@
 package com.mcwb.client.player;
 
-import java.util.function.Consumer;
-
 import com.mcwb.common.gun.IEquippedGun;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.gun.IMag;
-import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.operation.IOperation;
@@ -18,51 +15,28 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class OpLoadMagClient extends OperationClient< IEquippedGun< ? > >
+public abstract class OpLoadMagClient extends OperationClient< IEquippedGun< ? > >
 {
-	protected final Consumer< Integer > launchCallback;
-	
 	protected int invSlot;
 	
-	public OpLoadMagClient(
-		IEquippedGun< ? > gun,
-		IOperationController controller,
-		Consumer< Integer > launchCallback,
-		Consumer< IEquippedGun< ? > > ternimateCallback
-	) {
-		super( gun, controller, ternimateCallback );
-		
-		this.launchCallback = launchCallback;
+	public OpLoadMagClient( IEquippedGun< ? > gun, IOperationController controller ) {
+		super( gun, controller );
 	}
 	
 	@Override
 	public IOperation launch( EntityPlayer player )
 	{
-		switch ( 0 )
-		{
-		default:
-			final IGun< ? > gun = this.equipped.item();
-			if ( gun.hasMag() ) { break; }
-			
-			this.invSlot = this.getValidMagInvSlot( player );
-			if ( this.invSlot == -1 ) { break; }
-			
-			this.clearProgress();
-			this.launchCallback.accept( this.invSlot );
-			return this;
-		}
+		final IGun< ? > gun = this.equipped.item();
+		if ( gun.hasMag() ) { return NONE; }
 		
-		return NONE;
+		this.invSlot = this.getValidMagInvSlot( player );
+		final boolean validMagNotFound = this.invSlot == -1;
+		if ( validMagNotFound ) { return NONE; }
+		
+		return super.launch( player );
 	}
 	
-	@Override
-	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
-	{
-		this.equipped = ( IEquippedGun< ? > ) newEquipped;
-		return this;
-	}
-	
-	protected int getValidMagInvSlot( EntityPlayer player )
+	protected final int getValidMagInvSlot( EntityPlayer player )
 	{
 		final IGun< ? > gun = this.equipped.item();
 		final InventoryPlayer inv = player.inventory;

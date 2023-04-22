@@ -47,6 +47,7 @@ public abstract class MagModel<
 	
 	protected Vec3f[] ammoPos = AMMO_POS;
 	protected AngleAxis4f[] ammoRot = AMMO_ROT;
+	protected boolean isDoubleColumnMag = true;
 	
 	protected String loadingMagChannel = "";
 	
@@ -61,7 +62,7 @@ public abstract class MagModel<
 	{
 		super.build( path, provider );
 		
-		for ( int i = this.followerPos.length; i-- > 0; this.followerPos[ i ].scale( this.scale ) );
+		for ( Vec3f p : this.followerPos ) { p.scale( this.scale ); }
 		if ( this.followerRot.length < this.followerPos.length )
 		{
 			final AngleAxis4f[] arr = new AngleAxis4f[ this.followerPos.length ];
@@ -72,7 +73,7 @@ public abstract class MagModel<
 			this.followerRot = arr;
 		}
 		
-		for ( int i = this.ammoPos.length; i-- > 0; this.ammoPos[ i ].scale( this.scale ) );
+		for ( Vec3f p : this.ammoPos ) { p.scale( this.scale ); }
 		if ( this.ammoRot.length < this.ammoPos.length )
 		{
 			final AngleAxis4f[] arr = new AngleAxis4f[ this.ammoPos.length ];
@@ -115,12 +116,13 @@ public abstract class MagModel<
 				final Mat4f mat = Mat4f.locate();
 				animator.getChannel( CHANNEL_ITEM, mat );
 				mat.mul( this.mat ); // TODO: validate order
-				glMultMatrix( mat );
+				glMulMatrix( mat );
 				mat.release();
 				
 				// Render ammo first as mag itself can be transparent.
 				final int ammoCount = contexted.ammoCount();
-				final boolean flipPosX = contexted.ammoCount() % 2 != 0;
+				final boolean isOddAmmoCount = contexted.ammoCount() % 2 != 0;
+				final boolean flipPosX = MagModel.this.isDoubleColumnMag && isOddAmmoCount;
 				final int size = Math.min( ammoCount, MagModel.this.ammoPos.length );
 				for ( int i = 0; i < size; ++i )
 				{

@@ -1,11 +1,11 @@
 {
-	"push_ammo": {
+	"load_ammo": {
 		"subtitle": "mcwb.sound.push_ammo",
-		"sounds": [ "mcwb:push_ammo" ]
+		"sounds": [ "mcwb:load_ammo" ]
 	},
-	"pop_ammo": {
+	"unload_ammo": {
 		"subtitle": "mcwb.sound.pop_ammo",
-		"sounds": [ "mcwb:pop_ammo" ]
+		"sounds": [ "mcwb:unload_ammo" ]
 	},
 	
 	"load_mag": {

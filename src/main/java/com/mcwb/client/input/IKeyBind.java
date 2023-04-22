@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @author Giant_Salted_Fish
  */
 @SideOnly( Side.CLIENT )
-public interface IKeyBind extends IMeta
+public interface IKeyBind extends IMeta, IInput
 {
 	public static final Registry< IKeyBind > REGISTRY = new Registry<>();
 	
@@ -46,11 +46,6 @@ public interface IKeyBind extends IMeta
 	 *     would save the key binds to local disk if any key bind has changed.
 	 */
 	public boolean clearMcKeyBind();
-	
-	/**
-	 * @return {@code true} if this key is currented pressed
-	 */
-	public boolean down();
 	
 	/**
 	 * @return Key code that bounden to this key.

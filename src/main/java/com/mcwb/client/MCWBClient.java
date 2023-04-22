@@ -21,6 +21,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mcwb.client.ammo.JsonAmmoModel;
+import com.mcwb.client.camera.CameraAnimator;
 import com.mcwb.client.gun.JsonCarGripModel;
 import com.mcwb.client.gun.JsonGripModel;
 import com.mcwb.client.gun.JsonGunModel;
@@ -309,6 +310,26 @@ public final class MCWBClient extends MCWB
 						final float timeFactor = 1F / json.animation_length;
 						final float scale = json.positionScale;
 						final Mat4f mat = Mat4f.locate();
+						
+						// Camera is a bit of special, process it independently.
+						final String cameraChannel = CameraAnimator.ANIMATION_CAHNNEL;
+						final BBBoneJson cameraBone = json.bones.remove( cameraChannel );
+						if ( cameraBone != null )
+						{
+							final BoneAnimation bone = new BoneAnimation();
+							cameraBone.rotation.forEach( ( time, rot ) -> {
+								mat.setIdentity();
+								mat.rotateZ( rot.z );
+								mat.rotateY( rot.y );
+								mat.rotateX( -rot.x );
+								bone.rot.put( time * timeFactor, new Quat4f( mat ) );
+							} );
+							bone.addGuard();
+							ani.channels.put( cameraChannel, bone );
+							bone2Parent.add( new SimpleEntry<>( cameraChannel, cameraBone.parent ) );
+						}
+						
+						// For other bones.
 						json.bones.forEach( ( channel, bbBone ) -> {
 							final BoneAnimation bone = new BoneAnimation();
 							bbBone.position.forEach( ( time, pos ) -> {

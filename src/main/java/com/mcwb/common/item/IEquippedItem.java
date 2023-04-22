@@ -1,6 +1,6 @@
 package com.mcwb.common.item;
 
-import com.mcwb.client.input.IKeyBind;
+import com.mcwb.client.input.IInput;
 import com.mcwb.client.input.Key;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
@@ -50,15 +50,6 @@ public interface IEquippedItem< T extends IItem >
 	
 	public default void handlePacket( ByteBuf buf, EntityPlayer player ) { }
 	
-//	public default void onPutAway( IEquippedItem oldItem, EntityPlayer player, EnumHand hand ) { }
-//	
-//	/**
-//	 * Called when player is trying swap this main hand item to off-hand.
-//	 * 
-//	 * @return {@code true} to prevent this swap.
-//	 */
-//	public default boolean onSwapHand( EntityPlayer player ) { return false; }
-	
 	/**
 	 * Called before actual render of first person in hand. You can apply camera control and other
 	 * setup works here to prepare the actual render.
@@ -76,6 +67,9 @@ public interface IEquippedItem< T extends IItem >
 	@SideOnly( Side.CLIENT )
 	public boolean renderInHandSP( EnumHand hand );
 	
+	@SideOnly( Side.CLIENT )
+	public default void updateAnimationForRender() { }
+	
 	/**
 	 * @see PlayerPatchClient#onRenderSpecificHand(EnumHand)
 	 * @return {@code true} if should cancel original hand render.
@@ -89,19 +83,19 @@ public interface IEquippedItem< T extends IItem >
 	/**
 	 * This method is called when a key bind is triggered(pressed) when holding this item.
 	 * 
-	 * @see #onKeyRelease(IKeyBind)
+	 * @see #onKeyRelease(IInput)
 	 * @param key
 	 *     Key bind being triggered. You can switch via its name with constants provided in
 	 *     {@link Key}.
 	 */
 	@SideOnly( Side.CLIENT )
-	public default void onKeyPress( IKeyBind key ) { }
+	public default void onKeyPress( IInput key ) { }
 	
 	/**
-	 * @see #onKeyPress(IKeyBind)
+	 * @see #onKeyPress(IInput)
 	 */
 	@SideOnly( Side.CLIENT )
-	public default void onKeyRelease( IKeyBind key ) { }
+	public default void onKeyRelease( IInput key ) { }
 	
 	@SideOnly( Side.CLIENT )
 	public default boolean onMouseWheelInput( int dWheel ) { return false; }

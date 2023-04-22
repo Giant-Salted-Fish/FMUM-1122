@@ -1,7 +1,6 @@
 package com.mcwb.common.gun;
 
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -10,7 +9,7 @@ import javax.annotation.Nullable;
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.gun.IGunPartRenderer;
-import com.mcwb.client.input.IKeyBind;
+import com.mcwb.client.input.IInput;
 import com.mcwb.client.input.Key;
 import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.IItemModel;
@@ -18,14 +17,10 @@ import com.mcwb.client.player.OpLoadMagClient;
 import com.mcwb.client.player.OpUnloadMagClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
-import com.mcwb.common.IAutowirePacketHandler;
-import com.mcwb.common.MCWB;
 import com.mcwb.common.item.IItemTypeHost;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.meta.IMeta;
 import com.mcwb.common.module.IModuleEventSubscriber;
-import com.mcwb.common.network.PacketCode;
-import com.mcwb.common.network.PacketCode.Code;
 import com.mcwb.common.network.PacketNotifyItem;
 import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.IOperationController;
@@ -141,42 +136,35 @@ public abstract class GunType<
 			} );
 		}
 		
-		protected class EquippedGun extends EquippedGunPart
-			implements IEquippedGun< C >, IAutowirePacketHandler
+		protected class EquippedGun extends EquippedGunPart implements IEquippedGun< C >
 		{
-			@SideOnly( Side.CLIENT )
-			protected Runnable loadingMagRenderer;
+			protected static final byte
+				OP_CODE_LOAD_MAG = 0,
+				OP_CODE_UNLOAD_MAG = 1;
 			
 			protected EquippedGun(
 				Supplier< ER > equippedRenderer,
 				Supplier< Function< E, E > > renderDelegate,
 				EntityPlayer player,
 				EnumHand hand
-			) {
-				super( equippedRenderer, renderDelegate, player, hand );
-				
-				MCWB.MOD.clientOnly( () -> this.loadingMagRenderer = () -> { } );
-			}
+			) { super( equippedRenderer, renderDelegate, player, hand ); }
 			
 			@Override
 			public void handlePacket( ByteBuf buf, EntityPlayer player )
 			{
-				final byte[] messageBytes = new byte[ buf.readByte() ];
-				buf.readBytes( messageBytes );
-				final String message = new String( messageBytes );
-				switch ( message )
+				switch ( buf.readByte() )
 				{
-				case "unload":
-					final IOperationController opController0 = GunType.this.unloadMagController;
-					final IOperation op0 = new OpUnloadMag( this, opController0 );
-					PlayerPatch.get( player ).tryLaunch( op0 );
+				case OP_CODE_LOAD_MAG:
+					final int invSlot = buf.readByte();
+					final IOperationController controller0 = GunType.this.loadMagController;
+					final IOperation op0 = new OpLoadMag( this, controller0, invSlot );
+					PlayerPatch.get( player ).launch( op0 );
 					break;
 					
-				case "load":
-					final int invSlot = buf.readByte();
-					final IOperationController opController1 = GunType.this.loadMagController;
-					final IOperation op1 = new OpLoadMag( this, opController1, invSlot );
-					PlayerPatch.get( player ).tryLaunch( op1 );
+				case OP_CODE_UNLOAD_MAG:
+					final IOperationController controller1 = GunType.this.unloadMagController;
+					final IOperation op1 = new OpUnloadMag( this, controller1 );
+					PlayerPatch.get( player ).launch( op1 );
 					break;
 				}
 			}
@@ -184,61 +172,66 @@ public abstract class GunType<
 			@Override
 			@SideOnly( Side.CLIENT )
 			@SuppressWarnings( "unchecked" )
-			public void onKeyPress( IKeyBind key )
+			public void onKeyPress( IInput key )
 			{
 				switch ( key.name() )
 				{
 				case Key.LOAD_UNLOAD_MAG:
 				case Key.CO_LOAD_UNLOAD_MAG:
-					final Consumer< IEquippedGun< ? > > opTerminateCallback = equipped -> {
-						final EquippedGun equippedGun = ( EquippedGun ) equipped;
-						equippedGun.animator().playAnimation( Animation.NONE );
-						equippedGun.renderDelegate = original -> original;
-						this.sendPacketToServer( new PacketCode( Code.TERMINATE_OP ) );
-					};
-					PlayerPatchClient.instance.tryLaunch(
+					PlayerPatchClient.instance.launch(
 						Gun.this.hasMag()
-						? new OpUnloadMagClient(
-							this,
-							GunType.this.unloadMagController,
-							() -> {
-								this.animator().playAnimation( GunType.this.unloadMagAnimation );
-								EquippedGun.this.renderDelegate = original -> ( E ) EquippedGun.this;
-								this.sendPacketToServer( new PacketNotifyItem( buf -> {
-									final String message = "unload";
-									buf.writeByte( message.length() );
-									buf.writeBytes( message.getBytes() );
-								} ) );
-							},
-							opTerminateCallback
-						)
-						: new OpLoadMagClient(
-							this,
-							GunType.this.loadMagController,
-							invSlot -> {
-								this.animator().playAnimation( GunType.this.loadMagAnimation );
-								EquippedGun.this.renderDelegate = original -> ( E ) EquippedGun.this;
+						? new OpUnloadMagClient( this, GunType.this.unloadMagController )
+						{
+							@Override
+							protected void launchCallback()
+							{
+								final Animation animation = GunType.this.unloadMagAnimation;
+								PlayerPatchClient.instance.camera.useAnimation( animation );
+								EquippedGun.this.animator().useAnimation( animation );
+								EquippedGun.this.renderDelegate = ori -> ( E ) EquippedGun.this;
+								
+								this.sendPacketToServer( new PacketNotifyItem(
+									buf -> buf.writeByte( OP_CODE_UNLOAD_MAG )
+								) );
+							}
+							
+							@Override
+							protected void endCallback() {
+								( ( EquippedGun ) this.equipped ).renderDelegate = ori -> ori;
+							}
+						}
+						: new OpLoadMagClient( this, GunType.this.loadMagController )
+						{
+							@Override
+							protected void launchCallback()
+							{
+								final Animation animation = GunType.this.loadMagAnimation;
+								PlayerPatchClient.instance.camera.useAnimation( animation );
+								EquippedGun.this.animator().useAnimation( animation );
+								EquippedGun.this.renderDelegate = ori -> ( E ) EquippedGun.this;
 								
 								// Install the loading mag to render it
 								final InventoryPlayer inv = MCWBClient.MC.player.inventory;
-								final ItemStack stack = inv.getStackInSlot( invSlot ).copy();
+								final ItemStack stack = inv.getStackInSlot( this.invSlot ).copy();
 								final IMag< ? > mag = ( IMag< ? > ) IItemTypeHost.getItem( stack );
 								Gun.this.install( 0, mag );
 								mag.setAsLoadingMag();
 								
 								this.sendPacketToServer( new PacketNotifyItem( buf -> {
-									final String message = "load";
-									buf.writeByte( message.length() );
-									buf.writeBytes( message.getBytes() );
-									buf.writeByte( invSlot );
+									buf.writeByte( OP_CODE_LOAD_MAG );
+									buf.writeByte( this.invSlot );
 								} ) );
-							},
-							equipped -> {
-								// If somehow the load is not completed then remove the loading mag
-								if ( equipped == EquippedGun.this ) { Gun.this.remove( 0, 0 ); }
-								opTerminateCallback.accept( equipped );
 							}
-						)
+							
+							@Override
+							protected void endCallback()
+							{
+								// If somehow the load is not completed then remove the loading mag
+								final boolean magLoaded = this.equipped != EquippedGun.this;
+								if ( !magLoaded ) { Gun.this.remove( 0, 0 ); }
+								( ( EquippedGun ) this.equipped ).renderDelegate = ori -> ori;
+							}
+						}
 					);
 					break;
 					

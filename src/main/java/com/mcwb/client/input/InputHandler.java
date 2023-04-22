@@ -55,13 +55,17 @@ public final class InputHandler
 	 */
 	public static final HashSet< IKeyBind > INCO_KEYS = new HashSet<>();
 	
+	private static final int MOUSE_0 = -100, MOUSE_1 = -99;
+	
 	/**
 	 * These keys always update.
 	 */
 	public static final KeyBind
-		PULL_TRIGGER = new KeyBind( Key.PULL_TRIGGER, Category.GUN, 0 - 100, GLOBAL_KEYS ),
-		AIM_HOLD = new KeyBind( Key.AIM_HOLD, Category.GUN, 1 - 100, GLOBAL_KEYS ),
+		PULL_TRIGGER = new KeyBind( Key.PULL_TRIGGER, Category.GUN, MOUSE_0, GLOBAL_KEYS ),
+		AIM_HOLD = new KeyBind( Key.AIM_HOLD, Category.GUN, MOUSE_1, GLOBAL_KEYS ),
 		AIM_TOGGLE = new KeyBind( Key.AIM_TOGGLE, Category.GUN, Keyboard.KEY_NONE, GLOBAL_KEYS ),
+//		LOAD_AMMO = new KeyBind( Key.LOAD_AMMO, Category.GUN, MOUSE_0 ),
+//		UNLOAD_AMMO = new KeyBind( Key.UNLOAD_AMMO, Category.GUN, MOUSE_1 ),
 		
 		// TODO: change the default bind key for this maybe
 		SELECT_TOGGLE = new KeyBind( Key.SELECT_TOGGLE, Category.MODIFY, Keyboard.KEY_V ),

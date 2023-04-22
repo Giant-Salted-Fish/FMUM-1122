@@ -3,6 +3,7 @@
 	"scale": 0.00625,
 	"tbObjAdapt": true,
 	
+	"isDoubleColumnMag": false,
 	"animationChannel": "mag",
 	"loadingMagChannel": "loading_mag",
 	"followerMesh": "models/mag/x_products_x15_556x45mm_30_round_drum_follower.obj",
@@ -14,9 +15,9 @@
 		[ 0, -7, 0 ]
 	],
 	"ammoPos": [
-		[ 0.75,  0.25, 0.5 ],
-		[ 0.75, -1.75, 0.5 ],
-		[ 0.75, -3.75, 0.5 ],
-		[ 0.75, -5.75, 0.5 ]
+		[ -0.75,  0.25, 0.5 ],
+		[ -0.75, -1.75, 0.5 ],
+		[ -0.75, -3.75, 0.5 ],
+		[ -0.75, -5.75, 0.5 ]
 	]
 }
