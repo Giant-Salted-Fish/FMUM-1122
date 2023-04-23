@@ -319,7 +319,7 @@ public final class MCWBClient extends MCWB
 							final BoneAnimation bone = new BoneAnimation();
 							cameraBone.rotation.forEach( ( time, rot ) -> {
 								mat.setIdentity();
-								mat.rotateZ( rot.z );
+								mat.rotateZ( -rot.z );
 								mat.rotateY( rot.y );
 								mat.rotateX( -rot.x );
 								bone.rot.put( time * timeFactor, new Quat4f( mat ) );

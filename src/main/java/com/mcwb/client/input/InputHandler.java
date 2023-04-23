@@ -87,6 +87,7 @@ public final class InputHandler
 		
 		RELOAD = new KeyBind( Key.RELOAD, Category.GUN, Keyboard.KEY_R ),
 		LOAD_UNLOAD_MAG = new KeyBind( Key.LOAD_UNLOAD_MAG, Category.GUN, Keyboard.KEY_T ),
+		CHARGE_GUN = new KeyBind( Key.CHARGE_GUN, Category.GUN, Keyboard.KEY_G ),
 		INSPECT = new KeyBind( Key.INSPECT, Category.GUN, Keyboard.KEY_V );
 	
 	/**
@@ -96,6 +97,7 @@ public final class InputHandler
 		CO_FREE_VIEW = new KeyBind( Key.CO_FREE_VIEW, Category.ASSIST, Keyboard.KEY_NONE ),
 		CO_RELOAD = new KeyBind( Key.CO_RELOAD, Category.ASSIST, Keyboard.KEY_NONE ),
 		CO_LOAD_UNLOAD_MAG = new KeyBind( Key.CO_LOAD_UNLOAD_MAG, Category.ASSIST, Keyboard.KEY_NONE ),
+		CO_CHARGE_GUN = new KeyBind( Key.CO_CHARGE_GUN, Category.ASSIST, Keyboard.KEY_NONE ),
 		CO_INSPECT = new KeyBind( Key.CO_INSPECT, Category.ASSIST, Keyboard.KEY_NONE ),
 		CO_TOGGLE_MODIFY = new KeyBind( Key.CO_TOGGLE_MODIFY, Category.ASSIST, Keyboard.KEY_NONE );
 	

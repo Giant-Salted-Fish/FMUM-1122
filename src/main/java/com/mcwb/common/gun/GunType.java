@@ -15,6 +15,7 @@ import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.IItemModel;
 import com.mcwb.client.player.OpLoadMagClient;
 import com.mcwb.client.player.OpUnloadMagClient;
+import com.mcwb.client.player.OperationClient;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.item.IItemTypeHost;
@@ -62,6 +63,12 @@ public abstract class GunType<
 			new String[ 0 ],
 			new float[] { 0.5F },
 			"unload_mag"
+		),
+		CHARGE_GUN_CONTROLLER = new OperationController(
+			1F / 22F,
+			new float[] { 0.5F },
+			new String[ 0 ],
+			new float[] { }
 		);
 	
 	protected IOperationController loadMagController = LOAD_MAG_CONTROLLER;
@@ -78,6 +85,13 @@ public abstract class GunType<
 	@SideOnly( Side.CLIENT )
 	protected transient Animation unloadMagAnimation;
 	
+	protected IOperationController chargeGunController = CHARGE_GUN_CONTROLLER;
+	@SideOnly( Side.CLIENT )
+	@SerializedName( value = "chargeGunAnimation" )
+	protected String chargeGunAnimationPath;
+	@SideOnly( Side.CLIENT )
+	protected transient Animation chargeGunAnimation;
+	
 	@Override
 	public IMeta build( String name, IContentProvider provider )
 	{
@@ -86,6 +100,7 @@ public abstract class GunType<
 		provider.clientOnly( () -> {
 			this.loadMagAnimation = provider.loadAnimation( this.loadMagAnimationPath );
 			this.unloadMagAnimation = provider.loadAnimation( this.unloadMagAnimationPath );
+			this.chargeGunAnimation = provider.loadAnimation( this.chargeGunAnimationPath );
 		} );
 		return this;
 	}
@@ -230,6 +245,22 @@ public abstract class GunType<
 								final boolean magLoaded = this.equipped != EquippedGun.this;
 								if ( !magLoaded ) { Gun.this.remove( 0, 0 ); }
 								( ( EquippedGun ) this.equipped ).renderDelegate = ori -> ori;
+							}
+						}
+					);
+					break;
+					
+				case Key.CHARGE_GUN:
+				case Key.CO_CHARGE_GUN:
+					PlayerPatchClient.instance.launch(
+						new OperationClient< IEquippedGun< ? > >( this, GunType.this.chargeGunController )
+						{
+							@Override
+							protected void launchCallback()
+							{
+								final Animation animation = GunType.this.chargeGunAnimation;
+								PlayerPatchClient.instance.camera.useAnimation( animation );
+								EquippedGun.this.animator().useAnimation( animation );
 							}
 						}
 					);

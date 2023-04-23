@@ -41,6 +41,7 @@ public final class Key
 		AIM_TOGGLE      = "aim_toggle",
 		RELOAD          = "reload",
 		LOAD_UNLOAD_MAG = "load_unload_mag",
+		CHARGE_GUN      = "charge_gun",
 		INSPECT         = "inspect"
 //		, LOAD_AMMO       = "load_ammo",
 //		UNLOAD_AMMO     = "unload_ammo"
@@ -54,6 +55,7 @@ public final class Key
 		CO_FREE_VIEW       = "co_free_view",
 		CO_RELOAD          = "co_reload",
 		CO_LOAD_UNLOAD_MAG = "co_load_unload_mag",
+		CO_CHARGE_GUN      = "co_charge_gun",
 		CO_INSPECT         = "co_inspect",
 		CO_TOGGLE_MODIFY   = "co_toggle_modify";
 	

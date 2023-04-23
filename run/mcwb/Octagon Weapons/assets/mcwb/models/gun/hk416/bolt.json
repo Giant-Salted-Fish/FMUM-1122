@@ -2,5 +2,6 @@
 	"mesh": "models/gun/hk416/bolt_carrier.obj",
 	"_animatedMeshes": "models/gun/hk416/bolt.obj",
 	"scale": 0.00625,
-	"tbObjAdapt": true
+	"tbObjAdapt": true,
+	"animationChannel": "bolt"
 }

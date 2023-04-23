@@ -174,18 +174,19 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		final float cameraPitch = this.playerRot.x + camOffAxisX;
 		final float cameraYaw   = this.playerRot.y + camOffAxisY;
 		
-		final Quat4f quat0 = Quat4f.locate();
-		final Quat4f quat1 = Quat4f.locate();
-		quat0.set( cameraPitch, cameraYaw, 0F );
-		this.animation.getRot( ANIMATION_CAHNNEL, quat1 );
-		quat0.mul( quat1 );
-		quat1.release();
-		
 		final Mat4f mat = Mat4f.locate();
-		mat.set( quat0 );
+		mat.setIdentity();
+		mat.rotateY( cameraYaw );
+		mat.rotateX( cameraPitch );
+		
+		final Quat4f quat = Quat4f.locate();
+		this.animation.getRot( ANIMATION_CAHNNEL, quat );
+		mat.rotate( quat );
+		quat.release();
+		
 		mat.getEulerAngleYXZ( this.cameraRot );
+		this.cameraRot.z = -this.cameraRot.z; // Necessary!!! Do touch this.
 		mat.release();
-		quat0.release();
 		
 		// Apply a tiny change to player's pitch rotation to force view frustum culling update if
 		// off-axis has changed.
