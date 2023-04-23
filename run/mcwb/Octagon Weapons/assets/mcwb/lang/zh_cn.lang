@@ -8,8 +8,9 @@ oc.author=一条大大的咸鱼
 itemGroup.oc=八边形枪械包
 
 # 弹药
-item.556x45mm.name=5.56x45mm 北约制式弹药
-item.556x45mm_case.name=5.56x45mm 北约制式弹药铜壳
+item.556x45mm_m855.name=5.56x45毫米 M855 弹药
+item.556x45mm_m855a1.name=5.56x45毫米 M855A1 EPR 弹药
+item.556x45mm_case.name=5.56x45毫米铜壳
 
 # H&K416
 item.hk416_d10rs.name=H&K416 D10RS

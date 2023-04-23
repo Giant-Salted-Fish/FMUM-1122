@@ -92,12 +92,15 @@ mcwb.key.aim_hold=Aim Hold
 mcwb.key.aim_toggle=Aim Toggle
 mcwb.key.reload=Reload Weapon
 mcwb.key.load_unload_mag=Load/Unload Magazine
+mcwb.key.charge_gun=Charge Gun
+mcwb.key.inspect=Inspect Weapon
 
 mcwb.key_category.assist=MCWB Assist
-mcwb.key.co=Co-Key
+mcwb.key.co=Assist Key
 mcwb.key.co_free_view=Co-Free View
 mcwb.key.co_reload=Co-Reload Weapon
 mcwb.key.co_load_unload_mag=Co-Load/Unload Magazine
+mcwb.key.co_charge_gun=Co-Charge Gun
 mcwb.key.co_toggle_modify=Co-Modify Weapon
 
 mcwb.key_category.modify=MCWB Modify
