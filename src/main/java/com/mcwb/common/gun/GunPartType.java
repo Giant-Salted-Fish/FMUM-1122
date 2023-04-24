@@ -525,37 +525,49 @@ public abstract class GunPartType<
 			public void onKeyPress( IInput key )
 			{
 				final boolean toggleModify = key == Key.TOGGLE_MODIFY || key == Key.CO_TOGGLE_MODIFY;
-				if ( !toggleModify ) { return; }
-				
-				final IOperation executing = PlayerPatchClient.instance.executing();
-				if ( executing instanceof OpModifyClient )
+				if ( toggleModify )
 				{
-					PlayerPatchClient.instance.toggleExecuting();
+					final IOperation executing = PlayerPatchClient.instance.executing();
+					if ( executing instanceof OpModifyClient )
+					{
+						PlayerPatchClient.instance.toggleExecuting();
+						return;
+					}
+					
+					final OpModifyClient modifyOp = new OpModifyClient( this ) {
+						@Override
+						@SuppressWarnings( "unchecked" )
+						protected IModule< ? > replicateDelegatePrimary()
+						{
+							final EquippedGunPart equipped = ( EquippedGunPart ) this.equipped;
+							final EquippedGunPart copied = ( EquippedGunPart ) equipped.copy();
+							equipped.renderDelegate = original -> ( E ) copied;
+							return copied.item().base();
+						}
+						
+						@Override
+						@SuppressWarnings( "unchecked" )
+						protected void endCallback()
+						{
+							final EquippedGunPart equipped = ( EquippedGunPart ) this.equipped;
+							equipped.renderDelegate = original -> original;
+							equipped.renderer.useAnimation( Animation.NONE );
+						}
+					};
+					PlayerPatchClient.instance.launch( modifyOp );
+					this.renderer.useModifyAnimation( () -> modifyOp.refPlayerRotYaw );
+					
 					return;
 				}
 				
-				final OpModifyClient modifyOp = new OpModifyClient( this ) {
-					@Override
-					@SuppressWarnings( "unchecked" )
-					protected IModule< ? > replicateDelegatePrimary()
-					{
-						final EquippedGunPart equipped = ( EquippedGunPart ) this.equipped;
-						final EquippedGunPart copied = ( EquippedGunPart ) equipped.copy();
-						equipped.renderDelegate = original -> ( E ) copied;
-						return copied.item();
+				if ( key.category().equals( Key.Category.MODIFY ) )
+				{
+					final IOperation executing = PlayerPatchClient.instance.executing();
+					final boolean isModifying = executing instanceof OpModifyClient;
+					if ( isModifying ) {
+						( ( OpModifyClient ) executing ).handleInput( key );
 					}
-					
-					@Override
-					@SuppressWarnings( "unchecked" )
-					protected void endCallback()
-					{
-						final EquippedGunPart equipped = ( EquippedGunPart ) this.equipped;
-						equipped.renderDelegate = original -> original;
-						equipped.renderer.useAnimation( Animation.NONE );
-					}
-				};
-				PlayerPatchClient.instance.launch( modifyOp );
-				this.renderer.useModifyAnimation( () -> modifyOp.refPlayerRotYaw );
+				}
 			}
 			
 			@Override

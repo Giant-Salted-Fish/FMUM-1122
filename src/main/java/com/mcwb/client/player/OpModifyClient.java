@@ -12,8 +12,10 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 
 import com.mcwb.client.IAutowirePlayerChat;
+import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.IInput;
 import com.mcwb.client.input.Key;
+import com.mcwb.common.IAutowirePacketHandler;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.item.IItemTypeHost;
@@ -21,6 +23,7 @@ import com.mcwb.common.module.IModifyPredicate;
 import com.mcwb.common.module.IModifyState;
 import com.mcwb.common.module.IModule;
 import com.mcwb.common.module.IPreviewPredicate;
+import com.mcwb.common.network.PacketModify;
 import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.OperationController;
@@ -35,7 +38,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public abstract class OpModifyClient extends TogglableOperation implements IAutowirePlayerChat
+public abstract class OpModifyClient extends TogglableOperation
+	implements IAutowirePacketHandler, IAutowirePlayerChat
 {
 	protected static final IPaintable PAINTABLE_PLACEHOLDER = new IPaintable()
 	{
@@ -177,7 +181,7 @@ public abstract class OpModifyClient extends TogglableOperation implements IAuto
 			while ( hasNext.get() )
 			{
 				final ItemStack stack = inv.getStackInSlot( this.previewInvSlot );
-				final IItem item = IItemTypeHost.getItem( stack );
+				final IItem item = IItemTypeHost.getItemOrDefault( stack );
 				final boolean isModule = item instanceof IModule< ? >;
 				if ( !isModule ) { continue; }
 				
@@ -233,7 +237,20 @@ public abstract class OpModifyClient extends TogglableOperation implements IAuto
 				final boolean stepChanged = this.curStep != this.oriStep;
 				if ( offsetChanged || stepChanged )
 				{
-					
+					this.sendPacketToServer( new PacketModify(
+						this.curOffset, this.curStep,
+						this.loc, this.locLen
+					) );
+				}
+				
+				if (
+					this.curPaintjob != this.oriPaintjob
+					&& this.paintable.tryOfferOrNotifyWhy( this.curPaintjob, MC.player )
+				) {
+					this.sendPacketToServer( new PacketModify(
+						this.curPaintjob,
+						this.loc, this.locLen
+					) );
 				}
 				
 				// Clear selection after submit.
@@ -246,7 +263,30 @@ public abstract class OpModifyClient extends TogglableOperation implements IAuto
 				&& this.previewPredicate.okOrNotifyWhy()
 				&& this.positionPredicate.okOrNotifyWhy()
 			) {
+				// Install preview module.
+				this.sendPacketToServer( new PacketModify(
+					this.previewInvSlot,
+					this.curOffset, this.curStep,
+					this.loc, this.locLen
+				) );
 				
+				if(
+					this.curPaintjob != this.oriPaintjob
+					&& this.paintable.tryOfferOrNotifyWhy( this.curPaintjob, MC.player )
+				) {
+					// Notice that preview actually has been installed in client side.
+					final int count = this.cursor.base().getInstalledCount( this.slot() );
+					this.loc[ this.locLen - 1 ] = ( byte ) ( count - 1 );
+					this.sendPacketToServer( new PacketModify(
+						this.curPaintjob,
+						this.loc, this.locLen
+					) );
+					this.loc[ this.locLen - 1 ] = -1;
+				}
+				
+				this.clearPrimary();
+				this.setupIndicator();
+				this.previewInvSlot = -1; // Clear preview after installation
 			}
 		};
 		this.coHandlers.put( Key.SELECT_CONFIRM, submitModification );
@@ -257,6 +297,7 @@ public abstract class OpModifyClient extends TogglableOperation implements IAuto
 			final boolean hasSelected = this.index() != -1 && this.locLen > 0;
 			if ( !hasSelected ) { return; }
 			
+			this.sendPacketToServer( new PacketModify( this.loc, this.locLen ) );
 			this.loc[ this.locLen - 1 ] = -1;
 //			this.positionState = IModifyPredicate.OK; // FIXME: if this is needed?
 			this.clearPrimary();
@@ -356,6 +397,7 @@ public abstract class OpModifyClient extends TogglableOperation implements IAuto
 	@Override
 	public IOperation launch( EntityPlayer player )
 	{
+		this.loc = MCWBClient.modifyLoc;
 		this.refPlayerRotYaw = MC.player.rotationYaw;
 		this.clearPrimaryAndSetupSelection();
 		return super.launch( player );

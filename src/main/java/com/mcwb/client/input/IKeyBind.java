@@ -17,8 +17,6 @@ public interface IKeyBind extends IMeta, IInput
 {
 	static final Registry< IKeyBind > REGISTRY = new Registry<>();
 	
-	String category();
-	
 	/**
 	 * Called by {@link InputHandler} on input event to update the state of this key bind.
 	 */

@@ -121,7 +121,7 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 	 */
 	public static void glowOff()
 	{
-		final boolean lastPop = --glowStack != 0;
+		final boolean lastPop = --glowStack == 0;
 		if ( lastPop )
 		{
 			OpenGlHelper.setLightmapTextureCoords(

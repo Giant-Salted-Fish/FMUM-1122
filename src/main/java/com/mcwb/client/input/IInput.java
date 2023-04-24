@@ -11,6 +11,8 @@ public interface IInput
 	 */
 	String name();
 	
+	String category();
+	
 	/**
 	 * @return {@code true} if this key is currented pressed
 	 */

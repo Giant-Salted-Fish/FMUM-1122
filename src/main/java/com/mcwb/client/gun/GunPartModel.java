@@ -18,7 +18,6 @@ import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.common.operation.IOperation;
 import com.mcwb.devtool.Dev;
-import com.mcwb.util.AngleAxis4f;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.IAnimation;
 import com.mcwb.util.Mat4f;
