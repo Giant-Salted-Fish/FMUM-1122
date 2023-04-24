@@ -15,7 +15,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.JsonObject;
 import com.mcwb.client.MCWBClient;
-import com.mcwb.client.input.Key.Category;
 import com.mcwb.common.IAutowireLogger;
 import com.mcwb.common.MCWB;
 
@@ -32,7 +31,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * {@link Keyboard#KEY_NONE} during game to avoid key binding conflict. They will be set back when
  * settings GUI is launched.
  * 
- * @see Key
  * @see IKeyBind
  * @author Giant_Salted_Fish
  */
@@ -55,51 +53,15 @@ public final class InputHandler
 	 */
 	public static final HashSet< IKeyBind > INCO_KEYS = new HashSet<>();
 	
-	private static final int MOUSE_0 = -100, MOUSE_1 = -99;
-	
-	/**
-	 * These keys always update.
-	 */
-	public static final KeyBind
-		PULL_TRIGGER = new KeyBind( Key.PULL_TRIGGER, Category.GUN, MOUSE_0, GLOBAL_KEYS ),
-		AIM_HOLD = new KeyBind( Key.AIM_HOLD, Category.GUN, MOUSE_1, GLOBAL_KEYS ),
-		AIM_TOGGLE = new KeyBind( Key.AIM_TOGGLE, Category.GUN, Keyboard.KEY_NONE, GLOBAL_KEYS ),
-//		LOAD_AMMO = new KeyBind( Key.LOAD_AMMO, Category.GUN, MOUSE_0 ),
-//		UNLOAD_AMMO = new KeyBind( Key.UNLOAD_AMMO, Category.GUN, MOUSE_1 ),
-		
-		// TODO: change the default bind key for this maybe
-		SELECT_TOGGLE = new KeyBind( Key.SELECT_TOGGLE, Category.MODIFY, Keyboard.KEY_V ),
-		SELECT_UP = new KeyBind( Key.SELECT_UP, Category.MODIFY, Keyboard.KEY_UP ),
-		SELECT_DOWN = new KeyBind( Key.SELECT_DOWN, Category.MODIFY, Keyboard.KEY_DOWN ),
-		SELECT_LEFT = new KeyBind( Key.SELECT_LEFT, Category.MODIFY, Keyboard.KEY_LEFT ),
-		SELECT_RIGHT = new KeyBind( Key.SELECT_RIGHT, Category.MODIFY, Keyboard.KEY_RIGHT ),
-		SELECT_CONFIRM = new KeyBind( Key.SELECT_CONFIRM, Category.MODIFY, Keyboard.KEY_G ),
-		SELECT_CANCEL = new KeyBind( Key.SELECT_CANCEL, Category.MODIFY, Keyboard.KEY_H ),
-		
-		CO = new KeyBind( Key.CO, Category.ASSIST, Keyboard.KEY_Z, GLOBAL_KEYS );
-	
-	/**
-	 * These keys will update if {@link #CO} is not down.
-	 */
-	public static final KeyBind
-		FREE_VIEW = new KeyBind( Key.FREE_VIEW, Category.GENERAL, Keyboard.KEY_LMENU ),
-		TOGGLE_MODIFY = new KeyBind( Key.TOGGLE_MODIFY, Category.GUN, Keyboard.KEY_I ),
-		
-		RELOAD = new KeyBind( Key.RELOAD, Category.GUN, Keyboard.KEY_R ),
-		LOAD_UNLOAD_MAG = new KeyBind( Key.LOAD_UNLOAD_MAG, Category.GUN, Keyboard.KEY_T ),
-		CHARGE_GUN = new KeyBind( Key.CHARGE_GUN, Category.GUN, Keyboard.KEY_G ),
-		INSPECT = new KeyBind( Key.INSPECT, Category.GUN, Keyboard.KEY_V );
-	
-	/**
-	 * These keys will update if {@link #CO} is down.
-	 */
-	public static final KeyBind
-		CO_FREE_VIEW = new KeyBind( Key.CO_FREE_VIEW, Category.ASSIST, Keyboard.KEY_NONE ),
-		CO_RELOAD = new KeyBind( Key.CO_RELOAD, Category.ASSIST, Keyboard.KEY_NONE ),
-		CO_LOAD_UNLOAD_MAG = new KeyBind( Key.CO_LOAD_UNLOAD_MAG, Category.ASSIST, Keyboard.KEY_NONE ),
-		CO_CHARGE_GUN = new KeyBind( Key.CO_CHARGE_GUN, Category.ASSIST, Keyboard.KEY_NONE ),
-		CO_INSPECT = new KeyBind( Key.CO_INSPECT, Category.ASSIST, Keyboard.KEY_NONE ),
-		CO_TOGGLE_MODIFY = new KeyBind( Key.CO_TOGGLE_MODIFY, Category.ASSIST, Keyboard.KEY_NONE );
+	static
+	{
+		// Trigger key bind initialization.
+		// FIXME: check if this is needed
+		try { Class.forName( Key.class.getName() ); }
+		catch ( ClassNotFoundException e ) {
+			throw new RuntimeException( e );
+		}
+	}
 	
 	private static final HashMultimap< Integer, IKeyBind > GLOBAL_MAPPER = HashMultimap.create();
 	
@@ -136,8 +98,9 @@ public final class InputHandler
 		final boolean state = Keyboard.getEventKeyState();
 		
 		GLOBAL_MAPPER.get( key ).forEach( kb -> kb.update( state ) );
-		( CO.down ? CO_MAPPER : INCO_MAPPER ).get( key ).forEach( kb -> kb.update( state ) );
-		( CO.down ? INCO_MAPPER : CO_MAPPER ).get( key )
+		( Key.ASSIST.down ? CO_MAPPER : INCO_MAPPER ).get( key )
+			.forEach( kb -> kb.update( state ) );
+		( Key.ASSIST.down ? INCO_MAPPER : CO_MAPPER ).get( key )
 			.forEach( kb -> kb.inactiveUpdate( state ) );
 	}
 	
@@ -150,15 +113,16 @@ public final class InputHandler
 		final boolean state = Mouse.getEventButtonState();
 		
 		GLOBAL_MAPPER.get( button ).forEach( kb -> kb.update( state ) );
-		( CO.down ? CO_MAPPER : INCO_MAPPER ).get( button ).forEach( kb -> kb.update( state ) );
-		( CO.down ? INCO_MAPPER : CO_MAPPER ).get( button )
+		( Key.ASSIST.down ? CO_MAPPER : INCO_MAPPER ).get( button )
+			.forEach( kb -> kb.update( state ) );
+		( Key.ASSIST.down ? INCO_MAPPER : CO_MAPPER ).get( button )
 			.forEach( kb -> kb.inactiveUpdate( state ) );
 	}
 	
 	private static KeyBind prevAimKey;
 	public static void restoreMcKeyBinds()
 	{
-		prevAimKey = AIM_HOLD.keyCode != Keyboard.KEY_NONE ? AIM_HOLD : AIM_TOGGLE;
+		prevAimKey = Key.AIM_HOLD.keyCode != Keyboard.KEY_NONE ? Key.AIM_HOLD : Key.AIM_TOGGLE;
 		IKeyBind.REGISTRY.values().forEach( IKeyBind::restoreMcKeyBind );
 	}
 	
@@ -171,7 +135,7 @@ public final class InputHandler
 		
 		// Make sure there is only one aim key bounden.
 		final int none = Keyboard.KEY_NONE;
-		if ( AIM_HOLD.keyCode != none && AIM_TOGGLE.keyCode != none )
+		if ( Key.AIM_HOLD.keyCode != none && Key.AIM_TOGGLE.keyCode != none )
 		{
 			prevAimKey.setKeyCode( none );
 			changed = true;

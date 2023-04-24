@@ -11,5 +11,5 @@ public interface IPostLoadSubscriber
 	 * 
 	 * @see IContentProvider#regisPostLoadSubscriber(IPostLoadSubscriber)
 	 */
-	public void onPostLoad();
+	void onPostLoad();
 }

@@ -4,17 +4,17 @@ import net.minecraft.entity.player.EntityPlayer;
 
 public interface IOperationController
 {
-	public float progressor();
+	float progressor();
 	
-	public int effectCount();
+	int effectCount();
 	
-	public float getEffectTime( int idx );
+	float getEffectTime( int idx );
 	
-	public String getEffect( int idx );
+	String getEffect( int idx );
 	
-	public int soundCount();
+	int soundCount();
 	
-	public float getSoundTime( int idx );
+	float getSoundTime( int idx );
 	
 	void handlePlaySound( int idx, EntityPlayer player );
 }

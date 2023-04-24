@@ -1,7 +1,6 @@
 package com.mcwb.common.player;
 
 import com.mcwb.common.ammo.IAmmoType;
-import com.mcwb.common.gun.IEquippedMag;
 import com.mcwb.common.gun.IMag;
 import com.mcwb.common.item.IItemType;
 import com.mcwb.common.item.IItemTypeHost;
@@ -12,16 +11,19 @@ import com.mcwb.common.operation.Operation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
-public class OpLoadAmmo extends Operation< IEquippedMag< ? > >
+public class OpLoadAmmo extends Operation
 {
+	protected final IMag< ? > mag;
+	
 	protected final int invSlot;
 	
 	protected IOperation next = NONE;
 	
-	public OpLoadAmmo( IEquippedMag< ? > mag, int invSlot, IOperationController controller )
+	public OpLoadAmmo( IMag< ? > mag, int invSlot, IOperationController controller )
 	{
-		super( mag, controller );
+		super( controller );
 		
+		this.mag = mag;
 		this.invSlot = invSlot;
 	}
 	
@@ -31,13 +33,12 @@ public class OpLoadAmmo extends Operation< IEquippedMag< ? > >
 		switch ( 0 )
 		{
 		default:
-			final IMag< ? > mag = this.equipped.item();
-			if ( mag.isFull() ) { break; }
+			if ( this.mag.isFull() ) { break; }
 			
 			final ItemStack stack = player.inventory.getStackInSlot( this.invSlot );
 			final IItemType type = IItemTypeHost.getTypeOrDefault( stack.getItem() );
 			final boolean isAmmo = type instanceof IAmmoType;
-			final boolean isValidAmmo = isAmmo && mag.isAllowed( ( IAmmoType ) type );
+			final boolean isValidAmmo = isAmmo && this.mag.isAllowed( ( IAmmoType ) type );
 			if ( !isValidAmmo ) { break; }
 			
 			return this;
@@ -64,10 +65,9 @@ public class OpLoadAmmo extends Operation< IEquippedMag< ? > >
 		if ( !isAmmo ) { return; }
 		
 		final IAmmoType ammo = ( IAmmoType ) type;
-		final IMag< ? > mag = this.equipped.item();
-		if ( !mag.isAllowed( ammo ) ) { return; }
+		if ( !this.mag.isAllowed( ammo ) ) { return; }
 		
-		mag.pushAmmo( ammo );
+		this.mag.pushAmmo( ammo );
 //		if ( !this.player.isCreative() )
 			stack.shrink( 1 );
 	}

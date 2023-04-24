@@ -3,9 +3,9 @@ package com.mcwb.common.gun;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import com.mcwb.client.gun.IEquippedGunPartRenderer;
 import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.gun.JsonGunModel;
-import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.IItemModel;
 import com.mcwb.common.load.BuildableLoader;
 import com.mcwb.common.meta.IMeta;
@@ -21,14 +21,14 @@ public class JsonGunType extends GunType<
 	IGunPart< ? >,
 	IGun< ? >,
 	IEquippedGun< ? extends IGun< ? > >,
-	IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > >,
+	IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >,
 	IGunPartRenderer<
 		? super IGun< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 	>,
 	IItemModel< ? extends IGunPartRenderer<
 		? super IGun< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 	> >
 > {
 	public static final BuildableLoader< IMeta >
@@ -46,7 +46,7 @@ public class JsonGunType extends GunType<
 			// This should never be equipped hence return null.
 			@Override
 			protected IEquippedGun< ? extends IGun< ? > > newEquipped(
-				Supplier< IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > > >
+				Supplier< IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > > >
 					equippedRenderer,
 				Supplier< Function<
 					IEquippedGun< ? extends IGun< ? > >,
@@ -65,7 +65,7 @@ public class JsonGunType extends GunType<
 		{
 			@Override
 			protected IEquippedGun< ? extends IGun< ? > > newEquipped(
-				Supplier< IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > > >
+				Supplier< IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > > >
 					equippedRenderer,
 				Supplier< Function<
 					IEquippedGun< ? extends IGun< ? > >,
@@ -87,7 +87,7 @@ public class JsonGunType extends GunType<
 	@Override
 	protected IItemModel< ? extends IGunPartRenderer<
 		? super IGun< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 	> > fallbackModel() { return JsonGunModel.NONE; }
 	
 	@Override

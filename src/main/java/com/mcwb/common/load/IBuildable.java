@@ -11,5 +11,5 @@ public interface IBuildable< T >
 	 * @param name An optional name that usually obtained from its file name.
 	 * @param provider Where this buildable is load from.
 	 */
-	public T build( String name, IContentProvider provider );
+	T build( String name, IContentProvider provider );
 }

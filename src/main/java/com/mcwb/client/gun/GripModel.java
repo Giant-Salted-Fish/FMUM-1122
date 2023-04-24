@@ -1,6 +1,5 @@
 package com.mcwb.client.gun;
 
-import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
@@ -16,7 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public abstract class GripModel<
 	C extends IGunPart< ? >,
 	E extends IEquippedItem< ? extends C >,
-	ER extends IEquippedItemRenderer< ? super E >,
+	ER extends IEquippedGunPartRenderer< ? super E >,
 	R extends IGunPartRenderer< ? super C, ? extends ER >
 > extends GunPartModel< C, E, ER, R >
 {

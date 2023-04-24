@@ -2,23 +2,31 @@ package com.mcwb.client.gun;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import org.lwjgl.opengl.GL11;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.IAutowireBindTexture;
-import com.mcwb.client.item.IEquippedItemRenderer;
+import com.mcwb.client.MCWBClient;
 import com.mcwb.client.item.ItemModel;
 import com.mcwb.client.module.IDeferredRenderer;
+import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.load.IContentProvider;
+import com.mcwb.common.operation.IOperation;
+import com.mcwb.devtool.Dev;
+import com.mcwb.util.AngleAxis4f;
 import com.mcwb.util.ArmTracker;
+import com.mcwb.util.IAnimation;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Mesh;
+import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
 
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -28,7 +36,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public abstract class GunPartModel<
 	C extends IGunPart< ? >,
 	E extends IEquippedItem< ? extends C >,
-	ER extends IEquippedItemRenderer< ? super E >,
+	ER extends IEquippedGunPartRenderer< ? super E >,
 	R extends IGunPartRenderer< ? super C, ? extends ER >
 > extends ItemModel< C, E, R >
 {
@@ -160,27 +168,39 @@ public abstract class GunPartModel<
 		}
 		
 		protected class EquippedGunPartRenderer extends EquippedItemRenderer
+			implements IEquippedGunPartRenderer< E >
 		{
 			// Not protected for the visibility problem of TDGripModel.
 			public EquippedGunPartRenderer() { }
-
+			
 			@Override
-			public void prepareRenderInHandSP( E equipped, EnumHand hand )
+			public void useModifyAnimation( Supplier< Float > refPlayerRotYaw ) {
+				this.useAnimation( GunPartModel.this.new ModifyAnimator( this, refPlayerRotYaw ) );
+			}
+			
+			@Override
+			public void updateAnimationForRender( E equipped, EnumHand hand )
 			{
-//				super.prepareRenderInHandSP( equipped, hand ); // Use this if #moduleAnimationChannel is used
+				/// *** Update in hand position as well as rotation before render. *** ///
+				{
+					this.updatePosRot(); // TODO: before or after animation update?
+					
+					final Mat4f mat = Mat4f.locate();
+					mat.setIdentity();
+					mat.translate( this.pos );
+					mat.rotate( this.rot );
+					
+					mat.get( this.pos );
+					this.rot.set( mat );
+					mat.release();
+				}
 				
-				// Update animation and in hand position as well as rotation before render.
-				this.updatePosRot(); // TODO: before or after animation update?
-				
-				final Mat4f mat = Mat4f.locate();
-				mat.setIdentity();
-				mat.translate( this.pos );
-				mat.rotate( this.rot );
-				// TODO: equipped#animator() actually should be #this
-				
-				mat.get( this.pos );
-				this.rot.set( mat );
-				mat.release();
+				/// *** Update animation. *** ///
+				{
+					final IOperation executing = PlayerPatchClient.instance.executing();
+					final float progress = executing.getProgress( this.smoother() );
+					this.animation.update( progress );
+				}
 				
 				// Blend modify transform.
 //				final float alpha = this.animation.getFactor( CHANNEL_MODIFY );
@@ -190,7 +210,11 @@ public abstract class GunPartModel<
 //				this.animation.getRot( CHANNEL_MODIFY, quat );
 //				this.rot.interpolate( quat, alpha );
 //				quat.release();
-				
+			}
+			
+			@Override
+			public void prepareRenderInHandSP( E equipped, EnumHand hand )
+			{
 				// Clear previous state.
 				HAND_QUEUE_0.forEach( IDeferredRenderer::release );
 				HAND_QUEUE_0.clear();
@@ -215,6 +239,90 @@ public abstract class GunPartModel<
 				HAND_QUEUE_1.forEach( IDeferredRenderer::render );
 			}
 		}
+	}
+	
+	protected class ModifyAnimator implements IAnimation
+	{
+		protected final IAnimator animator;
+		protected final Supplier< Float > refPlayerRotYaw;
+		
+		protected final Vec3f pos = new Vec3f();
+		protected final Quat4f rot = new Quat4f();
+		
+		protected ModifyAnimator( IAnimator animator, Supplier< Float > refPlayerRotYaw )
+		{
+			this.animator = animator;
+			this.refPlayerRotYaw = refPlayerRotYaw;
+		}
+		
+		@Override
+		public void update( float progress )
+		{
+			final Mat4f mat = Mat4f.locate();
+			this.animator.getChannel( CHANNEL_ITEM, mat );
+			mat.invert();
+			
+			this.pos.set( GunPartModel.this.modifyPos );
+			this.pos.scale( progress );
+			mat.translate( this.pos );
+			
+			final EntityPlayerSP player = MCWBClient.MC.player;
+			final float refPlayerRotYaw = this.refPlayerRotYaw.get();
+			final float modifyYawBase = ( refPlayerRotYaw % 360F + 360F ) % 360F - 180F; // TODO: maybe do this when capture ref player yaw
+			final float modifyYawDelta = refPlayerRotYaw - player.rotationYaw;
+			final float modifyYaw = modifyYawBase - modifyYawDelta;
+			
+			if ( Dev.flag )
+			{
+				MCWBClient.MOD.sendPlayerMsg( "progress " + progress );
+				Dev.flag = false;
+			}
+			
+//			mat.rotateX( -player.rotationPitch * progress );
+//			mat.rotateY( modifyYaw * progress );
+			
+			mat.get( this.pos );
+			this.rot.set( mat );
+			
+			this.pos.scale( progress );
+			this.rot.scaleAngle( progress );
+			
+			Quat4f quat = Quat4f.locate();
+			
+			mat.setIdentity();
+			mat.rotateX( -player.rotationPitch * progress );
+			quat.set( mat );
+			this.rot.mul( quat );
+			
+			mat.setIdentity();
+			mat.rotateY( modifyYaw * progress );
+			quat.set( mat );
+			this.rot.mul( quat );
+			
+			quat.release();
+			mat.release();
+		}
+		
+		@Override
+		public void getPos( String channel, Vec3f dst )
+		{
+			if ( channel.equals( GunPartModel.this.animationChannel ) ) {
+				dst.set( this.pos );
+			}
+			else { dst.setZero(); }
+		}
+		
+		@Override
+		public void getRot( String channel, Quat4f dst )
+		{
+			if ( channel.equals( GunPartModel.this.animationChannel ) ) {
+				dst.set( this.rot );
+			}
+			else { dst.clearRot(); }
+		}
+		
+		@Override
+		public float getFactor( String channel ) { return 1F; }
 	}
 	
 	protected static class AnimatedMesh

@@ -1,5 +1,8 @@
 package com.mcwb.client.player;
 
+import static net.minecraft.util.EnumHand.MAIN_HAND;
+import static net.minecraft.util.EnumHand.OFF_HAND;
+
 import org.lwjgl.opengl.GL11;
 
 import com.mcwb.client.EventHandlerClient;
@@ -69,12 +72,12 @@ public final class PlayerPatchClient extends PlayerPatch
 			// This method is called right before the render and player rotation is also updated. \
 			// Hence is the proper place to fire prepare render callback.
 			final PlayerPatchClient patch = PlayerPatchClient.this;
-			patch.mainEquipped.updateAnimationForRender();
-			patch.offEquipped.updateAnimationForRender();
+			patch.mainEquipped.updateAnimationForRender( MAIN_HAND );
+			patch.offEquipped.updateAnimationForRender( OFF_HAND );
 			
 			patch.camera.prepareRender( this );
-			patch.mainEquipped.prepareRenderInHandSP( EnumHand.MAIN_HAND );
-			patch.offEquipped.prepareRenderInHandSP( EnumHand.OFF_HAND );
+			patch.mainEquipped.prepareRenderInHandSP( MAIN_HAND );
+			patch.offEquipped.prepareRenderInHandSP( OFF_HAND );
 		}
 	};
 	
@@ -136,8 +139,8 @@ public final class PlayerPatchClient extends PlayerPatch
 				&& ( ( EntityLivingBase ) entity ).isPlayerSleeping()
 			|| settings.hideGUI
 			|| mc.playerController.isSpectator()
-			|| this.mainEquipped.renderInHandSP( EnumHand.MAIN_HAND )
-				&& this.offEquipped.renderInHandSP( EnumHand.OFF_HAND )
+			|| this.mainEquipped.renderInHandSP( MAIN_HAND )
+				&& this.offEquipped.renderInHandSP( OFF_HAND )
 		) { return true; }
 		
 		// Otherwise, setup orientation for vanilla item rendering.
@@ -153,7 +156,7 @@ public final class PlayerPatchClient extends PlayerPatch
 	
 	public boolean onRenderSpecificHandSP( EnumHand hand )
 	{
-		final boolean isOffHand = hand == EnumHand.OFF_HAND;
+		final boolean isOffHand = hand == OFF_HAND;
 		return ( isOffHand ? this.offEquipped : this.mainEquipped ).onRenderSpecificHandSP( hand );
 	}
 	

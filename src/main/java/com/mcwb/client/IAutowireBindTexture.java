@@ -7,7 +7,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface IAutowireBindTexture
 {
 	@SideOnly( Side.CLIENT )
-	public default void bindTexture( ResourceLocation texture ) {
+	default void bindTexture( ResourceLocation texture ) {
 		MCWBClient.MC.renderEngine.bindTexture( texture );
 	}
 }

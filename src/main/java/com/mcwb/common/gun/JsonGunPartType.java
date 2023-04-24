@@ -3,9 +3,9 @@ package com.mcwb.common.gun;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import com.mcwb.client.gun.IEquippedGunPartRenderer;
 import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.gun.JsonGunPartModel;
-import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.IItemModel;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.load.BuildableLoader;
@@ -23,14 +23,14 @@ public class JsonGunPartType extends GunPartType<
 	IGunPart< ? >,
 	IGunPart< ? >,
 	IEquippedItem< ? extends IGunPart< ? > >,
-	IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >,
+	IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >,
 	IGunPartRenderer<
 		? super IGunPart< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 	>,
 	IItemModel< ? extends IGunPartRenderer<
 		? super IGunPart< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 	> >
 > {
 	public static final BuildableLoader< IMeta >
@@ -49,7 +49,7 @@ public class JsonGunPartType extends GunPartType<
 			@Override
 			protected IEquippedItem< ? extends IGunPart< ? > > newEquipped(
 				Supplier<
-					IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
+					IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 				> equippedRenderer,
 				Supplier< Function<
 					IEquippedItem< ? extends IGunPart< ? > >,
@@ -69,7 +69,7 @@ public class JsonGunPartType extends GunPartType<
 			@Override
 			protected IEquippedItem< ? extends IGunPart< ? > > newEquipped(
 				Supplier<
-					IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
+					IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 				> equippedRenderer,
 				Supplier< Function<
 					IEquippedItem< ? extends IGunPart< ? > >,
@@ -91,7 +91,7 @@ public class JsonGunPartType extends GunPartType<
 	@Override
 	protected IItemModel< ? extends IGunPartRenderer<
 		? super IGunPart< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 	> > fallbackModel() { return JsonGunPartModel.NONE; }
 	
 	@Override

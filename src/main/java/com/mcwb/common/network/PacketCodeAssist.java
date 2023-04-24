@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public final class PacketCodeAssist implements IPacket
 {
-	public static enum Code
+	public enum Code
 	{
 		LOAD_AMMO
 		{

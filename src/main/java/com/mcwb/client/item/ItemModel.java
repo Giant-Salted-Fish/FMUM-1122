@@ -12,6 +12,7 @@ import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.operation.IOperation;
 import com.mcwb.util.Animation;
+import com.mcwb.util.IAnimation;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
@@ -60,10 +61,10 @@ public abstract class ItemModel<
 	 */
 	protected String animationChannel = "";
 	
-	protected class EquippedItemRenderer
-		implements IEquippedItemRenderer< E >, IAnimator, IAutowireBindTexture, IAutowireSmoother
+	protected class EquippedItemRenderer implements IEquippedItemRenderer< E >,
+		IAnimator, IAutowireBindTexture, IAutowireSmoother
 	{
-		protected Animation animation = Animation.NONE;
+		protected IAnimation animation = Animation.NONE;
 		
 		protected final Vec3f pos = new Vec3f();
 		protected final Quat4f rot = new Quat4f();
@@ -72,15 +73,7 @@ public abstract class ItemModel<
 		public EquippedItemRenderer() { }
 		
 		@Override
-		public void useAnimation( Animation animation ) { this.animation = animation; }
-		
-		@Override
-		public void updateAnimation()
-		{
-			final IOperation executing = PlayerPatchClient.instance.executing();
-			final float progress = executing.getProgress( this.smoother() );
-			this.animation.update( progress );
-		}
+		public void useAnimation( IAnimation animation ) { this.animation = animation; }
 		
 		@Override
 		public void getPos( String channel, Vec3f dst )
@@ -115,21 +108,35 @@ public abstract class ItemModel<
 		public void tickInHand( E equipped, EnumHand hand ) { }
 		
 		@Override
+		public void updateAnimationForRender( E equipped, EnumHand hand )
+		{
+			/// *** Update in hand position as well as rotation before render. *** ///
+			{
+				this.updatePosRot(); // TODO: before or after animation update?
+				
+				final Mat4f mat = Mat4f.locate();
+				mat.setIdentity();
+				mat.translate( this.pos );
+				mat.rotate( this.rot );
+				equipped.animator().applyChannel( ItemModel.this.animationChannel, mat );
+				// TODO: equipped#animator() actually should be #this
+				
+				mat.get( this.pos );
+				this.rot.set( mat );
+				mat.release();
+			}
+			
+			/// *** Update animation. *** ///
+			{
+				final IOperation executing = PlayerPatchClient.instance.executing();
+				final float progress = executing.getProgress( this.smoother() );
+				this.animation.update( progress );
+			}
+		}
+		
+		@Override
 		public void prepareRenderInHandSP( E equipped, EnumHand hand )
 		{
-			// Update in hand position as well as rotation before render.
-			this.updatePosRot(); // TODO: before or after animation update?
-			
-			final Mat4f mat = Mat4f.locate();
-			mat.setIdentity();
-			mat.translate( this.pos );
-			mat.rotate( this.rot );
-			equipped.animator().applyChannel( ItemModel.this.animationChannel, mat );
-			// TODO: equipped#animator() actually should be #this
-			
-			mat.get( this.pos );
-			this.rot.set( mat );
-			mat.release();
 		}
 		
 		@Override

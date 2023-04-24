@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public interface IItem
 {
-	public static final IItem VANILLA = new IItem()
+	static final IItem VANILLA = new IItem()
 	{
 		@Override
 		public int stackId() { return 0; }
@@ -40,22 +40,22 @@ public interface IItem
 	 * 
 	 * @return An universe id that identifies an item stack.
 	 */
-	public int stackId();
+	int stackId();
 	
 	/**
 	 * Called when player is trying to take out this item.
 	 */
-	public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand );
+	IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand );
 	
 	/**
 	 * Called when the corresponding stack in hand has changed.
 	 */
-	public IEquippedItem< ? > onStackUpdate(
+	IEquippedItem< ? > onStackUpdate(
 		IEquippedItem< ? > prevEquipped,
 		EntityPlayer player,
 		EnumHand hand
 	);
 	
 	@SideOnly( Side.CLIENT )
-	public ResourceLocation texture();
+	ResourceLocation texture();
 }

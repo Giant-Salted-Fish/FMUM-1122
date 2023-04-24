@@ -7,8 +7,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IPacket extends IMessage
 {
-	public default void handleServerSide( MessageContext ctx ) { }
+	default void handleServerSide( MessageContext ctx ) { }
 	
 	@SideOnly( Side.CLIENT )
-	public default void handleClientSide( MessageContext ctx ) { }
+	default void handleClientSide( MessageContext ctx ) { }
 }

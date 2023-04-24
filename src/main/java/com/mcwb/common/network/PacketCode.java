@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public final class PacketCode implements IPacket
 {
-	public static enum Code
+	public enum Code
 	{
 		TERMINATE_OP
 		{

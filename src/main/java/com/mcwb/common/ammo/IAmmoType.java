@@ -9,15 +9,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IAmmoType extends IItemType
 {
-	public static final Registry< IAmmoType > REGISTRY = new Registry<>();
+	static final Registry< IAmmoType > REGISTRY = new Registry<>();
 	
-	public String category();
+	String category();
 	
-	public boolean isCase();
-	
-	@SideOnly( Side.CLIENT )
-	public void render();
+	boolean isCase();
 	
 	@SideOnly( Side.CLIENT )
-	public ResourceLocation texture();
+	void render();
+	
+	@SideOnly( Side.CLIENT )
+	ResourceLocation texture();
 }

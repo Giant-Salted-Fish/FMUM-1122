@@ -1,6 +1,6 @@
 package com.mcwb.client.player;
 
-import com.mcwb.client.input.InputHandler;
+import com.mcwb.client.input.Key;
 import com.mcwb.common.ammo.IAmmoType;
 import com.mcwb.common.gun.IEquippedMag;
 import com.mcwb.common.gun.IMag;
@@ -30,7 +30,7 @@ public class OpLoadAmmoClient extends OperationClient< IEquippedMag< ? > >
 		final IMag< ? > mag = this.equipped.item();
 		if ( mag.isFull() ) { return NONE; }
 		
-		final int offset = InputHandler.CO.down ? 1 : 0;
+		final int offset = Key.ASSIST.down ? 1 : 0;
 		this.invSlot = this.getValidAmmoSlot( offset, player );
 		final boolean validAmmoNotFound = this.invSlot == -1;
 		if ( validAmmoNotFound ) { return NONE; }

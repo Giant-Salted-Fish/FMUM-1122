@@ -22,7 +22,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 
 @EventBusSubscriber( modid = MCWB.MODID )
-public final class EventHandler
+final class EventHandler
 {
 	private static final IAutowireLogger LOGGER = MCWB.MOD;
 	

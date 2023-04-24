@@ -9,10 +9,10 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
+import com.mcwb.client.gun.IEquippedGunPartRenderer;
 import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.input.IInput;
 import com.mcwb.client.input.Key;
-import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.IItemModel;
 import com.mcwb.client.player.OpLoadAmmoClient;
 import com.mcwb.client.player.OpUnloadAmmoClient;
@@ -39,7 +39,7 @@ public abstract class MagType<
 	I extends IGunPart< ? extends I >,
 	C extends IMag< ? >,
 	E extends IEquippedMag< ? extends C >,
-	ER extends IEquippedItemRenderer< ? super E >,
+	ER extends IEquippedGunPartRenderer< ? super E >,
 	R extends IGunPartRenderer< ? super C, ? extends ER >,
 	M extends IItemModel< ? extends R >
 > extends GunPartType< I, C, E, ER, R, M >
@@ -179,13 +179,13 @@ public abstract class MagType<
 				case OP_CODE_LOAD_AMMO: {
 					final int invSlot = buf.readByte();
 					final IOperationController controller = MagType.this.loadAmmoController;
-					final IOperation op = new OpLoadAmmo( this, invSlot, controller );
+					final IOperation op = new OpLoadAmmo( Mag.this, invSlot, controller );
 					PlayerPatch.get( player ).launch( op );
 				break; }
 					
 				case OP_CODE_UNLOAD_AMMO:
 					final IOperationController controller = MagType.this.unloadAmmoController;
-					final IOperation op = new OpUnloadAmmo( this, controller );
+					final IOperation op = new OpUnloadAmmo( Mag.this, controller );
 					PlayerPatch.get( player ).launch( op );
 				}
 			}
@@ -194,9 +194,9 @@ public abstract class MagType<
 			@SideOnly( Side.CLIENT )
 			public void onKeyPress( IInput key )
 			{
-				switch ( key.name() )
+				final boolean loadAmmo = key == Key.PULL_TRIGGER;
+				if ( loadAmmo )
 				{
-				case Key.PULL_TRIGGER:
 					PlayerPatchClient.instance.launch(
 						new OpLoadAmmoClient( this, MagType.this.loadAmmoController )
 						{
@@ -210,10 +210,12 @@ public abstract class MagType<
 							}
 						}
 					);
-					break;
-					
-				case Key.AIM_HOLD:
-				case Key.AIM_TOGGLE:
+					return;
+				}
+				
+				final boolean unloadAmmo = key == Key.AIM_HOLD || key == Key.AIM_TOGGLE;
+				if ( unloadAmmo )
+				{
 					PlayerPatchClient.instance.launch(
 						new OpUnloadAmmoClient( this, MagType.this.unloadAmmoController )
 						{
@@ -226,30 +228,33 @@ public abstract class MagType<
 							}
 						}
 					);
-					break;
-					
-//				default: super.onKeyPress( key );
+					return;
 				}
+				
+				super.onKeyPress( key );
 			}
 			
 			@Override
 			@SideOnly( Side.CLIENT )
 			public void onKeyRelease( IInput key )
 			{
-				switch ( key.name() )
+				final boolean stopped = (
+					key == Key.PULL_TRIGGER
+					|| key == Key.AIM_HOLD
+					|| key == Key.AIM_TOGGLE
+				);
+				
+				if ( stopped )
 				{
-				case Key.PULL_TRIGGER:
-				case Key.AIM_HOLD:
-				case Key.AIM_TOGGLE:
 					final IOperation executing = PlayerPatchClient.instance.executing();
-					final boolean isLoadingAmmo = executing instanceof OpLoadAmmoClient;
-					final boolean isUnloadingAmmo = executing instanceof OpUnloadAmmoClient;
-					if ( isLoadingAmmo || isUnloadingAmmo ) {
+					final boolean loadingOrUnloading = (
+						executing instanceof OpLoadAmmoClient
+						|| executing instanceof OpUnloadAmmoClient
+					);
+					
+					if ( loadingOrUnloading ) {
 						PlayerPatchClient.instance.ternimateExecuting();
 					}
-					break;
-					
-//				default: super.onKeyRelease( key );
 				}
 			}
 		}

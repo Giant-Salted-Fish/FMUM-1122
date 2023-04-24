@@ -6,14 +6,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IPaintable
 {
-	public int paintjobCount();
+	int paintjobCount();
 	
-	public int paintjob();
+	int paintjob();
 	
-	public void setPaintjob( int paintjob );
+	void setPaintjob( int paintjob );
 	
-	public boolean tryOffer( int paintjob, EntityPlayer player );
+	boolean tryOffer( int paintjob, EntityPlayer player );
 	
 	@SideOnly( Side.CLIENT )
-	public boolean tryOfferOrNotifyWhy( int paintjob, EntityPlayer player );
+	boolean tryOfferOrNotifyWhy( int paintjob, EntityPlayer player );
 }

@@ -9,10 +9,10 @@ public interface IInput
 	/**
 	 * @see Key
 	 */
-	public String name();
+	String name();
 	
 	/**
 	 * @return {@code true} if this key is currented pressed
 	 */
-	public boolean down();
+	boolean down();
 }

@@ -7,25 +7,25 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IMag< T extends IGunPart< ? extends T > > extends IGunPart< T >
 {
-	public boolean isFull();
+	boolean isFull();
 	
-	public default boolean isEmpty() { return this.ammoCount() == 0; }
+	default boolean isEmpty() { return this.ammoCount() == 0; }
 	
-	public int ammoCount();
+	int ammoCount();
 	
-	public boolean isAllowed( IAmmoType ammo );
+	boolean isAllowed( IAmmoType ammo );
 	
-	public void pushAmmo( IAmmoType ammo );
+	void pushAmmo( IAmmoType ammo );
 	
-	public IAmmoType popAmmo();
+	IAmmoType popAmmo();
 	
-	public default IAmmoType peek() { return this.getAmmo( this.ammoCount() - 1 ); }
+	default IAmmoType peek() { return this.getAmmo( this.ammoCount() - 1 ); }
 	
-	public IAmmoType getAmmo( int idx );
-	
-	@SideOnly( Side.CLIENT )
-	public boolean isLoadingMag();
+	IAmmoType getAmmo( int idx );
 	
 	@SideOnly( Side.CLIENT )
-	public void setAsLoadingMag();
+	boolean isLoadingMag();
+	
+	@SideOnly( Side.CLIENT )
+	void setAsLoadingMag();
 }

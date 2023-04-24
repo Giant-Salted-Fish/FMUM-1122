@@ -9,11 +9,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface IItemRenderer< C, ER >
 {
 	@SideOnly( Side.CLIENT )
-	public ER onTakeOut( EnumHand hand );
+	ER onTakeOut( EnumHand hand );
 	
 	/**
 	 * Render an item that is not equipped but animated by the given animator
 	 */
 	@SideOnly( Side.CLIENT )
-	public void render( C contexted, IAnimator animator );
+	void render( C contexted, IAnimator animator );
 }

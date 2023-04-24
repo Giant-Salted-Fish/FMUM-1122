@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-public class Animation
+public class Animation implements IAnimation
 {
 	public static final Animation NONE = new Animation()
 	{
@@ -28,8 +28,10 @@ public class Animation
 	 */
 	public final LinkedList< BoneAnimation > rootBones = new LinkedList<>();
 	
+	@Override
 	public void update( float progress ) { this.rootBones.forEach( b -> b.update( progress ) ); }
 	
+	@Override
 	public void getPos( String channel, Vec3f dst )
 	{
 		final BoneAnimation ani = this.channels.get( channel );
@@ -37,6 +39,7 @@ public class Animation
 		else { dst.setZero(); } // TODO: use computeIfPresent maybe?
 	}
 	
+	@Override
 	public void getRot( String channel, Quat4f dst )
 	{
 		final BoneAnimation ani = this.channels.get( channel );
@@ -44,6 +47,7 @@ public class Animation
 		else { dst.clearRot(); }
 	}
 	
+	@Override
 	public float getFactor( String channel )
 	{
 		final BoneAnimation ani = this.channels.get( channel );

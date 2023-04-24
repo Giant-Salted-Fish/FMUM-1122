@@ -1,6 +1,5 @@
 package com.mcwb.client.render;
 
-import com.mcwb.util.Animation;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
@@ -13,16 +12,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public interface IAnimator
 {
-	public static final IAnimator INSTANCE = new IAnimator()
+	static final IAnimator NONE = new IAnimator()
 	{
-		@Override
-		@SideOnly( Side.CLIENT )
-		public void useAnimation( Animation animation ) { }
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public void updateAnimation() { }
-		
 		@Override
 		@SideOnly( Side.CLIENT )
 		public void getPos( String channel, Vec3f dst ) { dst.setZero(); }
@@ -36,19 +27,23 @@ public interface IAnimator
 	};
 	
 	@SideOnly( Side.CLIENT )
-	public void useAnimation( Animation animation );
+	void getPos( String channel, Vec3f dst );
 	
 	@SideOnly( Side.CLIENT )
-	public void updateAnimation();
+	void getRot( String channel, Quat4f dst );
+	
+	/**
+	 * TODO: proper intro
+	 * @see #blendPos(IAnimator, float, String, String, float, Mat4f)
+	 * @see #blendRot(IAnimator, float, String, String, float, Mat4f)
+	 * @return
+	 *     Blend factor for animation. Usually {@code 0F} for static position and {@code 1F} for
+	 *     animation.
+	 */
+	default float getFactor( String channel ) { return 0F; }
 	
 	@SideOnly( Side.CLIENT )
-	public void getPos( String channel, Vec3f dst );
-	
-	@SideOnly( Side.CLIENT )
-	public void getRot( String channel, Quat4f dst );
-	
-	@SideOnly( Side.CLIENT )
-	public default void getChannel( String channel, Mat4f dst )
+	default void getChannel( String channel, Mat4f dst )
 	{
 		dst.setIdentity();
 		
@@ -65,7 +60,7 @@ public interface IAnimator
 	
 	// TODO: Check if this is needed
 	@SideOnly( Side.CLIENT )
-	public default void applyChannel( String channel, Mat4f dst )
+	default void applyChannel( String channel, Mat4f dst )
 	{
 		final Mat4f mat = Mat4f.locate();
 		this.getChannel( channel, mat );
@@ -73,19 +68,8 @@ public interface IAnimator
 		mat.release();
 	}
 	
-	/**
-	 * TODO: proper intro
-	 * @see #blendPos(IAnimator, float, String, String, float, Mat4f)
-	 * @see #blendRot(IAnimator, float, String, String, float, Mat4f)
-	 * @return
-	 *     Blend factor for animation. Usually {@code 0F} for static position and {@code 1F} for
-	 *     animation.
-	 */
-	@SideOnly( Side.CLIENT )
-	public default float getFactor( String channel ) { return 0F; }
-	
 //	@SideOnly( Side.CLIENT )
-//	public static void blendPos(
+//	static void blendPos(
 //		IAnimator animator,
 //		String channel0, String channel1, float alpha,
 //		Mat4f dst
@@ -103,7 +87,7 @@ public interface IAnimator
 //	}
 //	
 //	@SideOnly( Side.CLIENT )
-//	public static void blendRot(
+//	static void blendRot(
 //		IAnimator animator,
 //		String channel0, String channel1, float alpha,
 //		Mat4f dst

@@ -10,9 +10,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface IEquippedGun< T extends IGun< ? > > extends IEquippedItem< T >
 {
 //	@SideOnly( Side.CLIENT )
-//	public float getAimProgress( float smoother );
+//	float getAimProgress( float smoother );
 	
 	// TODO: equipped itself actually has animator. may be just use it
 	@SideOnly( Side.CLIENT )
-	public void setupRenderArm( IAnimator animator, ArmTracker leftArm, ArmTracker rightArm );
+	void setupRenderArm( IAnimator animator, ArmTracker leftArm, ArmTracker rightArm );
 }

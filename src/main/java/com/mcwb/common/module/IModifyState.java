@@ -10,16 +10,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IModifyState
 {
-	public static final IModifyState NOT_SELECTED = new IModifyState()
-	{
-//		@Override
-//		@SideOnly( Side.CLIENT )
-//		public void doRenderArm( IRenderer renderer ) { renderer.render(); }
-	};
+	static final IModifyState NOT_SELECTED = new IModifyState() { };
 	
-	public static final IModifyState PRIMARY_START = new IModifyState() { };
-	
-	public static final IModifyState SELECTED_OK = new IModifyState()
+	static final IModifyState SELECTED_OK = new IModifyState()
 	{
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -32,7 +25,7 @@ public interface IModifyState
 		}
 	};
 	
-	public static final IModifyState SELECTED_CONFLICT = new IModifyState()
+	static final IModifyState SELECTED_CONFLICT = new IModifyState()
 	{
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -46,12 +39,9 @@ public interface IModifyState
 	};
 	
 	@SideOnly( Side.CLIENT )
-	public default void doRecommendedRender( ResourceLocation texture, Runnable renderer )
+	default void doRecommendedRender( ResourceLocation texture, Runnable renderer )
 	{
 		MOD.bindTexture( texture );
 		renderer.run();
 	}
-//	TODO: remove this if no longer needed
-//	@SideOnly( Side.CLIENT )
-//	public default void doRenderArm( IRenderer renderer ) { }
 }

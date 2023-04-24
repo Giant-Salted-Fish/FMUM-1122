@@ -23,29 +23,29 @@ public interface IContentProvider extends IMeta
 	/**
 	 * Prepare for the {@link #load()}.
 	 */
-	public void preLoad();
+	void preLoad();
 	
 	/**
 	 * Load contents in this content provider. Called after {@link #preLoad()}.
 	 */
-	public void load();
+	void load();
 	
 	/**
 	 * @return Author of this content provider.
 	 */
-	public String author();
+	String author();
 	
 	/**
 	 * @return
 	 *     Name of source where this content provider fetches content from. Usually is the name of
 	 *     the ".jar" file or the folder of the pack.
 	 */
-	public String sourceName();
+	String sourceName();
 	
 	/**
 	 * Register the given instance to receive {@link IPostLoadSubscriber#onPostLoad()} callback.
 	 */
-	public default void regisPostLoadSubscriber( IPostLoadSubscriber subscriber ) {
+	default void regisPostLoadSubscriber( IPostLoadSubscriber subscriber ) {
 		MCWB.MOD.regisPostLoadSubscriber( subscriber );
 	}
 	
@@ -58,33 +58,33 @@ public interface IContentProvider extends IMeta
 	 * processed automatically by {@link MCWB}. Only register for this callback if your type loads
 	 * its models in other ways. </p>
 	 */
-	public default void regisMeshLoadSubscriber( IMeshLoadSubscriber subscriber ) {
+	default void regisMeshLoadSubscriber( IMeshLoadSubscriber subscriber ) {
 		MCWB.MOD.regisMeshLoadSubscriber( subscriber );
 	}
 	
-	public default SoundEvent loadSound( String path ) { return MCWB.MOD.loadSound( path ); }
+	default SoundEvent loadSound( String path ) { return MCWB.MOD.loadSound( path ); }
 	
 	@SideOnly( Side.CLIENT )
-	public default Object loadModel( String path, String fallbackType ) {
+	default Object loadModel( String path, String fallbackType ) {
 		return MCWBClient.MOD.loadModel( path, fallbackType, this );
 	}
 	
 	@SideOnly( Side.CLIENT )
-	public default Mesh loadMesh( String path, Function< Mesh.Builder, Mesh.Builder > processor ) {
+	default Mesh loadMesh( String path, Function< Mesh.Builder, Mesh.Builder > processor ) {
 		return MCWBClient.MOD.loadMesh( path, processor );
 	}
 	
 	@SideOnly( Side.CLIENT )
-	public default ResourceLocation loadTexture( String path ) {
+	default ResourceLocation loadTexture( String path ) {
 		return MCWBClient.MOD.loadTexture( path );
 	}
 	
 	@SideOnly( Side.CLIENT )
-	public default Animation loadAnimation( String path ) {
+	default Animation loadAnimation( String path ) {
 		return MCWBClient.MOD.loadAnimation( path );
 	}
 	
-	public default boolean isClient() { return MCWB.MOD.isClient(); }
+	default boolean isClient() { return MCWB.MOD.isClient(); }
 	
-	public default void clientOnly( Runnable loadTask ) { MCWB.MOD.clientOnly( loadTask ); }
+	default void clientOnly( Runnable loadTask ) { MCWB.MOD.clientOnly( loadTask ); }
 }

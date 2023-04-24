@@ -17,40 +17,40 @@ public interface IModule< T extends IModule< ? extends T > >
 	/**
 	 * @see #getId(NBTTagCompound)
 	 */
-	public static final String DATA_TAG = "d";
+	static final String DATA_TAG = "d";
 	
-	public String name();
+	String name();
 	
-	public String category();
+	String category();
 	
 	/**
 	 * @return An {@link ItemStack} that linked to this module.
 	 */
-	public ItemStack toStack();
+	ItemStack toStack();
 	
-	public int baseSlot();
+	int baseSlot();
 	
-	public IModule< ? > base();
+	IModule< ? > base();
 	
-	public void setBase( IModule< ? > base, int baseSlot );
+	void setBase( IModule< ? > base, int baseSlot );
 	
-	public void postEvent( Object evt );
+	void postEvent( Object evt );
 	
 	/**
 	 * Synchronize NBT tag data and do update.
 	 * 
 	 * @see #updateState(BiConsumer)
 	 */
-	public void syncAndUpdate();
+	void syncAndUpdate();
 	
 	/**
 	 * Used in {@link #syncAndUpdate()}.
 	 */
-	public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry );
+	void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry );
 	
-	public IPreviewPredicate tryInstall( int slot, IModule< ? > module );
+	IPreviewPredicate tryInstall( int slot, IModule< ? > module );
 	
-	public IModule< ? > doRemove( int slot, int idx );
+	IModule< ? > doRemove( int slot, int idx );
 	
 	/**
 	 * <p> Simply install the given module without posting the event. </p>
@@ -60,7 +60,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	 * 
 	 * @return The actual index of the installed module in given slot.
 	 */
-	public int install( int slot, IModule< ? > module );
+	int install( int slot, IModule< ? > module );
 	
 	/**
 	 * <p> Simply remove the given module without posting the event. </p>
@@ -68,58 +68,58 @@ public interface IModule< T extends IModule< ? extends T > >
 	 * <p> In most cases you should use {@link #doRemove(int, int)} rather this to remove an
 	 * installed module. </p>
 	 */
-	public IModule< ? > remove( int slot, int idx );
+	IModule< ? > remove( int slot, int idx );
 	
-	public IModule< ? > onBeingInstalled();
+	IModule< ? > onBeingInstalled();
 	
-	public IModule< ? > onBeingRemoved();
+	IModule< ? > onBeingRemoved();
 	
 	// TODO: maybe always copy before testing the hit box as #mat may be used for render in client side
-	public IModifyPredicate checkHitboxConflict( IModule< ? > module );
+	IModifyPredicate checkHitboxConflict( IModule< ? > module );
 	
 	/**
 	 * Notice that for each will not visit itself.
 	 */
-	public void forEach( Consumer< ? super T > visitor );
+	void forEach( Consumer< ? super T > visitor );
 	
-	public int getInstalledCount( int slot );
+	int getInstalledCount( int slot );
 	
-	public T getInstalled( int slot, int idx );
+	T getInstalled( int slot, int idx );
 	
-	public IModule< ? > getInstalled( byte[] loc, int locLen );
+	IModule< ? > getInstalled( byte[] loc, int locLen );
 	
-	public void setInstalled( int slot, int idx, IModule< ? > module );
+	void setInstalled( int slot, int idx, IModule< ? > module );
 	
-	public int slotCount();
+	int slotCount();
 	
-	public IModuleSlot getSlot( int idx );
+	IModuleSlot getSlot( int idx );
 	
-	public int offsetCount();
+	int offsetCount();
 	
-	public int offset();
+	int offset();
 	
-	public int step();
+	int step();
 	
-	public void setOffsetStep( int offset, int step );
+	void setOffsetStep( int offset, int step );
 	
-	public IModifyState modifyState();
+	IModifyState modifyState();
 	
-	public void setModifyState( IModifyState state );
+	void setModifyState( IModifyState state );
 	
-	public void getTransform( IModule< ? > installed, Mat4f dst );
+	void getTransform( IModule< ? > installed, Mat4f dst );
 	
 	@SideOnly( Side.CLIENT )
-	public void getRenderTransform( IModule< ? > installed, Mat4f dst );
+	void getRenderTransform( IModule< ? > installed, Mat4f dst );
 	
 //	@SideOnly( Side.CLIENT )
-//	public void prepareRender(
+//	void prepareRender(
 //		IAnimator animator,
 //		Collection< IDeferredRenderer > renderQueue0,
 //		Collection< IDeferredPriorityRenderer > renderQueue1
 //	);
 	
 	@SideOnly( Side.CLIENT )
-	public IModule< ? > newModifyIndicator();
+	IModule< ? > newModifyIndicator();
 	
 	/**
 	 * <p> Simply return the bounden NBT tag. </p>
@@ -129,7 +129,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	 * that is needed. </p>
 	 */
 	@Override
-	public NBTTagCompound serializeNBT();
+	NBTTagCompound serializeNBT();
 	
 	/**
 	 * <p> Restore the state of the context with the given tag. You should directly set the values
@@ -143,7 +143,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	 * @see #serializeNBT()
 	 */
 	@Override
-	public void deserializeNBT( NBTTagCompound nbt );
+	void deserializeNBT( NBTTagCompound nbt );
 	
 	/**
 	 * <p> This is the standard method to get id from the any given module tag. Make sure your
@@ -154,7 +154,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	 * <p> For similar reason you should use this method to retrieve id from the data tag of the
 	 * modules installed on your module to ensure compatibility. </p>
 	 */
-	public static int getId( NBTTagCompound tag ) {
+	static int getId( NBTTagCompound tag ) {
 		return 0xFFFF & tag.getIntArray( DATA_TAG )[ 0 ];
 	}
 }

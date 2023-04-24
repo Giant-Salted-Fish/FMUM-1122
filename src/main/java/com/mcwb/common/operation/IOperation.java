@@ -25,7 +25,7 @@ public interface IOperation
 	/**
 	 * Placeholder operation instance. Represents that no operation is currently running.
 	 */
-	public static final IOperation NONE = new IOperation()
+	static final IOperation NONE = new IOperation()
 	{
 		@Override
 		public IOperation onStackUpdate( IEquippedItem< ? > newEquipped,  EntityPlayer player ) {
@@ -36,21 +36,21 @@ public interface IOperation
 		public String toString() { return "Operation::NONE"; }
 	};
 	
-	public default float progress() { return 1F; }
+	default float progress() { return 1F; }
 	
 	@SideOnly( Side.CLIENT )
-	public default float getProgress( float smoother ) { return 1F; }
+	default float getProgress( float smoother ) { return 1F; }
 	
 	/**
 	 * Prepare for the execution.
 	 */
-	public default IOperation launch( EntityPlayer player ) { return this; }
+	default IOperation launch( EntityPlayer player ) { return this; }
 	
 	/**
 	 * For progressive operation that can reverse its progress. For example you can enter sprint
 	 * stance and keep it then quit it after a while.
 	 */
-	public default IOperation toggle( EntityPlayer player ) { return this; }
+	default IOperation toggle( EntityPlayer player ) { return this; }
 	
 	/**
 	 * <p> Called when the outer requires to terminate this operation. Be aware that the executing
@@ -58,14 +58,14 @@ public interface IOperation
 	 * 
 	 * @return {@link #NONE} if execution is aborted.
 	 */
-	public default IOperation terminate( EntityPlayer player ) { return NONE; }
+	default IOperation terminate( EntityPlayer player ) { return NONE; }
 	
 	/**
 	 * Tick this operation.
 	 * 
 	 * @return {@link #NONE} if this operation has complete. {@code this} otherwise.
 	 */
-	public default IOperation tick( EntityPlayer player ) { return this; }
+	default IOperation tick( EntityPlayer player ) { return this; }
 	
 	/**
 	 * Called when another operation is requesting to launch during the execution of this operation.
@@ -75,7 +75,7 @@ public interface IOperation
 	 * @param op New operation that requests to launch.
 	 * @return {@link IOperation} that should be executed after this call.
 	 */
-	public default IOperation onOtherTryLaunch( IOperation op, EntityPlayer player ) {
+	default IOperation onOtherTryLaunch( IOperation op, EntityPlayer player ) {
 		return op.launch( player );
 	}
 	
@@ -84,7 +84,7 @@ public interface IOperation
 	 * 
 	 * @return {@link #NONE} if this operation should terminate on item switch.
 	 */
-	public default IOperation onItemChange( IEquippedItem< ? > newEquipped, EntityPlayer player ) {
+	default IOperation onItemChange( IEquippedItem< ? > newEquipped, EntityPlayer player ) {
 		return this.terminate( player );
 	}
 	
@@ -93,5 +93,7 @@ public interface IOperation
 	 * 
 	 * @return {@link #NONE} if this operation should terminate on stack update.
 	 */
-	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player );
+	default IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player ) {
+		throw new RuntimeException();
+	}
 }

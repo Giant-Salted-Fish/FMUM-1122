@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface IGunPartRenderer< C, ER > extends IItemRenderer< C, ER >, IModuleRenderer< C >
 {
 	@SideOnly( Side.CLIENT )
-	public default void prepareInHandRender(
+	default void prepareInHandRender(
 		C contexted,
 		IAnimator animator,
 		Collection< IDeferredRenderer > renderQueue0,
@@ -22,8 +22,8 @@ public interface IGunPartRenderer< C, ER > extends IItemRenderer< C, ER >, IModu
 	) { this.prepareRender( contexted, animator, renderQueue0, renderQueue1 ); }
 	
 	@SideOnly( Side.CLIENT )
-	public void setupLeftArmToRender( IAnimator animator, ArmTracker leftArm );
+	void setupLeftArmToRender( IAnimator animator, ArmTracker leftArm );
 	
 	@SideOnly( Side.CLIENT )
-	public void setupRightArmToRender( IAnimator animator, ArmTracker rightArm );
+	void setupRightArmToRender( IAnimator animator, ArmTracker rightArm );
 }

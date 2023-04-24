@@ -6,5 +6,5 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface IItemModel< R >
 {
 	@SideOnly( Side.CLIENT )
-	public R newRenderer();
+	R newRenderer();
 }

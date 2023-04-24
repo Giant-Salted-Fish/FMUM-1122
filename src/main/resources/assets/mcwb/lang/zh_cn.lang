@@ -95,7 +95,7 @@ mcwb.key.charge_gun=武器上膛
 mcwb.key.inspect=监视武器
 
 mcwb.key_category.assist=MCWB 辅助
-mcwb.key.co=辅助键
+mcwb.key.assist=辅助键
 mcwb.key.co_free_view=自由视角组合键
 mcwb.key.co_reload=重新填装武器组合键
 mcwb.key.co_load_unload_mag=卸下/填装弹匣组合键

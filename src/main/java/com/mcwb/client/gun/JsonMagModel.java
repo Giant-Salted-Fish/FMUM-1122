@@ -1,6 +1,5 @@
 package com.mcwb.client.gun;
 
-import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.common.gun.IEquippedMag;
 import com.mcwb.common.gun.IMag;
 import com.mcwb.common.load.BuildableLoader;
@@ -13,10 +12,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class JsonMagModel extends MagModel<
 	IMag< ? >,
 	IEquippedMag< ? extends IMag< ? > >,
-	IEquippedItemRenderer< ? super IEquippedMag< ? extends IMag< ? > > >,
+	IEquippedGunPartRenderer< ? super IEquippedMag< ? extends IMag< ? > > >,
 	IGunPartRenderer<
 		? super IMag< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedMag< ? extends IMag< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedMag< ? extends IMag< ? > > >
 	>
 > {
 	public static final BuildableLoader< ? >
@@ -25,12 +24,12 @@ public class JsonMagModel extends MagModel<
 	@Override
 	public IGunPartRenderer<
 		? super IMag< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedMag< ? extends IMag< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedMag< ? extends IMag< ? > > >
 	> newRenderer() {
 		return this.new MagRenderer()
 		{
 			@Override
-			public IEquippedItemRenderer< ? super IEquippedMag< ? extends IMag< ? > > >
+			public IEquippedGunPartRenderer< ? super IEquippedMag< ? extends IMag< ? > > >
 				onTakeOut( EnumHand hand ) { return this.new EquippedGunPartRenderer(); }
 		};
 	}

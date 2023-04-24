@@ -3,9 +3,9 @@ package com.mcwb.common.gun;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import com.mcwb.client.gun.IEquippedGunPartRenderer;
 import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.gun.JsonGunPartModel;
-import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.item.IItemModel;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.load.BuildableLoader;
@@ -22,14 +22,14 @@ public class JsonMagType extends MagType<
 	IGunPart< ? >,
 	IMag< ? >,
 	IEquippedMag< ? extends IMag< ? > >,
-	IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > >,
+	IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IMag< ? > > >,
 	IGunPartRenderer<
 		? super IMag< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IMag< ? > > >
 	>,
 	IItemModel< ? extends IGunPartRenderer<
 		? super IMag< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IMag< ? > > >
 	> >
 > {
 	public static final BuildableLoader< IMeta >
@@ -47,7 +47,7 @@ public class JsonMagType extends MagType<
 			// This should never be equipped hence return null.
 			@Override
 			protected IEquippedMag< ? extends IMag< ? > > newEquipped(
-				Supplier< IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > > >
+				Supplier< IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IMag< ? > > > >
 					equippedRenderer,
 				Supplier< Function<
 					IEquippedMag< ? extends IMag< ? > >,
@@ -66,7 +66,7 @@ public class JsonMagType extends MagType<
 		{
 			@Override
 			protected IEquippedMag< ? extends IMag< ? > > newEquipped(
-				Supplier< IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > > >
+				Supplier< IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IMag< ? > > > >
 					equippedRenderer,
 				Supplier< Function<
 					IEquippedMag< ? extends IMag< ? > >,
@@ -88,7 +88,7 @@ public class JsonMagType extends MagType<
 	@Override
 	protected IItemModel< ? extends IGunPartRenderer<
 		? super IMag< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IMag< ? > > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IMag< ? > > > >
 	> fallbackModel() { return JsonGunPartModel.NONE; }
 	
 	@Override

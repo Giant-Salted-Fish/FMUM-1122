@@ -23,7 +23,7 @@
 		"progressor": 0.0479998,
 		"effectTime": [ 0.431998 ]
 	},
-	"chargeGunAnimation": "animations/hk416_charge.json",
+	"chargeGunAnimation": "animations/hk416_charge1.json",
 	
 	"paramScale": 0.00625,
 	"moduleSlots": [

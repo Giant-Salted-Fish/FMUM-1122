@@ -18,7 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public interface IEquippedItem< T extends IItem >
 {
-	public static final IEquippedItem< ? > VANILLA = new IEquippedItem< IItem >()
+	static final IEquippedItem< ? > VANILLA = new IEquippedItem< IItem >()
 	{
 		@Override
 		public IItem item() { return IItem.VANILLA; }
@@ -33,10 +33,10 @@ public interface IEquippedItem< T extends IItem >
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public IAnimator animator() { return IAnimator.INSTANCE; }
+		public IAnimator animator() { return IAnimator.NONE; }
 	};
 	
-	public T item();
+	T item();
 	
 	/**
 	 * <p> Called when this item is holden in player's hand. </p>
@@ -46,18 +46,28 @@ public interface IEquippedItem< T extends IItem >
 	 * refer to same instance. And this also helps to prevent others from calling this method as
 	 * they do not have the corresponding context to supply. </p>
 	 */
-	public default void tickInHand( EntityPlayer player, EnumHand hand ) { }
+	default void tickInHand( EntityPlayer player, EnumHand hand ) { }
 	
-	public default void handlePacket( ByteBuf buf, EntityPlayer player ) { }
+	default void handlePacket( ByteBuf buf, EntityPlayer player ) { }
 	
 	/**
-	 * Called before actual render of first person in hand. You can apply camera control and other
-	 * setup works here to prepare the actual render.
+	 * Called before camera update. Use this to update the {@link Animation} instance if it controls
+	 * the camera animation.
+	 * 
+	 * @see #prepareRenderInHandSP(EnumHand)
+	 */
+	@SideOnly( Side.CLIENT )
+	default void updateAnimationForRender( EnumHand hand ) { }
+	
+	/**
+	 * Called before actual render of first person in hand, and after
+	 * {@link #updateAnimationForRender(EnumHand)}. You can apply camera control and other setup
+	 * works here to prepare the actual render.
 	 * 
 	 * @see #renderInHandSP(EnumHand)
 	 */
 	@SideOnly( Side.CLIENT )
-	public default void prepareRenderInHandSP( EnumHand hand ) { }
+	default void prepareRenderInHandSP( EnumHand hand ) { }
 	
 	/**
 	 * @see PlayerPatchClient#onRenderHandSP()
@@ -65,20 +75,17 @@ public interface IEquippedItem< T extends IItem >
 	 * @return {@code true} if should cancel original hand render.
 	 */
 	@SideOnly( Side.CLIENT )
-	public boolean renderInHandSP( EnumHand hand );
-	
-	@SideOnly( Side.CLIENT )
-	public default void updateAnimationForRender() { }
+	boolean renderInHandSP( EnumHand hand );
 	
 	/**
 	 * @see PlayerPatchClient#onRenderSpecificHand(EnumHand)
 	 * @return {@code true} if should cancel original hand render.
 	 */
 	@SideOnly( Side.CLIENT )
-	public boolean onRenderSpecificHandSP( EnumHand hand );
+	boolean onRenderSpecificHandSP( EnumHand hand );
 	
 	@SideOnly( Side.CLIENT )
-	public default void renderInHand( EntityPlayer player, EnumHand hand ) { }
+	default void renderInHand( EntityPlayer player, EnumHand hand ) { }
 	
 	/**
 	 * This method is called when a key bind is triggered(pressed) when holding this item.
@@ -89,23 +96,23 @@ public interface IEquippedItem< T extends IItem >
 	 *     {@link Key}.
 	 */
 	@SideOnly( Side.CLIENT )
-	public default void onKeyPress( IInput key ) { }
+	default void onKeyPress( IInput key ) { }
 	
 	/**
 	 * @see #onKeyPress(IInput)
 	 */
 	@SideOnly( Side.CLIENT )
-	public default void onKeyRelease( IInput key ) { }
+	default void onKeyRelease( IInput key ) { }
 	
 	@SideOnly( Side.CLIENT )
-	public default boolean onMouseWheelInput( int dWheel ) { return false; }
+	default boolean onMouseWheelInput( int dWheel ) { return false; }
 	
 	@SideOnly( Side.CLIENT )
-	public default boolean updateViewBobbing( boolean original ) { return original; }
+	default boolean updateViewBobbing( boolean original ) { return original; }
 	
 	@SideOnly( Side.CLIENT )
-	public default boolean hideCrosshair() { return false; }
+	default boolean hideCrosshair() { return false; }
 	
 	@SideOnly( Side.CLIENT )
-	public IAnimator animator();
+	IAnimator animator();
 }

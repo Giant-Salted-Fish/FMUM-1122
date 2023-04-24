@@ -20,9 +20,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public interface IItemType extends IMeta
 {
-	public static final Registry< IItemType > REGISTRY = new Registry<>();
+	static final Registry< IItemType > REGISTRY = new Registry<>();
 	
-	public static final IItemType VANILLA = new IItemType()
+	static final IItemType VANILLA = new IItemType()
 	{
 		@Override
 		public String name() { return "vanilla"; }
@@ -42,17 +42,17 @@ public interface IItemType extends IMeta
 	/**
 	 * @return Corresponding vanilla item.
 	 */
-	public Item item();
+	Item item();
 	
-	public IItem getContexted( ItemStack stack );
+	IItem getContexted( ItemStack stack );
 	
-	public default void onRegisterItem( RegistryEvent.Register< Item > evt ) {
+	default void onRegisterItem( RegistryEvent.Register< Item > evt ) {
 		evt.getRegistry ().register( this.item() );
 	}
 	
 	// FIXME: model register need to be override if item has sub-types
 	@SideOnly( Side.CLIENT )
-	public default void onModelRegister( ModelRegistryEvent evt )
+	default void onModelRegister( ModelRegistryEvent evt )
 	{
 		final Item item = this.item();
 		final ResourceLocation location = item.getRegistryName();

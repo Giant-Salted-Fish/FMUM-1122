@@ -13,6 +13,7 @@ import com.mcwb.client.IAutowirePlayerChat;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
+import com.mcwb.client.input.Key;
 import com.mcwb.client.input.KeyBind;
 import com.mcwb.client.render.Model;
 import com.mcwb.common.MCWB;
@@ -138,7 +139,7 @@ public class Dev implements IAutowirePlayerChat
 	public static void tick()
 	{
 		final TestPosRot instance = testList.get( testInsNum );
-		final boolean co = InputHandler.CO.down;
+		final boolean co = Key.ASSIST.down;
 		
 		if ( tu || td )
 			instance.testValue[ testNum ] += ( tu ? 1F : -1F ) * ( co ? 0.5F : 5F );

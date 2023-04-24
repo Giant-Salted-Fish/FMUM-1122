@@ -7,15 +7,15 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public interface IModuleType extends IMeta
 {
-	public static final Registry< IModuleType > REGISTRY = new Registry<>();
+	static final Registry< IModuleType > REGISTRY = new Registry<>();
 	
 	/**
 	 * WARNNING: Never use this unless you understand what it is doing.
 	 */
-	public IModule< ? > newRawContexted();
+	IModule< ? > newRawContexted();
 	
 	/**
 	 * WARNNING: Never use this unless you understand what it is doing.
 	 */
-	public IModule< ? > deserializeContexted( NBTTagCompound nbt );
+	IModule< ? > deserializeContexted( NBTTagCompound nbt );
 }

@@ -174,7 +174,7 @@ public abstract class ModuleWrapper<
 	public final IModifyState modifyState() { throw new RuntimeException(); }
 	
 	@Override
-	public final void setModifyState( IModifyState state ) { this.primary.setModifyState( state ); }
+	public final void setModifyState( IModifyState state ) { throw new RuntimeException(); }
 	
 	@Override
 	public final void getTransform( IModule< ? > installed, Mat4f dst ) {

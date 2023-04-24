@@ -96,7 +96,7 @@ mcwb.key.charge_gun=Charge Gun
 mcwb.key.inspect=Inspect Weapon
 
 mcwb.key_category.assist=MCWB Assist
-mcwb.key.co=Assist Key
+mcwb.key.assist=Assist Key
 mcwb.key.co_free_view=Co-Free View
 mcwb.key.co_reload=Co-Reload Weapon
 mcwb.key.co_load_unload_mag=Co-Load/Unload Magazine

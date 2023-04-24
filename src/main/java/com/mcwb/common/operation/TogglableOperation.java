@@ -3,17 +3,16 @@ package com.mcwb.common.operation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 
-public abstract class TogglableOperation< T > extends Operation< T >
+public abstract class TogglableOperation extends Operation
 {
 	protected IOperationController forwardController;
 	protected IOperationController backwardController;
 	
 	protected TogglableOperation(
-		T equipped,
 		IOperationController forwardController,
 		IOperationController backwardController
 	) {
-		super( equipped, forwardController );
+		super( forwardController );
 		
 		this.forwardController = forwardController;
 		this.backwardController = backwardController;
@@ -47,6 +46,6 @@ public abstract class TogglableOperation< T > extends Operation< T >
 		// TODO: Handle sound and effect
 		
 		final boolean completed = progressor < 0F && this.prevProgress == 0F;
-		return completed ? NONE : this;
+		return completed ? this.onComplete( player ) : this;
 	}
 }

@@ -9,17 +9,17 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface IDeferredRenderer extends IReleasable
 {
 	@SideOnly( Side.CLIENT )
-	public void render();
+	void render();
 	
 	@SideOnly( Side.CLIENT )
-	public default void prepare() { }
+	default void prepare() { }
 	
 	/**
 	 * Called before first person render to determine the order of deferred render.
 	 */
 	@SideOnly( Side.CLIENT )
-	public default float priority() { return 0F; }
+	default float priority() { return 0F; }
 	
 	@Override
-	public default void release() { }
+	default void release() { }
 }

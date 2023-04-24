@@ -18,5 +18,5 @@ public interface IMeshLoadSubscriber
 	 * @see IContentProvider#regisMeshLoadSubscriber(IMeshLoadSubscriber)
 	 */
 	@SideOnly( Side.CLIENT )
-	public void onMeshLoad() throws Exception;
+	void onMeshLoad() throws Exception;
 }

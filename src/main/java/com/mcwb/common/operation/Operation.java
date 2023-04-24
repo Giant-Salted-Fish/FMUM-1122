@@ -1,14 +1,11 @@
 package com.mcwb.common.operation;
 
-import com.mcwb.common.item.IEquippedItem;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class Operation< T > implements IOperation
+public abstract class Operation implements IOperation
 {
-	protected T equipped;
 	protected IOperationController controller;
 	
 	protected float prevProgress;
@@ -17,11 +14,7 @@ public abstract class Operation< T > implements IOperation
 	protected int currentEffect;
 	protected int currentSound;
 	
-	protected Operation( T equipped, IOperationController controller )
-	{
-		this.equipped = equipped;
-		this.controller = controller;
-	}
+	protected Operation( IOperationController controller ) { this.controller = controller; }
 	
 	@Override
 	public float progress() { return this.progress; }
@@ -70,19 +63,11 @@ public abstract class Operation< T > implements IOperation
 	public IOperation onOtherTryLaunch( IOperation op, EntityPlayer player ) { return this; }
 	
 	@Override
-	@SuppressWarnings( "unchecked" )
-	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
-	{
-		this.equipped = ( T ) newEquipped;
-		return this;
-	}
-	
-	@Override
 	public String toString()
 	{
 		final String typeName = this.getClass().getTypeName();
-		final String className = typeName.substring( typeName.lastIndexOf( '.' ) );
-		return "Operation::" + className + "<" + this.equipped + ">";
+		final String className = typeName.substring( typeName.lastIndexOf( '.' ) + 1 );
+		return "Operation::" + className;
 	}
 	
 	protected void clearProgress()

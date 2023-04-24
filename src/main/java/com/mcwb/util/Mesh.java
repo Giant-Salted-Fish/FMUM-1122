@@ -211,7 +211,7 @@ public class Mesh implements IReleasable
 			final Iterator< Vertex > itr = (
 				this.indices.size() > 0
 				? new Iterator< Vertex >() {
-					private final Iterator< Integer > itr = Builder.this.indices.iterator();
+					final Iterator< Integer > itr = Builder.this.indices.iterator();
 					
 					@Override
 					public boolean hasNext() { return this.itr.hasNext(); }

@@ -1,7 +1,6 @@
 package com.mcwb.client.gun;
 
 import com.mcwb.client.MCWBClient;
-import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.common.gun.IEquippedGun;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.load.BuildableLoader;
@@ -14,10 +13,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class JsonGunModel extends GunModel<
 	IGun< ? >,
 	IEquippedGun< ? extends IGun< ? > >,
-	IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > >,
+	IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >,
 	IGunRenderer<
 		? super IGun< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 	>
 > {
 	public static final BuildableLoader< ? >
@@ -29,13 +28,13 @@ public class JsonGunModel extends GunModel<
 	@Override
 	public IGunRenderer<
 		? super IGun< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 	> newRenderer()
 	{
 		return this.new GunRenderer()
 		{
 			@Override
-			public IEquippedItemRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+			public IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 				onTakeOut( EnumHand hand ) { return this.new EquippedGunRenderer(); }
 		};
 	};

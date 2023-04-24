@@ -5,9 +5,9 @@ import com.google.common.base.Supplier;
 @FunctionalInterface
 public interface IModuleEventSubscriber< T >
 {
-	public void onReceiveEvent( T evt );
+	void onReceiveEvent( T evt );
 	
-	public default int priority() { return 0; }
+	default int priority() { return 0; }
 	
 	public static class ModuleInstallEvent
 	{

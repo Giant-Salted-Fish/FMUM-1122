@@ -7,10 +7,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IAutowirePlayerChat
 {
-	public static final int CHAT_LINE_ID = 'F' + 'M' + 'U' + 'M';
+	static final int CHAT_LINE_ID = 'F' + 'M' + 'U' + 'M';
 	
 	@SideOnly( Side.CLIENT )
-	public default void sendPlayerMsg( String... messages )
+	default void sendPlayerMsg( String... messages )
 	{
 		final GuiNewChat chatGui = MCWBClient.MC.ingameGUI.getChatGUI();
 		for ( String msg : messages )
@@ -21,7 +21,7 @@ public interface IAutowirePlayerChat
 	}
 	
 	@SideOnly( Side.CLIENT )
-	public default void sendPlayerPrompt( String... messages )
+	default void sendPlayerPrompt( String... messages )
 	{
 		final GuiNewChat chatGui = MCWBClient.MC.ingameGUI.getChatGUI();
 		for ( int i = 0; i < messages.length; ++i )

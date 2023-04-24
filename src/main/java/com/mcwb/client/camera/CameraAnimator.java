@@ -2,10 +2,10 @@ package com.mcwb.client.camera;
 
 import com.mcwb.client.IAutowireSmoother;
 import com.mcwb.client.MCWBClient;
-import com.mcwb.client.input.InputHandler;
+import com.mcwb.client.input.Key;
 import com.mcwb.client.player.PlayerPatchClient;
+import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.ModConfig;
-import com.mcwb.util.Animation;
 import com.mcwb.util.DynamicPos;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Quat4f;
@@ -63,13 +63,13 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	 */
 	protected final DynamicPos cameraEasing = new DynamicPos();
 	
-	protected Animation animation = Animation.NONE;
+	protected IAnimator animator = IAnimator.NONE;
 	
 	@Override
 	public void tick()
 	{
 		// If looking around, clear camera recover speed.
-		if ( InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down )
+		if ( Key.FREE_VIEW.down || Key.CO_FREE_VIEW.down )
 			this.cameraOffAxis.velocity.setZero();
 		
 		// Otherwise, update off-axis rotation.
@@ -108,7 +108,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	}
 	
 	@Override
-	public void useAnimation( Animation animation ) { this.animation = animation; }
+	public void useAnimation( IAnimator animator ) { this.animator = animator; }
 	
 	// Handles view update upon mouse input.
 	@Override
@@ -132,7 +132,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		final float deltaPitch = newCameraPitch - rawCameraPitch;
 		
 		// If looking around, apply view rot to off-axis.
-		if ( InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down )
+		if ( Key.FREE_VIEW.down || Key.CO_FREE_VIEW.down )
 		{
 			playerRot.set( player.rotationPitch, player.rotationYaw, 0F );
 			
@@ -180,7 +180,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		mat.rotateX( cameraPitch );
 		
 		final Quat4f quat = Quat4f.locate();
-		this.animation.getRot( ANIMATION_CAHNNEL, quat );
+		this.animator.getRot( ANIMATION_CAHNNEL, quat );
 		mat.rotate( quat );
 		quat.release();
 		

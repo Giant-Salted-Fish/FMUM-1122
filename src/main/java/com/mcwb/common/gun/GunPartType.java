@@ -10,10 +10,14 @@ import java.util.function.Supplier;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
+import com.mcwb.client.gun.IEquippedGunPartRenderer;
 import com.mcwb.client.gun.IGunPartRenderer;
-import com.mcwb.client.item.IEquippedItemRenderer;
+import com.mcwb.client.input.IInput;
+import com.mcwb.client.input.Key;
 import com.mcwb.client.item.IItemModel;
 import com.mcwb.client.module.IDeferredRenderer;
+import com.mcwb.client.player.OpModifyClient;
+import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.MCWB;
 import com.mcwb.common.item.IEquippedItem;
@@ -26,9 +30,11 @@ import com.mcwb.common.module.IModuleSlot;
 import com.mcwb.common.module.IModuleType;
 import com.mcwb.common.module.Module;
 import com.mcwb.common.module.ModuleSnapshot;
+import com.mcwb.common.operation.IOperation;
 import com.mcwb.common.paintjob.IPaintableType;
 import com.mcwb.common.paintjob.IPaintjob;
 import com.mcwb.devtool.Dev;
+import com.mcwb.util.Animation;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.Mat4f;
 
@@ -48,7 +54,7 @@ public abstract class GunPartType<
 	I extends IGunPart< ? extends I >, // Not necessary, but to avoid filling in the generic argument on instantiating the abstract inner class.
 	C extends IGunPart< ? >,
 	E extends IEquippedItem< ? extends C >,
-	ER extends IEquippedItemRenderer< ? super E >,
+	ER extends IEquippedGunPartRenderer< ? super E >,
 	R extends IGunPartRenderer< ? super C, ? extends ER >,
 	M extends IItemModel< ? extends R >
 > extends ItemType< C, M > implements IModuleType, IPaintableType, IPaintjob
@@ -424,7 +430,7 @@ public abstract class GunPartType<
 		
 		protected abstract E newEquipped(
 			Supplier< ER > equippedRenderer,
-			Supplier< Function< E, E > > prevDelegate,
+			Supplier< Function< E, E > > renderDelegate,
 			EntityPlayer player,
 			EnumHand hand
 		);
@@ -488,6 +494,12 @@ public abstract class GunPartType<
 			
 			@Override
 			@SideOnly( Side.CLIENT )
+			public void updateAnimationForRender( EnumHand hand ) {
+				this.renderer.updateAnimationForRender( this.renderDelegate(), hand );
+			}
+			
+			@Override
+			@SideOnly( Side.CLIENT )
 			public void prepareRenderInHandSP( EnumHand hand ) {
 				this.renderer.prepareRenderInHandSP( this.renderDelegate(), hand );
 			}
@@ -506,11 +518,45 @@ public abstract class GunPartType<
 			
 			@Override
 			@SideOnly( Side.CLIENT )
-			public void updateAnimationForRender() { this.animator().updateAnimation(); }
+			public IAnimator animator() { return this.renderer.animator(); }
 			
 			@Override
 			@SideOnly( Side.CLIENT )
-			public IAnimator animator() { return this.renderer.animator(); }
+			public void onKeyPress( IInput key )
+			{
+				final boolean toggleModify = key == Key.TOGGLE_MODIFY || key == Key.CO_TOGGLE_MODIFY;
+				if ( !toggleModify ) { return; }
+				
+				final IOperation executing = PlayerPatchClient.instance.executing();
+				if ( executing instanceof OpModifyClient )
+				{
+					PlayerPatchClient.instance.toggleExecuting();
+					return;
+				}
+				
+				final OpModifyClient modifyOp = new OpModifyClient( this ) {
+					@Override
+					@SuppressWarnings( "unchecked" )
+					protected IModule< ? > replicateDelegatePrimary()
+					{
+						final EquippedGunPart equipped = ( EquippedGunPart ) this.equipped;
+						final EquippedGunPart copied = ( EquippedGunPart ) equipped.copy();
+						equipped.renderDelegate = original -> ( E ) copied;
+						return copied.item();
+					}
+					
+					@Override
+					@SuppressWarnings( "unchecked" )
+					protected void endCallback()
+					{
+						final EquippedGunPart equipped = ( EquippedGunPart ) this.equipped;
+						equipped.renderDelegate = original -> original;
+						equipped.renderer.useAnimation( Animation.NONE );
+					}
+				};
+				PlayerPatchClient.instance.launch( modifyOp );
+				this.renderer.useModifyAnimation( () -> modifyOp.refPlayerRotYaw );
+			}
 			
 			@Override
 			public String toString() { return "Equipped<" + GunPartType.this + ">"; }
@@ -518,6 +564,19 @@ public abstract class GunPartType<
 			@SideOnly( Side.CLIENT )
 			@SuppressWarnings( "unchecked" )
 			protected final E renderDelegate() { return this.renderDelegate.apply( ( E ) this ); }
+			
+			@SuppressWarnings( "unchecked" )
+			protected IEquippedItem< ? > copy()
+			{
+				final ItemStack copiedStack = GunPart.this.base.toStack().copy();
+				final IModule< ? > wrapper = ( IModule< ? > ) IItemTypeHost.getItem( copiedStack );
+				final GunPart copied = ( GunPart ) wrapper.getInstalled( null, 0 );
+				return copied.newEquipped(
+					() -> EquippedGunPart.this.renderer,
+					() -> EquippedGunPart.this.renderDelegate,
+					MCWBClient.MC.player, EnumHand.MAIN_HAND
+				);
+			}
 		}
 	}
 }

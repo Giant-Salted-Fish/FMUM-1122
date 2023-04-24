@@ -1,7 +1,7 @@
 package com.mcwb.client.camera;
 
 import com.mcwb.client.input.Key;
-import com.mcwb.util.Animation;
+import com.mcwb.client.render.IAnimator;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.util.MouseHelper;
@@ -18,16 +18,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public interface ICameraController
 {
-	public void tick();
+	void tick();
 	
-	public void useAnimation( Animation animation );
+	void useAnimation( IAnimator animator );
 	
-	public void prepareRender( MouseHelper mouse );
+	void prepareRender( MouseHelper mouse );
 	
 	/**
 	 * @param dst Will save camera orientation into this vector.
 	 */
-	public void getCameraRot( Vec3f dst );
+	void getCameraRot( Vec3f dst );
 	
-	public void getPlayerRot( Vec3f dst );
+	void getPlayerRot( Vec3f dst );
 }

@@ -12,7 +12,7 @@ import net.minecraftforge.fml.relauncher.Side;
  */
 public interface IAutowireLogger
 {
-	public default Logger logger() { return MCWB.LOGGER; }
+	default Logger logger() { return MCWB.LOGGER; }
 	
 	/**
 	 * You can call this to translate your message if your code runs on both side. Otherwise,
@@ -20,24 +20,24 @@ public interface IAutowireLogger
 	 * 
 	 * @see I18n#format(String, Object...)
 	 */
-	public default String format( String translateKey, Object... parameters ) {
+	default String format( String translateKey, Object... parameters ) {
 		return MCWB.MOD.format( translateKey, parameters );
 	}
 	
 	/// *** Wrap commonly used calls. *** ///
-	public default void logInfo( String translateKey, Object... parameters ) {
+	default void logInfo( String translateKey, Object... parameters ) {
 		this.logger().info( this.format( translateKey, parameters ) );
 	}
 	
-	public default void logWarning( String translateKey, Object... parameters ) {
+	default void logWarning( String translateKey, Object... parameters ) {
 		this.logger().warn( this.format( translateKey, parameters ) );
 	}
 	
-	public default void logError( String translateKey, Object... parameters ) {
+	default void logError( String translateKey, Object... parameters ) {
 		this.logger().error( this.format( translateKey, parameters ) );
 	}
 	
-	public default void logException( Throwable e, String translateKey, Object... parameters ) {
+	default void logException( Throwable e, String translateKey, Object... parameters ) {
 		this.logger().error( this.format( translateKey, parameters ), e );
 	}
 }

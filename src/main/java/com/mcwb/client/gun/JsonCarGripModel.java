@@ -1,6 +1,5 @@
 package com.mcwb.client.gun;
 
-import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.load.BuildableLoader;
@@ -13,10 +12,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class JsonCarGripModel extends CarGripModel<
 	IGunPart< ? >,
 	IEquippedItem< ? extends IGunPart< ? > >,
-	IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >,
+	IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >,
 	IGunPartRenderer<
 		? super IGunPart< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 	>
 > {
 	public static final BuildableLoader< ? >
@@ -25,13 +24,13 @@ public class JsonCarGripModel extends CarGripModel<
 	@Override
 	public IGunPartRenderer<
 		? super IGunPart< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 	> newRenderer()
 	{
 		return this.new CarGripRenderer()
 		{
 			@Override
-			public IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
+			public IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 				onTakeOut( EnumHand hand ) { return this.new EquippedGunPartRenderer(); }
 		};
 	}

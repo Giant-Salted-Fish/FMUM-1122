@@ -13,5 +13,5 @@ public interface IMeta
 	/**
 	 * @return Name of the meta. PS: By my definition, name is essentially what defines a meta.
 	 */
-	public String name();
+	String name();
 }

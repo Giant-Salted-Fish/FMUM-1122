@@ -1,4 +1,4 @@
 package com.mcwb.util;
 
 @FunctionalInterface
-public interface IReleasable { public void release(); }
+public interface IReleasable { void release(); }

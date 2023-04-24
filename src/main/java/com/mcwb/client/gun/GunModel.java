@@ -1,18 +1,18 @@
 package com.mcwb.client.gun;
 
+import java.util.function.Supplier;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcwb.client.MCWBClient;
-import com.mcwb.client.input.InputHandler;
-import com.mcwb.client.item.IEquippedItemRenderer;
+import com.mcwb.client.input.Key;
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.gun.IEquippedGun;
 import com.mcwb.common.gun.IGun;
 import com.mcwb.common.load.IContentProvider;
-import com.mcwb.devtool.Dev;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.DynamicPos;
 import com.mcwb.util.Mat4f;
@@ -26,7 +26,6 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.math.MathHelper;
@@ -38,7 +37,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public abstract class GunModel<
 	C extends IGun< ? >,
 	E extends IEquippedGun< ? extends C >,
-	ER extends IEquippedItemRenderer< ? super E >,
+	ER extends IEquippedGunPartRenderer< ? super E >,
 	R extends IGunRenderer< ? super C, ? extends ER >
 > extends GunPartModel< C, E, ER, R >
 {
@@ -198,6 +197,25 @@ public abstract class GunModel<
 				this.rightArm.shoulderPos.set( -3F / 16F, -4F / 16F, -2.5F / 16F );
 			}
 			
+			@Override
+			public void useModifyAnimation( Supplier< Float > refPlayerRotYaw )
+			{
+				this.useAnimation( GunModel.this.new ModifyAnimator( this, refPlayerRotYaw ) {
+					@Override
+					public void getPos( String channel, Vec3f dst )
+					{
+						if (
+							channel.equals( GunModel.this.leftArmAnimationChannel )
+							|| channel.equals( GunModel.this.rightArmAnimationChannel )
+						) {
+							// Move hands away so we do not see it.
+							dst.set( 0F, 4096F, 0F );
+						}
+						else { super.getPos( channel, dst ); }
+					}
+				} );
+			}
+			
 			// TODO: override animator for arms?
 			
 			@Override
@@ -208,7 +226,7 @@ public abstract class GunModel<
 				final PlayerPatchClient patch = PlayerPatchClient.instance;
 				final boolean crouching = player.isSneaking();
 				final boolean sprinting = player.isSprinting();
-				final boolean aiming = InputHandler.AIM_HOLD.down;
+				final boolean aiming = Key.AIM_HOLD.down;
 				final Vec3f vec = Vec3f.locate();
 				final Mat4f mat = Mat4f.locate();
 				

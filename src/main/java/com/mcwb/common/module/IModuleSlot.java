@@ -9,16 +9,16 @@ import com.mcwb.util.Mat4f;
  */
 public interface IModuleSlot
 {
-	public boolean isAllowed( IModule< ? > module );
+	boolean isAllowed( IModule< ? > module );
 	
 	/**
 	 * @return Max number of modules that can be installed into this slot.
 	 */
-	public int capacity();
+	int capacity();
 	
-	public default int maxStep() { return 0; }
+	default int maxStep() { return 0; }
 	
-	public void scale( float scale );
+	void scale( float scale );
 	
-	public void applyTransform( IModule< ? > installed, Mat4f dst );
+	void applyTransform( IModule< ? > installed, Mat4f dst );
 }

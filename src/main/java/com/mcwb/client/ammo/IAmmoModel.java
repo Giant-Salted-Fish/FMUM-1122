@@ -8,5 +8,5 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface IAmmoModel< T, R > extends IItemModel< R >
 {
 	@SideOnly( Side.CLIENT )
-	public void render( T type );
+	void render( T type );
 }

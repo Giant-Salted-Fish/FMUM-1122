@@ -9,5 +9,5 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface IPaintjob extends IMeta
 {
 	@SideOnly( Side.CLIENT )
-	public ResourceLocation texture();
+	ResourceLocation texture();
 }

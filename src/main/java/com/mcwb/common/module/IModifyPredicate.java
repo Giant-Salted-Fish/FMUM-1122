@@ -7,28 +7,28 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IModifyPredicate
 {
-	public static final IModifyPredicate OK = new IModifyPredicate() { };
+	static final IModifyPredicate OK = new IModifyPredicate() { };
 	
-	public default boolean ok() { return true; }
+	default boolean ok() { return true; }
 	
 	@SideOnly( Side.CLIENT )
-	public default boolean okOrNotifyWhy() { return true; }
+	default boolean okOrNotifyWhy() { return true; }
 	
 	@FunctionalInterface
-	public static interface NotOk extends IModifyPredicate
+	public interface NotOk extends IModifyPredicate
 	{
 		@Override
-		public default boolean ok() { return false; }
+		default boolean ok() { return false; }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public default boolean okOrNotifyWhy()
+		default boolean okOrNotifyWhy()
 		{
 			MCWBClient.MOD.sendPlayerPrompt( this.why() );
 			return false;
 		}
 		
 		@SideOnly( Side.CLIENT )
-		public String why();
+		String why();
 	}
 }

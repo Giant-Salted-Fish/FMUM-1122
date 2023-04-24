@@ -4,14 +4,14 @@ import javax.annotation.Nullable;
 
 public interface IGun< T extends IGunPart< ? extends T > > extends IGunPart< T >
 {
-	public boolean hasMag();
+	boolean hasMag();
 	
 	@Nullable
-	public IMag< ? > mag();
+	IMag< ? > mag();
 	
-	public boolean isAllowed( IMag< ? > mag );
+	boolean isAllowed( IMag< ? > mag );
 	
-	public void loadMag( IMag< ? > mag );
+	void loadMag( IMag< ? > mag );
 	
-	public IMag< ? > unloadMag();
+	IMag< ? > unloadMag();
 }

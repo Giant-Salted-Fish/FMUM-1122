@@ -15,12 +15,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface IGunPart< T extends IGunPart< ? extends T > >
 	extends IItem, IModule< T >, IPaintable
 {
-	public int leftHandPriority();
+	int leftHandPriority();
 	
-	public int rightHandPriority();
+	int rightHandPriority();
 	
 	@SideOnly( Side.CLIENT )
-	public void prepareInHandRenderSP(
+	void prepareInHandRenderSP(
 		IAnimator animator,
 		Collection< IDeferredRenderer > renderQueue0,
 		Collection< IDeferredRenderer > renderQueue1
@@ -28,8 +28,8 @@ public interface IGunPart< T extends IGunPart< ? extends T > >
 	
 	// TODO: rename to track arm?
 	@SideOnly( Side.CLIENT )
-	public void setupLeftArmToRender( IAnimator animator, ArmTracker leftArm );
+	void setupLeftArmToRender( IAnimator animator, ArmTracker leftArm );
 	
 	@SideOnly( Side.CLIENT )
-	public void setupRightArmToRender( IAnimator animator, ArmTracker rightArm );
+	void setupRightArmToRender( IAnimator animator, ArmTracker rightArm );
 }

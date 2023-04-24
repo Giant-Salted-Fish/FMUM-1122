@@ -8,9 +8,9 @@ import net.minecraft.creativetab.CreativeTabs;
 
 public interface ICreativeTab extends IMeta
 {
-	public static final Registry< ICreativeTab > REGISTRY = new Registry<>();
+	static final Registry< ICreativeTab > REGISTRY = new Registry<>();
 	
-	public CreativeTabs creativeTab();
+	CreativeTabs creativeTab();
 	
 	/**
 	 * Called when an item requires to settle in this tab. Can be used to implement classical Flan's
@@ -18,5 +18,5 @@ public interface ICreativeTab extends IMeta
 	 * 
 	 * @param item Item that settled in.
 	 */
-	public default void itemSettledIn( IItemType item ) { }
+	default void itemSettledIn( IItemType item ) { }
 }

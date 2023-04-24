@@ -10,11 +10,11 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
  */
 public interface IAutowirePacketHandler
 {
-	public default void sendPacketToServer( IMessage message ) {
+	default void sendPacketToServer( IMessage message ) {
 		MCWB.NET.sendToServer( message );
 	}
 	
-	public default void sendPacketTo( IMessage message, EntityPlayerMP player ) {
+	default void sendPacketTo( IMessage message, EntityPlayerMP player ) {
 		MCWB.NET.sendTo( message, player );
 	}
 }

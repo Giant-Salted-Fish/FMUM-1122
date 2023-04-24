@@ -1,8 +1,8 @@
 package com.oc.client.renderer;
 
+import com.mcwb.client.gun.IEquippedGunPartRenderer;
 import com.mcwb.client.gun.IGunPartRenderer;
 import com.mcwb.client.gun.JsonGripModel;
-import com.mcwb.client.item.IEquippedItemRenderer;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
@@ -32,7 +32,7 @@ public class TDGripModel extends JsonGripModel
 	@Override
 	public IGunPartRenderer<
 		? super IGunPart< ? >,
-		? extends IEquippedItemRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
+		? extends IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 	> newRenderer()
 	{
 		return this.new GripRenderer()
@@ -61,7 +61,7 @@ public class TDGripModel extends JsonGripModel
 			}
 			
 			@Override
-			public IEquippedItemRenderer<
+			public IEquippedGunPartRenderer<
 				? super IEquippedItem< ? extends IGunPart< ? > >
 			> onTakeOut( EnumHand hand ) { return this.new EquippedGunPartRenderer(); }
 		};
