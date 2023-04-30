@@ -3,7 +3,6 @@
 	"scale": 0.00625,
 	"tbObjAdapt": true,
 	
-	"animationChannel": "item",
 	"animatedMeshes": [
 		{
 			"mesh": "models/gun/hk416/mag_release.obj",

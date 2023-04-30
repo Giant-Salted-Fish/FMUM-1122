@@ -3,8 +3,8 @@
 	"scale": 0.00625,
 	"tbObjAdapt": true,
 	
-	"animationChannel": "mag",
-	"loadingMagChannel": "loading_mag",
+	"moduleAnimationChannel": "mag",
+	"loadingMagModuleChannel": "loading_mag",
 	"followerMesh": "models/mag/556x45mm_30_round_mag_follower.obj",
 	"followerPos": [
 		[ 0,     0, 0 ],

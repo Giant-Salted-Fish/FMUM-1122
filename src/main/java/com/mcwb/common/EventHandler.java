@@ -1,6 +1,8 @@
 package com.mcwb.common;
 
 import java.util.Collection;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.common.item.IItemType;
@@ -13,6 +15,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.util.SoundEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -25,6 +28,40 @@ import net.minecraftforge.registries.IForgeRegistry;
 final class EventHandler
 {
 	private static final IAutowireLogger LOGGER = MCWB.MOD;
+	
+	static
+	{
+		final BiConsumer< Entity, Consumer< EntityPlayer > > with = ( entity, next ) -> {
+			final boolean isPlayer = entity instanceof EntityPlayer;
+			if ( isPlayer ) { next.accept( ( EntityPlayer ) entity ); }
+		};
+		final MCWBResource identifier = new MCWBResource( "patch" );
+		final Object eventSubscriber = (
+			MCWB.MOD.isClient()
+			? new Object() {
+				@SubscribeEvent
+				public void onEntityCapAttach( AttachCapabilitiesEvent< Entity > evt )
+				{
+					with.accept( evt.getObject(), player -> {
+						final boolean isPlayerSP = player instanceof EntityPlayerSP;
+						final PlayerPatch patch = isPlayerSP
+							? new PlayerPatchClient( player ) : new PlayerPatch( player );
+						evt.addCapability( identifier, patch );
+					} );
+				}
+			}
+			: new Object() {
+				@SubscribeEvent
+				public void onEntityCapAttach( AttachCapabilitiesEvent< Entity > evt )
+				{
+					with.accept( evt.getObject(), player -> {
+						evt.addCapability( identifier, new PlayerPatch( player ) );
+					} );
+				}
+			}
+		);
+		MinecraftForge.EVENT_BUS.register( eventSubscriber );
+	}
 	
 	private EventHandler() { }
 	
@@ -51,21 +88,6 @@ final class EventHandler
 		LOGGER.logInfo( "mcwb.sound_regis_complete", sounds.size() );
 		
 		// TODO: clear sound pool?
-	}
-	
-	@SubscribeEvent
-	public static void onEntityCapAttach( AttachCapabilitiesEvent< Entity > evt )
-	{
-		final Entity e = evt.getObject();
-		final boolean isPlayer = e instanceof EntityPlayer;
-		if ( !isPlayer ) { return; }
-		
-		// TODO: check if it is ok for other players in the world
-		final EntityPlayer player = ( EntityPlayer ) e;
-		final boolean isPlayerSp = e.world.isRemote && e instanceof EntityPlayerSP;
-		final PlayerPatch patch = isPlayerSp
-			? new PlayerPatchClient( player ) : new PlayerPatch( player );
-		evt.addCapability( new MCWBResource( "patch" ), patch );
 	}
 	
 	@SubscribeEvent

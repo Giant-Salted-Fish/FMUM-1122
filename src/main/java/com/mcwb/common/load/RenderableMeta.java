@@ -20,7 +20,8 @@ public abstract class RenderableMeta< T > extends TexturedMeta
 	{
 		super.build( name, provider );
 		
-		provider.clientOnly( this::loadModel );
+		provider.clientOnly( () -> this.loadModel() );
+//		provider.clientOnly( this::loadModel ); // Write like this will crash.
 		return this;
 	}
 	

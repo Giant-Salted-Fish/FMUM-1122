@@ -25,6 +25,8 @@ public class GunPartWrapper<
 	T extends IGunPart< ? extends I >
 > extends ModuleWrapper< I, T > implements IGunPart< I >
 {
+	public static final String STACK_ID_TAG = "i";
+	
 	protected final ItemStack stack;
 	
 	protected GunPartWrapper( T primary, ItemStack stack )
@@ -45,7 +47,7 @@ public class GunPartWrapper<
 	}
 	
 	@Override
-	public final int stackId() { return this.stack.getTagCompound().getInteger( "i" ); }
+	public final int stackId() { return this.stack.getTagCompound().getInteger( STACK_ID_TAG ); }
 	
 	@Override
 	public final ItemStack toStack() { return this.stack; }
@@ -70,11 +72,11 @@ public class GunPartWrapper<
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public void prepareInHandRenderSP(
+	public void prepareRenderInHandSP(
 		IAnimator animator,
 		Collection< IDeferredRenderer > renderQueue0,
 		Collection< IDeferredRenderer > renderQueue1
-	) { throw new RuntimeException(); }
+	) { this.primary.prepareRenderInHandSP( animator, renderQueue0, renderQueue1 ); }
 	
 	@Override
 	@SideOnly( Side.CLIENT )
@@ -90,7 +92,7 @@ public class GunPartWrapper<
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public final ResourceLocation texture() { throw new RuntimeException(); }
+	public final ResourceLocation texture() { return this.primary.texture(); }
 	
 	@Override
 	protected final void syncNBTData() {

@@ -39,12 +39,12 @@ public class PlayerPatch implements ICapabilityProvider
 	
 	/// *** Stuffs for main hand item. *** ///
 	protected ItemStack mainStack = ItemStack.EMPTY;
-	protected int mainStackId = IItem.VANILLA.stackId();
+	protected IItem mainItem = IItem.VANILLA;
 	protected IEquippedItem< ? > mainEquipped = IEquippedItem.VANILLA;
 	
 	/// *** Stuffs for off-hand item. *** ///
 	protected ItemStack offStack = ItemStack.EMPTY;
-	protected int offStackId = IItem.VANILLA.stackId();
+	protected IItem offItem = IItem.VANILLA;
 	protected IEquippedItem< ? > offEquipped = IEquippedItem.VANILLA;
 	
 	public PlayerPatch( EntityPlayer player ) { this.player = player; }
@@ -58,11 +58,10 @@ public class PlayerPatch implements ICapabilityProvider
 			final EnumHand hand = EnumHand.MAIN_HAND;
 			final ItemStack stack = inv.getCurrentItem();
 			final IItem item = IItemTypeHost.getItemOrDefault( stack );
-			final int stackId = item.stackId();
 			
-			if ( stackId != this.mainStackId )
+			if ( item.stackId() != this.mainItem.stackId() )
 			{
-				this.mainStackId = stackId;
+				this.mainItem = item;
 				this.mainEquipped = item.onTakeOut( this.player, hand );
 				this.executing = this.executing.onItemChange( this.mainEquipped, this.player );
 			}
@@ -81,11 +80,10 @@ public class PlayerPatch implements ICapabilityProvider
 			final EnumHand hand = EnumHand.OFF_HAND;
 			final ItemStack stack = inv.offHandInventory.get( 0 );
 			final IItem item = IItemTypeHost.getItemOrDefault( stack );
-			final int stackId = item.stackId();
 			
-			if ( stackId != this.offStackId )
+			if ( item.stackId() != this.offItem.stackId() )
 			{
-				this.offStackId = stackId;
+				this.offItem = item;
 				this.offEquipped = item.onTakeOut( this.player, hand );
 			}
 			else if ( stack != this.offStack )

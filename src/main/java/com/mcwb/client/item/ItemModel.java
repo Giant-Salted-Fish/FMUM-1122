@@ -18,11 +18,11 @@ import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -59,7 +59,7 @@ public abstract class ItemModel<
 	/**
 	 * Channel of animation that will be applied to this item.
 	 */
-	protected String animationChannel = "";
+	protected String animationChannel = "item";
 	
 	protected class EquippedItemRenderer implements IEquippedItemRenderer< E >,
 		IAnimator, IAutowireBindTexture, IAutowireSmoother
@@ -110,34 +110,28 @@ public abstract class ItemModel<
 		@Override
 		public void updateAnimationForRender( E equipped, EnumHand hand )
 		{
-			/// *** Update in hand position as well as rotation before render. *** ///
-			{
-				this.updatePosRot(); // TODO: before or after animation update?
-				
-				final Mat4f mat = Mat4f.locate();
-				mat.setIdentity();
-				mat.translate( this.pos );
-				mat.rotate( this.rot );
-				equipped.animator().applyChannel( ItemModel.this.animationChannel, mat );
-				// TODO: equipped#animator() actually should be #this
-				
-				mat.get( this.pos );
-				this.rot.set( mat );
-				mat.release();
-			}
+			this.updatePosRot();
 			
-			/// *** Update animation. *** ///
-			{
-				final IOperation executing = PlayerPatchClient.instance.executing();
-				final float progress = executing.getProgress( this.smoother() );
-				this.animation.update( progress );
-			}
+			// Update animation.
+			final IOperation executing = PlayerPatchClient.instance.executing();
+			final float progress = executing.getProgress( this.smoother() );
+			this.animation.update( progress );
+			
+			// Apply animation.
+			final Mat4f mat = Mat4f.locate();
+			mat.setIdentity();
+			mat.translate( this.pos );
+			mat.rotate( this.rot );
+			equipped.animator().applyChannel( ItemModel.this.animationChannel, mat );
+			// TODO: equipped#animator() actually should be #this
+			
+			mat.get( this.pos );
+			this.rot.set( mat );
+			mat.release();
 		}
 		
 		@Override
-		public void prepareRenderInHandSP( E equipped, EnumHand hand )
-		{
-		}
+		public void prepareRenderInHandSP( E equipped, EnumHand hand ) { }
 		
 		@Override
 		public boolean renderInHandSP( E equipped, EnumHand hand )
@@ -146,7 +140,7 @@ public abstract class ItemModel<
 			
 			// Do customized rendering.
 			final Minecraft mc = MCWBClient.MC;
-			final EntityPlayerSP player = mc.player;
+			final EntityPlayer player = mc.player;
 			
 			// Copied from {@link EntityRenderer#renderHand(float, int)}.
 			final EntityRenderer renderer = mc.entityRenderer;
@@ -190,7 +184,7 @@ public abstract class ItemModel<
 			GL11.glPopMatrix();
 			return true;
 		}
-
+		
 		@Override
 		public boolean onRenderSpecificHandSP( E equipped, EnumHand hand ) { return true; }
 		

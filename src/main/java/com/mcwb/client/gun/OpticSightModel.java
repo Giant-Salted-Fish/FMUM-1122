@@ -137,16 +137,11 @@ public abstract class OpticSightModel<
 			
 			// For the lens and reticle.
 			renderQueue1.add( new IDeferredRenderer() {
-				final Mat4f mat = Mat4f.locate(); {
-					animator.getChannel( CHANNEL_ITEM, this.mat );
-					this.mat.mul( OpticSightRenderer.this.mat );
-				}
-				
 				@Override
 				public void render()
 				{
 					GL11.glPushMatrix();
-					glMulMatrix( this.mat );
+					glMulMatrix( OpticSightRenderer.this.mat );
 					
 					contexted.modifyState().doRecommendedRender( contexted.texture(), () -> {
 						GL11.glEnable( GL11.GL_STENCIL_TEST );
@@ -158,7 +153,7 @@ public abstract class OpticSightModel<
 						
 						OpticSightModel.this.renderColoredGlass(
 							OpticSightModel.this.lenMesh,
-							occlusionFactor.apply( this.mat )
+							occlusionFactor.apply( OpticSightRenderer.this.mat )
 						);
 						
 						// Render reticle on lens.
@@ -189,15 +184,12 @@ public abstract class OpticSightModel<
 				{
 					final Vec3f vec = Vec3f.locate();
 					vec.setZero();
-					this.mat.transformAsPoint( vec );
+					OpticSightRenderer.this.mat.transformAsPoint( vec );
 					final float distanceSquared = vec.lengthSquared();
 					vec.release();
 					
 					return distanceSquared;
 				}
-				
-				@Override
-				public void release() { this.mat.release(); }
 			} );
 		}
 	}

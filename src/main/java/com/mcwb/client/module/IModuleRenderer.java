@@ -10,8 +10,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IModuleRenderer< T >
 {
-	static final String CHANNEL_MODIFY = "__modify__";
-	
 	@SideOnly( Side.CLIENT )
 	void getTransform( Mat4f dst );
 	

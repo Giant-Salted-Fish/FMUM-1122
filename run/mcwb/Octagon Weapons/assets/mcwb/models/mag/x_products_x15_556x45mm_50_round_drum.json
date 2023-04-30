@@ -4,8 +4,8 @@
 	"tbObjAdapt": true,
 	
 	"isDoubleColumnMag": false,
-	"animationChannel": "mag",
-	"loadingMagChannel": "loading_mag",
+	"moduleAnimationChannel": "mag",
+	"loadingMagModuleChannel": "loading_mag",
 	"followerMesh": "models/mag/x_products_x15_556x45mm_30_round_drum_follower.obj",
 	"followerPos": [
 		[ 0,  0, 0 ],

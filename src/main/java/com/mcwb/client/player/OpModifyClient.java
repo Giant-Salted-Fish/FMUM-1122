@@ -29,6 +29,7 @@ import com.mcwb.common.operation.IOperationController;
 import com.mcwb.common.operation.OperationController;
 import com.mcwb.common.operation.TogglableOperation;
 import com.mcwb.common.paintjob.IPaintable;
+import com.mcwb.devtool.Dev;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -308,6 +309,9 @@ public abstract class OpModifyClient extends TogglableOperation
 	
 	{
 		final Consumer< IInput > enterNextLayer = key -> {
+			final boolean reachMaxLayer = this.locLen == this.loc.length;
+			if ( reachMaxLayer ) { return; }
+			
 			final boolean noSelectedModule = this.index() == -1;
 			final boolean selectedModuleHasNoSlots = this.cursor.slotCount() == 0;
 			if ( noSelectedModule || selectedModuleHasNoSlots ) { return; }
@@ -330,14 +334,20 @@ public abstract class OpModifyClient extends TogglableOperation
 	
 	{
 		final Consumer< IInput > quitCurrentLayer = key -> {
-			this.locLen -= 2;
-			this.clearPrimaryAndSetupSelection();
+			if ( this.locLen > 0 )
+			{
+				this.locLen -= 2;
+				this.clearPrimaryAndSetupSelection();
+			}
 		};
 		this.handlers.put( Key.SELECT_CANCEL, quitCurrentLayer );
 	}
 	
 	{
 		final Consumer< IInput > switchSlot = key -> {
+			final boolean isRootSelected = this.locLen == 0;
+			if ( isRootSelected ) { return; }
+			
 			final IModule< ? > base = this.cursor.base();
 			final int slotCount = base.slotCount();
 			if ( slotCount < 2 ) { return; }
@@ -358,6 +368,9 @@ public abstract class OpModifyClient extends TogglableOperation
 	
 	{
 		final Consumer< IInput > switchModule = key -> {
+			final boolean isRootSelected = this.locLen == 0;
+			if ( isRootSelected ) { return; }
+			
 			final IModule< ? > base = this.cursor.base();
 			
 			// There will be an indicator or preview module installed if {#index() == -1}.
@@ -421,6 +434,11 @@ public abstract class OpModifyClient extends TogglableOperation
 		
 		final boolean fullyLaunched = this.prevProgress == 1F;
 		if ( !fullyLaunched ) { return this; }
+		
+		if ( Dev.flag )
+		{
+			MCWBClient.MOD.sendPlayerMsg( "prog: " + this.progress + ", prev: " + this.prevProgress );
+		}
 		
 		this.deferredModifyTask.run();
 		this.deferredModifyTask = () -> { };

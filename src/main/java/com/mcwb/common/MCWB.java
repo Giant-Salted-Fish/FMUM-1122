@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
@@ -20,6 +21,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonObject;
+import com.mcwb.client.MCWBClient;
 import com.mcwb.common.ammo.JsonAmmoType;
 import com.mcwb.common.gun.JsonGunPartType;
 import com.mcwb.common.gun.JsonGunType;
@@ -62,6 +65,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * A weapon mod that as a platform to supply highly customizable weapons.
@@ -91,17 +95,9 @@ public class MCWB extends URLClassLoader
 	public static final MCWB MOD;
 	static
 	{
-		if ( FMLCommonHandler.instance().getSide().isServer() )
-			MOD = new MCWB();
-		else try
-		{
-			// Avoid class not define exception with indirect reference
-			final String className = "com.mcwb.client.MCWBClient";
-			MOD = ( MCWB ) Class.forName( className ).getField( "MOD" ).get( null );
-		}
-		catch ( Exception e ) {
-			throw new RuntimeException( "Can not get client proxy. Should be impossible", e );
-		}
+		final Supplier< ? > client = () -> MCWBClient.MOD; // Use generic will crash.
+		final Side side = FMLCommonHandler.instance().getSide();
+		MOD = side.isServer() ? new MCWB() : ( MCWB ) client.get();
 	}
 	@Mod.InstanceFactory
 	public static MCWB instance() { return MOD; }
@@ -129,6 +125,9 @@ public class MCWB extends URLClassLoader
 		@Override
 		protected CreativeTabs createTab() { return null; }
 	}.build( "hide", MOD );
+	
+	// Has to put it here as current implementation will register a new item for it.
+	public static final String MODIFY_INDICATOR = "modify_indicator";
 	
 	/**
 	 * Loaded content packs.
@@ -237,6 +236,14 @@ public class MCWB extends URLClassLoader
 	@Override
 	public void load()
 	{
+		// Construct a default indicator.
+		// Has to put it here as current implementation will create an item for it.
+		final JsonObject indicator = new JsonObject();
+		indicator.addProperty( "creativeTab", MCWB.HIDE_TAB.name() );
+		indicator.addProperty( "model", "models/modify_indicator.json" );
+		indicator.addProperty( "texture", "textures/0x00ff00.png" );
+		TYPE_LOADERS.get( "gun_part" ).parser.apply( indicator ).build( MODIFY_INDICATOR, this );
+		
 		// Check content pack folder.
 		// TODO: if load packs from mods dir then allow the player to disable content pack folder
 		final File packDir = new File( this.gameDir, MODID );

@@ -11,7 +11,6 @@ import com.mcwb.common.IAutowireLogger;
 import com.mcwb.common.MCWBResource;
 import com.mcwb.common.load.IBuildable;
 import com.mcwb.common.load.IContentProvider;
-import com.mcwb.common.load.IMeshLoadSubscriber;
 import com.mcwb.util.AngleAxis4f;
 import com.mcwb.util.Mat4f;
 import com.mcwb.util.Mesh;
@@ -52,7 +51,7 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 	@Override
 	public Object build( String path, IContentProvider provider )
 	{
-		provider.regisMeshLoadSubscriber( ( IMeshLoadSubscriber ) () -> this.onMeshLoad( provider ) );
+		provider.regisMeshLoadSubscriber( () -> this.onMeshLoad( provider ) );
 		return this;
 	}
 	

@@ -12,7 +12,6 @@ import com.mcwb.common.gun.IEquippedMag;
 import com.mcwb.common.gun.IMag;
 import com.mcwb.common.load.IContentProvider;
 import com.mcwb.util.AngleAxis4f;
-import com.mcwb.util.Mat4f;
 import com.mcwb.util.Mesh;
 import com.mcwb.util.Vec3f;
 
@@ -48,7 +47,7 @@ public abstract class MagModel<
 	protected AngleAxis4f[] ammoRot = AMMO_ROT;
 	protected boolean isDoubleColumnMag = true;
 	
-	protected String loadingMagChannel = "";
+	protected String loadingMagModuleChannel = "";
 	
 	public MagModel()
 	{
@@ -103,20 +102,16 @@ public abstract class MagModel<
 			Collection< IDeferredRenderer > renderQueue0,
 			Collection< IDeferredRenderer > renderQueue1
 		) {
-			contexted.base().getRenderTransform( contexted, this.mat );
+			contexted.base().getRenderTransform( contexted, animator, this.mat );
 			
 			final boolean isLoadingMag = contexted.isLoadingMag();
 			final String animationChannel = isLoadingMag
-				? MagModel.this.loadingMagChannel : MagModel.this.animationChannel;
+				? MagModel.this.loadingMagModuleChannel : MagModel.this.moduleAnimationChannel;
 			animator.applyChannel( animationChannel, this.mat );
 			
 			renderQueue0.add( () -> {
 				GL11.glPushMatrix();
-				final Mat4f mat = Mat4f.locate();
-				animator.getChannel( CHANNEL_ITEM, mat );
-				mat.mul( this.mat ); // TODO: validate order
-				glMulMatrix( mat );
-				mat.release();
+				glMulMatrix( this.mat );
 				
 				// Render ammo first as mag itself can be transparent.
 				final int ammoCount = contexted.ammoCount();

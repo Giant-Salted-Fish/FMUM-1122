@@ -4,7 +4,6 @@
 	"positionScale": 0.00625,
 	"bones": {
 		"left-0": {
-			"parent": "item",
 			"position": {
 				"0.0": [0, 40, -15.5]
 			}

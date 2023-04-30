@@ -18,7 +18,8 @@ public abstract class TexturedMeta extends BuildableMeta
 	{
 		super.build( name, provider );
 		
-		provider.clientOnly( this::checkTextureSetup );
+		provider.clientOnly( () -> this.checkTextureSetup() );
+//		provider.clientOnly( this::checkTextureSetup ); // Write like this will crash.
 		return this;
 	}
 	

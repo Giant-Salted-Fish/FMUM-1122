@@ -3,5 +3,5 @@
 	"_animatedMeshes": "models/gun/hk416/bolt.obj",
 	"scale": 0.00625,
 	"tbObjAdapt": true,
-	"animationChannel": "bolt"
+	"moduleAnimationChannel": "bolt"
 }

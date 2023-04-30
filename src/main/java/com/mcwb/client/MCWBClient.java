@@ -76,8 +76,6 @@ public final class MCWBClient extends MCWB
 	
 	// TODO: mesh loaders? to support other types of model
 	
-	public static final String MODIFY_INDICATOR = "modify_indicator";
-	
 	public static byte[] modifyLoc;
 	
 	public static float freeViewLimitSquared;
@@ -159,13 +157,6 @@ public final class MCWBClient extends MCWB
 			InputHandler.saveTo( this.keyBindsFile );
 		}
 		else { InputHandler.readFrom( this.keyBindsFile ); }
-		
-		// Construct a default indicator.
-		final JsonObject indicator = new JsonObject();
-		indicator.addProperty( "creativeTab", MCWB.HIDE_TAB.name() );
-		indicator.addProperty( "model", "models/modify_indicator.json" );
-		indicator.addProperty( "texture", "textures/0x00ff00.png" );
-		TYPE_LOADERS.get( "gun_part" ).parser.apply( indicator ).build( MODIFY_INDICATOR, this );
 		
 		// Do load content packs!
 		super.load();

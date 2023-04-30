@@ -1,12 +1,10 @@
 package com.mcwb.client.module;
 
-import com.mcwb.util.IReleasable;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @FunctionalInterface
-public interface IDeferredRenderer extends IReleasable
+public interface IDeferredRenderer
 {
 	@SideOnly( Side.CLIENT )
 	void render();
@@ -19,7 +17,4 @@ public interface IDeferredRenderer extends IReleasable
 	 */
 	@SideOnly( Side.CLIENT )
 	default float priority() { return 0F; }
-	
-	@Override
-	default void release() { }
 }

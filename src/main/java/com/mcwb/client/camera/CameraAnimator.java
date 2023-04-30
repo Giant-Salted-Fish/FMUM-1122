@@ -11,7 +11,7 @@ import com.mcwb.util.Mat4f;
 import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
 
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MouseHelper;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -114,7 +114,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	@Override
 	public void prepareRender( MouseHelper mouse )
 	{
-		final EntityPlayerSP player = MCWBClient.MC.player;
+		final EntityPlayer player = MCWBClient.MC.player;
 		final DynamicPos camOffAxis = this.cameraOffAxis;
 		final Vec3f playerRot = this.playerRot;
 		final float smoother = this.smoother();
@@ -190,7 +190,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		
 		// Apply a tiny change to player's pitch rotation to force view frustum culling update if
 		// off-axis has changed.
-		final EntityPlayerSP player = MCWBClient.MC.player;
+		final EntityPlayer player = MCWBClient.MC.player;
 		final Vec3f prevOffAxis = this.prevCameraOffAxis;
 		final float pitchChange = Math.abs( camOffAxisX - prevOffAxis.x );
 		final float yawChange   = Math.abs( camOffAxisY - prevOffAxis.y );

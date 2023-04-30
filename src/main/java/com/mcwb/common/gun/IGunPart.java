@@ -20,7 +20,7 @@ public interface IGunPart< T extends IGunPart< ? extends T > >
 	int rightHandPriority();
 	
 	@SideOnly( Side.CLIENT )
-	void prepareInHandRenderSP(
+	void prepareRenderInHandSP(
 		IAnimator animator,
 		Collection< IDeferredRenderer > renderQueue0,
 		Collection< IDeferredRenderer > renderQueue1

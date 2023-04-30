@@ -3,6 +3,7 @@ package com.mcwb.common.module;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import com.mcwb.client.render.IAnimator;
 import com.mcwb.util.Mat4f;
 
 import net.minecraft.item.ItemStack;
@@ -109,7 +110,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	void getTransform( IModule< ? > installed, Mat4f dst );
 	
 	@SideOnly( Side.CLIENT )
-	void getRenderTransform( IModule< ? > installed, Mat4f dst );
+	void getRenderTransform( IModule< ? > installed, IAnimator animator, Mat4f dst );
 	
 //	@SideOnly( Side.CLIENT )
 //	void prepareRender(

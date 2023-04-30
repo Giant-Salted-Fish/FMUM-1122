@@ -11,13 +11,10 @@ import com.mcwb.client.IAutowireBindTexture;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.item.ItemModel;
 import com.mcwb.client.module.IDeferredRenderer;
-import com.mcwb.client.player.PlayerPatchClient;
 import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.gun.IGunPart;
 import com.mcwb.common.item.IEquippedItem;
 import com.mcwb.common.load.IContentProvider;
-import com.mcwb.common.operation.IOperation;
-import com.mcwb.devtool.Dev;
 import com.mcwb.util.ArmTracker;
 import com.mcwb.util.IAnimation;
 import com.mcwb.util.Mat4f;
@@ -25,7 +22,7 @@ import com.mcwb.util.Mesh;
 import com.mcwb.util.Quat4f;
 import com.mcwb.util.Vec3f;
 
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -57,16 +54,25 @@ public abstract class GunPartModel<
 	
 	protected AnimatedMesh[] animatedMeshes = { };
 	
+	protected String moduleAnimationChannel = "";
+	
 	@Override
 	public Object build( String path, IContentProvider provider )
 	{
 		super.build( path, provider );
+		
+		if ( this.moduleAnimationChannel.length() == 0 && this.meshPath != null )
+		{
+			final int idx = this.meshPath.lastIndexOf( '/' ) + 1;
+			this.moduleAnimationChannel = this.meshPath.substring( idx );
+		}
 		
 		for ( AnimatedMesh aniMesh : this.animatedMeshes ) {
 			aniMesh.origin.scale( this.scale );
 		}
 		return this;
 	}
+	
 	@Override
 	protected void onMeshLoad( IContentProvider provider )
 	{
@@ -110,17 +116,13 @@ public abstract class GunPartModel<
 			Collection< IDeferredRenderer > renderQueue0,
 			Collection< IDeferredRenderer > renderQueue1
 		) {
-			contexted.base().getRenderTransform( contexted, this.mat );
-			animator.applyChannel( GunPartModel.this.animationChannel, this.mat );
+			contexted.base().getRenderTransform( contexted, animator, this.mat );
+			animator.applyChannel( GunPartModel.this.moduleAnimationChannel, this.mat );
 			
 			// TODO: we can buffer animator so no instance will be created for this closure
 			renderQueue0.add( () -> {
 				GL11.glPushMatrix();
-				final Mat4f mat = Mat4f.locate();
-				animator.getChannel( CHANNEL_ITEM, mat );
-				mat.mul( this.mat ); // TODO: validate order
-				glMulMatrix( mat );
-				mat.release();
+				glMulMatrix( this.mat );
 				
 				final ResourceLocation texture = contexted.texture();
 				contexted.modifyState().doRecommendedRender( texture, () -> {
@@ -157,13 +159,8 @@ public abstract class GunPartModel<
 		}
 		
 		// TODO: caller of this method may also have get the same item channel
-		protected void updateArm( ArmTracker arm, IAnimator animator )
-		{
-			final Mat4f mat = Mat4f.locate();
-			animator.getChannel( CHANNEL_ITEM, mat );
-			mat.mul( this.mat ); // TODO: animator?
-			mat.transformAsPoint( arm.handPos );
-			mat.release();
+		protected void updateArm( ArmTracker arm, IAnimator animator ) {
+			this.mat.transformAsPoint( arm.handPos );
 		}
 		
 		protected class EquippedGunPartRenderer extends EquippedItemRenderer
@@ -178,53 +175,16 @@ public abstract class GunPartModel<
 			}
 			
 			@Override
-			public void updateAnimationForRender( E equipped, EnumHand hand )
-			{
-				/// *** Update in hand position as well as rotation before render. *** ///
-				{
-					this.updatePosRot(); // TODO: before or after animation update?
-					
-					final Mat4f mat = Mat4f.locate();
-					mat.setIdentity();
-					mat.translate( this.pos );
-					mat.rotate( this.rot );
-					
-					mat.get( this.pos );
-					this.rot.set( mat );
-					mat.release();
-				}
-				
-				/// *** Update animation. *** ///
-				{
-					final IOperation executing = PlayerPatchClient.instance.executing();
-					final float progress = executing.getProgress( this.smoother() );
-					this.animation.update( progress );
-				}
-				
-				// Blend modify transform.
-//				final float alpha = this.animation.getFactor( CHANNEL_MODIFY );
-//				this.pos.interpolate( GunPartModel.this.modifyPos, alpha );
-//				
-//				final Quat4f quat = Quat4f.locate();
-//				this.animation.getRot( CHANNEL_MODIFY, quat );
-//				this.rot.interpolate( quat, alpha );
-//				quat.release();
-			}
-			
-			@Override
 			public void prepareRenderInHandSP( E equipped, EnumHand hand )
 			{
 				// Clear previous state.
-				HAND_QUEUE_0.forEach( IDeferredRenderer::release );
 				HAND_QUEUE_0.clear();
-				HAND_QUEUE_1.forEach( IDeferredRenderer::release );
 				HAND_QUEUE_1.clear();
 				
 				// Prepare render queue.
-				equipped.item().prepareInHandRenderSP(
-					equipped.animator(), // TODO: equipped#animator() should actually be #this
-					HAND_QUEUE_0, HAND_QUEUE_1
-				);
+				// TODO: equipped#animator() should actually be #this
+				final IAnimator animator = equipped.animator();
+				equipped.item().prepareRenderInHandSP( animator, HAND_QUEUE_0, HAND_QUEUE_1 );
 				
 				// TODO: better comparator?
 				HAND_QUEUE_1.sort( ( r0, r1 ) -> r0.priority() > r1.priority() ? -1 : 1 );
@@ -265,20 +225,11 @@ public abstract class GunPartModel<
 			this.pos.scale( progress );
 			mat.translate( this.pos );
 			
-			final EntityPlayerSP player = MCWBClient.MC.player;
+			final EntityPlayer player = MCWBClient.MC.player;
 			final float refPlayerRotYaw = this.refPlayerRotYaw.get();
 			final float modifyYawBase = ( refPlayerRotYaw % 360F + 360F ) % 360F - 180F; // TODO: maybe do this when capture ref player yaw
 			final float modifyYawDelta = refPlayerRotYaw - player.rotationYaw;
 			final float modifyYaw = modifyYawBase - modifyYawDelta;
-			
-			if ( Dev.flag )
-			{
-				MCWBClient.MOD.sendPlayerMsg( "progress " + progress );
-				Dev.flag = false;
-			}
-			
-//			mat.rotateX( -player.rotationPitch * progress );
-//			mat.rotateY( modifyYaw * progress );
 			
 			mat.get( this.pos );
 			this.rot.set( mat );
@@ -305,18 +256,16 @@ public abstract class GunPartModel<
 		@Override
 		public void getPos( String channel, Vec3f dst )
 		{
-			if ( channel.equals( GunPartModel.this.animationChannel ) ) {
-				dst.set( this.pos );
-			}
+			final boolean isThisChannel = channel.equals( GunPartModel.this.animationChannel );
+			if ( isThisChannel ) { dst.set( this.pos ); }
 			else { dst.setZero(); }
 		}
 		
 		@Override
 		public void getRot( String channel, Quat4f dst )
 		{
-			if ( channel.equals( GunPartModel.this.animationChannel ) ) {
-				dst.set( this.rot );
-			}
+			final boolean isThisChannel = channel.equals( GunPartModel.this.animationChannel );
+			if ( isThisChannel ) { dst.set( this.rot ); }
 			else { dst.clearRot(); }
 		}
 		

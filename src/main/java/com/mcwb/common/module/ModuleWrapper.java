@@ -4,6 +4,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.google.common.collect.TreeMultimap;
+import com.mcwb.client.item.ItemModel;
+import com.mcwb.client.render.IAnimator;
 import com.mcwb.common.item.IItem;
 import com.mcwb.common.paintjob.IPaintable;
 import com.mcwb.util.Mat4f;
@@ -183,8 +185,8 @@ public abstract class ModuleWrapper<
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public final void getRenderTransform( IModule< ? > installed, Mat4f dst ) {
-		dst.setIdentity();
+	public final void getRenderTransform( IModule< ? > installed, IAnimator animator, Mat4f dst ) {
+		animator.getChannel( ItemModel.CHANNEL_ITEM, dst );
 	}
 	
 //	@Override

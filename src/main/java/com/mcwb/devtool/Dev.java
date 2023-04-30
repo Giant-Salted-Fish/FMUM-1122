@@ -2,24 +2,18 @@ package com.mcwb.devtool;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.function.Consumer;
-
-import javax.annotation.Nullable;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-import com.mcwb.client.IAutowirePlayerChat;
 import com.mcwb.client.MCWBClient;
 import com.mcwb.client.input.IKeyBind;
 import com.mcwb.client.input.InputHandler;
 import com.mcwb.client.input.Key;
 import com.mcwb.client.input.KeyBind;
-import com.mcwb.client.render.Model;
 import com.mcwb.common.MCWB;
 import com.mcwb.util.Vec3f;
 
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -33,25 +27,25 @@ import net.minecraftforge.fml.relauncher.Side;
  * @author Giant_Salted_Fish
  */
 @EventBusSubscriber( modid = MCWB.MODID, value = Side.CLIENT )
-public class Dev implements IAutowirePlayerChat
+public class Dev
 {
 	public static int dirtyMark() { return 0; }
 	
-	public static final Consumer< Boolean > DEBUG_BOX = new Consumer< Boolean >()
-	{
-		private final Model renderer = new Model( "models/debug_box.obj", 0.0625F, true );
-		
-		private final ResourceLocation texture = MCWBClient.MOD.loadTexture( "textures/debug_box.png" );
-		
-		@Override
-		public void accept( Boolean useDefaultTexture )
-		{
-			if ( useDefaultTexture ) {
-				MCWBClient.MOD.bindTexture( this.texture );
-			}
-			this.renderer.render();
-		}
-	};
+//	public static final Consumer< Boolean > DEBUG_BOX = new Consumer< Boolean >()
+//	{
+//		private final Model renderer = new Model( "models/debug_box.obj", 0.0625F, true );
+//		
+//		private final ResourceLocation texture = MCWBClient.MOD.loadTexture( "textures/debug_box.png" );
+//		
+//		@Override
+//		public void accept( Boolean useDefaultTexture )
+//		{
+//			if ( useDefaultTexture ) {
+//				MCWBClient.MOD.bindTexture( this.texture );
+//			}
+//			this.renderer.render();
+//		}
+//	};
 	
 	public static boolean flag = false;
 	
@@ -73,66 +67,49 @@ public class Dev implements IAutowirePlayerChat
 	
 	static
 	{
-		final String group = "test";
-		final Collection< IKeyBind > updateGroup = InputHandler.GLOBAL_KEYS;
-		new KeyBind( "test_up", group, Keyboard.KEY_UP, updateGroup ) {
-			@Override
-			protected void onFire() { tu = true; }
-		};
-		new KeyBind( "test_down", group, Keyboard.KEY_DOWN, updateGroup ) {
-			@Override
-			protected void onFire() { td = true; }
-		};
-		new KeyBind( "test_left", group, Keyboard.KEY_LEFT, updateGroup ) {
-			@Override
-			protected void onFire() { tl = true; }
-		};
-		new KeyBind( "test_right", group, Keyboard.KEY_RIGHT, updateGroup ) {
-			@Override
-			protected void onFire() { tr = true; }
-		};
-		new KeyBind( "test_enter", group, Keyboard.KEY_NUMPAD5, updateGroup ) {
-			@Override
-			protected void onFire() { te = true; }
-		};
-		new QuitKey( "test_quit", group, Keyboard.KEY_NUMPAD2, updateGroup );
-		new KeyBind( "test_flag", group, Keyboard.KEY_F10, updateGroup )
+		if ( MCWB.MOD.isClient() )
 		{
-			@Override
-			protected void onFire() { flag = !flag; }
-		};
-		
-		MinecraftForge.EVENT_BUS.register( new Object() {
-			@SubscribeEvent
-			public void onGuiOpen( GuiOpenEvent evt )
+			final String group = "test";
+			final Collection< IKeyBind > updateGroup = InputHandler.GLOBAL_KEYS;
+			new KeyBind( "test_up", group, Keyboard.KEY_UP, updateGroup ) {
+				@Override
+				protected void onFire() { tu = true; }
+			};
+			new KeyBind( "test_down", group, Keyboard.KEY_DOWN, updateGroup ) {
+				@Override
+				protected void onFire() { td = true; }
+			};
+			new KeyBind( "test_left", group, Keyboard.KEY_LEFT, updateGroup ) {
+				@Override
+				protected void onFire() { tl = true; }
+			};
+			new KeyBind( "test_right", group, Keyboard.KEY_RIGHT, updateGroup ) {
+				@Override
+				protected void onFire() { tr = true; }
+			};
+			new KeyBind( "test_enter", group, Keyboard.KEY_NUMPAD5, updateGroup ) {
+				@Override
+				protected void onFire() { te = true; }
+			};
+			new KeyBind( "test_quit", group, Keyboard.KEY_NUMPAD2, updateGroup )
 			{
-				InputHandler.updateMappers();
-				MinecraftForge.EVENT_BUS.unregister( this );
-			}
-		} );
-	}
-	
-	private static class QuitKey extends KeyBind
-	{
-		public QuitKey(
-			String name,
-			String category,
-			int keyCode,
-			@Nullable Collection< IKeyBind > updateGroup
-		) { super( name, category, keyCode, updateGroup ); }
-		
-		@Override
-		protected void onFire()
-		{
-			tq = true;
-//			final OperationController controller = new OperationController( 1F / 20F / 2.375F );
-//			PlayerPatchClient.instance.tryLaunch( new Operation<IItem>( null, controller )
-//			{
-//				@Override
-//				public IOperation onStackUpdate(
-//					IEquippedItem< ? > newEquipped, EntityPlayer player
-//				) { return this; }
-//			} );
+				@Override
+				protected void onFire() { tq = true; }
+			};
+			new KeyBind( "test_flag", group, Keyboard.KEY_F10, updateGroup )
+			{
+				@Override
+				protected void onFire() { flag = !flag; }
+			};
+			
+			MinecraftForge.EVENT_BUS.register( new Object() {
+				@SubscribeEvent
+				public void onGuiOpen( GuiOpenEvent evt )
+				{
+					InputHandler.updateMappers();
+					MinecraftForge.EVENT_BUS.unregister( this );
+				}
+			} );
 		}
 	}
 	
@@ -192,6 +169,9 @@ public class Dev implements IAutowirePlayerChat
 		}
 	}
 	
+	@SubscribeEvent
+	public static void onTick( ClientTickEvent evt ) { tick(); }
+	
 //	@SubscribeEvent
 //	public static void onPlayerRender( RenderPlayerEvent.Pre evt )
 //	{
@@ -217,9 +197,6 @@ public class Dev implements IAutowirePlayerChat
 //		GL11.glStencilFunc( GL11.GL_ALWAYS, 1, 0xFF );
 //		GL11.glDisable( GL11.GL_STENCIL_TEST );
 //	}
-	
-	@SubscribeEvent
-	public static void onTick( ClientTickEvent evt ) { tick(); }
 	
 	public static final class TestPosRot
 	{

@@ -45,7 +45,7 @@ public class TDGripModel extends JsonGripModel
 				final float gunRotZ = mat.getEulerAngleZ();
 				mat.release();
 				
-				final float installRotZ = this.mat.getEulerAngleZ();
+				final float installRotZ = this.mat.getEulerAngleZ() - gunRotZ;
 //				leftArm.handPos.set( DevHelper.get( 0 ).getPos() );
 //				leftArm.$handRotZ( gunRotZ + DevHelper.get( 0 ).getRot().z );
 				

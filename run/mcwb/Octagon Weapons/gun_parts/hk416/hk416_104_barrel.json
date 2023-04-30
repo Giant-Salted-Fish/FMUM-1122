@@ -1,5 +1,6 @@
 {
 	"creativeTab": "oc",
+	"category": "hk416_barrel",
 	"model": "models/gun/hk416/104_barrel.json",
 	"texture": "textures/guns/hk416_d10rs.png",
 	

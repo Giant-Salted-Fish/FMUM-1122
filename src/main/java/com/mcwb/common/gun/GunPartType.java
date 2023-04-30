@@ -1,5 +1,7 @@
 package com.mcwb.common.gun;
 
+import static com.mcwb.common.gun.GunPartWrapper.STACK_ID_TAG;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -214,7 +216,7 @@ public abstract class GunPartType<
 			// the network packet case. The down side is that it will actually deserialize \
 			// twice for the network packet case.
 			final NBTTagCompound newStackTag = new NBTTagCompound();
-			newStackTag.setInteger( "i", new Random().nextInt() ); // TODO: better way to do this?
+			newStackTag.setInteger( STACK_ID_TAG, new Random().nextInt() ); // TODO: better way to do this?
 			stack.setTagCompound( newStackTag );
 			// See GunPartWrapper#stackId().
 			
@@ -286,6 +288,34 @@ public abstract class GunPartType<
 		@Override
 		public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand )
 		{
+			final NBTTagCompound stackTag = this.base.toStack().getTagCompound();
+			final int stackId = stackTag.getInteger( STACK_ID_TAG );
+			
+			final boolean isLogicServer = !player.world.isRemote;
+			if ( isLogicServer )
+			{
+				// This is required because we have no way to assign a new id for a copied gun \
+				// stack with out using the mixin, which means two guns in player's inventory \
+				// could have essentially identical id! This hack generates a new id for gun in \
+				// hand on taking out, which can not fully settle this problem, but should be \
+				// enough to make it work in most of the time.
+				
+				// Only update id on server side.
+				final int seed = stackId + player.inventory.currentItem;
+				final int newStackId = new Random( seed ).nextInt();
+				stackTag.setInteger( STACK_ID_TAG, newStackId );
+			}
+			else
+			{
+				// If id changed to the new id updated by server side, then just ignore.
+				final IEquippedItem< ? > prev = PlayerPatchClient.instance.getEquipped( hand );
+				final int prevStackId = prev.item().stackId();
+				final int seed = prevStackId + player.inventory.currentItem;
+				final int updatedStackId = new Random( seed ).nextInt();
+				final boolean shouldIgnore = stackId == updatedStackId;
+				if ( shouldIgnore ) { return this.onStackUpdate( prev, player, hand ); }
+			}
+			
 			final Supplier< ER > renderer = () -> this.renderer.onTakeOut( hand );
 			return this.newEquipped( renderer, () -> original -> original, player, hand );
 		}
@@ -355,7 +385,7 @@ public abstract class GunPartType<
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public void getRenderTransform( IModule< ? > installed, Mat4f dst )
+		public void getRenderTransform( IModule< ? > installed, IAnimator animator, Mat4f dst )
 		{
 			this.renderer.getTransform( dst );
 			
@@ -365,7 +395,7 @@ public abstract class GunPartType<
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public void prepareInHandRenderSP(
+		public void prepareRenderInHandSP(
 			IAnimator animator,
 			Collection< IDeferredRenderer > renderQueue0,
 			Collection< IDeferredRenderer > renderQueue1
@@ -373,7 +403,7 @@ public abstract class GunPartType<
 			this.renderer.prepareInHandRender( this.self(), animator, renderQueue0, renderQueue1 );
 			
 			this.installed.forEach(
-				mod -> mod.prepareInHandRenderSP( animator, renderQueue0, renderQueue1 )
+				mod -> mod.prepareRenderInHandSP( animator, renderQueue0, renderQueue1 )
 			);
 		}
 		
@@ -482,7 +512,8 @@ public abstract class GunPartType<
 			}
 			
 			@Override
-			public C item() { return GunPart.this.self(); }
+			@SuppressWarnings( "unchecked" )
+			public C item() { return ( C ) GunPart.this.base; }
 			
 			@Override
 			public void tickInHand( EntityPlayer player, EnumHand hand )
@@ -540,9 +571,9 @@ public abstract class GunPartType<
 						protected IModule< ? > replicateDelegatePrimary()
 						{
 							final EquippedGunPart equipped = ( EquippedGunPart ) this.equipped;
-							final EquippedGunPart copied = ( EquippedGunPart ) equipped.copy();
-							equipped.renderDelegate = original -> ( E ) copied;
-							return copied.item().base();
+							final E copied = ( E ) equipped.copy();
+							equipped.renderDelegate = original -> copied;
+							return copied.item();
 						}
 						
 						@Override
@@ -577,6 +608,7 @@ public abstract class GunPartType<
 			@SuppressWarnings( "unchecked" )
 			protected final E renderDelegate() { return this.renderDelegate.apply( ( E ) this ); }
 			
+			@SideOnly( Side.CLIENT )
 			@SuppressWarnings( "unchecked" )
 			protected IEquippedItem< ? > copy()
 			{
@@ -586,7 +618,8 @@ public abstract class GunPartType<
 				return copied.newEquipped(
 					() -> EquippedGunPart.this.renderer,
 					() -> EquippedGunPart.this.renderDelegate,
-					MCWBClient.MC.player, EnumHand.MAIN_HAND
+					MCWBClient.MC.player,
+					EnumHand.MAIN_HAND
 				);
 			}
 		}

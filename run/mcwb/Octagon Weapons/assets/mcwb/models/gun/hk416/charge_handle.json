@@ -2,5 +2,5 @@
 	"mesh": "models/gun/hk416/charge_handle.obj",
 	"scale": 0.00625,
 	"tbObjAdapt": true,
-	"animationChannel": "charge_handle"
+	"moduleAnimationChannel": "charge_handle"
 }
