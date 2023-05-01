@@ -1,6 +1,0 @@
-{
-	"parent": "builtin/generated",
-	"textures": {
-		"layer0": "mcwb:items/hk416_upper_receiver"
-	}
-}
