@@ -55,12 +55,9 @@ public final class InputHandler
 	
 	static
 	{
-		// Trigger key bind initialization.
-		// FIXME: check if this is needed
-		try { Class.forName( Key.class.getName() ); }
-		catch ( ClassNotFoundException e ) {
-			throw new RuntimeException( e );
-		}
+		// Need this to make sure key bindings are loaded at proper time.
+		try { Class.forName( "com.fmum.client.input.Key" ); }
+		catch ( Exception e ) { throw new RuntimeException( e ); }
 	}
 	
 	private static final HashMultimap< Integer, IKeyBind > GLOBAL_MAPPER = HashMultimap.create();

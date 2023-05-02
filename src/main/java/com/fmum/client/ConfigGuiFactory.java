@@ -19,7 +19,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @author Giant_Salted_Fish
  */
 @SideOnly( Side.CLIENT )
-final class ConfigGuiFactory implements IModGuiFactory
+public final class ConfigGuiFactory implements IModGuiFactory
 {
 	@Override
 	public void initialize( Minecraft mc ) { }

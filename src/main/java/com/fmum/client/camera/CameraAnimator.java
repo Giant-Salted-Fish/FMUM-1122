@@ -6,6 +6,7 @@ import com.fmum.client.input.Key;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.ModConfig;
+import com.fmum.devtool.Dev;
 import com.fmum.util.DynamicPos;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Quat4f;
@@ -41,11 +42,9 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	protected static float dropDistanceCycle = 0F;
 	
 	/**
-	 * The actual camera rotation in world coordinate(player rot + off-axis).
-	 * 
-	 * TODO: also save camera easing in it so that we dont need to calculate on {@link #getCameraRot(Vec3f)} every time
+	 * The actual camera orientation and position in world coordinate.
 	 */
-	protected final Vec3f cameraRot = new Vec3f();
+	protected final Mat4f viewMat = new Mat4f();
 	
 	/**
 	 * Direction that the player is heading.
@@ -170,23 +169,32 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	
 	protected final void updateCameraRot( float camOffAxisX, float camOffAxisY )
 	{
-		// Apply camera animation.
+		// Apply easing and camera animation.
 		final float cameraPitch = this.playerRot.x + camOffAxisX;
 		final float cameraYaw   = this.playerRot.y + camOffAxisY;
 		
-		final Mat4f mat = Mat4f.locate();
-		mat.setIdentity();
-		mat.rotateY( cameraYaw );
-		mat.rotateX( cameraPitch );
-		
+		final Mat4f mat = this.viewMat;
 		final Quat4f quat = Quat4f.locate();
 		this.animator.getRot( ANIMATION_CAHNNEL, quat );
-		mat.rotate( quat );
+		mat.set( quat );
 		quat.release();
 		
-		mat.getEulerAngleYXZ( this.cameraRot );
-		this.cameraRot.z = -this.cameraRot.z; // Necessary!!! Do touch this.
-		mat.release();
+		final Vec3f vec = Vec3f.locate();
+		this.cameraEasing.get( this.smoother(), vec );
+		mat.rotateZ( vec.z );
+		mat.rotateX( vec.x );
+		mat.rotateY( vec.y );
+		
+		this.animator.getPos( ANIMATION_CAHNNEL, vec );
+		mat.translate( vec );
+		vec.release();
+		
+		mat.rotateX( cameraPitch );
+		mat.rotateY( 180F + cameraYaw );
+		
+//		mat.getEulerAngleYXZ( this.cameraRot );
+//		this.cameraRot.z = -this.cameraRot.z; // Necessary!!! Do touch this.
+//		mat.release();
 		
 		// Apply a tiny change to player's pitch rotation to force view frustum culling update if
 		// off-axis has changed.
@@ -204,12 +212,15 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		prevOffAxis.y = camOffAxisY;
 	}
 	
+//	@Override
+//	public void getCameraRot( Vec3f dst )
+//	{
+//		this.cameraEasing.get( this.smoother(), dst );
+//		dst.add( this.cameraRot );
+//	}
+	
 	@Override
-	public void getCameraRot( Vec3f dst )
-	{
-		this.cameraEasing.get( this.smoother(), dst );
-		dst.add( this.cameraRot );
-	}
+	public void getViewTransform( Mat4f dst ) { dst.set( this.viewMat ); }
 	
 	@Override
 	public void getPlayerRot( Vec3f dst ) { dst.set( this.playerRot ); }

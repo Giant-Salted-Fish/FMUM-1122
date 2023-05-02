@@ -148,13 +148,13 @@ public abstract class ItemModel<
 			
 			/// Copied from {@link ItemRenderer#renderItemInFirstPerson(float)}. ///
 			// {@link ItemRenderer#rotateArroundXAndY(float, float)}.
-			final Vec3f cameraRot = Vec3f.locate();
-			PlayerPatchClient.instance.camera.getCameraRot( cameraRot );
-			GL11.glRotatef( cameraRot.z, 0F, 0F, 1F );
-			GL11.glRotatef( cameraRot.x, 1F, 0F, 0F );
-			GL11.glRotatef( cameraRot.y, 0F, 1F, 0F );
+			final Mat4f mat = Mat4f.locate();
+			PlayerPatchClient.instance.camera.getViewTransform( mat );
+			glMulMatrix( mat );
+			mat.release();
+			
+			GL11.glRotatef( 180F, 0F, 1F, 0F );
 			RenderHelper.enableStandardItemLighting();
-			cameraRot.release();
 			
 			// {@link ItemRenderer#setLightmap()}.
 			final double eyeY = player.posY + player.getEyeHeight();

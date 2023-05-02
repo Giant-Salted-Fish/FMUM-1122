@@ -1,7 +1,7 @@
 {
 	"name": "oc.pack",
 	"author": "oc.author",
-	"version": "0.2.0-alpha",
-	"coreVersion": "0.2.0-alpha",
+	"version": "0.3.0-alpha",
+	"coreVersion": "0.3.0-alpha",
 	"ignoreEntries": [ "com" ]
 }

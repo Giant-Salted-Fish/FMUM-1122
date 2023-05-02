@@ -2,6 +2,7 @@ package com.fmum.client.camera;
 
 import com.fmum.client.input.Key;
 import com.fmum.client.render.IAnimator;
+import com.fmum.util.Mat4f;
 import com.fmum.util.Vec3f;
 
 import net.minecraft.util.MouseHelper;
@@ -24,10 +25,7 @@ public interface ICameraController
 	
 	void prepareRender( MouseHelper mouse );
 	
-	/**
-	 * @param dst Will save camera orientation into this vector.
-	 */
-	void getCameraRot( Vec3f dst );
+	void getViewTransform( Mat4f dst );
 	
 	void getPlayerRot( Vec3f dst );
 }

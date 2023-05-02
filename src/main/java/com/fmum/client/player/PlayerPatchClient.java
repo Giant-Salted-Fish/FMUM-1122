@@ -10,7 +10,9 @@ import com.fmum.client.FMUMClient;
 import com.fmum.client.camera.CameraAnimator;
 import com.fmum.client.camera.ICameraController;
 import com.fmum.client.input.IInput;
+import com.fmum.client.render.Model;
 import com.fmum.common.player.PlayerPatch;
+import com.fmum.util.Mat4f;
 import com.fmum.util.Vec3f;
 
 import net.minecraft.client.Minecraft;
@@ -20,7 +22,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MouseHelper;
-import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -144,13 +145,13 @@ public final class PlayerPatchClient extends PlayerPatch
 		) { return true; }
 		
 		// Otherwise, setup orientation for vanilla item rendering.
-		final Vec3f cameraRot = Vec3f.locate();
-		this.camera.getCameraRot( cameraRot );
-		GL11.glRotatef( cameraRot.z, 0F, 0F, 1F );
-		GL11.glRotatef( cameraRot.x, 1F, 0F, 0F );
-		GL11.glRotatef( cameraRot.y - this.player.rotationYaw, 0F, 1F, 0F );
+		final Mat4f mat = Mat4f.locate();
+		this.camera.getViewTransform( mat );
+		Model.glMulMatrix( mat );
+		mat.release();
+		
+		GL11.glRotatef( 180F - this.player.rotationYaw, 0F, 1F, 0F );
 		GL11.glRotatef( -this.player.rotationPitch, 1F, 0F, 0F );
-		cameraRot.release();
 		return false;
 	}
 	
@@ -158,16 +159,6 @@ public final class PlayerPatchClient extends PlayerPatch
 	{
 		final boolean isOffHand = hand == OFF_HAND;
 		return ( isOffHand ? this.offEquipped : this.mainEquipped ).onRenderSpecificHandSP( hand );
-	}
-	
-	public void onCameraSetup( CameraSetup evt )
-	{
-		final Vec3f cameraRot = Vec3f.locate();
-		this.camera.getCameraRot( cameraRot );
-		evt.setYaw( 180F + cameraRot.y );
-		evt.setPitch( cameraRot.x );
-		evt.setRoll( cameraRot.z );
-		cameraRot.release();
 	}
 	
 	public boolean hideCrosshair() { return this.mainEquipped.hideCrosshair(); }

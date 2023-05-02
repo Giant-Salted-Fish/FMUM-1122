@@ -2,16 +2,23 @@ package com.fmum.client;
 
 import java.util.Collection;
 
+import org.lwjgl.opengl.GL11;
+
 import com.fmum.client.input.InputHandler;
 import com.fmum.client.player.PlayerPatchClient;
-import com.fmum.common.IAutowireLogger;
+import com.fmum.client.render.Model;
 import com.fmum.common.FMUM;
+import com.fmum.common.IAutowireLogger;
 import com.fmum.common.item.IItemType;
+import com.fmum.devtool.Dev;
+import com.fmum.util.Mat4f;
+import com.fmum.util.Vec3f;
 
 import net.minecraft.client.gui.GuiControls;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -19,7 +26,6 @@ import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
-import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
@@ -160,8 +166,16 @@ public final class EventHandlerClient
 	}
 	
 	@SubscribeEvent
-	public static void onCameraSetup( CameraSetup evt ) {
-		PlayerPatchClient.instance.onCameraSetup( evt );
+	public static void onCameraSetup( CameraSetup evt )
+	{
+		evt.setYaw( 0F );
+		evt.setPitch( 0F );
+		evt.setRoll( 0F );
+		
+		final Mat4f mat = Mat4f.locate();
+		PlayerPatchClient.instance.camera.getViewTransform( mat );
+		Model.glMulMatrix( mat );
+		mat.release();
 	}
 	
 	/**

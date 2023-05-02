@@ -15,5 +15,5 @@ public interface IGun< T extends IGunPart< ? extends T > > extends IGunPart< T >
 	
 	IMag< ? > unloadMag();
 	
-	void chargeGun();
+	void chargeGun(); // FIXME: work on it
 }

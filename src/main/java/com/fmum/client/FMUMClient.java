@@ -308,9 +308,15 @@ public final class FMUMClient extends FMUM
 						if ( cameraBone != null )
 						{
 							final BoneAnimation bone = new BoneAnimation();
+							cameraBone.position.forEach( ( time, pos ) -> {
+								pos.x = -pos.x;
+								pos.y = -pos.y;
+								pos.scale( scale );
+								bone.pos.put( time * timeFactor, pos );
+							} );
 							cameraBone.rotation.forEach( ( time, rot ) -> {
 								mat.setIdentity();
-								mat.rotateZ( -rot.z );
+								mat.rotateZ( rot.z );
 								mat.rotateY( rot.y );
 								mat.rotateX( -rot.x );
 								bone.rot.put( time * timeFactor, new Quat4f( mat ) );
@@ -339,7 +345,6 @@ public final class FMUMClient extends FMUM
 								( time, alpha ) -> bone.alpha.put( time * timeFactor, alpha )
 							);
 							bone.addGuard();
-							
 							ani.channels.put( channel, bone );
 							bone2Parent.add( new SimpleEntry<>( channel, bbBone.parent ) );
 						} );

@@ -25,6 +25,11 @@
 		"effectTime": [ 0.431998 ]
 	},
 	
+	"inspectController": {
+		"animation": "animations/hk416_inspect.json",
+		"progressor": 0.0179102
+	},
+	
 	"paramScale": 0.00625,
 	"moduleSlots": [
 		{

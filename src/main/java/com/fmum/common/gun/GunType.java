@@ -55,23 +55,24 @@ public abstract class GunType<
 		LOAD_MAG_CONTROLLER = new OperationController(
 			1F / 40F,
 			new float[] { 0.8F },
-			new String[ 0 ],
+			OperationController.NO_SPECIFIED_EFFECT,
 			new float[] { 0.8F },
 			"load_mag"
 		),
 		UNLOAD_MAG_CONTROLLER = new OperationController(
 			1F / 40F,
 			new float[] { 0.5F },
-			new String[ 0 ],
+			OperationController.NO_SPECIFIED_EFFECT,
 			new float[] { 0.5F },
 			"unload_mag"
 		),
 		CHARGE_GUN_CONTROLLER = new OperationController(
 			1F / 22F,
 			new float[] { 0.5F },
-			new String[ 0 ],
-			new float[] { }
-		);
+			OperationController.NO_SPECIFIED_EFFECT,
+			OperationController.NO_KEY_TIME
+		),
+		INSPECT_CONTROLLER = new OperationController( 1F / 40F );
 	
 	@SerializedName( value = "isOpenBolt", alternate = "openBolt" )
 	protected boolean isOpenBolt = false;
@@ -81,7 +82,8 @@ public abstract class GunType<
 	protected IOperationController
 		loadMagController   = LOAD_MAG_CONTROLLER,
 		unloadMagController = UNLOAD_MAG_CONTROLLER,
-		chargeGunController = CHARGE_GUN_CONTROLLER;
+		chargeGunController = CHARGE_GUN_CONTROLLER,
+		inspectController   = INSPECT_CONTROLLER;
 	
 	@Override
 	public IMeta build( String name, IContentProvider provider )
@@ -92,6 +94,7 @@ public abstract class GunType<
 			this.loadMagController.loadAnimation( provider );
 			this.unloadMagController.loadAnimation( provider );
 			this.chargeGunController.loadAnimation( provider );
+			this.inspectController.loadAnimation( provider );
 		} );
 		return this;
 	}
@@ -367,6 +370,28 @@ public abstract class GunType<
 						}
 					);
 					return;
+				}
+				
+				final boolean inspectWeapon = key == Key.INSPECT || key == Key.CO_INSPECT;
+				if ( inspectWeapon )
+				{
+					PlayerPatchClient.instance.launch(
+						new OperationClient< IEquippedGun< ? > >( this, GunType.this.inspectController )
+						{
+							@Override
+							protected void launchCallback()
+							{
+								EquippedGun.this.renderer.useAnimation( this.controller.animation() );
+								final ICameraController camera = PlayerPatchClient.instance.camera;
+								camera.useAnimation( EquippedGun.this.animator() );
+							}
+							
+							@Override
+							protected void endCallback() {
+								EquippedGun.this.renderer.useAnimation( Animation.NONE );
+							}
+						}
+					);
 				}
 				
 				super.onKeyPress( key );

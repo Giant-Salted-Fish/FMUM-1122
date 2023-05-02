@@ -135,7 +135,7 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 	/**
 	 * THIS IS NOT THREAD SAFE!
 	 */
-	protected static void glMulMatrix( Mat4f mat ) // TODO: synchronize?
+	public static void glMulMatrix( Mat4f mat ) // TODO: synchronize?
 	{
 		MAT_BUF.clear();
 		mat.store( MAT_BUF );
@@ -143,20 +143,20 @@ public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowir
 		GL11.glMultMatrix( MAT_BUF );
 	}
 	
-	protected static void glTranslatef( Vec3f trans ) {
+	public static void glTranslatef( Vec3f trans ) {
 		GL11.glTranslatef( trans.x, trans.y, trans.z );
 	}
 	
-	protected static void glRotatef( AngleAxis4f rot ) {
+	public static void glRotatef( AngleAxis4f rot ) {
 		GL11.glRotatef( rot.angle, rot.x, rot.y, rot.z );
 	}
 	
-	protected static void glEulerRotateYXZ( Vec3f rot )
+	public static void glEulerRotateYXZ( Vec3f rot )
 	{
 		GL11.glRotatef( rot.y, 0F, 1F, 0F );
 		GL11.glRotatef( rot.x, 1F, 0F, 0F );
 		GL11.glRotatef( rot.z, 0F, 0F, 1F );
 	}
 	
-	protected static void glScalef( float scale ) { GL11.glScalef( scale, scale, scale ); }
+	public static void glScalef( float scale ) { GL11.glScalef( scale, scale, scale ); }
 }

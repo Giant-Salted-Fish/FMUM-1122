@@ -14,7 +14,7 @@ import net.minecraftforge.common.config.Config.LangKey;
 //@SideOnly( Side.CLIENT ) // Commented as it will crash on load.
 @LangKey( "fmum.config.client" )
 @Config( modid = FMUM.MODID, category = "client" )
-public final class ModConfigClient
+final class ModConfigClient
 {
 //	@LangKey( "fmum.config.client.skip_case_when_possible" )
 //	@Comment(

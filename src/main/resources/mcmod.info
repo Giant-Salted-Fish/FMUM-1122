@@ -1,6 +1,6 @@
 [ {
 	"modid": "fmum",
-	"name": "Minecraft Weapon Base",
+	"name": "FMUM 2.0",
 	"description": "Provide highly customizable weapons in Minecraft.",
 	"version": "${version}",
 	"mcversion": "${mcversion}",

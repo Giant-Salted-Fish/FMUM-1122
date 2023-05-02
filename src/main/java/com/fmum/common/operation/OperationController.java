@@ -17,17 +17,17 @@ public class OperationController implements IOperationController
 	public static final JsonDeserializer< IOperationController > ADAPTER =
 		( json, typeOfT, context ) -> FMUM.GSON.fromJson( json, OperationController.class );
 	
-	protected static final float[] TIME_ARR = { };
-	protected static final String[] EFFECT_ARR = { };
-	protected static final SoundEvent[] SOUNDS = { };
+	public static final float[] NO_KEY_TIME = { };
+	public static final String[] NO_SPECIFIED_EFFECT = { };
+	public static final SoundEvent[] NO_SOUND = { };
 	
 	protected float progressor = 0.1F;
 	
-	protected float[] effectTime = TIME_ARR;
-	protected String[] effects = EFFECT_ARR;
+	protected float[] effectTime = NO_KEY_TIME;
+	protected String[] effects = NO_SPECIFIED_EFFECT;
 	
-	protected float[] soundTime = TIME_ARR;
-	protected SoundEvent[] sounds = SOUNDS;
+	protected float[] soundTime = NO_KEY_TIME;
+	protected SoundEvent[] sounds = NO_SOUND;
 	
 	@SideOnly( Side.CLIENT )
 	@SerializedName( value = "animation" )

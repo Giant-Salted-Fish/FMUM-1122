@@ -85,7 +85,7 @@ public class FMUM extends URLClassLoader
 {
 	public static final String MODID = "fmum";
 	
-	public static final String MOD_NAME = "Minecraft Weapon Base";
+	public static final String MOD_NAME = "FMUM 2.0";
 	
 	public static final String MOD_VERSION = "0.3.0-alpha";
 	
