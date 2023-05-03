@@ -70,13 +70,13 @@ public abstract class AmmoType<
 	@Override
 	protected Item createItem()
 	{
-		return this.new VanillaItem( this.maxStackSize, 0 )
+		return new VanillaItem( this.maxStackSize, 0 )
 		{
 			@Override
 			public ICapabilityProvider initCapabilities(
 				ItemStack stack,
 				@Nullable NBTTagCompound capTag
-			) { return AmmoType.this.new Ammo(); }
+			) { return new Ammo(); }
 		};
 	}
 	
@@ -97,7 +97,7 @@ public abstract class AmmoType<
 		
 		@Override
 		public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand ) {
-			return this.newEquipped( hand );
+			return newEquipped( hand );
 		}
 		
 		@Override
@@ -105,7 +105,7 @@ public abstract class AmmoType<
 			IEquippedItem< ? > prevEquipped,
 			EntityPlayer player,
 			EnumHand hand
-		) { return this.newEquipped( hand ); }
+		) { return newEquipped( hand ); }
 		
 		@Override
 		@SideOnly( Side.CLIENT )

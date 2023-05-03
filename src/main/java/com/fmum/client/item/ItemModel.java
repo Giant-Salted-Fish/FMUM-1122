@@ -10,7 +10,7 @@ import com.fmum.client.render.IAnimator;
 import com.fmum.client.render.Model;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
-import com.fmum.common.operation.IOperation;
+import com.fmum.common.player.IOperation;
 import com.fmum.util.Animation;
 import com.fmum.util.IAnimation;
 import com.fmum.util.Mat4f;

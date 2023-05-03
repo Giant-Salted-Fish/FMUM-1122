@@ -7,29 +7,27 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import com.fmum.client.FMUMClient;
 import com.fmum.client.camera.ICameraController;
 import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.client.input.IInput;
 import com.fmum.client.input.Key;
 import com.fmum.client.item.IItemModel;
-import com.fmum.client.player.OpLoadMagClient;
-import com.fmum.client.player.OpUnloadMagClient;
 import com.fmum.client.player.OperationClient;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.ammo.IAmmoType;
+import com.fmum.common.item.IEquippedItem;
+import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemTypeHost;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.common.meta.IMeta;
 import com.fmum.common.module.IModuleEventSubscriber;
 import com.fmum.common.network.PacketNotifyItem;
-import com.fmum.common.operation.IOperation;
-import com.fmum.common.operation.IOperationController;
-import com.fmum.common.operation.OperationController;
-import com.fmum.common.player.OpLoadMag;
-import com.fmum.common.player.OpUnloadMag;
+import com.fmum.common.player.IOperation;
+import com.fmum.common.player.IOperationController;
+import com.fmum.common.player.Operation;
+import com.fmum.common.player.OperationController;
 import com.fmum.common.player.PlayerPatch;
 import com.fmum.util.Animation;
 import com.fmum.util.ArmTracker;
@@ -38,6 +36,7 @@ import com.google.gson.annotations.SerializedName;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
@@ -106,9 +105,8 @@ public abstract class GunType<
 		protected transient IGunPart< ? > rightHandHolding = this;
 		
 		protected IGunState state = this.createState();
-		
 		protected IGunState createState() {
-			return GunType.this.isOpenBolt ? this.new StateCloseBolt() : this.new StateBoltRelease();
+			return GunType.this.isOpenBolt ? new StateCloseBolt() : new StateBoltRelease();
 		}
 		
 		protected Gun() { }
@@ -168,7 +166,7 @@ public abstract class GunType<
 		{
 			@Override
 			public IGunState charge( EntityPlayer player ) {
-				return Gun.this.new StateOpenBolt();
+				return new StateOpenBolt(); // TODO: Check if creating inner without Gun.this.new keeps current instance.
 			}
 		}
 		
@@ -182,9 +180,9 @@ public abstract class GunType<
 				if ( noMag ) { return this; }
 				
 				final boolean hasAmmo = !mag.isEmpty();
-				if ( hasAmmo ) { return Gun.this.new StateShootReady( mag.popAmmo() ); }
+				if ( hasAmmo ) { return new StateShootReady( mag.popAmmo() ); }
 				
-				return GunType.this.catchBoltOnEmpty ? Gun.this.new StateBoltCatch() : this;
+				return GunType.this.catchBoltOnEmpty ? new StateBoltCatch() : this;
 			}
 		}
 		
@@ -195,10 +193,10 @@ public abstract class GunType<
 			{
 				final IMag< ? > mag = Gun.this.mag();
 				final boolean noMag = mag == null;
-				if ( noMag ) { return Gun.this.new StateBoltRelease(); }
+				if ( noMag ) { return new StateBoltRelease(); }
 				
 				final boolean hasAmmo = !mag.isEmpty();
-				return hasAmmo ? Gun.this.new StateShootReady( mag.popAmmo() ) : this;
+				return hasAmmo ? new StateShootReady( mag.popAmmo() ) : this;
 			}
 		}
 		
@@ -220,7 +218,7 @@ public abstract class GunType<
 				
 				final IMag< ? > mag = Gun.this.mag();
 				final boolean noMag = mag == null;
-				if ( noMag ) { return Gun.this.new StateBoltRelease(); }
+				if ( noMag ) { return new StateBoltRelease(); }
 				
 				final boolean hasAmmo = !mag.isEmpty();
 				if ( hasAmmo )
@@ -231,8 +229,8 @@ public abstract class GunType<
 				
 				return(
 					GunType.this.catchBoltOnEmpty
-					? Gun.this.new StateBoltCatch()
-					: Gun.this.new StateBoltRelease()
+					? new StateBoltCatch()
+					: new StateBoltRelease()
 				);
 			}
 		}
@@ -241,7 +239,8 @@ public abstract class GunType<
 		{
 			protected static final byte
 				OP_CODE_LOAD_MAG = 0,
-				OP_CODE_UNLOAD_MAG = 1;
+				OP_CODE_UNLOAD_MAG = 1,
+				OP_CODE_CHARGE_GUN = 2;
 			
 			protected EquippedGun(
 				Supplier< ER > equippedRenderer,
@@ -255,17 +254,13 @@ public abstract class GunType<
 			{
 				switch ( buf.readByte() )
 				{
-				case OP_CODE_LOAD_MAG:
-					final int invSlot = buf.readByte();
-					final IOperationController controller0 = GunType.this.loadMagController;
-					final IOperation op0 = new OpLoadMag( Gun.this, controller0, invSlot );
-					PlayerPatch.get( player ).launch( op0 );
-				break;
-					
 				case OP_CODE_UNLOAD_MAG:
-					final IOperationController controller1 = GunType.this.unloadMagController;
-					final IOperation op1 = new OpUnloadMag( Gun.this, controller1 );
-					PlayerPatch.get( player ).launch( op1 );
+					PlayerPatch.get( player ).launch( new OpUnloadMag() );
+				break;
+				
+				case OP_CODE_LOAD_MAG:
+					final int magInvSlot = buf.readByte();
+					PlayerPatch.get( player ).launch( new OpLoadMag( magInvSlot ) );
 				break;
 				}
 			}
@@ -277,92 +272,34 @@ public abstract class GunType<
 			{
 				super.setupInputCallbacks( registry );
 				
-				final Runnable loadUnloadMag = () -> PlayerPatchClient.instance.launch(
-					Gun.this.hasMag()
-					? new OpUnloadMagClient( this, GunType.this.unloadMagController ) {
-						@Override
-						protected void launchCallback()
-						{
-							EquippedGun.this.renderer.useAnimation( this.controller.animation() );
-							EquippedGun.this.renderDelegate = ori -> ( E ) EquippedGun.this;
-							
-							final ICameraController camera = PlayerPatchClient.instance.camera;
-							camera.useAnimation( EquippedGun.this.animator() );
-							
-							this.sendPacketToServer( new PacketNotifyItem(
-								buf -> buf.writeByte( OP_CODE_UNLOAD_MAG )
-							) );
-						}
-						
-						@Override
-						protected void endCallback()
-						{
-							final EquippedGun equipped = ( EquippedGun ) this.equipped;
-							equipped.renderDelegate = original -> original;
-							equipped.renderer.useAnimation( Animation.NONE );
-						}
-					}
-					: new OpLoadMagClient( this, GunType.this.loadMagController ) {
-						@Override
-						protected void launchCallback()
-						{
-							EquippedGun.this.renderer.useAnimation( this.controller.animation() );
-							
-							final ICameraController camera = PlayerPatchClient.instance.camera;
-							camera.useAnimation( EquippedGun.this.animator() );
-							
-							// Copy this gun to install the loading mag.
-							final EquippedGun copied = ( EquippedGun ) EquippedGun.this.copy();
-							final C copiedGun = copied.item();
-							
-							// Install the loading mag to render it. Copy before use.
-							final InventoryPlayer inv = FMUMClient.MC.player.inventory;
-							final ItemStack stack = inv.getStackInSlot( this.invSlot ).copy();
-							final IMag< ? > mag = ( IMag< ? > ) IItemTypeHost.getItem( stack );
-							copiedGun.loadMag( mag );
-							mag.setAsLoadingMag();
-							
-							// Delegate render to copied gun.
-							EquippedGun.this.renderDelegate = ori -> ( E ) copied;
-							
-							// Send packet out!
-							this.sendPacketToServer( new PacketNotifyItem( buf -> {
-								buf.writeByte( OP_CODE_LOAD_MAG );
-								buf.writeByte( this.invSlot );
-							} ) );
-						}
-						
-						@Override
-						protected void endCallback()
-						{
-							final EquippedGun equipped = ( EquippedGun ) this.equipped;
-							equipped.renderDelegate = original -> original;
-							equipped.renderer.useAnimation( Animation.NONE );
-						}
-					}
-				);
+				final Runnable loadUnloadMag = () -> {
+					final boolean shouldUnloadMag = Gun.this.hasMag();
+					PlayerPatchClient.instance.launch(
+						shouldUnloadMag ? new OpUnloadMagClient() : new OpLoadMagClient()
+					);
+				};
 				registry.put( Key.LOAD_UNLOAD_MAG, loadUnloadMag );
 				registry.put( Key.CO_LOAD_UNLOAD_MAG, loadUnloadMag );
 				
 				final Runnable chargeGun = () -> PlayerPatchClient.instance.launch(
-					new OperationClient< IEquippedGun< ? > >( this, GunType.this.chargeGunController )
+					new OperationClient< EquippedGun >( this, GunType.this.chargeGunController )
 					{
 						@Override
-						protected void launchCallback()
+						public IOperation launch( EntityPlayer player )
 						{
-							EquippedGun.this.renderer.useAnimation( this.controller.animation() );
-							EquippedGun.this.renderDelegate = ori -> ( E ) EquippedGun.this;
+							this.equipped.renderer.useAnimation( this.controller.animation() );
+							this.equipped.renderDelegate = ori -> ( E ) EquippedGun.this;
 							
 							final ICameraController camera = PlayerPatchClient.instance.camera;
-							camera.useAnimation( EquippedGun.this.animator() );
+							camera.useAnimation( this.equipped.animator() );
+							return this;
 						}
 						
 						@Override
 						protected void endCallback()
 						{
-							final EquippedGun equipped = ( EquippedGun ) this.equipped;
-							equipped.renderDelegate = original -> original;
-							equipped.renderer.useAnimation( Animation.NONE );
+							this.equipped.renderDelegate = original -> original;
+							this.equipped.renderer.useAnimation( Animation.NONE );
 						}
 					}
 				);
@@ -370,19 +307,20 @@ public abstract class GunType<
 				registry.put( Key.CO_CHARGE_GUN, chargeGun );
 				
 				final Runnable inspectWeapon = () -> PlayerPatchClient.instance.launch(
-					new OperationClient< IEquippedGun< ? > >( this, GunType.this.inspectController )
+					new OperationClient< EquippedGun >( this, GunType.this.inspectController )
 					{
 						@Override
-						protected void launchCallback()
+						public IOperation launch( EntityPlayer player )
 						{
-							EquippedGun.this.renderer.useAnimation( this.controller.animation() );
+							this.equipped.renderer.useAnimation( this.controller.animation() );
 							final ICameraController camera = PlayerPatchClient.instance.camera;
-							camera.useAnimation( EquippedGun.this.animator() );
+							camera.useAnimation( this.equipped.animator() );
+							return this;
 						}
 						
 						@Override
 						protected void endCallback() {
-							EquippedGun.this.renderer.useAnimation( Animation.NONE );
+							this.equipped.renderer.useAnimation( Animation.NONE );
 						}
 					}
 				);
@@ -415,6 +353,187 @@ public abstract class GunType<
 				// TODO: Move to this maybe?
 				Gun.this.leftHandHolding.setupLeftArmToRender( animator, leftArm );
 				Gun.this.rightHandHolding.setupRightArmToRender( animator, rightArm );
+			}
+			
+			@SideOnly( Side.CLIENT )
+			protected class OperationOnGunClient extends OperationClient< EquippedGun >
+			{
+				protected OperationOnGunClient( IOperationController controller ) {
+					super( EquippedGun.this, controller );
+				}
+				
+				@Override
+				@SuppressWarnings( "unchecked" )
+				public IOperation launch( EntityPlayer player )
+				{
+					this.equipped.renderer.useAnimation( this.controller.animation() );
+					this.equipped.renderDelegate = ori -> ( E ) EquippedGun.this;
+					
+					final ICameraController camera = PlayerPatchClient.instance.camera;
+					camera.useAnimation( this.equipped.animator() );
+					return this;
+				}
+				
+				@Override
+				protected void endCallback()
+				{
+					this.equipped.renderDelegate = original -> original;
+					this.equipped.renderer.useAnimation( Animation.NONE );
+				}
+			}
+			
+			@SideOnly( Side.CLIENT )
+			protected class OpUnloadMagClient extends OperationOnGunClient
+			{
+				protected OpUnloadMagClient() { super( GunType.this.unloadMagController ); }
+				
+				@Override
+				public IOperation launch( EntityPlayer player )
+				{
+					final byte code = OP_CODE_UNLOAD_MAG;
+					this.sendPacketToServer( new PacketNotifyItem( buf -> buf.writeByte( code ) ) );
+					return super.launch( player );
+				}
+			}
+			
+			@SideOnly( Side.CLIENT )
+			protected class OpLoadMagClient extends OperationOnGunClient
+			{
+				protected OpLoadMagClient() { super( GunType.this.loadMagController ); }
+				
+				@Override
+				@SuppressWarnings( "unchecked" )
+				public IOperation launch( EntityPlayer player )
+				{
+					final InventoryPlayer inv = player.inventory;
+					final int invSlot = this.findValidMagInvSlot( inv );
+					final boolean noValidMagToLoad = invSlot == -1;
+					if ( noValidMagToLoad ) { return IOperation.NONE; }
+					
+					// Play animation.
+					this.equipped.renderer.useAnimation( this.controller.animation() );
+					final ICameraController camera = PlayerPatchClient.instance.camera;
+					camera.useAnimation( this.equipped.animator() );
+					
+					// Copy this gun to install the loading mag.
+					final EquippedGun copied = ( EquippedGun ) this.equipped.copy();
+					final C copiedGun = copied.item();
+					
+					// Install the loading mag to render it. Copy before use.
+					final ItemStack stack = inv.getStackInSlot( invSlot ).copy();
+					final IMag< ? > mag = ( IMag< ? > ) IItemTypeHost.getItem( stack );
+					copiedGun.loadMag( mag );
+					mag.setAsLoadingMag();
+					
+					// Delegate render to copied gun.
+					this.equipped.renderDelegate = ori -> ( E ) copied;
+					
+					// Send out packet!
+					this.sendPacketToServer( new PacketNotifyItem( buf -> {
+						buf.writeByte( OP_CODE_LOAD_MAG );
+						buf.writeByte( invSlot );
+					} ) );
+					return this;
+				}
+				
+				protected int findValidMagInvSlot( IInventory inv )
+				{
+					final int size = inv.getSizeInventory();
+					for ( int i = 0; i < size; ++i )
+					{
+						final ItemStack stack = inv.getStackInSlot( i );
+						final IItem item = IItemTypeHost.getItemOrDefault( stack );
+						final boolean isMag = item instanceof IMag< ? >;
+						final boolean isValidMag = isMag && Gun.this.isAllowed( ( IMag< ? > ) item );
+						if ( isValidMag ) { return i; }
+					}
+					return -1;
+				}
+			}
+			
+			@SideOnly( Side.CLIENT )
+			protected class OpChargeGunClient extends OperationOnGunClient
+			{
+				protected OpChargeGunClient() { super( GunType.this.chargeGunController ); }
+				
+				@Override
+				public IOperation launch( EntityPlayer player )
+				{
+					final byte code = OP_CODE_CHARGE_GUN;
+					this.sendPacketToServer( new PacketNotifyItem( buf -> buf.writeByte( code ) ) );
+					return super.launch( player );
+				}
+			}
+		}
+		
+		protected class OperationOnGun extends Operation
+		{
+			protected OperationOnGun( IOperationController controller ) { super( controller ); }
+			
+			protected Gun gun = Gun.this;
+			
+			@Override
+			@SuppressWarnings( "unchecked" )
+			public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
+			{
+				this.gun = ( Gun ) newEquipped.item();
+				return this;
+			}
+		}
+		
+		protected class OpLoadMag extends OperationOnGun
+		{
+			protected final int magInvSlot;
+			
+			protected OpLoadMag( int magInvSlot )
+			{
+				super( GunType.this.loadMagController );
+				
+				this.magInvSlot = magInvSlot;
+			}
+			
+			@Override
+			public IOperation launch( EntityPlayer player )
+			{
+				final boolean alreadyHasMag = this.gun.hasMag();
+				if ( alreadyHasMag ) { return IOperation.NONE; }
+				
+				final ItemStack stack = player.inventory.getStackInSlot( this.magInvSlot );
+				final IItem item = IItemTypeHost.getItemOrDefault( stack );
+				final boolean isMag = item instanceof IMag< ? >;
+				final boolean isValidMag = isMag && this.gun.isAllowed( ( IMag< ? > ) item );
+				return isValidMag ? this : IOperation.NONE;
+			}
+			
+			@Override
+			protected void doHandleEffect( EntityPlayer player )
+			{
+				final InventoryPlayer inv = player.inventory;
+				final ItemStack stack = inv.getStackInSlot( this.magInvSlot );
+				final IItem item = IItemTypeHost.getItemOrDefault( stack );
+				final boolean isMag = item instanceof IMag< ? >;
+				if ( !isMag ) { return; }
+				
+				final IMag< ? > mag = ( IMag< ? > ) item;
+				if ( !this.gun.isAllowed( mag ) ) { return; }
+				
+				this.gun.loadMag( mag );
+				inv.setInventorySlotContents( this.magInvSlot, ItemStack.EMPTY );
+			}
+		}
+		
+		protected class OpUnloadMag extends OperationOnGun
+		{
+			protected OpUnloadMag() { super( GunType.this.unloadMagController ); }
+			
+			@Override
+			public IOperation launch( EntityPlayer player ) {
+				return this.gun.hasMag() ? this : IOperation.NONE;
+			}
+			
+			@Override
+			protected void doHandleEffect( EntityPlayer player ) {
+				player.addItemStackToInventory( this.gun.unloadMag().toStack() );
 			}
 		}
 	}

@@ -39,7 +39,7 @@ public class JsonAmmoModel extends AmmoModel<
 	@Override
 	public IEquippedItemRenderer< ? super IEquippedItem< ? extends IItem > > onTakeOut(
 		EnumHand hand
-	) { return JsonAmmoModel.this.new EquippedItemRenderer(); }
+	) { return new EquippedItemRenderer(); }
 	
 	@Override
 	public void render( IItem contexted, IAnimator animator )

@@ -3,11 +3,10 @@ package com.fmum.client.player;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.IAutowirePacketHandler;
 import com.fmum.common.item.IEquippedItem;
-import com.fmum.common.network.PacketCode;
-import com.fmum.common.network.PacketCode.Code;
-import com.fmum.common.operation.IOperation;
-import com.fmum.common.operation.IOperationController;
-import com.fmum.common.operation.Operation;
+import com.fmum.common.network.PacketTerminateOp;
+import com.fmum.common.player.IOperation;
+import com.fmum.common.player.IOperationController;
+import com.fmum.common.player.Operation;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -27,13 +26,6 @@ public abstract class OperationClient< T extends IEquippedItem< ? > >
 	}
 	
 	@Override
-	public IOperation launch( EntityPlayer player )
-	{
-		this.launchCallback();
-		return this;
-	}
-	
-	@Override
 	@SuppressWarnings( "unchecked" )
 	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
 	{
@@ -45,7 +37,7 @@ public abstract class OperationClient< T extends IEquippedItem< ? > >
 	public IOperation terminate( EntityPlayer player )
 	{
 		PlayerPatchClient.instance.camera.useAnimation( IAnimator.NONE );
-		this.sendPacketToServer( new PacketCode( Code.TERMINATE_OP ) );
+		this.sendPacketToServer( new PacketTerminateOp() );
 		this.endCallback();
 		return NONE;
 	}
@@ -57,8 +49,6 @@ public abstract class OperationClient< T extends IEquippedItem< ? > >
 		this.endCallback();
 		return NONE;
 	}
-	
-	protected void launchCallback() { }
 	
 	protected void endCallback() { }
 }

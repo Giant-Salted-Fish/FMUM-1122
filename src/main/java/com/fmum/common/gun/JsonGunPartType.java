@@ -39,7 +39,7 @@ public class JsonGunPartType extends GunPartType<
 	@Override
 	public IModule< ? > newRawContexted()
 	{
-		return this.new GunPart()
+		return new GunPart()
 		{
 			// Override this so that we do not need to create a wrapper for it.
 			@Override
@@ -64,7 +64,7 @@ public class JsonGunPartType extends GunPartType<
 	@Override
 	public IModule< ? > deserializeContexted( NBTTagCompound nbt )
 	{
-		final GunPart gunPart = this.new GunPart( false )
+		final GunPart gunPart = new GunPart( false )
 		{
 			@Override
 			protected IEquippedItem< ? extends IGunPart< ? > > newEquipped(
@@ -77,7 +77,7 @@ public class JsonGunPartType extends GunPartType<
 				> > renderDelegate,
 				EntityPlayer player,
 				EnumHand hand
-			) { return this.new EquippedGunPart( equippedRenderer, renderDelegate, player, hand ); }
+			) { return new EquippedGunPart( equippedRenderer, renderDelegate, player, hand ); }
 		};
 		gunPart.deserializeNBT( nbt );
 		return gunPart;

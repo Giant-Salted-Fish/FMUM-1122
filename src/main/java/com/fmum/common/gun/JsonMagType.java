@@ -38,7 +38,7 @@ public class JsonMagType extends MagType<
 	@Override
 	public IModule< ? > newRawContexted()
 	{
-		return this.new Mag()
+		return new Mag()
 		{
 			// Override this so that we do not need to create a wrapper for it.
 			@Override
@@ -62,7 +62,7 @@ public class JsonMagType extends MagType<
 	@Override
 	public IModule< ? > deserializeContexted( NBTTagCompound nbt )
 	{
-		final Mag mag = this.new Mag( false )
+		final Mag mag = new Mag( false )
 		{
 			@Override
 			protected IEquippedMag< ? extends IMag< ? > > newEquipped(
@@ -74,7 +74,7 @@ public class JsonMagType extends MagType<
 				> > renderDelegate,
 				EntityPlayer player,
 				EnumHand hand
-			) { return this.new EquippedMag( equippedRenderer, renderDelegate, player, hand ); }
+			) { return new EquippedMag( equippedRenderer, renderDelegate, player, hand ); }
 		};
 		mag.deserializeNBT( nbt );
 		return mag;

@@ -31,11 +31,11 @@ public class JsonGunPartModel extends GunPartModel<
 		? extends IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 	> newRenderer()
 	{
-		return this.new GunPartRenderer()
+		return new GunPartRenderer()
 		{
 			@Override
 			public IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
-				onTakeOut( EnumHand hand ) { return this.new EquippedGunPartRenderer(); }
+				onTakeOut( EnumHand hand ) { return new EquippedGunPartRenderer(); }
 		};
 	}
 }

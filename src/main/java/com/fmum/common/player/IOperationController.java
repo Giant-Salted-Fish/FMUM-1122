@@ -1,4 +1,4 @@
-package com.fmum.common.operation;
+package com.fmum.common.player;
 
 import com.fmum.common.load.IContentProvider;
 import com.fmum.util.IAnimation;

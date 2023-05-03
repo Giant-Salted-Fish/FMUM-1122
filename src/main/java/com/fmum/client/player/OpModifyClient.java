@@ -24,11 +24,11 @@ import com.fmum.common.module.IModifyState;
 import com.fmum.common.module.IModule;
 import com.fmum.common.module.IPreviewPredicate;
 import com.fmum.common.network.PacketModify;
-import com.fmum.common.operation.IOperation;
-import com.fmum.common.operation.IOperationController;
-import com.fmum.common.operation.OperationController;
-import com.fmum.common.operation.TogglableOperation;
 import com.fmum.common.paintjob.IPaintable;
+import com.fmum.common.player.IOperation;
+import com.fmum.common.player.IOperationController;
+import com.fmum.common.player.OperationController;
+import com.fmum.common.player.TogglableOperation;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;

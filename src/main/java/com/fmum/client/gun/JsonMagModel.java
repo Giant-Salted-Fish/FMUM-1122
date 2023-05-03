@@ -26,11 +26,11 @@ public class JsonMagModel extends MagModel<
 		? super IMag< ? >,
 		? extends IEquippedGunPartRenderer< ? super IEquippedMag< ? extends IMag< ? > > >
 	> newRenderer() {
-		return this.new MagRenderer()
+		return new MagRenderer()
 		{
 			@Override
 			public IEquippedGunPartRenderer< ? super IEquippedMag< ? extends IMag< ? > > >
-				onTakeOut( EnumHand hand ) { return this.new EquippedGunPartRenderer(); }
+				onTakeOut( EnumHand hand ) { return new EquippedGunPartRenderer(); }
 		};
 	}
 }

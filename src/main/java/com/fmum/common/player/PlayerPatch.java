@@ -6,7 +6,6 @@ import com.fmum.common.FMUM;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemTypeHost;
-import com.fmum.common.operation.IOperation;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -67,10 +66,6 @@ public class PlayerPatch implements ICapabilityProvider
 			}
 			else if ( stack != this.mainStack )
 			{
-//				if ( !this.player.world.isRemote )
-//				{
-//					FMUM.MOD.logInfo( "detect stack change" );
-//				}
 				this.mainStack = stack;
 				this.mainEquipped = item.onStackUpdate( this.mainEquipped, this.player, hand );
 				this.executing = this.executing.onStackUpdate( this.mainEquipped, this.player );

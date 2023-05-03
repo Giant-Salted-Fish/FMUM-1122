@@ -57,7 +57,7 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 	@Override
 	public CreativeTabs creativeTab() { return this.tab; }
 	
-	protected CreativeTabs createTab() { return this.new VanillaCreativeTab(); }
+	protected CreativeTabs createTab() { return new VanillaCreativeTab(); }
 	
 	@Override
 	@SideOnly( Side.CLIENT )

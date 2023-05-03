@@ -27,11 +27,11 @@ public class JsonOpticSightModel extends OpticSightModel<
 		? extends IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 	> newRenderer()
 	{
-		return this.new OpticSightRenderer()
+		return new OpticSightRenderer()
 		{
 			@Override
 			public IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
-				onTakeOut( EnumHand hand ) { return this.new EquippedGunPartRenderer(); }
+				onTakeOut( EnumHand hand ) { return new EquippedGunPartRenderer(); }
 		};
 	}
 }

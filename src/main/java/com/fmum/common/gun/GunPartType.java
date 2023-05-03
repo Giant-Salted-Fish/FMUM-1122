@@ -33,9 +33,9 @@ import com.fmum.common.module.IModuleSlot;
 import com.fmum.common.module.IModuleType;
 import com.fmum.common.module.Module;
 import com.fmum.common.module.ModuleSnapshot;
-import com.fmum.common.operation.IOperation;
 import com.fmum.common.paintjob.IPaintableType;
 import com.fmum.common.paintjob.IPaintjob;
+import com.fmum.common.player.IOperation;
 import com.fmum.devtool.Dev;
 import com.fmum.util.Animation;
 import com.fmum.util.ArmTracker;
@@ -130,7 +130,7 @@ public abstract class GunPartType<
 		} );
 		
 		// TODO: call update state maybe?
-		final Function< String, IModule< ? > > func = name -> this.newRawContexted();
+		final Function< String, IModule< ? > > func = name -> newRawContexted();
 		this.compiledSnapshotNBT = this.snapshot.setSnapshot( func ).serializeNBT();
 		this.snapshot = null; // Release snapshot after use.
 	}
@@ -144,7 +144,7 @@ public abstract class GunPartType<
 	
 	// TODO: handle paintjobs
 	@Override
-	protected Item createItem() { return this.new GunPartVanillaItem( 1, 0 ); }
+	protected Item createItem() { return new GunPartVanillaItem( 1, 0 ); }
 	
 	protected final IModule< ? > fromTag( NBTTagCompound tag )
 	{
@@ -165,9 +165,8 @@ public abstract class GunPartType<
 		@SuppressWarnings( "unchecked" )
 		public ICapabilityProvider initCapabilities( ItemStack stack, NBTTagCompound capTag )
 		{
-			final GunPartType< I, C, E, ER, R, M > $this = GunPartType.this;
 			final Function< C, ICapabilityProvider > finializer = primary -> {
-				final ICapabilityProvider wrapper = $this.newWrapper( primary, stack );
+				final ICapabilityProvider wrapper = GunPartType.this.newWrapper( primary, stack );
 				primary.syncAndUpdate();
 				return wrapper;
 			};
@@ -201,7 +200,7 @@ public abstract class GunPartType<
 				}
 				else primaryTag = nbt;
 				
-				return finializer.apply( ( C ) $this.fromTag( primaryTag ) );
+				return finializer.apply( ( C ) GunPartType.this.fromTag( primaryTag ) );
 			}
 			
 			if ( stackTag != null )
@@ -222,8 +221,8 @@ public abstract class GunPartType<
 			stack.setTagCompound( newStackTag );
 			// See GunPartWrapper#stackId().
 			
-			final NBTTagCompound primaryTag = $this.compiledSnapshotNBT.copy();
-			return finializer.apply( ( C ) $this.deserializeContexted( primaryTag ) );
+			final NBTTagCompound primaryTag = GunPartType.this.compiledSnapshotNBT.copy();
+			return finializer.apply( ( C ) GunPartType.this.deserializeContexted( primaryTag ) );
 		}
 		
 		@Override
@@ -319,7 +318,7 @@ public abstract class GunPartType<
 			}
 			
 			final Supplier< ER > renderer = () -> this.renderer.onTakeOut( hand );
-			return this.newEquipped( renderer, () -> original -> original, player, hand );
+			return newEquipped( renderer, () -> original -> original, player, hand );
 		}
 		
 		@Override
@@ -330,7 +329,7 @@ public abstract class GunPartType<
 			EnumHand hand
 		) {
 			final EquippedGunPart old = ( EquippedGunPart ) prevEquipped;
-			return this.newEquipped( () -> old.renderer, () -> old.renderDelegate, player, hand );
+			return newEquipped( () -> old.renderer, () -> old.renderDelegate, player, hand );
 		}
 		
 		@Override

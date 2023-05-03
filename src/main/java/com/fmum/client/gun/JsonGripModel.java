@@ -27,11 +27,11 @@ public class JsonGripModel extends GripModel<
 		? extends IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
 	> newRenderer()
 	{
-		return this.new GripRenderer()
+		return new GripRenderer()
 		{
 			@Override
 			public IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
-				onTakeOut( EnumHand hand ) { return this.new EquippedGunPartRenderer(); }
+				onTakeOut( EnumHand hand ) { return new EquippedGunPartRenderer(); }
 		};
 	}
 }

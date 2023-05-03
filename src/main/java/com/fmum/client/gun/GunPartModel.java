@@ -171,7 +171,7 @@ public abstract class GunPartModel<
 			
 			@Override
 			public void useModifyAnimation( Supplier< Float > refPlayerRotYaw ) {
-				this.useAnimation( GunPartModel.this.new ModifyAnimator( this, refPlayerRotYaw ) );
+				this.useAnimation( new ModifyAnimator( this, refPlayerRotYaw ) );
 			}
 			
 			@Override

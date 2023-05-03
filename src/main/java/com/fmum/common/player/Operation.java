@@ -1,4 +1,4 @@
-package com.fmum.common.operation;
+package com.fmum.common.player;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;

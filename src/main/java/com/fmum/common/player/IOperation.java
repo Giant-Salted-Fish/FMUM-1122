@@ -1,4 +1,4 @@
-package com.fmum.common.operation;
+package com.fmum.common.player;
 
 import com.fmum.common.item.IEquippedItem;
 
@@ -93,7 +93,5 @@ public interface IOperation
 	 * 
 	 * @return {@link #NONE} if this operation should terminate on stack update.
 	 */
-	default IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player ) {
-		throw new RuntimeException( this.toString() );
-	}
+	IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player );
 }
