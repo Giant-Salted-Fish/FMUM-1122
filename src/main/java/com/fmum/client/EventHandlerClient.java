@@ -2,17 +2,13 @@ package com.fmum.client;
 
 import java.util.Collection;
 
-import org.lwjgl.opengl.GL11;
-
 import com.fmum.client.input.InputHandler;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.Model;
 import com.fmum.common.FMUM;
 import com.fmum.common.IAutowireLogger;
 import com.fmum.common.item.IItemType;
-import com.fmum.devtool.Dev;
 import com.fmum.util.Mat4f;
-import com.fmum.util.Vec3f;
 
 import net.minecraft.client.gui.GuiControls;
 import net.minecraft.client.gui.GuiScreen;
@@ -203,7 +199,10 @@ public final class EventHandlerClient
 	@SubscribeEvent
 	public static void onConfigChanged( OnConfigChangedEvent evt )
 	{
-		final boolean isModConfigChanged = evt.getModID().equals( FMUM.MODID );
-		if ( isModConfigChanged ) { ConfigManager.sync( FMUM.MODID, Config.Type.INSTANCE ); }
+		final boolean notFMUMConfigChanged = !evt.getModID().equals( FMUM.MODID );
+		if ( notFMUMConfigChanged ) { return; }
+		
+		ConfigManager.sync( FMUM.MODID, Config.Type.INSTANCE );
+		PlayerPatchClient.updateMouseHelperStrategy( ModConfigClient.useFlanCompatibleMouseHelper );
 	}
 }

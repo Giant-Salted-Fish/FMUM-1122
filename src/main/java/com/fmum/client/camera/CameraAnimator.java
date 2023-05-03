@@ -1,12 +1,11 @@
 package com.fmum.client.camera;
 
-import com.fmum.client.IAutowireSmoother;
 import com.fmum.client.FMUMClient;
+import com.fmum.client.IAutowireSmoother;
 import com.fmum.client.input.Key;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.ModConfig;
-import com.fmum.devtool.Dev;
 import com.fmum.util.DynamicPos;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Quat4f;
@@ -191,10 +190,6 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		
 		mat.rotateX( cameraPitch );
 		mat.rotateY( 180F + cameraYaw );
-		
-//		mat.getEulerAngleYXZ( this.cameraRot );
-//		this.cameraRot.z = -this.cameraRot.z; // Necessary!!! Do touch this.
-//		mat.release();
 		
 		// Apply a tiny change to player's pitch rotation to force view frustum culling update if
 		// off-axis has changed.

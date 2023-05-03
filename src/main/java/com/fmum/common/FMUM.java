@@ -87,7 +87,7 @@ public class FMUM extends URLClassLoader
 	
 	public static final String MOD_NAME = "FMUM 2.0";
 	
-	public static final String MOD_VERSION = "0.3.0-alpha";
+	public static final String MOD_VERSION = "0.3.1-alpha";
 	
 	/**
 	 * Mod instance based on physical side.

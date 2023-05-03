@@ -18,6 +18,8 @@ fmum.config.common.cam_drop_impact.tooltip=This decides the amplitude of the cam
 
 fmum.config.client=Client Config
 fmum.config.client.tooltip=These settings is meaningless on server side
+fmum.config.client.use_flan_compatible_mousehelper=Use Flan Compatible MouseHelper
+fmum.config.client.use_flan_compatible_mousehelper.tooltip=The default MouseHelper used in FMUM may conflict with the MouseHelper used in Flan's Mod. This could cause bugs when you enter a vehicle in Flan's Mod. You can try to fix this issue by enabling this setting.
 
 # Load phase info
 fmum.on_pre_init=Pre-initializing FMUM...

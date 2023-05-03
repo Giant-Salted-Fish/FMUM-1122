@@ -3,6 +3,7 @@ package com.fmum.client;
 import com.fmum.common.FMUM;
 
 import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.config.Config.Comment;
 import net.minecraftforge.common.config.Config.LangKey;
 
 /**
@@ -14,12 +15,13 @@ import net.minecraftforge.common.config.Config.LangKey;
 //@SideOnly( Side.CLIENT ) // Commented as it will crash on load.
 @LangKey( "fmum.config.client" )
 @Config( modid = FMUM.MODID, category = "client" )
-final class ModConfigClient
+public final class ModConfigClient
 {
-//	@LangKey( "fmum.config.client.skip_case_when_possible" )
-//	@Comment(
-//		"Whether to skip ammo case when loading ammo. You can still "
-//		+ "load case into mag by pressing \"z\" + pop ammo key."
-//	)
-//	public static boolean skipCase = true;
+	@LangKey( "fmum.config.client.use_flan_compatible_mousehelper" )
+	@Comment(
+		"The default mouse helper used in FMUM may conflict with the mouse helper used in Flan's "
+		+ "Mod. This could cause bugs when you enter a vehicle in Flan's Mod. You can try to fix "
+		+ "this issue by enabling this setting."
+	)
+	public static boolean useFlanCompatibleMouseHelper = false;
 }

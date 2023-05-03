@@ -18,6 +18,8 @@ fmum.config.common.cam_drop_impact.tooltip=这个参数多数时候能够控制�
 
 fmum.config.client=客户端配置
 fmum.config.client.tooltip=这些配置仅在客户端有意义
+fmum.config.client.use_flan_compatible_mousehelper=使用兼容 Flan 的 MouseHelper
+fmum.config.client.use_flan_compatible_mousehelper.tooltip=FMUM 使用的默认 MouseHelper 可能会导致无法正常在 Flan's Mod 的载具中转动视角。你可以启用该选项来使用兼容性的 MouseHelper 以尝试解决该问题。
 
 # 加载时日志
 fmum.on_pre_init=正在预初始化 FMUM...

@@ -27,6 +27,7 @@ import com.fmum.client.gun.JsonOpticSightModel;
 import com.fmum.client.input.InputHandler;
 import com.fmum.client.input.JsonKeyBind;
 import com.fmum.client.item.ItemModel;
+import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.Model;
 import com.fmum.common.FMUM;
 import com.fmum.common.FMUMResource;
@@ -160,6 +161,8 @@ public final class FMUMClient extends FMUM
 		
 		// Do load content packs!
 		super.load();
+		
+		PlayerPatchClient.updateMouseHelperStrategy( ModConfigClient.useFlanCompatibleMouseHelper );
 	}
 	
 	@Override

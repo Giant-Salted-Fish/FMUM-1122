@@ -1,5 +1,6 @@
 package com.fmum.client.player;
 
+import static com.fmum.client.FMUMClient.MC;
 import static net.minecraft.util.EnumHand.MAIN_HAND;
 import static net.minecraft.util.EnumHand.OFF_HAND;
 
@@ -29,6 +30,39 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public final class PlayerPatchClient extends PlayerPatch
 {
 	/**
+	 * <p> Hook mouse change method to do pre-render work. </p>
+	 * 
+	 * <p> Notice that this is kind of hack so you may need to check before you use it in other
+	 * version of {@link Minecraft}. </p>
+	 */
+	private static final MouseHelper MOUSE_HELPER = new MouseHelper()
+	{
+		@Override
+		public void mouseXYChange()
+		{
+			super.mouseXYChange();
+			PlayerPatchClient.instance.onMouseChange( this );
+		}
+	};
+	
+	private static final Runnable
+		DEFAULT_HELPER_CHECKER = () -> MC.mouseHelper = MOUSE_HELPER,
+		FLAN_COMPATIBLE_HELPER_CHECKER = () -> {
+			final MouseHelper helper = MC.mouseHelper;
+			final Class< ? > helperClass = helper.getClass();
+			final boolean isDefaultHelper = helper == MOUSE_HELPER;
+			final boolean isVanillaHelper = helperClass == MouseHelper.class;
+			final boolean isProxyHelper = helperClass == ProxyMouseHelper.class;
+			MC.mouseHelper = (
+				isDefaultHelper || isProxyHelper ? helper
+				: isVanillaHelper ? MOUSE_HELPER
+				: new ProxyMouseHelper( helper )
+			);
+		};
+	
+	private static Runnable mouseHelperChecker;
+	
+	/**
 	 * As there could only be one client player hence only one client patch instance here.
 	 */
 	public static PlayerPatchClient instance;
@@ -57,31 +91,6 @@ public final class PlayerPatchClient extends PlayerPatch
 	// TODO: maybe wrapper this
 	public ICameraController camera = CameraAnimator.INSTANCE;
 	
-	/**
-	 * <p> Hook mouse change method to do pre-render work. </p>
-	 * 
-	 * <p> Notice that this is kind of hack so you may need to check before you use it in other
-	 * version of {@link Minecraft}. </p>
-	 */
-	private final MouseHelper mouseHelper = new MouseHelper()
-	{
-		@Override
-		public void mouseXYChange()
-		{
-			super.mouseXYChange();
-			
-			// This method is called right before the render and player rotation is also updated. \
-			// Hence is the proper place to fire prepare render callback.
-			final PlayerPatchClient patch = PlayerPatchClient.this;
-			patch.mainEquipped.updateAnimationForRender( MAIN_HAND );
-			patch.offEquipped.updateAnimationForRender( OFF_HAND );
-			
-			patch.camera.prepareRender( this );
-			patch.mainEquipped.prepareRenderInHandSP( MAIN_HAND );
-			patch.offEquipped.prepareRenderInHandSP( OFF_HAND );
-		}
-	};
-	
 	public PlayerPatchClient( EntityPlayer player )
 	{
 		super( player );
@@ -96,7 +105,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		
 		// TODO: can only update by setting a runner in gui event
 		// Only update game settings when there is no GUI activated.
-		if ( FMUMClient.MC.currentScreen == null )
+		if ( MC.currentScreen == null )
 		{
 			final GameSettings settings = FMUMClient.SETTINGS;
 			final boolean flag = EventHandlerClient.oriViewBobbing;
@@ -123,23 +132,21 @@ public final class PlayerPatchClient extends PlayerPatch
 		this.camera.tick();
 		
 		// Ensure mouse helper(Mods like Flan's Mod may change mouse helper in certain conditions).
-		// TODO: maybe do a wrapper if the mouse help is not the original one and also not this one
-		FMUMClient.MC.mouseHelper = this.mouseHelper;
+		mouseHelperChecker.run();
 	}
 	
 	public boolean onRenderHandSP()
 	{
 		// Check if hand should be rendered or not.
 		// Copied from {@link EntityRenderer#renderHand(float, int)}.
-		final Minecraft mc = FMUMClient.MC;
 		final GameSettings settings = FMUMClient.SETTINGS;
-		final Entity entity = mc.getRenderViewEntity();
+		final Entity entity = MC.getRenderViewEntity();
 		if (
 			settings.thirdPersonView != 0
 			|| entity instanceof EntityLivingBase
 				&& ( ( EntityLivingBase ) entity ).isPlayerSleeping()
 			|| settings.hideGUI
-			|| mc.playerController.isSpectator()
+			|| MC.playerController.isSpectator()
 			|| this.mainEquipped.renderInHandSP( MAIN_HAND )
 				&& this.offEquipped.renderInHandSP( OFF_HAND )
 		) { return true; }
@@ -170,4 +177,48 @@ public final class PlayerPatchClient extends PlayerPatch
 	public void onKeyPress( IInput key ) { this.mainEquipped.onKeyPress( key ); }
 	
 	public void onKeyRelease( IInput key ) { this.mainEquipped.onKeyRelease( key ); }
+	
+	private void onMouseChange( MouseHelper mouse )
+	{
+		// This method is called right before the render and player rotation is also updated. \
+		// Hence is the proper place to fire prepare render callback.
+		this.mainEquipped.updateAnimationForRender( MAIN_HAND );
+		this.offEquipped.updateAnimationForRender( OFF_HAND );
+		
+		this.camera.prepareRender( mouse );
+		this.mainEquipped.prepareRenderInHandSP( MAIN_HAND );
+		this.offEquipped.prepareRenderInHandSP( OFF_HAND );
+	}
+	
+	public static void updateMouseHelperStrategy( boolean useFlanCompatibleMouseHelper )
+	{
+		mouseHelperChecker = (
+			useFlanCompatibleMouseHelper
+			? FLAN_COMPATIBLE_HELPER_CHECKER
+			: DEFAULT_HELPER_CHECKER
+		);
+	}
+	
+	private final static class ProxyMouseHelper extends MouseHelper
+	{
+		private final MouseHelper proxy;
+		
+		private ProxyMouseHelper( MouseHelper proxy ) { this.proxy = proxy; }
+		
+		@Override
+		public void mouseXYChange()
+		{
+			this.proxy.mouseXYChange();
+			PlayerPatchClient.instance.onMouseChange( this.proxy );
+		}
+		
+		@Override
+		public void grabMouseCursor() { this.proxy.grabMouseCursor(); }
+		
+		@Override
+		public void ungrabMouseCursor() { this.proxy.ungrabMouseCursor(); }
+		
+		@Override
+		public boolean equals( Object obj ) { return this.proxy.equals( obj ); }
+	}
 }
