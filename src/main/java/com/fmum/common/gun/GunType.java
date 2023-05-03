@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import com.fmum.client.FMUMClient;
 import com.fmum.client.camera.ICameraController;
 import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
@@ -16,6 +17,7 @@ import com.fmum.client.item.IItemModel;
 import com.fmum.client.player.OperationClient;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.IAnimator;
+import com.fmum.common.FMUM;
 import com.fmum.common.ammo.IAmmoType;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
@@ -37,8 +39,11 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -104,12 +109,15 @@ public abstract class GunType<
 		protected transient IGunPart< ? > leftHandHolding = this;
 		protected transient IGunPart< ? > rightHandHolding = this;
 		
-		protected IGunState state = this.createState();
-		protected IGunState createState() {
-			return GunType.this.isOpenBolt ? new StateCloseBolt() : new StateBoltRelease();
-		}
+		protected IGunState state;
 		
-		protected Gun() { }
+		protected Gun()
+		{
+			this.state = this.createGunState();
+			
+			final int[] data = Gun.this.nbt.getIntArray( DATA_TAG );
+			data[ super.dataSize() ] = this.state.toOrdinalAndAmmoId();
+		}
 		
 		protected Gun( boolean unused ) { super( unused ); }
 		
@@ -134,15 +142,19 @@ public abstract class GunType<
 		public IMag< ? > unloadMag() { return ( IMag< ? > ) this.remove( 0, 0 ); }
 		
 		@Override
-		public void chargeGun()
+		public void chargeGun( EntityPlayer player )
 		{
-			
+			this.state = this.state.charge( player );
+			final int[] data = Gun.this.nbt.getIntArray( DATA_TAG );
+			data[ super.dataSize() ] = this.state.toOrdinalAndAmmoId();
+			this.syncAndUpdate();
 		}
 		
 		@Override
-		public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry )
-		{
-			super.updateState( registry );
+		public void updateModuleState(
+			BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry
+		) {
+			super.updateModuleState( registry );
 			
 			this.leftHandHolding = this;
 			this.rightHandHolding = this;
@@ -156,22 +168,75 @@ public abstract class GunType<
 			} );
 		}
 		
+		@Override
+		public void deserializeNBT( NBTTagCompound nbt )
+		{
+			super.deserializeNBT( nbt );
+			
+			final int[] data = Gun.this.nbt.getIntArray( DATA_TAG );
+			final int value = data[ super.dataSize() ];
+			final int stateOrdinary = 0xFFFF & value;
+			switch ( stateOrdinary )
+			{
+			case StateOpenBolt.ORDINAL:
+				this.state = new StateOpenBolt();
+				break;
+			
+			case StateCloseBolt.ORDINAL:
+				this.state = new StateCloseBolt();
+				break;
+			
+			case StateBoltRelease.ORDINAL:
+				this.state = new StateBoltRelease();
+				break;
+			
+			case StateBoltCatch.ORDINAL:
+				this.state = new StateBoltCatch();
+				break;
+			
+			case StateShootReady.ORDINAL:
+				final Item ammoItem = Item.getItemById( value >>> 16 );
+				final IAmmoType ammo = ( IAmmoType ) IItemTypeHost.getType( ammoItem );
+				this.state = new StateShootReady( ammo );
+				break;
+			}
+		}
+		
+		@Override
+		protected int dataSize() { return super.dataSize() + 1; } // TODO: What to do with the left
+		
+		protected IGunState createGunState() {
+			return GunType.this.isOpenBolt ? new StateCloseBolt() : new StateBoltRelease();
+		}
+		
 		protected class StateOpenBolt implements IGunState
 		{
+			protected static final int ORDINAL = 0;
+			
 			@Override
 			public IGunState charge( EntityPlayer player ) { return this; }
+			
+			@Override
+			public int ordinal() { return ORDINAL; }
 		}
 		
 		protected class StateCloseBolt implements IGunState
 		{
+			protected static final int ORDINAL = 1;
+			
 			@Override
 			public IGunState charge( EntityPlayer player ) {
 				return new StateOpenBolt(); // TODO: Check if creating inner without Gun.this.new keeps current instance.
 			}
+			
+			@Override
+			public int ordinal() { return ORDINAL; }
 		}
 		
 		protected class StateBoltRelease implements IGunState
 		{
+			protected static final int ORDINAL = 2;
+			
 			@Override
 			public IGunState charge( EntityPlayer player )
 			{
@@ -184,10 +249,15 @@ public abstract class GunType<
 				
 				return GunType.this.catchBoltOnEmpty ? new StateBoltCatch() : this;
 			}
+			
+			@Override
+			public int ordinal() { return ORDINAL; }
 		}
 		
 		protected class StateBoltCatch implements IGunState
 		{
+			protected static final int ORDINAL = 3;
+			
 			@Override
 			public IGunState charge( EntityPlayer player )
 			{
@@ -198,10 +268,15 @@ public abstract class GunType<
 				final boolean hasAmmo = !mag.isEmpty();
 				return hasAmmo ? new StateShootReady( mag.popAmmo() ) : this;
 			}
+			
+			@Override
+			public int ordinal() { return ORDINAL; }
 		}
 		
 		protected class StateShootReady implements IGunState
 		{
+			protected static final int ORDINAL = 4;
+			
 			protected IAmmoType ammoInChamber;
 			
 			protected StateShootReady( IAmmoType ammo ) { this.ammoInChamber = ammo; }
@@ -233,6 +308,14 @@ public abstract class GunType<
 					: new StateBoltRelease()
 				);
 			}
+			
+			@Override
+			public int ordinal() { return ORDINAL; }
+			
+			@Override
+			public int toOrdinalAndAmmoId() {
+				return ORDINAL + ( Item.getIdFromItem( this.ammoInChamber.item() ) << 16 );
+			}
 		}
 		
 		protected class EquippedGun extends EquippedGunPart implements IEquippedGun< C >
@@ -254,20 +337,23 @@ public abstract class GunType<
 			{
 				switch ( buf.readByte() )
 				{
+				case OP_CODE_CHARGE_GUN:
+					PlayerPatch.get( player ).launch( new OpChargeGun() );
+					break;
+				
 				case OP_CODE_UNLOAD_MAG:
 					PlayerPatch.get( player ).launch( new OpUnloadMag() );
-				break;
+					break;
 				
 				case OP_CODE_LOAD_MAG:
 					final int magInvSlot = buf.readByte();
 					PlayerPatch.get( player ).launch( new OpLoadMag( magInvSlot ) );
-				break;
+					break;
 				}
 			}
 			
 			@Override
 			@SideOnly( Side.CLIENT )
-			@SuppressWarnings( "unchecked" )
 			protected void setupInputCallbacks( Map< IInput, Runnable > registry )
 			{
 				super.setupInputCallbacks( registry );
@@ -281,48 +367,13 @@ public abstract class GunType<
 				registry.put( Key.LOAD_UNLOAD_MAG, loadUnloadMag );
 				registry.put( Key.CO_LOAD_UNLOAD_MAG, loadUnloadMag );
 				
-				final Runnable chargeGun = () -> PlayerPatchClient.instance.launch(
-					new OperationClient< EquippedGun >( this, GunType.this.chargeGunController )
-					{
-						@Override
-						public IOperation launch( EntityPlayer player )
-						{
-							this.equipped.renderer.useAnimation( this.controller.animation() );
-							this.equipped.renderDelegate = ori -> ( E ) EquippedGun.this;
-							
-							final ICameraController camera = PlayerPatchClient.instance.camera;
-							camera.useAnimation( this.equipped.animator() );
-							return this;
-						}
-						
-						@Override
-						protected void endCallback()
-						{
-							this.equipped.renderDelegate = original -> original;
-							this.equipped.renderer.useAnimation( Animation.NONE );
-						}
-					}
-				);
+				final Runnable chargeGun = () -> PlayerPatchClient
+					.instance.launch( new OpChargeGunClient() );
 				registry.put( Key.CHARGE_GUN, chargeGun );
 				registry.put( Key.CO_CHARGE_GUN, chargeGun );
 				
 				final Runnable inspectWeapon = () -> PlayerPatchClient.instance.launch(
-					new OperationClient< EquippedGun >( this, GunType.this.inspectController )
-					{
-						@Override
-						public IOperation launch( EntityPlayer player )
-						{
-							this.equipped.renderer.useAnimation( this.controller.animation() );
-							final ICameraController camera = PlayerPatchClient.instance.camera;
-							camera.useAnimation( this.equipped.animator() );
-							return this;
-						}
-						
-						@Override
-						protected void endCallback() {
-							this.equipped.renderer.useAnimation( Animation.NONE );
-						}
-					}
+					new OperationOnGunClient( GunType.this.inspectController )
 				);
 				registry.put( Key.INSPECT, inspectWeapon );
 				registry.put( Key.CO_INSPECT, inspectWeapon );
@@ -470,13 +521,12 @@ public abstract class GunType<
 		{
 			protected OperationOnGun( IOperationController controller ) { super( controller ); }
 			
-			protected Gun gun = Gun.this;
+			protected IGun< ? > gun = Gun.this;
 			
 			@Override
-			@SuppressWarnings( "unchecked" )
 			public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
 			{
-				this.gun = ( Gun ) newEquipped.item();
+				this.gun = ( IGun< ? > ) newEquipped.item();
 				return this;
 			}
 		}
@@ -536,10 +586,22 @@ public abstract class GunType<
 				player.addItemStackToInventory( this.gun.unloadMag().toStack() );
 			}
 		}
+		
+		protected class OpChargeGun extends OperationOnGun
+		{
+			protected OpChargeGun() { super( GunType.this.chargeGunController ); }
+			
+			@Override
+			protected void doHandleEffect( EntityPlayer player ) { this.gun.chargeGun( player ); }
+		}
 	}
 	
 	protected interface IGunState
 	{
 		IGunState charge( EntityPlayer player );
+		
+		int ordinal();
+		
+		default int toOrdinalAndAmmoId() { return this.ordinal(); }
 	}
 }

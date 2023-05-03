@@ -40,14 +40,14 @@ public interface IModule< T extends IModule< ? extends T > >
 	/**
 	 * Synchronize NBT tag data and do update.
 	 * 
-	 * @see #updateState(BiConsumer)
+	 * @see #updateModuleState(BiConsumer)
 	 */
 	void syncAndUpdate();
 	
 	/**
 	 * Used in {@link #syncAndUpdate()}.
 	 */
-	void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry );
+	void updateModuleState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry );
 	
 	IPreviewPredicate tryInstall( int slot, IModule< ? > module );
 	

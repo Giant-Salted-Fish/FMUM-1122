@@ -1,5 +1,7 @@
 package com.fmum.common.gun;
 
+import java.util.function.Consumer;
+
 import com.fmum.common.ammo.IAmmoType;
 
 import net.minecraft.item.ItemStack;
@@ -27,7 +29,12 @@ public class MagWrapper< I extends IGunPart< ? extends I >, T extends IMag< ? ex
 	public IAmmoType popAmmo() { return this.primary.popAmmo(); }
 	
 	@Override
-	public IAmmoType getAmmo( int idx ) { return this.primary.getAmmo( idx ); }
+	public IAmmoType peekAmmo() { return this.primary.peekAmmo(); }
+	
+	@Override
+	public void forEachAmmo( Consumer< IAmmoType > visitor ) {
+		this.primary.forEachAmmo( visitor );
+	}
 	
 	// TODO: reformat exception
 	@Override

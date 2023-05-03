@@ -1,5 +1,7 @@
 package com.fmum.common.gun;
 
+import java.util.function.Consumer;
+
 import com.fmum.common.ammo.IAmmoType;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -19,9 +21,9 @@ public interface IMag< T extends IGunPart< ? extends T > > extends IGunPart< T >
 	
 	IAmmoType popAmmo();
 	
-	default IAmmoType peek() { return this.getAmmo( this.ammoCount() - 1 ); }
+	IAmmoType peekAmmo();
 	
-	IAmmoType getAmmo( int idx );
+	void forEachAmmo( Consumer< IAmmoType > visitor );
 	
 	@SideOnly( Side.CLIENT )
 	boolean isLoadingMag();

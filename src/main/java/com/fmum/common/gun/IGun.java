@@ -2,6 +2,8 @@ package com.fmum.common.gun;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.entity.player.EntityPlayer;
+
 public interface IGun< T extends IGunPart< ? extends T > > extends IGunPart< T >
 {
 	boolean hasMag();
@@ -15,5 +17,5 @@ public interface IGun< T extends IGunPart< ? extends T > > extends IGunPart< T >
 	
 	IMag< ? > unloadMag();
 	
-	void chargeGun(); // FIXME: work on it
+	void chargeGun( EntityPlayer player );
 }

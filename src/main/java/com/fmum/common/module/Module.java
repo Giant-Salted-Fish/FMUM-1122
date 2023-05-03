@@ -82,11 +82,11 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	public void syncAndUpdate() { this.base.syncAndUpdate(); }
 	
 	@Override
-	public void updateState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry )
+	public void updateModuleState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry )
 	{
 		// TODO: Further consider when to call mat update
 		this.base.getTransform( this, this.mat );
-		this.installed.forEach( mod -> mod.updateState( registry ) );
+		this.installed.forEach( mod -> mod.updateModuleState( registry ) );
 	}
 	
 	@Override

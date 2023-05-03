@@ -1,6 +1,7 @@
 package com.fmum.client.gun;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 import org.lwjgl.opengl.GL11;
 
@@ -118,19 +119,26 @@ public abstract class MagModel<
 				final boolean isOddAmmoCount = contexted.ammoCount() % 2 != 0;
 				final boolean flipPosX = MagModel.this.isDoubleColumnMag && isOddAmmoCount;
 				final int size = Math.min( ammoCount, MagModel.this.ammoPos.length );
-				for ( int i = 0; i < size; ++i )
-				{
-					GL11.glPushMatrix();
+				contexted.forEachAmmo( new Consumer< IAmmoType >() {
+					int i = 0;
 					
-					final IAmmoType ammo = contexted.getAmmo( ammoCount - i - 1 );
-					final Vec3f pos = MagModel.this.ammoPos[ i ];
-					GL11.glTranslatef( flipPosX ? -pos.x : pos.x, pos.y, pos.z );
-					glRotatef( MagModel.this.ammoRot[ i ] );
-					
-					ammo.render();
-					
-					GL11.glPopMatrix();
-				}
+					@Override
+					public void accept( IAmmoType ammo )
+					{
+						if ( this.i < size )
+						{
+							GL11.glPushMatrix();
+							final Vec3f pos = MagModel.this.ammoPos[ this.i ];
+							GL11.glTranslatef( flipPosX ? -pos.x : pos.x, pos.y, pos.z );
+							glRotatef( MagModel.this.ammoRot[ this.i ] );
+							
+							ammo.render();
+							GL11.glPopMatrix();
+							
+							this.i += 1;
+						}
+					}
+				} );
 				
 				contexted.modifyState().doRecommendedRender( contexted.texture(), () -> {
 					GL11.glPushMatrix();

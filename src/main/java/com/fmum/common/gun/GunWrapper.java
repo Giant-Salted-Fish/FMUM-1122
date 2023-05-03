@@ -1,5 +1,6 @@
 package com.fmum.common.gun;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 public class GunWrapper< I extends IGunPart< ? extends I >, T extends IGun< ? extends I > >
@@ -23,5 +24,5 @@ public class GunWrapper< I extends IGunPart< ? extends I >, T extends IGun< ? ex
 	public IMag< ? > unloadMag() { return this.primary.unloadMag(); }
 	
 	@Override
-	public void chargeGun() { this.primary.chargeGun(); }
+	public void chargeGun( EntityPlayer player ) { this.primary.chargeGun( player ); }
 }

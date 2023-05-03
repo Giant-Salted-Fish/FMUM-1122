@@ -418,7 +418,7 @@ public final class FMUMClient extends FMUM
 	private static class BBAnimationJson
 	{
 //		boolean loop = false;
-		float animation_length;
+		float animation_length = 1F;
 		Map< String, BBBoneJson > bones = Collections.emptyMap();
 		
 		/**

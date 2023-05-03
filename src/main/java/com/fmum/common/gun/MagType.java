@@ -1,14 +1,15 @@
 package com.fmum.common.gun;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import javax.annotation.Nullable;
-
+import com.fmum.client.FMUMClient;
 import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.client.input.IInput;
@@ -73,20 +74,26 @@ public abstract class MagType<
 	
 	protected abstract class Mag extends GunPart implements IMag< I >
 	{
-		protected final ArrayList< IAmmoType > ammo = new ArrayList<>();
+		protected static final String
+			LIST_AMMO_TAG = "l",
+			COUNT_AMMO_TAG = "c";
+		
+		protected IAmmoNBTHandler ammoNBTHandler;
 		
 		@SideOnly( Side.CLIENT )
 		protected transient boolean isLoadingMag;
 		
-		protected Mag() { }
+		protected Mag() { this.ammoNBTHandler = new CountAmmoNBTHandler(); }
 		
 		protected Mag( boolean unused ) { super( unused ); }
 		
 		@Override
-		public boolean isFull() { return this.ammo.size() >= MagType.this.ammoCapacity; }
+		public boolean isFull() {
+			return this.ammoNBTHandler.ammoCount() >= MagType.this.ammoCapacity;
+		}
 		
 		@Override
-		public int ammoCount() { return this.ammo.size(); }
+		public int ammoCount() { return this.ammoNBTHandler.ammoCount(); }
 		
 		@Override
 		public boolean isAllowed( IAmmoType ammo ) {
@@ -94,25 +101,27 @@ public abstract class MagType<
 		}
 		
 		@Override
+		public void forEachAmmo( Consumer< IAmmoType > visitor ) {
+			this.ammoNBTHandler.forEach( visitor );
+		}
+		
+		@Override
+		public IAmmoType peekAmmo() { return this.ammoNBTHandler.peekAmmo(); }
+		
+		@Override
 		public void pushAmmo( IAmmoType ammo )
 		{
-			this.setAmmo( this.nbt.getIntArray( DATA_TAG ), this.ammo.size(), ammo );
-			this.ammo.add( ammo );
-			this.syncAndUpdate(); // TODO: only sync nbt data
+			this.ammoNBTHandler.pushAmmo( ammo );
+			this.syncAndUpdate(); // TODO: Only sync nbt data
 		}
 		
 		@Override
 		public IAmmoType popAmmo()
 		{
-			final int idx = this.ammo.size() - 1;
-			this.setAmmo( this.nbt.getIntArray( DATA_TAG ), idx, null );
-			final IAmmoType ammo = this.ammo.remove( idx );
+			final IAmmoType ammo = this.ammoNBTHandler.popAmmo();
 			this.syncAndUpdate();
 			return ammo;
 		}
-		
-		@Override
-		public IAmmoType getAmmo( int idx ) { return this.ammo.get( idx ); }
 		
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -127,38 +136,251 @@ public abstract class MagType<
 		{
 			super.deserializeNBT( nbt );
 			
-			this.ammo.clear();
-			final int[] data = nbt.getIntArray( DATA_TAG );
-			for ( int i = 0; i < MagType.this.ammoCapacity; ++i )
+			final boolean isListAmmo = nbt.hasKey( LIST_AMMO_TAG );
+			this.ammoNBTHandler = isListAmmo ? new ListAmmoNBTHandler() : new CountAmmoNBTHandler();
+		}
+		
+		protected class ListAmmoNBTHandler implements IAmmoNBTHandler
+		{
+			protected final LinkedList< IAmmoType > ammoList;
+			protected int countAmmoDataSize = 0;
+			
+			protected ListAmmoNBTHandler()
 			{
-				final IAmmoType ammo = this.getAmmo( data, i );
-				if ( ammo == null ) { break; }
-				this.ammo.add( ammo );
+				this.ammoList = new LinkedList<>();
+				final int[] data = Mag.this.nbt.getIntArray( LIST_AMMO_TAG );
+				final boolean isOddCount = data.length > 0 && data[ data.length - 1 ] >>> 16 == 0;
+				final int size = 2 * data.length - ( isOddCount ? 1 : 0 );
+				
+				IAmmoType prevAmmo = null;
+				for ( int i = 0; i < size; ++i )
+				{
+					final IAmmoType thisAmmo = this.getAmmo( data, i );
+					this.ammoList.add( thisAmmo );
+					if ( thisAmmo != prevAmmo )
+					{
+						prevAmmo = thisAmmo;
+						++this.countAmmoDataSize;
+					}
+				}
+			}
+			
+			protected ListAmmoNBTHandler( LinkedList< IAmmoType > ammoList, int countAmmoDataSize )
+			{
+				this.countAmmoDataSize = countAmmoDataSize;
+				this.ammoList = ammoList;
+				final int[] data = new int[ ( ammoList.size() + 1 ) / 2 ];
+				
+				int i = 0;
+				for ( IAmmoType ammo : ammoList )
+				{
+					this.setAmmo( data, i, Item.getIdFromItem( ammo.item() ) );
+					++i;
+				}
+				
+				Mag.this.nbt.setIntArray( LIST_AMMO_TAG, data );
+			}
+			
+			@Override
+			public int ammoCount() { return this.ammoList.size(); }
+			
+			@Override
+			public void forEach( Consumer< IAmmoType > visitor )
+			{
+				final Iterator< IAmmoType > itr = this.ammoList.descendingIterator();
+				while ( itr.hasNext() ) { visitor.accept( itr.next() ); }
+			}
+			
+			@Override
+			public IAmmoType peekAmmo() { return this.ammoList.getLast(); }
+			
+			@Override
+			public void pushAmmo( IAmmoType ammo )
+			{
+				final int ammoSize = this.ammoList.size();
+				final int lastAmmoId = ammoSize > 0
+					? Item.getIdFromItem( this.ammoList.getLast().item() ) : 0;
+				final int ammoId = Item.getIdFromItem( ammo.item() );
+				this.countAmmoDataSize += ammoId != lastAmmoId ? 1 : 0;
+				this.ammoList.addLast( ammo );
+				
+				final int listAmmoDataSize = ammoSize / 2 + 1;
+				if ( this.countAmmoDataSize < listAmmoDataSize )
+				{
+					final int dataSize = this.countAmmoDataSize;
+					Mag.this.ammoNBTHandler = new CountAmmoNBTHandler( this.ammoList, dataSize );
+					Mag.this.nbt.removeTag( LIST_AMMO_TAG );
+				}
+				else
+				{
+					final int[] data = Mag.this.nbt.getIntArray( LIST_AMMO_TAG );
+					
+					final boolean needExtension = listAmmoDataSize > data.length;
+					if ( needExtension )
+					{
+						final int[] newArr = new int[ listAmmoDataSize ];
+						System.arraycopy( data, 0, newArr, 0, data.length );
+						this.setAmmo( newArr, ammoSize, ammoId );
+						Mag.this.nbt.setIntArray( LIST_AMMO_TAG, newArr );
+					}
+					else { this.setAmmo( data, ammoSize, ammoId ); }
+				}
+			}
+			
+			@Override
+			public IAmmoType popAmmo()
+			{
+				final int ammoSize = this.ammoList.size();
+				final IAmmoType ammo = this.ammoList.removeLast();
+				final int ammoId = Item.getIdFromItem( ammo.item() );
+				final int lastAmmoId = this.ammoList.size() > 0
+					? Item.getIdFromItem( this.ammoList.getLast().item() ) : 0;
+				this.countAmmoDataSize -= ammoId != lastAmmoId ? 1 : 0;
+				
+				final int listAmmoDataSize = ammoSize / 2;
+				if ( this.countAmmoDataSize < listAmmoDataSize )
+				{
+					final int dataSize = this.countAmmoDataSize;
+					Mag.this.ammoNBTHandler = new CountAmmoNBTHandler( this.ammoList, dataSize );
+					Mag.this.nbt.removeTag( LIST_AMMO_TAG );
+				}
+				else
+				{
+					final int[] data = Mag.this.nbt.getIntArray( LIST_AMMO_TAG );
+					
+					final boolean canShrink = listAmmoDataSize < data.length;
+					if ( canShrink )
+					{
+						final int[] newArr = new int[ listAmmoDataSize ];
+						System.arraycopy( data, 0, newArr, 0, listAmmoDataSize );
+						Mag.this.nbt.setIntArray( LIST_AMMO_TAG, newArr );
+					}
+					else { this.setAmmo( data, ammoSize - 1, 0 ); }
+				}
+				return ammo;
+			}
+			
+			protected IAmmoType getAmmo( int[] data, int idx )
+			{
+				final boolean isOddIdx = idx % 2 != 0;
+				final int offset = isOddIdx ? 16 : 0;
+				final int id = 0xFFFF & data[ idx / 2 ] >>> offset;
+				final Item item = Item.getItemById( id );
+				return ( IAmmoType ) ( ( IItemTypeHost ) item ).meta();
+			}
+			
+			protected void setAmmo( int[] data, int idx, int ammoId )
+			{
+				final int i = idx / 2;
+				final int offset = idx % 2 != 0 ? 16 : 0;
+				data[ i ] = data[ i ] & 0xFFFF0000 >>> offset | ammoId << offset;
 			}
 		}
 		
-		@Override
-		protected int dataSize() { return super.dataSize() + MagType.this.ammoCapacity / 2; }
-		
-		protected void setAmmo( int[] data, int idx, @Nullable IAmmoType ammo )
+		protected class CountAmmoNBTHandler implements IAmmoNBTHandler
 		{
-			final int i = super.dataSize() + idx / 2;
-			final int offset = idx % 2 != 0 ? 16 : 0;
-			final int id = ammo != null ? Item.getIdFromItem( ammo.item() ) : 0;
-			data[ i ] = data[ i ] & 0xFFFF0000 >>> offset | id << offset;
-		}
-		
-		@Nullable
-		protected IAmmoType getAmmo( int[] data, int idx )
-		{
-			final int i = super.dataSize() + idx / 2;
-			final boolean isOddIdx = idx % 2 != 0;
-			final int offset = isOddIdx ? 16 : 0;
-			final int id = 0xFFFF & data[ i ] >>> offset;
-			if ( id == 0 ) { return null; }
+			protected final LinkedList< IAmmoType > ammoList;
 			
-			final Item item = Item.getItemById( id );
-			return ( IAmmoType ) ( ( IItemTypeHost ) item ).meta();
+			protected CountAmmoNBTHandler()
+			{
+				this.ammoList = new LinkedList<>();
+				final int[] data = Mag.this.nbt.getIntArray( COUNT_AMMO_TAG );
+				for ( int i = 0; i < data.length; ++i )
+				{
+					final int value = data[ i ];
+					final int ammoId = value >>> 16;
+					final int count = 1 + ( value & 0xFFFF );
+					
+					final Item item = Item.getItemById( ammoId );
+					final IAmmoType ammo = ( IAmmoType ) ( ( IItemTypeHost ) item ).meta();
+					for ( int j = 0; j < count; ++j ) { this.ammoList.add( ammo ); }
+				}
+			}
+			
+			protected CountAmmoNBTHandler( LinkedList< IAmmoType > ammoList, int countAmmoDataSize )
+			{
+				this.ammoList = ammoList;
+				final int[] data = new int[ countAmmoDataSize ];
+				
+				int i = -1;
+				IAmmoType prevAmmo = null;
+				for ( IAmmoType ammo : ammoList )
+				{
+					if ( ammo != prevAmmo )
+					{
+						++i;
+						data[ i ] = Item.getIdFromItem( ammo.item() ) << 16;
+						prevAmmo = ammo;
+					}
+					else { data[ i ] += 1; }
+				}
+				
+				Mag.this.nbt.setIntArray( COUNT_AMMO_TAG, data );
+			}
+			
+			@Override
+			public int ammoCount() { return this.ammoList.size(); }
+			
+			@Override
+			public void forEach( Consumer< IAmmoType > visitor )
+			{
+				final Iterator< IAmmoType > itr = this.ammoList.descendingIterator();
+				while ( itr.hasNext() ) { visitor.accept( itr.next() ); }
+			}
+			
+			@Override
+			public IAmmoType peekAmmo() { return this.ammoList.getLast(); }
+			
+			@Override
+			public void pushAmmo( IAmmoType ammo )
+			{
+				final int[] data = Mag.this.nbt.getIntArray( COUNT_AMMO_TAG );
+				final int lastAmmoId = data.length > 0 ? data[ data.length - 1 ] >>> 16 : 0;
+				final int ammoId = Item.getIdFromItem( ammo.item() );
+				final int countAmmoDataSize = data.length + ( ammoId != lastAmmoId ? 1 : 0 );
+				
+				final int listAmmoDataSize = this.ammoList.size() / 2 + 1;
+				this.ammoList.addLast( ammo );
+				if ( listAmmoDataSize < countAmmoDataSize )
+				{
+					final int dataSize = countAmmoDataSize;
+					Mag.this.ammoNBTHandler = new ListAmmoNBTHandler( this.ammoList, dataSize );
+					Mag.this.nbt.removeTag( COUNT_AMMO_TAG );
+				}
+				else if ( data.length < countAmmoDataSize )
+				{
+					final int[] newArr = new int[ countAmmoDataSize ];
+					System.arraycopy( data, 0, newArr, 0, data.length );
+					newArr[ data.length ] = ammoId << 16;
+					Mag.this.nbt.setIntArray( COUNT_AMMO_TAG, newArr );
+				}
+				else { data[ countAmmoDataSize - 1 ] += 1; }
+			}
+			
+			@Override
+			public IAmmoType popAmmo()
+			{
+				final int[] data = Mag.this.nbt.getIntArray( COUNT_AMMO_TAG );
+				final int count = 0xFFFF & data[ data.length - 1 ];
+				final int countAmmoDataSize = data.length - ( count > 0 ? 0 : 1 );
+				
+				final int listAmmoDataSize = this.ammoList.size() / 2;
+				final IAmmoType ammo = this.ammoList.removeLast();
+				if ( listAmmoDataSize < countAmmoDataSize )
+				{
+					final int dataSize = countAmmoDataSize;
+					Mag.this.ammoNBTHandler = new ListAmmoNBTHandler( this.ammoList, dataSize );
+					Mag.this.nbt.removeTag( COUNT_AMMO_TAG );
+				}
+				else if ( countAmmoDataSize < data.length )
+				{
+					final int[] newArr = new int[ countAmmoDataSize ];
+					System.arraycopy( data, 0, newArr, 0, countAmmoDataSize );
+					Mag.this.nbt.setIntArray( COUNT_AMMO_TAG, newArr );
+				}
+				else { data[ countAmmoDataSize - 1 ] -= 1; }
+				return ammo;
+			}
 		}
 		
 		protected class EquippedMag extends EquippedGunPart implements IEquippedMag< C >
@@ -181,12 +403,12 @@ public abstract class MagType<
 				{
 				case OP_CODE_UNLOAD_AMMO:
 					PlayerPatch.get( player ).launch( new OpUnloadAmmo() );
-				break;
+					break;
 					
 				case OP_CODE_LOAD_AMMO:
 					final int ammoInvSlot = buf.readByte();
 					PlayerPatch.get( player ).launch( new OpLoadAmmo( ammoInvSlot ) );
-				break;
+					break;
 				}
 			}
 			
@@ -418,5 +640,18 @@ public abstract class MagType<
 				player.addItemStackToInventory( ammoStack );
 			}
 		}
+	}
+	
+	protected interface IAmmoNBTHandler
+	{
+		int ammoCount();
+		
+		void forEach( Consumer< IAmmoType > visitor );
+
+		IAmmoType peekAmmo();
+		
+		void pushAmmo( IAmmoType ammo );
+		
+		IAmmoType popAmmo();
 	}
 }
