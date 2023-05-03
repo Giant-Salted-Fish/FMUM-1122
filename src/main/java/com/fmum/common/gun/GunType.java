@@ -1,5 +1,6 @@
 package com.fmum.common.gun;
 
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -272,129 +273,121 @@ public abstract class GunType<
 			@Override
 			@SideOnly( Side.CLIENT )
 			@SuppressWarnings( "unchecked" )
-			public void onKeyPress( IInput key )
+			protected void setupInputCallbacks( Map< IInput, Runnable > registry )
 			{
-				final boolean playMag = key == Key.LOAD_UNLOAD_MAG || key == Key.CO_LOAD_UNLOAD_MAG;
-				if ( playMag )
-				{
-					PlayerPatchClient.instance.launch(
-						Gun.this.hasMag()
-						? new OpUnloadMagClient( this, GunType.this.unloadMagController ) {
-							@Override
-							protected void launchCallback()
-							{
-								EquippedGun.this.renderer.useAnimation( this.controller.animation() );
-								EquippedGun.this.renderDelegate = ori -> ( E ) EquippedGun.this;
-								
-								final ICameraController camera = PlayerPatchClient.instance.camera;
-								camera.useAnimation( EquippedGun.this.animator() );
-								
-								this.sendPacketToServer( new PacketNotifyItem(
-									buf -> buf.writeByte( OP_CODE_UNLOAD_MAG )
-								) );
-							}
-							
-							@Override
-							protected void endCallback()
-							{
-								final EquippedGun equipped = ( EquippedGun ) this.equipped;
-								equipped.renderDelegate = original -> original;
-								equipped.renderer.useAnimation( Animation.NONE );
-							}
-						}
-						: new OpLoadMagClient( this, GunType.this.loadMagController ) {
-							@Override
-							protected void launchCallback()
-							{
-								EquippedGun.this.renderer.useAnimation( this.controller.animation() );
-								
-								final ICameraController camera = PlayerPatchClient.instance.camera;
-								camera.useAnimation( EquippedGun.this.animator() );
-								
-								// Copy this gun to install the loading mag.
-								final EquippedGun copied = ( EquippedGun ) EquippedGun.this.copy();
-								final C copiedGun = copied.item();
-								
-								// Install the loading mag to render it. Copy before use.
-								final InventoryPlayer inv = FMUMClient.MC.player.inventory;
-								final ItemStack stack = inv.getStackInSlot( this.invSlot ).copy();
-								final IMag< ? > mag = ( IMag< ? > ) IItemTypeHost.getItem( stack );
-								copiedGun.loadMag( mag );
-								mag.setAsLoadingMag();
-								
-								// Delegate render to copied gun.
-								EquippedGun.this.renderDelegate = ori -> ( E ) copied;
-								
-								// Send packet out!
-								this.sendPacketToServer( new PacketNotifyItem( buf -> {
-									buf.writeByte( OP_CODE_LOAD_MAG );
-									buf.writeByte( this.invSlot );
-								} ) );
-							}
-							
-							@Override
-							protected void endCallback()
-							{
-								final EquippedGun equipped = ( EquippedGun ) this.equipped;
-								equipped.renderDelegate = original -> original;
-								equipped.renderer.useAnimation( Animation.NONE );
-							}
-						}
-					);
-					return;
-				}
+				super.setupInputCallbacks( registry );
 				
-				final boolean chargeGun = key == Key.CHARGE_GUN || key == Key.CO_CHARGE_GUN;
-				if ( chargeGun )
-				{
-					PlayerPatchClient.instance.launch(
-						new OperationClient< IEquippedGun< ? > >( this, GunType.this.chargeGunController )
+				final Runnable loadUnloadMag = () -> PlayerPatchClient.instance.launch(
+					Gun.this.hasMag()
+					? new OpUnloadMagClient( this, GunType.this.unloadMagController ) {
+						@Override
+						protected void launchCallback()
 						{
-							@Override
-							protected void launchCallback()
-							{
-								EquippedGun.this.renderer.useAnimation( this.controller.animation() );
-								EquippedGun.this.renderDelegate = ori -> ( E ) EquippedGun.this;
-								
-								final ICameraController camera = PlayerPatchClient.instance.camera;
-								camera.useAnimation( EquippedGun.this.animator() );
-							}
+							EquippedGun.this.renderer.useAnimation( this.controller.animation() );
+							EquippedGun.this.renderDelegate = ori -> ( E ) EquippedGun.this;
 							
-							@Override
-							protected void endCallback()
-							{
-								final EquippedGun equipped = ( EquippedGun ) this.equipped;
-								equipped.renderDelegate = original -> original;
-								equipped.renderer.useAnimation( Animation.NONE );
-							}
+							final ICameraController camera = PlayerPatchClient.instance.camera;
+							camera.useAnimation( EquippedGun.this.animator() );
+							
+							this.sendPacketToServer( new PacketNotifyItem(
+								buf -> buf.writeByte( OP_CODE_UNLOAD_MAG )
+							) );
 						}
-					);
-					return;
-				}
-				
-				final boolean inspectWeapon = key == Key.INSPECT || key == Key.CO_INSPECT;
-				if ( inspectWeapon )
-				{
-					PlayerPatchClient.instance.launch(
-						new OperationClient< IEquippedGun< ? > >( this, GunType.this.inspectController )
+						
+						@Override
+						protected void endCallback()
 						{
-							@Override
-							protected void launchCallback()
-							{
-								EquippedGun.this.renderer.useAnimation( this.controller.animation() );
-								final ICameraController camera = PlayerPatchClient.instance.camera;
-								camera.useAnimation( EquippedGun.this.animator() );
-							}
-							
-							@Override
-							protected void endCallback() {
-								EquippedGun.this.renderer.useAnimation( Animation.NONE );
-							}
+							final EquippedGun equipped = ( EquippedGun ) this.equipped;
+							equipped.renderDelegate = original -> original;
+							equipped.renderer.useAnimation( Animation.NONE );
 						}
-					);
-				}
+					}
+					: new OpLoadMagClient( this, GunType.this.loadMagController ) {
+						@Override
+						protected void launchCallback()
+						{
+							EquippedGun.this.renderer.useAnimation( this.controller.animation() );
+							
+							final ICameraController camera = PlayerPatchClient.instance.camera;
+							camera.useAnimation( EquippedGun.this.animator() );
+							
+							// Copy this gun to install the loading mag.
+							final EquippedGun copied = ( EquippedGun ) EquippedGun.this.copy();
+							final C copiedGun = copied.item();
+							
+							// Install the loading mag to render it. Copy before use.
+							final InventoryPlayer inv = FMUMClient.MC.player.inventory;
+							final ItemStack stack = inv.getStackInSlot( this.invSlot ).copy();
+							final IMag< ? > mag = ( IMag< ? > ) IItemTypeHost.getItem( stack );
+							copiedGun.loadMag( mag );
+							mag.setAsLoadingMag();
+							
+							// Delegate render to copied gun.
+							EquippedGun.this.renderDelegate = ori -> ( E ) copied;
+							
+							// Send packet out!
+							this.sendPacketToServer( new PacketNotifyItem( buf -> {
+								buf.writeByte( OP_CODE_LOAD_MAG );
+								buf.writeByte( this.invSlot );
+							} ) );
+						}
+						
+						@Override
+						protected void endCallback()
+						{
+							final EquippedGun equipped = ( EquippedGun ) this.equipped;
+							equipped.renderDelegate = original -> original;
+							equipped.renderer.useAnimation( Animation.NONE );
+						}
+					}
+				);
+				registry.put( Key.LOAD_UNLOAD_MAG, loadUnloadMag );
+				registry.put( Key.CO_LOAD_UNLOAD_MAG, loadUnloadMag );
 				
-				super.onKeyPress( key );
+				final Runnable chargeGun = () -> PlayerPatchClient.instance.launch(
+					new OperationClient< IEquippedGun< ? > >( this, GunType.this.chargeGunController )
+					{
+						@Override
+						protected void launchCallback()
+						{
+							EquippedGun.this.renderer.useAnimation( this.controller.animation() );
+							EquippedGun.this.renderDelegate = ori -> ( E ) EquippedGun.this;
+							
+							final ICameraController camera = PlayerPatchClient.instance.camera;
+							camera.useAnimation( EquippedGun.this.animator() );
+						}
+						
+						@Override
+						protected void endCallback()
+						{
+							final EquippedGun equipped = ( EquippedGun ) this.equipped;
+							equipped.renderDelegate = original -> original;
+							equipped.renderer.useAnimation( Animation.NONE );
+						}
+					}
+				);
+				registry.put( Key.CHARGE_GUN, chargeGun );
+				registry.put( Key.CO_CHARGE_GUN, chargeGun );
+				
+				final Runnable inspectWeapon = () -> PlayerPatchClient.instance.launch(
+					new OperationClient< IEquippedGun< ? > >( this, GunType.this.inspectController )
+					{
+						@Override
+						protected void launchCallback()
+						{
+							EquippedGun.this.renderer.useAnimation( this.controller.animation() );
+							final ICameraController camera = PlayerPatchClient.instance.camera;
+							camera.useAnimation( EquippedGun.this.animator() );
+						}
+						
+						@Override
+						protected void endCallback() {
+							EquippedGun.this.renderer.useAnimation( Animation.NONE );
+						}
+					}
+				);
+				registry.put( Key.INSPECT, inspectWeapon );
+				registry.put( Key.CO_INSPECT, inspectWeapon );
 			}
 			
 			@Override

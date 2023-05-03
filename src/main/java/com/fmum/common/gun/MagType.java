@@ -2,6 +2,7 @@ package com.fmum.common.gun;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -192,46 +193,37 @@ public abstract class MagType<
 			
 			@Override
 			@SideOnly( Side.CLIENT )
-			public void onKeyPress( IInput key )
+			protected void setupInputCallbacks( Map< IInput, Runnable > registry )
 			{
-				final boolean loadAmmo = key == Key.PULL_TRIGGER;
-				if ( loadAmmo )
-				{
-					PlayerPatchClient.instance.launch(
-						new OpLoadAmmoClient( this, MagType.this.loadAmmoController )
+				final Runnable loadAmmo = () -> PlayerPatchClient.instance.launch(
+					new OpLoadAmmoClient( this, MagType.this.loadAmmoController )
+					{
+						@Override
+						protected void launchCallback()
 						{
-							@Override
-							protected void launchCallback()
-							{
-								this.sendPacketToServer( new PacketNotifyItem( buf -> {
-									buf.writeByte( OP_CODE_LOAD_AMMO );
-									buf.writeByte( this.invSlot );
-								} ) );
-							}
+							this.sendPacketToServer( new PacketNotifyItem( buf -> {
+								buf.writeByte( OP_CODE_LOAD_AMMO );
+								buf.writeByte( this.invSlot );
+							} ) );
 						}
-					);
-					return;
-				}
+					}
+				);
+				registry.put( Key.PULL_TRIGGER, loadAmmo );
 				
-				final boolean unloadAmmo = key == Key.AIM_HOLD || key == Key.AIM_TOGGLE;
-				if ( unloadAmmo )
-				{
-					PlayerPatchClient.instance.launch(
-						new OpUnloadAmmoClient( this, MagType.this.unloadAmmoController )
+				final Runnable unloadAmmo = () -> PlayerPatchClient.instance.launch(
+					new OpUnloadAmmoClient( this, MagType.this.unloadAmmoController )
+					{
+						@Override
+						protected void launchCallback()
 						{
-							@Override
-							protected void launchCallback()
-							{
-								this.sendPacketToServer( new PacketNotifyItem( 
-									buf -> buf.writeByte( OP_CODE_UNLOAD_AMMO )
-								) );
-							}
+							this.sendPacketToServer( new PacketNotifyItem( 
+								buf -> buf.writeByte( OP_CODE_UNLOAD_AMMO )
+							) );
 						}
-					);
-					return;
-				}
-				
-				super.onKeyPress( key );
+					}
+				);
+				registry.put( Key.AIM_HOLD, unloadAmmo );
+				registry.put( Key.AIM_TOGGLE, unloadAmmo );
 			}
 			
 			@Override

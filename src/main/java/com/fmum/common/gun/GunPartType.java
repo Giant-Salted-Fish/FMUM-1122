@@ -5,7 +5,9 @@ import static com.fmum.common.gun.GunPartWrapper.STACK_ID_TAG;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -497,6 +499,9 @@ public abstract class GunPartType<
 			@SideOnly( Side.CLIENT )
 			protected Function< E, E > renderDelegate;
 			
+			@SideOnly( Side.CLIENT )
+			protected HashMap< IInput, Runnable > inputCallbacks;
+			
 			protected EquippedGunPart(
 				Supplier< ER > equippedRenderer,
 				Supplier< Function< E, E > > renderDelegate,
@@ -508,6 +513,9 @@ public abstract class GunPartType<
 				FMUM.MOD.clientOnly( () -> {
 					this.renderer = equippedRenderer.get();
 					this.renderDelegate = renderDelegate.get();
+					
+					this.inputCallbacks = new HashMap<>();
+					this.setupInputCallbacks( this.inputCallbacks );
 				} );
 			}
 			
@@ -555,9 +563,21 @@ public abstract class GunPartType<
 			@SideOnly( Side.CLIENT )
 			public void onKeyPress( IInput key )
 			{
-				final boolean toggleModify = key == Key.TOGGLE_MODIFY || key == Key.CO_TOGGLE_MODIFY;
-				if ( toggleModify )
+				if ( key.category().equals( Key.Category.MODIFY ) )
 				{
+					final IOperation executing = PlayerPatchClient.instance.executing();
+					final boolean isModifying = executing instanceof OpModifyClient;
+					if ( isModifying ) {
+						( ( OpModifyClient ) executing ).handleInput( key );
+					}
+				}
+				else { this.inputCallbacks.getOrDefault( key, () -> { } ).run(); }
+			}
+			
+			@SideOnly( Side.CLIENT )
+			protected void setupInputCallbacks( Map< IInput, Runnable > registry )
+			{
+				final Runnable toggleModify = () -> {
 					final IOperation executing = PlayerPatchClient.instance.executing();
 					if ( executing instanceof OpModifyClient )
 					{
@@ -565,6 +585,7 @@ public abstract class GunPartType<
 						return;
 					}
 					
+					// Launch modify operation.
 					final OpModifyClient modifyOp = new OpModifyClient( this ) {
 						@Override
 						@SuppressWarnings( "unchecked" )
@@ -587,22 +608,10 @@ public abstract class GunPartType<
 					};
 					PlayerPatchClient.instance.launch( modifyOp );
 					this.renderer.useModifyAnimation( () -> modifyOp.refPlayerRotYaw );
-					
-					return;
-				}
-				
-				if ( key.category().equals( Key.Category.MODIFY ) )
-				{
-					final IOperation executing = PlayerPatchClient.instance.executing();
-					final boolean isModifying = executing instanceof OpModifyClient;
-					if ( isModifying ) {
-						( ( OpModifyClient ) executing ).handleInput( key );
-					}
-				}
+				};
+				registry.put( Key.TOGGLE_MODIFY, toggleModify );
+				registry.put( Key.CO_TOGGLE_MODIFY, toggleModify );
 			}
-			
-			@Override
-			public String toString() { return "Equipped<" + GunPartType.this + ">"; }
 			
 			@SideOnly( Side.CLIENT )
 			@SuppressWarnings( "unchecked" )
@@ -622,6 +631,9 @@ public abstract class GunPartType<
 					EnumHand.MAIN_HAND
 				);
 			}
+			
+			@Override
+			public String toString() { return "Equipped<" + GunPartType.this + ">"; }
 		}
 	}
 }
