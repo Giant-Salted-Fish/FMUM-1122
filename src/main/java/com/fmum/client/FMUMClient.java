@@ -37,6 +37,7 @@ import com.fmum.common.load.IMeshLoadSubscriber;
 import com.fmum.common.meta.Registry;
 import com.fmum.util.Animation;
 import com.fmum.util.BoneAnimation;
+import com.fmum.util.IAnimation;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Mesh;
 import com.fmum.util.ObjMeshBuilder;
@@ -143,7 +144,6 @@ public final class FMUMClient extends FMUM
 		// The default NONE mesh and animation.
 		// Null usually is not a good choice but have to do it for animation pool.
 		this.meshPool.put( "", Mesh.NONE );
-		this.animationPool.put( null, Animation.NONE );
 	}
 	
 	@Override
@@ -412,6 +412,9 @@ public final class FMUMClient extends FMUM
 			( json, typeOfT, context ) -> this.loadTexture( json.getAsString() );
 		builder.registerTypeAdapter( ResourceLocation.class, TEXTURE_ADAPTER );
 		
+		final JsonDeserializer< IAnimation > ANIMATION_ADAPTER =
+			( json, typeOfT, context ) -> this.loadAnimation( json.getAsString() );
+		builder.registerTypeAdapter( IAnimation.class, ANIMATION_ADAPTER );
 		return builder;
 	}
 	

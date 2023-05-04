@@ -2,9 +2,9 @@ package com.fmum.common.player;
 
 import com.fmum.common.FMUM;
 import com.fmum.common.load.IContentProvider;
+import com.fmum.util.Animation;
 import com.fmum.util.IAnimation;
 import com.google.gson.JsonDeserializer;
-import com.google.gson.annotations.SerializedName;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.SoundCategory;
@@ -30,11 +30,7 @@ public class OperationController implements IOperationController
 	protected SoundEvent[] sounds = NO_SOUND;
 	
 	@SideOnly( Side.CLIENT )
-	@SerializedName( value = "animation" )
-	protected String animationPath;
-	
-	@SideOnly( Side.CLIENT )
-	protected transient IAnimation animation;
+	protected IAnimation animation;
 	
 	public OperationController() { }
 	
@@ -93,7 +89,7 @@ public class OperationController implements IOperationController
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public void loadAnimation( IContentProvider provider ) {
-		this.animation = provider.loadAnimation( this.animationPath );
+	public void checkAssetsSetup( IContentProvider provider ) {
+		if ( this.animation == null ) { this.animation = Animation.NONE; }
 	}
 }

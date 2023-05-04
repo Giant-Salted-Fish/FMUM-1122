@@ -27,5 +27,5 @@ public interface IOperationController
 	IAnimation animation();
 	
 	@SideOnly( Side.CLIENT )
-	void loadAnimation( IContentProvider provider );
+	void checkAssetsSetup( IContentProvider provider );
 }

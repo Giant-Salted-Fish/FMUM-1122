@@ -61,7 +61,7 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	protected void checkTextureSetup()
+	protected void checkAssetsSetup()
 	{
 		// Use a default background image if does not have.
 		if ( this.texture == null ) {

@@ -1,8 +1,5 @@
 package com.fmum.common.gun;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.client.gun.JsonGunPartModel;
@@ -46,13 +43,13 @@ public class JsonMagType extends MagType<
 			
 			// This should never be equipped hence return null.
 			@Override
-			protected IEquippedMag< ? extends IMag< ? > > newEquipped(
-				Supplier< IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IMag< ? > > > >
-					equippedRenderer,
-				Supplier< Function<
-					IEquippedMag< ? extends IMag< ? > >,
-					IEquippedMag< ? extends IMag< ? > >
-				> > renderDelegate,
+			protected IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand ) {
+				return null;
+			}
+			
+			@Override
+			protected IEquippedItem< ? > copyEquipped(
+				IEquippedItem< ? > target,
 				EntityPlayer player,
 				EnumHand hand
 			) { return null; }
@@ -65,16 +62,16 @@ public class JsonMagType extends MagType<
 		final Mag mag = new Mag( false )
 		{
 			@Override
-			protected IEquippedMag< ? extends IMag< ? > > newEquipped(
-				Supplier< IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IMag< ? > > > >
-					equippedRenderer,
-				Supplier< Function<
-					IEquippedMag< ? extends IMag< ? > >,
-					IEquippedMag< ? extends IMag< ? > >
-				> > renderDelegate,
+			protected IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand ) {
+				return new EquippedMag( player, hand );
+			}
+			
+			@Override
+			protected IEquippedItem< ? > copyEquipped(
+				IEquippedItem< ? > target,
 				EntityPlayer player,
 				EnumHand hand
-			) { return new EquippedMag( equippedRenderer, renderDelegate, player, hand ); }
+			) { return new EquippedMag( target, player, hand ); }
 		};
 		mag.deserializeNBT( nbt );
 		return mag;

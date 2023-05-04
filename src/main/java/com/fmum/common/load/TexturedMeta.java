@@ -18,16 +18,13 @@ public abstract class TexturedMeta extends BuildableMeta
 	{
 		super.build( name, provider );
 		
-		provider.clientOnly( () -> this.checkTextureSetup() );
-//		provider.clientOnly( this::checkTextureSetup ); // Write like this will crash.
+		provider.clientOnly( () -> this.checkAssetsSetup() );
+//		provider.clientOnly( this::checkClientSetup ); // Write like this will crash.
 		return this;
 	}
 	
-	/**
-	 * Called in {@link #build(String, IContentProvider)} to ensure that texture setup.
-	 */
 	@SideOnly( Side.CLIENT )
-	protected void checkTextureSetup()
+	protected void checkAssetsSetup()
 	{
 		if ( this.texture == null ) {
 			this.texture = this.provider.loadTexture( "textures/" + this.name + ".png" );

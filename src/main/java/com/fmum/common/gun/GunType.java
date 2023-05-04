@@ -2,12 +2,9 @@ package com.fmum.common.gun;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import com.fmum.client.FMUMClient;
 import com.fmum.client.camera.ICameraController;
 import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
@@ -17,7 +14,6 @@ import com.fmum.client.item.IItemModel;
 import com.fmum.client.player.OperationClient;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.IAnimator;
-import com.fmum.common.FMUM;
 import com.fmum.common.ammo.IAmmoType;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
@@ -43,7 +39,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -79,6 +75,12 @@ public abstract class GunType<
 		),
 		INSPECT_CONTROLLER = new OperationController( 1F / 40F );
 	
+	@SerializedName( value = "roundsPerMin", alternate = "rpm" )
+	protected float roundsPerMin = 600F;
+	protected transient int shootDelay;
+	
+	protected SoundEvent shootSound;
+	
 	@SerializedName( value = "isOpenBolt", alternate = "openBolt" )
 	protected boolean isOpenBolt = false;
 	
@@ -95,11 +97,14 @@ public abstract class GunType<
 	{
 		super.build( name, provider );
 		
+		final int ticksPerMinWithShift = ( 20 * 60 ) << 16; // 16-bits shift.
+		this.shootDelay = ( int ) ( ticksPerMinWithShift / this.roundsPerMin );
+		
 		provider.clientOnly( () -> {
-			this.loadMagController.loadAnimation( provider );
-			this.unloadMagController.loadAnimation( provider );
-			this.chargeGunController.loadAnimation( provider );
-			this.inspectController.loadAnimation( provider );
+			this.loadMagController.checkAssetsSetup( provider );
+			this.unloadMagController.checkAssetsSetup( provider );
+			this.chargeGunController.checkAssetsSetup( provider );
+			this.inspectController.checkAssetsSetup( provider );
 		} );
 		return this;
 	}
@@ -203,7 +208,7 @@ public abstract class GunType<
 		}
 		
 		@Override
-		protected int dataSize() { return super.dataSize() + 1; } // TODO: What to do with the left
+		protected int dataSize() { return super.dataSize() + 1; }
 		
 		protected IGunState createGunState() {
 			return GunType.this.isOpenBolt ? new StateCloseBolt() : new StateBoltRelease();
@@ -217,7 +222,7 @@ public abstract class GunType<
 			public IGunState charge( EntityPlayer player ) { return this; }
 			
 			@Override
-			public int ordinal() { return ORDINAL; }
+			public int toOrdinalAndAmmoId() { return ORDINAL; }
 		}
 		
 		protected class StateCloseBolt implements IGunState
@@ -230,7 +235,7 @@ public abstract class GunType<
 			}
 			
 			@Override
-			public int ordinal() { return ORDINAL; }
+			public int toOrdinalAndAmmoId() { return ORDINAL; }
 		}
 		
 		protected class StateBoltRelease implements IGunState
@@ -251,7 +256,7 @@ public abstract class GunType<
 			}
 			
 			@Override
-			public int ordinal() { return ORDINAL; }
+			public int toOrdinalAndAmmoId() { return ORDINAL; }
 		}
 		
 		protected class StateBoltCatch implements IGunState
@@ -270,7 +275,7 @@ public abstract class GunType<
 			}
 			
 			@Override
-			public int ordinal() { return ORDINAL; }
+			public int toOrdinalAndAmmoId() { return ORDINAL; }
 		}
 		
 		protected class StateShootReady implements IGunState
@@ -310,9 +315,6 @@ public abstract class GunType<
 			}
 			
 			@Override
-			public int ordinal() { return ORDINAL; }
-			
-			@Override
 			public int toOrdinalAndAmmoId() {
 				return ORDINAL + ( Item.getIdFromItem( this.ammoInChamber.item() ) << 16 );
 			}
@@ -325,12 +327,33 @@ public abstract class GunType<
 				OP_CODE_UNLOAD_MAG = 1,
 				OP_CODE_CHARGE_GUN = 2;
 			
+			protected int gapTicksForNextRound = 0;
+			
+			@SideOnly( Side.CLIENT )
+			protected transient boolean triggerPressed;
+			
+			protected EquippedGun( EntityPlayer player, EnumHand hand ) { super( player, hand ); }
+			
+			@SuppressWarnings( "unchecked" )
 			protected EquippedGun(
-				Supplier< ER > equippedRenderer,
-				Supplier< Function< E, E > > renderDelegate,
+				IEquippedItem< ? > prevEquipped,
 				EntityPlayer player,
 				EnumHand hand
-			) { super( equippedRenderer, renderDelegate, player, hand ); }
+			) {
+				super( prevEquipped, player, hand );
+				
+				final EquippedGun prev = ( EquippedGun ) prevEquipped;
+				this.gapTicksForNextRound = prev.gapTicksForNextRound;
+				if ( player.world.isRemote ) { this.triggerPressed = prev.triggerPressed; }
+			}
+			
+			@Override
+			public void tickInHand( EntityPlayer player, EnumHand hand )
+			{
+				super.tickInHand( player, hand );
+				
+				this.gapTicksForNextRound = Math.max( 0, this.gapTicksForNextRound - 1 );
+			}
 			
 			@Override
 			public void handlePacket( ByteBuf buf, EntityPlayer player )
@@ -600,8 +623,6 @@ public abstract class GunType<
 	{
 		IGunState charge( EntityPlayer player );
 		
-		int ordinal();
-		
-		default int toOrdinalAndAmmoId() { return this.ordinal(); }
+		int toOrdinalAndAmmoId();
 	}
 }

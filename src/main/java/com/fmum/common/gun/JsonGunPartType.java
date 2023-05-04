@@ -1,8 +1,5 @@
 package com.fmum.common.gun;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.client.gun.JsonGunPartModel;
@@ -47,14 +44,13 @@ public class JsonGunPartType extends GunPartType<
 			
 			// This should never be equipped hence return null.
 			@Override
-			protected IEquippedItem< ? extends IGunPart< ? > > newEquipped(
-				Supplier<
-					IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
-				> equippedRenderer,
-				Supplier< Function<
-					IEquippedItem< ? extends IGunPart< ? > >,
-					IEquippedItem< ? extends IGunPart< ? > >
-				> > renderDelegate,
+			protected IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand ) {
+				return null;
+			}
+			
+			@Override
+			protected IEquippedItem< ? > copyEquipped(
+				IEquippedItem< ? > target,
 				EntityPlayer player,
 				EnumHand hand
 			) { return null; }
@@ -67,17 +63,16 @@ public class JsonGunPartType extends GunPartType<
 		final GunPart gunPart = new GunPart( false )
 		{
 			@Override
-			protected IEquippedItem< ? extends IGunPart< ? > > newEquipped(
-				Supplier<
-					IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >
-				> equippedRenderer,
-				Supplier< Function<
-					IEquippedItem< ? extends IGunPart< ? > >,
-					IEquippedItem< ? extends IGunPart< ? > >
-				> > renderDelegate,
+			protected IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand ) {
+				return new EquippedGunPart( player, hand );
+			}
+			
+			@Override
+			protected IEquippedItem< ? > copyEquipped(
+				IEquippedItem< ? > target,
 				EntityPlayer player,
 				EnumHand hand
-			) { return new EquippedGunPart( equippedRenderer, renderDelegate, player, hand ); }
+			) { return new EquippedGunPart( target, player, hand ); }
 		};
 		gunPart.deserializeNBT( nbt );
 		return gunPart;

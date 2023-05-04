@@ -1,6 +1,5 @@
 package com.fmum.common.load;
 
-import com.fmum.common.meta.IMeta;
 import com.google.gson.annotations.SerializedName;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -10,24 +9,15 @@ public abstract class RenderableMeta< T > extends TexturedMeta
 {
 	@SideOnly( Side.CLIENT )
 	@SerializedName( value = "model" )
-	protected String modelPath;
+	protected String modelPath; // TODO: remove this
 	
 	@SideOnly( Side.CLIENT )
 	protected transient T model;
 	
 	@Override
-	public IMeta build( String name, IContentProvider provider )
-	{
-		super.build( name, provider );
-		
-		provider.clientOnly( () -> this.loadModel() );
-//		provider.clientOnly( this::loadModel ); // Write like this will crash.
-		return this;
-	}
-	
 	@SideOnly( Side.CLIENT )
 	@SuppressWarnings( "unchecked" )
-	protected void loadModel()
+	protected void checkAssetsSetup()
 	{
 		// Set a default model path if does not have.
 		final String fallbackType = this.descriptor().name();

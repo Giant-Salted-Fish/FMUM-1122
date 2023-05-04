@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.client.gun.IEquippedGunPartRenderer;
@@ -99,11 +98,12 @@ public abstract class GunPartType<
 		IPaintableType.REGISTRY.regis( this );
 		
 		// If not category set then set it is its name.
-		this.category = this.category != null ? this.category : this.name;
-		provider.clientOnly(
-			() -> this.modifyIndicator = this.modifyIndicator != null
-				? this.modifyIndicator : FMUMClient.MODIFY_INDICATOR
-		);
+		if ( this.category == null ) { this.category = this.name; }
+		provider.clientOnly( () -> {
+			if ( this.modifyIndicator == null ) {
+				this.modifyIndicator = FMUMClient.MODIFY_INDICATOR;
+			}
+		} );
 		
 		// Add itself as the default paintjob.
 		if ( this.paintjobs.size() == 0 )
@@ -317,20 +317,15 @@ public abstract class GunPartType<
 				if ( shouldIgnore ) { return this.onStackUpdate( prev, player, hand ); }
 			}
 			
-			final Supplier< ER > renderer = () -> this.renderer.onTakeOut( hand );
-			return newEquipped( renderer, () -> original -> original, player, hand );
+			return this.newEquipped( player, hand );
 		}
 		
 		@Override
-		@SuppressWarnings( "unchecked" )
 		public IEquippedItem< ? > onStackUpdate(
 			IEquippedItem< ? > prevEquipped,
 			EntityPlayer player,
 			EnumHand hand
-		) {
-			final EquippedGunPart old = ( EquippedGunPart ) prevEquipped;
-			return newEquipped( () -> old.renderer, () -> old.renderDelegate, player, hand );
-		}
+		) { return this.copyEquipped( prevEquipped, player, hand ); }
 		
 		@Override
 		public int stackId() { throw new RuntimeException(); }
@@ -459,13 +454,6 @@ public abstract class GunPartType<
 		@Override
 		public String toString() { return "Contexted<" + GunPartType.this + ">"; }
 		
-		protected abstract E newEquipped(
-			Supplier< ER > equippedRenderer,
-			Supplier< Function< E, E > > renderDelegate,
-			EntityPlayer player,
-			EnumHand hand
-		);
-		
 		@Override
 		protected int dataSize() { return super.dataSize() + 1; }
 		
@@ -490,6 +478,14 @@ public abstract class GunPartType<
 		@SuppressWarnings( "unchecked" )
 		protected final C self() { return ( C ) this; }
 		
+		protected abstract IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand );
+		
+		protected abstract IEquippedItem< ? > copyEquipped(
+			IEquippedItem< ? > target,
+			EntityPlayer player,
+			EnumHand hand
+		);
+		
 		protected class EquippedGunPart implements IEquippedItem< C >
 		{
 			@SideOnly( Side.CLIENT )
@@ -501,21 +497,33 @@ public abstract class GunPartType<
 			@SideOnly( Side.CLIENT )
 			protected HashMap< IInput, Runnable > inputCallbacks;
 			
-			protected EquippedGunPart(
-				Supplier< ER > equippedRenderer,
-				Supplier< Function< E, E > > renderDelegate,
-				EntityPlayer player,
-				EnumHand hand
-			) {
-				// TODO: This will create renderer on local server
-//				if ( player.world.isRemote )
-				FMUM.MOD.clientOnly( () -> {
-					this.renderer = equippedRenderer.get();
-					this.renderDelegate = renderDelegate.get();
+			protected EquippedGunPart( EntityPlayer player, EnumHand hand )
+			{
+				if ( player.world.isRemote )
+				{
+					this.renderer = GunPart.this.renderer.onTakeOut( hand );
+					this.renderDelegate = original -> original;
 					
 					this.inputCallbacks = new HashMap<>();
 					this.setupInputCallbacks( this.inputCallbacks );
-				} );
+				}
+			}
+			
+			@SuppressWarnings( "unchecked" )
+			protected EquippedGunPart(
+				IEquippedItem< ? > prevEquipped,
+				EntityPlayer player,
+				EnumHand hand
+			) {
+				if ( player.world.isRemote )
+				{
+					final EquippedGunPart prev = ( EquippedGunPart ) prevEquipped;
+					this.renderer = prev.renderer;
+					this.renderDelegate = prev.renderDelegate;
+					
+					this.inputCallbacks = new HashMap<>();
+					this.setupInputCallbacks( this.inputCallbacks );
+				};
 			}
 			
 			@Override
@@ -623,9 +631,8 @@ public abstract class GunPartType<
 				final ItemStack copiedStack = GunPart.this.base.toStack().copy();
 				final IModule< ? > wrapper = ( IModule< ? > ) IItemTypeHost.getItem( copiedStack );
 				final GunPart copied = ( GunPart ) wrapper.getInstalled( null, 0 );
-				return copied.newEquipped(
-					() -> EquippedGunPart.this.renderer,
-					() -> EquippedGunPart.this.renderDelegate,
+				return copied.copyEquipped(
+					EquippedGunPart.this,
 					FMUMClient.MC.player,
 					EnumHand.MAIN_HAND
 				);

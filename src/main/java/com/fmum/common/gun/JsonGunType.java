@@ -1,12 +1,10 @@
 package com.fmum.common.gun;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.client.gun.JsonGunModel;
 import com.fmum.client.item.IItemModel;
+import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.meta.IMeta;
 import com.fmum.common.module.IModule;
@@ -45,13 +43,13 @@ public class JsonGunType extends GunType<
 			
 			// This should never be equipped hence return null.
 			@Override
-			protected IEquippedGun< ? extends IGun< ? > > newEquipped(
-				Supplier< IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > > >
-					equippedRenderer,
-				Supplier< Function<
-					IEquippedGun< ? extends IGun< ? > >,
-					IEquippedGun< ? extends IGun< ? > >
-				> > renderDelegate,
+			protected IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand ) {
+				return null;
+			}
+			
+			@Override
+			protected IEquippedItem< ? > copyEquipped(
+				IEquippedItem< ? > target,
 				EntityPlayer player,
 				EnumHand hand
 			) { return null; }
@@ -64,16 +62,16 @@ public class JsonGunType extends GunType<
 		final Gun gun = new Gun( false )
 		{
 			@Override
-			protected IEquippedGun< ? extends IGun< ? > > newEquipped(
-				Supplier< IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > > >
-					equippedRenderer,
-				Supplier< Function<
-					IEquippedGun< ? extends IGun< ? > >,
-					IEquippedGun< ? extends IGun< ? > >
-				> > renderDelegate,
+			protected IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand ) {
+				return new EquippedGun( player, hand );
+			}
+			
+			@Override
+			protected IEquippedItem< ? > copyEquipped(
+				IEquippedItem< ? > target,
 				EntityPlayer player,
 				EnumHand hand
-			) { return new EquippedGun( equippedRenderer, renderDelegate, player, hand ); }
+			) { return new EquippedGun( target, player, hand ); }
 		};
 		gun.deserializeNBT( nbt );
 		return gun;

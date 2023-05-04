@@ -6,10 +6,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
-import com.fmum.client.FMUMClient;
 import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.client.input.IInput;
@@ -389,12 +386,13 @@ public abstract class MagType<
 				OP_CODE_LOAD_AMMO = 0,
 				OP_CODE_UNLOAD_AMMO = 1;
 			
+			protected EquippedMag( EntityPlayer player, EnumHand hand ) { super( player, hand ); }
+			
 			protected EquippedMag(
-				Supplier< ER > equippedRenderer,
-				Supplier< Function< E, E > > renderDelegate,
+				IEquippedItem< ? > prevEquipped,
 				EntityPlayer player,
 				EnumHand hand
-			) { super( equippedRenderer, renderDelegate, player, hand ); }
+			) { super( prevEquipped, player, hand ); }
 			
 			@Override
 			public void handlePacket( ByteBuf buf, EntityPlayer player )
