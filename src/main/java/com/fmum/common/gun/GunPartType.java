@@ -106,8 +106,7 @@ public abstract class GunPartType<
 		} );
 		
 		// Add itself as the default paintjob.
-		if ( this.paintjobs.size() == 0 )
-			this.paintjobs = new ArrayList<>();
+		if ( this.paintjobs.size() == 0 ) { this.paintjobs = new ArrayList<>(); }
 		this.paintjobs.add( 0, this );
 		
 		// Apply model scale.

@@ -1,8 +1,0 @@
-{
-	"__type__": "grip",
-	
-	"mesh": "models/grip/td_grip.obj",
-	"scale": 0.00625,
-	"tbObjAdapt": true,
-	"handPos": [ 0, 20, 0 ]
-}

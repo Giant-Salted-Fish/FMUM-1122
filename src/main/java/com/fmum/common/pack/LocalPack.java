@@ -31,13 +31,12 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 	protected static final HashMap< String, String > ENTRY_MAP = new HashMap<>();
 	static
 	{
-		final HashMap< String, String > mapper = ENTRY_MAP;
-		mapper.put( "creative_tabs", "creative_tab" );
-		mapper.put( "guns", "gun" );
-		mapper.put( "gun_parts", "gun_part" );
-		mapper.put( "mags", "mag" );
-		mapper.put( "paintjobs", "paintjob" );
-		mapper.put( "key_binds", "key_bind" );
+		ENTRY_MAP.put( "creative_tabs", "creative_tab" );
+		ENTRY_MAP.put( "guns", "gun" );
+		ENTRY_MAP.put( "gun_parts", "gun_part" );
+		ENTRY_MAP.put( "mags", "mag" );
+		ENTRY_MAP.put( "paintjobs", "paintjob" );
+		ENTRY_MAP.put( "key_binds", "key_bind" );
 	}
 	
 	protected static final String ERROR_LOADING_INFO = "fmum.error_loading_pack_info";

@@ -11,8 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.function.Function;
-
-import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 import org.lwjgl.opengl.GLContext;
 
@@ -193,17 +192,17 @@ public final class FMUMClient extends FMUM
 		FMLClientHandler.instance().addModAsResource( container );
 	}
 	
-	/**
-	 * Load .json or .class renderer from the given path.
-	 * 
-	 * @param path Path of the model to load.
-	 * @param fallBackType Model type to use if "__type__" field does not exist in ".json" file.
-	 * @return {@code null} if required loader does not exist or an exception was thrown.
-	 * TODO: maybe a null object to avoid null pointer
-	 */
-	@Nullable
-	public Object loadModel( String path, String fallbackType, IContentProvider provider )
-	{
+	@Override
+	public Object loadModel( String path, String fallbackModelType, Supplier< ? > fallbackModel ) {
+		return this.loadModel( path, fallbackModelType, fallbackModel, this );
+	}
+	
+	public Object loadModel(
+		String path,
+		String fallbackModelType,
+		Supplier< ? > fallbackModel,
+		IContentProvider provider
+	) {
 		return this.modelPool.computeIfAbsent( path, key -> {
 			try
 			{
@@ -218,20 +217,22 @@ public final class FMUMClient extends FMUM
 						// Try get required loader and load.
 						final JsonElement type = obj.get( "__type__" );
 						final String entry = type != null
-							? type.getAsString().toLowerCase() : fallbackType;
+							? type.getAsString().toLowerCase() : fallbackModelType;
 						final BuildableLoader< ? > loader = MODEL_LOADERS.get( entry );
-						if ( loader != null ) {
-							return loader.parser.apply( obj ).build( key, provider );
+						final boolean loadDoesNotExist = loader == null;
+						if ( loadDoesNotExist )
+						{
+							final String formatter = "fmum.model_loader_not_found";
+							throw new RuntimeException( this.format( formatter, key, entry ) );
 						}
 						
-						throw new RuntimeException(
-							this.format( "fmum.model_loader_not_found", key, entry )
-						);
+						return loader.parser.apply( obj ).build( key, provider );
 					}
 				}
 				else if ( key.endsWith( ".class" ) )
 				{
-					return this.loadClass( key.substring( 0, key.length() - 6 ) )
+					final String classPath = key.substring( 0, key.length() - ".class".length() );
+					return this.loadClass( classPath )
 						.getConstructor( String.class, IContentProvider.class )
 							.newInstance( key, provider );
 				}
@@ -240,13 +241,8 @@ public final class FMUMClient extends FMUM
 				else { throw new RuntimeException( "Unsupported renderer file type" ); } // TODO: format this?
 			}
 			catch ( Exception e ) { this.logException( e, "fmum.error_loading_renderer", key ); }
-			return null;
+			return fallbackModel.get();
 		} );
-	}
-	
-	@Override
-	public Object loadModel( String path, String fallBackType ) {
-		return this.loadModel( path, fallBackType, this );
 	}
 	
 	/**
@@ -408,13 +404,14 @@ public final class FMUMClient extends FMUM
 	{
 		final GsonBuilder builder = super.gsonBuilder();
 		
-		final JsonDeserializer< ResourceLocation > TEXTURE_ADAPTER =
+		final JsonDeserializer< ResourceLocation > textureAdapter =
 			( json, typeOfT, context ) -> this.loadTexture( json.getAsString() );
-		builder.registerTypeAdapter( ResourceLocation.class, TEXTURE_ADAPTER );
+		builder.registerTypeAdapter( ResourceLocation.class, textureAdapter );
 		
-		final JsonDeserializer< IAnimation > ANIMATION_ADAPTER =
+		final JsonDeserializer< IAnimation > animationAdapter =
 			( json, typeOfT, context ) -> this.loadAnimation( json.getAsString() );
-		builder.registerTypeAdapter( IAnimation.class, ANIMATION_ADAPTER );
+		builder.registerTypeAdapter( IAnimation.class, animationAdapter );
+		
 		return builder;
 	}
 	

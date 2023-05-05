@@ -1,0 +1,14 @@
+{
+	"creativeTab": "oc",
+	"model": "models/stock/lmt_stock.json",
+	"texture": "textures/gun/hk416_d10rs.png",
+	
+	"category": "ar_stock",
+	"paramScale": 0.00625,
+	"moduleSlots": [
+		{
+			"origin": [ 0, 0, -33.5 ],
+			"allowed": [ "lmt_stock_butt_pad" ]
+		}
+	]
+}

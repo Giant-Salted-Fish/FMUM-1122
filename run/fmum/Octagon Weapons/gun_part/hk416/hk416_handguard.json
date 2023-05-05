@@ -1,0 +1,38 @@
+{
+	"creativeTab": "oc",
+	"model": "models/gun/hk416/handguard.json",
+	"texture": "textures/gun/hk416_d10rs.png",
+	
+	"paramScale": 0.00625,
+	"moduleSlots": [
+		{
+			"origin": [ 0, 11, 3 ],
+			"stepLen": 4,
+			"maxStep": 14,
+			"capacity": 8,
+			"allowed": [ "prb" ]
+		}, {
+			"origin": [ 0, -9, 4 ],
+			"rotZ": 180,
+			"stepLen": 4,
+			"maxStep": 14,
+			"capacity": 8,
+			"allowed": [ "prb" ]
+		}, {
+			"origin": [ 9, 0, 5 ],
+			"rotZ": -90,
+			"stepLen": 4,
+			"maxStep": 14,
+			"capacity": 8,
+			"allowed": [ "prb" ]
+		}, {
+			"origin": [ -9, 0, 5 ],
+			"rotZ": 90,
+			"stepLen": 4,
+			"maxStep": 14,
+			"capacity": 8,
+			"allowed": [ "prb" ]
+		}
+	],
+	"leftHandPriority": 256
+}

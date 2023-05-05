@@ -1,5 +1,8 @@
 package com.fmum.common.load;
 
+import java.util.Optional;
+
+import com.fmum.client.render.Model;
 import com.fmum.common.meta.IMeta;
 import com.google.gson.annotations.SerializedName;
 
@@ -24,10 +27,7 @@ public abstract class TexturedMeta extends BuildableMeta
 	}
 	
 	@SideOnly( Side.CLIENT )
-	protected void checkAssetsSetup()
-	{
-		if ( this.texture == null ) {
-			this.texture = this.provider.loadTexture( "textures/" + this.name + ".png" );
-		}
+	protected void checkAssetsSetup() {
+		this.texture = Optional.ofNullable( this.texture ).orElse( Model.TEXTURE_GREEN );
 	}
 }

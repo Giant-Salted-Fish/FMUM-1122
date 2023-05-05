@@ -1,0 +1,7 @@
+{
+	"creativeTab": "oc",
+	"model": "models/muzzle/556mm_thread_protector.json",
+	"texture": "textures/gun/hk416_d10rs.png",
+	
+	"category": "556mm_muzzle"
+}

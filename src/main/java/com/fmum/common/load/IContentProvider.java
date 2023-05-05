@@ -1,6 +1,7 @@
 package com.fmum.common.load;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.common.FMUM;
@@ -64,9 +65,16 @@ public interface IContentProvider extends IMeta
 	
 	default SoundEvent loadSound( String path ) { return FMUM.MOD.loadSound( path ); }
 	
+	/**
+	 * Load .json or .class model from the given path.
+	 * 
+	 * @param path Path of the model to load.
+	 * @param fallbackModelType Type to use if "__type__" field does not defined in ".json" file.
+	 * @param fallbackModel This will be used if failed to find loader or an error occurred.
+	 */
 	@SideOnly( Side.CLIENT )
-	default Object loadModel( String path, String fallbackType ) {
-		return FMUMClient.MOD.loadModel( path, fallbackType, this );
+	default Object loadModel( String path, String fallbackModelType, Supplier< ? > fallbackModel ) {
+		return FMUMClient.MOD.loadModel( path, fallbackModelType, fallbackModel, this );
 	}
 	
 	@SideOnly( Side.CLIENT )

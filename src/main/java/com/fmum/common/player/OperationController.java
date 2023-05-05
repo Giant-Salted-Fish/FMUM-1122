@@ -15,7 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class OperationController implements IOperationController
 {
 	public static final JsonDeserializer< IOperationController > ADAPTER =
-		( json, typeOfT, context ) -> FMUM.GSON.fromJson( json, OperationController.class );
+		( json, typeOfT, context ) -> context.deserialize( json, OperationController.class );
 	
 	public static final float[] NO_KEY_TIME = { };
 	public static final String[] NO_SPECIFIED_EFFECT = { };

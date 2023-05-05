@@ -98,8 +98,8 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 		final int capacity = Math.min( FMUM.maxSlotCapacity, slot.capacity() );
 		if ( this.getInstalledCount( islot ) > capacity )
 		{
-			final String msg = "fmum.msg.arrive_max_module_capacity";
-			return ( IPreviewPredicate.NotOk ) () -> I18n.format( msg, capacity );
+			final String formatter = "fmum.msg.arrive_max_module_capacity";
+			return ( IPreviewPredicate.NotOk ) () -> I18n.format( formatter, capacity );
 		}
 		// TODO: check layer limitation
 		

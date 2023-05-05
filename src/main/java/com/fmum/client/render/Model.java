@@ -6,8 +6,8 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.common.IAutowireLogger;
 import com.fmum.common.FMUMResource;
+import com.fmum.common.IAutowireLogger;
 import com.fmum.common.load.IBuildable;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.util.AngleAxis4f;
@@ -22,7 +22,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class Model implements IBuildable< Object >, IAutowireLogger //, IAutowireBindTexture
+public class Model implements IBuildable< Object >, IAutowireLogger
 {
 	public static final ResourceLocation
 		TEXTURE_RED = new FMUMResource( "textures/0xff0000.png" ),

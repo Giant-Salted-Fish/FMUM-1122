@@ -6,8 +6,8 @@ import java.util.function.Supplier;
 
 import org.lwjgl.opengl.GL11;
 
-import com.fmum.client.IAutowireBindTexture;
 import com.fmum.client.FMUMClient;
+import com.fmum.client.IAutowireBindTexture;
 import com.fmum.client.item.ItemModel;
 import com.fmum.client.module.IDeferredRenderer;
 import com.fmum.client.render.IAnimator;

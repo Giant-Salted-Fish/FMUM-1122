@@ -1,8 +1,0 @@
-{
-	"creativeTab": "oc",
-	"category": "prb",
-	"model": "com.oc.client.renderer.TDGripModel.class",
-	"texture": "textures/guns/grips.png",
-	
-	"leftHandPriority": 512
-}

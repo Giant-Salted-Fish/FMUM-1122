@@ -1,5 +1,7 @@
 package com.fmum.common.load;
 
+import java.util.Optional;
+
 import com.google.gson.annotations.SerializedName;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -9,7 +11,7 @@ public abstract class RenderableMeta< T > extends TexturedMeta
 {
 	@SideOnly( Side.CLIENT )
 	@SerializedName( value = "model" )
-	protected String modelPath; // TODO: remove this
+	protected String modelPath;
 	
 	@SideOnly( Side.CLIENT )
 	protected transient T model;
@@ -19,15 +21,14 @@ public abstract class RenderableMeta< T > extends TexturedMeta
 	@SuppressWarnings( "unchecked" )
 	protected void checkAssetsSetup()
 	{
-		// Set a default model path if does not have.
-		final String fallbackType = this.descriptor().name();
-		final String path = this.modelPath != null ? this.modelPath
-			: "models/" + fallbackType + "/" + this.name + ".json";
+		super.checkAssetsSetup();
 		
-		this.model = ( T ) this.provider.loadModel( path, fallbackType );
-		if ( this.model == null ) { this.model = this.fallbackModel(); }
-		
-		this.modelPath = null; // TODO: if this is needed to reload the model?
+		final String fallbackModelType = this.descriptor().name();
+		this.model = ( T ) this.provider.loadModel(
+			Optional.ofNullable( this.modelPath ).orElse( "" ),
+			fallbackModelType,
+			this::fallbackModel
+		);
 	}
 	
 	/**

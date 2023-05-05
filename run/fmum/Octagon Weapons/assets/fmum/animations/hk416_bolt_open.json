@@ -1,0 +1,14 @@
+{
+	"positionScale": 0.00625,
+	"bones": {
+		"bolt": {
+			"position": { "0.0": [0, 0, -27] }
+		},
+		"left_arm": {
+			"alpha": { "0.0": 0 }
+		},
+		"right_arm": {
+			"alpha": { "0.0": 0 }
+		}
+	}
+}
