@@ -83,9 +83,9 @@ itemGroup.fmum=FMUM Default Group
 
 # Prompt chat message
 fmum.msg.arrive_max_module_capacity=Reached the max number of modules can be installed: %s
-fmum.msg.modify_mode_slot=Switch to SLOT mode
-fmum.msg.modify_mode_module=Switch to MODULE mode
-fmum.msg.modify_mode_paintjob=Switch to PAINTJOB mode
+fmum.msg.modify_mode_slot=Switch to SLOT modify mode
+fmum.msg.modify_mode_module=Switch to MODULE modify mode
+fmum.msg.modify_mode_paintjob=Switch to PAINTJOB modify mode
 
 # Key binds
 fmum.key_category.general=FMUM General

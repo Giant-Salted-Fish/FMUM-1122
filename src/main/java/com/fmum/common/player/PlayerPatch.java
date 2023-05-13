@@ -120,9 +120,10 @@ public class PlayerPatch implements ICapabilityProvider
 		return capability == CAPABILITY;
 	}
 	
+	@Nullable
 	@Override
 	public final < T > T getCapability( Capability< T > capability, @Nullable EnumFacing facing ) {
-		return CAPABILITY.cast( this );
+		return capability == CAPABILITY ? CAPABILITY.cast( this ) : null;
 	}
 	
 	public static PlayerPatch get( EntityPlayer player ) {

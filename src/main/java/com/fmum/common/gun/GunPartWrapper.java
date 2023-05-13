@@ -41,9 +41,10 @@ public class GunPartWrapper<
 		return capability == ItemType.CAPABILITY;
 	}
 	
+	@Nullable
 	@Override
 	public final < C > C getCapability( Capability< C > capability, @Nullable EnumFacing facing ) {
-		return ItemType.CAPABILITY.cast( this );
+		return capability == ItemType.CAPABILITY ? ItemType.CAPABILITY.cast( this ) : null;
 	}
 	
 	@Override

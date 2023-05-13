@@ -83,9 +83,9 @@ itemGroup.fmum=FMUM 默认组
 
 # 对话框提示消息
 fmum.msg.arrive_max_module_capacity=已达最大单槽模组数上限：%s
-fmum.msg.modify_mode_slot=切换至槽位模式
-fmum.msg.modify_mode_module=切换至模组模式
-fmum.msg.modify_mode_paintjob=切换至涂装模式
+fmum.msg.modify_mode_slot=切换至槽位改装模式
+fmum.msg.modify_mode_module=切换至模组改装模式
+fmum.msg.modify_mode_paintjob=切换至涂装改装模式
 
 # 按键绑定
 fmum.key_category.general=FMUM 通用

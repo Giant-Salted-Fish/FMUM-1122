@@ -401,37 +401,31 @@ public class FMUM extends URLClassLoader
 			( json, typeOfT, context ) -> this.loadSound( json.getAsString() );
 		builder.registerTypeAdapter( SoundEvent.class, soundAdapter );
 		
-		final Gson innerParser = new GsonBuilder().setLenient().create();
 		final JsonDeserializer< Vec3f > vecAdapter = ( json, typeOfT, context ) -> {
-			if ( json.isJsonArray() )
-			{
-				final JsonArray arr = json.getAsJsonArray();
-				return new Vec3f(
-					arr.get( 0 ).getAsFloat(),
-					arr.get( 1 ).getAsFloat(),
-					arr.get( 2 ).getAsFloat()
-				);
-			}
-			
-			return json.isJsonObject() ? innerParser.fromJson( json, Vec3f.class )
-				: Vec3f.parse( json.getAsString() );
+			final JsonArray arr = json.getAsJsonArray();
+			return new Vec3f(
+				arr.get( 0 ).getAsFloat(),
+				arr.get( 1 ).getAsFloat(),
+				arr.get( 2 ).getAsFloat()
+			);
 		};
+		builder.registerTypeAdapter( Vec3f.class, vecAdapter );
+		
 		final JsonDeserializer< AngleAxis4f > angleAxisAdapter = ( json, typeOfT, context ) -> {
-			if ( !json.isJsonArray() ) {
-				return innerParser.fromJson( json, AngleAxis4f.class );
-			}
-			
 			final JsonArray arr = json.getAsJsonArray();
 			final float f0 = arr.get( 0 ).getAsFloat();
 			final float f1 = arr.get( 1 ).getAsFloat();
 			final float f2 = arr.get( 2 ).getAsFloat();
-			return arr.size() < 4 ? new AngleAxis4f( f0, f1, f2 )
-				: new AngleAxis4f( f0, f1, f2, arr.get( 3 ).getAsFloat() );
+			return (
+				arr.size() < 4
+				? new AngleAxis4f( f0, f1, f2 )
+				: new AngleAxis4f( f0, f1, f2, arr.get( 3 ).getAsFloat() )
+			);
 		};
+		builder.registerTypeAdapter( AngleAxis4f.class, angleAxisAdapter );
+		
 		final JsonDeserializer< Quat4f > quatAdapter = ( json, typeOfT, context ) -> 
 			new Quat4f( angleAxisAdapter.deserialize( json, typeOfT, context ) );
-		builder.registerTypeAdapter( Vec3f.class, vecAdapter );
-		builder.registerTypeAdapter( AngleAxis4f.class, angleAxisAdapter );
 		builder.registerTypeAdapter( Quat4f.class, quatAdapter );
 		return builder;
 	}

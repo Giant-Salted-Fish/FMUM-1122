@@ -121,7 +121,11 @@ public abstract class GunType<
 			this.state = this.createGunState();
 			
 			final int[] data = Gun.this.nbt.getIntArray( DATA_TAG );
-			data[ super.dataSize() ] = this.state.toOrdinalAndAmmoId();
+			final int baseIdx = super.dataSize();
+			data[ baseIdx + 0 ] = this.state.toOrdinalAndAmmoId();
+			
+			final int roundsShot = 0;
+			data[ baseIdx + 1 ] = roundsShot;
 		}
 		
 		protected Gun( boolean unused ) { super( unused ); }
@@ -207,8 +211,10 @@ public abstract class GunType<
 			}
 		}
 		
+		// 0 -> 16-bit state + 16-bit ammo.
+		// 1 -> 16-bit rounds shot.
 		@Override
-		protected int dataSize() { return super.dataSize() + 1; }
+		protected int dataSize() { return super.dataSize() + 2; }
 		
 		protected IGunState createGunState() {
 			return GunType.this.isOpenBolt ? new StateCloseBolt() : new StateBoltRelease();
@@ -330,9 +336,21 @@ public abstract class GunType<
 			protected int gapTicksForNextRound = 0;
 			
 			@SideOnly( Side.CLIENT )
-			protected transient boolean triggerPressed;
+			protected transient boolean isTriggerHolden;
 			
-			protected EquippedGun( EntityPlayer player, EnumHand hand ) { super( player, hand ); }
+			@SideOnly( Side.CLIENT )
+			protected int roundsShot;
+			
+			protected EquippedGun( EntityPlayer player, EnumHand hand )
+			{
+				super( player, hand );
+				
+				if ( player.world.isRemote )
+				{
+					final int[] data = Gun.this.nbt.getIntArray( DATA_TAG );
+					this.roundsShot = 0xFFFF & data[ Gun.super.dataSize() + 1 ];
+				}
+			}
 			
 			@SuppressWarnings( "unchecked" )
 			protected EquippedGun(
@@ -344,7 +362,11 @@ public abstract class GunType<
 				
 				final EquippedGun prev = ( EquippedGun ) prevEquipped;
 				this.gapTicksForNextRound = prev.gapTicksForNextRound;
-				if ( player.world.isRemote ) { this.triggerPressed = prev.triggerPressed; }
+				if ( player.world.isRemote )
+				{
+					this.isTriggerHolden = prev.isTriggerHolden;
+					this.roundsShot = prev.roundsShot;
+				}
 			}
 			
 			@Override
