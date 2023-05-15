@@ -32,8 +32,11 @@ public class FolderPack extends LocalPack
 		for ( final File dir : this.source.listFiles() )
 		{
 			final String dirName = dir.getName();
-			if ( dir.isDirectory() && !this.ignoreEntires.contains( dirName ) ) {
-				this.tryLoadFrom( dir, this.getFallbackType( dirName ), () -> dirName );
+			if ( dir.isDirectory() && !this.ignoreEntires.contains( dirName ) )
+			{
+				final String fallbackType = dirName;
+				final Supplier< String > sourceTrace = () -> dirName;
+				this.tryLoadFrom( dir, fallbackType, sourceTrace );
 			}
 		}
 	}

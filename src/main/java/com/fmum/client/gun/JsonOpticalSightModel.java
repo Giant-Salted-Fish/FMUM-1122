@@ -9,7 +9,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class JsonOpticSightModel extends OpticSightModel<
+public class JsonOpticalSightModel extends OpticSightModel<
 	IGunPart< ? >,
 	IEquippedItem< ? extends IGunPart< ? > >,
 	IEquippedGunPartRenderer< ? super IEquippedItem< ? extends IGunPart< ? > > >,
@@ -19,7 +19,7 @@ public class JsonOpticSightModel extends OpticSightModel<
 	>
 > {
 	public static final BuildableLoader< ? >
-		LOADER = new BuildableLoader<>( "optic_sight", JsonOpticSightModel.class );
+		LOADER = new BuildableLoader<>( "optical_sight", JsonOpticalSightModel.class );
 	
 	@Override
 	public IGunPartRenderer<

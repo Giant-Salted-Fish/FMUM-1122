@@ -72,7 +72,6 @@ public abstract class ItemType< C extends IItem, M extends IItemModel< ? > >
 			this.logError( "fmum.fail_to_find_tab", this, this.creativeTab );
 			return FMUM.DEFAULT_TAB;
 		} );
-		this.item.setCreativeTab( tab.creativeTab() );
 		tab.itemSettledIn( this );
 		
 		// No longer needed, release it.

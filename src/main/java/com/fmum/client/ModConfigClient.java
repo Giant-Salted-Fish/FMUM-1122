@@ -2,6 +2,7 @@ package com.fmum.client;
 
 import com.fmum.common.FMUM;
 
+import net.minecraft.init.Items;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.Config.Comment;
 import net.minecraftforge.common.config.Config.LangKey;
@@ -24,4 +25,8 @@ public final class ModConfigClient
 		+ "this issue by enabling this setting."
 	)
 	public static boolean useFlanCompatibleMouseHelper = false;
+	
+	@LangKey( "fmum.config.client.default_creative_tab_icon_item" )
+	@Comment( "This icon item will be used if FMUM fails to find icon item for a creative tab." )
+	public static String defaultCreativeTabIconItem = Items.FISH.getRegistryName().toString();
 }

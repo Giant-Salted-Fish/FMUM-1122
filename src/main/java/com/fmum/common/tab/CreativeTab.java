@@ -1,5 +1,8 @@
 package com.fmum.common.tab;
 
+import java.util.Optional;
+
+import com.fmum.client.ModConfigClient;
 import com.fmum.common.item.IItemType;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.load.TexturedMeta;
@@ -47,7 +50,8 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 		
 		this.tab = this.createTab();
 		provider.clientOnly( () -> {
-			if ( this.iconItem == null ) { this.iconItem = "" + Items.FISH.getRegistryName(); }
+			this.iconItem = Optional.ofNullable( this.iconItem )
+				.orElse( ModConfigClient.defaultCreativeTabIconItem );
 			if ( this.noScrollBar ) { this.tab.setNoScrollbar(); }
 			if ( this.noTitle ) { this.tab.setNoTitle(); }
 		} );

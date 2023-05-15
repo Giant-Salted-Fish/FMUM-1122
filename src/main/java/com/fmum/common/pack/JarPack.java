@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.function.Supplier;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -51,12 +52,12 @@ public class JarPack extends LocalPack
 				{
 					if ( eName.endsWith( ".json" ) )
 					{
-						this.loadJsonType(
-							new InputStreamReader( zipIn ),
-							this.getFallbackType( entry ),
-							eName.substring( eName.lastIndexOf( '/' ) + 1, eName.length() - 5 ),
-							sourceTrace
-						);
+						final Reader in = new InputStreamReader( zipIn );
+						final String fallbackType = entry;
+						final int nameHead = eName.lastIndexOf( '/' ) + 1;
+						final int nameEnd = eName.length() - ".json".length();
+						final String name = eName.substring( nameHead,  nameEnd );
+						this.loadJsonType( in, fallbackType, name, sourceTrace );
 					}
 					else if ( eName.endsWith( ".class" ) ) {
 						this.loadClassType( eName.replace( '/', '.' ) );

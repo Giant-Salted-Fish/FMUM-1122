@@ -2,24 +2,26 @@
 
 # 配置文件
 fmum.config.common=通用端配置
-fmum.config.common.tooltip=这些配置将会同步给所有连接到此服务器（主机）的玩家
+fmum.config.common.tooltip=这些配置将会同步给所有连接到此服务器（主机）的玩家。
 fmum.config.common.max_modify_layers=改装层数上限
-fmum.config.common.max_modify_layers.tooltip=这个参数决定了改装时所支持的最大配件嵌套层数
+fmum.config.common.max_modify_layers.tooltip=这个参数决定了改装时所支持的最大配件嵌套层数。
 fmum.config.common.max_slot_capacity=单槽配件数上限
-fmum.config.common.max_slot_capacity.tooltip=这个参数决定了你最多能够在同一个槽内安装多少配件
+fmum.config.common.max_slot_capacity.tooltip=这个参数决定了你最多能够在同一个槽内安装多少配件。
 fmum.config.common.free_view_limit=环视角度上限
-fmum.config.common.free_view_limit.tooltip=这个参数决定了当你按住 alt 键时镜头可以转动的角度上限
+fmum.config.common.free_view_limit.tooltip=这个参数决定了当你按住 alt 键时镜头可以转动的角度上限。
 fmum.config.common.cam_drop_cycle=视角坠落特效周期
-fmum.config.common.cam_drop_cycle.tooltip=这个参数多数时候能够改变玩家从空中坠落时视角晃动的频率
+fmum.config.common.cam_drop_cycle.tooltip=这个参数多数时候能够改变玩家从空中坠落时视角晃动的频率。
 fmum.config.common.cam_drop_ampl=视角坠落特效幅度
-fmum.config.common.cam_drop_ampl.tooltip=这个参数多数时候能够控制玩家从空中坠落时视角晃动的幅度
+fmum.config.common.cam_drop_ampl.tooltip=这个参数多数时候能够控制玩家从空中坠落时视角晃动的幅度。
 fmum.config.common.cam_drop_impact=视角落地冲击幅度
-fmum.config.common.cam_drop_impact.tooltip=这个参数多数时候能够控制玩家落地时镜头冲击效果的幅度
+fmum.config.common.cam_drop_impact.tooltip=这个参数多数时候能够控制玩家落地时镜头冲击效果的幅度。
 
 fmum.config.client=客户端配置
-fmum.config.client.tooltip=这些配置仅在客户端有意义
+fmum.config.client.tooltip=这些配置仅在客户端有意义。
 fmum.config.client.use_flan_compatible_mousehelper=使用兼容 Flan 的 MouseHelper
 fmum.config.client.use_flan_compatible_mousehelper.tooltip=FMUM 使用的默认 MouseHelper 可能会导致无法正常在 Flan's Mod 的载具中转动视角。你可以启用该选项来使用兼容性的 MouseHelper 以尝试解决该问题。
+fmum.config.client.default_creative_tab_icon_item=默认创造模式物品组图标物品
+fmum.config.client.default_creative_tab_icon_item.tooltip=如果 FMUM 无法为某个创造模式物品组找到要求的图标物品，则该设置中的物品将成为其图标物品。
 
 # 加载时日志
 fmum.on_pre_init=正在预初始化 FMUM...

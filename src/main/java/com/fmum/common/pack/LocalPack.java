@@ -2,14 +2,13 @@ package com.fmum.common.pack;
 
 import java.io.File;
 import java.io.Reader;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import com.fmum.common.IAutowireLogger;
 import com.fmum.common.FMUM;
+import com.fmum.common.IAutowireLogger;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.common.meta.IMeta;
@@ -25,20 +24,6 @@ import com.google.gson.JsonObject;
  */
 public abstract class LocalPack extends Meta implements IContentProvider, IAutowireLogger
 {
-	/**
-	 * Map folder entries to proper type loaders.
-	 */
-	protected static final HashMap< String, String > ENTRY_MAP = new HashMap<>();
-	static
-	{
-		ENTRY_MAP.put( "creative_tabs", "creative_tab" );
-		ENTRY_MAP.put( "guns", "gun" );
-		ENTRY_MAP.put( "gun_parts", "gun_part" );
-		ENTRY_MAP.put( "mags", "mag" );
-		ENTRY_MAP.put( "paintjobs", "paintjob" );
-		ENTRY_MAP.put( "key_binds", "key_bind" );
-	}
-	
 	protected static final String ERROR_LOADING_INFO = "fmum.error_loading_pack_info";
 	protected static final String ERROR_LOADING_TYPE = "fmum.error_loading_type";
 	
@@ -96,10 +81,6 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 			}
 		}
 		// TODO: handle version check
-	}
-	
-	protected String getFallbackType( String entry ) {
-		return ENTRY_MAP.getOrDefault( entry, entry );
 	}
 	
 	/**

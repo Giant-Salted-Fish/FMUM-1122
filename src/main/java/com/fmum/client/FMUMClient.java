@@ -22,7 +22,7 @@ import com.fmum.client.gun.JsonGripModel;
 import com.fmum.client.gun.JsonGunModel;
 import com.fmum.client.gun.JsonGunPartModel;
 import com.fmum.client.gun.JsonMagModel;
-import com.fmum.client.gun.JsonOpticSightModel;
+import com.fmum.client.gun.JsonOpticalSightModel;
 import com.fmum.client.input.InputHandler;
 import com.fmum.client.input.JsonKeyBind;
 import com.fmum.client.item.ItemModel;
@@ -125,13 +125,19 @@ public final class FMUMClient extends FMUM
 		super.preLoad();
 		
 		// Register model loaders.
-		MODEL_LOADERS.regis( JsonGunPartModel.LOADER );
-		MODEL_LOADERS.regis( JsonGunModel.LOADER );
-		MODEL_LOADERS.regis( JsonMagModel.LOADER );
-		MODEL_LOADERS.regis( JsonGripModel.LOADER );
-		MODEL_LOADERS.regis( JsonCarGripModel.LOADER );
-		MODEL_LOADERS.regis( JsonOpticSightModel.LOADER );
-		MODEL_LOADERS.regis( JsonAmmoModel.LOADER );
+		MODEL_LOADERS.put( "gun_part", JsonGunPartModel.LOADER );
+		MODEL_LOADERS.put( "gun_parts", JsonGunPartModel.LOADER );
+		MODEL_LOADERS.put( "gun", JsonGunModel.LOADER );
+		MODEL_LOADERS.put( "guns", JsonGunModel.LOADER );
+		MODEL_LOADERS.put( "mag", JsonMagModel.LOADER );
+		MODEL_LOADERS.put( "mags", JsonMagModel.LOADER );
+		MODEL_LOADERS.put( "grip", JsonGripModel.LOADER );
+		MODEL_LOADERS.put( "grips", JsonGripModel.LOADER );
+		MODEL_LOADERS.put( "car_grip", JsonCarGripModel.LOADER );
+		MODEL_LOADERS.put( "car_grips", JsonCarGripModel.LOADER );
+		MODEL_LOADERS.put( "optical_sight", JsonOpticalSightModel.LOADER );
+		MODEL_LOADERS.put( "optical_sights", JsonOpticalSightModel.LOADER );
+		MODEL_LOADERS.put( "ammo", JsonAmmoModel.LOADER );
 		
 		// Register default textures.
 		this.texturePool.put( Model.TEXTURE_RED.getPath(), Model.TEXTURE_RED );
@@ -384,7 +390,11 @@ public final class FMUMClient extends FMUM
 	}
 	
 	@Override
-	protected void regisSideDependentLoaders() { TYPE_LOADERS.regis( JsonKeyBind.LOADER ); }
+	protected void regisSideDependentLoaders()
+	{
+		TYPE_LOADERS.put( "key_binding", JsonKeyBind.LOADER );
+		TYPE_LOADERS.put( "key_bindings", JsonKeyBind.LOADER );
+	}
 	
 	@Override
 	protected void reloadResources() // TODO: make this part more clear?

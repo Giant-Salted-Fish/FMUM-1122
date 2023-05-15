@@ -23,6 +23,7 @@ import com.fmum.common.gun.JsonGunPartType;
 import com.fmum.common.gun.JsonGunType;
 import com.fmum.common.gun.JsonMagType;
 import com.fmum.common.item.IItem;
+import com.fmum.common.item.IItemType;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.common.load.IMeshLoadSubscriber;
@@ -116,7 +117,20 @@ public class FMUM extends URLClassLoader
 	/**
 	 * Default creative item tab for {@link FMUM}.
 	 */
-	public static final CreativeTab DEFAULT_TAB = new CreativeTab().build( MODID, MOD );
+	public static final CreativeTab DEFAULT_TAB = new CreativeTab()
+	{
+		Runnable setup = () -> {
+			this.build( MODID, MOD );
+			this.setup = () -> { };
+		};
+		
+		@Override
+		public void itemSettledIn( IItemType item )
+		{
+			this.setup.run();
+			super.itemSettledIn( item );
+		}
+	};
 	
 	/**
 	 * Items added into this tab will be hidden from creative mode item tab.
@@ -224,12 +238,17 @@ public class FMUM extends URLClassLoader
 		this.regisCapability( PlayerPatch.class );
 		
 		// Register meta loaders.
-		TYPE_LOADERS.regis( CreativeTab.LOADER );
-		TYPE_LOADERS.regis( JsonGunPartType.LOADER );
-		TYPE_LOADERS.regis( JsonGunType.LOADER );
-		TYPE_LOADERS.regis( JsonMagType.LOADER );
-		TYPE_LOADERS.regis( JsonAmmoType.LOADER );
-		TYPE_LOADERS.regis( JsonPaintjob.LOADER );
+		TYPE_LOADERS.put( "creative_tab", CreativeTab.LOADER );
+		TYPE_LOADERS.put( "creative_tabs", CreativeTab.LOADER );
+		TYPE_LOADERS.put( "gun_part", JsonGunPartType.LOADER );
+		TYPE_LOADERS.put( "gun_parts", JsonGunPartType.LOADER );
+		TYPE_LOADERS.put( "gun", JsonGunType.LOADER );
+		TYPE_LOADERS.put( "guns", JsonGunType.LOADER );
+		TYPE_LOADERS.put( "mag", JsonMagType.LOADER );
+		TYPE_LOADERS.put( "mags", JsonMagType.LOADER );
+		TYPE_LOADERS.put( "ammo", JsonAmmoType.LOADER );
+		TYPE_LOADERS.put( "paintjob", JsonPaintjob.LOADER );
+		TYPE_LOADERS.put( "paintjobs", JsonPaintjob.LOADER );
 		this.regisSideDependentLoaders();
 	}
 	
@@ -375,9 +394,11 @@ public class FMUM extends URLClassLoader
 	{
 		// Key binds is client only. But to avoid the errors when it is absent, set a loader that \
 		// simply does nothing on load.
-		TYPE_LOADERS.regis(
-			new BuildableLoader<>( "key_bind", json -> ( name, provider ) -> null )
+		final BuildableLoader< IMeta > keyBindLoader = new BuildableLoader<>(
+			"key_binding", json -> ( name, provider ) -> null
 		);
+		TYPE_LOADERS.put( "key_binding", keyBindLoader );
+		TYPE_LOADERS.put( "key_bindings", keyBindLoader );
 	}
 	
 	/**

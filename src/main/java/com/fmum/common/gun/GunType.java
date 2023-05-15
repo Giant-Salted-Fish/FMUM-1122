@@ -15,6 +15,7 @@ import com.fmum.client.player.OperationClient;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.ammo.IAmmoType;
+import com.fmum.common.gun.IFireController.FullAuto;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemTypeHost;
@@ -75,9 +76,10 @@ public abstract class GunType<
 		),
 		INSPECT_CONTROLLER = new OperationController( 1F / 40F );
 	
-	@SerializedName( value = "roundsPerMin", alternate = "rpm" )
-	protected float roundsPerMin = 600F;
-	protected transient int shootDelay;
+	protected static final IFireController[] DEFAULT_FIRE_CONTROLLERS = { new FullAuto() };
+	
+	@SerializedName( value = "fireControllers", alternate = "fireModes" )
+	protected IFireController[] fireControllers = DEFAULT_FIRE_CONTROLLERS;
 	
 	protected SoundEvent shootSound;
 	
@@ -96,9 +98,6 @@ public abstract class GunType<
 	public IMeta build( String name, IContentProvider provider )
 	{
 		super.build( name, provider );
-		
-		final int ticksPerMinWithShift = ( 20 * 60 ) << 16; // 16-bits shift.
-		this.shootDelay = ( int ) ( ticksPerMinWithShift / this.roundsPerMin );
 		
 		provider.clientOnly( () -> {
 			this.loadMagController.checkAssetsSetup( provider );

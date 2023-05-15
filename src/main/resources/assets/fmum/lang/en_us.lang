@@ -2,24 +2,26 @@
 
 # Mod config
 fmum.config.common=Common Config
-fmum.config.common.tooltip=These settings will be synchronized for all players connected to this server(host)
+fmum.config.common.tooltip=These settings will be synchronized for all players connected to this server(host).
 fmum.config.common.max_modify_layers=Max Modify Layers
-fmum.config.common.max_modify_layers.tooltip=This decides the max number of layers you can have when you modify your weapon
+fmum.config.common.max_modify_layers.tooltip=This decides the max number of layers you can have when you modify your weapon.
 fmum.config.common.max_slot_capacity=Max Slot Capacity
-fmum.config.common.max_slot_capacity.tooltip=This decides the max number of modules that you can installed in a single slot
+fmum.config.common.max_slot_capacity.tooltip=This decides the max number of modules that you can installed in a single slot.
 fmum.config.common.free_view_limit=Free View Limit
-fmum.config.common.free_view_limit.tooltip=This decides the max angle that you can turn your head around when you hold alt
+fmum.config.common.free_view_limit.tooltip=This decides the max angle that you can turn your head around when you hold alt.
 fmum.config.common.cam_drop_cycle=Camera Drop Cycle
-fmum.config.common.cam_drop_cycle.tooltip=This decides the frequency of the camera shake when player falls from sky
+fmum.config.common.cam_drop_cycle.tooltip=This decides the frequency of the camera shake when player falls from sky.
 fmum.config.common.cam_drop_ampl=Camera Drop Amplitude
-fmum.config.common.cam_drop_ampl.tooltip=This decides the amplitude of the camera shake when player falls from sky
+fmum.config.common.cam_drop_ampl.tooltip=This decides the amplitude of the camera shake when player falls from sky.
 fmum.config.common.cam_drop_impact=Camera Drop Impact
-fmum.config.common.cam_drop_impact.tooltip=This decides the amplitude of the camera shake when player impacts on the ground
+fmum.config.common.cam_drop_impact.tooltip=This decides the amplitude of the camera shake when player impacts on the ground.
 
 fmum.config.client=Client Config
-fmum.config.client.tooltip=These settings is meaningless on server side
+fmum.config.client.tooltip=These settings is meaningless on server side.
 fmum.config.client.use_flan_compatible_mousehelper=Use Flan Compatible MouseHelper
 fmum.config.client.use_flan_compatible_mousehelper.tooltip=The default MouseHelper used in FMUM may conflict with the MouseHelper used in Flan's Mod. This could cause bugs when you enter a vehicle in Flan's Mod. You can try to fix this issue by enabling this setting.
+fmum.config.client.default_creative_tab_icon_item=Default Creative Tab Icon Item
+fmum.config.client.default_creative_tab_icon_item.tooltip=This icon item will be used if FMUM fails to find icon item for a creative tab.
 
 # Load phase info
 fmum.on_pre_init=Pre-initializing FMUM...
