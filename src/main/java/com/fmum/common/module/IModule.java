@@ -22,7 +22,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	
 	String name();
 	
-	String category();
+	ModuleCategory category();
 	
 	/**
 	 * @return An {@link ItemStack} that linked to this module.

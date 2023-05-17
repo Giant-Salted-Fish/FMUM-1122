@@ -31,6 +31,7 @@ import com.fmum.common.module.IModule;
 import com.fmum.common.module.IModuleSlot;
 import com.fmum.common.module.IModuleType;
 import com.fmum.common.module.Module;
+import com.fmum.common.module.ModuleCategory;
 import com.fmum.common.module.ModuleSnapshot;
 import com.fmum.common.paintjob.IPaintableType;
 import com.fmum.common.paintjob.IPaintjob;
@@ -65,7 +66,7 @@ public abstract class GunPartType<
 	protected static final float[] OFFSETS = { 0F };
 	
 	@SerializedName( value = "category", alternate = "group" )
-	protected String category;
+	protected ModuleCategory category;
 	
 	@SerializedName( value = "paramScale", alternate = "scale" )
 	protected float paramScale = 1F;
@@ -98,7 +99,7 @@ public abstract class GunPartType<
 		IPaintableType.REGISTRY.regis( this );
 		
 		// If not category set then set it is its name.
-		if ( this.category == null ) { this.category = this.name; }
+		if ( this.category == null ) { this.category = new ModuleCategory( this.name ); }
 		provider.clientOnly( () -> {
 			if ( this.modifyIndicator == null ) {
 				this.modifyIndicator = FMUMClient.MODIFY_INDICATOR;
@@ -333,7 +334,7 @@ public abstract class GunPartType<
 		public String name() { return GunPartType.this.name; }
 		
 		@Override
-		public String category() { return GunPartType.this.category; }
+		public ModuleCategory category() { return GunPartType.this.category; }
 		
 		@Override
 		public int paintjobCount() { return GunPartType.this.paintjobs.size(); }

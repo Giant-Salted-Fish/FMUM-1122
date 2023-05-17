@@ -47,7 +47,7 @@ public abstract class ModuleWrapper<
 	public final String name() { return this.primary.name(); }
 	
 	@Override
-	public final String category() { return this.primary.category(); }
+	public final ModuleCategory category() { return this.primary.category(); }
 	
 	@Override
 	public int baseSlot() { throw new RuntimeException(); }

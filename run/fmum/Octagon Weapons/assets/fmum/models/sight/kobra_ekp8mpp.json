@@ -1,5 +1,5 @@
 {
-	"__type__": "optic_sight",
+	"__type__": "optical_sight",
 	
 	"mesh": "models/sight/kobra_ekp8mpp.obj",
 	"scale": 0.00625,

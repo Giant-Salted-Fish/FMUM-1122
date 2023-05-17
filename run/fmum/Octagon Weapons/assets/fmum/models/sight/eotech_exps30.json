@@ -1,5 +1,5 @@
 {
-	"__type__": "optic_sight",
+	"__type__": "optical_sight",
 	
 	"mesh": "models/sight/eotech_exps30.obj",
 	"scale": 0.00625,

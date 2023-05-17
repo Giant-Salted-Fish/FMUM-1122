@@ -31,6 +31,8 @@ import com.fmum.common.load.IPostLoadSubscriber;
 import com.fmum.common.meta.IMeta;
 import com.fmum.common.meta.Registry;
 import com.fmum.common.module.IModuleSlot;
+import com.fmum.common.module.ModuleCategory;
+import com.fmum.common.module.ModuleFilter;
 import com.fmum.common.module.RailSlot;
 import com.fmum.common.network.PacketHandler;
 import com.fmum.common.pack.FolderPack;
@@ -417,6 +419,14 @@ public class FMUM extends URLClassLoader
 		builder.registerTypeAdapter( IModuleSlot.class, RailSlot.ADAPTER );
 		builder.registerTypeAdapter( IPaintjob.class, Paintjob.ADAPTER );
 		builder.registerTypeAdapter( IOperationController.class, OperationController.ADAPTER );
+		
+		final JsonDeserializer< ModuleCategory > moduleCategoryAdapter =
+			( json, typeOfT, context ) -> new ModuleCategory( json.getAsString() );
+		builder.registerTypeAdapter( ModuleCategory.class, moduleCategoryAdapter );
+		
+		final JsonDeserializer< ModuleFilter > moduleFilterAdapter =
+			( json, typeOfT, context ) -> new ModuleFilter( json );
+		builder.registerTypeAdapter( ModuleFilter.class, moduleFilterAdapter );
 		
 		final JsonDeserializer< SoundEvent > soundAdapter =
 			( json, typeOfT, context ) -> this.loadSound( json.getAsString() );
