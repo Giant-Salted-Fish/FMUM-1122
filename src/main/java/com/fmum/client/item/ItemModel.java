@@ -2,17 +2,15 @@ package com.fmum.client.item;
 
 import org.lwjgl.opengl.GL11;
 
+import com.fmum.client.FMUMClient;
 import com.fmum.client.IAutowireBindTexture;
 import com.fmum.client.IAutowireSmoother;
-import com.fmum.client.FMUMClient;
 import com.fmum.client.player.PlayerPatchClient;
+import com.fmum.client.render.IAnimation;
 import com.fmum.client.render.IAnimator;
 import com.fmum.client.render.Model;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
-import com.fmum.common.player.IOperation;
-import com.fmum.util.Animation;
-import com.fmum.util.IAnimation;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Quat4f;
 import com.fmum.util.Vec3f;
@@ -64,7 +62,7 @@ public abstract class ItemModel<
 	protected class EquippedItemRenderer implements IEquippedItemRenderer< E >,
 		IAnimator, IAutowireBindTexture, IAutowireSmoother
 	{
-		protected IAnimation animation = Animation.NONE;
+		protected IAnimation animation = IAnimation.NONE;
 		
 		protected final Vec3f pos = new Vec3f();
 		protected final Quat4f rot = new Quat4f();
@@ -113,9 +111,7 @@ public abstract class ItemModel<
 			this.updatePosRot();
 			
 			// Update animation.
-			final IOperation executing = PlayerPatchClient.instance.executing();
-			final float progress = executing.getProgress( this.smoother() );
-			this.animation.update( progress );
+			this.animation.update();
 			
 			// Apply animation.
 			final Mat4f mat = Mat4f.locate();

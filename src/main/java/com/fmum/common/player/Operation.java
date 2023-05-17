@@ -1,5 +1,7 @@
 package com.fmum.common.player;
 
+import com.fmum.client.FMUMClient;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -21,7 +23,9 @@ public abstract class Operation implements IOperation
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public float getProgress( float smoother ) {
+	public float interpolatedProgress()
+	{
+		final float smoother = FMUMClient.MOD.smoother();
 		return this.prevProgress + ( this.progress - this.prevProgress ) * smoother;
 	}
 	

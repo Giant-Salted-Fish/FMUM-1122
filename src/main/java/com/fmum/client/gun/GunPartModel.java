@@ -10,12 +10,12 @@ import com.fmum.client.FMUMClient;
 import com.fmum.client.IAutowireBindTexture;
 import com.fmum.client.item.ItemModel;
 import com.fmum.client.module.IDeferredRenderer;
+import com.fmum.client.render.IAnimation;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.gun.IGunPart;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.util.ArmTracker;
-import com.fmum.util.IAnimation;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Mesh;
 import com.fmum.util.Quat4f;
@@ -170,9 +170,10 @@ public abstract class GunPartModel<
 			public EquippedGunPartRenderer() { }
 			
 			@Override
-			public void useModifyAnimation( Supplier< Float > refPlayerRotYaw ) {
-				this.useAnimation( new ModifyAnimator( this, refPlayerRotYaw ) );
-			}
+			public void useModifyAnimation(
+				Supplier< Float > progress,
+				Supplier< Float > refPlayerRotYaw
+			) { this.useAnimation( new ModifyAnimator( this, progress, refPlayerRotYaw ) ); }
 			
 			@Override
 			public void prepareRenderInHandSP( E equipped, EnumHand hand )
@@ -203,20 +204,26 @@ public abstract class GunPartModel<
 	protected class ModifyAnimator implements IAnimation
 	{
 		protected final IAnimator animator;
+		protected final Supplier< Float > progresss;
 		protected final Supplier< Float > refPlayerRotYaw;
 		
 		protected final Vec3f pos = new Vec3f();
 		protected final Quat4f rot = new Quat4f();
 		
-		protected ModifyAnimator( IAnimator animator, Supplier< Float > refPlayerRotYaw )
-		{
+		protected ModifyAnimator(
+			IAnimator animator,
+			Supplier< Float > progress,
+			Supplier< Float > refPlayerRotYaw
+		) {
 			this.animator = animator;
+			this.progresss = progress;
 			this.refPlayerRotYaw = refPlayerRotYaw;
 		}
 		
 		@Override
-		public void update( float progress )
+		public void update()
 		{
+			final float progress = this.progresss.get();
 			final Mat4f mat = Mat4f.locate();
 			this.animator.getChannel( CHANNEL_ITEM, mat );
 			mat.invert();

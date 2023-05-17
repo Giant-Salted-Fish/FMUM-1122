@@ -13,6 +13,8 @@ import com.fmum.client.input.Key;
 import com.fmum.client.item.IItemModel;
 import com.fmum.client.player.OperationClient;
 import com.fmum.client.player.PlayerPatchClient;
+import com.fmum.client.render.CoupledAnimation;
+import com.fmum.client.render.IAnimation;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.ammo.IAmmoType;
 import com.fmum.common.gun.IFireController.FullAuto;
@@ -28,7 +30,6 @@ import com.fmum.common.player.IOperationController;
 import com.fmum.common.player.Operation;
 import com.fmum.common.player.OperationController;
 import com.fmum.common.player.PlayerPatch;
-import com.fmum.util.Animation;
 import com.fmum.util.ArmTracker;
 import com.google.gson.annotations.SerializedName;
 
@@ -461,7 +462,12 @@ public abstract class GunType<
 				@SuppressWarnings( "unchecked" )
 				public IOperation launch( EntityPlayer player )
 				{
-					this.equipped.renderer.useAnimation( this.controller.animation() );
+					this.equipped.renderer.useAnimation(
+						new CoupledAnimation(
+							this.controller.animation(),
+							this::interpolatedProgress
+						)
+					);
 					this.equipped.renderDelegate = ori -> ( E ) EquippedGun.this;
 					
 					final ICameraController camera = PlayerPatchClient.instance.camera;
@@ -473,7 +479,7 @@ public abstract class GunType<
 				protected void endCallback()
 				{
 					this.equipped.renderDelegate = original -> original;
-					this.equipped.renderer.useAnimation( Animation.NONE );
+					this.equipped.renderer.useAnimation( IAnimation.NONE );
 				}
 			}
 			
@@ -506,7 +512,12 @@ public abstract class GunType<
 					if ( noValidMagToLoad ) { return IOperation.NONE; }
 					
 					// Play animation.
-					this.equipped.renderer.useAnimation( this.controller.animation() );
+					this.equipped.renderer.useAnimation(
+						new CoupledAnimation(
+							this.controller.animation(),
+							this::interpolatedProgress
+						)
+					);
 					final ICameraController camera = PlayerPatchClient.instance.camera;
 					camera.useAnimation( this.equipped.animator() );
 					

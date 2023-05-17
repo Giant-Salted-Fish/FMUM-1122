@@ -36,7 +36,6 @@ import com.fmum.common.load.IMeshLoadSubscriber;
 import com.fmum.common.meta.Registry;
 import com.fmum.util.Animation;
 import com.fmum.util.BoneAnimation;
-import com.fmum.util.IAnimation;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Mesh;
 import com.fmum.util.ObjMeshBuilder;
@@ -418,9 +417,9 @@ public final class FMUMClient extends FMUM
 			( json, typeOfT, context ) -> this.loadTexture( json.getAsString() );
 		builder.registerTypeAdapter( ResourceLocation.class, textureAdapter );
 		
-		final JsonDeserializer< IAnimation > animationAdapter =
+		final JsonDeserializer< Animation > animationAdapter =
 			( json, typeOfT, context ) -> this.loadAnimation( json.getAsString() );
-		builder.registerTypeAdapter( IAnimation.class, animationAdapter );
+		builder.registerTypeAdapter( Animation.class, animationAdapter );
 		
 		return builder;
 	}

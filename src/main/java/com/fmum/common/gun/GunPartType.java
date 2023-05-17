@@ -20,6 +20,7 @@ import com.fmum.client.item.IItemModel;
 import com.fmum.client.module.IDeferredRenderer;
 import com.fmum.client.player.OpModifyClient;
 import com.fmum.client.player.PlayerPatchClient;
+import com.fmum.client.render.IAnimation;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.IEquippedItem;
@@ -37,7 +38,6 @@ import com.fmum.common.paintjob.IPaintableType;
 import com.fmum.common.paintjob.IPaintjob;
 import com.fmum.common.player.IOperation;
 import com.fmum.devtool.Dev;
-import com.fmum.util.Animation;
 import com.fmum.util.ArmTracker;
 import com.fmum.util.Mat4f;
 import com.google.gson.annotations.SerializedName;
@@ -610,11 +610,14 @@ public abstract class GunPartType<
 						{
 							final EquippedGunPart equipped = ( EquippedGunPart ) this.equipped;
 							equipped.renderDelegate = original -> original;
-							equipped.renderer.useAnimation( Animation.NONE );
+							equipped.renderer.useAnimation( IAnimation.NONE );
 						}
 					};
 					PlayerPatchClient.instance.launch( modifyOp );
-					this.renderer.useModifyAnimation( () -> modifyOp.refPlayerRotYaw );
+					this.renderer.useModifyAnimation(
+						modifyOp::interpolatedProgress,
+						() -> modifyOp.refPlayerRotYaw
+					);
 				};
 				registry.put( Key.TOGGLE_MODIFY, toggleModify );
 				registry.put( Key.CO_TOGGLE_MODIFY, toggleModify );

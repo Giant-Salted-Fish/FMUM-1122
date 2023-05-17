@@ -1,7 +1,7 @@
 package com.fmum.common.player;
 
 import com.fmum.common.load.IContentProvider;
-import com.fmum.util.IAnimation;
+import com.fmum.util.Animation;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -24,7 +24,7 @@ public interface IOperationController
 	void handlePlaySound( int idx, EntityPlayer player );
 	
 	@SideOnly( Side.CLIENT )
-	IAnimation animation();
+	Animation animation();
 	
 	@SideOnly( Side.CLIENT )
 	void checkAssetsSetup( IContentProvider provider );

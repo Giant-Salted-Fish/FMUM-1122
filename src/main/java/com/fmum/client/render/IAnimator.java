@@ -23,6 +23,10 @@ public interface IAnimator
 		public void getRot( String channel, Quat4f dst ) { dst.clearRot(); }
 		
 		@Override
+		@SideOnly( Side.CLIENT )
+		public float getFactor( String channel ) { return 0F; }
+		
+		@Override
 		public String toString() { return "Animator::NONE"; }
 	};
 	
@@ -40,7 +44,8 @@ public interface IAnimator
 	 *     Blend factor for animation. Usually {@code 0F} for static position and {@code 1F} for
 	 *     animation.
 	 */
-	default float getFactor( String channel ) { return 0F; }
+	@SideOnly( Side.CLIENT )
+	float getFactor( String channel );
 	
 	@SideOnly( Side.CLIENT )
 	default void getChannel( String channel, Mat4f dst )

@@ -11,8 +11,8 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
-import com.fmum.client.IAutowirePlayerChat;
 import com.fmum.client.FMUMClient;
+import com.fmum.client.IAutowirePlayerChat;
 import com.fmum.client.input.IInput;
 import com.fmum.client.input.Key;
 import com.fmum.common.IAutowirePacketHandler;

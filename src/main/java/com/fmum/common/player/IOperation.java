@@ -39,7 +39,7 @@ public interface IOperation
 	default float progress() { return 1F; }
 	
 	@SideOnly( Side.CLIENT )
-	default float getProgress( float smoother ) { return 1F; }
+	default float interpolatedProgress() { return 1F; }
 	
 	/**
 	 * Prepare for the execution.

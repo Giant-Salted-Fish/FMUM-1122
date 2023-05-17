@@ -198,9 +198,11 @@ public abstract class GunModel<
 			}
 			
 			@Override
-			public void useModifyAnimation( Supplier< Float > refPlayerRotYaw )
-			{
-				this.useAnimation( new ModifyAnimator( this, refPlayerRotYaw ) {
+			public void useModifyAnimation(
+				Supplier< Float > progress,
+				Supplier< Float > refPlayerRotYaw
+			) {
+				this.useAnimation( new ModifyAnimator( this, progress, refPlayerRotYaw ) {
 					@Override
 					public void getPos( String channel, Vec3f dst )
 					{

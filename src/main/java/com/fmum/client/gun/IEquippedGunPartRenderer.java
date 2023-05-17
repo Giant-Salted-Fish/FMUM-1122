@@ -10,5 +10,5 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface IEquippedGunPartRenderer< E > extends IEquippedItemRenderer< E >
 {
 	@SideOnly( Side.CLIENT )
-	void useModifyAnimation( Supplier< Float > refPlayerYaw );
+	void useModifyAnimation( Supplier< Float > progress, Supplier< Float > refPlayerYaw );
 }
