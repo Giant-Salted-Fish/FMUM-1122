@@ -30,9 +30,6 @@ public abstract class MagModel<
 	private static final Vec3f HOLD_POS = new Vec3f( -25F / 160F, -30F / 160F, 70F / 160F );
 	private static final Vec3f HOLD_ROT = new Vec3f( -15F, 0F, -10F );
 	
-	private static final Vec3f[] AMMO_POS = { };
-	private static final AngleAxis4f[] AMMO_ROT = { };
-	
 	private static final Vec3f[] FOLLOWER_POS = { Vec3f.ORIGIN };
 	private static final AngleAxis4f[] FOLLOER_ROT = { AngleAxis4f.ORIGIN };
 	
@@ -44,8 +41,8 @@ public abstract class MagModel<
 	protected Vec3f[] followerPos = FOLLOWER_POS;
 	protected AngleAxis4f[] followerRot = FOLLOER_ROT;
 	
-	protected Vec3f[] ammoPos = AMMO_POS;
-	protected AngleAxis4f[] ammoRot = AMMO_ROT;
+	protected Vec3f[] ammoPos = { };
+	protected AngleAxis4f[] ammoRot = { };
 	protected boolean isDoubleColumnMag = true;
 	
 	protected String loadingMagModuleChannel = "";

@@ -61,7 +61,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	 */
 	protected final DynamicPos cameraEasing = new DynamicPos();
 	
-	protected IAnimator animator = IAnimator.NONE;
+	protected IAnimator animation = IAnimator.NONE;
 	
 	@Override
 	public void tick()
@@ -106,7 +106,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 	}
 	
 	@Override
-	public void useAnimation( IAnimator animator ) { this.animator = animator; }
+	public void useAnimation( IAnimator animation ) { this.animation = animation; }
 	
 	// Handles view update upon mouse input.
 	@Override
@@ -172,9 +172,11 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		final float cameraPitch = this.playerRot.x + camOffAxisX;
 		final float cameraYaw   = this.playerRot.y + camOffAxisY;
 		
+		this.animation.update();
+		
 		final Mat4f mat = this.viewMat;
 		final Quat4f quat = Quat4f.locate();
-		this.animator.getRot( ANIMATION_CAHNNEL, quat );
+		this.animation.getRot( ANIMATION_CAHNNEL, quat );
 		mat.set( quat );
 		quat.release();
 		
@@ -184,7 +186,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		mat.rotateX( vec.x );
 		mat.rotateY( vec.y );
 		
-		this.animator.getPos( ANIMATION_CAHNNEL, vec );
+		this.animation.getPos( ANIMATION_CAHNNEL, vec );
 		mat.translate( vec );
 		vec.release();
 		

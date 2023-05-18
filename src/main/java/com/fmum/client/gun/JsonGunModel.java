@@ -13,10 +13,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class JsonGunModel extends GunModel<
 	IGun< ? >,
 	IEquippedGun< ? extends IGun< ? > >,
-	IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >,
+		IEquippedGunRenderer< ? super IEquippedGun< ? extends IGun< ? > > >,
 	IGunRenderer<
 		? super IGun< ? >,
-		? extends IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+		? extends IEquippedGunRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 	>
 > {
 	public static final BuildableLoader< ? >
@@ -28,13 +28,13 @@ public class JsonGunModel extends GunModel<
 	@Override
 	public IGunRenderer<
 		? super IGun< ? >,
-		? extends IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+		? extends IEquippedGunRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 	> newRenderer()
 	{
 		return new GunRenderer()
 		{
 			@Override
-			public IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+			public IEquippedGunRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 				onTakeOut( EnumHand hand ) { return new EquippedGunRenderer(); }
 		};
 	};

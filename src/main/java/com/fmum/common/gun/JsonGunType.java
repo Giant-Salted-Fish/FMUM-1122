@@ -1,6 +1,6 @@
 package com.fmum.common.gun;
 
-import com.fmum.client.gun.IEquippedGunPartRenderer;
+import com.fmum.client.gun.IEquippedGunRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.client.gun.JsonGunModel;
 import com.fmum.client.item.IItemModel;
@@ -19,14 +19,14 @@ public class JsonGunType extends GunType<
 	IGunPart< ? >,
 	IGun< ? >,
 	IEquippedGun< ? extends IGun< ? > >,
-	IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >,
+	IEquippedGunRenderer< ? super IEquippedGun< ? extends IGun< ? > > >,
 	IGunPartRenderer<
 		? super IGun< ? >,
-		? extends IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+		? extends IEquippedGunRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 	>,
 	IItemModel< ? extends IGunPartRenderer<
 		? super IGun< ? >,
-		? extends IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+		? extends IEquippedGunRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 	> >
 > {
 	public static final BuildableLoader< IMeta >
@@ -85,7 +85,7 @@ public class JsonGunType extends GunType<
 	@Override
 	protected IItemModel< ? extends IGunPartRenderer<
 		? super IGun< ? >,
-		? extends IEquippedGunPartRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
+		? extends IEquippedGunRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 	> > fallbackModel() { return JsonGunModel.NONE; }
 	
 	@Override

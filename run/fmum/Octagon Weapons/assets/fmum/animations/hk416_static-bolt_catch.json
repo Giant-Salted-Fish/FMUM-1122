@@ -1,8 +1,9 @@
 {
+	"positionScale": 0.00625,
 	"bones": {
 		"bolt_release": {
 			"rotation": { "0.0": [0, 0, -11] }
-		}
+		},
 		"bolt_carrier": {
 			"position": { "0.0": [0, 0, -28] }
 		},

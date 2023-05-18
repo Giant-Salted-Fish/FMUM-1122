@@ -81,7 +81,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	/**
 	 * Notice that for each will not visit itself.
 	 */
-	void forEach( Consumer< ? super T > visitor );
+	void forEachModule( Consumer< ? super T > visitor );
 	
 	int getInstalledCount( int slot );
 	

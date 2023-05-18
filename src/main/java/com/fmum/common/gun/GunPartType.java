@@ -18,7 +18,6 @@ import com.fmum.client.item.IItemModel;
 import com.fmum.client.module.IDeferredRenderer;
 import com.fmum.client.player.OpModifyClient;
 import com.fmum.client.player.PlayerPatchClient;
-import com.fmum.client.render.IAnimation;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.IEquippedItem;
@@ -601,12 +600,12 @@ public abstract class GunPartType<
 						{
 							final EquippedGunPart equipped = ( EquippedGunPart ) this.equipped;
 							equipped.renderDelegate = original -> original;
-							equipped.renderer.useOperateAnimation( IAnimation.NONE );
+							equipped.renderer.useOperateAnimation( IAnimator.NONE );
 						}
 					};
 					PlayerPatchClient.instance.launch( modifyOp );
 					this.renderer.useModifyAnimation(
-						modifyOp::interpolatedProgress,
+						modifyOp::smoothedProgress,
 						() -> modifyOp.refPlayerRotYaw
 					);
 					return;

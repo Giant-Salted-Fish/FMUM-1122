@@ -115,7 +115,7 @@ public abstract class ModuleWrapper<
 	}
 	
 	@Override
-	public final void forEach( Consumer< ? super I > visitor ) { this.primary.forEach( visitor ); }
+	public final void forEachModule( Consumer< ? super I > visitor ) { this.primary.forEachModule( visitor ); }
 	
 	@Override
 	public final int getInstalledCount( int slot ) { throw new RuntimeException(); }

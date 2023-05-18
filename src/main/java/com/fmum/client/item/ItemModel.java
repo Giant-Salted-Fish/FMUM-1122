@@ -6,7 +6,6 @@ import com.fmum.client.FMUMClient;
 import com.fmum.client.IAutowireBindTexture;
 import com.fmum.client.IAutowireSmoother;
 import com.fmum.client.player.PlayerPatchClient;
-import com.fmum.client.render.IAnimation;
 import com.fmum.client.render.IAnimator;
 import com.fmum.client.render.Model;
 import com.fmum.common.item.IEquippedItem;
@@ -62,7 +61,7 @@ public abstract class ItemModel<
 	protected class EquippedItemRenderer implements IEquippedItemRenderer< E >,
 		IAnimator, IAutowireBindTexture, IAutowireSmoother
 	{
-		protected IAnimation animation = IAnimation.NONE;
+		protected IAnimator animation = IAnimator.NONE;
 		
 		protected final Vec3f pos = new Vec3f();
 		protected final Quat4f rot = new Quat4f();
@@ -71,7 +70,28 @@ public abstract class ItemModel<
 		public EquippedItemRenderer() { }
 		
 		@Override
-		public void useOperateAnimation( IAnimation animation ) { this.animation = animation; }
+		public void useOperateAnimation( IAnimator animation ) { this.animation = animation; }
+		
+		@Override
+		public void update()
+		{
+			this.updatePosRot(); // This goes ahead of animation update for ModifyAnimation.
+			
+			// Update animation.
+			this.animation.update();
+			
+			// Apply animation.
+			final Mat4f mat = Mat4f.locate();
+			mat.setIdentity();
+			mat.translate( this.pos );
+			mat.rotate( this.rot );
+			this.applyChannel( ItemModel.this.animationChannel, mat );
+			// TODO: equipped#animator() actually should be #this
+			
+			mat.get( this.pos );
+			this.rot.set( mat );
+			mat.release();
+		}
 		
 		@Override
 		public void getPos( String channel, Vec3f dst )
@@ -106,25 +126,7 @@ public abstract class ItemModel<
 		public void tickInHand( E equipped, EnumHand hand ) { }
 		
 		@Override
-		public void updateAnimationForRender( E equipped, EnumHand hand )
-		{
-			this.updatePosRot();
-			
-			// Update animation.
-			this.animation.update();
-			
-			// Apply animation.
-			final Mat4f mat = Mat4f.locate();
-			mat.setIdentity();
-			mat.translate( this.pos );
-			mat.rotate( this.rot );
-			equipped.animator().applyChannel( ItemModel.this.animationChannel, mat );
-			// TODO: equipped#animator() actually should be #this
-			
-			mat.get( this.pos );
-			this.rot.set( mat );
-			mat.release();
-		}
+		public void updateAnimationForRender( E renderDelegate, EnumHand hand ) { this.update(); }
 		
 		@Override
 		public void prepareRenderInHandSP( E equipped, EnumHand hand ) { }

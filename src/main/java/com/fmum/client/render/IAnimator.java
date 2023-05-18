@@ -16,6 +16,10 @@ public interface IAnimator
 	{
 		@Override
 		@SideOnly( Side.CLIENT )
+		public void update() { }
+		
+		@Override
+		@SideOnly( Side.CLIENT )
 		public void getPos( String channel, Vec3f dst ) { dst.setZero(); }
 		
 		@Override
@@ -29,6 +33,9 @@ public interface IAnimator
 		@Override
 		public String toString() { return "Animator::NONE"; }
 	};
+	
+	@SideOnly( Side.CLIENT )
+	void update();
 	
 	@SideOnly( Side.CLIENT )
 	void getPos( String channel, Vec3f dst );

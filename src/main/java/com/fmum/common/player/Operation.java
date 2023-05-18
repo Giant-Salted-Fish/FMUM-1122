@@ -23,7 +23,7 @@ public abstract class Operation implements IOperation
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public float interpolatedProgress()
+	public float smoothedProgress()
 	{
 		final float smoother = FMUMClient.MOD.smoother();
 		return this.prevProgress + ( this.progress - this.prevProgress ) * smoother;

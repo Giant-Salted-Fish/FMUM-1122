@@ -1,6 +1,5 @@
 package com.fmum.client.item;
 
-import com.fmum.client.render.IAnimation;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.item.IEquippedItem;
 
@@ -14,7 +13,7 @@ public interface IEquippedItemRenderer< E >
 	void tickInHand( E equipped, EnumHand hand );
 	
 	@SideOnly( Side.CLIENT )
-	void updateAnimationForRender( E equipped, EnumHand hand );
+	void updateAnimationForRender( E renderDelegate, EnumHand hand );
 	
 	/**
 	 * Called before the hand render if it is holden in hand.
@@ -37,7 +36,7 @@ public interface IEquippedItemRenderer< E >
 	boolean onRenderSpecificHandSP( E equipped, EnumHand hand );
 	
 	@SideOnly( Side.CLIENT )
-	void useOperateAnimation( IAnimation animation );
+	void useOperateAnimation( IAnimator animation );
 	
 	@SideOnly( Side.CLIENT )
 	IAnimator animator();

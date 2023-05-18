@@ -10,8 +10,10 @@
 	},
 	"catchBoltOnEmpty": true,
 	
+	"staticBoltRelease": "animations/hk416_static.json",
+	"staticBoltCatch": "animations/hk416_static-bolt_catch.json",
 	"shootAnimation": "animations/hk416_shoot.json",
-	"shootBoltCatchAnimation": "animations/hk416_shoot_bolt_catch.json",
+	"shootBoltCatchAnimation": "animations/hk416_shoot-bolt_catch.json",
 	
 	"loadMagController": {
 		"animation": "animations/hk416_load_mag.json",
@@ -29,14 +31,29 @@
 		"sounds": [ "unload_mag" ]
 	},
 	
-	"chargeGunController": {
-		"animation": "animations/hk416_charge_gun.json",
+	"chargeReleaseReleaseController": {
+		"animation": "animations/hk416_charge-release-release.json",
+		"progressor": 0.0479998,
+		"effectTime": [ 0.431998 ]
+	},
+	"chargeReleaseCatchController": {
+		"animation": "animations/hk416_charge-release-catch.json",
+		"progressor": 0.0479998,
+		"effectTime": [ 0.431998 ]
+	},
+	"chargeCatchReleaseController": {
+		"animation": "animations/hk416_charge-catch-release.json",
+		"progressor": 0.0479998,
+		"effectTime": [ 0.431998 ]
+	},
+	"chargeCatchCatchController": {
+		"animation": "animations/hk416_charge-catch-catch.json",
 		"progressor": 0.0479998,
 		"effectTime": [ 0.431998 ]
 	},
 	
 	"inspectController": {
-		"animation": "animations/hk416_inspect.json",
+		"animation": "animations/hk416_inspect-bolt_release.json",
 		"progressor": 0.0179102
 	},
 	

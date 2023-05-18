@@ -1,5 +1,6 @@
 package com.fmum.client.gun;
 
+import java.util.Collection;
 import java.util.function.Supplier;
 
 import org.lwjgl.opengl.GL11;
@@ -7,12 +8,13 @@ import org.lwjgl.util.glu.Project;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.client.input.Key;
+import com.fmum.client.module.IDeferredRenderer;
 import com.fmum.client.player.PlayerPatchClient;
-import com.fmum.client.render.IAnimation;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.gun.IEquippedGun;
 import com.fmum.common.gun.IGun;
 import com.fmum.common.load.IContentProvider;
+import com.fmum.devtool.Dev;
 import com.fmum.util.ArmTracker;
 import com.fmum.util.DynamicPos;
 import com.fmum.util.Mat4f;
@@ -27,8 +29,10 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MovementInput;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -106,6 +110,8 @@ public abstract class GunModel<
 	@SerializedName( value = "crouchWalkCycle", alternate = "sneakWalkCycle" )
 	protected float crouchWalkCycle = Util.PI;
 	
+	protected String ammoAnimationChannel = "ammo";
+	
 	public GunModel()
 	{
 		this.holdPos = HOLD_POS;
@@ -140,6 +146,39 @@ public abstract class GunModel<
 	
 	protected abstract class GunRenderer extends GunPartRenderer implements IGunRenderer< C, ER >
 	{
+		@Override
+		public void prepareRender(
+			C contexted, IAnimator animator,
+			Collection< IDeferredRenderer > renderQueue0,
+			Collection< IDeferredRenderer > renderQueue1
+		) {
+			contexted.base().getRenderTransform( contexted, animator, this.mat );
+			animator.applyChannel( GunModel.this.moduleAnimationChannel, this.mat );
+			
+			// TODO: we can buffer animator so no instance will be created for this closure
+			renderQueue0.add( () -> {
+				GL11.glPushMatrix();
+				glMulMatrix( this.mat );
+				
+				final ResourceLocation texture = contexted.texture();
+				contexted.modifyState().doRecommendedRender( texture, () -> {
+					GunModel.this.renderAnimatedMesh( animator );
+					GunModel.this.render();
+					
+					// Render Ammo in barrel.
+					contexted.forEachAmmo( ammo -> {
+						final Mat4f mat = Mat4f.locate();
+						animator.getChannel( GunModel.this.ammoAnimationChannel, mat );
+						glMulMatrix( mat );
+						mat.release();
+						
+						ammo.render();
+					} );
+				} );
+				GL11.glPopMatrix();
+			} );
+		}
+		
 		@Override
 		public void setupLeftArmToRender( IAnimator animator, ArmTracker leftArm )
 		{
@@ -193,7 +232,7 @@ public abstract class GunModel<
 			protected final ArmTracker leftArm = new ArmTracker();
 			protected final ArmTracker rightArm = new ArmTracker();
 			
-			protected IAnimation gunAnimation = IAnimation.NONE;
+			protected IAnimator gunAnimation = IAnimator.NONE;
 			
 			protected EquippedGunRenderer()
 			{
@@ -223,7 +262,15 @@ public abstract class GunModel<
 			}
 			
 			@Override
-			public void useGunAnimation( IAnimation animation ) { this.gunAnimation = animation; }
+			public void useGunAnimation( IAnimator animation ) { this.gunAnimation = animation; }
+			
+			@Override
+			public void update()
+			{
+				this.gunAnimation.update();
+				
+				super.update();
+			}
 			
 			@Override
 			public void getPos( String channel, Vec3f dst )
@@ -402,16 +449,16 @@ public abstract class GunModel<
 				GL11.glMatrixMode( GL11.GL_MODELVIEW );
 				
 				/* For arm adjust */
-//				if ( Dev.flag )
-//				{
-//					GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
-//					
-//					final EntityPlayer player = FMUMClient.MC.player;
-//					GL11.glRotatef( -player.rotationPitch, 1F, 0F, 0F );
-//					GL11.glRotatef( player.rotationYaw, 0F, 1F, 0F );
-//					
-//					GL11.glTranslatef( 0F, 0F, -5F/16f );
-//				}
+				if ( Dev.flag )
+				{
+					GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
+					
+					final EntityPlayer player = FMUMClient.MC.player;
+					GL11.glRotatef( -player.rotationPitch, 1F, 0F, 0F );
+					GL11.glRotatef( player.rotationYaw, 0F, 1F, 0F );
+					
+					GL11.glTranslatef( 0F, 0F, -5F/16f );
+				}
 				
 				final IAnimator animator = equipped.animator();
 				equipped.setupRenderArm( animator, this.leftArm, this.rightArm );

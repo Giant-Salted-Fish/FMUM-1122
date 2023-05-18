@@ -2,11 +2,12 @@ package com.fmum.common.gun;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
 import com.fmum.client.camera.ICameraController;
-import com.fmum.client.gun.IEquippedGunPartRenderer;
+import com.fmum.client.gun.IEquippedGunRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.client.input.IInput;
 import com.fmum.client.input.Key;
@@ -15,8 +16,8 @@ import com.fmum.client.player.OpModifyClient;
 import com.fmum.client.player.OperationClient;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.CoupledAnimation;
-import com.fmum.client.render.IAnimation;
 import com.fmum.client.render.IAnimator;
+import com.fmum.client.render.ReadOnlyAnimator;
 import com.fmum.common.ammo.IAmmoType;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
@@ -50,7 +51,7 @@ public abstract class GunType<
 	I extends IGunPart< ? extends I >,
 	C extends IGun< ? >,
 	E extends IEquippedGun< ? extends C >,
-	ER extends IEquippedGunPartRenderer< ? super E >,
+	ER extends IEquippedGunRenderer< ? super E >,
 	R extends IGunPartRenderer< ? super C, ? extends ER >,
 	M extends IItemModel< ? extends R >
 > extends GunPartType< I, C, E, ER, R, M >
@@ -83,7 +84,7 @@ public abstract class GunType<
 //	protected List< IBuildable< IFireController > >
 	
 //	@SerializedName( value = "fireControllers", alternate = "fireModes" )
-	protected transient IFireController[] fireControllers;
+//	protected transient IFireController[] fireControllers;
 	
 	protected SoundEvent shootSound;
 	
@@ -93,12 +94,12 @@ public abstract class GunType<
 	protected boolean catchBoltOnEmpty = false;
 	
 	@SideOnly( Side.CLIENT )
-	@SerializedName( value = "boltCloseStatic", alternate = "boltReleaseStatic" )
-	protected Animation boltCloseStatic;
+	@SerializedName( value = "staticBoltRelease", alternate = "staticBoltClose" )
+	protected Animation staticBoltRelease;
 	
 	@SideOnly( Side.CLIENT )
-	@SerializedName( value = "boltOpenStatic", alternate = "boltCatchStatic" )
-	protected Animation boltOpenStatic;
+	@SerializedName( value = "staticBoltCatch", alternate = "staticBoltOpen" )
+	protected Animation staticBoltCatch;
 	
 	@SideOnly( Side.CLIENT )
 	protected Animation shootAnimation;
@@ -106,11 +107,20 @@ public abstract class GunType<
 	@SideOnly( Side.CLIENT )
 	protected Animation shootBoltCatchAnimation;
 	
-	protected IOperationController
-		loadMagController   = LOAD_MAG_CONTROLLER,
-		unloadMagController = UNLOAD_MAG_CONTROLLER,
-		chargeGunController = CHARGE_GUN_CONTROLLER,
-		inspectController   = INSPECT_CONTROLLER;
+	protected IOperationController loadMagController = LOAD_MAG_CONTROLLER;
+	protected IOperationController unloadMagController = UNLOAD_MAG_CONTROLLER;
+	
+	protected IOperationController chargeReleaseReleaseController = CHARGE_GUN_CONTROLLER;
+	
+	@SerializedName( value = "chargeReleaseCatchController", alternate = "chargeCloseOpenController" )
+	protected IOperationController chargeReleaseCatchController = CHARGE_GUN_CONTROLLER;
+	
+	protected IOperationController chargeCatchReleaseController = CHARGE_GUN_CONTROLLER;
+	
+	@SerializedName( value = "chargeCatchCatchController", alternate = "chargeOpenOpenController" )
+	protected IOperationController chargeCatchCatchController = CHARGE_GUN_CONTROLLER;
+	
+	protected IOperationController inspectController = INSPECT_CONTROLLER;
 	
 	@Override
 	public IMeta build( String name, IContentProvider provider )
@@ -120,11 +130,20 @@ public abstract class GunType<
 		provider.clientOnly( () -> {
 			this.loadMagController.checkAssetsSetup( provider );
 			this.unloadMagController.checkAssetsSetup( provider );
-			this.chargeGunController.checkAssetsSetup( provider );
+			this.chargeReleaseReleaseController.checkAssetsSetup( provider );
+			this.chargeReleaseCatchController.checkAssetsSetup( provider );
+			this.chargeCatchReleaseController.checkAssetsSetup( provider );
+			this.chargeCatchCatchController.checkAssetsSetup( provider );
 			this.inspectController.checkAssetsSetup( provider );
 			
-			this.boltOpenStatic = Optional
-				.ofNullable( this.boltOpenStatic ).orElse( Animation.NONE );
+			this.staticBoltRelease = Optional
+				.ofNullable( this.staticBoltRelease ).orElse( Animation.NONE );
+			this.staticBoltCatch = Optional
+				.ofNullable( this.staticBoltCatch ).orElse( Animation.NONE );
+			this.shootAnimation = Optional
+				.ofNullable( this.shootAnimation ).orElse( Animation.NONE );
+			this.shootBoltCatchAnimation = Optional
+				.ofNullable( this.shootBoltCatchAnimation ).orElse( Animation.NONE );
 		} );
 		return this;
 	}
@@ -189,7 +208,7 @@ public abstract class GunType<
 			
 			this.leftHandHolding = this;
 			this.rightHandHolding = this;
-			this.forEach( gunPart -> {
+			this.forEachModule( gunPart -> {
 				if ( gunPart.leftHandPriority() > this.leftHandHolding.leftHandPriority() ) {
 					this.leftHandHolding = gunPart;
 				}
@@ -197,6 +216,11 @@ public abstract class GunType<
 					this.rightHandHolding = gunPart;
 				}
 			} );
+		}
+		
+		@Override
+		public void forEachAmmo( Consumer< IAmmoType > visitor ) {
+			this.state.forEachAmmo( visitor );
 		}
 		
 		@Override
@@ -212,12 +236,12 @@ public abstract class GunType<
 			final int stateOrdinary = 0xFFFF & value;
 			switch ( stateOrdinary )
 			{
-			case StateOpenBolt.ORDINAL:
-				this.state = new StateOpenBolt();
+			case StateBoltOpen.ORDINAL:
+				this.state = new StateBoltOpen();
 				break;
 			
-			case StateCloseBolt.ORDINAL:
-				this.state = new StateCloseBolt();
+			case StateBoltClose.ORDINAL:
+				this.state = new StateBoltClose();
 				break;
 			
 			case StateBoltRelease.ORDINAL:
@@ -247,7 +271,7 @@ public abstract class GunType<
 		protected int dataSize() { return super.dataSize() + 2; }
 		
 		protected IGunState createGunState() {
-			return GunType.this.isOpenBolt ? new StateCloseBolt() : new StateBoltRelease();
+			return GunType.this.isOpenBolt ? new StateBoltClose() : new StateBoltRelease();
 		}
 		
 		protected final void syncGunState()
@@ -266,22 +290,17 @@ public abstract class GunType<
 			
 			protected int actionCoolDown = 0;
 			
-			/**
-			 * Because of the latency of the network, the rounds shot count directly deserialized
-			 * from the NBT tag may not be correct. This is used to maintain a temporary value of
-			 * rounds shot to be used by the trigger controller.
-			 */
-			@SideOnly( Side.CLIENT )
-			protected int bufferedRoundsShot;
-			
 			protected ITriggerHandler triggerHandler = ITriggerHandler.NONE;
 			
 			protected EquippedGun( EntityPlayer player, EnumHand hand )
 			{
 				super( player, hand );
 				
-				if ( player.world.isRemote ) {
-					this.bufferedRoundsShot = Gun.this.roundsShot;
+				if ( player.world.isRemote )
+				{
+					this.renderer.useGunAnimation(
+						new CoupledAnimation( Gun.this.state.staticAnimation(), () -> 1F )
+					);
 				}
 			}
 			
@@ -296,9 +315,7 @@ public abstract class GunType<
 				final EquippedGun prev = ( EquippedGun ) prevEquipped;
 				
 				this.actionCoolDown = prev.actionCoolDown;
-				if ( player.world.isRemote )
-				{
-					this.bufferedRoundsShot = prev.bufferedRoundsShot;
+				if ( player.world.isRemote ) {
 					this.triggerHandler = prev.triggerHandler;
 				}
 			}
@@ -451,6 +468,9 @@ public abstract class GunType<
 			}
 			
 			@SideOnly( Side.CLIENT )
+			protected final IGunState state() { return Gun.this.state; }
+			
+			@SideOnly( Side.CLIENT )
 			protected class OperationOnGunClient extends OperationClient< EquippedGun >
 			{
 				protected OperationOnGunClient( IOperationController controller ) {
@@ -464,13 +484,13 @@ public abstract class GunType<
 					this.equipped.renderer.useOperateAnimation(
 						new CoupledAnimation(
 							this.controller.animation(),
-							this::interpolatedProgress
+							this::smoothedProgress
 						)
 					);
 					this.equipped.renderDelegate = ori -> ( E ) EquippedGun.this;
 					
 					final ICameraController camera = PlayerPatchClient.instance.camera;
-					camera.useAnimation( this.equipped.animator() );
+					camera.useAnimation( new ReadOnlyAnimator( this.equipped.animator() ) );
 					return this;
 				}
 				
@@ -478,7 +498,7 @@ public abstract class GunType<
 				protected void endCallback()
 				{
 					this.equipped.renderDelegate = original -> original;
-					this.equipped.renderer.useOperateAnimation( IAnimation.NONE );
+					this.equipped.renderer.useOperateAnimation( IAnimator.NONE );
 				}
 			}
 			
@@ -514,11 +534,11 @@ public abstract class GunType<
 					this.equipped.renderer.useOperateAnimation(
 						new CoupledAnimation(
 							this.controller.animation(),
-							this::interpolatedProgress
+							this::smoothedProgress
 						)
 					);
 					final ICameraController camera = PlayerPatchClient.instance.camera;
-					camera.useAnimation( this.equipped.animator() );
+					camera.useAnimation( new ReadOnlyAnimator( this.equipped.animator() ) );
 					
 					// Copy this gun to install the loading mag.
 					final EquippedGun copied = ( EquippedGun ) this.equipped.copy();
@@ -559,21 +579,38 @@ public abstract class GunType<
 			@SideOnly( Side.CLIENT )
 			protected class OpChargeGunClient extends OperationOnGunClient
 			{
-				protected OpChargeGunClient() { super( GunType.this.chargeGunController ); }
+				protected OpChargeGunClient() { super( Gun.this.state.chargeController() ); }
 				
 				@Override
 				public IOperation launch( EntityPlayer player )
 				{
 					final byte code = OP_CODE_CHARGE_GUN;
 					this.sendPacketToServer( new PacketNotifyItem( buf -> buf.writeByte( code ) ) );
+					
+					EquippedGun.this.renderer.useGunAnimation( IAnimator.NONE );
 					return super.launch( player );
+				}
+				
+				@Override
+				protected void endCallback()
+				{
+					super.endCallback();
+					
+					EquippedGun.this.renderer.useGunAnimation(
+						new CoupledAnimation( this.equipped.state().staticAnimation(), () -> 1F )
+					);
 				}
 			}
 		}
 		
-		protected class StateOpenBolt implements IGunState
+		protected class StateBoltOpen implements IGunState
 		{
 			protected static final int ORDINAL = 0;
+			
+			@Override
+			public IOperationController chargeController() {
+				return GunType.this.chargeCatchCatchController;
+			}
 			
 			@Override
 			public IGunState charge( EntityPlayer player ) { return this; }
@@ -582,23 +619,30 @@ public abstract class GunType<
 			public int toAmmoIdAndOrdinal() { return ORDINAL; }
 			
 			@Override
-			public Animation staticAnimation() { return GunType.this.boltOpenStatic; }
+			@SideOnly( Side.CLIENT )
+			public Animation staticAnimation() { return GunType.this.staticBoltCatch; }
 		}
 		
-		protected class StateCloseBolt implements IGunState
+		protected class StateBoltClose implements IGunState
 		{
 			protected static final int ORDINAL = 1;
 			
 			@Override
+			public IOperationController chargeController() {
+				return GunType.this.chargeReleaseCatchController;
+			}
+			
+			@Override
 			public IGunState charge( EntityPlayer player ) {
-				return new StateOpenBolt(); // TODO: Check if creating inner without Gun.this.new keeps current instance.
+				return new StateBoltOpen(); // TODO: Check if creating inner without Gun.this.new keeps current instance.
 			}
 			
 			@Override
 			public int toAmmoIdAndOrdinal() { return ORDINAL; }
 			
 			@Override
-			public Animation staticAnimation() { return GunType.this.boltCloseStatic; }
+			@SideOnly( Side.CLIENT )
+			public Animation staticAnimation() { return GunType.this.staticBoltRelease; }
 		}
 		
 		protected class StateBoltRelease implements IGunState
@@ -606,11 +650,22 @@ public abstract class GunType<
 			protected static final int ORDINAL = 2;
 			
 			@Override
+			public IOperationController chargeController()
+			{
+				final IMag< ? > mag = Gun.this.mag();
+				return(
+					mag != null && mag.isEmpty() && GunType.this.catchBoltOnEmpty
+					? GunType.this.chargeReleaseCatchController
+					: GunType.this.chargeReleaseReleaseController
+				);
+			}
+			
+			@Override
 			public IGunState charge( EntityPlayer player )
 			{
 				final IMag< ? > mag = Gun.this.mag();
-				final boolean noMag = mag == null;
-				if ( noMag ) { return this; }
+				final boolean magDoesNotExit = mag == null;
+				if ( magDoesNotExit ) { return this; }
 				
 				final boolean hasAmmo = !mag.isEmpty();
 				if ( hasAmmo ) { return new StateShootReady( mag.popAmmo() ); }
@@ -622,12 +677,24 @@ public abstract class GunType<
 			public int toAmmoIdAndOrdinal() { return ORDINAL; }
 			
 			@Override
-			public Animation staticAnimation() { return GunType.this.boltCloseStatic; }
+			@SideOnly( Side.CLIENT )
+			public Animation staticAnimation() { return GunType.this.staticBoltRelease; }
 		}
 		
 		protected class StateBoltCatch implements IGunState
 		{
 			protected static final int ORDINAL = 3;
+			
+			@Override
+			public IOperationController chargeController()
+			{
+				final IMag< ? > mag = Gun.this.mag();
+				return(
+					mag != null && mag.isEmpty() && GunType.this.catchBoltOnEmpty
+					? GunType.this.chargeCatchCatchController
+					: GunType.this.chargeCatchReleaseController
+				);
+			}
 			
 			@Override
 			public IGunState charge( EntityPlayer player )
@@ -644,7 +711,8 @@ public abstract class GunType<
 			public int toAmmoIdAndOrdinal() { return ORDINAL; }
 			
 			@Override
-			public Animation staticAnimation() { return GunType.this.boltOpenStatic; }
+			@SideOnly( Side.CLIENT )
+			public Animation staticAnimation() { return GunType.this.staticBoltCatch; }
 		}
 		
 		protected class StateShootReady implements IGunState
@@ -666,6 +734,17 @@ public abstract class GunType<
 //				);
 //				return new ShootResult( newState, actionDuration, actionAnimation, actionRounds, shootCount );
 //			}
+			
+			@Override
+			public IOperationController chargeController()
+			{
+				final IMag< ? > mag = Gun.this.mag();
+				return(
+					mag != null && mag.isEmpty() && GunType.this.catchBoltOnEmpty
+					? GunType.this.chargeReleaseCatchController
+					: GunType.this.chargeReleaseReleaseController
+				);
+			}
 			
 			@Override
 			public IGunState charge( EntityPlayer player )
@@ -696,12 +775,18 @@ public abstract class GunType<
 			}
 			
 			@Override
+			public void forEachAmmo( Consumer< IAmmoType > visitor ) {
+				visitor.accept( this.ammoInChamber );
+			}
+			
+			@Override
 			public int toAmmoIdAndOrdinal() {
 				return ORDINAL + ( Item.getIdFromItem( this.ammoInChamber.item() ) << 16 );
 			}
 			
 			@Override
-			public Animation staticAnimation() { return GunType.this.boltCloseStatic; }
+			@SideOnly( Side.CLIENT )
+			public Animation staticAnimation() { return GunType.this.staticBoltRelease; }
 		}
 		
 		protected class OperationOnGun extends Operation
@@ -776,7 +861,7 @@ public abstract class GunType<
 		
 		protected class OpChargeGun extends OperationOnGun
 		{
-			protected OpChargeGun() { super( GunType.this.chargeGunController ); }
+			protected OpChargeGun() { super( Gun.this.state.chargeController() ); }
 			
 			@Override
 			protected void doHandleEffect( EntityPlayer player ) { this.gun.chargeGun( player ); }
@@ -794,10 +879,15 @@ public abstract class GunType<
 	{
 //		ShootResult tryShoot( int actedRounds, int shotCount, EntityPlayer player );
 		
+		IOperationController chargeController();
+		
 		IGunState charge( EntityPlayer player );
+		
+		default void forEachAmmo( Consumer< IAmmoType > visitor ) { }
 		
 		int toAmmoIdAndOrdinal();
 		
+		@SideOnly( Side.CLIENT )
 		Animation staticAnimation();
 	}
 	

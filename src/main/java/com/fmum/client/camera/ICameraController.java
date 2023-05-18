@@ -21,7 +21,7 @@ public interface ICameraController
 {
 	void tick();
 	
-	void useAnimation( IAnimator animator );
+	void useAnimation( IAnimator animation );
 	
 	void prepareRender( MouseHelper mouse );
 	

@@ -192,11 +192,11 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	}
 	
 	@Override
-	public void forEach( Consumer< ? super T > visitor )
+	public void forEachModule( Consumer< ? super T > visitor )
 	{
 		this.installed.forEach( mod -> {
 			visitor.accept( mod );
-			mod.forEach( visitor );
+			mod.forEachModule( visitor );
 		} );
 	}
 	

@@ -1,5 +1,9 @@
 package com.fmum.common.gun;
 
+import java.util.function.Consumer;
+
+import com.fmum.common.ammo.IAmmoType;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
@@ -25,4 +29,9 @@ public class GunWrapper< I extends IGunPart< ? extends I >, T extends IGun< ? ex
 	
 	@Override
 	public void chargeGun( EntityPlayer player ) { this.primary.chargeGun( player ); }
+
+	@Override
+	public void forEachAmmo( Consumer< IAmmoType > visitor ) {
+		this.primary.forEachAmmo( visitor );
+	}
 }

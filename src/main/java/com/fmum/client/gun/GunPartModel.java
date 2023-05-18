@@ -10,7 +10,6 @@ import com.fmum.client.FMUMClient;
 import com.fmum.client.IAutowireBindTexture;
 import com.fmum.client.item.ItemModel;
 import com.fmum.client.module.IDeferredRenderer;
-import com.fmum.client.render.IAnimation;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.gun.IGunPart;
 import com.fmum.common.item.IEquippedItem;
@@ -201,7 +200,7 @@ public abstract class GunPartModel<
 		}
 	}
 	
-	protected class ModifyAnimator implements IAnimation
+	protected class ModifyAnimator implements IAnimator
 	{
 		protected final IAnimator animator;
 		protected final Supplier< Float > progresss;
