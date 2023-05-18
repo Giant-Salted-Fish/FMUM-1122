@@ -1,4 +1,6 @@
 {
+	"__type__": "gun",
+	
 	"creativeTab": "oc",
 	"model": "models/gun/hk416/lower_receiver.json",
 	"texture": "textures/gun/hk416_d10rs.png",
@@ -22,7 +24,7 @@
 	},
 	
 	"chargeGunController": {
-		"animation": "animations/hk416_charge.json",
+		"animation": "animations/hk416_charge_gun.json",
 		"progressor": 0.0479998,
 		"effectTime": [ 0.431998 ]
 	},

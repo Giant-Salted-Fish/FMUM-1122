@@ -239,7 +239,7 @@ public class FMUM extends URLClassLoader
 		this.regisCapability( IItem.class ); // See ItemType#CONTEXTED.
 		this.regisCapability( PlayerPatch.class );
 		
-		// Register meta loaders.
+		// Register type loaders.
 		TYPE_LOADERS.put( "creative_tab", CreativeTab.LOADER );
 		TYPE_LOADERS.put( "creative_tabs", CreativeTab.LOADER );
 		TYPE_LOADERS.put( "gun_part", JsonGunPartType.LOADER );

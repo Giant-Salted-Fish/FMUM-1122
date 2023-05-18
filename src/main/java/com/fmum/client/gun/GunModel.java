@@ -8,6 +8,7 @@ import org.lwjgl.util.glu.Project;
 import com.fmum.client.FMUMClient;
 import com.fmum.client.input.Key;
 import com.fmum.client.player.PlayerPatchClient;
+import com.fmum.client.render.IAnimation;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.gun.IEquippedGun;
 import com.fmum.common.gun.IGun;
@@ -183,6 +184,7 @@ public abstract class GunModel<
 		}
 		
 		protected class EquippedGunRenderer extends EquippedGunPartRenderer
+			implements IEquippedGunRenderer< E >
 		{
 			protected final DynamicPos holdPos = new DynamicPos();
 			protected final DynamicPos holdRot = new DynamicPos();
@@ -190,6 +192,8 @@ public abstract class GunModel<
 			// TODO: this may also be static
 			protected final ArmTracker leftArm = new ArmTracker();
 			protected final ArmTracker rightArm = new ArmTracker();
+			
+			protected IAnimation gunAnimation = IAnimation.NONE;
 			
 			protected EquippedGunRenderer()
 			{
@@ -202,7 +206,7 @@ public abstract class GunModel<
 				Supplier< Float > progress,
 				Supplier< Float > refPlayerRotYaw
 			) {
-				this.useAnimation( new ModifyAnimator( this, progress, refPlayerRotYaw ) {
+				this.useOperateAnimation( new ModifyAnimator( this, progress, refPlayerRotYaw ) {
 					@Override
 					public void getPos( String channel, Vec3f dst )
 					{
@@ -216,6 +220,31 @@ public abstract class GunModel<
 						else { super.getPos( channel, dst ); }
 					}
 				} );
+			}
+			
+			@Override
+			public void useGunAnimation( IAnimation animation ) { this.gunAnimation = animation; }
+			
+			@Override
+			public void getPos( String channel, Vec3f dst )
+			{
+				super.getPos( channel, dst );
+				
+				final Vec3f vec = Vec3f.locate();
+				this.gunAnimation.getPos( channel, vec );
+				dst.add( vec );
+				vec.release();
+			}
+			
+			@Override
+			public void getRot( String channel, Quat4f dst )
+			{
+				super.getRot( channel, dst );
+				
+				final Quat4f quat = Quat4f.locate();
+				this.gunAnimation.getRot( channel, quat );
+				dst.mul( quat );
+				quat.release();
 			}
 			
 			// TODO: override animator for arms?

@@ -1,5 +1,7 @@
 package com.fmum.common.player;
 
+import java.util.Optional;
+
 import com.fmum.common.FMUM;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.util.Animation;
@@ -89,6 +91,6 @@ public class OperationController implements IOperationController
 	@Override
 	@SideOnly( Side.CLIENT )
 	public void checkAssetsSetup( IContentProvider provider ) {
-		if ( this.animation == null ) { this.animation = Animation.NONE; }
+		this.animation = Optional.ofNullable( this.animation ).orElse( Animation.NONE );
 	}
 }

@@ -71,7 +71,7 @@ public abstract class ItemModel<
 		public EquippedItemRenderer() { }
 		
 		@Override
-		public void useAnimation( IAnimation animation ) { this.animation = animation; }
+		public void useOperateAnimation( IAnimation animation ) { this.animation = animation; }
 		
 		@Override
 		public void getPos( String channel, Vec3f dst )

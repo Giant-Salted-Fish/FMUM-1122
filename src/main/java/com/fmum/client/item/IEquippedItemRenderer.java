@@ -37,7 +37,7 @@ public interface IEquippedItemRenderer< E >
 	boolean onRenderSpecificHandSP( E equipped, EnumHand hand );
 	
 	@SideOnly( Side.CLIENT )
-	void useAnimation( IAnimation animation );
+	void useOperateAnimation( IAnimation animation );
 	
 	@SideOnly( Side.CLIENT )
 	IAnimator animator();

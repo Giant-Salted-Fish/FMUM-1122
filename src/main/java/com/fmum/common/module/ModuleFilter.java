@@ -7,7 +7,7 @@ import java.util.function.BiConsumer;
 
 import com.google.gson.JsonElement;
 
-public class ModuleFilter
+public final class ModuleFilter
 {
 	public static final ModuleFilter DEFAULT = new ModuleFilter();
 	

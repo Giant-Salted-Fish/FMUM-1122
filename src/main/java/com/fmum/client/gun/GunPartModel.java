@@ -173,7 +173,7 @@ public abstract class GunPartModel<
 			public void useModifyAnimation(
 				Supplier< Float > progress,
 				Supplier< Float > refPlayerRotYaw
-			) { this.useAnimation( new ModifyAnimator( this, progress, refPlayerRotYaw ) ); }
+			) { this.useOperateAnimation( new ModifyAnimator( this, progress, refPlayerRotYaw ) ); }
 			
 			@Override
 			public void prepareRenderInHandSP( E equipped, EnumHand hand )

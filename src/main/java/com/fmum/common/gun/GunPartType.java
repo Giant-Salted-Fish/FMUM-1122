@@ -5,9 +5,7 @@ import static com.fmum.common.gun.GunPartWrapper.STACK_ID_TAG;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -277,9 +275,9 @@ public abstract class GunPartType<
 			FMUM.MOD.clientOnly( () -> this.renderer = GunPartType.this.model.newRenderer() );
 		}
 		
-		protected GunPart( boolean unused )
+		protected GunPart( boolean UNUSED_waitForDeserialize )
 		{
-			super( unused );
+			super( UNUSED_waitForDeserialize );
 			
 			// TODO: This will create renderer on local server
 			// TODO: maybe provide more information on instantiation
@@ -494,18 +492,12 @@ public abstract class GunPartType<
 			@SideOnly( Side.CLIENT )
 			protected Function< E, E > renderDelegate;
 			
-			@SideOnly( Side.CLIENT )
-			protected HashMap< IInput, Runnable > inputCallbacks;
-			
 			protected EquippedGunPart( EntityPlayer player, EnumHand hand )
 			{
 				if ( player.world.isRemote )
 				{
 					this.renderer = GunPart.this.renderer.onTakeOut( hand );
 					this.renderDelegate = original -> original;
-					
-					this.inputCallbacks = new HashMap<>();
-					this.setupInputCallbacks( this.inputCallbacks );
 				}
 			}
 			
@@ -520,9 +512,6 @@ public abstract class GunPartType<
 					final EquippedGunPart prev = ( EquippedGunPart ) prevEquipped;
 					this.renderer = prev.renderer;
 					this.renderDelegate = prev.renderDelegate;
-					
-					this.inputCallbacks = new HashMap<>();
-					this.setupInputCallbacks( this.inputCallbacks );
 				};
 			}
 			
@@ -570,21 +559,23 @@ public abstract class GunPartType<
 			@SideOnly( Side.CLIENT )
 			public void onKeyPress( IInput key )
 			{
-				if ( key.category().equals( Key.Category.MODIFY ) )
+				final boolean isModifyInput = key.category().equals( Key.Category.MODIFY );
+				if ( isModifyInput )
 				{
 					final IOperation executing = PlayerPatchClient.instance.executing();
 					final boolean isModifying = executing instanceof OpModifyClient;
 					if ( isModifying ) {
 						( ( OpModifyClient ) executing ).handleInput( key );
 					}
+					return;
 				}
-				else { this.inputCallbacks.getOrDefault( key, () -> { } ).run(); }
-			}
-			
-			@SideOnly( Side.CLIENT )
-			protected void setupInputCallbacks( Map< IInput, Runnable > registry )
-			{
-				final Runnable toggleModify = () -> {
+				
+				final boolean toggleModify = (
+					key == Key.TOGGLE_MODIFY
+					|| key == Key.CO_TOGGLE_MODIFY
+				);
+				if ( toggleModify )
+				{
 					final IOperation executing = PlayerPatchClient.instance.executing();
 					if ( executing instanceof OpModifyClient )
 					{
@@ -610,7 +601,7 @@ public abstract class GunPartType<
 						{
 							final EquippedGunPart equipped = ( EquippedGunPart ) this.equipped;
 							equipped.renderDelegate = original -> original;
-							equipped.renderer.useAnimation( IAnimation.NONE );
+							equipped.renderer.useOperateAnimation( IAnimation.NONE );
 						}
 					};
 					PlayerPatchClient.instance.launch( modifyOp );
@@ -618,9 +609,8 @@ public abstract class GunPartType<
 						modifyOp::interpolatedProgress,
 						() -> modifyOp.refPlayerRotYaw
 					);
-				};
-				registry.put( Key.TOGGLE_MODIFY, toggleModify );
-				registry.put( Key.CO_TOGGLE_MODIFY, toggleModify );
+					return;
+				}
 			}
 			
 			@SideOnly( Side.CLIENT )

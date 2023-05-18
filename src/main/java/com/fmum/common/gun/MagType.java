@@ -3,7 +3,6 @@ package com.fmum.common.gun;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -412,16 +411,21 @@ public abstract class MagType<
 			
 			@Override
 			@SideOnly( Side.CLIENT )
-			protected void setupInputCallbacks( Map< IInput, Runnable > registry )
+			public void onKeyPress( IInput key )
 			{
-				final Runnable loadAmmo = () -> PlayerPatchClient
-					.instance.launch( new OpLoadAmmoClient() );
-				registry.put( Key.PULL_TRIGGER, loadAmmo );
+				final boolean pushAmmo = key == Key.PULL_TRIGGER;
+				if ( pushAmmo )
+				{
+					PlayerPatchClient.instance.launch( new OpLoadAmmoClient() );
+					return;
+				}
 				
-				final Runnable unloadAmmo = () -> PlayerPatchClient
-					.instance.launch( new OpUnloadAmmoClient() );
-				registry.put( Key.AIM_HOLD, unloadAmmo );
-				registry.put( Key.AIM_TOGGLE, unloadAmmo );
+				final boolean popAmmo = key == Key.AIM_HOLD || key == Key.AIM_TOGGLE;
+				if ( popAmmo )
+				{
+					PlayerPatchClient.instance.launch( new OpUnloadAmmoClient() );
+					return;
+				}
 			}
 			
 			@Override

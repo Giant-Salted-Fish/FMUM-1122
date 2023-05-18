@@ -1,23 +1,24 @@
 package com.fmum.common.gun;
 
-import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import javax.annotation.Nullable;
 
+import com.fmum.client.FMUMClient;
 import com.fmum.client.camera.ICameraController;
 import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.client.input.IInput;
 import com.fmum.client.input.Key;
 import com.fmum.client.item.IItemModel;
+import com.fmum.client.player.OpModifyClient;
 import com.fmum.client.player.OperationClient;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.CoupledAnimation;
 import com.fmum.client.render.IAnimation;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.ammo.IAmmoType;
-import com.fmum.common.gun.IFireController.FullAuto;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemTypeHost;
@@ -30,6 +31,7 @@ import com.fmum.common.player.IOperationController;
 import com.fmum.common.player.Operation;
 import com.fmum.common.player.OperationController;
 import com.fmum.common.player.PlayerPatch;
+import com.fmum.util.Animation;
 import com.fmum.util.ArmTracker;
 import com.google.gson.annotations.SerializedName;
 
@@ -41,6 +43,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -77,10 +80,12 @@ public abstract class GunType<
 		),
 		INSPECT_CONTROLLER = new OperationController( 1F / 40F );
 	
-	protected static final IFireController[] DEFAULT_FIRE_CONTROLLERS = { new FullAuto() };
+//	protected static final IFireController[] DEFAULT_FIRE_CONTROLLERS = { new FullAuto() };
 	
-	@SerializedName( value = "fireControllers", alternate = "fireModes" )
-	protected IFireController[] fireControllers = DEFAULT_FIRE_CONTROLLERS;
+//	protected List< IBuildable< IFireController > >
+	
+//	@SerializedName( value = "fireControllers", alternate = "fireModes" )
+	protected transient IFireController[] fireControllers;
 	
 	protected SoundEvent shootSound;
 	
@@ -88,6 +93,15 @@ public abstract class GunType<
 	protected boolean isOpenBolt = false;
 	
 	protected boolean catchBoltOnEmpty = false;
+	
+	@SideOnly( Side.CLIENT )
+	protected Animation boltCatchStatic;
+	
+	@SideOnly( Side.CLIENT )
+	protected Animation shootAnimation;
+	
+	@SideOnly( Side.CLIENT )
+	protected Animation shootBoltCatchAnimation;
 	
 	protected IOperationController
 		loadMagController   = LOAD_MAG_CONTROLLER,
@@ -105,6 +119,9 @@ public abstract class GunType<
 			this.unloadMagController.checkAssetsSetup( provider );
 			this.chargeGunController.checkAssetsSetup( provider );
 			this.inspectController.checkAssetsSetup( provider );
+			
+			this.boltCatchStatic = Optional
+				.ofNullable( this.boltCatchStatic ).orElse( Animation.NONE );
 		} );
 		return this;
 	}
@@ -116,19 +133,23 @@ public abstract class GunType<
 		
 		protected IGunState state;
 		
+		protected IFireController fireController;
+		protected int roundsShot;
+		
 		protected Gun()
 		{
 			this.state = this.createGunState();
+			this.fireController = GunType.this.fireControllers[ 0 ];
 			
 			final int[] data = Gun.this.nbt.getIntArray( DATA_TAG );
 			final int baseIdx = super.dataSize();
-			data[ baseIdx + 0 ] = this.state.toOrdinalAndAmmoId();
+			data[ baseIdx + 0 ] = this.state.toAmmoIdAndOrdinal();
 			
 			final int roundsShot = 0;
 			data[ baseIdx + 1 ] = roundsShot;
 		}
 		
-		protected Gun( boolean unused ) { super( unused ); }
+		protected Gun( boolean UNUSED_waitForDeserialize ) { super( UNUSED_waitForDeserialize ); }
 		
 		@Override
 		public boolean hasMag() { return this.getInstalledCount( 0 ) > 0; }
@@ -154,9 +175,7 @@ public abstract class GunType<
 		public void chargeGun( EntityPlayer player )
 		{
 			this.state = this.state.charge( player );
-			final int[] data = Gun.this.nbt.getIntArray( DATA_TAG );
-			data[ super.dataSize() ] = this.state.toOrdinalAndAmmoId();
-			this.syncAndUpdate();
+			this.syncGunState();
 		}
 		
 		@Override
@@ -182,8 +201,11 @@ public abstract class GunType<
 		{
 			super.deserializeNBT( nbt );
 			
+			final int baseIdx = super.dataSize();
+			
+			// Weapon state and ammo in barrel.
 			final int[] data = Gun.this.nbt.getIntArray( DATA_TAG );
-			final int value = data[ super.dataSize() ];
+			final int value = data[ baseIdx + 0 ];
 			final int stateOrdinary = 0xFFFF & value;
 			switch ( stateOrdinary )
 			{
@@ -209,10 +231,15 @@ public abstract class GunType<
 				this.state = new StateShootReady( ammo );
 				break;
 			}
+			
+			// Rounds shot and fire controller index.
+			final int val = data[ baseIdx + 1 ];
+			this.roundsShot = val >>> 16;
+			this.fireController = GunType.this.fireControllers[ 0xFFFF & val ];
 		}
 		
-		// 0 -> 16-bit state + 16-bit ammo.
-		// 1 -> 16-bit rounds shot.
+		// 0 -> 16-bit ammo id     | 16-bit state;
+		// 1 -> 16-bit rounds shot | 16-bit fire controller index;
 		@Override
 		protected int dataSize() { return super.dataSize() + 2; }
 		
@@ -220,110 +247,11 @@ public abstract class GunType<
 			return GunType.this.isOpenBolt ? new StateCloseBolt() : new StateBoltRelease();
 		}
 		
-		protected class StateOpenBolt implements IGunState
+		protected final void syncGunState()
 		{
-			protected static final int ORDINAL = 0;
-			
-			@Override
-			public IGunState charge( EntityPlayer player ) { return this; }
-			
-			@Override
-			public int toOrdinalAndAmmoId() { return ORDINAL; }
-		}
-		
-		protected class StateCloseBolt implements IGunState
-		{
-			protected static final int ORDINAL = 1;
-			
-			@Override
-			public IGunState charge( EntityPlayer player ) {
-				return new StateOpenBolt(); // TODO: Check if creating inner without Gun.this.new keeps current instance.
-			}
-			
-			@Override
-			public int toOrdinalAndAmmoId() { return ORDINAL; }
-		}
-		
-		protected class StateBoltRelease implements IGunState
-		{
-			protected static final int ORDINAL = 2;
-			
-			@Override
-			public IGunState charge( EntityPlayer player )
-			{
-				final IMag< ? > mag = Gun.this.mag();
-				final boolean noMag = mag == null;
-				if ( noMag ) { return this; }
-				
-				final boolean hasAmmo = !mag.isEmpty();
-				if ( hasAmmo ) { return new StateShootReady( mag.popAmmo() ); }
-				
-				return GunType.this.catchBoltOnEmpty ? new StateBoltCatch() : this;
-			}
-			
-			@Override
-			public int toOrdinalAndAmmoId() { return ORDINAL; }
-		}
-		
-		protected class StateBoltCatch implements IGunState
-		{
-			protected static final int ORDINAL = 3;
-			
-			@Override
-			public IGunState charge( EntityPlayer player )
-			{
-				final IMag< ? > mag = Gun.this.mag();
-				final boolean noMag = mag == null;
-				if ( noMag ) { return new StateBoltRelease(); }
-				
-				final boolean hasAmmo = !mag.isEmpty();
-				return hasAmmo ? new StateShootReady( mag.popAmmo() ) : this;
-			}
-			
-			@Override
-			public int toOrdinalAndAmmoId() { return ORDINAL; }
-		}
-		
-		protected class StateShootReady implements IGunState
-		{
-			protected static final int ORDINAL = 4;
-			
-			protected IAmmoType ammoInChamber;
-			
-			protected StateShootReady( IAmmoType ammo ) { this.ammoInChamber = ammo; }
-			
-			@Override
-			public IGunState charge( EntityPlayer player )
-			{
-				if ( this.ammoInChamber != null )
-				{
-					// Eject it.
-					final int amount = 1;
-					player.dropItem( this.ammoInChamber.item(), amount );
-				}
-				
-				final IMag< ? > mag = Gun.this.mag();
-				final boolean noMag = mag == null;
-				if ( noMag ) { return new StateBoltRelease(); }
-				
-				final boolean hasAmmo = !mag.isEmpty();
-				if ( hasAmmo )
-				{
-					this.ammoInChamber = mag.popAmmo();
-					return this;
-				}
-				
-				return(
-					GunType.this.catchBoltOnEmpty
-					? new StateBoltCatch()
-					: new StateBoltRelease()
-				);
-			}
-			
-			@Override
-			public int toOrdinalAndAmmoId() {
-				return ORDINAL + ( Item.getIdFromItem( this.ammoInChamber.item() ) << 16 );
-			}
+			final int[] data = Gun.this.nbt.getIntArray( DATA_TAG );
+			data[ super.dataSize() ] = this.state.toAmmoIdAndOrdinal();
+			this.syncAndUpdate();
 		}
 		
 		protected class EquippedGun extends EquippedGunPart implements IEquippedGun< C >
@@ -333,22 +261,24 @@ public abstract class GunType<
 				OP_CODE_UNLOAD_MAG = 1,
 				OP_CODE_CHARGE_GUN = 2;
 			
-			protected int gapTicksForNextRound = 0;
+			protected int actionCoolDown = 0;
 			
+			/**
+			 * Because of the latency of the network, the rounds shot count directly deserialized
+			 * from the NBT tag may not be correct. This is used to maintain a temporary value of
+			 * rounds shot to be used by the trigger controller.
+			 */
 			@SideOnly( Side.CLIENT )
-			protected transient boolean isTriggerHolden;
+			protected int bufferedRoundsShot;
 			
-			@SideOnly( Side.CLIENT )
-			protected int roundsShot;
+			protected ITriggerHandler triggerHandler = ITriggerHandler.NONE;
 			
 			protected EquippedGun( EntityPlayer player, EnumHand hand )
 			{
 				super( player, hand );
 				
-				if ( player.world.isRemote )
-				{
-					final int[] data = Gun.this.nbt.getIntArray( DATA_TAG );
-					this.roundsShot = 0xFFFF & data[ Gun.super.dataSize() + 1 ];
+				if ( player.world.isRemote ) {
+					this.bufferedRoundsShot = Gun.this.roundsShot;
 				}
 			}
 			
@@ -361,11 +291,12 @@ public abstract class GunType<
 				super( prevEquipped, player, hand );
 				
 				final EquippedGun prev = ( EquippedGun ) prevEquipped;
-				this.gapTicksForNextRound = prev.gapTicksForNextRound;
+				
+				this.actionCoolDown = prev.actionCoolDown;
 				if ( player.world.isRemote )
 				{
-					this.isTriggerHolden = prev.isTriggerHolden;
-					this.roundsShot = prev.roundsShot;
+					this.bufferedRoundsShot = prev.bufferedRoundsShot;
+					this.triggerHandler = prev.triggerHandler;
 				}
 			}
 			
@@ -374,7 +305,7 @@ public abstract class GunType<
 			{
 				super.tickInHand( player, hand );
 				
-				this.gapTicksForNextRound = Math.max( 0, this.gapTicksForNextRound - 1 );
+				this.triggerHandler = this.triggerHandler.tick( player );
 			}
 			
 			@Override
@@ -399,29 +330,93 @@ public abstract class GunType<
 			
 			@Override
 			@SideOnly( Side.CLIENT )
-			protected void setupInputCallbacks( Map< IInput, Runnable > registry )
+			@SuppressWarnings( "unchecked" )
+			public void onKeyPress( IInput key )
 			{
-				super.setupInputCallbacks( registry );
+				final boolean pullTrigger = key == Key.PULL_TRIGGER;
+				if ( pullTrigger )
+				{
+					final int actionRounds = Gun.this.fireController.actionRounds();
+					if ( actionRounds == 0 ) { return; }
+					
+					// We can pull trigger down now. // TODO: Play sound.
+					
+					
+					// Delegate render to buffered instance.
+					final E copied = ( E ) this.copy();
+					EquippedGun.this.renderDelegate = ori -> copied;
+					
+					final ITriggerHandler handler = new ITriggerHandler()
+					{
+						int bufferedShotCount = Gun.this.roundsShot;
+						int actedRounds = 0;
+						int coolDown = 0;
+						
+						@Override
+						public ITriggerHandler tick( EntityPlayer player )
+						{
+							// If we are the copied one.
+							while ( this.coolDown == 0 )
+							{
+								final ShootResult result = Gun.this.state.tryShoot(
+									this.actedRounds,
+									this.bufferedShotCount,
+									FMUMClient.MC.player
+								);
+								this.coolDown = result.actionDuration;
+//								EquippedGun.this.renderer.useAnimation( result.actionAnimation );
+								Gun.this.state = result.newState;
+								
+								this.bufferedShotCount = result.shootCount;
+								this.actedRounds = result.actedRounds;
+							}
+							
+							this.coolDown -= 1;
+							return this.actedRounds == actionRounds ? ITriggerHandler.NONE : this;
+						}
+						
+						@Override
+						public ITriggerHandler onTriggerRelease()
+						{
+							this.actedRounds = Gun.this.fireController.releaseRounds( this.actedRounds );
+							return this.actedRounds == actionRounds ? ITriggerHandler.NONE : this; // TODO: keep buffered rounds for a while
+						}
+						
+						@Override
+						public int getRoundsShot( int rawRoundsShot ) {
+							return this.bufferedShotCount;
+						}
+					};
+					return;
+				}
 				
-				final Runnable loadUnloadMag = () -> {
-					final boolean shouldUnloadMag = Gun.this.hasMag();
-					PlayerPatchClient.instance.launch(
-						shouldUnloadMag ? new OpUnloadMagClient() : new OpLoadMagClient()
-					);
-				};
-				registry.put( Key.LOAD_UNLOAD_MAG, loadUnloadMag );
-				registry.put( Key.CO_LOAD_UNLOAD_MAG, loadUnloadMag );
-				
-				final Runnable chargeGun = () -> PlayerPatchClient
-					.instance.launch( new OpChargeGunClient() );
-				registry.put( Key.CHARGE_GUN, chargeGun );
-				registry.put( Key.CO_CHARGE_GUN, chargeGun );
-				
-				final Runnable inspectWeapon = () -> PlayerPatchClient.instance.launch(
-					new OperationOnGunClient( GunType.this.inspectController )
+				final boolean loadUnloadMag = (
+					key == Key.LOAD_UNLOAD_MAG
+					|| key == Key.CO_LOAD_UNLOAD_MAG
 				);
-				registry.put( Key.INSPECT, inspectWeapon );
-				registry.put( Key.CO_INSPECT, inspectWeapon );
+				if ( loadUnloadMag )
+				{
+					PlayerPatchClient.instance.launch(
+						Gun.this.hasMag() ? new OpUnloadMagClient() : new OpLoadMagClient()
+					);
+					return;
+				}
+				
+				final boolean chargeGun = key == Key.CHARGE_GUN || key == Key.CO_CHARGE_GUN;
+				if ( chargeGun )
+				{
+					PlayerPatchClient.instance.launch( new OpChargeGunClient() );
+					return;
+				}
+				
+				final boolean inspectWeapon = key == Key.INSPECT || key == Key.CO_INSPECT;
+				if ( inspectWeapon )
+				{
+					PlayerPatchClient.instance.launch(
+						new OperationOnGunClient( GunType.this.inspectController )
+					);
+					return;
+				}
 			}
 			
 			@Override
@@ -432,11 +427,10 @@ public abstract class GunType<
 			@SideOnly( Side.CLIENT )
 			public boolean hideCrosshair()
 			{
-//				final IOperation executing = PlayerPatchClient.instance.executing();
-//				final boolean modifying = executing instanceof OpModifyClient;
-//				final boolean freeView = InputHandler.FREE_VIEW.down || InputHandler.CO_FREE_VIEW.down;
-//				return !( modifying && freeView );
-				return true;
+				final IOperation executing = PlayerPatchClient.instance.executing();
+				final boolean modifying = executing instanceof OpModifyClient;
+				final boolean freeView = Key.FREE_VIEW.down || Key.CO_FREE_VIEW.down;
+				return !( modifying && freeView );
 			}
 			
 			@Override
@@ -462,7 +456,7 @@ public abstract class GunType<
 				@SuppressWarnings( "unchecked" )
 				public IOperation launch( EntityPlayer player )
 				{
-					this.equipped.renderer.useAnimation(
+					this.equipped.renderer.useOperateAnimation(
 						new CoupledAnimation(
 							this.controller.animation(),
 							this::interpolatedProgress
@@ -479,7 +473,7 @@ public abstract class GunType<
 				protected void endCallback()
 				{
 					this.equipped.renderDelegate = original -> original;
-					this.equipped.renderer.useAnimation( IAnimation.NONE );
+					this.equipped.renderer.useOperateAnimation( IAnimation.NONE );
 				}
 			}
 			
@@ -512,7 +506,7 @@ public abstract class GunType<
 					if ( noValidMagToLoad ) { return IOperation.NONE; }
 					
 					// Play animation.
-					this.equipped.renderer.useAnimation(
+					this.equipped.renderer.useOperateAnimation(
 						new CoupledAnimation(
 							this.controller.animation(),
 							this::interpolatedProgress
@@ -525,7 +519,7 @@ public abstract class GunType<
 					final EquippedGun copied = ( EquippedGun ) this.equipped.copy();
 					final C copiedGun = copied.item();
 					
-					// Install the loading mag to render it. Copy before use.
+					// Install the loading mag to render it. // Copy before use.
 					final ItemStack stack = inv.getStackInSlot( invSlot ).copy();
 					final IMag< ? > mag = ( IMag< ? > ) IItemTypeHost.getItem( stack );
 					copiedGun.loadMag( mag );
@@ -569,6 +563,124 @@ public abstract class GunType<
 					this.sendPacketToServer( new PacketNotifyItem( buf -> buf.writeByte( code ) ) );
 					return super.launch( player );
 				}
+			}
+		}
+		
+		protected class StateOpenBolt implements IGunState
+		{
+			protected static final int ORDINAL = 0;
+			
+			@Override
+			public IGunState charge( EntityPlayer player ) { return this; }
+			
+			@Override
+			public int toAmmoIdAndOrdinal() { return ORDINAL; }
+		}
+		
+		protected class StateCloseBolt implements IGunState
+		{
+			protected static final int ORDINAL = 1;
+			
+			@Override
+			public IGunState charge( EntityPlayer player ) {
+				return new StateOpenBolt(); // TODO: Check if creating inner without Gun.this.new keeps current instance.
+			}
+			
+			@Override
+			public int toAmmoIdAndOrdinal() { return ORDINAL; }
+		}
+		
+		protected class StateBoltRelease implements IGunState
+		{
+			protected static final int ORDINAL = 2;
+			
+			@Override
+			public IGunState charge( EntityPlayer player )
+			{
+				final IMag< ? > mag = Gun.this.mag();
+				final boolean noMag = mag == null;
+				if ( noMag ) { return this; }
+				
+				final boolean hasAmmo = !mag.isEmpty();
+				if ( hasAmmo ) { return new StateShootReady( mag.popAmmo() ); }
+				
+				return GunType.this.catchBoltOnEmpty ? new StateBoltCatch() : this;
+			}
+			
+			@Override
+			public int toAmmoIdAndOrdinal() { return ORDINAL; }
+		}
+		
+		protected class StateBoltCatch implements IGunState
+		{
+			protected static final int ORDINAL = 3;
+			
+			@Override
+			public IGunState charge( EntityPlayer player )
+			{
+				final IMag< ? > mag = Gun.this.mag();
+				final boolean noMag = mag == null;
+				if ( noMag ) { return new StateBoltRelease(); }
+				
+				final boolean hasAmmo = !mag.isEmpty();
+				return hasAmmo ? new StateShootReady( mag.popAmmo() ) : this;
+			}
+			
+			@Override
+			public int toAmmoIdAndOrdinal() { return ORDINAL; }
+		}
+		
+		protected class StateShootReady implements IGunState
+		{
+			protected static final int ORDINAL = 4;
+			
+			protected IAmmoType ammoInChamber;
+			
+			protected StateShootReady( IAmmoType ammo ) { this.ammoInChamber = ammo; }
+			
+			@Override
+			public ShootResult tryShoot( int actedRounds, int shotCount, EntityPlayer player )
+			{
+				player.world.playSound(
+					player.posX, player.posY, player.posZ,
+					GunType.this.shootSound,
+					SoundCategory.PLAYERS,
+					1F, 1F, false
+				);
+				return new ShootResult( newState, actionDuration, actionAnimation, actionRounds, shootCount );
+			}
+			
+			@Override
+			public IGunState charge( EntityPlayer player )
+			{
+				if ( this.ammoInChamber != null )
+				{
+					// Eject it.
+					final int amount = 1;
+					player.dropItem( this.ammoInChamber.item(), amount );
+				}
+				
+				final IMag< ? > mag = Gun.this.mag();
+				final boolean noMag = mag == null;
+				if ( noMag ) { return new StateBoltRelease(); }
+				
+				final boolean hasAmmo = !mag.isEmpty();
+				if ( hasAmmo )
+				{
+					this.ammoInChamber = mag.popAmmo();
+					return this;
+				}
+				
+				return(
+					GunType.this.catchBoltOnEmpty
+					? new StateBoltCatch()
+					: new StateBoltRelease()
+				);
+			}
+			
+			@Override
+			public int toAmmoIdAndOrdinal() {
+				return ORDINAL + ( Item.getIdFromItem( this.ammoInChamber.item() ) << 16 );
 			}
 		}
 		
@@ -651,10 +763,63 @@ public abstract class GunType<
 		}
 	}
 	
+	protected interface IFireController
+	{
+		int actionRounds();
+		
+		int releaseRounds( int actedRounds );
+	}
+	
 	protected interface IGunState
 	{
+		ShootResult tryShoot( int actedRounds, int shotCount, EntityPlayer player );
+		
 		IGunState charge( EntityPlayer player );
 		
-		int toOrdinalAndAmmoId();
+		int toAmmoIdAndOrdinal();
+	}
+	
+	protected interface ITriggerHandler
+	{
+		static final ITriggerHandler NONE = new ITriggerHandler()
+		{
+			@Override
+			public ITriggerHandler tick( EntityPlayer player ) { return this; }
+			
+			@Override
+			public ITriggerHandler onTriggerRelease() { return this; }
+			
+			@Override
+			public int getRoundsShot( int rawRoundsShot ) { return rawRoundsShot; }
+		};
+		
+		ITriggerHandler tick( EntityPlayer player );
+		
+		ITriggerHandler onTriggerRelease();
+		
+		int getRoundsShot( int rawRoundsShot );
+	}
+	
+	protected static class ShootResult
+	{
+		public final IGunState newState;
+		public final int actionDuration;
+		public final Animation actionAnimation;
+		public final int actedRounds;
+		public final int shotCount;
+		
+		public ShootResult(
+			IGunState newState,
+			int actionDuration,
+			Animation actionAnimation,
+			int actionRounds,
+			int shotCount
+		) {
+			this.newState = newState;
+			this.actionDuration = actionDuration;
+			this.actionAnimation = actionAnimation;
+			this.actedRounds = actionRounds;
+			this.shotCount = shotCount;
+		}
 	}
 }

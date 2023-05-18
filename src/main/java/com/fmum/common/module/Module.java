@@ -55,9 +55,9 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	 * fields of the sub-class may not have been properly initialized. Hence it needs to be delay
 	 * after the constructor finishes its work.
 	 * 
-	 * @param unused To distinguish this from {@link #Module()}.
+	 * @param UNUSED_waitForDeserialize To distinguish this from {@link #Module()}.
 	 */
-	protected Module( boolean unused ) { }
+	protected Module( boolean UNUSED_waitForDeserialize ) { }
 	
 	@Override
 	public ItemStack toStack() { throw new RuntimeException(); }

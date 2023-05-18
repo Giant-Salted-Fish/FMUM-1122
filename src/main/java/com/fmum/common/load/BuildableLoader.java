@@ -15,16 +15,14 @@ public final class BuildableLoader< T > implements IMeta // Implements this to u
 {
 	public final String entry;
 	
-	public final Function< JsonObject, ? extends IBuildable< ? extends T > > parser;
+	public final Function< JsonObject, ? extends IBuildable< T > > parser;
 	
-	public BuildableLoader( String entry, Class< ? extends IBuildable< ? extends T > > clazz ) {
+	public BuildableLoader( String entry, Class< ? extends IBuildable< T > > clazz ) {
 		this( entry, json -> FMUM.GSON.fromJson( json, clazz ) );
 	}
 	
-	public BuildableLoader(
-		String entry,
-		Function< JsonObject, ? extends IBuildable< ? extends T > > parser
-	) {
+	public BuildableLoader( String entry, Function< JsonObject, ? extends IBuildable< T > > parser )
+	{
 		this.entry = entry;
 		this.parser = parser;
 	}

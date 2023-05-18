@@ -3,8 +3,15 @@
 	"model": "models/gun/hk416/lower_receiver.json",
 	"texture": "textures/gun/hk416_d10rs.png",
 	
-	"rpm": 850,
+	"_fireControllers": {
+		"safe_mode": { },
+		"full_auto": { "rpm": 600 },
+		"semi_auto": { "rpm": 600 }
+	},
 	"catchBoltOnEmpty": true,
+	
+	"shootAnimation": "animations/hk416_shoot.json",
+	"shootBoltCatchAnimation": "animations/hk416_shoot_bolt_catch.json",
 	
 	"loadMagController": {
 		"animation": "animations/hk416_load_mag.json",
@@ -23,7 +30,7 @@
 	},
 	
 	"chargeGunController": {
-		"animation": "animations/hk416_charge.json",
+		"animation": "animations/hk416_charge_gun.json",
 		"progressor": 0.0479998,
 		"effectTime": [ 0.431998 ]
 	},

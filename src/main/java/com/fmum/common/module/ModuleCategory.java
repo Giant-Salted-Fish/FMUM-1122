@@ -1,6 +1,6 @@
 package com.fmum.common.module;
 
-public class ModuleCategory
+public final class ModuleCategory
 {
 	public static final ModuleCategory END = new ModuleCategory();
 	
