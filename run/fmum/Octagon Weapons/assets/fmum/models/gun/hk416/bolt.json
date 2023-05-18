@@ -1,7 +1,12 @@
 {
 	"mesh": "models/gun/hk416/bolt_carrier.obj",
-	"_animatedMeshes": "models/gun/hk416/bolt.obj",
+	"animatedMeshes": [
+		{
+			"mesh": "models/gun/hk416/bolt.obj",
+			"animationChannel": "bolt"
+		}
+	],
 	"scale": 0.00625,
 	"tbObjAdapt": true,
-	"moduleAnimationChannel": "bolt"
+	"moduleAnimationChannel": "bolt_carrier"
 }

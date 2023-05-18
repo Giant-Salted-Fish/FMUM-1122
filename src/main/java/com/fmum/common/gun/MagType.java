@@ -426,6 +426,8 @@ public abstract class MagType<
 					PlayerPatchClient.instance.launch( new OpUnloadAmmoClient() );
 					return;
 				}
+				
+				super.onKeyPress( key );
 			}
 			
 			@Override
