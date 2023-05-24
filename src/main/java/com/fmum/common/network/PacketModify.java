@@ -165,11 +165,11 @@ public final class PacketModify implements IPacket
 		}
 	}
 	
-	protected Code code;
+	private Code code;
 	
-	protected int assist;
+	private int assist;
 	
-	protected byte[] loc;
+	private byte[] loc;
 	
 	public PacketModify() { }
 	
@@ -235,7 +235,7 @@ public final class PacketModify implements IPacket
 		player.getServerWorld().addScheduledTask( () -> this.code.handle( this, player ) );
 	}
 	
-	protected final int step() { return this.assist >>> 16; }
+	private int step() { return this.assist >>> 16; }
 	
-	protected final int offset() { return 0xFFFF & this.assist; }
+	private int offset() { return 0xFFFF & this.assist; }
 }

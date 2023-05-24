@@ -88,12 +88,12 @@ public abstract class OpticSightModel<
 	{
 		@Override
 		public void prepareInHandRender(
-			C contexted, IAnimator animator,
+			C opticalSight, IAnimator animator,
 			Collection< IDeferredRenderer > renderQueue0,
 			Collection< IDeferredRenderer > renderQueue1
 		) {
 			this.doPrepareRender(
-				contexted,
+				opticalSight,
 				animator,
 				renderQueue0,
 				renderQueue1,
@@ -112,12 +112,12 @@ public abstract class OpticSightModel<
 		
 		@Override
 		public void prepareRender(
-			C contexted, IAnimator animator,
+			C opticalSight, IAnimator animator,
 			Collection< IDeferredRenderer > renderQueue0,
 			Collection< IDeferredRenderer > renderQueue1
 		) {
 			this.doPrepareRender(
-				contexted,
+				opticalSight,
 				animator,
 				renderQueue0,
 				renderQueue1,
@@ -126,14 +126,14 @@ public abstract class OpticSightModel<
 		}
 		
 		protected void doPrepareRender(
-			C contexted,
+			C opticalSight,
 			IAnimator animator,
 			Collection< IDeferredRenderer > renderQueue0,
 			Collection< IDeferredRenderer > renderQueue1,
 			Function< Mat4f, Float > occlusionFactor
 		) {
 			// Sight body still uses the original way to render.
-			super.prepareRender( contexted, animator, renderQueue0, renderQueue1 );
+			super.prepareRender( opticalSight, animator, renderQueue0, renderQueue1 );
 			
 			// For the lens and reticle.
 			renderQueue1.add( new IDeferredRenderer() {
@@ -143,7 +143,7 @@ public abstract class OpticSightModel<
 					GL11.glPushMatrix();
 					glMulMatrix( OpticSightRenderer.this.mat );
 					
-					contexted.modifyState().doRecommendedRender( contexted.texture(), () -> {
+					opticalSight.modifyState().doRecommendedRender( opticalSight.texture(), () -> {
 						GL11.glEnable( GL11.GL_STENCIL_TEST );
 						
 						// Mark the area of the lens.

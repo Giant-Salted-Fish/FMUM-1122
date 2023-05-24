@@ -10,9 +10,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IModifyState
 {
-	static final IModifyState NOT_SELECTED = new IModifyState() { };
+	IModifyState NOT_SELECTED = new IModifyState() { };
 	
-	static final IModifyState SELECTED_OK = new IModifyState()
+	IModifyState SELECTED_OK = new IModifyState()
 	{
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -25,7 +25,7 @@ public interface IModifyState
 		}
 	};
 	
-	static final IModifyState SELECTED_CONFLICT = new IModifyState()
+	IModifyState SELECTED_CONFLICT = new IModifyState()
 	{
 		@Override
 		@SideOnly( Side.CLIENT )

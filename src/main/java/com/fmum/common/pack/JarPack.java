@@ -1,10 +1,10 @@
 package com.fmum.common.pack;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.file.Files;
 import java.util.function.Supplier;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -16,9 +16,12 @@ public class JarPack extends LocalPack
 	@Override
 	public void load()
 	{
-		// Load pack info first if has.
-		try ( ZipInputStream zipIn = new ZipInputStream( new FileInputStream( this.source ) ) )
-		{
+		// Load pack info first if it exists.
+		try (
+			ZipInputStream zipIn = new ZipInputStream(
+				Files.newInputStream( this.source.toPath() )
+			)
+		) {
 			final String infoFile = this.infoFile();
 			for ( ZipEntry e; ( e = zipIn.getNextEntry () ) != null; )
 			{
@@ -32,8 +35,11 @@ public class JarPack extends LocalPack
 			this.logException( e, ERROR_LOADING_INFO, filePath );
 		}
 		
-		try ( ZipInputStream zipIn = new ZipInputStream( new FileInputStream( this.source ) ) )
-		{
+		try (
+			ZipInputStream zipIn = new ZipInputStream(
+				Files.newInputStream( this.source.toPath() )
+			)
+		) {
 			for ( ZipEntry e; ( e = zipIn.getNextEntry() ) != null; )
 			{
 				if ( e.isDirectory() ) { continue; }
@@ -44,7 +50,7 @@ public class JarPack extends LocalPack
 				if ( !isInFolder ) { continue; }
 				
 				final String entry = eName.substring( 0, i );
-				final boolean isIgnoredFolder = this.ignoreEntires.contains( entry );
+				final boolean isIgnoredFolder = this.ignoreEntries.contains( entry );
 				if ( isIgnoredFolder ) { continue; }
 				
 				final Supplier< String > sourceTrace = () -> this.sourceName() + "/" + eName;

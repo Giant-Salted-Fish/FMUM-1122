@@ -1,5 +1,6 @@
 package com.fmum.common.module;
 
+import java.util.Comparator;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -32,7 +33,7 @@ public abstract class ModuleWrapper<
 	protected transient final TreeMultimap< Class< ? >, IModuleEventSubscriber< ? > >
 		eventSubscribers = TreeMultimap.create(
 			( c0, c1 ) -> 0,
-			( s0, s1 ) -> s0.priority() - s1.priority() // TODO: receive event later with higher priority
+			Comparator.comparingInt( IModuleEventSubscriber::priority ) // TODO: receive event later with higher priority
 		);
 	
 	protected transient T primary;
@@ -57,7 +58,7 @@ public abstract class ModuleWrapper<
 	public final IModule< ? > base() { throw new RuntimeException(); }
 	
 	/**
-	 * Set base is meaningless for wrapper so it is used here to reset wrapped primary.
+	 * Set base is meaningless for wrapper. So it is used here to reset wrapped primary.
 	 */
 	@Override
 	@SuppressWarnings( "unchecked" )

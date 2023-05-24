@@ -1,16 +1,11 @@
 package com.fmum.common.module;
 
-import java.util.ArrayList;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
 import com.fmum.common.FMUM;
 import com.fmum.common.module.IModuleEventSubscriber.ModuleInstallEvent;
 import com.fmum.common.module.IModuleEventSubscriber.ModuleRemoveEvent;
 import com.fmum.common.paintjob.IPaintable;
 import com.fmum.util.Mat4f;
-import com.google.common.base.Supplier;
-
+import java.util.function.Supplier;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -19,6 +14,10 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.ArrayList;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public abstract class Module< T extends IModule< ? extends T > > implements IModule< T >, IPaintable
 {
@@ -52,12 +51,12 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	
 	/**
 	 * Unfortunately calling {@link #deserializeNBT(NBTTagCompound)} could cause error as it the
-	 * fields of the sub-class may not have been properly initialized. Hence it needs to be delay
+	 * fields of the subclass may not have been properly initialized. Hence, it needs to be delay
 	 * after the constructor finishes its work.
 	 * 
-	 * @param UNUSED_waitForDeserialize To distinguish this from {@link #Module()}.
+	 * @param ignoredWaitForDeserialize To distinguish this from {@link #Module()}.
 	 */
-	protected Module( boolean UNUSED_waitForDeserialize ) { }
+	protected Module( boolean ignoredWaitForDeserialize ) { }
 	
 	@Override
 	public ItemStack toStack() { throw new RuntimeException(); }
@@ -137,7 +136,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 		final NBTTagList modList = this.nbt.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
 		final NBTTagCompound tarTag = mod.serializeNBT();
 		modList.appendTag( tarTag );
-		for ( int i = modList.tagCount(); --i > idx; modList.set( i, modList.get( i - 1 ) ) );
+		for ( int i = modList.tagCount(); --i > idx; ) { modList.set( i, modList.get( i - 1 ) ); }
 		modList.set( idx, tarTag );
 		
 		// Update indices.
@@ -274,7 +273,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	public void deserializeNBT( NBTTagCompound nbt )
 	{
 		// Read paintjob.
-		final int data[] = nbt.getIntArray( DATA_TAG );
+		final int[] data = nbt.getIntArray( DATA_TAG );
 		this.paintjob = ( short ) ( data[ 0 ] >>> 16 );
 		
 		// Read install indices.
@@ -301,9 +300,7 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	protected int dataSize() { return 1 + ( this.indices.length + 3 ) / 4; }
 	
 	/**
-	 * @return
-	 *     Id that can be used to retrieve corresponding meta with the {@link #fromId(int)} of its
-	 *     base. 16 bits valid in default implementation.
+	 * @return 16-bits valid in default implementation.
 	 */
 	protected abstract int id();
 	

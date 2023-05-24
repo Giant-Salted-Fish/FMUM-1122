@@ -1,16 +1,19 @@
-package com.fmum.client.gun;
+package com.fmum.client.mag;
 
 import java.util.Collection;
 import java.util.function.Consumer;
 
 import org.lwjgl.opengl.GL11;
 
+import com.fmum.client.gun.GunPartModel;
+import com.fmum.client.gun.IEquippedGunPartRenderer;
+import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.client.module.IDeferredRenderer;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.ammo.IAmmoType;
-import com.fmum.common.gun.IEquippedMag;
-import com.fmum.common.gun.IMag;
 import com.fmum.common.load.IContentProvider;
+import com.fmum.common.mag.IEquippedMag;
+import com.fmum.common.mag.IMag;
 import com.fmum.util.AngleAxis4f;
 import com.fmum.util.Mesh;
 import com.fmum.util.Vec3f;
@@ -65,7 +68,7 @@ public abstract class MagModel<
 			System.arraycopy( this.followerRot, 0, arr, 0, this.followerRot.length );
 			
 			final AngleAxis4f rot = this.followerRot[ 0 ];
-			for ( int i = this.followerRot.length; i < this.followerPos.length; arr[ i++ ] = rot );
+			for ( int i = this.followerRot.length; i < this.followerPos.length; ) { arr[ i++ ] = rot; }
 			this.followerRot = arr;
 		}
 		
@@ -77,7 +80,7 @@ public abstract class MagModel<
 			
 			final boolean zeroLen = this.ammoRot.length == 0;
 			final AngleAxis4f rot = zeroLen ? AngleAxis4f.ORIGIN : this.ammoRot[ 0 ];
-			for ( int i = this.ammoRot.length; i < this.ammoPos.length; arr[ i++ ] = rot );
+			for ( int i = this.ammoRot.length; i < this.ammoPos.length; ) { arr[ i++ ] = rot; }
 			this.ammoRot = arr;
 		}
 		
@@ -96,13 +99,13 @@ public abstract class MagModel<
 	{
 		@Override
 		public void prepareRender(
-			C contexted, IAnimator animator,
+			C mag, IAnimator animator,
 			Collection< IDeferredRenderer > renderQueue0,
 			Collection< IDeferredRenderer > renderQueue1
 		) {
-			contexted.base().getRenderTransform( contexted, animator, this.mat );
+			mag.base().getRenderTransform( mag, animator, this.mat );
 			
-			final boolean isLoadingMag = contexted.isLoadingMag();
+			final boolean isLoadingMag = mag.isLoadingMag();
 			final String animationChannel = isLoadingMag
 				? MagModel.this.loadingMagModuleChannel : MagModel.this.moduleAnimationChannel;
 			animator.applyChannel( animationChannel, this.mat );
@@ -112,11 +115,11 @@ public abstract class MagModel<
 				glMulMatrix( this.mat );
 				
 				// Render ammo first as mag itself can be transparent.
-				final int ammoCount = contexted.ammoCount();
-				final boolean isOddAmmoCount = contexted.ammoCount() % 2 != 0;
+				final int ammoCount = mag.ammoCount();
+				final boolean isOddAmmoCount = mag.ammoCount() % 2 != 0;
 				final boolean flipPosX = MagModel.this.isDoubleColumnMag && isOddAmmoCount;
 				final int size = Math.min( ammoCount, MagModel.this.ammoPos.length );
-				contexted.forEachAmmo( new Consumer< IAmmoType >() {
+				mag.forEachAmmo( new Consumer< IAmmoType >() {
 					int i = 0;
 					
 					@Override
@@ -137,7 +140,7 @@ public abstract class MagModel<
 					}
 				} );
 				
-				contexted.modifyState().doRecommendedRender( contexted.texture(), () -> {
+				mag.modifyState().doRecommendedRender( mag.texture(), () -> {
 					GL11.glPushMatrix();
 					
 					// Follower first for the same reason.

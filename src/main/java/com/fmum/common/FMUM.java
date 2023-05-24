@@ -21,13 +21,13 @@ import com.fmum.client.FMUMClient;
 import com.fmum.common.ammo.JsonAmmoType;
 import com.fmum.common.gun.JsonGunPartType;
 import com.fmum.common.gun.JsonGunType;
-import com.fmum.common.gun.JsonMagType;
 import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemType;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.common.load.IMeshLoadSubscriber;
 import com.fmum.common.load.IPostLoadSubscriber;
+import com.fmum.common.mag.JsonMagType;
 import com.fmum.common.meta.IMeta;
 import com.fmum.common.meta.Registry;
 import com.fmum.common.module.IModuleSlot;
@@ -213,7 +213,7 @@ public class FMUM extends URLClassLoader
 		this.logInfo( "fmum.init_complete" );
 		
 		// After initialization, info user all the packs being loaded.
-		this.logInfo( "fmum.total_loaded_packs", "" + CONTENT_PROVIDERS.size() );
+		this.logInfo( "fmum.total_loaded_packs", String.valueOf( CONTENT_PROVIDERS.size() ) );
 		CONTENT_PROVIDERS.values().forEach( pack -> {
 			final String packName = this.format( pack.name() );
 			final String packAuthor = this.format( pack.author() );

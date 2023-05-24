@@ -1,6 +1,6 @@
 package com.fmum.common.module;
 
-import com.google.common.base.Supplier;
+import java.util.function.Supplier;
 
 @FunctionalInterface
 public interface IModuleEventSubscriber< T >
@@ -9,7 +9,7 @@ public interface IModuleEventSubscriber< T >
 	
 	default int priority() { return 0; }
 	
-	public static class ModuleInstallEvent
+	class ModuleInstallEvent
 	{
 		public IModule< ? > base;
 		
@@ -31,7 +31,7 @@ public interface IModuleEventSubscriber< T >
 		}
 	}
 	
-	public static class ModuleRemoveEvent
+	class ModuleRemoveEvent
 	{
 		public IModule< ? > base;
 		

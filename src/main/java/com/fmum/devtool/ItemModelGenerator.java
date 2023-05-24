@@ -26,7 +26,9 @@ public final class ItemModelGenerator
 			{
 				final File dstFile = new File( dstDir, fName );
 				if ( dstFile.exists() ) { System.out.println( "Skipped file " + fName ); }
-				else try ( BufferedWriter out = new BufferedWriter( new FileWriter( dstFile ) ) )
+				else
+				{
+					try ( BufferedWriter out = new BufferedWriter( new FileWriter( dstFile ) ) )
 					{
 						out.write(
 							"{\n" +
@@ -42,7 +44,8 @@ public final class ItemModelGenerator
 						e.printStackTrace();
 						System.exit( -1 );
 					}
-					System.out.println( "Gen item model for " + file.getName() );
+				}
+				System.out.println( "Gen item model for " + file.getName() );
 			}
 			else System.out.println( "Unrecognized file " + file.getName() );
 		}

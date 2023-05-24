@@ -3,6 +3,7 @@ package com.fmum.common.gun;
 import java.util.function.Consumer;
 
 import com.fmum.common.ammo.IAmmoType;
+import com.fmum.common.mag.IMag;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

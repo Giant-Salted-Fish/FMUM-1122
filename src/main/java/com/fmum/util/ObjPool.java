@@ -19,7 +19,7 @@ public final class ObjPool< T >
 	private final BiConsumer< T, List< T > > recycler;
 	
 	/**
-	 * In default it uses a synchronized {@link ArrayList} as pool which guarantee the thread safe.
+	 * In default, it uses a synchronized {@link ArrayList} as pool which guarantee the thread safe.
 	 * 
 	 * @param factory Instance factory which provides instance when there is none left in pool.
 	 */

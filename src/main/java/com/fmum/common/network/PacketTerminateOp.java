@@ -21,7 +21,7 @@ public final class PacketTerminateOp implements IPacket
 	{
 		final EntityPlayerMP player = ctx.getServerHandler().player;
 		player.getServerWorld().addScheduledTask(
-			() -> PlayerPatch.get( player ).ternimateExecuting()
+			() -> PlayerPatch.get( player ).terminateExecuting()
 		);
 	}
 }

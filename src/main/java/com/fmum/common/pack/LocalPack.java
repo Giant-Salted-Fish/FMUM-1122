@@ -5,8 +5,6 @@ import java.io.Reader;
 import java.util.HashSet;
 import java.util.function.Supplier;
 
-import javax.annotation.Nullable;
-
 import com.fmum.common.FMUM;
 import com.fmum.common.IAutowireLogger;
 import com.fmum.common.load.BuildableLoader;
@@ -37,13 +35,13 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 	 */
 	protected String author = "fmum.author_missing";
 	
-	protected final HashSet< String > ignoreEntires = new HashSet<>();
+	protected final HashSet< String > ignoreEntries = new HashSet<>();
 	
 	protected LocalPack( File source )
 	{
 		this.name = source.getName();
 		this.source = source;
-		this.ignoreEntires.add( "assets" );
+		this.ignoreEntries.add( "assets" );
 	}
 	
 	@Override
@@ -77,17 +75,16 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 		{
 			final JsonArray arr = obj.get( "ignoreEntries" ).getAsJsonArray();
 			for ( int i = arr.size(); i-- > 0; ) {
-				this.ignoreEntires.add( arr.get( i ).getAsString() );
+				this.ignoreEntries.add( arr.get( i ).getAsString() );
 			}
 		}
 		// TODO: handle version check
 	}
 	
 	/**
-	 * @return {@code null} if fails to find proper loader.
+	 *
 	 */
-	@Nullable
-	protected IMeta loadJsonType(
+	protected void loadJsonType(
 		Reader in,
 		String fallbackType,
 		String name,
@@ -99,19 +96,18 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 		final JsonElement type = obj.get( "__type__" );
 		final String entry = type != null ? type.getAsString().toLowerCase() : fallbackType;
 		final BuildableLoader< ? extends IMeta > loader = FMUM.TYPE_LOADERS.get( entry );
-		if ( loader != null ) { return loader.parser.apply( obj ).build( name, this ); }
 		
-		this.logError( "fmum.type_loader_not_found", sourceTrace.get(), entry );
-		return null;
+		if ( loader != null ) { loader.parser.apply( obj ).build( name, this ); }
+		else { this.logError( "fmum.type_loader_not_found", sourceTrace.get(), entry ); }
 	}
 	
-	protected IMeta loadClassType( String filePath ) throws Exception
+	protected void loadClassType( String filePath ) throws Exception
 	{
 		final int suffixLen = ".class".length();
 		final String path = filePath.substring( 0, filePath.length() - suffixLen );
 		final int lastCommaAt = Math.min( 0, path.lastIndexOf( '.' ) );
 		final String name = path.substring( lastCommaAt );
-		return ( IMeta ) FMUM.MOD.loadClass( path )
+		FMUM.MOD.loadClass( path )
 			.getConstructor( String.class, IContentProvider.class )
 			.newInstance( name, this );
 	}

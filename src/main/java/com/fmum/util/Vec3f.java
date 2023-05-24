@@ -5,7 +5,6 @@ import javax.vecmath.Vector3f;
 import com.fmum.common.FMUM;
 import com.fmum.devtool.Dev;
 
-@SuppressWarnings( "serial" )
 public class Vec3f extends Vector3f implements IReleasable
 {
 	/**
@@ -68,7 +67,7 @@ public class Vec3f extends Vector3f implements IReleasable
 	}
 	
 	/**
-	 * Parse {@code "(x,y,z)"} into a Vec3f.
+	 * Parse {@code "(x,y,z)"} into a {@link Vec3f}.
 	 */
 	public static Vec3f parse( String text )
 	{

@@ -17,6 +17,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
+
 /**
  * Default implementation of {@link ICreativeTab}.
  * 
@@ -83,6 +85,7 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 		@Override
 		public IMeta meta() { return CreativeTab.this; }
 		
+		@Nonnull
 		@Override
 		@SideOnly( Side.CLIENT )
 		public ItemStack createIcon()
@@ -104,6 +107,7 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 			return new ItemStack( Items.FISH ); // Fallback to fish!
 		}
 		
+		@Nonnull
 		@Override
 		@SideOnly( Side.CLIENT )
 		public ResourceLocation getBackgroundImage() { return CreativeTab.this.texture; }

@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import com.google.common.base.Supplier;
+import java.util.function.Supplier;
 
 /**
  * Content packs that organized as folders.
@@ -18,7 +18,7 @@ public class FolderPack extends LocalPack
 	@Override
 	public void load()
 	{
-		// Read pack info first if has.
+		// Read pack info first if it exists.
 		final File infoFile = new File( this.source, this.infoFile() );
 		if ( infoFile.exists() )
 		{
@@ -32,7 +32,7 @@ public class FolderPack extends LocalPack
 		for ( final File dir : this.source.listFiles() )
 		{
 			final String dirName = dir.getName();
-			if ( dir.isDirectory() && !this.ignoreEntires.contains( dirName ) )
+			if ( dir.isDirectory() && !this.ignoreEntries.contains( dirName ) )
 			{
 				final String fallbackType = dirName;
 				final Supplier< String > sourceTrace = () -> dirName;

@@ -7,7 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public interface IModuleType extends IMeta
 {
-	static final Registry< IModuleType > REGISTRY = new Registry<>();
+	Registry< IModuleType > REGISTRY = new Registry<>();
 	
 	/**
 	 * WARNNING: Never use this unless you understand what it is doing.

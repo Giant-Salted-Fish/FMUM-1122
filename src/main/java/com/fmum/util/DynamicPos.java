@@ -29,7 +29,7 @@ public final class DynamicPos
 	/**
 	 * A buffered vector to avoid frequent allocation on update for calculation
 	 */
-	protected final Vec3f vec = new Vec3f();
+	private final Vec3f vec = new Vec3f();
 	
 	public void update( float forceMult, float maxForce, float dampingFactor )
 	{

@@ -60,7 +60,7 @@ public final class EventHandlerClient
 				final FMUMClient mod = FMUMClient.MOD;
 				mod.meshLoadSubscribers.forEach( sub -> {
 					// Throwing any exception on world load could jam the load progress and print \
-					// a lot of error messages that will barely help with debug. Hence we \
+					// a lot of error messages that will barely help with debug. Hence, we \
 					// generally want to avoid any exception being thrown out here especially when \
 					// you think of that #onModelLoad method could be overridden by the pack \
 					// makers who do not know this.
@@ -138,13 +138,8 @@ public final class EventHandlerClient
 	@SubscribeEvent
 	public static void onRenderGameOverlay$Pre( RenderGameOverlayEvent.Pre evt )
 	{
-		switch ( evt.getType() )
-		{
-		case CROSSHAIRS:
+		if ( evt.getType() == RenderGameOverlayEvent.ElementType.CROSSHAIRS ) {
 			evt.setCanceled( PlayerPatchClient.instance.hideCrosshair() );
-			break;
-			
-		default:;
 		}
 	}
 	

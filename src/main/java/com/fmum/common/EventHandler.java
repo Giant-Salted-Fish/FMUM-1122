@@ -83,7 +83,7 @@ final class EventHandler
 		
 		final IForgeRegistry< SoundEvent > registry = evt.getRegistry ();
 		final Collection< SoundEvent > sounds = FMUM.MOD.soundPool.values();
-		sounds.forEach( sound -> registry.register( sound ) );
+		sounds.forEach( registry::register );
 		
 		LOGGER.logInfo( "fmum.sound_regis_complete", sounds.size() );
 		

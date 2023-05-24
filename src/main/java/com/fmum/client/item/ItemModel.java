@@ -165,7 +165,7 @@ public abstract class ItemModel<
 			
 			// {@link ItemRenderer#rotateArm(float)} is not applied to avoid shift.
 			
-			// TODO: Re-scale may not needed. Do not forget that there is a disable pair call.
+			// TODO: Re-scale may not be needed. Do not forget that there is a disable pair call.
 			GlStateManager.enableRescaleNormal();
 			
 			// Setup and render!
@@ -201,7 +201,7 @@ public abstract class ItemModel<
 		}
 		
 		/**
-		 * Called in {@link #prepareRenderInHandSP(IEquippedItem, EnumHand)} to setup position and
+		 * Called in {@link #prepareRenderInHandSP(IEquippedItem, EnumHand)} to set up position and
 		 * rotation before applying the animation.
 		 */
 		protected void updatePosRot()

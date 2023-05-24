@@ -1,4 +1,4 @@
-package com.fmum.common.gun;
+package com.fmum.common.mag;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -14,6 +14,8 @@ import com.fmum.client.item.IItemModel;
 import com.fmum.client.player.OperationClient;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.common.ammo.IAmmoType;
+import com.fmum.common.gun.GunPartType;
+import com.fmum.common.gun.IGunPart;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItemType;
 import com.fmum.common.item.IItemTypeHost;
@@ -81,7 +83,7 @@ public abstract class MagType<
 		
 		protected Mag() { this.ammoNBTHandler = new CountAmmoNBTHandler(); }
 		
-		protected Mag( boolean unused ) { super( unused ); }
+		protected Mag( boolean ignoredWaitForDeserialize ) { super( ignoredWaitForDeserialize ); }
 		
 		@Override
 		public boolean isFull() {
@@ -281,9 +283,8 @@ public abstract class MagType<
 			{
 				this.ammoList = new LinkedList<>();
 				final int[] data = Mag.this.nbt.getIntArray( COUNT_AMMO_TAG );
-				for ( int i = 0; i < data.length; ++i )
+				for ( final int value : data )
 				{
-					final int value = data[ i ];
 					final int ammoId = value >>> 16;
 					final int count = 1 + ( value & 0xFFFF );
 					
@@ -449,7 +450,7 @@ public abstract class MagType<
 					);
 					
 					if ( isLoadingOrUnloadingAmmo ) {
-						PlayerPatchClient.instance.ternimateExecuting();
+						PlayerPatchClient.instance.terminateExecuting();
 					}
 				}
 			}

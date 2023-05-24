@@ -9,7 +9,7 @@ import com.fmum.common.IAutowireLogger;
 
 public final class Registry< T extends IMeta > implements IAutowireLogger
 {
-	private final HashMap< String, T > mapper = new HashMap< String, T >();
+	private final HashMap< String, T > mapper = new HashMap<>();
 	
 	public T get( String key ) { return this.mapper.get( key ); }
 	

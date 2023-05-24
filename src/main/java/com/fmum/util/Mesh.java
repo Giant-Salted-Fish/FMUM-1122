@@ -92,11 +92,11 @@ public class Mesh implements IReleasable
 		texCoordData.flip();
 		normData.flip();
 		
-		// Generate VAO and bind it
+		// Generate VAO and bind it.
 		int vao = GL30.glGenVertexArrays();
 		GL30.glBindVertexArray( vao );
 		
-		// Buffer vertices, normals and texture coordinates
+		// Buffer vertices, normals and texture coordinates.
 		// FIXME: load them into one buffer. Only enable state for once
 		// FIXME: seems that it is not needed for vertex pointer to work
 		GL11.glEnableClientState( GL11.GL_VERTEX_ARRAY );
@@ -117,7 +117,7 @@ public class Mesh implements IReleasable
 		GL15.glBufferData( GL15.GL_ARRAY_BUFFER, normData, GL15.GL_STATIC_DRAW );
 		GL11.glNormalPointer( GL11.GL_FLOAT, 0, 0 );
 		
-		// Create EBO if has
+		// Create EBO if it has.
 		int ebo = -1;
 		if ( indices != null && ( count = indices.size() ) > 0 )
 		{
@@ -135,7 +135,7 @@ public class Mesh implements IReleasable
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, 0 );
 		GL30.glBindVertexArray( 0 );
 		
-		// It seems that deleting the vbos will not crash the game.
+		// It seems that deleting the VBOs will not crash the game.
 		GL15.glDeleteBuffers( posVBO );
 		GL15.glDeleteBuffers( normVBO );
 		GL15.glDeleteBuffers( texCoordVBO );
@@ -149,7 +149,6 @@ public class Mesh implements IReleasable
 	 * 
 	 * @author Giant_Salted_Fish
 	 */
-	@SuppressWarnings( "serial" )
 	public static final class Vertex extends Vec3f
 	{
 		public float u, v;
@@ -228,7 +227,7 @@ public class Mesh implements IReleasable
 			final Vertex[] arr = new Vertex[ 4 ];
 			while ( itr.hasNext() )
 			{
-				for ( int i = 0; i < 4; arr[ i++ ] = itr.next() );
+				for ( int i = 0; i < 4; ) { arr[ i++ ] = itr.next(); }
 				for ( int j = 0; j < 4; j += 2 )
 				{
 					final Vertex vert0 = arr[ j ];

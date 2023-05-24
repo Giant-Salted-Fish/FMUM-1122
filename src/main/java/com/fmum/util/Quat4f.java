@@ -3,7 +3,6 @@ package com.fmum.util;
 import com.fmum.common.FMUM;
 import com.fmum.devtool.Dev;
 
-@SuppressWarnings( "serial" )
 public final class Quat4f extends javax.vecmath.Quat4f implements IReleasable
 {
 	/**

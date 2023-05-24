@@ -37,5 +37,5 @@ public class JsonGunModel extends GunModel<
 			public IEquippedGunRenderer< ? super IEquippedGun< ? extends IGun< ? > > >
 				onTakeOut( EnumHand hand ) { return new EquippedGunRenderer(); }
 		};
-	};
+	}
 }

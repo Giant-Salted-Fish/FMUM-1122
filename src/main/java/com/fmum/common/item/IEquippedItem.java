@@ -18,7 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public interface IEquippedItem< T extends IItem >
 {
-	static final IEquippedItem< ? > VANILLA = new IEquippedItem< IItem >()
+	IEquippedItem< ? > VANILLA = new IEquippedItem< IItem >()
 	{
 		@Override
 		public IItem item() { return IItem.VANILLA; }
@@ -51,7 +51,7 @@ public interface IEquippedItem< T extends IItem >
 	default void handlePacket( ByteBuf buf, EntityPlayer player ) { }
 	
 	/**
-	 * Called before camera update. Use this to update the {@link Animation} instance if it controls
+	 * Called before camera update. Use this to update the {@link IAnimator} instance if it controls
 	 * the camera animation.
 	 * 
 	 * @see #prepareRenderInHandSP(EnumHand)
@@ -78,14 +78,15 @@ public interface IEquippedItem< T extends IItem >
 	boolean renderInHandSP( EnumHand hand );
 	
 	/**
-	 * @see PlayerPatchClient#onRenderSpecificHand(EnumHand)
+	 * @see PlayerPatchClient#onRenderSpecificHandSP(EnumHand)
 	 * @return {@code true} if should cancel original hand render.
 	 */
 	@SideOnly( Side.CLIENT )
 	boolean onRenderSpecificHandSP( EnumHand hand );
 	
-	@SideOnly( Side.CLIENT )
-	default void renderInHand( EntityPlayer player, EnumHand hand ) { }
+	// TODO: For third-person view render.
+//	@SideOnly( Side.CLIENT )
+//	default void renderInHand( EntityPlayer player, EnumHand hand ) { }
 	
 	/**
 	 * This method is called when a key bind is triggered(pressed) when holding this item.
@@ -105,7 +106,7 @@ public interface IEquippedItem< T extends IItem >
 	default void onKeyRelease( IInput key ) { }
 	
 	@SideOnly( Side.CLIENT )
-	default boolean onMouseWheelInput( int dWheel ) { return false; }
+	default boolean onMouseWheelInput( int ignored ) { return false; }
 	
 	@SideOnly( Side.CLIENT )
 	default boolean updateViewBobbing( boolean original ) { return original; }

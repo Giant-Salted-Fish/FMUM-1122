@@ -11,7 +11,6 @@ import com.fmum.devtool.Dev;
 
 import net.minecraft.util.math.MathHelper;
 
-@SuppressWarnings( "serial" )
 public final class Mat4f extends Matrix4f implements IReleasable
 {
 	private static final ObjPool< Mat4f > POOL = new ObjPool<>( Mat4f::new );
@@ -277,14 +276,14 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	}
 	
 	/**
-	 * Obtain euler angle applied in YXZ order in degrees.
+	 * <p> Obtain euler angle applied in YXZ order in degrees. </p>
 	 * 
-	 * @note
-	 *     {@link #scale(Vec3f)} should not be applied to this matrix. Otherwise, the angle
-	 *     obtained via this method could be wrong.
+	 * <p> Note that {@link #scale(float, float, float)} should not be applied to this matrix.
+	 * Otherwise, the angle obtained via this method could be wrong. </p>
+	 *
 	 * @param dst Angle will be saved into this vector in degrees.
 	 */
-	public final void getEulerAngleYXZ( Vec3f dst )
+	public void getEulerAngleYXZ( Vec3f dst )
 	{
 		dst.set(
 			Util.TO_DEGREES * ( float ) -Math.asin( this.m12 ),
@@ -296,11 +295,11 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	/**
 	 * @return Z euler angle in YXZ order in degrees.
 	 */
-	public final float getEulerAngleZ() {
+	public float getEulerAngleZ() {
 		return Util.TO_DEGREES * ( float ) Math.atan2( this.m10, this.m11 );
 	}
 	
-	public final void transformAsPoint( Vec3f point )
+	public void transformAsPoint( Vec3f point )
 	{
 		this.transform( point );
 		point.x += this.m03;

@@ -130,7 +130,7 @@ public abstract class GunModel<
 	}
 	
 	/**
-	 * Copied from {@link EntityRenderer#getFOVModifier(float, boolean)}.
+	 * Copied from EntityRenderer#getFOVModifier(float, boolean).
 	 */
 	protected final float getFovModifier( float smoother )
 	{
@@ -148,11 +148,11 @@ public abstract class GunModel<
 	{
 		@Override
 		public void prepareRender(
-			C contexted, IAnimator animator,
+			C gun, IAnimator animator,
 			Collection< IDeferredRenderer > renderQueue0,
 			Collection< IDeferredRenderer > renderQueue1
 		) {
-			contexted.base().getRenderTransform( contexted, animator, this.mat );
+			gun.base().getRenderTransform( gun, animator, this.mat );
 			animator.applyChannel( GunModel.this.moduleAnimationChannel, this.mat );
 			
 			// TODO: we can buffer animator so no instance will be created for this closure
@@ -160,13 +160,13 @@ public abstract class GunModel<
 				GL11.glPushMatrix();
 				glMulMatrix( this.mat );
 				
-				final ResourceLocation texture = contexted.texture();
-				contexted.modifyState().doRecommendedRender( texture, () -> {
+				final ResourceLocation texture = gun.texture();
+				gun.modifyState().doRecommendedRender( texture, () -> {
 					GunModel.this.renderAnimatedMesh( animator );
 					GunModel.this.render();
 					
 					// Render Ammo in barrel.
-					contexted.forEachAmmo( ammo -> {
+					gun.forEachAmmo( ammo -> {
 						final Mat4f mat = Mat4f.locate();
 						animator.getChannel( GunModel.this.ammoAnimationChannel, mat );
 						glMulMatrix( mat );

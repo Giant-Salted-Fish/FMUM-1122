@@ -12,7 +12,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public interface IAnimator
 {
-	static final IAnimator NONE = new IAnimator()
+	IAnimator NONE = new IAnimator()
 	{
 		@Override
 		@SideOnly( Side.CLIENT )
@@ -45,8 +45,8 @@ public interface IAnimator
 	
 	/**
 	 * TODO: proper intro
-	 * @see #blendPos(IAnimator, float, String, String, float, Mat4f)
-	 * @see #blendRot(IAnimator, float, String, String, float, Mat4f)
+	 * TODO: @see #blendPos(IAnimator, float, String, String, float, Mat4f)
+	 * TODO: @see #blendRot(IAnimator, float, String, String, float, Mat4f)
 	 * @return
 	 *     Blend factor for animation. Usually {@code 0F} for static position and {@code 1F} for
 	 *     animation.

@@ -1,8 +1,10 @@
-package com.fmum.common.gun;
+package com.fmum.common.mag;
 
 import java.util.function.Consumer;
 
 import com.fmum.common.ammo.IAmmoType;
+import com.fmum.common.gun.GunPartWrapper;
+import com.fmum.common.gun.IGunPart;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;

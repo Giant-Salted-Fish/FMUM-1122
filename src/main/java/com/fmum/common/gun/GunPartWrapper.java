@@ -2,6 +2,7 @@ package com.fmum.common.gun;
 
 import java.util.Collection;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.fmum.client.module.IDeferredRenderer;
@@ -37,15 +38,17 @@ public class GunPartWrapper<
 	}
 	
 	@Override
-	public final boolean hasCapability( Capability< ? > capability, @Nullable EnumFacing facing ) {
-		return capability == ItemType.CAPABILITY;
-	}
+	public final boolean hasCapability(
+		@Nonnull Capability< ? > capability,
+		@Nullable EnumFacing facing
+	) { return capability == ItemType.CAPABILITY; }
 	
 	@Nullable
 	@Override
-	public final < C > C getCapability( Capability< C > capability, @Nullable EnumFacing facing ) {
-		return capability == ItemType.CAPABILITY ? ItemType.CAPABILITY.cast( this ) : null;
-	}
+	public final < C > C getCapability(
+		@Nonnull Capability< C > capability,
+		@Nullable EnumFacing facing
+	) { return capability == ItemType.CAPABILITY ? ItemType.CAPABILITY.cast( this ) : null;	}
 	
 	@Override
 	public final int stackId() { return this.stack.getTagCompound().getInteger( STACK_ID_TAG ); }

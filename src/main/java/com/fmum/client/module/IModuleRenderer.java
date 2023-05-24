@@ -15,7 +15,7 @@ public interface IModuleRenderer< T >
 	
 	@SideOnly( Side.CLIENT )
 	void prepareRender(
-		T contexted, IAnimator animator,
+		T module, IAnimator animator,
 		Collection< IDeferredRenderer > renderQueue0,
 		Collection< IDeferredRenderer > renderQueue1
 	);

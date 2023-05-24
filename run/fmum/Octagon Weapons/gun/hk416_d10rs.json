@@ -31,32 +31,41 @@
 		"sounds": [ "unload_mag" ]
 	},
 	
-	"chargeReleaseReleaseController": {
-		"animation": "animations/hk416_charge-release-release.json",
-		"progressor": 0.0479998,
-		"effectTime": [ 0.431998 ]
-	},
-	"chargeReleaseCatchController": {
-		"animation": "animations/hk416_charge-release-catch.json",
-		"progressor": 0.0479998,
-		"effectTime": [ 0.431998 ]
-	},
-	"chargeCatchReleaseController": {
-		"animation": "animations/hk416_charge-catch-release.json",
-		"progressor": 0.0479998,
-		"effectTime": [ 0.431998 ]
-	},
-	"chargeCatchCatchController": {
-		"animation": "animations/hk416_charge-catch-catch.json",
-		"progressor": 0.0479998,
-		"effectTime": [ 0.431998 ]
-	},
+	"chargeControllerDispatcher": [
+		{
+			"animation": "animations/hk416_charge-release-release.json",
+			"clearStaticAnimation": true,
+			"progressor": 0.0479998,
+			"effectTime": [ 0.431998 ]
+		}, {
+			"animation": "animations/hk416_charge-release-catch.json",
+			"clearStaticAnimation": true,
+			"progressor": 0.0479998,
+			"effectTime": [ 0.431998 ],
+			"boltCatchAfterAction": true
+		}, {
+			"animation": "animations/hk416_charge-catch-release.json",
+			"clearStaticAnimation": true,
+			"progressor": 0.0479998,
+			"effectTime": [ 0.431998 ],
+			"boltCatchBeforeAction": true
+		}, {
+			"animation": "animations/hk416_charge-catch-catch.json",
+			"clearStaticAnimation": true,
+			"progressor": 0.0479998,
+			"effectTime": [ 0.431998 ],
+			"boltCatchBeforeAction": true,
+			"boltCatchAfterAction": true
+		}
+	],
 	
-	"inspectController": {
-		"animation": "animations/hk416_inspect-bolt_release.json",
-		"progressor": 0.0179102
-	},
-	
+	"inspectControllerDispatcher": [
+		{
+			"animation": "animations/hk416_inspect-bolt_release.json",
+			"clearStaticAnimation": true,
+			"progressor": 0.0179102
+		}
+	],
 	"paramScale": 0.00625,
 	"moduleSlots": [
 		{

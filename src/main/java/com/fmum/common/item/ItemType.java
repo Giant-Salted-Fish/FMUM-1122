@@ -29,7 +29,8 @@ public abstract class ItemType< C extends IItem, M extends IItemModel< ? > >
 	
 	protected transient Item item;
 	
-	protected String description = "fmum.description.missing";
+	// TODO: Append description to tooltip.
+//	protected String description = "fmum.description.missing";
 	
 	@SerializedName( value = "creativeTab", alternate = "itemGroup" )
 	protected String creativeTab = FMUM.DEFAULT_TAB.name();
@@ -49,7 +50,7 @@ public abstract class ItemType< C extends IItem, M extends IItemModel< ? > >
 	@Override
 	public void onPostLoad()
 	{
-		// We can not guarantee that creative tabs are loaded before the items. Hence locate its \
+		// We can not guarantee that creative tabs are loaded before the items. Hence, locate its \
 		// creative tab on post load.
 		this.setupCreativeTab();
 	}

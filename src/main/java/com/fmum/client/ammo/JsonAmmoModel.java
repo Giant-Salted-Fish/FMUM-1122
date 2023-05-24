@@ -42,9 +42,9 @@ public class JsonAmmoModel extends AmmoModel<
 	) { return new EquippedItemRenderer(); }
 	
 	@Override
-	public void render( IItem contexted, IAnimator animator )
+	public void render( IItem item, IAnimator animator )
 	{
-		JsonAmmoModel.this.bindTexture( contexted.texture() );
+		JsonAmmoModel.this.bindTexture( item.texture() );
 		JsonAmmoModel.this.render();
 	}
 }

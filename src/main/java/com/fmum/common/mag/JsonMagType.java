@@ -1,9 +1,10 @@
-package com.fmum.common.gun;
+package com.fmum.common.mag;
 
 import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.client.gun.JsonGunPartModel;
 import com.fmum.client.item.IItemModel;
+import com.fmum.common.gun.IGunPart;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.meta.IMeta;

@@ -1,8 +1,10 @@
-package com.fmum.client.gun;
+package com.fmum.client.mag;
 
-import com.fmum.common.gun.IEquippedMag;
-import com.fmum.common.gun.IMag;
+import com.fmum.client.gun.IEquippedGunPartRenderer;
+import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.common.load.BuildableLoader;
+import com.fmum.common.mag.IEquippedMag;
+import com.fmum.common.mag.IMag;
 
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;

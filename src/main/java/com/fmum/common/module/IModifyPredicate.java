@@ -7,7 +7,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IModifyPredicate
 {
-	static final IModifyPredicate OK = new IModifyPredicate() { };
+	IModifyPredicate OK = new IModifyPredicate() { };
 	
 	default boolean ok() { return true; }
 	
@@ -15,7 +15,7 @@ public interface IModifyPredicate
 	default boolean okOrNotifyWhy() { return true; }
 	
 	@FunctionalInterface
-	public interface NotOk extends IModifyPredicate
+	interface NotOk extends IModifyPredicate
 	{
 		@Override
 		default boolean ok() { return false; }

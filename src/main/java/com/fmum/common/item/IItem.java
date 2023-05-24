@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public interface IItem
 {
-	static final IItem VANILLA = new IItem()
+	IItem VANILLA = new IItem()
 	{
 		@Override
 		public int stackId() { return 0; }
@@ -38,7 +38,7 @@ public interface IItem
 	/**
 	 * This will be used to determinate whether the item in hand has changed.
 	 * 
-	 * @return An universe id that identifies an item stack.
+	 * @return A universe id that identifies an item stack.
 	 */
 	int stackId();
 	

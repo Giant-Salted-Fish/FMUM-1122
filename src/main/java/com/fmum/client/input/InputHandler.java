@@ -12,8 +12,8 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.common.IAutowireLogger;
 import com.fmum.common.FMUM;
+import com.fmum.common.IAutowireLogger;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.JsonObject;
@@ -44,12 +44,12 @@ public final class InputHandler
 	public static final HashSet< IKeyBind > GLOBAL_KEYS = new HashSet<>();
 	
 	/**
-	 * Keys that will update when {@link #CO} is pressed.
+	 * Keys that will update when {@link Key#ASSIST} is pressed.
 	 */
 	public static final HashSet< IKeyBind > CO_KEYS = new HashSet<>();
 	
 	/**
-	 * Keys that will update when {@link #CO} is not pressed.
+	 * Keys that will update when {@link Key#ASSIST} is not pressed.
 	 */
 	public static final HashSet< IKeyBind > INCO_KEYS = new HashSet<>();
 	
@@ -66,25 +66,12 @@ public final class InputHandler
 	
 	private static final HashMultimap< Integer, IKeyBind > INCO_MAPPER = HashMultimap.create();
 	
-//	static
-//	{
-//		new VanillaKeyBindProxy(
-//			"swap_hand",
-//			FMUMClient.MOD,
-//			Category.OTHER,
-//			FMUMClient.SETTINGS.keyBindSwapHands
-//		) {
-//			@Override
-//			protected void onAction() { PlayerPatchClient.instance.trySwapHand(); }
-//		};
-//	}
-	
 	private static final IAutowireLogger LOGGER = FMUMClient.MOD;
 	
 	private InputHandler() { }
 	
 	@SubscribeEvent
-	public static void onKeyInput( KeyInputEvent evt )
+	public static void onKeyInput( KeyInputEvent ignored )
 	{
 		// TODO: check #player
 		if ( FMUMClient.MC.currentScreen != null ) { return; }

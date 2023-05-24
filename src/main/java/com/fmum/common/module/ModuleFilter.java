@@ -11,9 +11,9 @@ public final class ModuleFilter
 {
 	public static final ModuleFilter DEFAULT = new ModuleFilter();
 	
-	protected boolean isAllowed = false;
+	private boolean isAllowed = false;
 	
-	protected Map< String, ModuleFilter > subDomains = Collections.emptyMap();
+	private Map< String, ModuleFilter > subDomains = Collections.emptyMap();
 	
 	public ModuleFilter( JsonElement element )
 	{

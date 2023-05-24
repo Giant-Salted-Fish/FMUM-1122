@@ -1,5 +1,6 @@
 package com.fmum.common.player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.fmum.common.FMUM;
@@ -107,7 +108,7 @@ public class PlayerPatch implements ICapabilityProvider
 		return this.executing = this.executing.onOtherTryLaunch( operation, this.player );
 	}
 	
-	public final IOperation ternimateExecuting() {
+	public final IOperation terminateExecuting() {
 		return this.executing = this.executing.terminate( this.player );
 	}
 	
@@ -116,15 +117,17 @@ public class PlayerPatch implements ICapabilityProvider
 	}
 	
 	@Override
-	public final boolean hasCapability( Capability< ? > capability, @Nullable EnumFacing facing ) {
-		return capability == CAPABILITY;
-	}
+	public final boolean hasCapability(
+		@Nonnull Capability< ? > capability,
+		@Nullable EnumFacing facing )
+	{ return capability == CAPABILITY; }
 	
 	@Nullable
 	@Override
-	public final < T > T getCapability( Capability< T > capability, @Nullable EnumFacing facing ) {
-		return capability == CAPABILITY ? CAPABILITY.cast( this ) : null;
-	}
+	public final < T > T getCapability(
+		@Nonnull Capability< T > capability,
+		@Nullable EnumFacing facing
+	) { return capability == CAPABILITY ? CAPABILITY.cast( this ) : null; }
 	
 	public static PlayerPatch get( EntityPlayer player ) {
 		return player.getCapability( CAPABILITY, null );

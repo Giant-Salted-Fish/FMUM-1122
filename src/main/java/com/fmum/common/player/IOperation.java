@@ -8,10 +8,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * <p> Represents something that the player is doing with the item in main hand. </p>
- * 
- * <p> In default your implementation should guarantee that {@link #terminate()} is always called
- * when the operation is left for execution. </p>
- * 
+ *
  * <p> Notice that we supply {@link EntityPlayer} for every life cycle method of operation. This is
  * because we know the outer caller should have the reference to the corresponding player and this
  * helps to eliminate the memory cost to have the identical reference to the same instance. On the
@@ -25,7 +22,7 @@ public interface IOperation
 	/**
 	 * Placeholder operation instance. Represents that no operation is currently running.
 	 */
-	static final IOperation NONE = new IOperation()
+	IOperation NONE = new IOperation()
 	{
 		@Override
 		public IOperation onStackUpdate( IEquippedItem< ? > newEquipped,  EntityPlayer player ) {
@@ -47,7 +44,7 @@ public interface IOperation
 	default IOperation launch( EntityPlayer player ) { return this; }
 	
 	/**
-	 * For progressive operation that can reverse its progress. For example you can enter sprint
+	 * For progressive operation that can reverse its progress. For example, you can enter sprint
 	 * stance and keep it then quit it after a while.
 	 */
 	default IOperation toggle( EntityPlayer player ) { return this; }

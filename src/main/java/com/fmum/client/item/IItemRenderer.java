@@ -15,5 +15,5 @@ public interface IItemRenderer< C, ER >
 	 * Render an item that is not equipped but animated by the given animator
 	 */
 	@SideOnly( Side.CLIENT )
-	void render( C contexted, IAnimator animator );
+	void render( C item, IAnimator animator );
 }

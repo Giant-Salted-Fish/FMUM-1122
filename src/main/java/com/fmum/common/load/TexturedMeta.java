@@ -20,9 +20,9 @@ public abstract class TexturedMeta extends BuildableMeta
 	public IMeta build( String name, IContentProvider provider )
 	{
 		super.build( name, provider );
-		
-		provider.clientOnly( () -> this.checkAssetsSetup() );
+
 //		provider.clientOnly( this::checkClientSetup ); // Write like this will crash.
+		provider.clientOnly( () -> this.checkAssetsSetup() );
 		return this;
 	}
 	

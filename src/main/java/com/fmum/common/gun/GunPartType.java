@@ -51,6 +51,8 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
+
 public abstract class GunPartType<
 	I extends IGunPart< ? extends I >, // Not necessary, but to avoid filling in the generic argument on instantiating the abstract inner class.
 	C extends IGunPart< ? >,
@@ -127,8 +129,10 @@ public abstract class GunPartType<
 		} );
 		
 		// TODO: call update state maybe?
-		final Function< String, IModule< ? > > func = name -> newRawContexted();
-		this.compiledSnapshotNBT = this.snapshot.setSnapshot( func ).serializeNBT();
+		this.snapshot.setSnapshot(
+			name -> this.newRawContexted(),
+			module -> this.compiledSnapshotNBT = module.serializeNBT()
+		);
 		this.snapshot = null; // Release snapshot after use.
 	}
 	
@@ -208,10 +212,10 @@ public abstract class GunPartType<
 			}
 			
 			// no--stackTag | no--capTag: {new ItemStack(...)}, {PacketBuffer#readItemStack()}
-			// We basically has no way to distinguish from these two cases. But it will work \
+			// We basically have no way to distinguish from these two cases. But it will work \
 			// fine if we simply deserialize and setup it with the compiled snapshot NBT. That \
 			// is because #readNBTShareTag(ItemStack, NBTTagCompound) will later be called for \
-			// the network packet case. The down side is that it will actually deserialize \
+			// the network packet case. The downside is that it will actually deserialize \
 			// twice for the network packet case.
 			final NBTTagCompound newStackTag = new NBTTagCompound();
 			newStackTag.setInteger( STACK_ID_TAG, new Random().nextInt() ); // TODO: better way to do this?
@@ -243,9 +247,9 @@ public abstract class GunPartType<
 		 */
 		@Override
 		public boolean onBlockStartBreak(
-			ItemStack itemstack,
-			BlockPos pos,
-			EntityPlayer player
+			@Nonnull ItemStack itemstack,
+			@Nonnull BlockPos pos,
+			@Nonnull EntityPlayer player
 		) { return true; }
 		
 		/**
@@ -255,10 +259,10 @@ public abstract class GunPartType<
 		 */
 		@Override
 		public boolean canDestroyBlockInCreative(
-			World world,
-			BlockPos pos,
-			ItemStack stack,
-			EntityPlayer player
+			@Nonnull World world,
+			@Nonnull BlockPos pos,
+			@Nonnull ItemStack stack,
+			@Nonnull EntityPlayer player
 		) { return false; }
 	}
 	
@@ -293,7 +297,7 @@ public abstract class GunPartType<
 			if ( isLogicServer )
 			{
 				// This is required because we have no way to assign a new id for a copied gun \
-				// stack with out using the mixin, which means two guns in player's inventory \
+				// stack without using the mixin, which means two guns in player's inventory \
 				// could have essentially identical id! This hack generates a new id for gun in \
 				// hand on taking out, which can not fully settle this problem, but should be \
 				// enough to make it work in most of the time.
@@ -400,16 +404,6 @@ public abstract class GunPartType<
 			);
 		}
 		
-//		@Override
-//		@SideOnly( Side.CLIENT )
-//		public void prepareRender(
-//			IAnimator animator,
-//			Collection< IDeferredRenderer > renderQueue0,
-//			Collection< IDeferredPriorityRenderer > renderQueue1
-//		) {
-//			
-//		}
-		
 		@Override
 		@SideOnly( Side.CLIENT )
 		public void setupLeftArmToRender( IAnimator animator, ArmTracker leftArm ) {
@@ -504,14 +498,14 @@ public abstract class GunPartType<
 			protected EquippedGunPart(
 				IEquippedItem< ? > prevEquipped,
 				EntityPlayer player,
-				EnumHand hand
+				EnumHand ignored
 			) {
 				if ( player.world.isRemote )
 				{
 					final EquippedGunPart prev = ( EquippedGunPart ) prevEquipped;
 					this.renderer = prev.renderer;
 					this.renderDelegate = prev.renderDelegate;
-				};
+				}
 			}
 			
 			@Override
@@ -608,7 +602,6 @@ public abstract class GunPartType<
 						modifyOp::smoothedProgress,
 						() -> modifyOp.refPlayerRotYaw
 					);
-					return;
 				}
 			}
 			

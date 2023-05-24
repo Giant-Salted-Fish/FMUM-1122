@@ -1,5 +1,6 @@
 package com.fmum.common.ammo;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.fmum.client.ammo.IAmmoModel;
@@ -83,14 +84,16 @@ public abstract class AmmoType<
 	protected class Ammo implements IItem, ICapabilityProvider
 	{
 		@Override
-		public boolean hasCapability( Capability< ? > capability, @Nullable EnumFacing facing ) {
-			return capability == CAPABILITY;
-		}
+		public boolean hasCapability(
+			@Nonnull Capability< ? > capability,
+			@Nullable EnumFacing facing
+		) { return capability == CAPABILITY; }
 		
 		@Override
-		public < T > T getCapability( Capability< T > capability, @Nullable EnumFacing facing ) {
-			return CAPABILITY.cast( this );
-		}
+		public < T > T getCapability(
+			@Nonnull Capability< T > capability,
+			@Nullable EnumFacing facing
+		) { return CAPABILITY.cast( this ); }
 		
 		@Override
 		public int stackId() { return this.hashCode(); }

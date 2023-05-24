@@ -18,7 +18,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * This implementation includes the critical code that makes free view work. Hence it is recommended
+ * This implementation includes the critical code that makes free view work. Hence, it is recommended
  * to implement your camera controller from this class. This also provides some simple camera
  * effects that can be tuned via {@link ModConfig}.
  * 
@@ -35,7 +35,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		.intBitsToFloat( ( Float.floatToIntBits( 90F ) >>> 23 ) - 23 << 23 );
 	
 	/**
-	 * This is static and shared for all its sub-type instances to make sure the cycle will not jump
+	 * This is static and shared for all its subtype instances to make sure the cycle will not jump
 	 * when switching the camera animator.
 	 */
 	protected static float dropDistanceCycle = 0F;
@@ -208,13 +208,6 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		prevOffAxis.x = camOffAxisX;
 		prevOffAxis.y = camOffAxisY;
 	}
-	
-//	@Override
-//	public void getCameraRot( Vec3f dst )
-//	{
-//		this.cameraEasing.get( this.smoother(), dst );
-//		dst.add( this.cameraRot );
-//	}
 	
 	@Override
 	public void getViewTransform( Mat4f dst ) { dst.set( this.viewMat ); }

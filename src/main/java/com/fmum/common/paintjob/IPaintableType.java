@@ -5,7 +5,7 @@ import com.fmum.common.meta.Registry;
 
 public interface IPaintableType extends IMeta
 {
-	static final Registry< IPaintableType > REGISTRY = new Registry<>();
+	Registry< IPaintableType > REGISTRY = new Registry<>();
 	
 	/**
 	 * Implement this to accept paintjob injection.

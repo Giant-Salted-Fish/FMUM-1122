@@ -11,8 +11,8 @@ public interface IItemTypeHost extends IMetaHost
 	IItemType meta();
 	
 	/**
-	 * Use {@link #getItemOrDefault(ItemStack)} instead of this if you can guarantee the stack has a
-	 * a valid type item.
+	 * Use {@link #getItem(ItemStack)} instead of this if you can guarantee the stack has a valid
+	 * type item.
 	 * 
 	 * @return {@link IItem#VANILLA} if stack does not have a valid type host item.
 	 */

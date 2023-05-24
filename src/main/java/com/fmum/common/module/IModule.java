@@ -18,7 +18,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	/**
 	 * @see #getId(NBTTagCompound)
 	 */
-	static final String DATA_TAG = "d";
+	String DATA_TAG = "d";
 	
 	String name();
 	
@@ -134,8 +134,8 @@ public interface IModule< T extends IModule< ? extends T > >
 	
 	/**
 	 * <p> Restore the state of the context with the given tag. You should directly set the values
-	 * rather than calling setting methods like {@link #setOffsetStep(int)} as they may try to set
-	 * the NBT data. </p>
+	 * rather than calling setting methods like {@link #setOffsetStep(int, int)} as they may try to
+	 * set the NBT data. </p>
 	 * 
 	 * <p> Notice that context will bind to the given NBT tag. </p>
 	 * 

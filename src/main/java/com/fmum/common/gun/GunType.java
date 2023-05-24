@@ -23,6 +23,7 @@ import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemTypeHost;
 import com.fmum.common.load.IContentProvider;
+import com.fmum.common.mag.IMag;
 import com.fmum.common.meta.IMeta;
 import com.fmum.common.module.IModuleEventSubscriber;
 import com.fmum.common.network.PacketNotifyItem;
@@ -171,7 +172,7 @@ public abstract class GunType<
 			data[ baseIdx + 1 ] = roundsShot;
 		}
 		
-		protected Gun( boolean UNUSED_waitForDeserialize ) { super( UNUSED_waitForDeserialize ); }
+		protected Gun( boolean ignoredWaitForDeserialize ) { super( ignoredWaitForDeserialize ); }
 		
 		@Override
 		public boolean hasMag() { return this.getInstalledCount( 0 ) > 0; }
@@ -179,7 +180,7 @@ public abstract class GunType<
 		@Nullable
 		@Override
 		public IMag< ? > mag() {
-			return this.hasMag() ? ( IMag< ? > ) this.getInstalled( 0, 0 ) : null;
+			return this.hasMag() ? (com.fmum.common.mag.IMag< ? > ) this.getInstalled( 0, 0 ) : null;
 		}
 		
 		@Override
@@ -191,7 +192,7 @@ public abstract class GunType<
 		public void loadMag( IMag< ? > mag ) { this.install( 0, mag ); }
 		
 		@Override
-		public IMag< ? > unloadMag() { return ( IMag< ? > ) this.remove( 0, 0 ); }
+		public IMag< ? > unloadMag() { return (com.fmum.common.mag.IMag< ? > ) this.remove( 0, 0 ); }
 		
 		@Override
 		public void chargeGun( EntityPlayer player )
@@ -459,8 +460,7 @@ public abstract class GunType<
 			@SideOnly( Side.CLIENT )
 			public void setupRenderArm(
 				IAnimator animator,
-				ArmTracker leftArm,
-				ArmTracker rightArm
+				ArmTracker leftArm, ArmTracker rightArm
 			) {
 				// TODO: Move to this maybe?
 				Gun.this.leftHandHolding.setupLeftArmToRender( animator, leftArm );
@@ -468,7 +468,7 @@ public abstract class GunType<
 			}
 			
 			@SideOnly( Side.CLIENT )
-			protected final IGunState state() { return Gun.this.state; }
+			protected final Gun inner() { return Gun.this; }
 			
 			@SideOnly( Side.CLIENT )
 			protected class OperationOnGunClient extends OperationClient< EquippedGun >
@@ -532,10 +532,7 @@ public abstract class GunType<
 					
 					// Play animation.
 					this.equipped.renderer.useOperateAnimation(
-						new CoupledAnimation(
-							this.controller.animation(),
-							this::smoothedProgress
-						)
+						new CoupledAnimation( this.controller.animation(), this::smoothedProgress )
 					);
 					final ICameraController camera = PlayerPatchClient.instance.camera;
 					camera.useAnimation( new ReadOnlyAnimator( this.equipped.animator() ) );
@@ -546,7 +543,7 @@ public abstract class GunType<
 					
 					// Install the loading mag to render it. // Copy before use.
 					final ItemStack stack = inv.getStackInSlot( invSlot ).copy();
-					final IMag< ? > mag = ( IMag< ? > ) IItemTypeHost.getItem( stack );
+					final IMag< ? > mag = (com.fmum.common.mag.IMag< ? > ) IItemTypeHost.getItem( stack );
 					copiedGun.loadMag( mag );
 					mag.setAsLoadingMag();
 					
@@ -569,7 +566,7 @@ public abstract class GunType<
 						final ItemStack stack = inv.getStackInSlot( i );
 						final IItem item = IItemTypeHost.getItemOrDefault( stack );
 						final boolean isMag = item instanceof IMag< ? >;
-						final boolean isValidMag = isMag && Gun.this.isAllowed( ( IMag< ? > ) item );
+						final boolean isValidMag = isMag && Gun.this.isAllowed( (com.fmum.common.mag.IMag< ? > ) item );
 						if ( isValidMag ) { return i; }
 					}
 					return -1;
@@ -596,9 +593,10 @@ public abstract class GunType<
 				{
 					super.endCallback();
 					
-					EquippedGun.this.renderer.useGunAnimation(
-						new CoupledAnimation( this.equipped.state().staticAnimation(), () -> 1F )
-					);
+					EquippedGun.this.renderer.useGunAnimation( new CoupledAnimation(
+						this.equipped.inner().state.staticAnimation(),
+						() -> 1F
+					) );
 				}
 			}
 		}
@@ -823,7 +821,7 @@ public abstract class GunType<
 				final ItemStack stack = player.inventory.getStackInSlot( this.magInvSlot );
 				final IItem item = IItemTypeHost.getItemOrDefault( stack );
 				final boolean isMag = item instanceof IMag< ? >;
-				final boolean isValidMag = isMag && this.gun.isAllowed( ( IMag< ? > ) item );
+				final boolean isValidMag = isMag && this.gun.isAllowed( (com.fmum.common.mag.IMag< ? > ) item );
 				return isValidMag ? this : IOperation.NONE;
 			}
 			
@@ -836,7 +834,7 @@ public abstract class GunType<
 				final boolean isMag = item instanceof IMag< ? >;
 				if ( !isMag ) { return; }
 				
-				final IMag< ? > mag = ( IMag< ? > ) item;
+				final IMag< ? > mag = (com.fmum.common.mag.IMag< ? > ) item;
 				if ( !this.gun.isAllowed( mag ) ) { return; }
 				
 				this.gun.loadMag( mag );
@@ -877,7 +875,7 @@ public abstract class GunType<
 	
 	protected interface IGunState
 	{
-//		ShootResult tryShoot( int actedRounds, int shotCount, EntityPlayer player );
+//		ShootResult tryShoot( int actedRounds, int shotNumber, EntityPlayer player );
 		
 		IOperationController chargeController();
 		
@@ -893,7 +891,7 @@ public abstract class GunType<
 	
 	protected interface ITriggerHandler
 	{
-		static final ITriggerHandler NONE = new ITriggerHandler()
+		ITriggerHandler NONE = new ITriggerHandler()
 		{
 			@Override
 			public ITriggerHandler tick( EntityPlayer player ) { return this; }

@@ -7,7 +7,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IAutowirePlayerChat
 {
-	static final int CHAT_LINE_ID = 'F' + 'M' + 'U' + 'M';
+	int CHAT_LINE_ID = 'F' + 'M' + 'U' + 'M';
 	
 	@SideOnly( Side.CLIENT )
 	default void sendPlayerMsg( String... messages )

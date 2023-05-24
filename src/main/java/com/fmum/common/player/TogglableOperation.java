@@ -29,8 +29,8 @@ public abstract class TogglableOperation extends Operation
 	@Override
 	public IOperation toggle( EntityPlayer player )
 	{
-		final boolean isForwad = this.controller == this.forwardController;
-		this.controller = isForwad ? this.backwardController : this.forwardController;
+		final boolean isForward = this.controller == this.forwardController;
+		this.controller = isForward ? this.backwardController : this.forwardController;
 		return this;
 	}
 	

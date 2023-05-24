@@ -1,4 +1,4 @@
-package com.fmum.common.gun;
+package com.fmum.common.mag;
 
 import com.fmum.common.item.IEquippedItem;
 

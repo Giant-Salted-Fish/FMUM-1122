@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import com.fmum.common.ammo.IAmmoType;
+import com.fmum.common.mag.IMag;
 
 import net.minecraft.entity.player.EntityPlayer;
 

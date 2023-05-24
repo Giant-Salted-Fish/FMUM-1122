@@ -1,6 +1,6 @@
 package com.fmum.client.input;
 
-import static com.fmum.client.input.InputHandler.*;
+import static com.fmum.client.input.InputHandler.GLOBAL_KEYS;
 
 import org.lwjgl.input.Keyboard;
 
@@ -33,7 +33,7 @@ public final class Key
 	private static final int MOUSE_0 = -100, MOUSE_1 = -99;
 	
 	/**
-	 * These keys always update.
+	 * These keys will always update.
 	 */
 	public static final KeyBind
 		PULL_TRIGGER = new KeyBind( "pull_trigger", Category.GUN, MOUSE_0, GLOBAL_KEYS ),

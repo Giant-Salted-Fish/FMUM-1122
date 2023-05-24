@@ -44,9 +44,6 @@ public abstract class GunPartModel<
 	protected static final ArrayList< IDeferredRenderer > HAND_QUEUE_0 = new ArrayList<>();
 	protected static final ArrayList< IDeferredRenderer > HAND_QUEUE_1 = new ArrayList<>();
 	
-	protected static final ArrayList< IDeferredRenderer > QUEUE_0 = new ArrayList<>();
-	protected static final ArrayList< IDeferredRenderer > QUEUE_1 = new ArrayList<>();
-	
 	private static final Vec3f MODIFY_POS = new Vec3f( 0F, 0F, 200F / 160F );
 	
 	protected Vec3f modifyPos = MODIFY_POS;
@@ -111,11 +108,11 @@ public abstract class GunPartModel<
 		
 		@Override
 		public void prepareRender(
-			C contexted, IAnimator animator,
+			C gunPart, IAnimator animator,
 			Collection< IDeferredRenderer > renderQueue0,
 			Collection< IDeferredRenderer > renderQueue1
 		) {
-			contexted.base().getRenderTransform( contexted, animator, this.mat );
+			gunPart.base().getRenderTransform( gunPart, animator, this.mat );
 			animator.applyChannel( GunPartModel.this.moduleAnimationChannel, this.mat );
 			
 			// TODO: we can buffer animator so no instance will be created for this closure
@@ -123,8 +120,8 @@ public abstract class GunPartModel<
 				GL11.glPushMatrix();
 				glMulMatrix( this.mat );
 				
-				final ResourceLocation texture = contexted.texture();
-				contexted.modifyState().doRecommendedRender( texture, () -> {
+				final ResourceLocation texture = gunPart.texture();
+				gunPart.modifyState().doRecommendedRender( texture, () -> {
 					GunPartModel.this.renderAnimatedMesh( animator );
 					GunPartModel.this.render();
 				} );
@@ -151,14 +148,14 @@ public abstract class GunPartModel<
 		}
 		
 		@Override
-		public void render( C contexted, IAnimator animator )
+		public void render( C gunPart, IAnimator animator )
 		{
-			this.bindTexture( contexted.texture() );
+			this.bindTexture( gunPart.texture() );
 			GunPartModel.this.render();
 		}
 		
 		// TODO: caller of this method may also have get the same item channel
-		protected void updateArm( ArmTracker arm, IAnimator animator ) {
+		protected void updateArm( ArmTracker arm, IAnimator ignore ) {
 			this.mat.transformAsPoint( arm.handPos );
 		}
 		
@@ -187,7 +184,7 @@ public abstract class GunPartModel<
 				equipped.item().prepareRenderInHandSP( animator, HAND_QUEUE_0, HAND_QUEUE_1 );
 				
 				// TODO: better comparator?
-				HAND_QUEUE_1.sort( ( r0, r1 ) -> r0.priority() > r1.priority() ? -1 : 1 );
+				HAND_QUEUE_1.sort( ( r0, r1 ) -> Float.compare( r1.priority(), r0.priority() ) );
 				HAND_QUEUE_1.forEach( IDeferredRenderer::prepare );
 			}
 			
@@ -203,7 +200,7 @@ public abstract class GunPartModel<
 	protected class ModifyAnimator implements IAnimator
 	{
 		protected final IAnimator animator;
-		protected final Supplier< Float > progresss;
+		protected final Supplier< Float > progress;
 		protected final Supplier< Float > refPlayerRotYaw;
 		
 		protected final Vec3f pos = new Vec3f();
@@ -215,14 +212,14 @@ public abstract class GunPartModel<
 			Supplier< Float > refPlayerRotYaw
 		) {
 			this.animator = animator;
-			this.progresss = progress;
+			this.progress = progress;
 			this.refPlayerRotYaw = refPlayerRotYaw;
 		}
 		
 		@Override
 		public void update()
 		{
-			final float progress = this.progresss.get();
+			final float progress = this.progress.get();
 			final Mat4f mat = Mat4f.locate();
 			this.animator.getChannel( CHANNEL_ITEM, mat );
 			mat.invert();

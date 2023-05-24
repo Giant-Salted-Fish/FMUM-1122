@@ -36,7 +36,7 @@ public final class ObjReformator
 			final boolean isObjFile = fName.endsWith( ".obj" );
 			if ( !isObjFile ) { continue; }
 			
-			// If has .obj.obj suffix then remove it
+			// If this file has .obj.obj suffix then remove it.
 			final String outFileName = fName.endsWith( ".obj.obj" )
 				? fName.substring( 0, fName.length() - 4 ) : fName;
 			process( inDir + fName, outDir + outFileName );
@@ -50,7 +50,7 @@ public final class ObjReformator
 	{
 		try (
 			BufferedReader in = new BufferedReader( new FileReader( inPath ) );
-			BufferedWriter out = new BufferedWriter( new FileWriter( outPath ) );
+			BufferedWriter out = new BufferedWriter( new FileWriter( outPath ) )
 		) {
 			for ( String line; ( line = in.readLine() ) != null; out.newLine() )
 			{
@@ -68,14 +68,13 @@ public final class ObjReformator
 						if ( value[ i ] < 0D || value[ i ] > 1D )
 						{
 							out.write( "vt" );
-							for ( int j = 0; j < value.length; ++j )
+							for ( double v : value )
 							{
-								double val = value[ j ];
+								double val = v;
 								for (
-									final double step = value[ j ] < 0D ? 1D : -1D;
+									final double step = v < 0D ? 1D : -1D;
 									val < 0D || val > 1D;
-									val += step
-								);
+								) { val += step; }
 								out.write( " " + val );
 							}
 							break;

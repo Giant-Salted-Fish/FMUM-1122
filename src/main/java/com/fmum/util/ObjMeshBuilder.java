@@ -22,11 +22,10 @@ public class ObjMeshBuilder extends Mesh.Builder
 		return this;
 	}
 	
-	@SuppressWarnings( "deprecation" )
 	public ObjMeshBuilder load( OBJModel model )
 	{
-		model.getMatLib().getGroups().entrySet().forEach(
-			e -> e.getValue().getFaces().forEach( face -> {
+		model.getMatLib().getGroups().forEach( ( name, group ) -> {
+			group.getFaces().forEach( face -> {
 				final OBJModel.Normal faceNorm = face.getNormal();
 				for ( final OBJModel.Vertex vert : face.getVertices() )
 				{
@@ -36,8 +35,8 @@ public class ObjMeshBuilder extends Mesh.Builder
 						.ofNullable( vert.getNormal() ).orElse( faceNorm );
 					this.add( vec.x, vec.y, vec.z, uv.u, -uv.v, norm.x, norm.y, norm.z );
 				}
-			} )
-		);
+			} );
+		} );
 		return this;
 	}
 	

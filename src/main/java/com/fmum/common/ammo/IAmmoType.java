@@ -9,7 +9,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IAmmoType extends IItemType
 {
-	static final Registry< IAmmoType > REGISTRY = new Registry<>();
+	Registry< IAmmoType > REGISTRY = new Registry<>();
 	
 	String category();
 	

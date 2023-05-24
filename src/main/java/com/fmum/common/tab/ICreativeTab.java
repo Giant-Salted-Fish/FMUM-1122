@@ -9,7 +9,7 @@ import net.minecraft.item.Item;
 
 public interface ICreativeTab extends IMeta
 {
-	static final Registry< ICreativeTab > REGISTRY = new Registry<>();
+	Registry< ICreativeTab > REGISTRY = new Registry<>();
 	
 	CreativeTabs creativeTab();
 	

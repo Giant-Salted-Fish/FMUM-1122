@@ -21,11 +21,11 @@ import com.fmum.client.gun.JsonCarGripModel;
 import com.fmum.client.gun.JsonGripModel;
 import com.fmum.client.gun.JsonGunModel;
 import com.fmum.client.gun.JsonGunPartModel;
-import com.fmum.client.gun.JsonMagModel;
 import com.fmum.client.gun.JsonOpticalSightModel;
 import com.fmum.client.input.InputHandler;
 import com.fmum.client.input.JsonKeyBind;
 import com.fmum.client.item.ItemModel;
+import com.fmum.client.mag.JsonMagModel;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.Model;
 import com.fmum.common.FMUM;
@@ -98,7 +98,6 @@ public final class FMUMClient extends FMUM
 	
 	/**
 	 * Buffered textures.
-	 * 
 	 * TODO: clear pools after use maybe?
 	 */
 	private final HashMap< String, ResourceLocation > texturePool = new HashMap<>();
@@ -120,7 +119,7 @@ public final class FMUMClient extends FMUM
 			throw new RuntimeException( I18n.format( "fmum.stencil_not_supported" ) );
 		}
 		
-		// Call super for pre-load.
+		// Call super for preload.
 		super.preLoad();
 		
 		// Register model loaders.
@@ -280,7 +279,7 @@ public final class FMUMClient extends FMUM
 	
 	@Override
 	public ResourceLocation loadTexture( String path ) {
-		return this.texturePool.computeIfAbsent( path, key -> new FMUMResource( key ) );
+		return this.texturePool.computeIfAbsent( path, FMUMResource::new );
 	}
 	
 	@Override

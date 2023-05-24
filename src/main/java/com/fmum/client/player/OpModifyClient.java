@@ -9,8 +9,6 @@ import java.util.LinkedList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
-
 import com.fmum.client.FMUMClient;
 import com.fmum.client.IAutowirePlayerChat;
 import com.fmum.client.input.IInput;
@@ -70,10 +68,8 @@ public abstract class OpModifyClient extends TogglableOperation
 	protected byte[] loc;
 	protected int locLen;
 	
-	@Nonnull
 	protected IModule< ? > primary;
 	
-	@Nonnull
 	protected IModule< ? > cursor;
 	protected IPaintable paintable;
 	
@@ -574,7 +570,7 @@ public abstract class OpModifyClient extends TogglableOperation
 		return idx != -1 ? 0xFF & idx : -1;
 	}
 	
-	protected class ModifyMode
+	protected static class ModifyMode
 	{
 		protected final String notifyMsg;
 		protected final Consumer< Boolean > handler;

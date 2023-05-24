@@ -54,10 +54,10 @@ public interface IContentProvider extends IMeta
 	 * <p> Register the given instance to receive {@link IMeshLoadSubscriber#onMeshLoad()} callback
 	 * if the game is running on physical client side. </p>
 	 * 
-	 * <p> Be aware that most types that load their models via {@link #loadModel(String, String)}
-	 * do not need to register for this callback as models loaded in that way will be buffered and
-	 * processed automatically by {@link FMUM}. Only register for this callback if your type loads
-	 * its models in other ways. </p>
+	 * <p> Be aware that most types that load their models via
+	 * {@link #loadModel(String, String, Supplier)} do not need to register for this callback as
+	 * models loaded in that way will be buffered and processed automatically by {@link FMUM}. Only
+	 * register for this callback if your type loads its models in other ways. </p>
 	 */
 	default void regisMeshLoadSubscriber( IMeshLoadSubscriber subscriber ) {
 		FMUM.MOD.regisMeshLoadSubscriber( subscriber );
@@ -69,7 +69,7 @@ public interface IContentProvider extends IMeta
 	 * Load .json or .class model from the given path.
 	 * 
 	 * @param path Path of the model to load.
-	 * @param fallbackModelType Type to use if "__type__" field does not defined in ".json" file.
+	 * @param fallbackModelType Type to use if "__type__" field is not defined in ".json" file.
 	 * @param fallbackModel This will be used if failed to find loader or an error occurred.
 	 */
 	@SideOnly( Side.CLIENT )
