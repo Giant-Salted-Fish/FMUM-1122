@@ -1,13 +1,11 @@
 package com.fmum.client.input;
 
-import static com.fmum.client.input.InputHandler.GLOBAL_KEYS;
-
-import org.lwjgl.input.Keyboard;
-
 import com.fmum.common.FMUM;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Keyboard;
+
+import static com.fmum.client.input.InputHandler.GLOBAL_KEYS;
 
 /**
  * You can find the names of all {@link FMUM} pre-defined keys in this class.

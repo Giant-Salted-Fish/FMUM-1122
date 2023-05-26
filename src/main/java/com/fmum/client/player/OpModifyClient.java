@@ -1,14 +1,5 @@
 package com.fmum.client.player;
 
-import static com.fmum.client.FMUMClient.MC;
-import static com.fmum.common.module.IModifyPredicate.OK;
-import static com.fmum.common.module.IPreviewPredicate.NO_PREVIEW;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import com.fmum.client.FMUMClient;
 import com.fmum.client.IAutowirePlayerChat;
 import com.fmum.client.input.IInput;
@@ -24,16 +15,23 @@ import com.fmum.common.module.IPreviewPredicate;
 import com.fmum.common.network.PacketModify;
 import com.fmum.common.paintjob.IPaintable;
 import com.fmum.common.player.IOperation;
-import com.fmum.common.player.IOperationController;
 import com.fmum.common.player.OperationController;
 import com.fmum.common.player.TogglableOperation;
-
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import static com.fmum.client.FMUMClient.MC;
+import static com.fmum.common.module.IModifyPredicate.OK;
+import static com.fmum.common.module.IPreviewPredicate.NO_PREVIEW;
 
 @SideOnly( Side.CLIENT )
 public abstract class OpModifyClient extends TogglableOperation
@@ -386,8 +384,8 @@ public abstract class OpModifyClient extends TogglableOperation
 	}
 	
 	protected OpModifyClient(
-		IOperationController forwardController,
-		IOperationController backwardController,
+		OperationController forwardController,
+		OperationController backwardController,
 		IEquippedItem< ? > equipped
 	) {
 		super( forwardController, backwardController );

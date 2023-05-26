@@ -1,7 +1,5 @@
 package com.fmum.client;
 
-import java.util.Collection;
-
 import com.fmum.client.input.InputHandler;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.Model;
@@ -9,7 +7,6 @@ import com.fmum.common.FMUM;
 import com.fmum.common.IAutowireLogger;
 import com.fmum.common.item.IItemType;
 import com.fmum.util.Mat4f;
-
 import net.minecraft.client.gui.GuiControls;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiVideoSettings;
@@ -31,6 +28,8 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Collection;
 
 @SideOnly( Side.CLIENT )
 @EventBusSubscriber( modid = FMUMClient.MODID, value = Side.CLIENT )

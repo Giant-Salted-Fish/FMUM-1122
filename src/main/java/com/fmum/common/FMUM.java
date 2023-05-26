@@ -1,24 +1,8 @@
 package com.fmum.common;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.concurrent.Callable;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.regex.Pattern;
-
-import javax.annotation.Nullable;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.fmum.client.FMUMClient;
 import com.fmum.common.ammo.JsonAmmoType;
+import com.fmum.common.gun.ControllerDispatcher;
 import com.fmum.common.gun.JsonGunPartType;
 import com.fmum.common.gun.JsonGunType;
 import com.fmum.common.item.IItem;
@@ -40,8 +24,8 @@ import com.fmum.common.pack.JarPack;
 import com.fmum.common.paintjob.IPaintjob;
 import com.fmum.common.paintjob.JsonPaintjob;
 import com.fmum.common.paintjob.Paintjob;
-import com.fmum.common.player.IOperationController;
-import com.fmum.common.player.OperationController;
+import com.fmum.common.player.OperationController.TimedEffect;
+import com.fmum.common.player.OperationController.TimedSound;
 import com.fmum.common.player.PlayerPatch;
 import com.fmum.common.tab.CreativeTab;
 import com.fmum.util.AngleAxis4f;
@@ -52,7 +36,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
-
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.server.MinecraftServer;
@@ -69,6 +52,22 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Nullable;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 /**
  * A weapon mod that as a platform to supply highly customizable weapons.
@@ -418,7 +417,9 @@ public class FMUM extends URLClassLoader
 		
 		builder.registerTypeAdapter( IModuleSlot.class, RailSlot.ADAPTER );
 		builder.registerTypeAdapter( IPaintjob.class, Paintjob.ADAPTER );
-		builder.registerTypeAdapter( IOperationController.class, OperationController.ADAPTER );
+		builder.registerTypeAdapter( TimedSound[].class, TimedSound.ARR_ADAPTER );
+		builder.registerTypeAdapter( TimedEffect[].class, TimedEffect.ARR_ADAPTER );
+		builder.registerTypeAdapter( ControllerDispatcher.class, ControllerDispatcher.ADAPTER );
 		
 		final JsonDeserializer< ModuleCategory > moduleCategoryAdapter =
 			( json, typeOfT, context ) -> new ModuleCategory( json.getAsString() );

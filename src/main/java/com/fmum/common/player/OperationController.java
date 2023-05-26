@@ -1,96 +1,135 @@
 package com.fmum.common.player;
 
-import java.util.Optional;
-
 import com.fmum.common.FMUM;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.util.Animation;
 import com.google.gson.JsonDeserializer;
-
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class OperationController implements IOperationController
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.function.Consumer;
+
+public class OperationController
 {
-	public static final JsonDeserializer< IOperationController > ADAPTER =
-		( json, typeOfT, context ) -> context.deserialize( json, OperationController.class );
-	
-	public static final float[] NO_KEY_TIME = { };
-	public static final String[] NO_SPECIFIED_EFFECT = { };
-	public static final SoundEvent[] NO_SOUND = { };
+	@SideOnly( Side.CLIENT )
+	protected Animation animation;
 	
 	protected float progressor = 0.1F;
 	
-	protected float[] effectTime = NO_KEY_TIME;
-	protected String[] effects = NO_SPECIFIED_EFFECT;
+	protected TimedEffect[] effects = { };
 	
-	protected float[] soundTime = NO_KEY_TIME;
-	protected SoundEvent[] sounds = NO_SOUND;
-	
-	@SideOnly( Side.CLIENT )
-	protected Animation animation;
+	protected TimedSound[] sounds = { };
 	
 	public OperationController() { }
 	
 	public OperationController( float progress ) { this.progressor = progress; }
 	
-	public OperationController(
-		float progressor,
-		float[] effectTime,
-		String[] effects,
-		float[] soundTime,
-		String... sounds
-	) {
+	public OperationController( float progressor, TimedEffect[] effects, TimedSound[] sounds )
+	{
 		this.progressor = progressor;
-		this.effectTime = effectTime;
 		this.effects = effects;
-		this.soundTime = soundTime;
-		this.sounds = new SoundEvent[ sounds.length ];
-		for ( int i = sounds.length; i-- > 0; ) {
-			this.sounds[ i ] = FMUM.MOD.loadSound( sounds[ i ] );
-		}
+		this.sounds = sounds;
 	}
 	
-	@Override
 	public float progressor() { return this.progressor; }
 	
-	@Override
-	public int effectCount() { return this.effectTime.length; }
+	public int effectCount() { return this.effects.length; }
 	
-	@Override
-	public float getEffectTime( int idx ) { return this.effectTime[ idx ]; }
+	public float getEffectTime( int idx ) { return this.effects[ idx ].time; }
 	
-	@Override
-	public String getEffect( int idx ) { return this.effects[ idx ]; }
+	public String getEffect( int idx ) { return this.effects[ idx ].effect; }
 	
-	@Override
-	public int soundCount() { return this.soundTime.length; }
+	public int soundCount() { return this.sounds.length; }
 	
-	@Override
-	public float getSoundTime( int idx ) { return this.soundTime[ idx ]; }
+	public float getSoundTime( int idx ) { return this.sounds[ idx ].time; }
 	
-	@Override
 	public void handlePlaySound( int idx, EntityPlayer player )
 	{
 		// TODO: proper handling of this
 		player.world.playSound(
 			player.posX, player.posY, player.posZ,
-			this.sounds[ idx ],
+			this.sounds[ idx ].sound,
 			SoundCategory.PLAYERS,
 			1F, 1F, false
 		);
 	}
 	
-	@Override
 	@SideOnly( Side.CLIENT )
 	public Animation animation() { return this.animation; }
 	
-	@Override
 	@SideOnly( Side.CLIENT )
 	public void checkAssetsSetup( IContentProvider provider ) {
 		this.animation = Optional.ofNullable( this.animation ).orElse( Animation.NONE );
+	}
+	
+	public static class TimedSound
+	{
+		public static final JsonDeserializer< TimedSound[] >
+			ARR_ADAPTER = ( json, typeOfT, context ) -> {
+				final JsonObject obj = json.getAsJsonObject();
+				final TimedSound[] sounds = new TimedSound[ obj.size() ];
+				obj.entrySet().forEach( new Consumer< Entry< String, JsonElement > >() {
+					int i = 0;
+					
+					@Override
+					public void accept( Entry< String, JsonElement > entry )
+					{
+						sounds[ this.i ] = new TimedSound(
+							Float.parseFloat( entry.getKey() ),
+							entry.getValue().getAsString()
+						);
+						this.i += 1;
+					}
+				} );
+				return sounds;
+			};
+		
+		public final float time;
+		public final SoundEvent sound;
+		
+		public TimedSound( float time, String soundPath )
+		{
+			this.time = time;
+			this.sound = FMUM.MOD.loadSound( soundPath );
+		}
+	}
+	
+	public static class TimedEffect
+	{
+		public static final JsonDeserializer< TimedEffect[] >
+			ARR_ADAPTER = ( json, typeOfT, context ) -> {
+				final JsonObject obj = json.getAsJsonObject();
+				final TimedEffect[] effects = new TimedEffect[ obj.size() ];
+				obj.entrySet().forEach( new Consumer< Entry< String, JsonElement > >() {
+					int i = 0;
+					
+					@Override
+					public void accept( Entry< String, JsonElement > entry )
+					{
+						effects[ this.i ] = new TimedEffect(
+							Float.parseFloat( entry.getKey() ),
+							entry.getValue().getAsString()
+						);
+						this.i += 1;
+					}
+				} );
+				return effects;
+			};
+		
+		public final float time;
+		public final String effect;
+		
+		public TimedEffect( float time, String effect )
+		{
+			this.time = time;
+			this.effect = effect;
+		}
 	}
 }

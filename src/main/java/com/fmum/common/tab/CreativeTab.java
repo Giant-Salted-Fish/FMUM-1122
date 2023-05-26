@@ -1,14 +1,11 @@
 package com.fmum.common.tab;
 
-import java.util.Optional;
-
 import com.fmum.client.ModConfigClient;
 import com.fmum.common.item.IItemType;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.load.TexturedMeta;
 import com.fmum.common.meta.IMeta;
 import com.fmum.common.meta.IMetaHost;
-
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -18,6 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 /**
  * Default implementation of {@link ICreativeTab}.

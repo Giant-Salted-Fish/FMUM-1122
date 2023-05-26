@@ -1,10 +1,5 @@
 package com.fmum.client.mag;
 
-import java.util.Collection;
-import java.util.function.Consumer;
-
-import org.lwjgl.opengl.GL11;
-
 import com.fmum.client.gun.GunPartModel;
 import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
@@ -18,9 +13,12 @@ import com.fmum.util.AngleAxis4f;
 import com.fmum.util.Mesh;
 import com.fmum.util.Vec3f;
 import com.google.gson.annotations.SerializedName;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
+
+import java.util.Collection;
+import java.util.function.Consumer;
 
 @SideOnly( Side.CLIENT )
 public abstract class MagModel<

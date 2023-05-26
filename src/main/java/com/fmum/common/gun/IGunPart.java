@@ -1,16 +1,15 @@
 package com.fmum.common.gun;
 
-import java.util.Collection;
-
 import com.fmum.client.module.IDeferredRenderer;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.item.IItem;
 import com.fmum.common.module.IModule;
 import com.fmum.common.paintjob.IPaintable;
 import com.fmum.util.ArmTracker;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Collection;
 
 public interface IGunPart< T extends IGunPart< ? extends T > >
 	extends IItem, IModule< T >, IPaintable

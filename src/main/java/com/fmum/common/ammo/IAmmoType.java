@@ -2,7 +2,6 @@ package com.fmum.common.ammo;
 
 import com.fmum.common.item.IItemType;
 import com.fmum.common.meta.Registry;
-
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

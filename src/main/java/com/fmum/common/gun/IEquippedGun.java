@@ -3,7 +3,6 @@ package com.fmum.common.gun;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.util.ArmTracker;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 

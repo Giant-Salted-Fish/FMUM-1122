@@ -1,11 +1,11 @@
 package com.fmum.common.module;
 
+import com.google.gson.JsonElement;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
-
-import com.google.gson.JsonElement;
 
 public final class ModuleFilter
 {

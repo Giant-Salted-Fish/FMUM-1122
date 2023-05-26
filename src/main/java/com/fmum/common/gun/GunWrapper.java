@@ -1,12 +1,11 @@
 package com.fmum.common.gun;
 
-import java.util.function.Consumer;
-
 import com.fmum.common.ammo.IAmmoType;
 import com.fmum.common.mag.IMag;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+
+import java.util.function.Consumer;
 
 public class GunWrapper< I extends IGunPart< ? extends I >, T extends IGun< ? extends I > >
 	extends GunPartWrapper< I, T > implements IGun< I >

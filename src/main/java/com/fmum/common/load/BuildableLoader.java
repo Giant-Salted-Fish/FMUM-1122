@@ -1,10 +1,10 @@
 package com.fmum.common.load;
 
-import java.util.function.Function;
-
 import com.fmum.common.FMUM;
 import com.fmum.common.meta.IMeta;
 import com.google.gson.JsonObject;
+
+import java.util.function.Function;
 
 /**
  * Loader for specified {@link IBuildable}s.

@@ -1,21 +1,20 @@
 package com.fmum.common.module;
 
-import java.util.Comparator;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
 import com.fmum.client.item.ItemModel;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.item.IItem;
 import com.fmum.common.paintjob.IPaintable;
 import com.fmum.util.Mat4f;
 import com.google.common.collect.TreeMultimap;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Comparator;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Exists to satisfy the requirement of {@link IItem}. It forwards most method calls to the wrapped

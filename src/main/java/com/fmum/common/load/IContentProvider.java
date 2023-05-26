@@ -1,18 +1,17 @@
 package com.fmum.common.load;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import com.fmum.client.FMUMClient;
 import com.fmum.common.FMUM;
 import com.fmum.common.meta.IMeta;
 import com.fmum.util.Animation;
 import com.fmum.util.Mesh;
-
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Abstraction of the content provider. Usually is the content pack.

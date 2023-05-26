@@ -1,11 +1,5 @@
 package com.fmum.common.mag;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.function.Consumer;
-
 import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.client.input.IInput;
@@ -21,12 +15,12 @@ import com.fmum.common.item.IItemType;
 import com.fmum.common.item.IItemTypeHost;
 import com.fmum.common.network.PacketNotifyItem;
 import com.fmum.common.player.IOperation;
-import com.fmum.common.player.IOperationController;
 import com.fmum.common.player.Operation;
 import com.fmum.common.player.OperationController;
+import com.fmum.common.player.OperationController.TimedEffect;
+import com.fmum.common.player.OperationController.TimedSound;
 import com.fmum.common.player.PlayerPatch;
 import com.google.gson.annotations.SerializedName;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -36,6 +30,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Set;
+import java.util.function.Consumer;
 
 public abstract class MagType<
 	I extends IGunPart< ? extends I >,
@@ -49,17 +49,13 @@ public abstract class MagType<
 	protected static final OperationController
 		LOAD_AMMO_CONTROLLER = new OperationController(
 			1F / 10F,
-			new float[] { 0.8F },
-			new String[ 0 ],
-			new float[] { 0.8F },
-			"load_ammo"
+			new TimedEffect[] { new TimedEffect( 0.8F, "loadAmmo" ) },
+			new TimedSound[] { new TimedSound( 0.8F, "load_ammo" ) }
 		),
 		UNLOAD_AMMO_CONTROLLER = new OperationController(
 			1F / 8F,
-			new float[] { 0.8F },
-			new String[ 0 ],
-			new float[] { 0.8F },
-			"unload_ammo"
+			new TimedEffect[] { new TimedEffect( 0.8F, "unloadAmmo" ) },
+			new TimedSound[] { new TimedSound( 0.8F, "unload_ammo" ) }
 		);
 	
 	protected Set< String > allowedAmmoCategory = Collections.emptySet();
@@ -67,8 +63,8 @@ public abstract class MagType<
 	@SerializedName( value = "ammoCapacity", alternate = "capacity" )
 	protected int ammoCapacity = 1;
 	
-	protected IOperationController loadAmmoController = LOAD_AMMO_CONTROLLER;
-	protected IOperationController unloadAmmoController = UNLOAD_AMMO_CONTROLLER;
+	protected OperationController loadAmmoController = LOAD_AMMO_CONTROLLER;
+	protected OperationController unloadAmmoController = UNLOAD_AMMO_CONTROLLER;
 	
 	protected abstract class Mag extends GunPart implements IMag< I >
 	{
@@ -543,7 +539,7 @@ public abstract class MagType<
 		{
 			protected Mag mag;
 			
-			protected OperationOnMag( IOperationController controller )
+			protected OperationOnMag( OperationController controller )
 			{
 				super( controller );
 				

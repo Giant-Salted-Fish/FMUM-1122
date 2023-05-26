@@ -1,14 +1,5 @@
 package com.fmum.common.gun;
 
-import static com.fmum.common.gun.GunPartWrapper.STACK_ID_TAG;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.function.Function;
-
 import com.fmum.client.FMUMClient;
 import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
@@ -38,7 +29,6 @@ import com.fmum.devtool.Dev;
 import com.fmum.util.ArmTracker;
 import com.fmum.util.Mat4f;
 import com.google.gson.annotations.SerializedName;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -52,6 +42,15 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+import java.util.function.Function;
+
+import static com.fmum.common.gun.GunPartWrapper.STACK_ID_TAG;
 
 public abstract class GunPartType<
 	I extends IGunPart< ? extends I >, // Not necessary, but to avoid filling in the generic argument on instantiating the abstract inner class.
@@ -98,7 +97,8 @@ public abstract class GunPartType<
 		IPaintableType.REGISTRY.regis( this );
 		
 		// If not category set then set it is its name.
-		if ( this.category == null ) { this.category = new ModuleCategory( this.name ); }
+		this.category = Optional.ofNullable( this.category )
+            .orElseGet( () -> new ModuleCategory( this.name ) );
 		provider.clientOnly( () -> {
 			if ( this.modifyIndicator == null ) {
 				this.modifyIndicator = FMUMClient.MODIFY_INDICATOR;

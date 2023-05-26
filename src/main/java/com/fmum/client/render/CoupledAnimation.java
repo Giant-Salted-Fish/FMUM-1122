@@ -1,13 +1,12 @@
 package com.fmum.client.render;
 
-import java.util.function.Supplier;
-
 import com.fmum.util.Animation;
 import com.fmum.util.Quat4f;
 import com.fmum.util.Vec3f;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.function.Supplier;
 
 @SideOnly( Side.CLIENT )
 public final class CoupledAnimation implements IAnimator

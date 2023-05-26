@@ -1,13 +1,13 @@
 package com.fmum.devtool;
 
+import net.minecraftforge.client.model.obj.OBJLoader;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-
-import net.minecraftforge.client.model.obj.OBJLoader;
 
 /**
  * <p> Do two things: </p>

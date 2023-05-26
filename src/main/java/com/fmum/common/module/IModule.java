@@ -1,16 +1,15 @@
 package com.fmum.common.module;
 
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
 import com.fmum.client.render.IAnimator;
 import com.fmum.util.Mat4f;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public interface IModule< T extends IModule< ? extends T > >
 	extends INBTSerializable< NBTTagCompound >

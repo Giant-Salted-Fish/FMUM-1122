@@ -1,14 +1,12 @@
 package com.fmum.util;
 
-import java.util.Optional;
-
-import javax.vecmath.Vector4f;
-
 import com.fmum.common.FMUM;
-
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.client.model.obj.OBJModel;
+
+import javax.vecmath.Vector4f;
+import java.util.Optional;
 
 public class ObjMeshBuilder extends Mesh.Builder
 {

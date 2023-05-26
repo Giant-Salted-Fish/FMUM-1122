@@ -1,14 +1,13 @@
 package com.fmum.common.load;
 
-import java.util.Optional;
-
 import com.fmum.client.render.Model;
 import com.fmum.common.meta.IMeta;
 import com.google.gson.annotations.SerializedName;
-
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Optional;
 
 public abstract class TexturedMeta extends BuildableMeta
 {

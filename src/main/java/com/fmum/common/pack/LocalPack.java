@@ -1,10 +1,5 @@
 package com.fmum.common.pack;
 
-import java.io.File;
-import java.io.Reader;
-import java.util.HashSet;
-import java.util.function.Supplier;
-
 import com.fmum.common.FMUM;
 import com.fmum.common.IAutowireLogger;
 import com.fmum.common.load.BuildableLoader;
@@ -14,6 +9,11 @@ import com.fmum.common.meta.Meta;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import java.io.File;
+import java.io.Reader;
+import java.util.HashSet;
+import java.util.function.Supplier;
 
 /**
  * Represents a content pack on local disk.

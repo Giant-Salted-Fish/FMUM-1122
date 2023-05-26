@@ -1,7 +1,6 @@
 package com.fmum.common.module;
 
 import com.fmum.client.FMUMClient;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 

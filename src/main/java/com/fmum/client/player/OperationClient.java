@@ -5,9 +5,8 @@ import com.fmum.common.IAutowirePacketHandler;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.network.PacketTerminateOp;
 import com.fmum.common.player.IOperation;
-import com.fmum.common.player.IOperationController;
 import com.fmum.common.player.Operation;
-
+import com.fmum.common.player.OperationController;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -18,7 +17,7 @@ public abstract class OperationClient< T extends IEquippedItem< ? > >
 {
 	protected T equipped;
 	
-	public OperationClient( T equipped, IOperationController controller )
+	public OperationClient( T equipped, OperationController controller )
 	{
 		super( controller );
 		

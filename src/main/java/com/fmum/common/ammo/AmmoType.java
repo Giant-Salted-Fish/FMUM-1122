@@ -1,8 +1,5 @@
 package com.fmum.common.ammo;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.fmum.client.ammo.IAmmoModel;
 import com.fmum.client.item.IEquippedItemRenderer;
 import com.fmum.client.item.IItemRenderer;
@@ -13,7 +10,6 @@ import com.fmum.common.item.IItem;
 import com.fmum.common.item.ItemType;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.common.meta.IMeta;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -25,6 +21,9 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class AmmoType<
 	C extends IItem,

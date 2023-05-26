@@ -1,7 +1,5 @@
 package com.fmum.client.item;
 
-import org.lwjgl.opengl.GL11;
-
 import com.fmum.client.FMUMClient;
 import com.fmum.client.IAutowireBindTexture;
 import com.fmum.client.IAutowireSmoother;
@@ -13,7 +11,6 @@ import com.fmum.common.item.IItem;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Quat4f;
 import com.fmum.util.Vec3f;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -25,6 +22,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 
 @SideOnly( Side.CLIENT )
 public abstract class ItemModel<

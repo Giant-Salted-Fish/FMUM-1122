@@ -7,7 +7,6 @@ import com.fmum.client.item.ItemModel;
 import com.fmum.common.ammo.IAmmoType;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 

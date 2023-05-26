@@ -1,13 +1,9 @@
 package com.fmum.common.player;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.fmum.common.FMUM;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemTypeHost;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
@@ -16,6 +12,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Additional patch that added to the player to do extra logic required by {@link FMUM}.

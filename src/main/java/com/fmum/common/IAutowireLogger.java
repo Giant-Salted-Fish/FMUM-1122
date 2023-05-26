@@ -1,9 +1,8 @@
 package com.fmum.common;
 
-import org.apache.logging.log4j.Logger;
-
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.Side;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Implement this interface if you need the logger.

@@ -1,7 +1,5 @@
 package com.fmum.common.item;
 
-import javax.annotation.Nullable;
-
 import com.fmum.client.item.IItemModel;
 import com.fmum.common.FMUM;
 import com.fmum.common.load.IContentProvider;
@@ -10,13 +8,14 @@ import com.fmum.common.load.RenderableMeta;
 import com.fmum.common.meta.IMeta;
 import com.fmum.common.tab.ICreativeTab;
 import com.google.gson.annotations.SerializedName;
-
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+
+import javax.annotation.Nullable;
 
 public abstract class ItemType< C extends IItem, M extends IItemModel< ? > >
 	extends RenderableMeta< M > implements IItemType, IPostLoadSubscriber

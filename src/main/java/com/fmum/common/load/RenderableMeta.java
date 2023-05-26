@@ -1,11 +1,10 @@
 package com.fmum.common.load;
 
-import java.util.Optional;
-
 import com.google.gson.annotations.SerializedName;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Optional;
 
 public abstract class RenderableMeta< T > extends TexturedMeta
 {

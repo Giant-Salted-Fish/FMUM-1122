@@ -2,7 +2,6 @@ package com.fmum.client.item;
 
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.item.IEquippedItem;
-
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

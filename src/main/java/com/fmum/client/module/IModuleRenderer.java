@@ -1,12 +1,11 @@
 package com.fmum.client.module;
 
-import java.util.Collection;
-
 import com.fmum.client.render.IAnimator;
 import com.fmum.util.Mat4f;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Collection;
 
 public interface IModuleRenderer< T >
 {

@@ -1,7 +1,6 @@
 package com.fmum.common.item;
 
 import com.fmum.common.meta.IMetaHost;
-
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 

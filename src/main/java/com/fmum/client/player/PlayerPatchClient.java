@@ -1,11 +1,5 @@
 package com.fmum.client.player;
 
-import static com.fmum.client.FMUMClient.MC;
-import static net.minecraft.util.EnumHand.MAIN_HAND;
-import static net.minecraft.util.EnumHand.OFF_HAND;
-
-import org.lwjgl.opengl.GL11;
-
 import com.fmum.client.EventHandlerClient;
 import com.fmum.client.FMUMClient;
 import com.fmum.client.camera.CameraAnimator;
@@ -15,7 +9,6 @@ import com.fmum.client.render.Model;
 import com.fmum.common.player.PlayerPatch;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Vec3f;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
@@ -25,6 +18,11 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.MouseHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
+
+import static com.fmum.client.FMUMClient.MC;
+import static net.minecraft.util.EnumHand.MAIN_HAND;
+import static net.minecraft.util.EnumHand.OFF_HAND;
 
 @SideOnly( Side.CLIENT )
 public final class PlayerPatchClient extends PlayerPatch

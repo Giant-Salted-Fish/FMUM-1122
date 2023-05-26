@@ -1,8 +1,11 @@
 package com.fmum.common.module;
 
-public final class ModuleCategory
+public class ModuleCategory
 {
-	public static final ModuleCategory END = new ModuleCategory();
+	public static final ModuleCategory END = new ModuleCategory() {
+		@Override
+		public int getMatchingLayerCount( ModuleCategory other ) { return 0; }
+	};
 	
 	public final String value;
 	public final ModuleCategory sub;
@@ -26,5 +29,11 @@ public final class ModuleCategory
 	{
 		this.value = ".";
 		this.sub = this;
+	}
+	
+	public int getMatchingLayerCount( ModuleCategory other )
+	{
+		final boolean matched = this.value.equals( other.value );
+		return matched ? this.sub.getMatchingLayerCount( other.sub ) + 1 : 0;
 	}
 }

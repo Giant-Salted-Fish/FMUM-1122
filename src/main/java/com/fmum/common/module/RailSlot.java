@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class RailSlot extends SimpleSlot
 {
-	public static final JsonDeserializer< IModuleSlot >
+	public static final JsonDeserializer< RailSlot >
 		ADAPTER = ( json, typeOfT, context ) -> context.deserialize( json, RailSlot.class );
 	
 	/**

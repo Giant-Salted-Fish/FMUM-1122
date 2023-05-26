@@ -5,7 +5,6 @@ import com.fmum.common.module.IModuleEventSubscriber.ModuleInstallEvent;
 import com.fmum.common.module.IModuleEventSubscriber.ModuleRemoveEvent;
 import com.fmum.common.paintjob.IPaintable;
 import com.fmum.util.Mat4f;
-import java.util.function.Supplier;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -18,6 +17,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public abstract class Module< T extends IModule< ? extends T > > implements IModule< T >, IPaintable
 {

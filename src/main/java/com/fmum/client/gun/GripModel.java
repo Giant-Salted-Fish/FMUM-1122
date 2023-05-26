@@ -7,7 +7,6 @@ import com.fmum.common.load.IContentProvider;
 import com.fmum.util.ArmTracker;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Vec3f;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 

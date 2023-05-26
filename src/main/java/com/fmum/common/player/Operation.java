@@ -1,14 +1,13 @@
 package com.fmum.common.player;
 
 import com.fmum.client.FMUMClient;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class Operation implements IOperation
 {
-	protected IOperationController controller;
+	protected OperationController controller;
 	
 	protected float prevProgress;
 	protected float progress;
@@ -16,7 +15,7 @@ public abstract class Operation implements IOperation
 	protected int currentEffect;
 	protected int currentSound;
 	
-	protected Operation( IOperationController controller ) { this.controller = controller; }
+	protected Operation( OperationController controller ) { this.controller = controller; }
 	
 	@Override
 	public float progress() { return this.progress; }
@@ -33,7 +32,7 @@ public abstract class Operation implements IOperation
 	public IOperation tick( EntityPlayer player )
 	{
 		// Update progress.
-		final IOperationController controller = this.controller;
+		final OperationController controller = this.controller;
 		this.prevProgress = this.progress;
 		this.progress = this.progress + controller.progressor();
 		

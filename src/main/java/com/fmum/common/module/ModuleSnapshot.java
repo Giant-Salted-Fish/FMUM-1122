@@ -1,15 +1,14 @@
 package com.fmum.common.module;
 
+import com.fmum.common.IAutowireLogger;
+import com.fmum.common.paintjob.IPaintable;
+import com.google.gson.annotations.SerializedName;
+
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import javax.annotation.Nonnull;
-
-import com.fmum.common.IAutowireLogger;
-import com.fmum.common.paintjob.IPaintable;
-import com.google.gson.annotations.SerializedName;
 
 /**
  * Provide additional support for {@link IPaintable}

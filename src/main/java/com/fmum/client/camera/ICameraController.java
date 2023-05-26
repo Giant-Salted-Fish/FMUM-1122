@@ -4,7 +4,6 @@ import com.fmum.client.input.Key;
 import com.fmum.client.render.IAnimator;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Vec3f;
-
 import net.minecraft.util.MouseHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

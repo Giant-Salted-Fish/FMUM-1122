@@ -2,7 +2,6 @@ package com.fmum.client.render;
 
 import com.fmum.util.Quat4f;
 import com.fmum.util.Vec3f;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 

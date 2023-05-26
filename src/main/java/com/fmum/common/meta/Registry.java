@@ -1,11 +1,11 @@
 package com.fmum.common.meta;
 
+import com.fmum.common.IAutowireLogger;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Supplier;
-
-import com.fmum.common.IAutowireLogger;
 
 public final class Registry< T extends IMeta > implements IAutowireLogger
 {

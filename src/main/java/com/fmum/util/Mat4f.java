@@ -1,15 +1,12 @@
 package com.fmum.util;
 
-import java.nio.FloatBuffer;
-
-import javax.vecmath.Matrix4f;
-
-import org.lwjgl.opengl.GL11;
-
 import com.fmum.common.FMUM;
 import com.fmum.devtool.Dev;
-
 import net.minecraft.util.math.MathHelper;
+import org.lwjgl.opengl.GL11;
+
+import javax.vecmath.Matrix4f;
+import java.nio.FloatBuffer;
 
 public final class Mat4f extends Matrix4f implements IReleasable
 {

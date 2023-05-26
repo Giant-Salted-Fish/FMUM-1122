@@ -1,14 +1,9 @@
 package com.fmum.common;
 
-import java.util.Collection;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.common.item.IItemType;
 import com.fmum.common.network.PacketConfigSync;
 import com.fmum.common.player.PlayerPatch;
-
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,6 +18,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.registries.IForgeRegistry;
+
+import java.util.Collection;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @EventBusSubscriber( modid = FMUM.MODID )
 final class EventHandler

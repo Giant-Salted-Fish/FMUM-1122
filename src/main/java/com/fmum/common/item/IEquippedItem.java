@@ -4,7 +4,6 @@ import com.fmum.client.input.IInput;
 import com.fmum.client.input.Key;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.IAnimator;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;

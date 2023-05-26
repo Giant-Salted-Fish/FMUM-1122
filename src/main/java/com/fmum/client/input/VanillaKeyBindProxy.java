@@ -1,13 +1,12 @@
 package com.fmum.client.input;
 
-import javax.annotation.Nullable;
-
 import com.fmum.common.load.IContentProvider;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nullable;
 
 /**
  * This type of key bind can be used to proxy the vanilla {@link KeyBinding} in {@link Minecraft}.

@@ -1,10 +1,5 @@
 package com.fmum.client.gun;
 
-import java.util.Collection;
-import java.util.function.Function;
-
-import org.lwjgl.opengl.GL11;
-
 import com.fmum.client.module.IDeferredRenderer;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.gun.IGunPart;
@@ -14,10 +9,13 @@ import com.fmum.util.Mat4f;
 import com.fmum.util.Mesh;
 import com.fmum.util.Vec3f;
 import com.google.gson.annotations.SerializedName;
-
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
+
+import java.util.Collection;
+import java.util.function.Function;
 
 @SideOnly( Side.CLIENT )
 public abstract class OpticSightModel<

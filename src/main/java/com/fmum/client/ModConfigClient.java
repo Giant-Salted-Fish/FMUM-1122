@@ -1,7 +1,6 @@
 package com.fmum.client;
 
 import com.fmum.common.FMUM;
-
 import net.minecraft.init.Items;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.Config.Comment;

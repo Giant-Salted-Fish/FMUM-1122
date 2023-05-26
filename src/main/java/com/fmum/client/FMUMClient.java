@@ -1,20 +1,5 @@
 package com.fmum.client;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import org.lwjgl.opengl.GLContext;
-
 import com.fmum.client.ammo.JsonAmmoModel;
 import com.fmum.client.camera.CameraAnimator;
 import com.fmum.client.gun.JsonCarGripModel;
@@ -45,7 +30,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.IResource;
@@ -60,6 +44,20 @@ import net.minecraftforge.fml.common.discovery.ContainerType;
 import net.minecraftforge.fml.common.discovery.ModCandidate;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GLContext;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 // 做第三人称玩家移动动画时可以考虑让双脚运动轨迹等于错相的半圆然后通过 ik 控制腿部移动
 @SideOnly( Side.CLIENT )

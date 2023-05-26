@@ -20,53 +20,61 @@
 	"loadMagController": {
 		"animation": "animations/hk416_load_mag.json",
 		"progressor": 0.0324317,
-		"effectTime": [ 0.616203 ],
-		"soundTime": [ 0.454044 ],
-		"sounds": [ "load_mag" ]
+		"effects": { "0.616203": "" },
+		"sounds": { "0.454044": "load_mag" }
 	},
 	
 	"unloadMagController": {
 		"animation": "animations/hk416_unload_mag.json",
 		"progressor": 0.04,
-		"effectTime": [ 0.328 ],
-		"soundTime": [ 0.2 ],
-		"sounds": [ "unload_mag" ]
+		"effects": { "0.328": "" },
+		"sounds": { "0.2": "unload_mag" }
 	},
 	
-	"chargeReleaseReleaseController": {
-		"animation": "animations/hk416_charge-release-release.json",
-		"progressor": 0.0479998,
-		"effectTime": [ 0.431998 ]
-	},
-	"chargeReleaseCatchController": {
-		"animation": "animations/hk416_charge-release-catch.json",
-		"progressor": 0.0479998,
-		"effectTime": [ 0.431998 ]
-	},
-	"chargeCatchReleaseController": {
-		"animation": "animations/hk416_charge-catch-release.json",
-		"progressor": 0.0479998,
-		"effectTime": [ 0.431998 ]
-	},
-	"chargeCatchCatchController": {
-		"animation": "animations/hk416_charge-catch-catch.json",
-		"progressor": 0.0479998,
-		"effectTime": [ 0.431998 ]
-	},
+	"chargeControllerDispatcher": [
+		{
+			"animation": "animations/hk416_charge-release-release.json",
+			"clearStaticAnimation": true,
+			"progressor": 0.0479998,
+			"effects": { "0.431998": "" },
+			"ignoreMag": true
+		}, {
+			"animation": "animations/hk416_charge-release-catch.json",
+			"clearStaticAnimation": true,
+			"progressor": 0.0479998,
+			"effects": { "0.431998": "" },
+			"boltCatchAfterAction": true,
+			"ignoreMag": true
+		}, {
+			"animation": "animations/hk416_charge-catch-release.json",
+			"clearStaticAnimation": true,
+			"progressor": 0.0479998,
+			"effects": { "0.431998": "" },
+			"boltCatchBeforeAction": true,
+			"ignoreMag": true
+		}, {
+			"animation": "animations/hk416_charge-catch-catch.json",
+			"clearStaticAnimation": true,
+			"progressor": 0.0479998,
+			"effects": { "0.431998": "" },
+			"boltCatchBeforeAction": true,
+			"boltCatchAfterAction": true,
+			"ignoreMag": true
+		}
+	],
 	
-	"inspectController": {
-		"animation": "animations/hk416_inspect-bolt_release.json",
-		"progressor": 0.0179102
-	},
-	
+	"inspectControllerDispatcher": [
+		{
+			"animation": "animations/hk416_inspect-bolt_release.json",
+			"clearStaticAnimation": true,
+			"progressor": 0.0179102
+		}
+	],
 	"paramScale": 0.00625,
 	"moduleSlots": [
 		{
 			"origin": [ 0, 40, -15.5 ],
-			"allowed": [
-				"556x45mm_mag",
-				"556x45mm_drum"
-			]
+			"allowed": [ "556x45mm_mag" ]
 		}, {
 			"origin": [ 0, 36.5, 4.5 ],
 			"allowed": [ "hk416_upper_receiver" ]

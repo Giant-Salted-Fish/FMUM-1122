@@ -1,17 +1,11 @@
 package com.fmum.common.gun;
 
-import java.util.Collection;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.fmum.client.module.IDeferredRenderer;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.ItemType;
 import com.fmum.common.module.ModuleWrapper;
 import com.fmum.util.ArmTracker;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
@@ -20,6 +14,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collection;
 
 public class GunPartWrapper<
 	I extends IGunPart< ? extends I >,

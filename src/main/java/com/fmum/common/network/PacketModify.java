@@ -1,14 +1,11 @@
 package com.fmum.common.network;
 
-import java.util.function.Consumer;
-
 import com.fmum.common.ModConfig;
 import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemTypeHost;
 import com.fmum.common.module.IModule;
 import com.fmum.common.module.IPreviewPredicate;
 import com.fmum.common.paintjob.IPaintable;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -17,6 +14,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.function.Consumer;
 
 public final class PacketModify implements IPacket
 {

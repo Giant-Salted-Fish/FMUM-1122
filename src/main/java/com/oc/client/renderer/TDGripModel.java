@@ -10,7 +10,6 @@ import com.fmum.common.load.IContentProvider;
 import com.fmum.util.ArmTracker;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Vec3f;
-
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;

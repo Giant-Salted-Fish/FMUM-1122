@@ -1,10 +1,5 @@
 package com.fmum.client.render;
 
-import java.nio.FloatBuffer;
-
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-
 import com.fmum.client.FMUMClient;
 import com.fmum.common.FMUMResource;
 import com.fmum.common.IAutowireLogger;
@@ -15,11 +10,14 @@ import com.fmum.util.Mat4f;
 import com.fmum.util.Mesh;
 import com.fmum.util.Vec3f;
 import com.google.gson.annotations.SerializedName;
-
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
+
+import java.nio.FloatBuffer;
 
 @SideOnly( Side.CLIENT )
 public class Model implements IBuildable< Object >, IAutowireLogger

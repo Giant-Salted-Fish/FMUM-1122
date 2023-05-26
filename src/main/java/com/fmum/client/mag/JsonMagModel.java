@@ -5,7 +5,6 @@ import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.mag.IEquippedMag;
 import com.fmum.common.mag.IMag;
-
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

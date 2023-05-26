@@ -1,11 +1,5 @@
 package com.fmum.common.gun;
 
-import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
-import javax.annotation.Nullable;
-
 import com.fmum.client.camera.ICameraController;
 import com.fmum.client.gun.IEquippedGunRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
@@ -28,14 +22,14 @@ import com.fmum.common.meta.IMeta;
 import com.fmum.common.module.IModuleEventSubscriber;
 import com.fmum.common.network.PacketNotifyItem;
 import com.fmum.common.player.IOperation;
-import com.fmum.common.player.IOperationController;
 import com.fmum.common.player.Operation;
 import com.fmum.common.player.OperationController;
+import com.fmum.common.player.OperationController.TimedEffect;
+import com.fmum.common.player.OperationController.TimedSound;
 import com.fmum.common.player.PlayerPatch;
 import com.fmum.util.Animation;
 import com.fmum.util.ArmTracker;
 import com.google.gson.annotations.SerializedName;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -47,6 +41,11 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nullable;
+import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public abstract class GunType<
 	I extends IGunPart< ? extends I >,
@@ -60,30 +59,28 @@ public abstract class GunType<
 	protected static final OperationController
 		LOAD_MAG_CONTROLLER = new OperationController(
 			1F / 40F,
-			new float[] { 0.8F },
-			OperationController.NO_SPECIFIED_EFFECT,
-			new float[] { 0.8F },
-			"load_mag"
+			new TimedEffect[] { new TimedEffect( 0.8F, "loadMag" ) },
+			new TimedSound[] { new TimedSound( 0.8F, "load_mag" ) }
 		),
 		UNLOAD_MAG_CONTROLLER = new OperationController(
 			1F / 40F,
-			new float[] { 0.5F },
-			OperationController.NO_SPECIFIED_EFFECT,
-			new float[] { 0.5F },
-			"unload_mag"
+			new TimedEffect[] { new TimedEffect( 0.5F, "unloadMag" ) },
+			new TimedSound[] { new TimedSound( 0.5F, "unload_mag" ) }
+		);
+	
+	protected static final ControllerDispatcher
+		CHARGE_CONTROLLER_DISPATCHER = new ControllerDispatcher(
+			new GunOpController(
+				1F / 22F,
+				new TimedEffect[] { new TimedEffect( 0.5F, "charge" ) },
+				new TimedSound[] { },
+				false
+			)
 		),
-		CHARGE_GUN_CONTROLLER = new OperationController(
-			1F / 22F,
-			new float[] { 0.5F },
-			OperationController.NO_SPECIFIED_EFFECT,
-			OperationController.NO_KEY_TIME
-		),
-		INSPECT_CONTROLLER = new OperationController( 1F / 40F );
+		INSPECT_CONTROLLER_DISPATCHER = new ControllerDispatcher( new GunOpController( 1F / 40F ) );
 	
 //	protected static final IFireController[] DEFAULT_FIRE_CONTROLLERS = { new FullAuto() };
-	
-//	protected List< IBuildable< IFireController > >
-	
+//
 //	@SerializedName( value = "fireControllers", alternate = "fireModes" )
 //	protected transient IFireController[] fireControllers;
 	
@@ -108,20 +105,12 @@ public abstract class GunType<
 	@SideOnly( Side.CLIENT )
 	protected Animation shootBoltCatchAnimation;
 	
-	protected IOperationController loadMagController = LOAD_MAG_CONTROLLER;
-	protected IOperationController unloadMagController = UNLOAD_MAG_CONTROLLER;
+	protected OperationController loadMagController = LOAD_MAG_CONTROLLER;
+	protected OperationController unloadMagController = UNLOAD_MAG_CONTROLLER;
 	
-	protected IOperationController chargeReleaseReleaseController = CHARGE_GUN_CONTROLLER;
+	protected ControllerDispatcher chargeControllerDispatcher = CHARGE_CONTROLLER_DISPATCHER;
 	
-	@SerializedName( value = "chargeReleaseCatchController", alternate = "chargeCloseOpenController" )
-	protected IOperationController chargeReleaseCatchController = CHARGE_GUN_CONTROLLER;
-	
-	protected IOperationController chargeCatchReleaseController = CHARGE_GUN_CONTROLLER;
-	
-	@SerializedName( value = "chargeCatchCatchController", alternate = "chargeOpenOpenController" )
-	protected IOperationController chargeCatchCatchController = CHARGE_GUN_CONTROLLER;
-	
-	protected IOperationController inspectController = INSPECT_CONTROLLER;
+	protected ControllerDispatcher inspectControllerDispatcher = INSPECT_CONTROLLER_DISPATCHER;
 	
 	@Override
 	public IMeta build( String name, IContentProvider provider )
@@ -131,11 +120,8 @@ public abstract class GunType<
 		provider.clientOnly( () -> {
 			this.loadMagController.checkAssetsSetup( provider );
 			this.unloadMagController.checkAssetsSetup( provider );
-			this.chargeReleaseReleaseController.checkAssetsSetup( provider );
-			this.chargeReleaseCatchController.checkAssetsSetup( provider );
-			this.chargeCatchReleaseController.checkAssetsSetup( provider );
-			this.chargeCatchCatchController.checkAssetsSetup( provider );
-			this.inspectController.checkAssetsSetup( provider );
+			this.chargeControllerDispatcher.checkAssetsSetup( provider );
+			this.inspectControllerDispatcher.checkAssetsSetup( provider );
 			
 			this.staticBoltRelease = Optional
 				.ofNullable( this.staticBoltRelease ).orElse( Animation.NONE );
@@ -433,9 +419,11 @@ public abstract class GunType<
 				final boolean inspectWeapon = key == Key.INSPECT || key == Key.CO_INSPECT;
 				if ( inspectWeapon )
 				{
-					PlayerPatchClient.instance.launch(
-						new OperationOnGunClient( GunType.this.inspectController )
-					);
+					final boolean boltCatch = Gun.this.state.boltCatch();
+					PlayerPatchClient.instance.launch( new OperationOnGunClient(
+						GunType.this.inspectControllerDispatcher
+							.match( Gun.this.mag(), boltCatch, boltCatch )
+					) );
 					return;
 				}
 				
@@ -473,7 +461,7 @@ public abstract class GunType<
 			@SideOnly( Side.CLIENT )
 			protected class OperationOnGunClient extends OperationClient< EquippedGun >
 			{
-				protected OperationOnGunClient( IOperationController controller ) {
+				protected OperationOnGunClient( OperationController controller ) {
 					super( EquippedGun.this, controller );
 				}
 				
@@ -606,9 +594,17 @@ public abstract class GunType<
 			protected static final int ORDINAL = 0;
 			
 			@Override
-			public IOperationController chargeController() {
-				return GunType.this.chargeCatchCatchController;
+			public OperationController chargeController()
+			{
+				final boolean boltOpenBeforeAction = true;
+				final boolean boltOpenAfterAction = true;
+				return GunType.this.chargeControllerDispatcher.match(
+					Gun.this.mag(), boltOpenBeforeAction, boltOpenAfterAction
+				);
 			}
+			
+			@Override
+			public boolean boltCatch() { return true; }
 			
 			@Override
 			public IGunState charge( EntityPlayer player ) { return this; }
@@ -626,8 +622,13 @@ public abstract class GunType<
 			protected static final int ORDINAL = 1;
 			
 			@Override
-			public IOperationController chargeController() {
-				return GunType.this.chargeReleaseCatchController;
+			public OperationController chargeController()
+			{
+				final boolean boltOpenBeforeAction = false;
+				final boolean boltOpenAfterAction = true;
+				return GunType.this.chargeControllerDispatcher.match(
+					Gun.this.mag(), boltOpenBeforeAction, boltOpenAfterAction
+				);
 			}
 			
 			@Override
@@ -648,13 +649,14 @@ public abstract class GunType<
 			protected static final int ORDINAL = 2;
 			
 			@Override
-			public IOperationController chargeController()
+			public OperationController chargeController()
 			{
 				final IMag< ? > mag = Gun.this.mag();
-				return(
-					mag != null && mag.isEmpty() && GunType.this.catchBoltOnEmpty
-					? GunType.this.chargeReleaseCatchController
-					: GunType.this.chargeReleaseReleaseController
+				final boolean boltCatchBeforeAction = false;
+				final boolean boltCatchAfterAction = mag != null
+                    && mag.isEmpty() && GunType.this.catchBoltOnEmpty;
+				return GunType.this.chargeControllerDispatcher.match(
+					mag, boltCatchBeforeAction, boltCatchAfterAction
 				);
 			}
 			
@@ -684,15 +686,19 @@ public abstract class GunType<
 			protected static final int ORDINAL = 3;
 			
 			@Override
-			public IOperationController chargeController()
+			public OperationController chargeController()
 			{
 				final IMag< ? > mag = Gun.this.mag();
-				return(
-					mag != null && mag.isEmpty() && GunType.this.catchBoltOnEmpty
-					? GunType.this.chargeCatchCatchController
-					: GunType.this.chargeCatchReleaseController
+				final boolean boltCatchBeforeAction = true;
+				final boolean boltCatchAfterAction = mag != null
+                    && mag.isEmpty() && GunType.this.catchBoltOnEmpty;
+				return GunType.this.chargeControllerDispatcher.match(
+					mag, boltCatchBeforeAction, boltCatchAfterAction
 				);
 			}
+			
+			@Override
+			public boolean boltCatch() { return true; }
 			
 			@Override
 			public IGunState charge( EntityPlayer player )
@@ -734,13 +740,14 @@ public abstract class GunType<
 //			}
 			
 			@Override
-			public IOperationController chargeController()
+			public OperationController chargeController()
 			{
 				final IMag< ? > mag = Gun.this.mag();
-				return(
-					mag != null && mag.isEmpty() && GunType.this.catchBoltOnEmpty
-					? GunType.this.chargeReleaseCatchController
-					: GunType.this.chargeReleaseReleaseController
+				final boolean boltCatchBeforeAction = false;
+				final boolean boltCatchAfterAction = mag != null
+                    && mag.isEmpty() && GunType.this.catchBoltOnEmpty;
+				return GunType.this.chargeControllerDispatcher.match(
+					mag, boltCatchBeforeAction, boltCatchAfterAction
 				);
 			}
 			
@@ -789,7 +796,7 @@ public abstract class GunType<
 		
 		protected class OperationOnGun extends Operation
 		{
-			protected OperationOnGun( IOperationController controller ) { super( controller ); }
+			protected OperationOnGun( OperationController controller ) { super( controller ); }
 			
 			protected IGun< ? > gun = Gun.this;
 			
@@ -875,9 +882,11 @@ public abstract class GunType<
 	
 	protected interface IGunState
 	{
+		default boolean boltCatch() { return false; }
+		
 //		ShootResult tryShoot( int actedRounds, int shotNumber, EntityPlayer player );
 		
-		IOperationController chargeController();
+		OperationController chargeController();
 		
 		IGunState charge( EntityPlayer player );
 		

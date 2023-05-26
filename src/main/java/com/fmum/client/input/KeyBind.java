@@ -1,11 +1,5 @@
 package com.fmum.client.input;
 
-import java.util.Collection;
-
-import javax.annotation.Nullable;
-
-import org.lwjgl.input.Keyboard;
-
 import com.fmum.client.FMUMClient;
 import com.fmum.client.input.Key.Category;
 import com.fmum.client.player.PlayerPatchClient;
@@ -14,11 +8,14 @@ import com.fmum.common.load.IContentProvider;
 import com.fmum.common.meta.IMeta;
 import com.fmum.devtool.Dev;
 import com.google.gson.annotations.SerializedName;
-
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Keyboard;
+
+import javax.annotation.Nullable;
+import java.util.Collection;
 
 /**
  * Default implementation for {@link IKeyBind}.

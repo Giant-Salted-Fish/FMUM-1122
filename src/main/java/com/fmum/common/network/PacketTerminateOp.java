@@ -1,7 +1,6 @@
 package com.fmum.common.network;
 
 import com.fmum.common.player.PlayerPatch;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;

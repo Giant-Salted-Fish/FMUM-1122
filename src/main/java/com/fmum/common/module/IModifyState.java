@@ -1,12 +1,11 @@
 package com.fmum.common.module;
 
-import static com.fmum.client.FMUMClient.MOD;
-
 import com.fmum.client.render.Model;
-
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import static com.fmum.client.FMUMClient.MOD;
 
 public interface IModifyState
 {

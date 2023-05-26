@@ -5,12 +5,12 @@ import net.minecraft.util.math.MathHelper;
 
 public abstract class TogglableOperation extends Operation
 {
-	protected IOperationController forwardController;
-	protected IOperationController backwardController;
+	protected OperationController forwardController;
+	protected OperationController backwardController;
 	
 	protected TogglableOperation(
-		IOperationController forwardController,
-		IOperationController backwardController
+		OperationController forwardController,
+		OperationController backwardController
 	) {
 		super( forwardController );
 		

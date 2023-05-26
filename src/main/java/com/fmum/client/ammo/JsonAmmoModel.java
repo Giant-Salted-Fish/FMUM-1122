@@ -7,7 +7,6 @@ import com.fmum.common.ammo.IAmmoType;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
 import com.fmum.common.load.BuildableLoader;
-
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

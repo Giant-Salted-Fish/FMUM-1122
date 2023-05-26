@@ -10,7 +10,6 @@ import com.fmum.util.DynamicPos;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Quat4f;
 import com.fmum.util.Vec3f;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MouseHelper;
 import net.minecraft.util.math.MathHelper;

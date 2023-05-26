@@ -1,11 +1,5 @@
 package com.fmum.client.gun;
 
-import java.util.Collection;
-import java.util.function.Supplier;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.glu.Project;
-
 import com.fmum.client.FMUMClient;
 import com.fmum.client.input.Key;
 import com.fmum.client.module.IDeferredRenderer;
@@ -22,12 +16,10 @@ import com.fmum.util.Quat4f;
 import com.fmum.util.Util;
 import com.fmum.util.Vec3f;
 import com.google.gson.annotations.SerializedName;
-
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
@@ -37,6 +29,11 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.Project;
+
+import java.util.Collection;
+import java.util.function.Supplier;
 
 @SideOnly( Side.CLIENT )
 public abstract class GunModel<

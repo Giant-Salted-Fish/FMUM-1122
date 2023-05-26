@@ -2,7 +2,6 @@ package com.fmum.common.item;
 
 import com.fmum.common.meta.IMeta;
 import com.fmum.common.meta.Registry;
-
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;

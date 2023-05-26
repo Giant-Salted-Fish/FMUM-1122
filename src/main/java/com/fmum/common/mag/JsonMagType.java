@@ -9,7 +9,6 @@ import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.meta.IMeta;
 import com.fmum.common.module.IModule;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

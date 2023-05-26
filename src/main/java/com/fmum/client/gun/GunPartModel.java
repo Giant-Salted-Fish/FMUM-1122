@@ -1,11 +1,5 @@
 package com.fmum.client.gun;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.function.Supplier;
-
-import org.lwjgl.opengl.GL11;
-
 import com.fmum.client.FMUMClient;
 import com.fmum.client.IAutowireBindTexture;
 import com.fmum.client.item.ItemModel;
@@ -20,12 +14,16 @@ import com.fmum.util.Mesh;
 import com.fmum.util.Quat4f;
 import com.fmum.util.Vec3f;
 import com.google.gson.annotations.SerializedName;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.function.Supplier;
 
 @SideOnly( Side.CLIENT )
 public abstract class GunPartModel<
@@ -155,7 +153,7 @@ public abstract class GunPartModel<
 		}
 		
 		// TODO: caller of this method may also have get the same item channel
-		protected void updateArm( ArmTracker arm, IAnimator ignore ) {
+		protected void updateArm( ArmTracker arm, IAnimator ignored ) {
 			this.mat.transformAsPoint( arm.handPos );
 		}
 		

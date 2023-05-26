@@ -1,14 +1,13 @@
 package com.fmum.common.network;
 
-import java.util.function.Consumer;
-
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.player.PlayerPatch;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
+import java.util.function.Consumer;
 
 public final class PacketNotifyItem implements IPacket
 {

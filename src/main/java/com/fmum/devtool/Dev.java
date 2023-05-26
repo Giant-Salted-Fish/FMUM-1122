@@ -1,11 +1,5 @@
 package com.fmum.devtool;
 
-import java.util.Collection;
-import java.util.LinkedList;
-
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
-
 import com.fmum.client.FMUMClient;
 import com.fmum.client.input.IKeyBind;
 import com.fmum.client.input.InputHandler;
@@ -13,13 +7,17 @@ import com.fmum.client.input.Key;
 import com.fmum.client.input.KeyBind;
 import com.fmum.common.FMUM;
 import com.fmum.util.Vec3f;
-
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
+
+import java.util.Collection;
+import java.util.LinkedList;
 
 /**
  * A temporary class that helps with development. Should be removed on release.

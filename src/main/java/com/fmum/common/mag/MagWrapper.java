@@ -1,14 +1,13 @@
 package com.fmum.common.mag;
 
-import java.util.function.Consumer;
-
 import com.fmum.common.ammo.IAmmoType;
 import com.fmum.common.gun.GunPartWrapper;
 import com.fmum.common.gun.IGunPart;
-
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.function.Consumer;
 
 public class MagWrapper< I extends IGunPart< ? extends I >, T extends IMag< ? extends I > >
 	extends GunPartWrapper< I, T > implements IMag< I >
