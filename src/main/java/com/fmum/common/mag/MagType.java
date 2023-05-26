@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public abstract class MagType<
@@ -408,37 +409,22 @@ public abstract class MagType<
 			
 			@Override
 			@SideOnly( Side.CLIENT )
-			public void onKeyPress( IInput key )
-			{
-				final boolean pushAmmo = key == Key.PULL_TRIGGER;
-				if ( pushAmmo )
-				{
-					PlayerPatchClient.instance.launch( new OpLoadAmmoClient() );
-					return;
-				}
+			protected void setupInputHandler(
+				BiConsumer< Object, Consumer< IInput > > pressHandlerRegistry,
+				BiConsumer< Object, Consumer< IInput > > releaseHandlerRegistry
+			) {
+				super.setupInputHandler( pressHandlerRegistry, releaseHandlerRegistry );
 				
-				final boolean popAmmo = key == Key.AIM_HOLD || key == Key.AIM_TOGGLE;
-				if ( popAmmo )
-				{
-					PlayerPatchClient.instance.launch( new OpUnloadAmmoClient() );
-					return;
-				}
+				final Consumer< IInput > pushAmmo =
+					key -> PlayerPatchClient.instance.launch( new OpLoadAmmoClient() );
+				pressHandlerRegistry.accept( Key.PULL_TRIGGER, pushAmmo );
 				
-				super.onKeyPress( key );
-			}
-			
-			@Override
-			@SideOnly( Side.CLIENT )
-			public void onKeyRelease( IInput key )
-			{
-				final boolean stoppedHolding = (
-					key == Key.PULL_TRIGGER
-					|| key == Key.AIM_HOLD
-					|| key == Key.AIM_TOGGLE
-				);
+				final Consumer< IInput > popAmmo =
+					key -> PlayerPatchClient.instance.launch( new OpUnloadAmmoClient() );
+				pressHandlerRegistry.accept( Key.AIM_HOLD, popAmmo );
+				pressHandlerRegistry.accept( Key.AIM_TOGGLE, popAmmo );
 				
-				if ( stoppedHolding )
-				{
+				final Consumer< IInput > stopAmmoOp = key -> {
 					final IOperation executing = PlayerPatchClient.instance.executing();
 					final boolean isLoadingOrUnloadingAmmo = (
 						executing instanceof MagType< ?, ?, ?, ?, ?, ? >.Mag.EquippedMag.OpLoadAmmoClient
@@ -448,7 +434,10 @@ public abstract class MagType<
 					if ( isLoadingOrUnloadingAmmo ) {
 						PlayerPatchClient.instance.terminateExecuting();
 					}
-				}
+				};
+				releaseHandlerRegistry.accept( Key.PULL_TRIGGER, stopAmmoOp );
+				releaseHandlerRegistry.accept( Key.AIM_HOLD, stopAmmoOp );
+				releaseHandlerRegistry.accept( Key.AIM_TOGGLE, stopAmmoOp );
 			}
 			
 			@SideOnly( Side.CLIENT )

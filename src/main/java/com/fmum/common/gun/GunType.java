@@ -336,29 +336,53 @@ public abstract class GunType<
 			}
 			
 			@Override
-			@SideOnly( Side.CLIENT )
-			@SuppressWarnings( "unchecked" )
-			public void onKeyPress( IInput key )
-			{
+			protected void setupInputHandler(
+				BiConsumer< Object, Consumer< IInput > > pressHandlerRegistry,
+				BiConsumer< Object, Consumer< IInput > > releaseHandlerRegistry
+			) {
+				super.setupInputHandler( pressHandlerRegistry, releaseHandlerRegistry );
+				
+				final Consumer< IInput > loadUnloadMag =
+					key -> PlayerPatchClient.instance.launch(
+						Gun.this.hasMag() ? new OpUnloadMagClient() : new OpLoadMagClient()
+					);
+				pressHandlerRegistry.accept( Key.LOAD_UNLOAD_MAG, loadUnloadMag );
+				pressHandlerRegistry.accept( Key.CO_LOAD_UNLOAD_MAG, loadUnloadMag );
+				
+				final Consumer< IInput > chargeGun =
+					key -> PlayerPatchClient.instance.launch( new OpChargeGunClient() );
+				pressHandlerRegistry.accept( Key.CHARGE_GUN, chargeGun );
+				pressHandlerRegistry.accept( Key.CO_CHARGE_GUN, chargeGun );
+				
+				final Consumer< IInput > inspectWeapon = key -> {
+					final boolean boltCatch = Gun.this.state.boltCatch();
+					PlayerPatchClient.instance.launch( new OperationOnGunClient(
+						GunType.this.inspectControllerDispatcher
+							.match( Gun.this.mag(), boltCatch, boltCatch )
+					) );
+				};
+				pressHandlerRegistry.accept( Key.INSPECT, inspectWeapon );
+				pressHandlerRegistry.accept( Key.CO_INSPECT, inspectWeapon );
+				
 //				final boolean pullTrigger = key == Key.PULL_TRIGGER;
 //				if ( pullTrigger )
 //				{
 //					final int actionRounds = Gun.this.fireController.actionRounds();
 //					if ( actionRounds == 0 ) { return; }
-//					
+//
 //					// We can pull trigger down now. // TODO: Play sound.
-//					
-//					
+//
+//
 //					// Delegate render to buffered instance.
 //					final E copied = ( E ) this.copy();
 //					EquippedGun.this.renderDelegate = ori -> copied;
-//					
+//
 //					final ITriggerHandler handler = new ITriggerHandler()
 //					{
 //						int bufferedShotCount = Gun.this.roundsShot;
 //						int actedRounds = 0;
 //						int coolDown = 0;
-//						
+//
 //						@Override
 //						public ITriggerHandler tick( EntityPlayer player )
 //						{
@@ -373,22 +397,22 @@ public abstract class GunType<
 //								this.coolDown = result.actionDuration;
 ////								EquippedGun.this.renderer.useAnimation( result.actionAnimation );
 //								Gun.this.state = result.newState;
-//								
+//
 //								this.bufferedShotCount = result.shotCount;
 //								this.actedRounds = result.actedRounds;
 //							}
-//							
+//
 //							this.coolDown -= 1;
 //							return this.actedRounds == actionRounds ? ITriggerHandler.NONE : this;
 //						}
-//						
+//
 //						@Override
 //						public ITriggerHandler onTriggerRelease()
 //						{
 //							this.actedRounds = Gun.this.fireController.releaseRounds( this.actedRounds );
 //							return this.actedRounds == actionRounds ? ITriggerHandler.NONE : this; // TODO: keep buffered rounds for a while
 //						}
-//						
+//
 //						@Override
 //						public int getRoundsShot( int rawRoundsShot ) {
 //							return this.bufferedShotCount;
@@ -396,38 +420,6 @@ public abstract class GunType<
 //					};
 //					return;
 //				}
-				
-				final boolean loadUnloadMag = (
-					key == Key.LOAD_UNLOAD_MAG
-					|| key == Key.CO_LOAD_UNLOAD_MAG
-				);
-				if ( loadUnloadMag )
-				{
-					PlayerPatchClient.instance.launch(
-						Gun.this.hasMag() ? new OpUnloadMagClient() : new OpLoadMagClient()
-					);
-					return;
-				}
-				
-				final boolean chargeGun = key == Key.CHARGE_GUN || key == Key.CO_CHARGE_GUN;
-				if ( chargeGun )
-				{
-					PlayerPatchClient.instance.launch( new OpChargeGunClient() );
-					return;
-				}
-				
-				final boolean inspectWeapon = key == Key.INSPECT || key == Key.CO_INSPECT;
-				if ( inspectWeapon )
-				{
-					final boolean boltCatch = Gun.this.state.boltCatch();
-					PlayerPatchClient.instance.launch( new OperationOnGunClient(
-						GunType.this.inspectControllerDispatcher
-							.match( Gun.this.mag(), boltCatch, boltCatch )
-					) );
-					return;
-				}
-				
-				super.onKeyPress( key );
 			}
 			
 			@Override

@@ -5,6 +5,7 @@ import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.client.input.IInput;
 import com.fmum.client.input.Key;
+import com.fmum.client.input.Key.Category;
 import com.fmum.client.item.IItemModel;
 import com.fmum.client.module.IDeferredRenderer;
 import com.fmum.client.player.OpModifyClient;
@@ -45,9 +46,12 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.fmum.common.gun.GunPartWrapper.STACK_ID_TAG;
@@ -485,12 +489,19 @@ public abstract class GunPartType<
 			@SideOnly( Side.CLIENT )
 			protected Function< E, E > renderDelegate;
 			
+			@SideOnly( Side.CLIENT )
+			protected HashMap< Object, Consumer< IInput > > keyPressHandler, keyReleaseHandler;
+			
 			protected EquippedGunPart( EntityPlayer player, EnumHand hand )
 			{
 				if ( player.world.isRemote )
 				{
 					this.renderer = GunPart.this.renderer.onTakeOut( hand );
 					this.renderDelegate = original -> original;
+					
+					this.keyPressHandler = new HashMap<>();
+					this.keyReleaseHandler = new HashMap<>();
+					this.setupInputHandler( this.keyPressHandler::put, this.keyReleaseHandler::put );
 				}
 			}
 			
@@ -505,6 +516,10 @@ public abstract class GunPartType<
 					final EquippedGunPart prev = ( EquippedGunPart ) prevEquipped;
 					this.renderer = prev.renderer;
 					this.renderDelegate = prev.renderDelegate;
+					
+					this.keyPressHandler = new HashMap<>();
+					this.keyReleaseHandler = new HashMap<>();
+					this.setupInputHandler( this.keyPressHandler::put, this.keyReleaseHandler::put );
 				}
 			}
 			
@@ -550,25 +565,33 @@ public abstract class GunPartType<
 			
 			@Override
 			@SideOnly( Side.CLIENT )
-			public void onKeyPress( IInput key )
+			public final void onKeyPress( IInput key )
 			{
-				final boolean isModifyInput = key.category().equals( Key.Category.MODIFY );
-				if ( isModifyInput )
-				{
+				this.keyPressHandler.getOrDefault( key.category(), k -> { } ).accept( key );
+				this.keyPressHandler.getOrDefault( key, k -> { } ).accept( key );
+			}
+			
+			@Override
+			@SideOnly( Side.CLIENT )
+			public final void onKeyRelease( IInput key )
+			{
+				this.keyReleaseHandler.getOrDefault( key.category(), k -> { } ).accept( key );
+				this.keyReleaseHandler.getOrDefault( key, k -> { } ).accept( key );
+			}
+			
+			@SideOnly( Side.CLIENT )
+			protected void setupInputHandler(
+				BiConsumer< Object, Consumer< IInput > > pressHandlerRegistry,
+				BiConsumer< Object, Consumer< IInput > > releaseHandlerRegistry
+			) {
+				final Consumer< IInput > handleModifyInput = key -> {
 					final IOperation executing = PlayerPatchClient.instance.executing();
 					final boolean isModifying = executing instanceof OpModifyClient;
-					if ( isModifying ) {
-						( ( OpModifyClient ) executing ).handleInput( key );
-					}
-					return;
-				}
+					if ( isModifying ) { ( ( OpModifyClient ) executing ).handleInput( key ); }
+				};
+				pressHandlerRegistry.accept( Category.MODIFY, handleModifyInput );
 				
-				final boolean toggleModify = (
-					key == Key.TOGGLE_MODIFY
-					|| key == Key.CO_TOGGLE_MODIFY
-				);
-				if ( toggleModify )
-				{
+				final Consumer< IInput > toggleModify = key -> {
 					final IOperation executing = PlayerPatchClient.instance.executing();
 					if ( executing instanceof OpModifyClient )
 					{
@@ -602,7 +625,9 @@ public abstract class GunPartType<
 						modifyOp::smoothedProgress,
 						() -> modifyOp.refPlayerRotYaw
 					);
-				}
+				};
+				pressHandlerRegistry.accept( Key.TOGGLE_MODIFY, toggleModify );
+				pressHandlerRegistry.accept( Key.CO_TOGGLE_MODIFY, toggleModify );
 			}
 			
 			@SideOnly( Side.CLIENT )
