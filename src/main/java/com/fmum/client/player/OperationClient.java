@@ -12,12 +12,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public abstract class OperationClient< T extends IEquippedItem< ? > >
-	extends Operation implements IAutowirePacketHandler
+public abstract class OperationClient< T extends IEquippedItem< ? >, C extends OperationController >
+	extends Operation< C > implements IAutowirePacketHandler
 {
 	protected T equipped;
 	
-	public OperationClient( T equipped, OperationController controller )
+	public OperationClient( T equipped, C controller )
 	{
 		super( controller );
 		

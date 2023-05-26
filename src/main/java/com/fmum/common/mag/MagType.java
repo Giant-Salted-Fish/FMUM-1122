@@ -441,7 +441,8 @@ public abstract class MagType<
 			}
 			
 			@SideOnly( Side.CLIENT )
-			protected class OpLoadAmmoClient extends OperationClient< EquippedMag >
+			protected class OpLoadAmmoClient
+				extends OperationClient< EquippedMag, OperationController >
 			{
 				protected OpLoadAmmoClient() {
 					super( EquippedMag.this, MagType.this.loadAmmoController );
@@ -495,7 +496,8 @@ public abstract class MagType<
 			}
 			
 			@SideOnly( Side.CLIENT )
-			protected class OpUnloadAmmoClient extends OperationClient< EquippedMag >
+			protected class OpUnloadAmmoClient
+				extends OperationClient< EquippedMag, OperationController >
 			{
 				protected OpUnloadAmmoClient() {
 					super( EquippedMag.this, MagType.this.unloadAmmoController );
@@ -524,7 +526,7 @@ public abstract class MagType<
 			}
 		}
 		
-		protected class OperationOnMag extends Operation
+		protected class OperationOnMag extends Operation< OperationController >
 		{
 			protected Mag mag;
 			

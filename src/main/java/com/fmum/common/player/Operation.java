@@ -5,9 +5,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class Operation implements IOperation
+public abstract class Operation< T extends OperationController > implements IOperation
 {
-	protected OperationController controller;
+	protected T controller;
 	
 	protected float prevProgress;
 	protected float progress;
@@ -15,7 +15,7 @@ public abstract class Operation implements IOperation
 	protected int currentEffect;
 	protected int currentSound;
 	
-	protected Operation( OperationController controller ) { this.controller = controller; }
+	protected Operation( T controller ) { this.controller = controller; }
 	
 	@Override
 	public float progress() { return this.progress; }

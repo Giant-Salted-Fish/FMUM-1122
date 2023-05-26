@@ -56,19 +56,23 @@ public abstract class GunType<
 	M extends IItemModel< ? extends R >
 > extends GunPartType< I, C, E, ER, R, M >
 {
-	protected static final OperationController
-		LOAD_MAG_CONTROLLER = new OperationController(
-			1F / 40F,
-			new TimedEffect[] { new TimedEffect( 0.8F, "loadMag" ) },
-			new TimedSound[] { new TimedSound( 0.8F, "load_mag" ) }
-		),
-		UNLOAD_MAG_CONTROLLER = new OperationController(
-			1F / 40F,
-			new TimedEffect[] { new TimedEffect( 0.5F, "unloadMag" ) },
-			new TimedSound[] { new TimedSound( 0.5F, "unload_mag" ) }
-		);
-	
 	protected static final ControllerDispatcher
+		LOAD_MAG_CONTROLLER_DISPATCHER = new ControllerDispatcher(
+			new GunOpController(
+				1F / 40F,
+				new TimedEffect[] { new TimedEffect( 0.8F, "loadMag" ) },
+				new TimedSound[] { new TimedSound( 0.8F, "load_mag" ) },
+				false
+			)
+		),
+		UNLOAD_MAG_CONTROLLER_DISPATCHER = new ControllerDispatcher(
+			new GunOpController(
+				1F / 40F,
+				new TimedEffect[] { new TimedEffect( 0.5F, "unloadMag" ) },
+				new TimedSound[] { new TimedSound( 0.5F, "unload_mag" ) },
+				false
+			)
+		),
 		CHARGE_CONTROLLER_DISPATCHER = new ControllerDispatcher(
 			new GunOpController(
 				1F / 22F,
@@ -105,8 +109,8 @@ public abstract class GunType<
 	@SideOnly( Side.CLIENT )
 	protected Animation shootBoltCatchAnimation;
 	
-	protected OperationController loadMagController = LOAD_MAG_CONTROLLER;
-	protected OperationController unloadMagController = UNLOAD_MAG_CONTROLLER;
+	protected ControllerDispatcher loadMagControllerDispatcher = LOAD_MAG_CONTROLLER_DISPATCHER;
+	protected ControllerDispatcher unloadMagControllerDispatcher = UNLOAD_MAG_CONTROLLER_DISPATCHER;
 	
 	protected ControllerDispatcher chargeControllerDispatcher = CHARGE_CONTROLLER_DISPATCHER;
 	
@@ -118,8 +122,8 @@ public abstract class GunType<
 		super.build( name, provider );
 		
 		provider.clientOnly( () -> {
-			this.loadMagController.checkAssetsSetup( provider );
-			this.unloadMagController.checkAssetsSetup( provider );
+			this.loadMagControllerDispatcher.checkAssetsSetup( provider );
+			this.unloadMagControllerDispatcher.checkAssetsSetup( provider );
 			this.chargeControllerDispatcher.checkAssetsSetup( provider );
 			this.inspectControllerDispatcher.checkAssetsSetup( provider );
 			
@@ -268,6 +272,22 @@ public abstract class GunType<
 			this.syncAndUpdate();
 		}
 		
+		protected GunOpController loadMagController()
+		{
+			final boolean boltCatch = this.state.boltCatch();
+			return GunType.this.loadMagControllerDispatcher.match(
+				new GunControllerRanker( this.mag(), boltCatch, boltCatch )
+			);
+		}
+		
+		protected GunOpController unloadMagController()
+		{
+			final boolean boltCatch = this.state.boltCatch();
+			return GunType.this.unloadMagControllerDispatcher.match(
+				new GunControllerRanker( this.mag(), boltCatch, boltCatch )
+			);
+		}
+		
 		protected class EquippedGun extends EquippedGunPart implements IEquippedGun< C >
 		{
 			protected static final byte
@@ -336,6 +356,7 @@ public abstract class GunType<
 			}
 			
 			@Override
+			@SideOnly( Side.CLIENT )
 			protected void setupInputHandler(
 				BiConsumer< Object, Consumer< IInput > > pressHandlerRegistry,
 				BiConsumer< Object, Consumer< IInput > > releaseHandlerRegistry
@@ -451,9 +472,10 @@ public abstract class GunType<
 			protected final Gun inner() { return Gun.this; }
 			
 			@SideOnly( Side.CLIENT )
-			protected class OperationOnGunClient extends OperationClient< EquippedGun >
+			protected class OperationOnGunClient
+				extends OperationClient< EquippedGun, GunOpController >
 			{
-				protected OperationOnGunClient( OperationController controller ) {
+				protected OperationOnGunClient( GunOpController controller ) {
 					super( EquippedGun.this, controller );
 				}
 				
@@ -462,11 +484,9 @@ public abstract class GunType<
 				public IOperation launch( EntityPlayer player )
 				{
 					this.equipped.renderer.useOperateAnimation(
-						new CoupledAnimation(
-							this.controller.animation(),
-							this::smoothedProgress
-						)
+						new CoupledAnimation( this.controller.animation(), this::smoothedProgress )
 					);
+					this.controller.setupStaticAnimation( EquippedGun.this.renderer::useGunAnimation );
 					this.equipped.renderDelegate = ori -> ( E ) EquippedGun.this;
 					
 					final ICameraController camera = PlayerPatchClient.instance.camera;
@@ -479,13 +499,17 @@ public abstract class GunType<
 				{
 					this.equipped.renderDelegate = original -> original;
 					this.equipped.renderer.useOperateAnimation( IAnimator.NONE );
+					EquippedGun.this.renderer.useGunAnimation( new CoupledAnimation(
+						this.equipped.inner().state.staticAnimation(),
+						() -> 1F
+					) );
 				}
 			}
 			
 			@SideOnly( Side.CLIENT )
 			protected class OpUnloadMagClient extends OperationOnGunClient
 			{
-				protected OpUnloadMagClient() { super( GunType.this.unloadMagController ); }
+				protected OpUnloadMagClient() { super( Gun.this.unloadMagController() ); }
 				
 				@Override
 				public IOperation launch( EntityPlayer player )
@@ -499,7 +523,7 @@ public abstract class GunType<
 			@SideOnly( Side.CLIENT )
 			protected class OpLoadMagClient extends OperationOnGunClient
 			{
-				protected OpLoadMagClient() { super( GunType.this.loadMagController ); }
+				protected OpLoadMagClient() { super( Gun.this.loadMagController() ); }
 				
 				@Override
 				@SuppressWarnings( "unchecked" )
@@ -511,11 +535,7 @@ public abstract class GunType<
 					if ( noValidMagToLoad ) { return IOperation.NONE; }
 					
 					// Play animation.
-					this.equipped.renderer.useOperateAnimation(
-						new CoupledAnimation( this.controller.animation(), this::smoothedProgress )
-					);
-					final ICameraController camera = PlayerPatchClient.instance.camera;
-					camera.useAnimation( new ReadOnlyAnimator( this.equipped.animator() ) );
+					super.launch( player );
 					
 					// Copy this gun to install the loading mag.
 					final EquippedGun copied = ( EquippedGun ) this.equipped.copy();
@@ -563,20 +583,7 @@ public abstract class GunType<
 				{
 					final byte code = OP_CODE_CHARGE_GUN;
 					this.sendPacketToServer( new PacketNotifyItem( buf -> buf.writeByte( code ) ) );
-					
-					EquippedGun.this.renderer.useGunAnimation( IAnimator.NONE );
 					return super.launch( player );
-				}
-				
-				@Override
-				protected void endCallback()
-				{
-					super.endCallback();
-					
-					EquippedGun.this.renderer.useGunAnimation( new CoupledAnimation(
-						this.equipped.inner().state.staticAnimation(),
-						() -> 1F
-					) );
 				}
 			}
 		}
@@ -586,7 +593,7 @@ public abstract class GunType<
 			protected static final int ORDINAL = 0;
 			
 			@Override
-			public OperationController chargeController()
+			public GunOpController chargeController()
 			{
 				final boolean boltOpenBeforeAction = true;
 				final boolean boltOpenAfterAction = true;
@@ -614,7 +621,7 @@ public abstract class GunType<
 			protected static final int ORDINAL = 1;
 			
 			@Override
-			public OperationController chargeController()
+			public GunOpController chargeController()
 			{
 				final boolean boltOpenBeforeAction = false;
 				final boolean boltOpenAfterAction = true;
@@ -641,7 +648,7 @@ public abstract class GunType<
 			protected static final int ORDINAL = 2;
 			
 			@Override
-			public OperationController chargeController()
+			public GunOpController chargeController()
 			{
 				final IMag< ? > mag = Gun.this.mag();
 				final boolean boltCatchBeforeAction = false;
@@ -678,7 +685,7 @@ public abstract class GunType<
 			protected static final int ORDINAL = 3;
 			
 			@Override
-			public OperationController chargeController()
+			public GunOpController chargeController()
 			{
 				final IMag< ? > mag = Gun.this.mag();
 				final boolean boltCatchBeforeAction = true;
@@ -732,7 +739,7 @@ public abstract class GunType<
 //			}
 			
 			@Override
-			public OperationController chargeController()
+			public GunOpController chargeController()
 			{
 				final IMag< ? > mag = Gun.this.mag();
 				final boolean boltCatchBeforeAction = false;
@@ -786,7 +793,7 @@ public abstract class GunType<
 			public Animation staticAnimation() { return GunType.this.staticBoltRelease; }
 		}
 		
-		protected class OperationOnGun extends Operation
+		protected class OperationOnGun extends Operation< OperationController >
 		{
 			protected OperationOnGun( OperationController controller ) { super( controller ); }
 			
@@ -806,7 +813,7 @@ public abstract class GunType<
 			
 			protected OpLoadMag( int magInvSlot )
 			{
-				super( GunType.this.loadMagController );
+				super( Gun.this.loadMagController() );
 				
 				this.magInvSlot = magInvSlot;
 			}
@@ -843,7 +850,7 @@ public abstract class GunType<
 		
 		protected class OpUnloadMag extends OperationOnGun
 		{
-			protected OpUnloadMag() { super( GunType.this.unloadMagController ); }
+			protected OpUnloadMag() { super( Gun.this.unloadMagController() ); }
 			
 			@Override
 			public IOperation launch( EntityPlayer player ) {
@@ -878,7 +885,7 @@ public abstract class GunType<
 		
 //		ShootResult tryShoot( int actedRounds, int shotNumber, EntityPlayer player );
 		
-		OperationController chargeController();
+		GunOpController chargeController();
 		
 		IGunState charge( EntityPlayer player );
 		

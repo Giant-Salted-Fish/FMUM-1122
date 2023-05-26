@@ -3,15 +3,13 @@ package com.fmum.common.player;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 
-public abstract class TogglableOperation extends Operation
+public abstract class TogglableOperation< T extends OperationController > extends Operation< T >
 {
-	protected OperationController forwardController;
-	protected OperationController backwardController;
+	protected T forwardController;
+	protected T backwardController;
 	
-	protected TogglableOperation(
-		OperationController forwardController,
-		OperationController backwardController
-	) {
+	protected TogglableOperation( T forwardController, T backwardController )
+	{
 		super( forwardController );
 		
 		this.forwardController = forwardController;

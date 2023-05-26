@@ -17,19 +17,23 @@
 	"shootAnimation": "animations/hk416_shoot.json",
 	"shootBoltCatchAnimation": "animations/hk416_shoot-bolt_catch.json",
 	
-	"loadMagController": {
-		"animation": "animations/hk416_load_mag.json",
-		"progressor": 0.0324317,
-		"effects": { "0.616203": "" },
-		"sounds": { "0.454044": "load_mag" }
-	},
+	"loadMagControllerDispatcher": [
+		{
+			"animation": "animations/hk416_load_mag.json",
+			"progressor": 0.0324317,
+			"effects": { "0.616203": "" },
+			"sounds": { "0.454044": "load_mag" }
+		}
+	],
 	
-	"unloadMagController": {
-		"animation": "animations/hk416_unload_mag.json",
-		"progressor": 0.04,
-		"effects": { "0.328": "" },
-		"sounds": { "0.2": "unload_mag" }
-	},
+	"unloadMagControllerDispatcher": [
+		{
+			"animation": "animations/hk416_unload_mag.json",
+			"progressor": 0.04,
+			"effects": { "0.328": "" },
+			"sounds": { "0.2": "unload_mag" }
+		}
+	],
 	
 	"chargeControllerDispatcher": [
 		{
