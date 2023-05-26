@@ -56,32 +56,14 @@ public abstract class GunType<
 	M extends IItemModel< ? extends R >
 > extends GunPartType< I, C, E, ER, R, M >
 {
-	protected static final ControllerDispatcher
-		LOAD_MAG_CONTROLLER_DISPATCHER = new ControllerDispatcher(
-			new GunOpController(
-				1F / 40F,
-				new TimedEffect[] { new TimedEffect( 0.8F, "loadMag" ) },
-				new TimedSound[] { new TimedSound( 0.8F, "load_mag" ) },
-				false
-			)
-		),
-		UNLOAD_MAG_CONTROLLER_DISPATCHER = new ControllerDispatcher(
-			new GunOpController(
-				1F / 40F,
-				new TimedEffect[] { new TimedEffect( 0.5F, "unloadMag" ) },
-				new TimedSound[] { new TimedSound( 0.5F, "unload_mag" ) },
-				false
-			)
-		),
-		CHARGE_CONTROLLER_DISPATCHER = new ControllerDispatcher(
-			new GunOpController(
-				1F / 22F,
-				new TimedEffect[] { new TimedEffect( 0.5F, "charge" ) },
-				new TimedSound[] { },
-				false
-			)
-		),
-		INSPECT_CONTROLLER_DISPATCHER = new ControllerDispatcher( new GunOpController( 1F / 40F ) );
+	protected static final ControllerDispatcher CONTROLLER_DISPATCHER = new ControllerDispatcher(
+		new GunOpController(
+			1F / 40F,
+			new TimedEffect[] { new TimedEffect( 0.8F, "" ) },
+			new TimedSound[] { },
+			false
+		)
+	);
 	
 //	protected static final IFireController[] DEFAULT_FIRE_CONTROLLERS = { new FullAuto() };
 //
@@ -109,12 +91,13 @@ public abstract class GunType<
 	@SideOnly( Side.CLIENT )
 	protected Animation shootBoltCatchAnimation;
 	
-	protected ControllerDispatcher loadMagControllerDispatcher = LOAD_MAG_CONTROLLER_DISPATCHER;
-	protected ControllerDispatcher unloadMagControllerDispatcher = UNLOAD_MAG_CONTROLLER_DISPATCHER;
+	protected ControllerDispatcher loadMagControllerDispatcher = CONTROLLER_DISPATCHER;
+	protected ControllerDispatcher unloadMagControllerDispatcher = CONTROLLER_DISPATCHER;
 	
-	protected ControllerDispatcher chargeControllerDispatcher = CHARGE_CONTROLLER_DISPATCHER;
+	protected ControllerDispatcher chargeGunControllerDispatcher = CONTROLLER_DISPATCHER;
+	protected ControllerDispatcher releaseBoltControllerDispatcher = CONTROLLER_DISPATCHER;
 	
-	protected ControllerDispatcher inspectControllerDispatcher = INSPECT_CONTROLLER_DISPATCHER;
+	protected ControllerDispatcher inspectControllerDispatcher = CONTROLLER_DISPATCHER;
 	
 	@Override
 	public IMeta build( String name, IContentProvider provider )
@@ -124,7 +107,8 @@ public abstract class GunType<
 		provider.clientOnly( () -> {
 			this.loadMagControllerDispatcher.checkAssetsSetup( provider );
 			this.unloadMagControllerDispatcher.checkAssetsSetup( provider );
-			this.chargeControllerDispatcher.checkAssetsSetup( provider );
+			this.chargeGunControllerDispatcher.checkAssetsSetup( provider );
+			this.releaseBoltControllerDispatcher.checkAssetsSetup( provider );
 			this.inspectControllerDispatcher.checkAssetsSetup( provider );
 			
 			this.staticBoltRelease = Optional
@@ -146,7 +130,7 @@ public abstract class GunType<
 		
 		protected IGunState state;
 		
-		protected IFireController fireController;
+//		protected IFireController fireController;
 		protected int roundsShot;
 		
 		protected Gun()
@@ -188,6 +172,13 @@ public abstract class GunType<
 		public void chargeGun( EntityPlayer player )
 		{
 			this.state = this.state.charge( player );
+			this.syncGunState();
+		}
+		
+		@Override
+		public void releaseBolt( EntityPlayer player )
+		{
+			this.state = this.state.releaseBolt( player );
 			this.syncGunState();
 		}
 		
@@ -293,7 +284,8 @@ public abstract class GunType<
 			protected static final byte
 				OP_CODE_LOAD_MAG = 0,
 				OP_CODE_UNLOAD_MAG = 1,
-				OP_CODE_CHARGE_GUN = 2;
+				OP_CODE_CHARGE_GUN = 2,
+				OP_RELEASE_BOLT = 3;
 			
 			protected int actionCoolDown = 0;
 			
@@ -306,7 +298,7 @@ public abstract class GunType<
 				if ( player.world.isRemote )
 				{
 					this.renderer.useGunAnimation(
-						new CoupledAnimation( Gun.this.state.staticAnimation(), () -> 1F )
+						new CoupledAnimation( Gun.this.state.staticAnimation() )
 					);
 				}
 			}
@@ -343,11 +335,15 @@ public abstract class GunType<
 				case OP_CODE_CHARGE_GUN:
 					PlayerPatch.get( player ).launch( new OpChargeGun() );
 					break;
-				
+					
+				case OP_RELEASE_BOLT:
+					PlayerPatch.get( player ).launch( new OpReleaseBolt() );
+					break;
+					
 				case OP_CODE_UNLOAD_MAG:
 					PlayerPatch.get( player ).launch( new OpUnloadMag() );
 					break;
-				
+					
 				case OP_CODE_LOAD_MAG:
 					final int magInvSlot = buf.readByte();
 					PlayerPatch.get( player ).launch( new OpLoadMag( magInvSlot ) );
@@ -374,6 +370,14 @@ public abstract class GunType<
 					key -> PlayerPatchClient.instance.launch( new OpChargeGunClient() );
 				pressHandlerRegistry.accept( Key.CHARGE_GUN, chargeGun );
 				pressHandlerRegistry.accept( Key.CO_CHARGE_GUN, chargeGun );
+				
+				final Consumer< IInput > releaseBolt = key -> {
+					if ( !GunType.this.isOpenBolt ) {
+						PlayerPatchClient.instance.launch( new OpReleaseBoltClient() );
+					}
+				};
+				pressHandlerRegistry.accept( Key.RELEASE_BOLT, releaseBolt );
+				pressHandlerRegistry.accept( Key.CO_RELEASE_BOLT, releaseBolt );
 				
 				final Consumer< IInput > inspectWeapon = key -> {
 					final boolean boltCatch = Gun.this.state.boltCatch();
@@ -499,10 +503,9 @@ public abstract class GunType<
 				{
 					this.equipped.renderDelegate = original -> original;
 					this.equipped.renderer.useOperateAnimation( IAnimator.NONE );
-					EquippedGun.this.renderer.useGunAnimation( new CoupledAnimation(
-						this.equipped.inner().state.staticAnimation(),
-						() -> 1F
-					) );
+					EquippedGun.this.renderer.useGunAnimation(
+						new CoupledAnimation( this.equipped.inner().state.staticAnimation() )
+					);
 				}
 			}
 			
@@ -586,6 +589,20 @@ public abstract class GunType<
 					return super.launch( player );
 				}
 			}
+			
+			@SideOnly( Side.CLIENT )
+			protected class OpReleaseBoltClient extends OperationOnGunClient
+			{
+				protected OpReleaseBoltClient() { super( Gun.this.state.releaseBoltController() ); }
+				
+				@Override
+				public IOperation launch( EntityPlayer player )
+				{
+					final byte code = OP_RELEASE_BOLT;
+					this.sendPacketToServer( new PacketNotifyItem( buf -> buf.writeByte( code ) ) );
+					return super.launch( player );
+				}
+			}
 		}
 		
 		protected class StateBoltOpen implements IGunState
@@ -597,7 +614,7 @@ public abstract class GunType<
 			{
 				final boolean boltOpenBeforeAction = true;
 				final boolean boltOpenAfterAction = true;
-				return GunType.this.chargeControllerDispatcher.match(
+				return GunType.this.chargeGunControllerDispatcher.match(
 					Gun.this.mag(), boltOpenBeforeAction, boltOpenAfterAction
 				);
 			}
@@ -610,6 +627,12 @@ public abstract class GunType<
 			
 			@Override
 			public int toAmmoIdAndOrdinal() { return ORDINAL; }
+			
+			@Override
+			public GunOpController releaseBoltController() { throw new RuntimeException(); }
+			
+			@Override
+			public IGunState releaseBolt( EntityPlayer player ) { throw new RuntimeException(); }
 			
 			@Override
 			@SideOnly( Side.CLIENT )
@@ -625,7 +648,7 @@ public abstract class GunType<
 			{
 				final boolean boltOpenBeforeAction = false;
 				final boolean boltOpenAfterAction = true;
-				return GunType.this.chargeControllerDispatcher.match(
+				return GunType.this.chargeGunControllerDispatcher.match(
 					Gun.this.mag(), boltOpenBeforeAction, boltOpenAfterAction
 				);
 			}
@@ -634,6 +657,12 @@ public abstract class GunType<
 			public IGunState charge( EntityPlayer player ) {
 				return new StateBoltOpen(); // TODO: Check if creating inner without Gun.this.new keeps current instance.
 			}
+			
+			@Override
+			public GunOpController releaseBoltController() { throw new RuntimeException(); }
+			
+			@Override
+			public IGunState releaseBolt( EntityPlayer player ) { throw new RuntimeException(); }
 			
 			@Override
 			public int toAmmoIdAndOrdinal() { return ORDINAL; }
@@ -654,7 +683,7 @@ public abstract class GunType<
 				final boolean boltCatchBeforeAction = false;
 				final boolean boltCatchAfterAction = mag != null
                     && mag.isEmpty() && GunType.this.catchBoltOnEmpty;
-				return GunType.this.chargeControllerDispatcher.match(
+				return GunType.this.chargeGunControllerDispatcher.match(
 					mag, boltCatchBeforeAction, boltCatchAfterAction
 				);
 			}
@@ -671,6 +700,18 @@ public abstract class GunType<
 				
 				return GunType.this.catchBoltOnEmpty ? new StateBoltCatch() : this;
 			}
+			
+			@Override
+			public GunOpController releaseBoltController()
+			{
+				final boolean boltCatch = false;
+				return GunType.this.releaseBoltControllerDispatcher.match(
+					new GunControllerRanker( Gun.this.mag(), boltCatch, boltCatch )
+				);
+			}
+			
+			@Override
+			public IGunState releaseBolt( EntityPlayer player ) { return this; }
 			
 			@Override
 			public int toAmmoIdAndOrdinal() { return ORDINAL; }
@@ -691,7 +732,7 @@ public abstract class GunType<
 				final boolean boltCatchBeforeAction = true;
 				final boolean boltCatchAfterAction = mag != null
                     && mag.isEmpty() && GunType.this.catchBoltOnEmpty;
-				return GunType.this.chargeControllerDispatcher.match(
+				return GunType.this.chargeGunControllerDispatcher.match(
 					mag, boltCatchBeforeAction, boltCatchAfterAction
 				);
 			}
@@ -708,6 +749,27 @@ public abstract class GunType<
 				
 				final boolean hasAmmo = !mag.isEmpty();
 				return hasAmmo ? new StateShootReady( mag.popAmmo() ) : this;
+			}
+			
+			@Override
+			public GunOpController releaseBoltController()
+			{
+				final boolean boltCatchBefore = true;
+				final boolean boltCatchAfter = false;
+				return GunType.this.releaseBoltControllerDispatcher.match(
+					new GunControllerRanker( Gun.this.mag(), boltCatchBefore, boltCatchAfter )
+				);
+			}
+			
+			@Override
+			public IGunState releaseBolt( EntityPlayer player )
+			{
+				final IMag< ? > mag = Gun.this.mag();
+				return(
+					mag == null || mag.isEmpty()
+					? new StateBoltRelease()
+					: new StateShootReady( mag.popAmmo() )
+				);
 			}
 			
 			@Override
@@ -745,7 +807,7 @@ public abstract class GunType<
 				final boolean boltCatchBeforeAction = false;
 				final boolean boltCatchAfterAction = mag != null
                     && mag.isEmpty() && GunType.this.catchBoltOnEmpty;
-				return GunType.this.chargeControllerDispatcher.match(
+				return GunType.this.chargeGunControllerDispatcher.match(
 					mag, boltCatchBeforeAction, boltCatchAfterAction
 				);
 			}
@@ -777,6 +839,18 @@ public abstract class GunType<
 					: new StateBoltRelease()
 				);
 			}
+			
+			@Override
+			public GunOpController releaseBoltController()
+			{
+				final boolean boltCatch = false;
+				return GunType.this.releaseBoltControllerDispatcher.match(
+					new GunControllerRanker( Gun.this.mag(), boltCatch, boltCatch )
+				);
+			}
+			
+			@Override
+			public IGunState releaseBolt( EntityPlayer player ) { return this; }
 			
 			@Override
 			public void forEachAmmo( Consumer< IAmmoType > visitor ) {
@@ -870,6 +944,14 @@ public abstract class GunType<
 			@Override
 			protected void doHandleEffect( EntityPlayer player ) { this.gun.chargeGun( player ); }
 		}
+		
+		protected class OpReleaseBolt extends OperationOnGun
+		{
+			protected OpReleaseBolt() { super( Gun.this.state.releaseBoltController() ); }
+			
+			@Override
+			protected void doHandleEffect( EntityPlayer player ) { this.gun.releaseBolt( player ); }
+		}
 	}
 	
 	protected interface IFireController
@@ -888,6 +970,10 @@ public abstract class GunType<
 		GunOpController chargeController();
 		
 		IGunState charge( EntityPlayer player );
+		
+		GunOpController releaseBoltController();
+		
+		IGunState releaseBolt( EntityPlayer player );
 		
 		default void forEachAmmo( Consumer< IAmmoType > visitor ) { }
 		

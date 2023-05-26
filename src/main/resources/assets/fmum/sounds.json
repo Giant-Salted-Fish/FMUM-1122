@@ -6,14 +6,5 @@
 	"unload_ammo": {
 		"subtitle": "fmum.sound.pop_ammo",
 		"sounds": [ "fmum:unload_ammo" ]
-	},
-	
-	"load_mag": {
-		"subtitle": "fmum.sound.load_mag",
-		"sounds": [ "fmum:load_mag" ]
-	},
-	"unload_mag": {
-		"subtitle": "fmum.sound.unload_mag",
-		"sounds": [ "fmum:unload_mag" ]
 	}
 }

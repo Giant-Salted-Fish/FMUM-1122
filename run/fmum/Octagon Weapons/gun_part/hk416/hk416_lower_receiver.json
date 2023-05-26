@@ -22,7 +22,7 @@
 			"animation": "animations/hk416_load_mag.json",
 			"progressor": 0.0324317,
 			"effects": { "0.616203": "" },
-			"sounds": { "0.454044": "load_mag" }
+			"sounds": { "0.454044": "hk416_load_mag" }
 		}
 	],
 	
@@ -31,11 +31,11 @@
 			"animation": "animations/hk416_unload_mag.json",
 			"progressor": 0.04,
 			"effects": { "0.328": "" },
-			"sounds": { "0.2": "unload_mag" }
+			"sounds": { "0.2": "hk416_unload_mag" }
 		}
 	],
 	
-	"chargeControllerDispatcher": [
+	"chargeGunControllerDispatcher": [
 		{
 			"animation": "animations/hk416_charge-release-release.json",
 			"clearStaticAnimation": true,
@@ -66,6 +66,16 @@
 			"ignoreMag": true
 		}
 	],
+	"releaseBoltControllerDispatcher": [
+		{
+			"animation": "animations/hk416_release-bolt_catch.json",
+			"clearStaticAnimation": true,
+			"progressor": 0.0545453,
+			"effects": { "0.447271": "" },
+			"sounds": { "0.447271": "hk416_release_bolt" },
+			"boltCatchBeforeAction": true
+		}
+	],
 	
 	"inspectControllerDispatcher": [
 		{
@@ -74,6 +84,7 @@
 			"progressor": 0.0179102
 		}
 	],
+	
 	"paramScale": 0.00625,
 	"moduleSlots": [
 		{

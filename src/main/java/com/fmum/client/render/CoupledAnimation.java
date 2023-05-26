@@ -14,6 +14,8 @@ public final class CoupledAnimation implements IAnimator
 	private final Animation animation;
 	private final Supplier< Float > progress;
 	
+	public CoupledAnimation( Animation animation ) { this( animation, () -> 1F ); }
+	
 	public CoupledAnimation( Animation animation, Supplier< Float > progress )
 	{
 		this.animation = animation;

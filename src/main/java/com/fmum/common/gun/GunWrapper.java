@@ -29,7 +29,10 @@ public class GunWrapper< I extends IGunPart< ? extends I >, T extends IGun< ? ex
 	
 	@Override
 	public void chargeGun( EntityPlayer player ) { this.primary.chargeGun( player ); }
-
+	
+	@Override
+	public void releaseBolt( EntityPlayer player ) { this.primary.releaseBolt( player ); }
+	
 	@Override
 	public void forEachAmmo( Consumer< IAmmoType > visitor ) {
 		this.primary.forEachAmmo( visitor );

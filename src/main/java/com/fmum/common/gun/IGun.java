@@ -22,5 +22,7 @@ public interface IGun< T extends IGunPart< ? extends T > > extends IGunPart< T >
 	
 	void chargeGun( EntityPlayer player );
 	
+	void releaseBolt( EntityPlayer player );
+	
 	void forEachAmmo( Consumer< IAmmoType > visitor );
 }

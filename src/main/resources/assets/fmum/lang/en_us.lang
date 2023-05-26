@@ -100,6 +100,7 @@ fmum.key.aim_toggle=Aim Toggle
 fmum.key.reload=Reload Weapon
 fmum.key.load_unload_mag=Load/Unload Magazine
 fmum.key.charge_gun=Charge Gun
+fmum.key.release_bolt=Release Bolt
 fmum.key.inspect=Inspect Weapon
 
 fmum.key_category.assist=FMUM Assist
@@ -108,6 +109,7 @@ fmum.key.co_free_view=Co-Free View
 fmum.key.co_reload=Co-Reload Weapon
 fmum.key.co_load_unload_mag=Co-Load/Unload Magazine
 fmum.key.co_charge_gun=Co-Charge Gun
+fmum.key.co_release_bolt=Co-Release Bolt
 fmum.key.co_inspect=Co-Inspect
 fmum.key.co_toggle_modify=Co-Modify Weapon
 

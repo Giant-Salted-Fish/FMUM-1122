@@ -61,6 +61,7 @@ public final class Key
 		RELOAD = new KeyBind( "reload", Category.GUN, Keyboard.KEY_R ),
 		LOAD_UNLOAD_MAG = new KeyBind( "load_unload_mag", Category.GUN, Keyboard.KEY_T ),
 		CHARGE_GUN = new KeyBind( "charge_gun", Category.GUN, Keyboard.KEY_G ),
+		RELEASE_BOLT = new KeyBind( "release_bolt", Category.GUN, Keyboard.KEY_H ),
 		INSPECT = new KeyBind( "inspect", Category.GUN, Keyboard.KEY_V );
 	
 	/**
@@ -71,6 +72,7 @@ public final class Key
 		CO_RELOAD = new KeyBind( "co_reload", Category.ASSIST, Keyboard.KEY_NONE ),
 		CO_LOAD_UNLOAD_MAG = new KeyBind( "co_load_unload_mag", Category.ASSIST, Keyboard.KEY_NONE ),
 		CO_CHARGE_GUN = new KeyBind( "co_charge_gun", Category.ASSIST, Keyboard.KEY_NONE ),
+		CO_RELEASE_BOLT = new KeyBind( "co_release_bolt", Category.ASSIST, Keyboard.KEY_NONE ),
 		CO_INSPECT = new KeyBind( "co_inspect", Category.ASSIST, Keyboard.KEY_NONE ),
 		CO_TOGGLE_MODIFY = new KeyBind( "co_toggle_modify", Category.ASSIST, Keyboard.KEY_NONE );
 	
