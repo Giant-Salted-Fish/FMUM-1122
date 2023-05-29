@@ -3,31 +3,31 @@ package com.fmum.util;
 import net.minecraft.util.math.MathHelper;
 
 /**
- * This class simulates the movement of the object that connected to a spring in 3D space
+ * This class simulates the movement of the object that connected to a spring in 3D space.
  * 
  * @author Giant_Salted_Fish
  */
 public final class DynamicPos
 {
 	/**
-	 * Target position that the system will attempt to get to
+	 * Target position that the system will attempt to get to.
 	 */
 	public final Vec3f tarPos = new Vec3f();
 	
 	/**
-	 * Current position of the system
+	 * Current position of the system.
 	 */
 	public final Vec3f curPos = new Vec3f();
 	
 	/**
-	 * Position before last update
+	 * Position before last update.
 	 */
 	public final Vec3f prevPos = new Vec3f();
 	
 	public final Vec3f velocity = new Vec3f();
 	
 	/**
-	 * A buffered vector to avoid frequent allocation on update for calculation
+	 * A buffered vector to avoid frequent allocation on update for calculation.
 	 */
 	private final Vec3f vec = new Vec3f();
 	

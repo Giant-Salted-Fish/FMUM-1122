@@ -50,7 +50,7 @@ public class JarPack extends LocalPack
 				if ( !isInFolder ) { continue; }
 				
 				final String entry = eName.substring( 0, i );
-				final boolean isIgnoredFolder = this.ignoreEntries.contains( entry );
+				final boolean isIgnoredFolder = this.ignoredEntries.contains( entry );
 				if ( isIgnoredFolder ) { continue; }
 				
 				final Supplier< String > sourceTrace = () -> this.sourceName() + "/" + eName;

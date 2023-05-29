@@ -446,16 +446,16 @@ public abstract class GunModel<
 				GL11.glMatrixMode( GL11.GL_MODELVIEW );
 				
 				/* For arm adjust */
-				if ( Dev.flag )
-				{
-					GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
-					
-					final EntityPlayer player = FMUMClient.MC.player;
-					GL11.glRotatef( -player.rotationPitch, 1F, 0F, 0F );
-					GL11.glRotatef( player.rotationYaw, 0F, 1F, 0F );
-					
-					GL11.glTranslatef( 0F, 0F, -5F/16f );
-				}
+//				if ( Dev.flag )
+//				{
+//					GL11.glTranslatef( 0F, 4F / 16f, 15f / 16f );
+//
+//					final EntityPlayer player = FMUMClient.MC.player;
+//					GL11.glRotatef( -player.rotationPitch, 1F, 0F, 0F );
+//					GL11.glRotatef( player.rotationYaw, 0F, 1F, 0F );
+//
+//					GL11.glTranslatef( 0F, 0F, -5F/16f );
+//				}
 				
 				final IAnimator animator = equipped.animator();
 				equipped.setupRenderArm( animator, this.leftArm, this.rightArm );

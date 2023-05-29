@@ -46,4 +46,20 @@ public abstract class TogglableOperation< T extends OperationController > extend
 		final boolean completed = progressor < 0F && this.prevProgress == 0F;
 		return completed ? this.onComplete( player ) : this;
 	}
+	
+	@Override
+	public IOperation terminate( EntityPlayer player )
+	{
+		this.endCallback();
+		return NONE;
+	}
+	
+	@Override
+	protected IOperation onComplete( EntityPlayer player )
+	{
+		this.endCallback();
+		return NONE;
+	}
+	
+	protected void endCallback() { }
 }
