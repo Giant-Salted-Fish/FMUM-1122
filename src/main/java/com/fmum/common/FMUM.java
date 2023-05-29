@@ -89,7 +89,7 @@ public class FMUM extends URLClassLoader
 	
 	public static final String MOD_NAME = "FMUM 2.0";
 	
-	public static final String MOD_VERSION = "0.3.1-alpha";
+	public static final String MOD_VERSION = "0.3.2-alpha";
 	
 	/**
 	 * Mod instance based on physical side.
@@ -243,6 +243,8 @@ public class FMUM extends URLClassLoader
 		TYPE_LOADERS.put( "creative_tabs", CreativeTab.LOADER );
 		TYPE_LOADERS.put( "gun_part", JsonGunPartType.LOADER );
 		TYPE_LOADERS.put( "gun_parts", JsonGunPartType.LOADER );
+		TYPE_LOADERS.put( "attachment", JsonGunPartType.LOADER );
+		TYPE_LOADERS.put( "attachments", JsonGunPartType.LOADER );
 		TYPE_LOADERS.put( "gun", JsonGunType.LOADER );
 		TYPE_LOADERS.put( "guns", JsonGunType.LOADER );
 		TYPE_LOADERS.put( "mag", JsonMagType.LOADER );
@@ -262,7 +264,7 @@ public class FMUM extends URLClassLoader
 		indicator.addProperty( "creativeTab", FMUM.HIDE_TAB.name() );
 		indicator.addProperty( "model", "models/modify_indicator.json" );
 		indicator.addProperty( "texture", "textures/0x00ff00.png" );
-		TYPE_LOADERS.get( "gun_part" ).parser.apply( indicator ).build( MODIFY_INDICATOR, this );
+		JsonGunPartType.LOADER.parser.apply( indicator ).build( MODIFY_INDICATOR, this );
 		
 		// Check content pack folder.
 		// TODO: if load packs from mods dir then allow the player to disable content pack folder

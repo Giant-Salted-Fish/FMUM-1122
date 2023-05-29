@@ -34,7 +34,7 @@ import static com.fmum.common.module.IModifyPredicate.OK;
 import static com.fmum.common.module.IPreviewPredicate.NO_PREVIEW;
 
 @SideOnly( Side.CLIENT )
-public abstract class OpModifyClient extends TogglableOperation
+public abstract class OpModifyClient extends TogglableOperation< OperationController >
 	implements IAutowirePacketHandler, IAutowirePlayerChat
 {
 	protected static final IPaintable PAINTABLE_PLACEHOLDER = new IPaintable()
@@ -434,20 +434,6 @@ public abstract class OpModifyClient extends TogglableOperation
 	}
 	
 	@Override
-	public IOperation terminate( EntityPlayer player )
-	{
-		this.endCallback();
-		return NONE;
-	}
-	
-	@Override
-	protected IOperation onComplete( EntityPlayer player )
-	{
-		this.endCallback();
-		return NONE;
-	}
-	
-	@Override
 	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
 	{
 		this.equipped = newEquipped;
@@ -478,6 +464,7 @@ public abstract class OpModifyClient extends TogglableOperation
 		return this;
 	}
 	
+	@Override
 	protected abstract void endCallback();
 	
 	protected abstract IModule< ? > replicateDelegatePrimary();

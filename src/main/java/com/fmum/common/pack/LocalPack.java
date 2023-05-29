@@ -35,13 +35,13 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 	 */
 	protected String author = "fmum.author_missing";
 	
-	protected final HashSet< String > ignoreEntries = new HashSet<>();
+	protected final HashSet< String > ignoredEntries = new HashSet<>();
 	
 	protected LocalPack( File source )
 	{
 		this.name = source.getName();
 		this.source = source;
-		this.ignoreEntries.add( "assets" );
+		this.ignoredEntries.add( "assets" );
 	}
 	
 	@Override
@@ -71,20 +71,23 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 		if ( obj.has( "author" ) ) {
 			this.author = obj.get( "author" ).getAsString();
 		}
-		if ( obj.has( "ignoreEntries" ) )
+		if ( obj.has( "ignoredEntries" ) )
 		{
-			final JsonArray arr = obj.get( "ignoreEntries" ).getAsJsonArray();
+			final JsonArray arr = obj.get( "ignoredEntries" ).getAsJsonArray();
 			for ( int i = arr.size(); i-- > 0; ) {
-				this.ignoreEntries.add( arr.get( i ).getAsString() );
+				this.ignoredEntries.add( arr.get( i ).getAsString() );
 			}
 		}
 		// TODO: handle version check
 	}
 	
 	/**
+	 * Helper method to load Json meta type files.
 	 *
+	 * @param fallbackType Type to use if __type__ field is absent.
+	 * @param sourceTrace Used on error print.
 	 */
-	protected void loadJsonType(
+	protected final void loadJsonType(
 		Reader in,
 		String fallbackType,
 		String name,
@@ -101,7 +104,7 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 		else { this.logError( "fmum.type_loader_not_found", sourceTrace.get(), entry ); }
 	}
 	
-	protected void loadClassType( String filePath ) throws Exception
+	protected final void loadClassType( String filePath ) throws Exception
 	{
 		final int suffixLen = ".class".length();
 		final String path = filePath.substring( 0, filePath.length() - suffixLen );
