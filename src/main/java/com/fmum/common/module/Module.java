@@ -89,13 +89,13 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 	}
 	
 	@Override
-	public IPreviewPredicate tryInstall( int islot, IModule< ? > module )
+	public IPreviewPredicate tryInstall( int slotIdx, IModule< ? > module )
 	{
-		final IModuleSlot slot = this.getSlot( islot );
+		final IModuleSlot slot = this.getSlot( slotIdx );
 		if ( !slot.isAllowed( module ) ) { return IPreviewPredicate.NO_PREVIEW; }
 		
 		final int capacity = Math.min( FMUM.maxSlotCapacity, slot.capacity() );
-		if ( this.getInstalledCount( islot ) > capacity )
+		if ( this.getInstalledCount( slotIdx ) > capacity )
 		{
 			final String formatter = "fmum.msg.arrive_max_module_capacity";
 			return ( IPreviewPredicate.NotOk ) () -> I18n.format( formatter, capacity );
@@ -104,10 +104,10 @@ public abstract class Module< T extends IModule< ? extends T > > implements IMod
 		
 		final Supplier< IPreviewPredicate > action = () -> {
 			// Do not delay actual installation to #index() as it may not be called by outer.
-			final int idx = this.install( islot, module );
+			final int idx = this.install( slotIdx, module );
 			return () -> idx;
 		};
-		final ModuleInstallEvent evt = new ModuleInstallEvent( this, islot, module, action );
+		final ModuleInstallEvent evt = new ModuleInstallEvent( this, slotIdx, module, action );
 		this.postEvent( evt );
 		return evt.action.get();
 	}

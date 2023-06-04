@@ -1,12 +1,12 @@
 package com.fmum.common.module;
 
 import com.fmum.common.meta.IMeta;
-import com.fmum.common.meta.Registry;
+import com.fmum.common.meta.IdRegistry;
 import net.minecraft.nbt.NBTTagCompound;
 
 public interface IModuleType extends IMeta
 {
-	Registry< IModuleType > REGISTRY = new Registry<>();
+	IdRegistry< IModuleType > REGISTRY = new IdRegistry<>();
 	
 	/**
 	 * WARNNING: Never use this unless you understand what it is doing.

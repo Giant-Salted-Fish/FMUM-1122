@@ -194,8 +194,8 @@ public abstract class MagType<
 			{
 				final int ammoSize = this.ammoList.size();
 				final int lastAmmoId = ammoSize > 0
-					? Item.getIdFromItem( this.ammoList.getLast().item() ) : 0;
-				final int ammoId = Item.getIdFromItem( ammo.item() );
+					? IAmmoType.REGISTRY.getId( this.ammoList.getLast() ) : 0;
+				final int ammoId = IAmmoType.REGISTRY.getId( ammo );
 				this.countAmmoDataSize += ammoId != lastAmmoId ? 1 : 0;
 				this.ammoList.addLast( ammo );
 				
@@ -227,9 +227,9 @@ public abstract class MagType<
 			{
 				final int ammoSize = this.ammoList.size();
 				final IAmmoType ammo = this.ammoList.removeLast();
-				final int ammoId = Item.getIdFromItem( ammo.item() );
+				final int ammoId = IAmmoType.REGISTRY.getId( ammo );
 				final int lastAmmoId = this.ammoList.size() > 0
-					? Item.getIdFromItem( this.ammoList.getLast().item() ) : 0;
+					? IAmmoType.REGISTRY.getId( this.ammoList.getLast() ) : 0;
 				this.countAmmoDataSize -= ammoId != lastAmmoId ? 1 : 0;
 				
 				final int listAmmoDataSize = ammoSize / 2;
@@ -259,9 +259,8 @@ public abstract class MagType<
 			{
 				final boolean isOddIdx = idx % 2 != 0;
 				final int offset = isOddIdx ? 16 : 0;
-				final int id = 0xFFFF & data[ idx / 2 ] >>> offset;
-				final Item item = Item.getItemById( id );
-				return ( IAmmoType ) ( ( IItemTypeHost ) item ).meta();
+				final int id = data[ idx / 2 ] >>> offset;
+				return IAmmoType.REGISTRY.get( id );
 			}
 			
 			protected void setAmmo( int[] data, int idx, int ammoId )
@@ -285,8 +284,7 @@ public abstract class MagType<
 					final int ammoId = value >>> 16;
 					final int count = 1 + ( value & 0xFFFF );
 					
-					final Item item = Item.getItemById( ammoId );
-					final IAmmoType ammo = ( IAmmoType ) ( ( IItemTypeHost ) item ).meta();
+					final IAmmoType ammo = IAmmoType.REGISTRY.get( ammoId );
 					for ( int j = 0; j < count; ++j ) { this.ammoList.add( ammo ); }
 				}
 			}
@@ -303,7 +301,7 @@ public abstract class MagType<
 					if ( ammo != prevAmmo )
 					{
 						++i;
-						data[ i ] = Item.getIdFromItem( ammo.item() ) << 16;
+						data[ i ] = IAmmoType.REGISTRY.getId( ammo ) << 16;
 						prevAmmo = ammo;
 					}
 					else { data[ i ] += 1; }
@@ -330,7 +328,7 @@ public abstract class MagType<
 			{
 				final int[] data = Mag.this.nbt.getIntArray( COUNT_AMMO_TAG );
 				final int lastAmmoId = data.length > 0 ? data[ data.length - 1 ] >>> 16 : 0;
-				final int ammoId = Item.getIdFromItem( ammo.item() );
+				final int ammoId = IAmmoType.REGISTRY.getId( ammo );
 				final int countAmmoDataSize = data.length + ( ammoId != lastAmmoId ? 1 : 0 );
 				
 				final int listAmmoDataSize = this.ammoList.size() / 2 + 1;

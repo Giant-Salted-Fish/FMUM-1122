@@ -7,27 +7,19 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public final class Registry< T extends IMeta > implements IAutowireLogger
+public class Registry< T extends IMeta > implements IAutowireLogger
 {
-	private final HashMap< String, T > mapper = new HashMap<>();
+	protected final HashMap< String, T > mapper = new HashMap<>();
 	
-	public T get( String key ) { return this.mapper.get( key ); }
+	public final T get( String key ) { return this.mapper.get( key ); }
 	
-	public T getOrElse( String key, Supplier< ? extends T > other ) {
+	public final T getOrElse( String key, Supplier< ? extends T > other ) {
 		return Optional.ofNullable( this.mapper.get( key ) ).orElseGet( other );
 	}
 	
-	public Collection< T > values() { return this.mapper.values(); }
+	public final Collection< T > values() { return this.mapper.values(); }
 	
-	public void regis( T meta )
-	{
-		this.mapper.compute( meta.name(), ( key, old ) -> {
-			if ( old == null ) { return meta; }
-			
-			this.logWarning( "fmum.duplicate_meta_regis", old, meta );
-			return old;
-		} );
-	}
+	public void regis( T meta ) { this.put( meta.name(), meta ); }
 	
 	public void put( String name, T meta )
 	{
@@ -39,5 +31,5 @@ public final class Registry< T extends IMeta > implements IAutowireLogger
 		} );
 	}
 	
-	public int size() { return this.mapper.size(); }
+	public final int size() { return this.mapper.size(); }
 }

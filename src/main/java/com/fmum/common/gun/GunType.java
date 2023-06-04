@@ -359,10 +359,9 @@ public abstract class GunType<
 			) {
 				super.setupInputHandler( pressHandlerRegistry, releaseHandlerRegistry );
 				
-				final Consumer< IInput > loadUnloadMag =
-					key -> PlayerPatchClient.instance.launch(
-						Gun.this.hasMag() ? new OpUnloadMagClient() : new OpLoadMagClient()
-					);
+				final Consumer< IInput > loadUnloadMag = key -> PlayerPatchClient.instance.launch(
+					Gun.this.hasMag() ? new OpUnloadMagClient() : new OpLoadMagClient()
+				);
 				pressHandlerRegistry.accept( Key.LOAD_UNLOAD_MAG, loadUnloadMag );
 				pressHandlerRegistry.accept( Key.CO_LOAD_UNLOAD_MAG, loadUnloadMag );
 				

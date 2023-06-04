@@ -151,11 +151,8 @@ public abstract class GunPartType<
 	@Override
 	protected Item createItem() { return new GunPartVanillaItem( 1, 0 ); }
 	
-	protected final IModule< ? > fromTag( NBTTagCompound tag )
-	{
-		final Item item = Item.getItemById( IModule.getId( tag ) );
-		final IModuleType type = ( IModuleType ) IItemTypeHost.getType( item );
-		return type.deserializeContexted( tag );
+	protected final IModule< ? > fromTag( NBTTagCompound tag ) {
+		return IModuleType.REGISTRY.get( IModule.getId( tag ) ).deserializeContexted( tag );
 	}
 	
 	protected abstract ICapabilityProvider newWrapper( C primary, ItemStack stack );
@@ -311,7 +308,7 @@ public abstract class GunPartType<
 				final int newStackId = new Random( seed ).nextInt();
 				stackTag.setInteger( STACK_ID_TAG, newStackId );
 			}
-			else
+			else // if ( !isLogicServer )
 			{
 				// If id changed to the new id updated by server side, then just ignore.
 				final IEquippedItem< ? > prev = PlayerPatchClient.instance.getEquipped( hand );
@@ -453,7 +450,7 @@ public abstract class GunPartType<
 		protected int dataSize() { return super.dataSize() + 1; }
 		
 		@Override
-		protected int id() { return Item.getIdFromItem( GunPartType.this.item ); }
+		protected int id() { return IModuleType.REGISTRY.getId( GunPartType.this ); }
 		
 		@Override
 		protected final IModule< ? > fromTag( NBTTagCompound tag ) {
