@@ -2,18 +2,15 @@ package com.fmum.common.meta;
 
 import com.google.common.collect.HashBiMap;
 
-import java.util.function.Function;
-
+/**
+ * In default the numerical id only has 16-bits of effective range.
+ *
+ * @author Giant_Salted_Fish
+ */
 public class IdRegistry< T extends IMeta > extends Registry< T >
 {
-	protected final Function< T, Integer > idGenerator;
-	
-	protected final HashBiMap< Integer, T > idMap = HashBiMap.create();
-	
-	public IdRegistry() { this( meta -> 0xFFFF & meta.name().hashCode() ); }
-	
-	public IdRegistry( Function< T, Integer > idGenerator ) {
-		this.idGenerator = idGenerator;
+	protected final HashBiMap< Integer, T > idMap = HashBiMap.create(); {
+		this.idMap.put( 0, null ); // Set 0 to map null.
 	}
 	
 	public final T get( Integer id ) { return this.idMap.get( id ); }
@@ -30,7 +27,7 @@ public class IdRegistry< T extends IMeta > extends Registry< T >
 				return old;
 			}
 			
-			Integer id = this.idGenerator.apply( meta );
+			int id = 0xFFFF & key.hashCode();
 			while ( this.idMap.containsKey( id ) ) {
 				id += 1;
 			}

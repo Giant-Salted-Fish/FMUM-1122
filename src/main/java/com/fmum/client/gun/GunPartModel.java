@@ -8,6 +8,7 @@ import com.fmum.client.render.IAnimator;
 import com.fmum.common.gun.IGunPart;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.load.IContentProvider;
+import com.fmum.util.AngleAxis4f;
 import com.fmum.util.ArmTracker;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Mesh;
@@ -217,8 +218,10 @@ public abstract class GunPartModel<
 		@Override
 		public void update()
 		{
+			// Apply inverse of the current holding transformation.
 			final float progress = this.progress.get();
 			final Mat4f mat = Mat4f.locate();
+			
 			this.animator.getChannel( CHANNEL_ITEM, mat );
 			mat.invert();
 			
@@ -226,32 +229,30 @@ public abstract class GunPartModel<
 			this.pos.scale( progress );
 			mat.translate( this.pos );
 			
-			final EntityPlayer player = FMUMClient.MC.player;
-			final float refPlayerRotYaw = this.refPlayerRotYaw.get();
-			final float modifyYawBase = ( refPlayerRotYaw % 360F + 360F ) % 360F - 180F; // TODO: maybe do this when capture ref player yaw
-			final float modifyYawDelta = refPlayerRotYaw - player.rotationYaw;
-			final float modifyYaw = modifyYawBase - modifyYawDelta;
-			
 			mat.get( this.pos );
 			this.rot.set( mat );
+			
+			mat.release();
 			
 			this.pos.scale( progress );
 			this.rot.scaleAngle( progress );
 			
+			// Apply inverse of the view rotation.
+			final EntityPlayer player = FMUMClient.MC.player;
+			final float refPlayerRotYaw = this.refPlayerRotYaw.get();
+			final float modifyYawBase = ( refPlayerRotYaw % 360F + 360F ) % 360F - 180F;
+			final float modifyYawDelta = refPlayerRotYaw - player.rotationYaw;
+			final float modifyYaw = modifyYawBase - modifyYawDelta;
+			
 			Quat4f quat = Quat4f.locate();
 			
-			mat.setIdentity();
-			mat.rotateX( -player.rotationPitch * progress );
-			quat.set( mat );
+			quat.set( new AngleAxis4f( -player.rotationPitch * progress, AngleAxis4f.AXIS_X ) );
 			this.rot.mul( quat );
 			
-			mat.setIdentity();
-			mat.rotateY( modifyYaw * progress );
-			quat.set( mat );
+			quat.set( new AngleAxis4f( modifyYaw * progress, AngleAxis4f.AXIS_Y ) );
 			this.rot.mul( quat );
 			
 			quat.release();
-			mat.release();
 		}
 		
 		@Override

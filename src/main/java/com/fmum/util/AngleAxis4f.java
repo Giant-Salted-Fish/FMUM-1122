@@ -6,6 +6,11 @@ public final class AngleAxis4f extends AxisAngle4f
 {
 	public static final AngleAxis4f ORIGIN = new AngleAxis4f( 0F, 0F, 1F, 0F );
 	
+	public static final Vec3f
+		AXIS_X = new Vec3f( 1F, 0F, 0F ),
+		AXIS_Y = new Vec3f( 0F, 1F, 0F ),
+		AXIS_Z = new Vec3f( 0F, 0F, 1F );
+	
 	private static final long serialVersionUID = 6249913083904720177L;
 	
 	public AngleAxis4f() { }

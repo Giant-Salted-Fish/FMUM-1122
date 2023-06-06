@@ -63,7 +63,6 @@ import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -89,7 +88,7 @@ public class FMUM extends URLClassLoader
 	
 	public static final String MOD_NAME = "FMUM 2.0";
 	
-	public static final String MOD_VERSION = "0.3.2-alpha";
+	public static final String MOD_VERSION = "0.3.4-alpha";
 	
 	/**
 	 * Mod instance based on physical side.
