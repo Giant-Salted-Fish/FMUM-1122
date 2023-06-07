@@ -23,7 +23,9 @@ public interface IAutowireLogger
 		return FMUM.MOD.format( translateKey, parameters );
 	}
 	
-	/// *** Wrap commonly used calls. *** ///
+	//
+	// Wrap commonly used calls.
+	//
 	default void logInfo( String translateKey, Object... parameters ) {
 		this.logger().info( this.format( translateKey, parameters ) );
 	}

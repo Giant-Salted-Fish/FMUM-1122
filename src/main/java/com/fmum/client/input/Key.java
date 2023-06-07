@@ -58,6 +58,7 @@ public final class Key
 		FREE_VIEW = new KeyBind( "free_view", Category.GENERAL, Keyboard.KEY_LMENU ),
 		TOGGLE_MODIFY = new KeyBind( "toggle_modify", Category.GUN, Keyboard.KEY_I ),
 		
+		SWITCH_FIRE_MODE = new KeyBind( "switch_fire_mode", Category.GUN, Keyboard.KEY_X ),
 		RELOAD = new KeyBind( "reload", Category.GUN, Keyboard.KEY_R ),
 		LOAD_UNLOAD_MAG = new KeyBind( "load_unload_mag", Category.GUN, Keyboard.KEY_T ),
 		CHARGE_GUN = new KeyBind( "charge_gun", Category.GUN, Keyboard.KEY_G ),
@@ -69,6 +70,7 @@ public final class Key
 	 */
 	public static final KeyBind
 		CO_FREE_VIEW = new KeyBind( "co_free_view", Category.ASSIST, Keyboard.KEY_NONE ),
+		CO_SWITCH_FIRE_MODE = new KeyBind( "co_switch_fire_mode", Category.ASSIST, Keyboard.KEY_NONE ),
 		CO_RELOAD = new KeyBind( "co_reload", Category.ASSIST, Keyboard.KEY_NONE ),
 		CO_LOAD_UNLOAD_MAG = new KeyBind( "co_load_unload_mag", Category.ASSIST, Keyboard.KEY_NONE ),
 		CO_CHARGE_GUN = new KeyBind( "co_charge_gun", Category.ASSIST, Keyboard.KEY_NONE ),

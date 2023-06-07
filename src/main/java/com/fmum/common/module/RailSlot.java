@@ -2,14 +2,10 @@ package com.fmum.common.module;
 
 import com.fmum.util.Mat4f;
 import com.fmum.util.Vec3f;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.annotations.SerializedName;
 
 public class RailSlot extends SimpleSlot
 {
-	public static final JsonDeserializer< RailSlot >
-		ADAPTER = ( json, typeOfT, context ) -> context.deserialize( json, RailSlot.class );
-	
 	/**
 	 * Rotation(pointing) of this slot about z-axis.
 	 */

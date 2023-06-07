@@ -20,6 +20,8 @@ public interface IGun< T extends IGunPart< ? extends T > > extends IGunPart< T >
 	
 	IMag< ? > unloadMag();
 	
+	void switchFireMode( EntityPlayer player );
+	
 	void chargeGun( EntityPlayer player );
 	
 	void releaseBolt( EntityPlayer player );

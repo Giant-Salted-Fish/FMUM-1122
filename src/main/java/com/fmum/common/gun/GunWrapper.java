@@ -28,6 +28,9 @@ public class GunWrapper< I extends IGunPart< ? extends I >, T extends IGun< ? ex
 	public IMag< ? > unloadMag() { return this.primary.unloadMag(); }
 	
 	@Override
+	public void switchFireMode( EntityPlayer player ) { this.primary.switchFireMode( player ); }
+	
+	@Override
 	public void chargeGun( EntityPlayer player ) { this.primary.chargeGun( player ); }
 	
 	@Override

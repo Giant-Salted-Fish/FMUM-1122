@@ -5,7 +5,6 @@ import com.fmum.common.mag.IMag;
 import com.fmum.common.module.ModuleCategory;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 import net.minecraftforge.fml.relauncher.Side;
@@ -18,9 +17,6 @@ import java.util.TreeMap;
 
 public class ControllerDispatcher
 {
-	public static final JsonDeserializer< ControllerDispatcher >
-		ADAPTER = ( json, typeOfT, context ) -> new ControllerDispatcher( json, context );
-	
 	public static final String
 		ATTR_BOLT_CATCH_BEFORE_ACTION = "boltCatchBeforeAction",
 		ATTR_BOLT_CATCH_AFTER_ACTION = "boltCatchAfterAction",

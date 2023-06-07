@@ -1,4 +1,14 @@
 {
+	"hk416_shoot": {
+		"subtitle": "fmum.sound.shoot",
+		"sounds": [ "fmum:hk416_shoot" ]
+	},
+	
+	"hk416_switch_fire_mode": {
+		"subtitle": "fmum.sound.switch_fire_mode",
+		"sounds": [ "fmum:hk416_switch_fire_mode" ]
+	},
+	
 	"hk416_load_mag": {
 		"subtitle": "fmum.sound.load_mag",
 		"sounds": [ "fmum:hk416_load_mag" ]

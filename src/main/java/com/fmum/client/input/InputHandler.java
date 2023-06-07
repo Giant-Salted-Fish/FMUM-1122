@@ -54,7 +54,7 @@ public final class InputHandler
 	
 	static
 	{
-		// Need this to make sure key bindings are loaded at proper time.
+		// Need this to make sure key bindings are loaded before reading the settings.
 		try { Class.forName( "com.fmum.client.input.Key" ); }
 		catch ( Exception e ) { throw new RuntimeException( e ); }
 	}

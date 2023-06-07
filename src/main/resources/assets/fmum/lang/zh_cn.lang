@@ -1,4 +1,4 @@
-# By 一条大大的咸鱼
+# 由 一条大大的咸鱼 提供
 
 # 配置文件
 fmum.config.common=通用端配置
@@ -22,6 +22,8 @@ fmum.config.client.use_flan_compatible_mousehelper=使用兼容 Flan 的 MouseHe
 fmum.config.client.use_flan_compatible_mousehelper.tooltip=FMUM 使用的默认 MouseHelper 可能会导致无法正常在 Flan's Mod 的载具中转动视角。你可以启用该选项来使用兼容性的 MouseHelper 以尝试解决该问题。
 fmum.config.client.default_creative_tab_icon_item=默认创造模式物品组图标物品
 fmum.config.client.default_creative_tab_icon_item.tooltip=如果 FMUM 无法为某个创造模式物品组找到要求的图标物品，则该设置中的物品将成为其图标物品。
+fmum.config.client.shot_sync_wait_ticks=射击状态同步等待游戏刻
+fmum.config.client.shot_sync_wait_ticks.tooltip=该参数决定了武器射击后等待多少个游戏刻后进行状态同步。理想的情况下此参数应比最大网络延迟稍大。PS：1游戏刻=50毫秒。
 
 # 加载时日志
 fmum.on_pre_init=正在预初始化 FMUM...
@@ -34,12 +36,13 @@ fmum.unrecognized_key_bind=FMUM 按键绑定 %s 不存在
 fmum.key_code_format_error=FMUM 按键编号格式错误 %s
 fmum.can_not_find_update_group=找不到自定义按键 %s 所要求的更新组 %s
 fmum.pack_dir_created=已为您创建内容包文件夹 %s，寻找一些适配 FMUM 的内容包放入其中吧！
-fmum.unknown_pack_file_type=无法加载内容包 %s。FMUM 仅支持以下 { <文件夹>, <.jar>, <.zip> } 三种类型的内容包。
+fmum.unknown_pack_file_type=无法加载内容包 %s。FMUM 仅支持以下 [ <文件夹>, <.jar>, <.zip> ] 三种类型的内容包。
 fmum.detect_content_pack=检测到内容包 %s
-#fmum.error_adding_classpath=为 %s 注册Class加载路径时遇到了问题 相关内容包内容可能会无法加载
+fmum.error_adding_classpath=为 %s 注册Class加载路径时遇到了问题 相关内容包内容可能会无法加载
 fmum.load_content_pack=正在加载内容包 %s ...
 fmum.error_loading_pack_info=加载内容包 info 文件 %s 时遇到错误
 fmum.type_loader_not_found=找不到 %s 需要的类型加载器 %s
+fmum.fire_controller_loader_not_found=找不到快慢机 %s 所对应的加载器
 fmum.error_loading_type=加载 %s 时遇到意外错误
 fmum.duplicate_meta_regis=重复的元注册 %s : %s
 fmum.error_loading_renderer=加载渲染代理 %s 时遇到错误
@@ -97,6 +100,7 @@ fmum.key_category.gun=FMUM 武器
 fmum.key.pull_trigger=武器开火
 fmum.key.aim_hold=按住瞄准
 fmum.key.aim_toggle=切换瞄准
+fmum.key.switch_fire_mode=切换开火模式
 fmum.key.reload=重新填装武器
 fmum.key.load_unload_mag=卸下/填装弹匣
 fmum.key.charge_gun=武器上膛
@@ -106,6 +110,7 @@ fmum.key.inspect=检视武器
 fmum.key_category.assist=FMUM 辅助
 fmum.key.assist=辅助键
 fmum.key.co_free_view=自由视角组合键
+fmum.key.co_switch_fire_mode=切换开火模式组合键
 fmum.key.co_reload=重新填装武器组合键
 fmum.key.co_load_unload_mag=卸下/填装弹匣组合键
 fmum.key.co_charge_gun=武器上膛组合键

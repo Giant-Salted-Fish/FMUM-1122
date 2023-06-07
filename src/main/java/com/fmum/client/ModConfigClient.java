@@ -14,7 +14,7 @@ import net.minecraftforge.common.config.Config.RequiresMcRestart;
  * 
  * @author Giant_Salted_Fish
  */
-//@SideOnly( Side.CLIENT ) // Commented as it will crash on load.
+//@SideOnly( Side.CLIENT ) // Commented as it will crash the load.
 @LangKey( "fmum.config.client" )
 @Config( modid = FMUM.MODID, category = "client" )
 public final class ModConfigClient
@@ -39,5 +39,5 @@ public final class ModConfigClient
 		+ "exceed. PS: 1tick = 50ms."
 	)
 	@RangeInt( min = 0 )
-	public static int shotSyncWaitTicks = 3;
+	public static int shotSyncWaitTicks = 5;
 }

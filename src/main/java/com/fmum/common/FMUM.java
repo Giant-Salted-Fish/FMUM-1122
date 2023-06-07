@@ -4,6 +4,7 @@ import com.fmum.client.FMUMClient;
 import com.fmum.common.ammo.JsonAmmoType;
 import com.fmum.common.gun.ControllerDispatcher;
 import com.fmum.common.gun.IFireController;
+import com.fmum.common.gun.IFireController.RPMController;
 import com.fmum.common.gun.JsonGunPartType;
 import com.fmum.common.gun.JsonGunType;
 import com.fmum.common.item.IItem;
@@ -35,6 +36,7 @@ import com.fmum.util.Vec3f;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -66,8 +68,10 @@ import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -120,8 +124,9 @@ public class FMUM extends URLClassLoader
 	public static final Registry< BuildableLoader< ? extends IMeta > >
 		TYPE_LOADERS = new Registry<>();
 	
-	public static final Registry< Function< JsonElement, IFireController > >
-		FIRE_CONTROLLER_LOADERS = new Registry<>();
+	public static final Registry<
+		BiFunction< JsonElement, JsonDeserializationContext, IFireController >
+	> FIRE_CONTROLLER_LOADERS = new Registry<>();
 	
 	/**
 	 * Default creative item tab for {@link FMUM}.
@@ -283,7 +288,7 @@ public class FMUM extends URLClassLoader
 		// TODO: Post provider registry event to get providers from other mods?
 //		MinecraftForge.EVENT_BUS.post( new ContentProviderRegistryEvent( providers ) );
 		
-		// Let content packs register resource domains and reload Minecraft resources.
+		// Call prepare load for all content packs and build up Json parser.
 		final GsonBuilder builder = new GsonBuilder();
 		builder.setLenient();
 		builder.setPrettyPrinting();
@@ -291,8 +296,8 @@ public class FMUM extends URLClassLoader
 		this.preLoad( builder::registerTypeAdapter );
 		providers.forEach( provider -> provider.preLoad( builder::registerTypeAdapter ) );
 		
+		this.reloadResources();
 		GSON = builder.create();
-		this.reloadResources(); // TODO: check if it works without this
 		
 		// Construct a default indicator.
 		// Has to put it before the item registry as current implementation will create an \
@@ -318,27 +323,65 @@ public class FMUM extends URLClassLoader
 	public void preLoad( BiConsumer< Type, JsonDeserializer< ? > > gsonAdapterRegis )
 	{
 		// Register gson adapters.
-		gsonAdapterRegis.accept( IModuleSlot.class, RailSlot.ADAPTER );
-		gsonAdapterRegis.accept( IPaintjob.class, Paintjob.ADAPTER );
-		gsonAdapterRegis.accept( TimedSound[].class, TimedSound.ARR_ADAPTER );
-		gsonAdapterRegis.accept( TimedEffect[].class, TimedEffect.ARR_ADAPTER );
-		gsonAdapterRegis.accept( ControllerDispatcher.class, ControllerDispatcher.ADAPTER );
-		
+		gsonAdapterRegis.accept(
+			IModuleSlot.class,
+			( json, typeOfT, context ) -> context.deserialize( json, RailSlot.class )
+		);
+		gsonAdapterRegis.accept(
+			IPaintjob.class,
+			( json, typeOfT, context ) -> context.deserialize( json, Paintjob.class )
+		);
+		gsonAdapterRegis.accept(
+			ControllerDispatcher.class,
+			( json, typeOfT, context ) -> new ControllerDispatcher( json, context )
+		);
+		gsonAdapterRegis.accept(
+			TimedSound[].class,
+			new ArrJsonDeserializer<>(
+				TimedSound[]::new,
+				( entry, context ) -> new TimedSound(
+					Float.parseFloat( entry.getKey() ),
+					entry.getValue().getAsString()
+				)
+			)
+		);
+		gsonAdapterRegis.accept(
+			TimedEffect[].class,
+			new ArrJsonDeserializer<>(
+				TimedEffect[]::new,
+				( entry, context ) -> new TimedEffect(
+					Float.parseFloat( entry.getKey() ),
+					entry.getValue().getAsString()
+				)
+			)
+		);
+		gsonAdapterRegis.accept(
+			IFireController[].class,
+			new ArrJsonDeserializer<>(
+				IFireController[]::new,
+				( entry, context ) -> {
+					final String type = entry.getKey();
+					final BiFunction< JsonElement, JsonDeserializationContext, IFireController >
+						loader = FIRE_CONTROLLER_LOADERS.get( type );
+					if ( loader != null ) { return loader.apply( entry.getValue(), context ); }
+					
+					this.logError( "fmum.fire_controller_loader_not_found", type );
+					return IFireController.SAFETY;
+				}
+			)
+		);
 		gsonAdapterRegis.accept(
 			ModuleCategory.class,
 			( json, typeOfT, context ) -> new ModuleCategory( json.getAsString() )
 		);
-		
 		gsonAdapterRegis.accept(
 			ModuleFilter.class,
 			( json, typeOfT, context ) -> new ModuleFilter( json )
 		);
-		
 		gsonAdapterRegis.accept(
 			SoundEvent.class,
 			( json, typeOfT, context ) -> this.loadSound( json.getAsString() )
 		);
-		
 		gsonAdapterRegis.accept(
 			Vec3f.class,
 			( json, typeOfT, context ) -> {
@@ -389,6 +432,17 @@ public class FMUM extends URLClassLoader
 		TYPE_LOADERS.regis( "paintjob", JsonPaintjob.LOADER );
 		TYPE_LOADERS.regis( "paintjobs", JsonPaintjob.LOADER );
 		this.regisSideDependentLoaders();
+		
+		// Register fire controller loaders.
+		FIRE_CONTROLLER_LOADERS.regis( "rpm_based", RPMController::new );
+		FIRE_CONTROLLER_LOADERS.regis( "full_auto", RPMController::new );
+		FIRE_CONTROLLER_LOADERS.regis( "semi_auto", ( jsonElement, context ) -> {
+			final JsonObject obj = ( JsonObject ) jsonElement;
+			obj.addProperty( "actionRounds", 1 );
+			return new RPMController( jsonElement, context );
+		} );
+		FIRE_CONTROLLER_LOADERS.regis( "burst", RPMController::new );
+		FIRE_CONTROLLER_LOADERS.regis( "safety", ( jsonElement, context ) -> IFireController.SAFETY );
 	}
 	
 	public void addResourceDomain( File file )
@@ -477,8 +531,6 @@ public class FMUM extends URLClassLoader
 	
 	/**
 	 * Client only to reload resources.
-	 * 
-	 * TODO: check if needed server side to load languages
 	 */
 	protected void reloadResources() { }
 	
@@ -492,4 +544,37 @@ public class FMUM extends URLClassLoader
 //			: super.findClass( name )
 //		);
 //	}
+	
+	public static final class ArrJsonDeserializer< T > implements JsonDeserializer< T[] >
+	{
+		private final Function< Integer, T[] > arrFactory;
+		private final BiFunction< Entry< String, JsonElement >, JsonDeserializationContext, T >
+			parser;
+		
+		public ArrJsonDeserializer(
+			Function< Integer, T[] > arrFactory,
+			BiFunction< Entry< String, JsonElement >, JsonDeserializationContext, T > parser
+		) {
+			this.arrFactory = arrFactory;
+			this.parser = parser;
+		}
+		
+		@Override
+		public T[] deserialize( JsonElement json, Type typeOfT, JsonDeserializationContext context )
+		{
+			final JsonObject obj = ( JsonObject ) json;
+			final T[] arr = this.arrFactory.apply( obj.size() );
+			obj.entrySet().forEach( new Consumer< Entry< String, JsonElement > >() {
+				private int i = 0;
+				
+				@Override
+				public void accept( Entry< String, JsonElement > entry )
+				{
+					arr[ this.i ] = ArrJsonDeserializer.this.parser.apply( entry, context );
+					this.i += 1;
+				}
+			} );
+			return arr;
+		}
+	}
 }

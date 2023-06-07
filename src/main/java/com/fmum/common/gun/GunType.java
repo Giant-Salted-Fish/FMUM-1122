@@ -14,6 +14,7 @@ import com.fmum.client.render.CoupledAnimation;
 import com.fmum.client.render.IAnimator;
 import com.fmum.client.render.ReadOnlyAnimator;
 import com.fmum.common.ammo.IAmmoType;
+import com.fmum.common.gun.IFireController.RPMController;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemTypeHost;
@@ -67,10 +68,10 @@ public abstract class GunType<
 		)
 	);
 	
-//	protected static final IFireController[] DEFAULT_FIRE_CONTROLLERS = { new FullAuto() };
-//
-//	@SerializedName( value = "fireControllers", alternate = "fireModes" )
-//	protected IFireController[] fireControllers;
+	protected static final IFireController[] FIRE_CONTROLLERS = { new RPMController() };
+	
+	@SerializedName( value = "fireControllers", alternate = "fireModes" )
+	protected IFireController[] fireControllers = FIRE_CONTROLLERS;
 	
 	protected SoundEvent shootSound;
 	
@@ -101,6 +102,8 @@ public abstract class GunType<
 	
 	protected ControllerDispatcher inspectControllerDispatcher = CONTROLLER_DISPATCHER;
 	
+	protected ControllerDispatcher switchFireModeControllerDispatcher = CONTROLLER_DISPATCHER;
+	
 	@Override
 	public IMeta build( String name, IContentProvider provider )
 	{
@@ -112,15 +115,12 @@ public abstract class GunType<
 			this.chargeGunControllerDispatcher.checkAssetsSetup( provider );
 			this.releaseBoltControllerDispatcher.checkAssetsSetup( provider );
 			this.inspectControllerDispatcher.checkAssetsSetup( provider );
+			this.switchFireModeControllerDispatcher.checkAssetsSetup( provider );
 			
-			this.staticBoltRelease = Optional
-				.ofNullable( this.staticBoltRelease ).orElse( Animation.NONE );
-			this.staticBoltCatch = Optional
-				.ofNullable( this.staticBoltCatch ).orElse( Animation.NONE );
-			this.shootAnimation = Optional
-				.ofNullable( this.shootAnimation ).orElse( Animation.NONE );
-			this.shootBoltCatchAnimation = Optional
-				.ofNullable( this.shootBoltCatchAnimation ).orElse( Animation.NONE );
+			this.staticBoltRelease = Optional.ofNullable( this.staticBoltRelease ).orElse( Animation.NONE );
+			this.staticBoltCatch = Optional.ofNullable( this.staticBoltCatch ).orElse( Animation.NONE );
+			this.shootAnimation = Optional.ofNullable( this.shootAnimation ).orElse( Animation.NONE );
+			this.shootBoltCatchAnimation = Optional.ofNullable( this.shootBoltCatchAnimation ).orElse( Animation.NONE );
 		} );
 		return this;
 	}
@@ -138,7 +138,7 @@ public abstract class GunType<
 		protected Gun()
 		{
 			this.state = this.createGunState();
-//			this.fireController = GunType.this.fireControllers[ 0 ];
+			this.fireController = GunType.this.fireControllers[ 0 ];
 			
 			final int[] data = Gun.this.nbt.getIntArray( DATA_TAG );
 			final int baseIdx = super.dataSize();
@@ -169,6 +169,19 @@ public abstract class GunType<
 		
 		@Override
 		public IMag< ? > unloadMag() { return (com.fmum.common.mag.IMag< ? > ) this.remove( 0, 0 ); }
+		
+		@Override
+		public void switchFireMode( EntityPlayer player )
+		{
+			final int[] data = this.nbt.getIntArray( DATA_TAG );
+			final int dataIdx = super.dataSize() + 1;
+			final int val = data[ dataIdx ];
+			final int prevIdx = 0xFFFF & val;
+			final int newIdx = ( prevIdx + 1 ) % GunType.this.fireControllers.length;
+			this.fireController = GunType.this.fireControllers[ newIdx ];
+			data[ dataIdx ] = 0xFFFF0000 & val | newIdx;
+			this.syncAndUpdate();
+		}
 		
 		@Override
 		public void chargeGun( EntityPlayer player )
@@ -246,7 +259,7 @@ public abstract class GunType<
 			// Rounds shot and fire controller index.
 			final int val = data[ baseIdx + 1 ];
 			this.shotCount = val >>> 16;
-//			this.fireController = GunType.this.fireControllers[ 0xFFFF & val ]; // FIXME
+			this.fireController = GunType.this.fireControllers[ 0xFFFF & val ];
 		}
 		
 		// 0 -> 16-bit ammo id     | 16-bit state;
@@ -287,7 +300,8 @@ public abstract class GunType<
 				OP_CODE_LOAD_MAG = 0,
 				OP_CODE_UNLOAD_MAG = 1,
 				OP_CODE_CHARGE_GUN = 2,
-				OP_RELEASE_BOLT = 3;
+				OP_RELEASE_BOLT = 3,
+				OP_SWITCH_FIRE_MODE = 4;
 			
 			protected int actionCoolDown = 0;
 			
@@ -346,6 +360,19 @@ public abstract class GunType<
 					PlayerPatch.get( player ).launch( new OpUnloadMag() );
 					break;
 					
+				case OP_SWITCH_FIRE_MODE:
+					final boolean boltCatch = Gun.this.state.boltCatch();
+					PlayerPatch.get( player ).launch( new OperationOnGun(
+						GunType.this.switchFireModeControllerDispatcher
+							.match( Gun.this.mag(), boltCatch, boltCatch )
+					) {
+						@Override
+						protected void doHandleEffect( EntityPlayer player ) {
+							this.gun.switchFireMode( player );
+						}
+					} );
+					break;
+					
 				case OP_CODE_LOAD_MAG:
 					final int magInvSlot = buf.readByte();
 					PlayerPatch.get( player ).launch( new OpLoadMag( magInvSlot ) );
@@ -389,6 +416,25 @@ public abstract class GunType<
 				};
 				pressHandlerRegistry.accept( Key.INSPECT, inspectWeapon );
 				pressHandlerRegistry.accept( Key.CO_INSPECT, inspectWeapon );
+				
+				final Consumer< IInput > switchFireMode = key -> {
+					final boolean boltCatch = Gun.this.state.boltCatch();
+					PlayerPatchClient.instance.launch( new OperationOnGunClient(
+						GunType.this.switchFireModeControllerDispatcher
+							.match( Gun.this.mag(), boltCatch, boltCatch )
+					) {
+						@Override
+						public IOperation launch( EntityPlayer player )
+						{
+							this.sendPacketToServer(
+								new PacketNotifyItem( buf -> buf.writeByte( OP_SWITCH_FIRE_MODE ) )
+							);
+							return this;
+						}
+					} );
+				};
+				pressHandlerRegistry.accept( Key.SWITCH_FIRE_MODE, switchFireMode );
+				pressHandlerRegistry.accept( Key.CO_SWITCH_FIRE_MODE, switchFireMode );
 				
 				final Consumer< IInput > pullTrigger = key -> {
 					final int actionRounds = Gun.this.fireController.actionRounds();
@@ -457,12 +503,12 @@ public abstract class GunType<
 					};
 				};
 				pressHandlerRegistry.accept( Key.PULL_TRIGGER, pullTrigger );
-//					final ITriggerHandler handler = new ITriggerHandler()
-//					{
-//						int bufferedShotCount = Gun.this.roundsShot;
-//						int actedRounds = 0;
-//						int coolDown = 0;
-//
+				
+				releaseHandlerRegistry.accept(
+					Key.PULL_TRIGGER,
+					key -> this.triggerHandler = this.triggerHandler.onTriggerRelease()
+				);
+				
 //						@Override
 //						public ITriggerHandler tick( EntityPlayer player )
 //						{
@@ -485,21 +531,6 @@ public abstract class GunType<
 //							this.coolDown -= 1;
 //							return this.actedRounds == actionRounds ? ITriggerHandler.NONE : this;
 //						}
-//
-//						@Override
-//						public ITriggerHandler onTriggerRelease()
-//						{
-//							this.actedRounds = Gun.this.fireController.releaseRounds( this.actedRounds );
-//							return this.actedRounds == actionRounds ? ITriggerHandler.NONE : this; // TODO: keep buffered rounds for a while
-//						}
-//
-//						@Override
-//						public int getRoundsShot( int rawRoundsShot ) {
-//							return this.bufferedShotCount;
-//						}
-//					};
-//					return;
-//				}
 			}
 			
 			@Override
@@ -1108,7 +1139,7 @@ public abstract class GunType<
 			this.syncWaitTicks -= 1;
 			
 			this.coolDownTicks -= 1;
-			return this.syncWaitTicks > 0 || this.coolDownTicks > 0 ? this : NONE;
+			return this.syncWaitTicks < 0 && this.coolDownTicks < 0 ? NONE : this;
 		}
 	}
 	

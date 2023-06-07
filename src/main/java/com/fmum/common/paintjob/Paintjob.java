@@ -2,7 +2,6 @@ package com.fmum.common.paintjob;
 
 import com.fmum.common.load.TexturedMeta;
 import com.fmum.common.meta.IMeta;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.annotations.SerializedName;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -18,9 +17,6 @@ import java.util.Set;
  */
 public class Paintjob extends TexturedMeta implements IPaintjob
 {
-	public static final JsonDeserializer< Paintjob >
-		ADAPTER = ( json, typeOfT, context ) -> context.deserialize( json, Paintjob.class );
-	
 	@SerializedName( value = "materials", alternate = "cost" )
 	protected Set< PaintjobMaterial > materials = Collections.emptySet();
 	

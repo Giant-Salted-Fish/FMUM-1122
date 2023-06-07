@@ -20,16 +20,23 @@ public interface IFireController
 	
 	int getCoolDownForNextRound( int shotCount, int actedRounds );
 	
-	class PRMController implements IFireController
+	class RPMController implements IFireController
 	{
-		protected int shiftedCoolDownTicks;
-		protected int actionRounds;
+		protected final int shiftedCoolDownTicks;
+		protected final int actionRounds;
 		
-		public PRMController( JsonElement e, JsonDeserializationContext ctx )
+		public RPMController()
 		{
-			final SimpleControllerAttrs attr = ctx.deserialize( e, SimpleControllerAttrs.class );
 			final int shiftedTicksPerMin = 20 * 60 * ( 1 << 16 );
-			this.shiftedCoolDownTicks = ( int ) ( shiftedTicksPerMin / attr.roundsPerMin );
+			this.shiftedCoolDownTicks = ( int ) ( shiftedTicksPerMin / 600F );
+			this.actionRounds = Integer.MAX_VALUE;
+		}
+		
+		public RPMController( JsonElement e, JsonDeserializationContext ctx )
+		{
+			final ControllerAttrs attr = ctx.deserialize( e, ControllerAttrs.class );
+			final int shiftedTicksPerMin = 20 * 60 * ( 1 << 16 );
+			this.shiftedCoolDownTicks = ( int ) ( shiftedTicksPerMin / attr.rpm );
 			this.actionRounds = attr.actionRounds;
 		}
 		
@@ -48,10 +55,10 @@ public interface IFireController
 		}
 	}
 	
-	class SimpleControllerAttrs
+	class ControllerAttrs
 	{
-		@SerializedName( value = "roundsPerMin", alternate = "rpm" )
-		public float roundsPerMin = 600F;
+		@SerializedName( value = "rpm", alternate = "roundsPerMin" )
+		public float rpm = 600F;
 		
 		public int actionRounds = Integer.MAX_VALUE;
 	}

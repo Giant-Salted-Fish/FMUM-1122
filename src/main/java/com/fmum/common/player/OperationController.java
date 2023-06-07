@@ -3,18 +3,13 @@ package com.fmum.common.player;
 import com.fmum.common.FMUM;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.util.Animation;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class OperationController
 {
@@ -71,26 +66,6 @@ public class OperationController
 	
 	public static class TimedSound
 	{
-		public static final JsonDeserializer< TimedSound[] >
-			ARR_ADAPTER = ( json, typeOfT, context ) -> {
-				final JsonObject obj = json.getAsJsonObject();
-				final TimedSound[] sounds = new TimedSound[ obj.size() ];
-				obj.entrySet().forEach( new Consumer< Entry< String, JsonElement > >() {
-					int i = 0;
-					
-					@Override
-					public void accept( Entry< String, JsonElement > entry )
-					{
-						sounds[ this.i ] = new TimedSound(
-							Float.parseFloat( entry.getKey() ),
-							entry.getValue().getAsString()
-						);
-						this.i += 1;
-					}
-				} );
-				return sounds;
-			};
-		
 		public final float time;
 		public final SoundEvent sound;
 		
@@ -103,26 +78,6 @@ public class OperationController
 	
 	public static class TimedEffect
 	{
-		public static final JsonDeserializer< TimedEffect[] >
-			ARR_ADAPTER = ( json, typeOfT, context ) -> {
-				final JsonObject obj = json.getAsJsonObject();
-				final TimedEffect[] effects = new TimedEffect[ obj.size() ];
-				obj.entrySet().forEach( new Consumer< Entry< String, JsonElement > >() {
-					int i = 0;
-					
-					@Override
-					public void accept( Entry< String, JsonElement > entry )
-					{
-						effects[ this.i ] = new TimedEffect(
-							Float.parseFloat( entry.getKey() ),
-							entry.getValue().getAsString()
-						);
-						this.i += 1;
-					}
-				} );
-				return effects;
-			};
-		
 		public final float time;
 		public final String effect;
 		
