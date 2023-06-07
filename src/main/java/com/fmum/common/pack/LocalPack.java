@@ -7,12 +7,15 @@ import com.fmum.common.load.IContentProvider;
 import com.fmum.common.meta.IMeta;
 import com.fmum.common.meta.Meta;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.io.Reader;
+import java.lang.reflect.Type;
 import java.util.HashSet;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
@@ -45,7 +48,9 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 	}
 	
 	@Override
-	public void preLoad() { FMUM.MOD.addResourceDomain( this.source ); }
+	public void preLoad( BiConsumer< Type, JsonDeserializer< ? > > gsonAdapterRegis ) {
+		FMUM.MOD.addResourceDomain( this.source );
+	}
 	
 	@Override
 	public String author() { return this.author; }

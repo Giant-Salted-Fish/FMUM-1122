@@ -2,13 +2,13 @@ package com.fmum.common.tab;
 
 import com.fmum.common.item.IItemType;
 import com.fmum.common.meta.IMeta;
-import com.fmum.common.meta.Registry;
+import com.fmum.common.meta.MetaRegistry;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 
 public interface ICreativeTab extends IMeta
 {
-	Registry< ICreativeTab > REGISTRY = new Registry<>();
+	MetaRegistry< ICreativeTab > REGISTRY = new MetaRegistry<>();
 	
 	CreativeTabs creativeTab();
 	

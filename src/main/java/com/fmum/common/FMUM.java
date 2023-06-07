@@ -3,6 +3,7 @@ package com.fmum.common;
 import com.fmum.client.FMUMClient;
 import com.fmum.common.ammo.JsonAmmoType;
 import com.fmum.common.gun.ControllerDispatcher;
+import com.fmum.common.gun.IFireController;
 import com.fmum.common.gun.JsonGunPartType;
 import com.fmum.common.gun.JsonGunType;
 import com.fmum.common.item.IItem;
@@ -13,7 +14,7 @@ import com.fmum.common.load.IMeshLoadSubscriber;
 import com.fmum.common.load.IPostLoadSubscriber;
 import com.fmum.common.mag.JsonMagType;
 import com.fmum.common.meta.IMeta;
-import com.fmum.common.meta.Registry;
+import com.fmum.common.meta.MetaRegistry;
 import com.fmum.common.module.IModuleSlot;
 import com.fmum.common.module.ModuleCategory;
 import com.fmum.common.module.ModuleFilter;
@@ -35,6 +36,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.nbt.NBTBase;
@@ -57,6 +59,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -64,7 +67,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -88,7 +93,7 @@ public class FMUM extends URLClassLoader
 	
 	public static final String MOD_NAME = "FMUM 2.0";
 	
-	public static final String MOD_VERSION = "0.3.4-alpha";
+	public static final String MOD_VERSION = "0.3.3-alpha";
 	
 	/**
 	 * Mod instance based on physical side.
@@ -104,9 +109,10 @@ public class FMUM extends URLClassLoader
 	public static FMUM instance() { return MOD; }
 	
 	/**
-	 * Default json parser to load types in content pack.
+	 * Default json parser to load types in content pack. Only available after
+	 * {@link IContentProvider#preLoad(BiConsumer)} call.
 	 */
-	public static final Gson GSON = MOD.gsonBuilder().create();
+	public static Gson GSON;
 	
 	/**
 	 * Registered type loaders.
@@ -114,20 +120,25 @@ public class FMUM extends URLClassLoader
 	public static final Registry< BuildableLoader< ? extends IMeta > >
 		TYPE_LOADERS = new Registry<>();
 	
+	public static final Registry< Function< JsonElement, IFireController > >
+		FIRE_CONTROLLER_LOADERS = new Registry<>();
+	
 	/**
 	 * Default creative item tab for {@link FMUM}.
 	 */
 	public static final CreativeTab DEFAULT_TAB = new CreativeTab()
 	{
-		Runnable setup = () -> {
+		// This helps to ensure the default tab will only initialize one time when on the first \
+		// item settle in.
+		Runnable initializer = () -> {
 			this.build( MODID, MOD );
-			this.setup = () -> { };
+			this.initializer = () -> { };
 		};
 		
 		@Override
 		public void itemSettledIn( IItemType item )
 		{
-			this.setup.run();
+			this.initializer.run();
 			super.itemSettledIn( item );
 		}
 	};
@@ -146,7 +157,7 @@ public class FMUM extends URLClassLoader
 	/**
 	 * Loaded content packs.
 	 */
-	public static final Registry< IContentProvider > CONTENT_PROVIDERS = new Registry<>();
+	public static final MetaRegistry< IContentProvider > CONTENT_PROVIDERS = new MetaRegistry<>();
 	
 	/**
 	 * @see IAutowirePacketHandler
@@ -188,9 +199,6 @@ public class FMUM extends URLClassLoader
 		// Info load start.
 		this.logInfo( "fmum.on_pre_init" );
 		
-		// Prepare pack load.
-		this.preLoad();
-		
 		// Load content packs.
 		this.load();
 		
@@ -231,40 +239,8 @@ public class FMUM extends URLClassLoader
 	}
 	
 	@Override
-	public void preLoad()
-	{
-		// Register capabilities.
-		this.regisCapability( IItem.class ); // See ItemType#CONTEXTED.
-		this.regisCapability( PlayerPatch.class );
-		
-		// Register type loaders.
-		TYPE_LOADERS.put( "creative_tab", CreativeTab.LOADER );
-		TYPE_LOADERS.put( "creative_tabs", CreativeTab.LOADER );
-		TYPE_LOADERS.put( "gun_part", JsonGunPartType.LOADER );
-		TYPE_LOADERS.put( "gun_parts", JsonGunPartType.LOADER );
-		TYPE_LOADERS.put( "attachment", JsonGunPartType.LOADER );
-		TYPE_LOADERS.put( "attachments", JsonGunPartType.LOADER );
-		TYPE_LOADERS.put( "gun", JsonGunType.LOADER );
-		TYPE_LOADERS.put( "guns", JsonGunType.LOADER );
-		TYPE_LOADERS.put( "mag", JsonMagType.LOADER );
-		TYPE_LOADERS.put( "mags", JsonMagType.LOADER );
-		TYPE_LOADERS.put( "ammo", JsonAmmoType.LOADER );
-		TYPE_LOADERS.put( "paintjob", JsonPaintjob.LOADER );
-		TYPE_LOADERS.put( "paintjobs", JsonPaintjob.LOADER );
-		this.regisSideDependentLoaders();
-	}
-	
-	@Override
 	public void load()
 	{
-		// Construct a default indicator.
-		// Has to put it here as current implementation will create an item for it.
-		final JsonObject indicator = new JsonObject();
-		indicator.addProperty( "creativeTab", FMUM.HIDE_TAB.name() );
-		indicator.addProperty( "model", "models/modify_indicator.json" );
-		indicator.addProperty( "texture", "textures/0x00ff00.png" );
-		JsonGunPartType.LOADER.parser.apply( indicator ).build( MODIFY_INDICATOR, this );
-		
 		// Check content pack folder.
 		// TODO: if load packs from mods dir then allow the player to disable content pack folder
 		final File packDir = new File( this.gameDir, MODID );
@@ -284,7 +260,7 @@ public class FMUM extends URLClassLoader
 			providers.add( pack );
 			this.logInfo( "fmum.detect_content_pack", pack.sourceName() );
 		};
-		for ( final File file : packDir.listFiles() )
+		for ( File file : packDir.listFiles() )
 		{
 			final boolean isFolderPack = file.isDirectory();
 			if ( isFolderPack )
@@ -308,8 +284,24 @@ public class FMUM extends URLClassLoader
 //		MinecraftForge.EVENT_BUS.post( new ContentProviderRegistryEvent( providers ) );
 		
 		// Let content packs register resource domains and reload Minecraft resources.
-		providers.forEach( IContentProvider::preLoad );
+		final GsonBuilder builder = new GsonBuilder();
+		builder.setLenient();
+		builder.setPrettyPrinting();
+		
+		this.preLoad( builder::registerTypeAdapter );
+		providers.forEach( provider -> provider.preLoad( builder::registerTypeAdapter ) );
+		
+		GSON = builder.create();
 		this.reloadResources(); // TODO: check if it works without this
+		
+		// Construct a default indicator.
+		// Has to put it before the item registry as current implementation will create an \
+		// corresponding item for it.
+		final JsonObject indicator = new JsonObject();
+		indicator.addProperty( "creativeTab", FMUM.HIDE_TAB.name() );
+		indicator.addProperty( "model", "models/modify_indicator.json" );
+		indicator.addProperty( "texture", "textures/0x00ff00.png" );
+		JsonGunPartType.LOADER.parser.apply( indicator ).build( MODIFY_INDICATOR, this );
 		
 		// Load content packs!
 		providers.forEach( pack -> {
@@ -317,6 +309,86 @@ public class FMUM extends URLClassLoader
 			pack.load();
 			CONTENT_PROVIDERS.regis( pack );
 		} );
+	}
+	
+	/**
+	 * Called in {@link #load()} to prepare content pack load.
+	 */
+	@Override
+	public void preLoad( BiConsumer< Type, JsonDeserializer< ? > > gsonAdapterRegis )
+	{
+		// Register gson adapters.
+		gsonAdapterRegis.accept( IModuleSlot.class, RailSlot.ADAPTER );
+		gsonAdapterRegis.accept( IPaintjob.class, Paintjob.ADAPTER );
+		gsonAdapterRegis.accept( TimedSound[].class, TimedSound.ARR_ADAPTER );
+		gsonAdapterRegis.accept( TimedEffect[].class, TimedEffect.ARR_ADAPTER );
+		gsonAdapterRegis.accept( ControllerDispatcher.class, ControllerDispatcher.ADAPTER );
+		
+		gsonAdapterRegis.accept(
+			ModuleCategory.class,
+			( json, typeOfT, context ) -> new ModuleCategory( json.getAsString() )
+		);
+		
+		gsonAdapterRegis.accept(
+			ModuleFilter.class,
+			( json, typeOfT, context ) -> new ModuleFilter( json )
+		);
+		
+		gsonAdapterRegis.accept(
+			SoundEvent.class,
+			( json, typeOfT, context ) -> this.loadSound( json.getAsString() )
+		);
+		
+		gsonAdapterRegis.accept(
+			Vec3f.class,
+			( json, typeOfT, context ) -> {
+				final JsonArray arr = json.getAsJsonArray();
+				return new Vec3f(
+					arr.get( 0 ).getAsFloat(),
+					arr.get( 1 ).getAsFloat(),
+					arr.get( 2 ).getAsFloat()
+				);
+			}
+		);
+		
+		final JsonDeserializer< AngleAxis4f > angleAxisAdapter = ( json, typeOfT, context ) -> {
+			final JsonArray arr = json.getAsJsonArray();
+			final float f0 = arr.get( 0 ).getAsFloat();
+			final float f1 = arr.get( 1 ).getAsFloat();
+			final float f2 = arr.get( 2 ).getAsFloat();
+			return (
+				arr.size() < 4
+					? new AngleAxis4f( f0, f1, f2 )
+					: new AngleAxis4f( f0, f1, f2, arr.get( 3 ).getAsFloat() )
+			);
+		};
+		gsonAdapterRegis.accept( AngleAxis4f.class, angleAxisAdapter );
+		
+		gsonAdapterRegis.accept(
+			Quat4f.class,
+			( json, typeOfT, context ) ->
+				new Quat4f( angleAxisAdapter.deserialize( json, typeOfT, context ) )
+		);
+		
+		// Register capabilities.
+		this.regisCapability( IItem.class ); // See ItemType#CONTEXTED.
+		this.regisCapability( PlayerPatch.class );
+		
+		// Register type loaders.
+		TYPE_LOADERS.regis( "creative_tab", CreativeTab.LOADER );
+		TYPE_LOADERS.regis( "creative_tabs", CreativeTab.LOADER );
+		TYPE_LOADERS.regis( "gun_part", JsonGunPartType.LOADER );
+		TYPE_LOADERS.regis( "gun_parts", JsonGunPartType.LOADER );
+		TYPE_LOADERS.regis( "attachment", JsonGunPartType.LOADER );
+		TYPE_LOADERS.regis( "attachments", JsonGunPartType.LOADER );
+		TYPE_LOADERS.regis( "gun", JsonGunType.LOADER );
+		TYPE_LOADERS.regis( "guns", JsonGunType.LOADER );
+		TYPE_LOADERS.regis( "mag", JsonMagType.LOADER );
+		TYPE_LOADERS.regis( "mags", JsonMagType.LOADER );
+		TYPE_LOADERS.regis( "ammo", JsonAmmoType.LOADER );
+		TYPE_LOADERS.regis( "paintjob", JsonPaintjob.LOADER );
+		TYPE_LOADERS.regis( "paintjobs", JsonPaintjob.LOADER );
+		this.regisSideDependentLoaders();
 	}
 	
 	public void addResourceDomain( File file )
@@ -399,8 +471,8 @@ public class FMUM extends URLClassLoader
 		final BuildableLoader< IMeta > keyBindLoader = new BuildableLoader<>(
 			"key_binding", json -> ( name, provider ) -> null
 		);
-		TYPE_LOADERS.put( "key_binding", keyBindLoader );
-		TYPE_LOADERS.put( "key_bindings", keyBindLoader );
+		TYPE_LOADERS.regis( "key_binding", keyBindLoader );
+		TYPE_LOADERS.regis( "key_bindings", keyBindLoader );
 	}
 	
 	/**
@@ -409,59 +481,6 @@ public class FMUM extends URLClassLoader
 	 * TODO: check if needed server side to load languages
 	 */
 	protected void reloadResources() { }
-	
-	protected GsonBuilder gsonBuilder()
-	{
-		final GsonBuilder builder = new GsonBuilder();
-		builder.setLenient();
-		builder.setPrettyPrinting();
-		
-		builder.registerTypeAdapter( IModuleSlot.class, RailSlot.ADAPTER );
-		builder.registerTypeAdapter( IPaintjob.class, Paintjob.ADAPTER );
-		builder.registerTypeAdapter( TimedSound[].class, TimedSound.ARR_ADAPTER );
-		builder.registerTypeAdapter( TimedEffect[].class, TimedEffect.ARR_ADAPTER );
-		builder.registerTypeAdapter( ControllerDispatcher.class, ControllerDispatcher.ADAPTER );
-		
-		final JsonDeserializer< ModuleCategory > moduleCategoryAdapter =
-			( json, typeOfT, context ) -> new ModuleCategory( json.getAsString() );
-		builder.registerTypeAdapter( ModuleCategory.class, moduleCategoryAdapter );
-		
-		final JsonDeserializer< ModuleFilter > moduleFilterAdapter =
-			( json, typeOfT, context ) -> new ModuleFilter( json );
-		builder.registerTypeAdapter( ModuleFilter.class, moduleFilterAdapter );
-		
-		final JsonDeserializer< SoundEvent > soundAdapter =
-			( json, typeOfT, context ) -> this.loadSound( json.getAsString() );
-		builder.registerTypeAdapter( SoundEvent.class, soundAdapter );
-		
-		final JsonDeserializer< Vec3f > vecAdapter = ( json, typeOfT, context ) -> {
-			final JsonArray arr = json.getAsJsonArray();
-			return new Vec3f(
-				arr.get( 0 ).getAsFloat(),
-				arr.get( 1 ).getAsFloat(),
-				arr.get( 2 ).getAsFloat()
-			);
-		};
-		builder.registerTypeAdapter( Vec3f.class, vecAdapter );
-		
-		final JsonDeserializer< AngleAxis4f > angleAxisAdapter = ( json, typeOfT, context ) -> {
-			final JsonArray arr = json.getAsJsonArray();
-			final float f0 = arr.get( 0 ).getAsFloat();
-			final float f1 = arr.get( 1 ).getAsFloat();
-			final float f2 = arr.get( 2 ).getAsFloat();
-			return (
-				arr.size() < 4
-				? new AngleAxis4f( f0, f1, f2 )
-				: new AngleAxis4f( f0, f1, f2, arr.get( 3 ).getAsFloat() )
-			);
-		};
-		builder.registerTypeAdapter( AngleAxis4f.class, angleAxisAdapter );
-		
-		final JsonDeserializer< Quat4f > quatAdapter = ( json, typeOfT, context ) -> 
-			new Quat4f( angleAxisAdapter.deserialize( json, typeOfT, context ) );
-		builder.registerTypeAdapter( Quat4f.class, quatAdapter );
-		return builder;
-	}
 	
 //	@Override
 //	protected Class< ? > findClass( String name ) throws ClassNotFoundException

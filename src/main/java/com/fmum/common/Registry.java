@@ -1,13 +1,11 @@
-package com.fmum.common.meta;
-
-import com.fmum.common.IAutowireLogger;
+package com.fmum.common;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class Registry< T extends IMeta > implements IAutowireLogger
+public class Registry< T > implements IAutowireLogger
 {
 	protected final HashMap< String, T > mapper = new HashMap<>();
 	
@@ -19,14 +17,12 @@ public class Registry< T extends IMeta > implements IAutowireLogger
 	
 	public final Collection< T > values() { return this.mapper.values(); }
 	
-	public void regis( T meta ) { this.put( meta.name(), meta ); }
-	
-	public void put( String name, T meta )
+	public void regis( String name, T meta )
 	{
 		this.mapper.compute( name, ( key, old ) -> {
 			if ( old == null ) { return meta; }
 			
-			this.logWarning( "fmum.duplicate_meta_regis", old, meta );
+			this.logWarning( "fmum.duplicate_regis", old, meta );
 			return old;
 		} );
 	}

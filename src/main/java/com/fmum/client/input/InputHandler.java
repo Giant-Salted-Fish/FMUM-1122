@@ -5,6 +5,7 @@ import com.fmum.common.FMUM;
 import com.fmum.common.IAutowireLogger;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -154,7 +155,8 @@ public final class InputHandler
 	{
 		try ( FileReader in = new FileReader( file ) )
 		{
-			final JsonObject obj = FMUM.GSON.fromJson( in, JsonObject.class );
+			// Do not use the FMUM#GSON as it has not been initialized yet.
+			final JsonObject obj = new Gson().fromJson( in, JsonObject.class );
 			obj.entrySet().forEach( e -> {
 				try { IKeyBind.REGISTRY.get( e.getKey() ).setKeyCode( e.getValue().getAsInt() ); }
 				catch ( NullPointerException ee ) {

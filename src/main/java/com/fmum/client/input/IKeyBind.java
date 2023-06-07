@@ -2,7 +2,7 @@ package com.fmum.client.input;
 
 import com.fmum.common.FMUM;
 import com.fmum.common.meta.IMeta;
-import com.fmum.common.meta.Registry;
+import com.fmum.common.meta.MetaRegistry;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public interface IKeyBind extends IMeta, IInput
 {
-	Registry< IKeyBind > REGISTRY = new Registry<>();
+	MetaRegistry< IKeyBind > REGISTRY = new MetaRegistry<>();
 	
 	/**
 	 * Called by {@link InputHandler} on input event to update the state of this key bind.

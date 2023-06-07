@@ -1,11 +1,11 @@
 package com.fmum.common.paintjob;
 
 import com.fmum.common.meta.IMeta;
-import com.fmum.common.meta.Registry;
+import com.fmum.common.meta.MetaRegistry;
 
 public interface IPaintableType extends IMeta
 {
-	Registry< IPaintableType > REGISTRY = new Registry<>();
+	MetaRegistry< IPaintableType > REGISTRY = new MetaRegistry<>();
 	
 	/**
 	 * Implement this to accept paintjob injection.

@@ -1,5 +1,6 @@
 package com.fmum.common.gun;
 
+import com.fmum.client.ModConfigClient;
 import com.fmum.client.camera.ICameraController;
 import com.fmum.client.gun.IEquippedGunRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
@@ -38,6 +39,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -68,7 +70,7 @@ public abstract class GunType<
 //	protected static final IFireController[] DEFAULT_FIRE_CONTROLLERS = { new FullAuto() };
 //
 //	@SerializedName( value = "fireControllers", alternate = "fireModes" )
-//	protected transient IFireController[] fireControllers;
+//	protected IFireController[] fireControllers;
 	
 	protected SoundEvent shootSound;
 	
@@ -130,8 +132,8 @@ public abstract class GunType<
 		
 		protected IGunState state;
 		
-//		protected IFireController fireController;
-		protected int roundsShot;
+		protected IFireController fireController;
+		protected int shotCount;
 		
 		protected Gun()
 		{
@@ -243,8 +245,8 @@ public abstract class GunType<
 			
 			// Rounds shot and fire controller index.
 			final int val = data[ baseIdx + 1 ];
-			this.roundsShot = val >>> 16;
-//			this.fireController = GunType.this.fireControllers[ 0xFFFF & val ];
+			this.shotCount = val >>> 16;
+//			this.fireController = GunType.this.fireControllers[ 0xFFFF & val ]; // FIXME
 		}
 		
 		// 0 -> 16-bit ammo id     | 16-bit state;
@@ -388,19 +390,73 @@ public abstract class GunType<
 				pressHandlerRegistry.accept( Key.INSPECT, inspectWeapon );
 				pressHandlerRegistry.accept( Key.CO_INSPECT, inspectWeapon );
 				
-//				final boolean pullTrigger = key == Key.PULL_TRIGGER;
-//				if ( pullTrigger )
-//				{
-//					final int actionRounds = Gun.this.fireController.actionRounds();
-//					if ( actionRounds == 0 ) { return; }
-//
-//					// We can pull trigger down now. // TODO: Play sound.
-//
-//
-//					// Delegate render to buffered instance.
-//					final E copied = ( E ) this.copy();
-//					EquippedGun.this.renderDelegate = ori -> copied;
-//
+				final Consumer< IInput > pullTrigger = key -> {
+					final int actionRounds = Gun.this.fireController.actionRounds();
+					final boolean safetyEnabled = actionRounds == 0;
+					if ( safetyEnabled ) { return; }
+					
+					// Delegate render to buffered instance.
+					final E copied = ( E ) this.copy();
+					this.renderDelegate = ori -> copied;
+					
+					// Can shoot, setup trigger handler.
+					EquippedGun.this.triggerHandler = new ITriggerHandler() {
+						private int actedRounds = 0;
+						private int shotCount = EquippedGun.this
+							.triggerHandler.getShotCount( Gun.this.shotCount );
+						private int coolDownTicks = EquippedGun.this.triggerHandler.coolDownTicks();
+						
+						@Override
+						public ITriggerHandler tick( EntityPlayer player )
+						{
+							// Keep fire if cool down ticks is 0.
+							while ( this.coolDownTicks <= 0 )
+							{
+								// TODO: Proper sound play.
+								player.world.playSound(
+									player.posX, player.posY, player.posZ,
+									GunType.this.shootSound,
+									SoundCategory.PLAYERS,
+									1F, 1F, false
+								);
+								
+								this.actedRounds += 1;
+								this.shotCount += 1;
+								
+								final boolean actionCompleted = this.actedRounds >= actionRounds;
+								if ( actionCompleted )
+								{
+									return new ShotSyncWaiter(
+										() -> EquippedGun.this.renderDelegate = ori -> ori,
+										this.coolDownTicks, this.shotCount
+									);
+								}
+								
+								this.coolDownTicks = Gun.this.fireController
+									 .getCoolDownForNextRound( this.shotCount, this.actedRounds );
+							}
+							
+							this.coolDownTicks -= 1;
+							return this;
+						}
+						
+						@Override
+						public ITriggerHandler onTriggerRelease()
+						{
+							return new ShotSyncWaiter(
+								() -> EquippedGun.this.renderDelegate = ori -> ori,
+								this.coolDownTicks, this.shotCount
+							);
+						}
+						
+						@Override
+						public int getShotCount( int rawShotCount ) { return this.shotCount; }
+						
+						@Override
+						public int coolDownTicks() { return this.coolDownTicks; }
+					};
+				};
+				pressHandlerRegistry.accept( Key.PULL_TRIGGER, pullTrigger );
 //					final ITriggerHandler handler = new ITriggerHandler()
 //					{
 //						int bufferedShotCount = Gun.this.roundsShot;
@@ -953,13 +1009,6 @@ public abstract class GunType<
 		}
 	}
 	
-	protected interface IFireController
-	{
-		int actionRounds();
-		
-		int releaseRounds( int actedRounds );
-	}
-	
 	protected interface IGunState
 	{
 		default boolean boltCatch() { return false; }
@@ -982,6 +1031,7 @@ public abstract class GunType<
 		Animation staticAnimation();
 	}
 	
+	// TODO: Check if any func could be side only.
 	protected interface ITriggerHandler
 	{
 		ITriggerHandler NONE = new ITriggerHandler()
@@ -993,36 +1043,95 @@ public abstract class GunType<
 			public ITriggerHandler onTriggerRelease() { return this; }
 			
 			@Override
-			public int getRoundsShot( int rawRoundsShot ) { return rawRoundsShot; }
+			public int getShotCount( int rawShotCount ) { return rawShotCount; }
+			
+			@Override
+			public int coolDownTicks() { return 0; }
 		};
 		
 		ITriggerHandler tick( EntityPlayer player );
 		
 		ITriggerHandler onTriggerRelease();
 		
-		int getRoundsShot( int rawRoundsShot );
+		int getShotCount( int rawShotCount );
+		
+		int coolDownTicks();
 	}
 	
-	protected static class ShootResult
+	protected static class ShotCoolDownCounter implements ITriggerHandler
 	{
-		public final IGunState newState;
-		public final int actionDuration;
-		public final Animation actionAnimation;
-		public final int actedRounds;
-		public final int shotCount;
+		int coolDownTicks;
+		final int bufferedShotCount;
 		
-		public ShootResult(
-			IGunState newState,
-			int actionDuration,
-			Animation actionAnimation,
-			int actionRounds,
-			int shotCount
-		) {
-			this.newState = newState;
-			this.actionDuration = actionDuration;
-			this.actionAnimation = actionAnimation;
-			this.actedRounds = actionRounds;
-			this.shotCount = shotCount;
+		protected ShotCoolDownCounter( int coolDownTicksLeft, int shotCount )
+		{
+			this.coolDownTicks = coolDownTicksLeft;
+			this.bufferedShotCount = shotCount;
+		}
+		
+		@Override
+		public ITriggerHandler tick( EntityPlayer player )
+		{
+			this.coolDownTicks -= 1;
+			return this.coolDownTicks > 0 ? this : NONE;
+		}
+		
+		@Override
+		public ITriggerHandler onTriggerRelease() { return this; }
+		
+		@Override
+		public int getShotCount( int rawShotCount ) { return bufferedShotCount; }
+		
+		@Override
+		public int coolDownTicks() { return this.coolDownTicks; }
+	}
+	
+	@SideOnly( Side.CLIENT )
+	protected static class ShotSyncWaiter extends ShotCoolDownCounter
+	{
+		// TODO: This part is actually client only.
+		int syncWaitTicks = ModConfigClient.shotSyncWaitTicks;
+		final Runnable syncFunc;
+		
+		protected ShotSyncWaiter( Runnable syncFunc, int coolDownTicksLeft, int bufferedShotCount )
+		{
+			super( coolDownTicksLeft, bufferedShotCount );
+			
+			this.syncFunc = syncFunc;
+		}
+		
+		@Override
+		public ITriggerHandler tick( EntityPlayer player )
+		{
+			// Set back render delegate if sync wait time is passed.
+			if ( this.syncWaitTicks == 0 ) { this.syncFunc.run(); }
+			this.syncWaitTicks -= 1;
+			
+			this.coolDownTicks -= 1;
+			return this.syncWaitTicks > 0 || this.coolDownTicks > 0 ? this : NONE;
 		}
 	}
+	
+//	protected static class ShootResult
+//	{
+//		public final IGunState newState;
+//		public final int actionDuration;
+//		public final Animation actionAnimation;
+//		public final int actedRounds;
+//		public final int shotCount;
+//
+//		public ShootResult(
+//			IGunState newState,
+//			int actionDuration,
+//			Animation actionAnimation,
+//			int actionRounds,
+//			int shotCount
+//		) {
+//			this.newState = newState;
+//			this.actionDuration = actionDuration;
+//			this.actionAnimation = actionAnimation;
+//			this.actedRounds = actionRounds;
+//			this.shotCount = shotCount;
+//		}
+//	}
 }

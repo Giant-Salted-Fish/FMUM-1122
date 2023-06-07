@@ -5,11 +5,14 @@ import com.fmum.common.FMUM;
 import com.fmum.common.meta.IMeta;
 import com.fmum.util.Animation;
 import com.fmum.util.Mesh;
+import com.google.gson.JsonDeserializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.lang.reflect.Type;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -23,10 +26,10 @@ public interface IContentProvider extends IMeta
 	/**
 	 * Prepare for the {@link #load()}.
 	 */
-	void preLoad();
+	void preLoad( BiConsumer< Type, JsonDeserializer< ? > > gsonAdapterRegis );
 	
 	/**
-	 * Load contents in this content provider. Called after {@link #preLoad()}.
+	 * Load contents in this content provider. Called after {@link #preLoad(BiConsumer)}.
 	 */
 	void load();
 	

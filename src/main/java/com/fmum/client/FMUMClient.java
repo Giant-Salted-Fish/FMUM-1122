@@ -15,10 +15,10 @@ import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.Model;
 import com.fmum.common.FMUM;
 import com.fmum.common.FMUMResource;
+import com.fmum.common.Registry;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.common.load.IMeshLoadSubscriber;
-import com.fmum.common.meta.Registry;
 import com.fmum.util.Animation;
 import com.fmum.util.BoneAnimation;
 import com.fmum.util.Mat4f;
@@ -26,7 +26,6 @@ import com.fmum.util.Mesh;
 import com.fmum.util.ObjMeshBuilder;
 import com.fmum.util.Quat4f;
 import com.fmum.util.Vec3f;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -49,6 +48,7 @@ import org.lwjgl.opengl.GLContext;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,6 +56,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -105,9 +106,9 @@ public final class FMUMClient extends FMUM
 	private FMUMClient() { }
 	
 	@Override
-	public void preLoad()
+	public void load()
 	{
-		// Check render capabilities.
+		// Check render device capabilities.
 		if ( !GLContext.getCapabilities().OpenGL30 ) {
 			throw new RuntimeException( I18n.format( "fmum.opengl_version_too_low" ) );
 		}
@@ -117,39 +118,6 @@ public final class FMUMClient extends FMUM
 			throw new RuntimeException( I18n.format( "fmum.stencil_not_supported" ) );
 		}
 		
-		// Call super for preload.
-		super.preLoad();
-		
-		// Register model loaders.
-		MODEL_LOADERS.put( "gun_part", JsonGunPartModel.LOADER );
-		MODEL_LOADERS.put( "gun_parts", JsonGunPartModel.LOADER );
-		MODEL_LOADERS.put( "gun", JsonGunModel.LOADER );
-		MODEL_LOADERS.put( "guns", JsonGunModel.LOADER );
-		MODEL_LOADERS.put( "mag", JsonMagModel.LOADER );
-		MODEL_LOADERS.put( "mags", JsonMagModel.LOADER );
-		MODEL_LOADERS.put( "grip", JsonGripModel.LOADER );
-		MODEL_LOADERS.put( "grips", JsonGripModel.LOADER );
-		MODEL_LOADERS.put( "car_grip", JsonCarGripModel.LOADER );
-		MODEL_LOADERS.put( "car_grips", JsonCarGripModel.LOADER );
-		MODEL_LOADERS.put( "optical_sight", JsonOpticalSightModel.LOADER );
-		MODEL_LOADERS.put( "optical_sights", JsonOpticalSightModel.LOADER );
-		MODEL_LOADERS.put( "ammo", JsonAmmoModel.LOADER );
-		
-		// Register default textures.
-		this.texturePool.put( Model.TEXTURE_RED.getPath(), Model.TEXTURE_RED );
-		this.texturePool.put( Model.TEXTURE_GREEN.getPath(), Model.TEXTURE_RED );
-		this.texturePool.put( Model.TEXTURE_BLUE.getPath(), Model.TEXTURE_RED );
-		this.texturePool.put( ItemModel.TEXTURE_STEVE.getPath(), ItemModel.TEXTURE_STEVE );
-		this.texturePool.put( ItemModel.TEXTURE_ALEX.getPath(), ItemModel.TEXTURE_ALEX );
-		
-		// The default NONE mesh and animation.
-		// Null usually is not a good choice but have to do it for animation pool.
-		this.meshPool.put( "", Mesh.NONE );
-	}
-	
-	@Override
-	public void load()
-	{
 		// Load key binds before the content load.
 		this.keyBindsFile = new File( this.gameDir, "config/fmum-keys.json" );
 		if ( !this.keyBindsFile.exists() )
@@ -164,6 +132,49 @@ public final class FMUMClient extends FMUM
 		super.load();
 		
 		PlayerPatchClient.updateMouseHelperStrategy( ModConfigClient.useFlanCompatibleMouseHelper );
+	}
+	
+	@Override
+	public void preLoad( BiConsumer< Type, JsonDeserializer< ? > > gsonAdapterRegis )
+	{
+		// Call super for preload.
+		super.preLoad( gsonAdapterRegis );
+		
+		// Register gson adapters.
+		gsonAdapterRegis.accept(
+			ResourceLocation.class,
+			( json, typeOfT, context ) -> this.loadTexture( json.getAsString() )
+		);
+		
+		gsonAdapterRegis.accept(
+			Animation.class,
+			( json, typeOfT, context ) -> this.loadAnimation( json.getAsString() )
+		);
+		
+		// Register model loaders.
+		MODEL_LOADERS.regis( "gun_part", JsonGunPartModel.LOADER );
+		MODEL_LOADERS.regis( "gun_parts", JsonGunPartModel.LOADER );
+		MODEL_LOADERS.regis( "gun", JsonGunModel.LOADER );
+		MODEL_LOADERS.regis( "guns", JsonGunModel.LOADER );
+		MODEL_LOADERS.regis( "mag", JsonMagModel.LOADER );
+		MODEL_LOADERS.regis( "mags", JsonMagModel.LOADER );
+		MODEL_LOADERS.regis( "grip", JsonGripModel.LOADER );
+		MODEL_LOADERS.regis( "grips", JsonGripModel.LOADER );
+		MODEL_LOADERS.regis( "car_grip", JsonCarGripModel.LOADER );
+		MODEL_LOADERS.regis( "car_grips", JsonCarGripModel.LOADER );
+		MODEL_LOADERS.regis( "optical_sight", JsonOpticalSightModel.LOADER );
+		MODEL_LOADERS.regis( "optical_sights", JsonOpticalSightModel.LOADER );
+		MODEL_LOADERS.regis( "ammo", JsonAmmoModel.LOADER );
+		
+		// Register default textures.
+		this.texturePool.put( Model.TEXTURE_RED.getPath(), Model.TEXTURE_RED );
+		this.texturePool.put( Model.TEXTURE_GREEN.getPath(), Model.TEXTURE_RED );
+		this.texturePool.put( Model.TEXTURE_BLUE.getPath(), Model.TEXTURE_RED );
+		this.texturePool.put( ItemModel.TEXTURE_STEVE.getPath(), ItemModel.TEXTURE_STEVE );
+		this.texturePool.put( ItemModel.TEXTURE_ALEX.getPath(), ItemModel.TEXTURE_ALEX );
+		
+		// The default NONE mesh and animation.
+		this.meshPool.put( "", Mesh.NONE );
 	}
 	
 	@Override
@@ -388,8 +399,8 @@ public final class FMUMClient extends FMUM
 	@Override
 	protected void regisSideDependentLoaders()
 	{
-		TYPE_LOADERS.put( "key_binding", JsonKeyBind.LOADER );
-		TYPE_LOADERS.put( "key_bindings", JsonKeyBind.LOADER );
+		TYPE_LOADERS.regis( "key_binding", JsonKeyBind.LOADER );
+		TYPE_LOADERS.regis( "key_bindings", JsonKeyBind.LOADER );
 	}
 	
 	@Override
@@ -403,22 +414,6 @@ public final class FMUMClient extends FMUM
 			VanillaResourceType.SOUNDS,
 			VanillaResourceType.LANGUAGES
 		);
-	}
-	
-	@Override
-	protected GsonBuilder gsonBuilder()
-	{
-		final GsonBuilder builder = super.gsonBuilder();
-		
-		final JsonDeserializer< ResourceLocation > textureAdapter =
-			( json, typeOfT, context ) -> this.loadTexture( json.getAsString() );
-		builder.registerTypeAdapter( ResourceLocation.class, textureAdapter );
-		
-		final JsonDeserializer< Animation > animationAdapter =
-			( json, typeOfT, context ) -> this.loadAnimation( json.getAsString() );
-		builder.registerTypeAdapter( Animation.class, animationAdapter );
-		
-		return builder;
 	}
 	
 	private static class BBAnimationJson

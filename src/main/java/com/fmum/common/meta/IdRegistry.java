@@ -7,7 +7,7 @@ import com.google.common.collect.HashBiMap;
  *
  * @author Giant_Salted_Fish
  */
-public class IdRegistry< T extends IMeta > extends Registry< T >
+public class IdRegistry< T extends IMeta > extends MetaRegistry< T >
 {
 	protected final HashBiMap< Integer, T > idMap = HashBiMap.create(); {
 		this.idMap.put( 0, null ); // Set 0 to map null.
@@ -18,7 +18,7 @@ public class IdRegistry< T extends IMeta > extends Registry< T >
 	public final Integer getId( T meta ) { return this.idMap.inverse().get( meta ); }
 	
 	@Override
-	public void put( String name, T meta )
+	public void regis( String name, T meta )
 	{
 		this.mapper.compute( name, ( key, old ) -> {
 			if ( old != null )

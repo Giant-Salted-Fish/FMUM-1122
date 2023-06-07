@@ -1,7 +1,7 @@
 package com.fmum.common.item;
 
 import com.fmum.common.meta.IMeta;
-import com.fmum.common.meta.Registry;
+import com.fmum.common.meta.MetaRegistry;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -19,7 +19,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public interface IItemType extends IMeta
 {
-	Registry< IItemType > REGISTRY = new Registry<>();
+	MetaRegistry< IItemType > REGISTRY = new MetaRegistry<>();
 	
 	IItemType VANILLA = new IItemType()
 	{

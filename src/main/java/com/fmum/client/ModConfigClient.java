@@ -32,12 +32,12 @@ public final class ModConfigClient
 	@Comment( "This icon item will be used if FMUM fails to find icon item for a creative tab." )
 	public static String defaultCreativeTabIconItem = Items.FISH.getRegistryName().toString();
 	
-//	@LangKey( "fmum.config.client.sync_delay_ticks" )
-//	@Comment(
-//		"This controls the time before synchronizing the data sent from the server side. Usually "
-//		+ "the best is the smallest time that guarantees the latency will never exceed. PS: 1tick "
-//		+ "= 50ms."
-//	)
-//	@RangeInt( min = 0 )
-//	public static int syncDelayTicks = 3;
+	@LangKey( "fmum.config.client.shot_sync_wait_ticks" )
+	@Comment(
+		"This controls the time before synchronizing the data sent from the server side after "
+		+ "shot. Usually the best is the smallest time that guarantees the latency will never "
+		+ "exceed. PS: 1tick = 50ms."
+	)
+	@RangeInt( min = 0 )
+	public static int shotSyncWaitTicks = 3;
 }
