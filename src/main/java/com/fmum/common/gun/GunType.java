@@ -42,6 +42,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -68,7 +69,9 @@ public abstract class GunType<
 		)
 	);
 	
-	protected static final IFireController[] FIRE_CONTROLLERS = { new RPMController() };
+	protected static final IFireController[] FIRE_CONTROLLERS = {
+		new RPMController( "full_auto")
+	};
 	
 	@SerializedName( value = "fireControllers", alternate = "fireModes" )
 	protected IFireController[] fireControllers = FIRE_CONTROLLERS;
@@ -181,6 +184,8 @@ public abstract class GunType<
 			this.fireController = GunType.this.fireControllers[ newIdx ];
 			data[ dataIdx ] = 0xFFFF0000 & val | newIdx;
 			this.syncAndUpdate();
+			
+			player.sendMessage( new TextComponentTranslation( this.fireController.promptMsg() ) );
 		}
 		
 		@Override

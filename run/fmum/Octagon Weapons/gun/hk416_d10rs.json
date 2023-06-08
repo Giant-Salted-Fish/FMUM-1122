@@ -15,7 +15,7 @@
 	"staticBoltCatch": "animations/hk416_static-bolt_catch.json",
 	"shootAnimation": "animations/hk416_shoot.json",
 	"shootBoltCatchAnimation": "animations/hk416_shoot-bolt_catch.json",
-
+	
 	"switchFireModeControllerDispatcher": [
 		{
 			"progressor": 0.05,
@@ -23,7 +23,7 @@
 			"sounds": { "0.5": "hk416_switch_fire_mode" }
 		}
 	],
-
+	
 	"loadMagControllerDispatcher": [
 		{
 			"animation": "animations/hk416_load_mag.json",

@@ -125,7 +125,7 @@ public class FMUM extends URLClassLoader
 		TYPE_LOADERS = new Registry<>();
 	
 	public static final Registry<
-		BiFunction< JsonElement, JsonDeserializationContext, IFireController >
+		BiFunction< Entry< String, JsonElement >, JsonDeserializationContext, IFireController >
 	> FIRE_CONTROLLER_LOADERS = new Registry<>();
 	
 	/**
@@ -361,9 +361,10 @@ public class FMUM extends URLClassLoader
 				IFireController[]::new,
 				( entry, context ) -> {
 					final String type = entry.getKey();
-					final BiFunction< JsonElement, JsonDeserializationContext, IFireController >
-						loader = FIRE_CONTROLLER_LOADERS.get( type );
-					if ( loader != null ) { return loader.apply( entry.getValue(), context ); }
+					final BiFunction<
+						Entry< String, JsonElement >, JsonDeserializationContext, IFireController
+					> loader = FIRE_CONTROLLER_LOADERS.get( type );
+					if ( loader != null ) { return loader.apply( entry, context ); }
 					
 					this.logError( "fmum.fire_controller_loader_not_found", type );
 					return IFireController.SAFETY;
@@ -436,10 +437,10 @@ public class FMUM extends URLClassLoader
 		// Register fire controller loaders.
 		FIRE_CONTROLLER_LOADERS.regis( "rpm_based", RPMController::new );
 		FIRE_CONTROLLER_LOADERS.regis( "full_auto", RPMController::new );
-		FIRE_CONTROLLER_LOADERS.regis( "semi_auto", ( jsonElement, context ) -> {
-			final JsonObject obj = ( JsonObject ) jsonElement;
+		FIRE_CONTROLLER_LOADERS.regis( "semi_auto", ( entry, context ) -> {
+			final JsonObject obj = ( JsonObject ) entry.getValue();
 			obj.addProperty( "actionRounds", 1 );
-			return new RPMController( jsonElement, context );
+			return new RPMController( entry, context );
 		} );
 		FIRE_CONTROLLER_LOADERS.regis( "burst", RPMController::new );
 		FIRE_CONTROLLER_LOADERS.regis( "safety", ( jsonElement, context ) -> IFireController.SAFETY );

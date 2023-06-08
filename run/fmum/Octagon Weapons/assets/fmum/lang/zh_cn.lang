@@ -1,4 +1,4 @@
-# By Giant_Salted_Fish
+# 由 一条大大的咸鱼 提供
 
 # 内容包概要
 oc.pack=八边形枪械包
@@ -6,6 +6,10 @@ oc.author=一条大大的咸鱼
 
 # 创造模式物品栏
 itemGroup.oc=八边形枪械包
+
+# 对话框提示消息
+fmum.msg.burst_3=三连发
+fmum.msg.burst_2=两连发
 
 # 弹药
 item.556x45mm_m855.name=5.56x45毫米 M855 弹药

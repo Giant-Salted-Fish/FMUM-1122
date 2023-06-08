@@ -7,6 +7,10 @@ oc.author=Giant Salted Fish
 # Creative tab
 itemGroup.oc=Octagon Weapons
 
+# Prompt chat message
+fmum.msg.burst_3=Burst
+fmum.msg.burst_2=Burst
+
 # Ammo
 item.556x45mm_m855.name=5.56x45mm M855
 item.556x45mm_m855a1.name=5.56x45mm M855A1 EPR

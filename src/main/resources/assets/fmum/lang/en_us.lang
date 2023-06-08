@@ -91,6 +91,10 @@ fmum.msg.arrive_max_module_capacity=Reached the max number of modules can be ins
 fmum.msg.modify_mode_slot=Switch to SLOT modify mode
 fmum.msg.modify_mode_module=Switch to MODULE modify mode
 fmum.msg.modify_mode_paintjob=Switch to PAINTJOB modify mode
+fmum.msg.safety=Safety On
+fmum.msg.full_auto=Full Auto
+fmum.msg.semi_auto=Semi-Auto
+fmum.msg.burst=Burst
 
 # Key binds
 fmum.key_category.general=FMUM General

@@ -4,6 +4,9 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Map.Entry;
+import java.util.Optional;
+
 public interface IFireController
 {
 	IFireController SAFETY = new IFireController() {
@@ -14,30 +17,39 @@ public interface IFireController
 		public int getCoolDownForNextRound( int shotCount, int actedRounds ) {
 			return Integer.MAX_VALUE;
 		}
+		
+		@Override
+		public String promptMsg() { return "fmum.msg.safety"; }
 	};
 	
 	int actionRounds();
 	
 	int getCoolDownForNextRound( int shotCount, int actedRounds );
 	
+	String promptMsg();
+	
 	class RPMController implements IFireController
 	{
+		protected final String promptMsg;
 		protected final int shiftedCoolDownTicks;
 		protected final int actionRounds;
 		
-		public RPMController()
+		public RPMController( String promptMsg )
 		{
+			this.promptMsg = "fmum.msg." + promptMsg;
 			final int shiftedTicksPerMin = 20 * 60 * ( 1 << 16 );
 			this.shiftedCoolDownTicks = ( int ) ( shiftedTicksPerMin / 600F );
 			this.actionRounds = Integer.MAX_VALUE;
 		}
 		
-		public RPMController( JsonElement e, JsonDeserializationContext ctx )
+		public RPMController( Entry< String, JsonElement > e, JsonDeserializationContext ctx )
 		{
-			final ControllerAttrs attr = ctx.deserialize( e, ControllerAttrs.class );
+			final ControllerAttrs attr = ctx.deserialize( e.getValue(), ControllerAttrs.class );
 			final int shiftedTicksPerMin = 20 * 60 * ( 1 << 16 );
 			this.shiftedCoolDownTicks = ( int ) ( shiftedTicksPerMin / attr.rpm );
 			this.actionRounds = attr.actionRounds;
+			this.promptMsg = Optional.ofNullable( attr.promoteMsg )
+				.orElse( "fmum.msg." + e.getKey() );
 		}
 		
 		@Override
@@ -53,10 +65,15 @@ public interface IFireController
 			final int shiftedDelta = ( mask & thisShiftedTicks ) - ( mask & prevShiftedTicks );
 			return shiftedDelta >>> 16;
 		}
+		
+		@Override
+		public String promptMsg() { return this.promptMsg; }
 	}
 	
 	class ControllerAttrs
 	{
+		public String promoteMsg;
+		
 		@SerializedName( value = "rpm", alternate = "roundsPerMin" )
 		public float rpm = 600F;
 		
