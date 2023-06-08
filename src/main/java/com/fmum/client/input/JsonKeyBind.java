@@ -1,5 +1,6 @@
 package com.fmum.client.input;
 
+import com.fmum.common.FMUM;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.common.meta.IMeta;
@@ -40,7 +41,7 @@ public class JsonKeyBind extends KeyBind
 			InputHandler.CO_KEYS.add( this );
 			break;
 			
-		default: this.logError( "fmum.can_not_find_update_group", this, this.updateGroup );
+		default: FMUM.logError( "fmum.can_not_find_update_group", this, this.updateGroup );
 		}
 		return this;
 	}

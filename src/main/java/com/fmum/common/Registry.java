@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class Registry< T > implements IAutowireLogger
+public class Registry< T >
 {
 	protected final HashMap< String, T > mapper = new HashMap<>();
 	
@@ -22,7 +22,7 @@ public class Registry< T > implements IAutowireLogger
 		this.mapper.compute( name, ( key, old ) -> {
 			if ( old == null ) { return meta; }
 			
-			this.logWarning( "fmum.duplicate_regis", old, meta );
+			FMUM.logWarning( "fmum.duplicate_regis", old, meta );
 			return old;
 		} );
 	}

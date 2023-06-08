@@ -27,7 +27,7 @@ public final class PacketHandler extends SimpleNetworkWrapper
 	public void regisPackets()
 	{
 		this.regis( PacketTerminateOp.class, Side.SERVER );
-		this.regis( PacketNotifyItem.class, Side.SERVER );
+		this.regis( PacketNotifyEquipped.class, Side.SERVER );
 		this.regis( PacketModify.class, Side.SERVER );
 //		this.regis( PacketGunShoot.class, Side.SERVER );
 		

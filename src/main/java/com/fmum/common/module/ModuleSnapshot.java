@@ -1,6 +1,6 @@
 package com.fmum.common.module;
 
-import com.fmum.common.IAutowireLogger;
+import com.fmum.common.FMUM;
 import com.fmum.common.paintjob.IPaintable;
 import com.google.gson.annotations.SerializedName;
 
@@ -15,7 +15,7 @@ import java.util.function.Function;
  * 
  * @author Giant_Salted_Fish
  */
-public class ModuleSnapshot implements IAutowireLogger
+public class ModuleSnapshot
 {
 	public static final ModuleSnapshot DEFAULT = new ModuleSnapshot();
 	
@@ -42,7 +42,7 @@ public class ModuleSnapshot implements IAutowireLogger
 		final T module = supplier.apply( this.module );
 		if ( module == null )
 		{
-			this.logError( "fmum.fail_to_find_module", this.module );
+			FMUM.logError( "fmum.fail_to_find_module", this.module );
 			return;
 		}
 		

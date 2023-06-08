@@ -1,8 +1,6 @@
 package com.fmum.client.item;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.client.IAutowireBindTexture;
-import com.fmum.client.IAutowireSmoother;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.IAnimator;
 import com.fmum.client.render.Model;
@@ -56,8 +54,7 @@ public abstract class ItemModel<
 	 */
 	protected String animationChannel = "item";
 	
-	protected class EquippedItemRenderer implements IEquippedItemRenderer< E >,
-		IAnimator, IAutowireBindTexture, IAutowireSmoother
+	protected class EquippedItemRenderer implements IEquippedItemRenderer< E >, IAnimator
 	{
 		protected IAnimator animation = IAnimator.NONE;
 		
@@ -194,7 +191,7 @@ public abstract class ItemModel<
 			glMulMatrix( mat );
 			mat.release();
 			
-			this.bindTexture( equipped.item().texture() );
+			FMUMClient.bindTexture( equipped.item().texture() );
 			ItemModel.this.render();
 		}
 		

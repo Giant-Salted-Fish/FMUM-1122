@@ -19,6 +19,7 @@ import com.fmum.common.Registry;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.common.load.IMeshLoadSubscriber;
+import com.fmum.common.network.IPacket;
 import com.fmum.util.Animation;
 import com.fmum.util.BoneAnimation;
 import com.fmum.util.Mat4f;
@@ -30,11 +31,13 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiNewChat;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.resource.VanillaResourceType;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLModContainer;
@@ -60,16 +63,15 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-// 做第三人称玩家移动动画时可以考虑让双脚运动轨迹等于错相的半圆然后通过 ik 控制腿部移动
 @SideOnly( Side.CLIENT )
 public final class FMUMClient extends FMUM
-	implements IAutowirePlayerChat, IAutowireBindTexture, IAutowireSmoother
 {
 	/// *** For easy referencing. *** ///
 	public static final Minecraft MC = Minecraft.getMinecraft();
 	public static final GameSettings SETTINGS = MC.gameSettings;
 	
 	public static final FMUMClient MOD = new FMUMClient();
+	public static final int CHAT_LINE_ID = 'F' + 'M' + 'U' + 'M';
 	
 	public static final Registry< BuildableLoader< ? > > MODEL_LOADERS = new Registry<>();
 	
@@ -415,6 +417,37 @@ public final class FMUMClient extends FMUM
 			VanillaResourceType.LANGUAGES
 		);
 	}
+	
+	public static void sendPacketToServer( IPacket packet ) { NET.sendToServer( packet ); }
+	
+	public static void sendPlayerMsg( String... messages )
+	{
+		final GuiNewChat chatGui = MC.ingameGUI.getChatGUI();
+		for ( String msg : messages )
+		{
+			final TextComponentString text = new TextComponentString( msg );
+			chatGui.printChatMessage( text );
+		}
+	}
+	
+	public static void sendPlayerPrompt( String... messages )
+	{
+		final GuiNewChat chatGui = MC.ingameGUI.getChatGUI();
+		for ( int i = 0; i < messages.length; ++i )
+		{
+			final TextComponentString text = new TextComponentString( messages[ i ] );
+			chatGui.printChatMessageWithOptionalDeletion( text, CHAT_LINE_ID + i );
+		}
+	}
+	
+	public static void bindTexture( ResourceLocation texture ) {
+		MC.renderEngine.bindTexture( texture );
+	}
+	
+	/**
+	 * @return Render partial tick time.
+	 */
+	public static float smoother() { return MC.getRenderPartialTicks(); }
 	
 	private static class BBAnimationJson
 	{

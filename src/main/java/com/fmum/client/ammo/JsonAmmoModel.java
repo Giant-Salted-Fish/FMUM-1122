@@ -1,5 +1,6 @@
 package com.fmum.client.ammo;
 
+import com.fmum.client.FMUMClient;
 import com.fmum.client.item.IEquippedItemRenderer;
 import com.fmum.client.item.IItemRenderer;
 import com.fmum.client.render.IAnimator;
@@ -43,7 +44,7 @@ public class JsonAmmoModel extends AmmoModel<
 	@Override
 	public void render( IItem item, IAnimator animator )
 	{
-		JsonAmmoModel.this.bindTexture( item.texture() );
+		FMUMClient.bindTexture( item.texture() );
 		JsonAmmoModel.this.render();
 	}
 }

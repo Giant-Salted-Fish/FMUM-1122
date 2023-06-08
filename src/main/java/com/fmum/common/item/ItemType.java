@@ -69,7 +69,7 @@ public abstract class ItemType< C extends IItem, M extends IItemModel< ? > >
 	protected void setupCreativeTab()
 	{
 		final ICreativeTab tab = ICreativeTab.REGISTRY.getOrElse( this.creativeTab, () -> {
-			this.logError( "fmum.fail_to_find_tab", this, this.creativeTab );
+			FMUM.logError( "fmum.fail_to_find_tab", this, this.creativeTab );
 			return FMUM.DEFAULT_TAB;
 		} );
 		tab.itemSettledIn( this );

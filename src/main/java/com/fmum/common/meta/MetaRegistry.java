@@ -1,5 +1,6 @@
 package com.fmum.common.meta;
 
+import com.fmum.common.FMUM;
 import com.fmum.common.Registry;
 
 public class MetaRegistry< T extends IMeta > extends Registry< T >
@@ -12,7 +13,7 @@ public class MetaRegistry< T extends IMeta > extends Registry< T >
 		this.mapper.compute( name, ( key, old ) -> {
 			if ( old == null ) { return meta; }
 			
-			this.logWarning( "fmum.duplicate_meta_regis", old, meta );
+			FMUM.logWarning( "fmum.duplicate_meta_regis", old, meta );
 			return old;
 		} );
 	}

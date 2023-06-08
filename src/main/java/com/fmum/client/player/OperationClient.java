@@ -1,7 +1,7 @@
 package com.fmum.client.player;
 
+import com.fmum.client.FMUMClient;
 import com.fmum.client.render.IAnimator;
-import com.fmum.common.IAutowirePacketHandler;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.network.PacketTerminateOp;
 import com.fmum.common.player.IOperation;
@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
 public abstract class OperationClient< T extends IEquippedItem< ? >, C extends OperationController >
-	extends Operation< C > implements IAutowirePacketHandler
+	extends Operation< C >
 {
 	protected T equipped;
 	
@@ -36,7 +36,7 @@ public abstract class OperationClient< T extends IEquippedItem< ? >, C extends O
 	public IOperation terminate( EntityPlayer player )
 	{
 		PlayerPatchClient.instance.camera.useAnimation( IAnimator.NONE );
-		this.sendPacketToServer( new PacketTerminateOp() );
+		FMUMClient.sendPacketToServer( new PacketTerminateOp() );
 		this.endCallback();
 		return NONE;
 	}

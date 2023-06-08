@@ -26,8 +26,6 @@ import java.util.function.Consumer;
 @EventBusSubscriber( modid = FMUM.MODID )
 final class EventHandler
 {
-	private static final IAutowireLogger LOGGER = FMUM.MOD;
-	
 	static
 	{
 		final BiConsumer< Entity, Consumer< EntityPlayer > > with = ( entity, next ) -> {
@@ -67,24 +65,24 @@ final class EventHandler
 	@SubscribeEvent
 	public static void onRegisterItem( RegistryEvent.Register< Item > evt )
 	{
-		LOGGER.logInfo( "fmum.on_item_regis" );
+		FMUM.logInfo( "fmum.on_item_regis" );
 		
 		final Collection< IItemType > items = IItemType.REGISTRY.values();
 		items.forEach( it -> it.onRegisterItem( evt ) );
 		
-		LOGGER.logInfo( "fmum.item_regis_complete", items.size() );
+		FMUM.logInfo( "fmum.item_regis_complete", items.size() );
 	}
 	
 	@SubscribeEvent
 	public static void onRegisterSound( RegistryEvent.Register< SoundEvent > evt )
 	{
-		LOGGER.logInfo( "fmum.on_sound_regis" ); // TODO: translation
+		FMUM.logInfo( "fmum.on_sound_regis" ); // TODO: translation
 		
 		final IForgeRegistry< SoundEvent > registry = evt.getRegistry ();
 		final Collection< SoundEvent > sounds = FMUM.MOD.soundPool.values();
 		sounds.forEach( registry::register );
 		
-		LOGGER.logInfo( "fmum.sound_regis_complete", sounds.size() );
+		FMUM.logInfo( "fmum.sound_regis_complete", sounds.size() );
 		
 		// TODO: clear sound pool?
 	}

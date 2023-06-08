@@ -1,6 +1,6 @@
 package com.fmum.client.ammo;
 
-import com.fmum.client.IAutowireBindTexture;
+import com.fmum.client.FMUMClient;
 import com.fmum.client.item.IEquippedItemRenderer;
 import com.fmum.client.item.IItemRenderer;
 import com.fmum.client.item.ItemModel;
@@ -16,12 +16,12 @@ public abstract class AmmoModel<
 	C extends IItem,
 	E extends IEquippedItem< ? extends C >,
 	R extends IItemRenderer< ? super C, ? extends IEquippedItemRenderer< ? super E > >
-> extends ItemModel< C, E, R > implements IAmmoModel< T, R >, IAutowireBindTexture
+> extends ItemModel< C, E, R > implements IAmmoModel< T, R >
 {
 	@Override
 	public void render( T type )
 	{
-		this.bindTexture( type.texture() );
+		FMUMClient.bindTexture( type.texture() );
 		this.render();
 	}
 }

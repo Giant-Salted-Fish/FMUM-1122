@@ -1,10 +1,8 @@
 package com.fmum.client.player;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.client.IAutowirePlayerChat;
 import com.fmum.client.input.IInput;
 import com.fmum.client.input.Key;
-import com.fmum.common.IAutowirePacketHandler;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemTypeHost;
@@ -35,7 +33,6 @@ import static com.fmum.common.module.IPreviewPredicate.NO_PREVIEW;
 
 @SideOnly( Side.CLIENT )
 public abstract class OpModifyClient extends TogglableOperation< OperationController >
-	implements IAutowirePacketHandler, IAutowirePlayerChat
 {
 	protected static final IPaintable PAINTABLE_PLACEHOLDER = new IPaintable()
 	{
@@ -144,7 +141,7 @@ public abstract class OpModifyClient extends TogglableOperation< OperationContro
 			this.modifyModes.add( prevMode );
 			
 			final ModifyMode newMode = this.modifyModes.getFirst();
-			this.sendPlayerPrompt( I18n.format( newMode.notifyMsg ) );
+			FMUMClient.sendPlayerPrompt( I18n.format( newMode.notifyMsg ) );
 			this.cursor.setModifyState( newMode.modifyState.get() );
 		};
 		this.handlers.put( Key.SELECT_TOGGLE, switchModifyMode );
@@ -231,7 +228,7 @@ public abstract class OpModifyClient extends TogglableOperation< OperationContro
 				final boolean stepChanged = this.curStep != this.oriStep;
 				if ( offsetChanged || stepChanged )
 				{
-					this.sendPacketToServer( new PacketModify(
+					FMUMClient.sendPacketToServer( new PacketModify(
 						this.curOffset, this.curStep,
 						this.loc, this.locLen
 					) );
@@ -241,7 +238,7 @@ public abstract class OpModifyClient extends TogglableOperation< OperationContro
 					this.curPaintjob != this.oriPaintjob
 					&& this.paintable.tryOfferOrNotifyWhy( this.curPaintjob, MC.player )
 				) {
-					this.sendPacketToServer( new PacketModify(
+					FMUMClient.sendPacketToServer( new PacketModify(
 						this.curPaintjob,
 						this.loc, this.locLen
 					) );
@@ -258,7 +255,7 @@ public abstract class OpModifyClient extends TogglableOperation< OperationContro
 				&& this.positionPredicate.okOrNotifyWhy()
 			) {
 				// Install preview module.
-				this.sendPacketToServer( new PacketModify(
+				FMUMClient.sendPacketToServer( new PacketModify(
 					this.previewInvSlot,
 					this.curOffset, this.curStep,
 					this.loc, this.locLen
@@ -271,7 +268,7 @@ public abstract class OpModifyClient extends TogglableOperation< OperationContro
 					// Notice that preview actually has been installed in client side.
 					final int count = this.cursor.base().getInstalledCount( this.slot() );
 					this.loc[ this.locLen - 1 ] = ( byte ) ( count - 1 );
-					this.sendPacketToServer( new PacketModify(
+					FMUMClient.sendPacketToServer( new PacketModify(
 						this.curPaintjob,
 						this.loc, this.locLen
 					) );
@@ -291,7 +288,7 @@ public abstract class OpModifyClient extends TogglableOperation< OperationContro
 			final boolean hasSelected = this.index() != -1 && this.locLen > 0;
 			if ( !hasSelected ) { return; }
 			
-			this.sendPacketToServer( new PacketModify( this.loc, this.locLen ) );
+			FMUMClient.sendPacketToServer( new PacketModify( this.loc, this.locLen ) );
 			this.loc[ this.locLen - 1 ] = -1;
 //			this.positionState = IModifyPredicate.OK; // FIXME: if this is needed?
 			this.clearPrimary();

@@ -9,15 +9,15 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.util.function.Consumer;
 
-public final class PacketNotifyItem implements IPacket
+public final class PacketNotifyEquipped implements IPacket
 {
 	private final Consumer< ByteBuf > encoder;
 	
 	private ByteBuf buf;
 	
-	public PacketNotifyItem() { this.encoder = null; }
+	public PacketNotifyEquipped() { this.encoder = null; }
 	
-	public PacketNotifyItem( Consumer< ByteBuf > encoder ) { this.encoder = encoder; }
+	public PacketNotifyEquipped( Consumer< ByteBuf > encoder ) { this.encoder = encoder; }
 	
 	@Override
 	public void toBytes( ByteBuf buf ) { this.encoder.accept( buf ); }

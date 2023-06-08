@@ -1,5 +1,6 @@
 package com.fmum.common.meta;
 
+import com.fmum.common.FMUM;
 import com.google.common.collect.HashBiMap;
 
 /**
@@ -23,7 +24,7 @@ public class IdRegistry< T extends IMeta > extends MetaRegistry< T >
 		this.mapper.compute( name, ( key, old ) -> {
 			if ( old != null )
 			{
-				this.logWarning( "fmum.duplicate_meta_regis", old, meta );
+				FMUM.logWarning( "fmum.duplicate_meta_regis", old, meta );
 				return old;
 			}
 			
