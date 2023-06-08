@@ -8,7 +8,6 @@ import com.fmum.client.render.IAnimator;
 import com.fmum.common.gun.IEquippedGun;
 import com.fmum.common.gun.IGun;
 import com.fmum.common.load.IContentProvider;
-import com.fmum.devtool.Dev;
 import com.fmum.util.ArmTracker;
 import com.fmum.util.DynamicPos;
 import com.fmum.util.Mat4f;
@@ -21,7 +20,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.ResourceLocation;
@@ -438,7 +436,7 @@ public abstract class GunModel<
 				GL11.glMatrixMode( GL11.GL_PROJECTION );
 				GL11.glLoadIdentity();
 				Project.gluPerspective(
-					GunModel.this.getFovModifier( this.smoother() ),
+					GunModel.this.getFovModifier( FMUMClient.smoother() ),
 					( float ) FMUMClient.MC.displayWidth / FMUMClient.MC.displayHeight,
 					0.05F, // TODO: maybe smaller this value to avoid seeing through the parts
 					FMUMClient.SETTINGS.renderDistanceChunks * 16 * MathHelper.SQRT_2
@@ -498,7 +496,7 @@ public abstract class GunModel<
 				glMulMatrix( mat );
 				mat.release();
 				
-				this.bindTexture( TEXTURE_ALEX );
+				FMUMClient.bindTexture( TEXTURE_ALEX );
 				
 //				GL11.glEnable( GL11.GL_BLEND );
 //				GL11.glColor4f( 1F, 1F, 1F, 0.5F );
@@ -511,7 +509,7 @@ public abstract class GunModel<
 			@Override
 			protected void updatePosRot()
 			{
-				final float smoother = this.smoother();
+				final float smoother = FMUMClient.smoother();
 				
 				// Use #pos temporarily to avoid locate Vec3f.
 				this.holdRot.get( smoother, this.pos );

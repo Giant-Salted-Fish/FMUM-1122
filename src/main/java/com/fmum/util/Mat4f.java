@@ -16,7 +16,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	public static Mat4f locate()
 	{
 		if ( ++count > 64 ) {
-			FMUM.MOD.logError( "count mat over 64! could be something wrong!" );
+			FMUM.logError( "count mat over 64! could be something wrong!" );
 		}
 		return POOL.poll();
 	}
@@ -307,7 +307,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	public void release()
 	{
 		if ( --count < 0 ) {
-			FMUM.MOD.logError( "count mat below 0! could be something wrong!" );
+			FMUM.logError( "count mat below 0! could be something wrong!" );
 		}
 		POOL.back( this );
 	}

@@ -2,7 +2,6 @@ package com.fmum.client.input;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.common.FMUM;
-import com.fmum.common.IAutowireLogger;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
@@ -64,8 +63,6 @@ public final class InputHandler
 	private static final HashMultimap< Integer, IKeyBind > CO_MAPPER = HashMultimap.create();
 	
 	private static final HashMultimap< Integer, IKeyBind > INCO_MAPPER = HashMultimap.create();
-	
-	private static final IAutowireLogger LOGGER = FMUMClient.MOD;
 	
 	private InputHandler() { }
 	
@@ -145,7 +142,7 @@ public final class InputHandler
 			IKeyBind.REGISTRY.values().forEach( key -> mapper.put( key.name(), key.keyCode() ) );
 			out.write( FMUM.GSON.toJson( mapper ) );
 		}
-		catch ( IOException e ) { LOGGER.logException( e, "fmum.error_saving_key_binds" ); }
+		catch ( IOException e ) { FMUM.logException( e, "fmum.error_saving_key_binds" ); }
 	}
 	
 	/**
@@ -160,14 +157,14 @@ public final class InputHandler
 			obj.entrySet().forEach( e -> {
 				try { IKeyBind.REGISTRY.get( e.getKey() ).setKeyCode( e.getValue().getAsInt() ); }
 				catch ( NullPointerException ee ) {
-					LOGGER.logError( "fmum.unrecognized_key_bind", e.getKey() );
+					FMUM.logError( "fmum.unrecognized_key_bind", e.getKey() );
 				}
 				catch ( Exception ee ) {
-					LOGGER.logError( "fmum.key_code_format_error", e.toString() );
+					FMUM.logError( "fmum.key_code_format_error", e.toString() );
 				}
 			} );
 		}
-		catch ( IOException e ) { LOGGER.logException( e, "fmum.error_reading_key_binds" ); }
+		catch ( IOException e ) { FMUM.logException( e, "fmum.error_reading_key_binds" ); }
 		
 		updateMappers();
 	}

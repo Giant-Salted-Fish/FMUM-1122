@@ -1,5 +1,7 @@
 package com.fmum.common.pack;
 
+import com.fmum.common.FMUM;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -23,7 +25,7 @@ public class FolderPack extends LocalPack
 		{
 			try ( FileReader in = new FileReader( infoFile ) ) { this.setupInfoWith( in ); }
 			catch ( IOException e ) {
-				this.logException( e, ERROR_LOADING_INFO, this.sourceName() + "/" + this.infoFile() );
+				FMUM.logException( e, ERROR_LOADING_INFO, this.sourceName() + "/" + this.infoFile() );
 			}
 		}
 		
@@ -69,7 +71,7 @@ public class FolderPack extends LocalPack
 					this.loadClassType( classPath );
 				}
 			}
-			catch ( Exception e ) { this.logException( e, ERROR_LOADING_TYPE, sourceTrace.get() ); }
+			catch ( Exception e ) { FMUM.logException( e, ERROR_LOADING_TYPE, sourceTrace.get() ); }
 		}
 	}
 }

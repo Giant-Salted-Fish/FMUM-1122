@@ -1,5 +1,6 @@
 package com.fmum.common.paintjob;
 
+import com.fmum.common.FMUM;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.common.load.IPostLoadSubscriber;
@@ -34,7 +35,7 @@ public class JsonPaintjob extends Paintjob implements IPostLoadSubscriber
 		if ( target == null )
 		{
 			final String translationKey = "fmum.expaintjob_target_not_found";
-			this.logWarning( translationKey, this, this.injectTarget );
+			FMUM.logWarning( translationKey, this, this.injectTarget );
 		}
 		else { target.injectPaintjob( this ); }
 	}

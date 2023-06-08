@@ -23,7 +23,7 @@ public interface IModifyPredicate
 		@SideOnly( Side.CLIENT )
 		default boolean okOrNotifyWhy()
 		{
-			FMUMClient.MOD.sendPlayerPrompt( this.why() );
+			FMUMClient.sendPlayerPrompt( this.why() );
 			return false;
 		}
 		

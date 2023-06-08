@@ -14,7 +14,7 @@ public interface IFireController
 		public int actionRounds() { return 0; }
 		
 		@Override
-		public int getCoolDownForNextRound( int shotCount, int actedRounds ) {
+		public int getCoolDownForShoot( int shotCount, int actedRounds ) {
 			return Integer.MAX_VALUE;
 		}
 		
@@ -24,7 +24,7 @@ public interface IFireController
 	
 	int actionRounds();
 	
-	int getCoolDownForNextRound( int shotCount, int actedRounds );
+	int getCoolDownForShoot( int shotCount, int actedRounds );
 	
 	String promptMsg();
 	
@@ -56,7 +56,7 @@ public interface IFireController
 		public int actionRounds() { return this.actionRounds; }
 		
 		@Override
-		public int getCoolDownForNextRound( int shotCount, int actedRounds )
+		public int getCoolDownForShoot( int shotCount, int actedRounds )
 		{
 			final int prevShiftedTicks = this.shiftedCoolDownTicks * shotCount;
 			final int thisShiftedTicks = prevShiftedTicks + this.shiftedCoolDownTicks;

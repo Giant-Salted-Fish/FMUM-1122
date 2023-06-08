@@ -20,6 +20,7 @@ import com.fmum.common.module.IModuleSlot;
 import com.fmum.common.module.ModuleCategory;
 import com.fmum.common.module.ModuleFilter;
 import com.fmum.common.module.RailSlot;
+import com.fmum.common.network.IPacket;
 import com.fmum.common.network.PacketHandler;
 import com.fmum.common.pack.FolderPack;
 import com.fmum.common.pack.JarPack;
@@ -41,6 +42,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
@@ -90,8 +92,7 @@ import java.util.regex.Pattern;
 	guiFactory = "com.fmum.client.ConfigGuiFactory"
 //	, clientSideOnly = true
 )
-public class FMUM extends URLClassLoader
-	implements IContentProvider, IAutowirePacketHandler, IAutowireLogger
+public class FMUM extends URLClassLoader implements IContentProvider
 {
 	public static final String MODID = "fmum";
 	
@@ -165,13 +166,10 @@ public class FMUM extends URLClassLoader
 	public static final MetaRegistry< IContentProvider > CONTENT_PROVIDERS = new MetaRegistry<>();
 	
 	/**
-	 * @see IAutowirePacketHandler
+	 * Use this to send network packets.
 	 */
-	public static final PacketHandler NET = new PacketHandler( MODID );
+	protected static final PacketHandler NET = new PacketHandler( MODID );
 	
-	/**
-	 * @see IAutowireLogger
-	 */
 	public static final Logger LOGGER = LogManager.getLogger( MODID );
 	
 	/**
@@ -202,18 +200,18 @@ public class FMUM extends URLClassLoader
 	public final void onPreInit( FMLPreInitializationEvent evt )
 	{
 		// Info load start.
-		this.logInfo( "fmum.on_pre_init" );
+		logInfo( "fmum.on_pre_init" );
 		
 		// Load content packs.
 		this.load();
 		
-		this.logInfo( "fmum.pre_init_complete" );
+		logInfo( "fmum.pre_init_complete" );
 	}
 	
 	@EventHandler
 	public final void onInit( FMLInitializationEvent evt )
 	{
-		this.logInfo( "fmum.on_init" );
+		logInfo( "fmum.on_init" );
 		
 		// Fire load callback.
 		this.postLoadSubscribers.forEach( IPostLoadSubscriber::onPostLoad );
@@ -221,26 +219,26 @@ public class FMUM extends URLClassLoader
 		
 		NET.regisPackets();
 		
-		this.logInfo( "fmum.init_complete" );
+		logInfo( "fmum.init_complete" );
 		
 		// After initialization, info user all the packs being loaded.
-		this.logInfo( "fmum.total_loaded_packs", String.valueOf( CONTENT_PROVIDERS.size() ) );
+		logInfo( "fmum.total_loaded_packs", String.valueOf( CONTENT_PROVIDERS.size() ) );
 		CONTENT_PROVIDERS.values().forEach( pack -> {
 			final String packName = this.format( pack.name() );
 			final String packAuthor = this.format( pack.author() );
-			this.logInfo( "fmum.info_loaded_pack", packName, packAuthor );
+			logInfo( "fmum.info_loaded_pack", packName, packAuthor );
 		} );
 	}
 	
 	@EventHandler
 	public final void onPostInit( FMLPostInitializationEvent evt )
 	{
-		this.logInfo( "fmum.on_post_init" );
+		logInfo( "fmum.on_post_init" );
 		
 		// TODO: Whether to support packets registration for packs?
 //		NET.postInit();
 		
-		this.logInfo( "fmum.post_init_complete" );
+		logInfo( "fmum.post_init_complete" );
 	}
 	
 	@Override
@@ -252,7 +250,7 @@ public class FMUM extends URLClassLoader
 		if ( !packDir.exists() )
 		{
 			packDir.mkdirs();
-			this.logInfo( "fmum.pack_dir_created", MODID );
+			logInfo( "fmum.pack_dir_created", MODID );
 		}
 		
 		// Compile a regex to match the supported content pack file types.
@@ -263,7 +261,7 @@ public class FMUM extends URLClassLoader
 		final HashSet< IContentProvider > providers = new HashSet<>();
 		final Consumer< IContentProvider > addPack = pack -> {
 			providers.add( pack );
-			this.logInfo( "fmum.detect_content_pack", pack.sourceName() );
+			logInfo( "fmum.detect_content_pack", pack.sourceName() );
 		};
 		for ( File file : packDir.listFiles() )
 		{
@@ -282,7 +280,7 @@ public class FMUM extends URLClassLoader
 			}
 			
 			final String filePath = packDir.getName() + "/" + file.getName();
-			this.logError( "fmum.unknown_pack_file_type", filePath );
+			logError( "fmum.unknown_pack_file_type", filePath );
 		}
 		
 		// TODO: Post provider registry event to get providers from other mods?
@@ -310,7 +308,7 @@ public class FMUM extends URLClassLoader
 		
 		// Load content packs!
 		providers.forEach( pack -> {
-			this.logInfo( "fmum.load_content_pack", pack.sourceName() );
+			logInfo( "fmum.load_content_pack", pack.sourceName() );
 			pack.load();
 			CONTENT_PROVIDERS.regis( pack );
 		} );
@@ -366,7 +364,7 @@ public class FMUM extends URLClassLoader
 					> loader = FIRE_CONTROLLER_LOADERS.get( type );
 					if ( loader != null ) { return loader.apply( entry, context ); }
 					
-					this.logError( "fmum.fire_controller_loader_not_found", type );
+					logError( "fmum.fire_controller_loader_not_found", type );
 					return IFireController.SAFETY;
 				}
 			)
@@ -450,7 +448,7 @@ public class FMUM extends URLClassLoader
 	{
 		try { this.addURL( file.toURI().toURL() ); }
 		catch ( MalformedURLException e ) {
-			this.logException( e, "fmum.error_adding_classpath", file.getName() );
+			logException( e, "fmum.error_adding_classpath", file.getName() );
 		}
 	}
 	
@@ -477,7 +475,7 @@ public class FMUM extends URLClassLoader
 	}
 	
 	@Override
-	public void regisPostLoadSubscriber( IPostLoadSubscriber subscriber ) {
+	public final void regisPostLoadSubscriber( IPostLoadSubscriber subscriber ) {
 		this.postLoadSubscribers.add( subscriber );
 	}
 	
@@ -485,7 +483,7 @@ public class FMUM extends URLClassLoader
 	public void regisMeshLoadSubscriber( IMeshLoadSubscriber subscriber ) { }
 	
 	@Override
-	public SoundEvent loadSound( String path )
+	public final SoundEvent loadSound( String path )
 	{
 		return this.soundPool.computeIfAbsent( path, key -> {
 			final FMUMResource res = new FMUMResource( path );
@@ -499,7 +497,6 @@ public class FMUM extends URLClassLoader
 	@Override
 	public void clientOnly( Runnable task ) { }
 	
-	@Override
 	@SuppressWarnings( "deprecation" )
 	public String format( String translateKey, Object... parameters )
 	{
@@ -508,16 +505,16 @@ public class FMUM extends URLClassLoader
 	}
 	
 	@Override
-	public String name() { return "fmum.core_pack"; }
+	public final String name() { return "fmum.core_pack"; }
 	
 	@Override
-	public String author() { return "fmum.author"; }
+	public final String author() { return "fmum.author"; }
 	
 	@Override
-	public String sourceName() { return MOD_NAME; }
+	public final String sourceName() { return MOD_NAME; }
 	
 	@Override
-	public String toString() { return MODID; }
+	public final String toString() { return MODID; }
 	
 	protected void regisSideDependentLoaders()
 	{
@@ -545,6 +542,26 @@ public class FMUM extends URLClassLoader
 //			: super.findClass( name )
 //		);
 //	}
+	
+	public static void sendPacketTo( IPacket packet, EntityPlayerMP player ) {
+		NET.sendTo( packet, player );
+	}
+	
+	public static void logInfo( String translateKey, Object... parameters ) {
+		LOGGER.info( MOD.format( translateKey, parameters ) );
+	}
+	
+	public static void logWarning( String translateKey, Object... parameters ) {
+		LOGGER.warn( MOD.format( translateKey, parameters ) );
+	}
+	
+	public static void logError( String translateKey, Object... parameters ) {
+		LOGGER.error( MOD.format( translateKey, parameters ) );
+	}
+	
+	public static void logException( Throwable e, String translateKey, Object... parameters ) {
+		LOGGER.error( MOD.format( translateKey, parameters ), e );
+	}
 	
 	public static final class ArrJsonDeserializer< T > implements JsonDeserializer< T[] >
 	{

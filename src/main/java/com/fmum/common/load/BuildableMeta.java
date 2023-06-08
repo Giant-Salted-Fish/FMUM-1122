@@ -1,10 +1,9 @@
 package com.fmum.common.load;
 
-import com.fmum.common.IAutowireLogger;
 import com.fmum.common.meta.IMeta;
 import com.fmum.common.meta.Meta;
 
-public abstract class BuildableMeta extends Meta implements IBuildable< IMeta >, IAutowireLogger
+public abstract class BuildableMeta extends Meta implements IBuildable< IMeta >
 {
 	protected transient IContentProvider provider;
 	

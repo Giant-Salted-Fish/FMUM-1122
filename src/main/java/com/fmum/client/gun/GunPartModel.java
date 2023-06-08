@@ -1,7 +1,6 @@
 package com.fmum.client.gun;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.client.IAutowireBindTexture;
 import com.fmum.client.item.ItemModel;
 import com.fmum.client.module.IDeferredRenderer;
 import com.fmum.client.render.IAnimator;
@@ -97,8 +96,7 @@ public abstract class GunPartModel<
 		}
 	}
 	
-	protected abstract class GunPartRenderer
-		implements IGunPartRenderer< C, ER >, IAutowireBindTexture
+	protected abstract class GunPartRenderer implements IGunPartRenderer< C, ER >
 	{
 		protected final Mat4f mat = new Mat4f();
 		
@@ -149,7 +147,7 @@ public abstract class GunPartModel<
 		@Override
 		public void render( C gunPart, IAnimator animator )
 		{
-			this.bindTexture( gunPart.texture() );
+			FMUMClient.bindTexture( gunPart.texture() );
 			GunPartModel.this.render();
 		}
 		

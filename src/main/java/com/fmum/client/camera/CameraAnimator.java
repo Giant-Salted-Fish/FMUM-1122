@@ -1,7 +1,6 @@
 package com.fmum.client.camera;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.client.IAutowireSmoother;
 import com.fmum.client.input.Key;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.IAnimator;
@@ -24,7 +23,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @author Giant_Salted_Fish
  */
 @SideOnly( Side.CLIENT )
-public class CameraAnimator implements ICameraController, IAutowireSmoother
+public class CameraAnimator implements ICameraController
 {
 	public static final CameraAnimator INSTANCE = new CameraAnimator();
 	
@@ -114,7 +113,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		final EntityPlayer player = FMUMClient.MC.player;
 		final DynamicPos camOffAxis = this.cameraOffAxis;
 		final Vec3f playerRot = this.playerRot;
-		final float smoother = this.smoother();
+		final float smoother = FMUMClient.smoother();
 		
 		// Process input mouse delta.
 		final float mouseFactor = this.getMouseFactor();
@@ -180,7 +179,7 @@ public class CameraAnimator implements ICameraController, IAutowireSmoother
 		quat.release();
 		
 		final Vec3f vec = Vec3f.locate();
-		this.cameraEasing.get( this.smoother(), vec );
+		this.cameraEasing.get( FMUMClient.smoother(), vec );
 		mat.rotateZ( vec.z );
 		mat.rotateX( vec.x );
 		mat.rotateY( vec.y );

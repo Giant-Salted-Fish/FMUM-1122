@@ -1,5 +1,6 @@
 package com.fmum.common.mag;
 
+import com.fmum.client.FMUMClient;
 import com.fmum.client.gun.IEquippedGunPartRenderer;
 import com.fmum.client.gun.IGunPartRenderer;
 import com.fmum.client.input.IInput;
@@ -13,7 +14,7 @@ import com.fmum.common.gun.IGunPart;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItemType;
 import com.fmum.common.item.IItemTypeHost;
-import com.fmum.common.network.PacketNotifyItem;
+import com.fmum.common.network.PacketNotifyEquipped;
 import com.fmum.common.player.IOperation;
 import com.fmum.common.player.Operation;
 import com.fmum.common.player.OperationController;
@@ -457,7 +458,7 @@ public abstract class MagType<
 					final boolean validAmmoNotFound = invSlot == -1;
 					if ( validAmmoNotFound ) { return IOperation.NONE; }
 					
-					this.sendPacketToServer( new PacketNotifyItem( buf -> {
+					FMUMClient.sendPacketToServer( new PacketNotifyEquipped( buf -> {
 						buf.writeByte( OP_CODE_LOAD_AMMO );
 						buf.writeByte( invSlot );
 					} ) );
@@ -507,7 +508,7 @@ public abstract class MagType<
 					final boolean alreadyEmpty = this.equipped.item().isEmpty();
 					if ( alreadyEmpty ) { return IOperation.NONE; }
 					
-					this.sendPacketToServer( new PacketNotifyItem( 
+					FMUMClient.sendPacketToServer( new PacketNotifyEquipped(
 						buf -> buf.writeByte( OP_CODE_UNLOAD_AMMO )
 					) );
 					return this;

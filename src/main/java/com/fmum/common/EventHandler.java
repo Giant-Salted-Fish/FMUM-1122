@@ -26,8 +26,6 @@ import java.util.function.Consumer;
 @EventBusSubscriber( modid = FMUM.MODID )
 final class EventHandler
 {
-	private static final IAutowireLogger LOGGER = FMUM.MOD;
-	
 	static
 	{
 		final BiConsumer< Entity, Consumer< EntityPlayer > > with = ( entity, next ) -> {
@@ -41,21 +39,25 @@ final class EventHandler
 				@SubscribeEvent
 				public void onEntityCapAttach( AttachCapabilitiesEvent< Entity > evt )
 				{
-					with.accept( evt.getObject(), player -> {
-						final boolean isPlayerSP = player instanceof EntityPlayerSP;
-						final PlayerPatch patch = isPlayerSP
-							? new PlayerPatchClient( player ) : new PlayerPatch( player );
-						evt.addCapability( identifier, patch );
-					} );
+					with.accept(
+						evt.getObject(),
+						player -> {
+							final boolean isPlayerSP = player instanceof EntityPlayerSP;
+							final PlayerPatch patch = isPlayerSP
+								? new PlayerPatchClient( player ) : new PlayerPatch( player );
+							evt.addCapability( identifier, patch );
+						}
+					);
 				}
 			}
 			: new Object() {
 				@SubscribeEvent
 				public void onEntityCapAttach( AttachCapabilitiesEvent< Entity > evt )
 				{
-					with.accept( evt.getObject(), player -> {
-						evt.addCapability( identifier, new PlayerPatch( player ) );
-					} );
+					with.accept(
+						evt.getObject(),
+						player -> evt.addCapability( identifier, new PlayerPatch( player ) )
+					);
 				}
 			}
 		);
@@ -67,24 +69,24 @@ final class EventHandler
 	@SubscribeEvent
 	public static void onRegisterItem( RegistryEvent.Register< Item > evt )
 	{
-		LOGGER.logInfo( "fmum.on_item_regis" );
+		FMUM.logInfo( "fmum.on_item_regis" );
 		
 		final Collection< IItemType > items = IItemType.REGISTRY.values();
 		items.forEach( it -> it.onRegisterItem( evt ) );
 		
-		LOGGER.logInfo( "fmum.item_regis_complete", items.size() );
+		FMUM.logInfo( "fmum.item_regis_complete", items.size() );
 	}
 	
 	@SubscribeEvent
 	public static void onRegisterSound( RegistryEvent.Register< SoundEvent > evt )
 	{
-		LOGGER.logInfo( "fmum.on_sound_regis" ); // TODO: translation
+		FMUM.logInfo( "fmum.on_sound_regis" ); // TODO: translation
 		
 		final IForgeRegistry< SoundEvent > registry = evt.getRegistry ();
 		final Collection< SoundEvent > sounds = FMUM.MOD.soundPool.values();
 		sounds.forEach( registry::register );
 		
-		LOGGER.logInfo( "fmum.sound_regis_complete", sounds.size() );
+		FMUM.logInfo( "fmum.sound_regis_complete", sounds.size() );
 		
 		// TODO: clear sound pool?
 	}
@@ -102,6 +104,6 @@ final class EventHandler
 	// This seems to only be posted on server side.
 	@SubscribeEvent
 	public static void onPlayerLogin( PlayerLoggedInEvent evt ) {
-		FMUM.MOD.sendPacketTo( new PacketConfigSync(), ( EntityPlayerMP ) evt.player );
+		FMUM.sendPacketTo( new PacketConfigSync(), ( EntityPlayerMP ) evt.player );
 	}
 }

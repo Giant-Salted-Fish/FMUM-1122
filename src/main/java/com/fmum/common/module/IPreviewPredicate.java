@@ -24,7 +24,7 @@ public interface IPreviewPredicate extends IModifyPredicate
 		@SideOnly( Side.CLIENT )
 		default boolean okOrNotifyWhy()
 		{
-			FMUMClient.MOD.sendPlayerMsg( this.why() );
+			FMUMClient.sendPlayerMsg( this.why() );
 			return false;
 		}
 		

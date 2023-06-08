@@ -24,7 +24,7 @@ public abstract class Operation< T extends OperationController > implements IOpe
 	@SideOnly( Side.CLIENT )
 	public float smoothedProgress()
 	{
-		final float smoother = FMUMClient.MOD.smoother();
+		final float smoother = FMUMClient.smoother();
 		return this.prevProgress + ( this.progress - this.prevProgress ) * smoother;
 	}
 	

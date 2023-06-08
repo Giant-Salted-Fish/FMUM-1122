@@ -217,6 +217,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		public void ungrabMouseCursor() { this.proxy.ungrabMouseCursor(); }
 		
 		@Override
+		@SuppressWarnings( "EqualsWhichDoesntCheckParameterClass" )
 		public boolean equals( Object obj ) { return this.proxy.equals( obj ); }
 	}
 }

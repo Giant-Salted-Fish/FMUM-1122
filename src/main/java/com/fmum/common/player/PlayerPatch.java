@@ -116,6 +116,7 @@ public class PlayerPatch implements ICapabilityProvider
 	}
 	
 	@Override
+	@SuppressWarnings( "ConstantValue" )
 	public final boolean hasCapability(
 		@Nonnull Capability< ? > capability,
 		@Nullable EnumFacing facing )
@@ -123,6 +124,7 @@ public class PlayerPatch implements ICapabilityProvider
 	
 	@Nullable
 	@Override
+	@SuppressWarnings( "ConstantValue" )
 	public final < T > T getCapability(
 		@Nonnull Capability< T > capability,
 		@Nullable EnumFacing facing

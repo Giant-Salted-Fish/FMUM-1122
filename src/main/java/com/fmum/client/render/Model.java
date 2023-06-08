@@ -2,7 +2,6 @@ package com.fmum.client.render;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.common.FMUMResource;
-import com.fmum.common.IAutowireLogger;
 import com.fmum.common.load.IBuildable;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.util.AngleAxis4f;
@@ -20,7 +19,7 @@ import org.lwjgl.opengl.GL11;
 import java.nio.FloatBuffer;
 
 @SideOnly( Side.CLIENT )
-public class Model implements IBuildable< Object >, IAutowireLogger
+public class Model implements IBuildable< Object >
 {
 	public static final ResourceLocation
 		TEXTURE_RED = new FMUMResource( "textures/0xff0000.png" ),

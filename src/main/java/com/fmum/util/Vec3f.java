@@ -18,7 +18,7 @@ public class Vec3f extends Vector3f implements IReleasable
 	public static Vec3f locate()
 	{
 		if ( ++count > 64 ) {
-			FMUM.MOD.logError( "count vec over 64! could be something wrong!" );
+			FMUM.logError( "count vec over 64! could be something wrong!" );
 		}
 		return POOL.poll();
 	}
@@ -26,7 +26,7 @@ public class Vec3f extends Vector3f implements IReleasable
 	public static Vec3f locate( float x, float y, float z )
 	{
 		if ( ++count > 64 ) {
-			FMUM.MOD.logError( "count vec over 64! could be something wrong!" );
+			FMUM.logError( "count vec over 64! could be something wrong!" );
 		}
 		final Vec3f vec = POOL.poll();
 		vec.set( x, y, z );
@@ -61,7 +61,7 @@ public class Vec3f extends Vector3f implements IReleasable
 	public final void release()
 	{
 		if ( --count < 0 ) {
-			FMUM.MOD.logError( "count vec below 0! could be something wrong!" );
+			FMUM.logError( "count vec below 0! could be something wrong!" );
 		}
 		POOL.back( this );
 	}

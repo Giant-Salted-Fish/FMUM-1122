@@ -4,7 +4,6 @@ import com.fmum.client.input.InputHandler;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.Model;
 import com.fmum.common.FMUM;
-import com.fmum.common.IAutowireLogger;
 import com.fmum.common.item.IItemType;
 import com.fmum.util.Mat4f;
 import net.minecraft.client.gui.GuiControls;
@@ -35,8 +34,6 @@ import java.util.Collection;
 @EventBusSubscriber( modid = FMUMClient.MODID, value = Side.CLIENT )
 public final class EventHandlerClient
 {
-	private static final IAutowireLogger LOGGER = FMUMClient.MOD;
-	
 	public static boolean oriViewBobbing = FMUMClient.SETTINGS.viewBobbing;
 	public static float oriMouseSensi = FMUMClient.SETTINGS.mouseSensitivity;
 	
@@ -65,7 +62,7 @@ public final class EventHandlerClient
 					// makers who do not know this.
 					try { sub.onMeshLoad(); }
 					catch ( Exception e ) {
-						LOGGER.logException( e, "fmum.exception_call_model_load", sub );
+						FMUM.logException( e, "fmum.exception_call_model_load", sub );
 					}
 				} );
 				
@@ -126,12 +123,12 @@ public final class EventHandlerClient
 	@SubscribeEvent
 	public static void onModelRegister( ModelRegistryEvent evt )
 	{
-		LOGGER.logInfo( "fmum.on_model_regis" );
+		FMUM.logInfo( "fmum.on_model_regis" );
 		
 		final Collection< IItemType > items = IItemType.REGISTRY.values();
 		items.forEach( it -> it.onModelRegister( evt ) );
 		
-		LOGGER.logInfo( "fmum.model_regis_complete", items.size() );
+		FMUM.logInfo( "fmum.model_regis_complete", items.size() );
 	}
 	
 	@SubscribeEvent

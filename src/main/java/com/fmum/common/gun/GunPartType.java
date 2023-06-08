@@ -127,7 +127,7 @@ public abstract class GunPartType<
 		this.provider.clientOnly( () -> {
 			if ( IModuleType.REGISTRY.get( this.modifyIndicator ) == null )
 			{
-				this.logError( "fmum.fail_to_find_indicator", this, this.modifyIndicator );
+				FMUM.logError( "fmum.fail_to_find_indicator", this, this.modifyIndicator );
 				this.modifyIndicator = FMUMClient.MODIFY_INDICATOR;
 			}
 		} );

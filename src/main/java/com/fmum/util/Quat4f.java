@@ -16,7 +16,7 @@ public final class Quat4f extends javax.vecmath.Quat4f implements IReleasable
 	public static Quat4f locate()
 	{
 		if ( ++count > 64 ) {
-			FMUM.MOD.logError( "count quat over 64! could be something wrong!" );
+			FMUM.logError( "count quat over 64! could be something wrong!" );
 		}
 		return POOL.poll();
 	}
@@ -70,7 +70,7 @@ public final class Quat4f extends javax.vecmath.Quat4f implements IReleasable
 	public void release()
 	{
 		if ( --count < 0 ) {
-			FMUM.MOD.logError( "count quat below 0! could be something wrong!" );
+			FMUM.logError( "count quat below 0! could be something wrong!" );
 		}
 		POOL.back( this );
 	}

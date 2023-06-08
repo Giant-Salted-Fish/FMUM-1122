@@ -36,6 +36,7 @@ public class GunPartWrapper<
 	}
 	
 	@Override
+	@SuppressWarnings( "ConstantValue" )
 	public final boolean hasCapability(
 		@Nonnull Capability< ? > capability,
 		@Nullable EnumFacing facing
@@ -43,6 +44,7 @@ public class GunPartWrapper<
 	
 	@Nullable
 	@Override
+	@SuppressWarnings( "ConstantValue" )
 	public final < C > C getCapability(
 		@Nonnull Capability< C > capability,
 		@Nullable EnumFacing facing

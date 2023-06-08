@@ -1,6 +1,7 @@
 package com.fmum.common.tab;
 
 import com.fmum.client.ModConfigClient;
+import com.fmum.common.FMUM;
 import com.fmum.common.item.IItemType;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.load.TexturedMeta;
@@ -97,7 +98,7 @@ public class CreativeTab extends TexturedMeta implements ICreativeTab
 				return new ItemStack( item, 1, CreativeTab.this.iconItemDam );
 			}
 			
-			CreativeTab.this.logError(
+			FMUM.logError(
 				"fmum.can_not_find_tab_icon_item",
 				this.getTabLabel(),
 				CreativeTab.this.iconItemDam

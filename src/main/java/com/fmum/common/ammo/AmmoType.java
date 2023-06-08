@@ -83,6 +83,7 @@ public abstract class AmmoType<
 	protected class Ammo implements IItem, ICapabilityProvider
 	{
 		@Override
+		@SuppressWarnings( "ConstantValue" )
 		public boolean hasCapability(
 			@Nonnull Capability< ? > capability,
 			@Nullable EnumFacing facing

@@ -1,11 +1,10 @@
 package com.fmum.common.module;
 
+import com.fmum.client.FMUMClient;
 import com.fmum.client.render.Model;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import static com.fmum.client.FMUMClient.MOD;
 
 public interface IModifyState
 {
@@ -18,7 +17,7 @@ public interface IModifyState
 		public void doRecommendedRender( ResourceLocation texture, Runnable renderer )
 		{
 			Model.glowOn();
-			MOD.bindTexture( Model.TEXTURE_GREEN );
+			FMUMClient.bindTexture( Model.TEXTURE_GREEN );
 			renderer.run();
 			Model.glowOff();
 		}
@@ -31,7 +30,7 @@ public interface IModifyState
 		public void doRecommendedRender( ResourceLocation texture, Runnable renderer )
 		{
 			Model.glowOn();
-			MOD.bindTexture( Model.TEXTURE_RED );
+			FMUMClient.bindTexture( Model.TEXTURE_RED );
 			renderer.run();
 			Model.glowOff();
 		}
@@ -40,7 +39,7 @@ public interface IModifyState
 	@SideOnly( Side.CLIENT )
 	default void doRecommendedRender( ResourceLocation texture, Runnable renderer )
 	{
-		MOD.bindTexture( texture );
+		FMUMClient.bindTexture( texture );
 		renderer.run();
 	}
 }

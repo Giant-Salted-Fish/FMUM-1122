@@ -1,5 +1,6 @@
 package com.fmum.common.gun;
 
+import com.fmum.client.FMUMClient;
 import com.fmum.client.ModConfigClient;
 import com.fmum.client.camera.ICameraController;
 import com.fmum.client.gun.IEquippedGunRenderer;
@@ -22,7 +23,7 @@ import com.fmum.common.load.IContentProvider;
 import com.fmum.common.mag.IMag;
 import com.fmum.common.meta.IMeta;
 import com.fmum.common.module.IModuleEventSubscriber;
-import com.fmum.common.network.PacketNotifyItem;
+import com.fmum.common.network.PacketNotifyEquipped;
 import com.fmum.common.player.IOperation;
 import com.fmum.common.player.Operation;
 import com.fmum.common.player.OperationController;
@@ -47,9 +48,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public abstract class GunType<
 	I extends IGunPart< ? extends I >,
@@ -306,7 +310,8 @@ public abstract class GunType<
 				OP_CODE_UNLOAD_MAG = 1,
 				OP_CODE_CHARGE_GUN = 2,
 				OP_RELEASE_BOLT = 3,
-				OP_SWITCH_FIRE_MODE = 4;
+				OP_SWITCH_FIRE_MODE = 4,
+				OP_SHOOT = 5;
 			
 			protected int actionCoolDown = 0;
 			
@@ -382,11 +387,76 @@ public abstract class GunType<
 					final int magInvSlot = buf.readByte();
 					PlayerPatch.get( player ).launch( new OpLoadMag( magInvSlot ) );
 					break;
+					
+				case OP_SHOOT:
+					final int actionRounds = Gun.this.fireController.actionRounds();
+					final boolean safetyOff = actionRounds > 0;
+					if ( safetyOff )
+					{
+						this.triggerHandler = this.triggerHandler
+							.enqueueShotRequest( buf, this::serverShootHandler );
+					}
+					break;
 				}
+			}
+			
+			protected ITriggerHandler serverShootHandler( ByteBuf data )
+			{
+				return new ITriggerHandler() {
+					private int coolDownTicks = EquippedGun.this.triggerHandler.coolDownTicks();
+					private int networkTimeOut = -this.coolDownTicks;
+					private final LinkedList< Object > shotRequests = new LinkedList<>();
+					
+					private int actionRounds = Gun.this.fireController.actionRounds();
+					private int actedRounds = 0;
+					
+					@Override
+					public ITriggerHandler enqueueShotRequest(
+						ByteBuf requestData,
+						Function< ByteBuf, ITriggerHandler > handlerInitializer
+					) {
+						// TODO: Read shoot params.
+						this.shotRequests.add( new Object() );
+						return this;
+					}
+					
+					@Override
+					public ITriggerHandler tick( EntityPlayer player )
+					{
+						while ( this.coolDownTicks <= 0 && this.shotRequests.size() > 0 )
+						{
+							final Object shotRequest = this.shotRequests.poll();
+							// TODO: Do shot.
+							
+							
+							this.actedRounds += 1;
+							this.coolDownTicks = Gun.this.fireController
+						 		.getCoolDownForShoot( Gun.this.shotCount, this.actedRounds );
+							this.networkTimeOut = -this.coolDownTicks;
+							
+							final boolean roundsCompleted = this.actedRounds >= this.actionRounds;
+							if ( roundsCompleted ) {
+								return new ShotCoolDownCounter( this.coolDownTicks );
+							}
+						}
+						
+						final boolean shotTimeOut = this.coolDownTicks <= this.networkTimeOut;
+						if ( shotTimeOut ) {
+							return new ShotCoolDownCounter( this.coolDownTicks );
+						}
+						
+						this.coolDownTicks -= 1;
+						return this;
+					}
+					
+					@Override
+					public int coolDownTicks() { return this.coolDownTicks; }
+				};
 			}
 			
 			@Override
 			@SideOnly( Side.CLIENT )
+			@SuppressWarnings( "unchecked" )
 			protected void setupInputHandler(
 				BiConsumer< Object, Consumer< IInput > > pressHandlerRegistry,
 				BiConsumer< Object, Consumer< IInput > > releaseHandlerRegistry
@@ -431,8 +501,8 @@ public abstract class GunType<
 						@Override
 						public IOperation launch( EntityPlayer player )
 						{
-							this.sendPacketToServer(
-								new PacketNotifyItem( buf -> buf.writeByte( OP_SWITCH_FIRE_MODE ) )
+							FMUMClient.sendPacketToServer(
+								new PacketNotifyEquipped( buf -> buf.writeByte( OP_SWITCH_FIRE_MODE ) )
 							);
 							return this;
 						}
@@ -443,11 +513,11 @@ public abstract class GunType<
 				
 				final Consumer< IInput > pullTrigger = key -> {
 					final int actionRounds = Gun.this.fireController.actionRounds();
-					final boolean safetyEnabled = actionRounds == 0;
-					if ( safetyEnabled ) { return; }
+					final boolean safetyOn = actionRounds <= 0;
+					if ( safetyOn ) { return; }
 					
 					// Delegate render to buffered instance.
-					final E copied = ( E ) this.copy();
+					final E copied = this.triggerHandler.getDelegate( () -> ( E ) this.copy() );
 					this.renderDelegate = ori -> copied;
 					
 					// Can shoot, setup trigger handler.
@@ -471,20 +541,18 @@ public abstract class GunType<
 									1F, 1F, false
 								);
 								
+								// TODO: Update shoot state for copied item.
+								FMUMClient.sendPacketToServer(
+									new PacketNotifyEquipped( buf -> buf.writeByte( OP_SHOOT ) )
+								);
+								
 								this.actedRounds += 1;
 								this.shotCount += 1;
-								
-								final boolean actionCompleted = this.actedRounds >= actionRounds;
-								if ( actionCompleted )
-								{
-									return new ShotSyncWaiter(
-										() -> EquippedGun.this.renderDelegate = ori -> ori,
-										this.coolDownTicks, this.shotCount
-									);
-								}
-								
 								this.coolDownTicks = Gun.this.fireController
-									 .getCoolDownForNextRound( this.shotCount, this.actedRounds );
+							 		.getCoolDownForShoot( this.shotCount, this.actedRounds );
+								
+								final boolean roundsCompleted = this.actedRounds >= actionRounds;
+								if ( roundsCompleted ) { return this.onTriggerRelease(); }
 							}
 							
 							this.coolDownTicks -= 1;
@@ -492,11 +560,14 @@ public abstract class GunType<
 						}
 						
 						@Override
+						public int coolDownTicks() { return this.coolDownTicks; }
+						
+						@Override
 						public ITriggerHandler onTriggerRelease()
 						{
 							return new ShotSyncWaiter(
 								() -> EquippedGun.this.renderDelegate = ori -> ori,
-								this.coolDownTicks, this.shotCount
+								this.coolDownTicks, this.shotCount, copied
 							);
 						}
 						
@@ -504,7 +575,9 @@ public abstract class GunType<
 						public int getShotCount( int rawShotCount ) { return this.shotCount; }
 						
 						@Override
-						public int coolDownTicks() { return this.coolDownTicks; }
+						public < EQ > EQ getDelegate( Supplier< EQ > supplier ) {
+							return ( EQ ) copied;
+						}
 					};
 				};
 				pressHandlerRegistry.accept( Key.PULL_TRIGGER, pullTrigger );
@@ -513,29 +586,6 @@ public abstract class GunType<
 					Key.PULL_TRIGGER,
 					key -> this.triggerHandler = this.triggerHandler.onTriggerRelease()
 				);
-				
-//						@Override
-//						public ITriggerHandler tick( EntityPlayer player )
-//						{
-//							// If we are the copied one.
-//							while ( this.coolDown == 0 )
-//							{
-//								final ShootResult result = Gun.this.state.tryShoot(
-//									this.actedRounds,
-//									this.bufferedShotCount,
-//									FMUMClient.MC.player
-//								);
-//								this.coolDown = result.actionDuration;
-////								EquippedGun.this.renderer.useAnimation( result.actionAnimation );
-//								Gun.this.state = result.newState;
-//
-//								this.bufferedShotCount = result.shotCount;
-//								this.actedRounds = result.actedRounds;
-//							}
-//
-//							this.coolDown -= 1;
-//							return this.actedRounds == actionRounds ? ITriggerHandler.NONE : this;
-//						}
 			}
 			
 			@Override
@@ -608,8 +658,9 @@ public abstract class GunType<
 				@Override
 				public IOperation launch( EntityPlayer player )
 				{
-					final byte code = OP_CODE_UNLOAD_MAG;
-					this.sendPacketToServer( new PacketNotifyItem( buf -> buf.writeByte( code ) ) );
+					FMUMClient.sendPacketToServer(
+						new PacketNotifyEquipped( buf -> buf.writeByte( OP_CODE_UNLOAD_MAG ) )
+					);
 					return super.launch( player );
 				}
 			}
@@ -645,7 +696,7 @@ public abstract class GunType<
 					this.equipped.renderDelegate = ori -> ( E ) copied;
 					
 					// Send out packet!
-					this.sendPacketToServer( new PacketNotifyItem( buf -> {
+					FMUMClient.sendPacketToServer( new PacketNotifyEquipped( buf -> {
 						buf.writeByte( OP_CODE_LOAD_MAG );
 						buf.writeByte( invSlot );
 					} ) );
@@ -675,8 +726,9 @@ public abstract class GunType<
 				@Override
 				public IOperation launch( EntityPlayer player )
 				{
-					final byte code = OP_CODE_CHARGE_GUN;
-					this.sendPacketToServer( new PacketNotifyItem( buf -> buf.writeByte( code ) ) );
+					FMUMClient.sendPacketToServer(
+						new PacketNotifyEquipped( buf -> buf.writeByte( OP_CODE_CHARGE_GUN ) )
+					);
 					return super.launch( player );
 				}
 			}
@@ -689,8 +741,9 @@ public abstract class GunType<
 				@Override
 				public IOperation launch( EntityPlayer player )
 				{
-					final byte code = OP_RELEASE_BOLT;
-					this.sendPacketToServer( new PacketNotifyItem( buf -> buf.writeByte( code ) ) );
+					FMUMClient.sendPacketToServer(
+						new PacketNotifyEquipped( buf -> buf.writeByte( OP_RELEASE_BOLT ) )
+					);
 					return super.launch( player );
 				}
 			}
@@ -1076,33 +1129,55 @@ public abstract class GunType<
 			public ITriggerHandler tick( EntityPlayer player ) { return this; }
 			
 			@Override
+			public int coolDownTicks() { return 0; }
+			
+			@Override
+			public ITriggerHandler enqueueShotRequest(
+				ByteBuf requestData,
+				Function< ByteBuf, ITriggerHandler > handlerInitializer
+			) { return handlerInitializer.apply( requestData ); }
+			
+			@Override
+			@SideOnly( Side.CLIENT )
 			public ITriggerHandler onTriggerRelease() { return this; }
 			
 			@Override
+			@SideOnly( Side.CLIENT )
 			public int getShotCount( int rawShotCount ) { return rawShotCount; }
 			
 			@Override
-			public int coolDownTicks() { return 0; }
+			@SideOnly( Side.CLIENT )
+			public < E > E getDelegate( Supplier< E > supplier ) { return supplier.get(); }
 		};
 		
 		ITriggerHandler tick( EntityPlayer player );
 		
-		ITriggerHandler onTriggerRelease();
-		
-		int getShotCount( int rawShotCount );
-		
 		int coolDownTicks();
+		
+		/**
+		 * Only used on logical server.
+		 */
+		default ITriggerHandler enqueueShotRequest(
+			ByteBuf requestData,
+			Function< ByteBuf, ITriggerHandler > handlerInitializer
+		) { throw new RuntimeException(); }
+		
+		@SideOnly( Side.CLIENT )
+		default ITriggerHandler onTriggerRelease() { throw new RuntimeException(); }
+		
+		@SideOnly( Side.CLIENT )
+		default int getShotCount( int rawShotCount ) { throw new RuntimeException(); }
+		
+		@SideOnly( Side.CLIENT )
+		default < E > E getDelegate( Supplier< E > supplier ) { throw new RuntimeException(); }
 	}
 	
 	protected static class ShotCoolDownCounter implements ITriggerHandler
 	{
-		int coolDownTicks;
-		final int bufferedShotCount;
+		protected int coolDownTicks;
 		
-		protected ShotCoolDownCounter( int coolDownTicksLeft, int shotCount )
-		{
+		protected ShotCoolDownCounter( int coolDownTicksLeft ) {
 			this.coolDownTicks = coolDownTicksLeft;
-			this.bufferedShotCount = shotCount;
 		}
 		
 		@Override
@@ -1113,27 +1188,36 @@ public abstract class GunType<
 		}
 		
 		@Override
-		public ITriggerHandler onTriggerRelease() { return this; }
-		
-		@Override
-		public int getShotCount( int rawShotCount ) { return bufferedShotCount; }
-		
-		@Override
 		public int coolDownTicks() { return this.coolDownTicks; }
+		
+		@Override
+		public ITriggerHandler enqueueShotRequest(
+			ByteBuf requestData,
+			Function< ByteBuf, ITriggerHandler > handlerInitializer
+		) { return handlerInitializer.apply( requestData ); }
 	}
 	
 	@SideOnly( Side.CLIENT )
 	protected static class ShotSyncWaiter extends ShotCoolDownCounter
 	{
 		// TODO: This part is actually client only.
-		int syncWaitTicks = ModConfigClient.shotSyncWaitTicks;
-		final Runnable syncFunc;
+		protected int syncWaitTicks = ModConfigClient.shotSyncWaitTicks;
+		protected final Runnable syncFunc;
 		
-		protected ShotSyncWaiter( Runnable syncFunc, int coolDownTicksLeft, int bufferedShotCount )
-		{
-			super( coolDownTicksLeft, bufferedShotCount );
+		protected final int bufferedShotCount;
+		protected final Object delegate;
+		
+		protected ShotSyncWaiter(
+			Runnable syncFunc,
+			int coolDownTicksLeft,
+			int bufferedShotCount,
+			Object delegate
+		) {
+			super( coolDownTicksLeft );
 			
 			this.syncFunc = syncFunc;
+			this.bufferedShotCount = bufferedShotCount;
+			this.delegate = delegate;
 		}
 		
 		@Override
@@ -1146,6 +1230,16 @@ public abstract class GunType<
 			this.coolDownTicks -= 1;
 			return this.syncWaitTicks < 0 && this.coolDownTicks < 0 ? NONE : this;
 		}
+		
+		@Override
+		public ITriggerHandler onTriggerRelease() { return this; }
+		
+		@Override
+		public int getShotCount( int rawShotCount ) { return this.bufferedShotCount; }
+		
+		@Override
+		@SuppressWarnings( "unchecked" )
+		public < E > E getDelegate( Supplier< E > supplier ) { return ( E ) this.delegate; }
 	}
 	
 //	protected static class ShootResult

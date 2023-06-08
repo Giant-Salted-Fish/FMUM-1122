@@ -1,7 +1,6 @@
 package com.fmum.common.pack;
 
 import com.fmum.common.FMUM;
-import com.fmum.common.IAutowireLogger;
 import com.fmum.common.load.BuildableLoader;
 import com.fmum.common.load.IContentProvider;
 import com.fmum.common.meta.IMeta;
@@ -23,7 +22,7 @@ import java.util.function.Supplier;
  * 
  * @author Giant_Salted_Fish
  */
-public abstract class LocalPack extends Meta implements IContentProvider, IAutowireLogger
+public abstract class LocalPack extends Meta implements IContentProvider
 {
 	protected static final String ERROR_LOADING_INFO = "fmum.error_loading_pack_info";
 	protected static final String ERROR_LOADING_TYPE = "fmum.error_loading_type";
@@ -106,7 +105,7 @@ public abstract class LocalPack extends Meta implements IContentProvider, IAutow
 		final BuildableLoader< ? extends IMeta > loader = FMUM.TYPE_LOADERS.get( entry );
 		
 		if ( loader != null ) { loader.parser.apply( obj ).build( name, this ); }
-		else { this.logError( "fmum.type_loader_not_found", sourceTrace.get(), entry ); }
+		else { FMUM.logError( "fmum.type_loader_not_found", sourceTrace.get(), entry ); }
 	}
 	
 	protected final void loadClassType( String filePath ) throws Exception

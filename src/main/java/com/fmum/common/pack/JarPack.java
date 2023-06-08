@@ -1,5 +1,7 @@
 package com.fmum.common.pack;
 
+import com.fmum.common.FMUM;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -32,7 +34,7 @@ public class JarPack extends LocalPack
 		catch ( IOException e )
 		{
 			final String filePath = this.sourceName() + "/" + this.infoFile();
-			this.logException( e, ERROR_LOADING_INFO, filePath );
+			FMUM.logException( e, ERROR_LOADING_INFO, filePath );
 		}
 		
 		try (
@@ -70,12 +72,12 @@ public class JarPack extends LocalPack
 					}
 				}
 				catch ( Exception ee ) {
-					this.logException( ee, ERROR_LOADING_TYPE, sourceTrace.get() );
+					FMUM.logException( ee, ERROR_LOADING_TYPE, sourceTrace.get() );
 				}
 			}
 		}
 		catch ( IOException e ) {
-			this.logError( "An IO exception has occurred loading <%s>", this.sourceName() );
+			FMUM.logError( "An IO exception has occurred loading <%s>", this.sourceName() );
 		}
 	}
 }
