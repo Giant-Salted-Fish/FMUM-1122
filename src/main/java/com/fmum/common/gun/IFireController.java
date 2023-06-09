@@ -34,9 +34,9 @@ public interface IFireController
 		protected final int shiftedCoolDownTicks;
 		protected final int actionRounds;
 		
-		public RPMController( String promptMsg )
+		public RPMController( String name )
 		{
-			this.promptMsg = "fmum.msg." + promptMsg;
+			this.promptMsg = "fmum.msg." + name;
 			final int shiftedTicksPerMin = 20 * 60 * ( 1 << 16 );
 			this.shiftedCoolDownTicks = ( int ) ( shiftedTicksPerMin / 600F );
 			this.actionRounds = Integer.MAX_VALUE;
