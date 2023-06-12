@@ -27,5 +27,9 @@ public class Registry< T >
 		} );
 	}
 	
+	public void regis( T meta, String... names ) {
+		for ( String name : names ) { this.regis( name, meta ); }
+	}
+	
 	public final int size() { return this.mapper.size(); }
 }

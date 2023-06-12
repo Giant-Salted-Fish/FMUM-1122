@@ -433,14 +433,22 @@ public class FMUM extends URLClassLoader implements IContentProvider
 		this.regisSideDependentLoaders();
 		
 		// Register fire controller loaders.
-		FIRE_CONTROLLER_LOADERS.regis( "rpm_based", RPMController::new );
-		FIRE_CONTROLLER_LOADERS.regis( "full_auto", RPMController::new );
-		FIRE_CONTROLLER_LOADERS.regis( "semi_auto", ( entry, context ) -> {
-			final JsonObject obj = ( JsonObject ) entry.getValue();
-			obj.addProperty( "actionRounds", 1 );
-			return new RPMController( entry, context );
-		} );
-		FIRE_CONTROLLER_LOADERS.regis( "burst", RPMController::new );
+		FIRE_CONTROLLER_LOADERS.regis(
+			( entry, context ) -> context.< RPMController >deserialize(
+				entry.getValue(),
+				RPMController.class
+			).compile( entry.getKey() ),
+			"rpm_based", "full_auto", "burst"
+		);
+		FIRE_CONTROLLER_LOADERS.regis(
+			"semi_auto",
+			( entry, context ) -> {
+				final JsonObject obj = ( JsonObject ) entry.getValue();
+				obj.addProperty( "actionRounds", 1 );
+				final RPMController controller = context.deserialize( obj, RPMController.class );
+				return controller.compile( entry.getKey() );
+			}
+		);
 		FIRE_CONTROLLER_LOADERS.regis( "safety", ( jsonElement, context ) -> IFireController.SAFETY );
 	}
 	

@@ -6,8 +6,8 @@
 	"shootSound": "hk416_shoot",
 	"fireControllers": {
 		"safety": { },
-		"full_auto": { "rpm": 900 },
-		"semi_auto": { "rpm": 600 }
+		"semi_auto": { "rpm": 600 },
+		"full_auto": { "rpm": 900 }
 	},
 	"catchBoltOnEmpty": true,
 	

@@ -12,7 +12,7 @@ import static com.fmum.common.gun.ControllerDispatcher.ATTR_BOLT_CATCH_AFTER_ACT
 import static com.fmum.common.gun.ControllerDispatcher.ATTR_BOLT_CATCH_BEFORE_ACTION;
 import static com.fmum.common.gun.ControllerDispatcher.ATTR_IGNORE_MAG;
 import static com.fmum.common.gun.ControllerDispatcher.ATTR_MAG_CATEGORY;
-import static com.fmum.common.gun.ControllerDispatcher.ATTR_NO_MAG;
+import static com.fmum.common.gun.ControllerDispatcher.ATTR_REQUIRE_NO_MAG;
 
 /**
  * Used by {@link ControllerDispatcher} to select proper {@link OperationController} under certain
@@ -33,23 +33,22 @@ public class GunControllerRanker
 	) {
 		this( mag );
 		
-		this.addFlagAttr( ATTR_BOLT_CATCH_BEFORE_ACTION, boltCatchBeforeAction );
-		this.addFlagAttr( ATTR_BOLT_CATCH_AFTER_ACTION, boltCatchAfterAction );
+		this.flagRankers.put(
+			ATTR_BOLT_CATCH_BEFORE_ACTION,
+			flag1 -> flag1 == boltCatchBeforeAction ? 64 : 0
+		);
+		this.flagRankers.put(
+			ATTR_BOLT_CATCH_AFTER_ACTION,
+			flag -> flag == boltCatchAfterAction ? 64 : 0
+		);
 	}
 	
 	public GunControllerRanker( @Nullable IMag< ? > mag )
 	{
-		this.flagRankers.put( ATTR_IGNORE_MAG, flag -> flag ? 32 : 0 );
-		
-		final boolean hasMag = mag != null;
-		this.flagRankers.put( ATTR_NO_MAG, flag -> flag ^ hasMag ? 64 : 0 );
-		this.magCategory = hasMag ? mag.category() : ModuleCategory.END;
-	}
-	
-	public GunControllerRanker addFlagAttr( String attr, boolean value )
-	{
-		this.flagRankers.put( attr, flag -> flag == value ? 64 : 0 );
-		return this;
+		final boolean noMag = mag == null;
+		this.flagRankers.put( ATTR_REQUIRE_NO_MAG, flag -> flag == noMag ? 64 : 0 );
+		this.flagRankers.put( ATTR_IGNORE_MAG, flag -> flag && noMag ? 32 : 0 );
+		this.magCategory = noMag ? ModuleCategory.END : mag.category();
 	}
 	
 	public int getRank( String attr, boolean value ) {

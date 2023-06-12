@@ -432,7 +432,7 @@ public abstract class GunType<
 							
 							this.actedRounds += 1;
 							this.coolDownTicks = Gun.this.fireController
-						 		.getCoolDownForShoot( Gun.this.shotCount, this.actedRounds );
+						 		.getCoolDownTicks( Gun.this.shotCount, this.actedRounds, rpm -> rpm );
 							this.timeoutTicks = -this.coolDownTicks;
 							
 							player.sendMessage( new TextComponentString( "C: " + ( Gun.this.shotCount - 1 ) + ", " + this.coolDownTicks ) );
@@ -550,7 +550,7 @@ public abstract class GunType<
 								this.actedRounds += 1;
 								this.shotCount += 1;
 								this.coolDownTicks = Gun.this.fireController
-							 		.getCoolDownForShoot( this.shotCount, this.actedRounds );
+							 		.getCoolDownTicks( this.shotCount, this.actedRounds, rpm -> rpm );
 								FMUMClient.sendPlayerMsg( "C: " + ( this.shotCount ) + ", " + this.coolDownTicks );
 								
 								final boolean roundsCompleted = this.actedRounds >= actionRounds;

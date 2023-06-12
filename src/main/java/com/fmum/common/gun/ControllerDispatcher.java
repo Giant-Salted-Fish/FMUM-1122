@@ -20,8 +20,9 @@ public class ControllerDispatcher
 	public static final String
 		ATTR_BOLT_CATCH_BEFORE_ACTION = "boltCatchBeforeAction",
 		ATTR_BOLT_CATCH_AFTER_ACTION = "boltCatchAfterAction",
-		ATTR_IGNORE_MAG = "ignoreMag",
-		ATTR_NO_MAG = "noMag",
+		ATTR_HAMMER_READY_BEFORE_ACTION = "hammerReadyBeforeAction",
+		ATTR_IGNORE_MAG = "ignore_mag",
+		ATTR_REQUIRE_NO_MAG = "requireNoMag",
 		ATTR_MAG_CATEGORY = "magCategory";
 	
 	protected final HashSet< GunOpController > controllers = new HashSet<>();
@@ -44,10 +45,11 @@ public class ControllerDispatcher
 				.put( ATTR_BOLT_CATCH_BEFORE_ACTION, controller );
 			( condition.boltCatchAfterAction ? this.invertedMapTrue : this.invertedMapFalse )
 				.put( ATTR_BOLT_CATCH_AFTER_ACTION, controller );
-			( condition.ignoreMag ? this.invertedMapTrue : this.invertedMapFalse )
+			( condition.requireNoMag ? this.invertedMapTrue : this.invertedMapFalse )
+				.put( ATTR_REQUIRE_NO_MAG, controller );
+			final boolean noMagCategorySpecified = condition.magCategory == ModuleCategory.END;
+			( noMagCategorySpecified ? this.invertedMapTrue : this.invertedMapFalse )
 				.put( ATTR_IGNORE_MAG, controller );
-			( condition.noMag ? this.invertedMapTrue : this.invertedMapFalse )
-				.put( ATTR_NO_MAG, controller );
 			this.invertedMapMagCategory.put( condition.magCategory, controller );
 		} );
 	}
@@ -66,9 +68,9 @@ public class ControllerDispatcher
 		boolean boltCatchBeforeAction,
 		boolean boltCatchAfterAction
 	) {
-		return this.match( new GunControllerRanker(
-			mag, boltCatchBeforeAction, boltCatchAfterAction
-		) );
+		return this.match(
+			new GunControllerRanker( mag, boltCatchBeforeAction, boltCatchAfterAction )
+		);
 	}
 	
 	public GunOpController match( GunControllerRanker ranker )
@@ -108,8 +110,10 @@ public class ControllerDispatcher
 		@SerializedName( value = ATTR_BOLT_CATCH_AFTER_ACTION, alternate = "boltOpenAfterAction" )
 		protected boolean boltCatchAfterAction;
 		
-		boolean ignoreMag;
-		protected boolean noMag;
+		protected boolean hammerReadyBeforeAction;
+		
+		@SerializedName( value = "requireNoMag", alternate = "noMag" )
+		protected boolean requireNoMag;
 		protected ModuleCategory magCategory = ModuleCategory.END;
 	}
 }
