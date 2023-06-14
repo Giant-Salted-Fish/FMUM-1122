@@ -15,8 +15,6 @@ public class GunOpController extends OperationController
 	
 	public GunOpController() { }
 	
-	public GunOpController( float progressor ) { super( progressor ); }
-	
 	public GunOpController(
 		float progressor,
 		TimedEffect[] effects,

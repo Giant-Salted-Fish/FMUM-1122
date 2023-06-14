@@ -47,30 +47,26 @@
 			"animation": "animations/hk416_charge-release-release.json",
 			"clearStaticAnimation": true,
 			"progressor": 0.0479998,
-			"effects": { "0.431998": "" },
-			"ignoreMag": true
+			"effects": { "0.431998": "" }
 		}, {
 			"animation": "animations/hk416_charge-release-catch.json",
 			"clearStaticAnimation": true,
 			"progressor": 0.0479998,
 			"effects": { "0.431998": "" },
-			"boltCatchAfterAction": true,
-			"ignoreMag": true
+			"boltCatchAfterAction": true
 		}, {
 			"animation": "animations/hk416_charge-catch-release.json",
 			"clearStaticAnimation": true,
 			"progressor": 0.0479998,
 			"effects": { "0.431998": "" },
-			"boltCatchBeforeAction": true,
-			"ignoreMag": true
+			"boltCatchBeforeAction": true
 		}, {
 			"animation": "animations/hk416_charge-catch-catch.json",
 			"clearStaticAnimation": true,
 			"progressor": 0.0479998,
 			"effects": { "0.431998": "" },
 			"boltCatchBeforeAction": true,
-			"boltCatchAfterAction": true,
-			"ignoreMag": true
+			"boltCatchAfterAction": true
 		}
 	],
 	"releaseBoltControllerDispatcher": [

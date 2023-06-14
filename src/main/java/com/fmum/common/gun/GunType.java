@@ -38,7 +38,6 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
@@ -242,26 +241,36 @@ public abstract class GunType<
 			final int stateOrdinary = 0xFFFF & value;
 			switch ( stateOrdinary )
 			{
-			case StateBoltOpen.ORDINAL:
-				this.state = new StateBoltOpen();
-				break;
+//			TODO: case StateBoltOpen.ORDINAL:
+//				this.state = new StateBoltOpen();
+//				break;
+//
+//			case StateBoltClose.ORDINAL:
+//				this.state = new StateBoltClose();
+//				break;
 			
-			case StateBoltClose.ORDINAL:
-				this.state = new StateBoltClose();
+			case StateBoltReleaseHammerRelease.ORDINAL:
+				this.state = new StateBoltReleaseHammerRelease();
 				break;
-			
-			case StateBoltRelease.ORDINAL:
-				this.state = new StateBoltRelease();
+				
+			case StateBoltRealseHammerReady.ORDINAL:
+				this.state = new StateBoltRealseHammerReady();
 				break;
-			
+				
 			case StateBoltCatch.ORDINAL:
 				this.state = new StateBoltCatch();
 				break;
-			
-			case StateShootReady.ORDINAL:
-				final Item ammoItem = Item.getItemById( value >>> 16 );
-				final IAmmoType ammo = ( IAmmoType ) IItemTypeHost.getType( ammoItem );
-				this.state = new StateShootReady( ammo );
+				
+			case StateAmmoReadyHammerRelease.ORDINAL: {
+					final IAmmoType ammo = IAmmoType.REGISTRY.get( value >>> 16 );
+					this.state = new StateAmmoReadyHammerRelease( ammo );
+				}
+				break;
+				
+			case StateShootReady.ORDINAL: {
+					final IAmmoType ammo = IAmmoType.REGISTRY.get( value >>> 16 );
+					this.state = new StateShootReady( ammo );
+				}
 				break;
 			}
 			
@@ -271,13 +280,15 @@ public abstract class GunType<
 			this.fireController = GunType.this.fireControllers[ 0xFFFF & val ];
 		}
 		
-		// 0 -> 16-bit ammo id     | 16-bit state;
-		// 1 -> 16-bit rounds shot | 16-bit fire controller index;
+		/**
+		 * <pre> 16-bit ammo id     | 16-bit state; </pre>
+		 * <pre> 16-bit rounds shot | 16-bit fire controller index; </pre>
+		 */
 		@Override
 		protected int dataSize() { return super.dataSize() + 2; }
 		
 		protected GunState createGunState() {
-			return GunType.this.isOpenBolt ? new StateBoltClose() : new StateBoltRelease();
+			return new StateBoltReleaseHammerRelease(); // TODO: GunType.this.isOpenBolt ? new StateBoltClose() : new StateBoltRelease();
 		}
 		
 		protected final void syncGunState()
@@ -289,19 +300,25 @@ public abstract class GunType<
 		
 		protected GunOpController loadMagController()
 		{
-			final boolean boltCatch = this.state.boltCatch();
-			return GunType.this.loadMagControllerDispatcher.match(
-				new GunControllerRanker( this.mag(), boltCatch, boltCatch )
-			);
+			final boolean boltCatch = this.state.isBoltCatch();
+			final boolean hammerReady = Gun.this.state.isHammerReady();
+			return GunType.this.loadMagControllerDispatcher
+		   		.match( this.mag(), boltCatch, boltCatch, hammerReady );
 		}
 		
 		protected GunOpController unloadMagController()
 		{
-			final boolean boltCatch = this.state.boltCatch();
-			return GunType.this.unloadMagControllerDispatcher.match(
-				new GunControllerRanker( this.mag(), boltCatch, boltCatch )
-			);
+			final boolean boltCatch = this.state.isBoltCatch();
+			final boolean hammerReady = Gun.this.state.isHammerReady();
+			return GunType.this.unloadMagControllerDispatcher
+		   		.match( this.mag(), boltCatch, boltCatch, hammerReady );
 		}
+		
+		protected boolean isCapableToShoot() { return true; }
+		
+		protected boolean isCapableToCharge() { return true; }
+		
+		protected boolean isCapableToAuto() { return true; }
 		
 		protected class EquippedGun extends EquippedGunPart implements IEquippedGun< C >
 		{
@@ -371,10 +388,11 @@ public abstract class GunType<
 					break;
 					
 				case OP_SWITCH_FIRE_MODE:
-					final boolean boltCatch = Gun.this.state.boltCatch();
+					final boolean boltCatch = Gun.this.state.isBoltCatch();
+					final boolean hammerReady = Gun.this.state.isHammerReady();
 					PlayerPatch.get( player ).launch( new OperationOnGun(
 						GunType.this.switchFireModeControllerDispatcher
-							.match( Gun.this.mag(), boltCatch, boltCatch )
+							.match( Gun.this.mag(), boltCatch, boltCatch, hammerReady )
 					) {
 						@Override
 						protected void doHandleEffect( EntityPlayer player ) {
@@ -484,20 +502,22 @@ public abstract class GunType<
 				pressHandlerRegistry.accept( Key.CO_RELEASE_BOLT, releaseBolt );
 				
 				final Consumer< IInput > inspectWeapon = key -> {
-					final boolean boltCatch = Gun.this.state.boltCatch();
+					final boolean boltCatch = Gun.this.state.isBoltCatch();
+					final boolean hammerReady = Gun.this.state.isHammerReady();
 					PlayerPatchClient.instance.launch( new OperationOnGunClient(
 						GunType.this.inspectControllerDispatcher
-							.match( Gun.this.mag(), boltCatch, boltCatch )
+							.match( Gun.this.mag(), boltCatch, boltCatch, hammerReady )
 					) );
 				};
 				pressHandlerRegistry.accept( Key.INSPECT, inspectWeapon );
 				pressHandlerRegistry.accept( Key.CO_INSPECT, inspectWeapon );
 				
 				final Consumer< IInput > switchFireMode = key -> {
-					final boolean boltCatch = Gun.this.state.boltCatch();
+					final boolean boltCatch = Gun.this.state.isBoltCatch();
+					final boolean hammerReady = Gun.this.state.isHammerReady();
 					PlayerPatchClient.instance.launch( new OperationOnGunClient(
 						GunType.this.switchFireModeControllerDispatcher
-							.match( Gun.this.mag(), boltCatch, boltCatch )
+							.match( Gun.this.mag(), boltCatch, boltCatch, hammerReady )
 					) {
 						@Override
 						public IOperation launch( EntityPlayer player )
@@ -751,64 +771,117 @@ public abstract class GunType<
 			}
 		}
 		
-		protected class StateBoltOpen extends GunState
+//		protected class StateBoltOpen extends GunState
+//		{
+//			protected static final int ORDINAL = 0;
+//
+//			@Override
+//			protected GunOpController chargeController()
+//			{
+//				final boolean boltOpenBeforeAction = true;
+//				final boolean boltOpenAfterAction = true;
+//				return GunType.this.chargeGunControllerDispatcher.match(
+//					Gun.this.mag(), boltOpenBeforeAction, boltOpenAfterAction
+//				);
+//			}
+//
+//			@Override
+//			protected boolean boltCatch() { return true; }
+//
+//			@Override
+//			protected GunState charge( EntityPlayer player ) { return this; }
+//
+//			@Override
+//			protected int toAmmoIdAndOrdinal() { return ORDINAL; }
+//
+//			@Override
+//			protected GunOpController releaseBoltController() { throw new RuntimeException(); }
+//
+//			@Override
+//			protected GunState releaseBolt( EntityPlayer player ) { throw new RuntimeException(); }
+//
+//			@Override
+//			@SideOnly( Side.CLIENT )
+//			protected Animation staticAnimation() { return GunType.this.staticBoltCatch; }
+//		}
+//
+//		protected class StateBoltClose extends GunState
+//		{
+//			protected static final int ORDINAL = 1;
+//
+//			@Override
+//			protected GunOpController chargeController()
+//			{
+//				final boolean boltOpenBeforeAction = false;
+//				final boolean boltOpenAfterAction = true;
+//				return GunType.this.chargeGunControllerDispatcher.match(
+//					Gun.this.mag(), boltOpenBeforeAction, boltOpenAfterAction
+//				);
+//			}
+//
+//			@Override
+//			protected GunState charge( EntityPlayer player ) {
+//				return new StateBoltOpen(); // TODO: Check if creating inner without Gun.this.new keeps current instance.
+//			}
+//
+//			@Override
+//			protected GunOpController releaseBoltController() { throw new RuntimeException(); }
+//
+//			@Override
+//			protected GunState releaseBolt( EntityPlayer player ) { throw new RuntimeException(); }
+//
+//			@Override
+//			protected int toAmmoIdAndOrdinal() { return ORDINAL; }
+//
+//			@Override
+//			@SideOnly( Side.CLIENT )
+//			protected Animation staticAnimation() { return GunType.this.staticBoltRelease; }
+//		}
+		
+		protected class StateBoltReleaseHammerRelease extends GunState
 		{
 			protected static final int ORDINAL = 0;
 			
 			@Override
-			protected GunOpController chargeController()
-			{
-				final boolean boltOpenBeforeAction = true;
-				final boolean boltOpenAfterAction = true;
-				return GunType.this.chargeGunControllerDispatcher.match(
-					Gun.this.mag(), boltOpenBeforeAction, boltOpenAfterAction
-				);
-			}
-			
-			@Override
-			protected boolean boltCatch() { return true; }
-			
-			@Override
-			protected GunState charge( EntityPlayer player ) { return this; }
-			
-			@Override
-			protected int toAmmoIdAndOrdinal() { return ORDINAL; }
-			
-			@Override
-			protected GunOpController releaseBoltController() { throw new RuntimeException(); }
-			
-			@Override
-			protected GunState releaseBolt( EntityPlayer player ) { throw new RuntimeException(); }
-			
-			@Override
-			@SideOnly( Side.CLIENT )
-			protected Animation staticAnimation() { return GunType.this.staticBoltCatch; }
-		}
-		
-		protected class StateBoltClose extends GunState
-		{
-			protected static final int ORDINAL = 1;
+			protected boolean isHammerReady() { return false; }
 			
 			@Override
 			protected GunOpController chargeController()
 			{
-				final boolean boltOpenBeforeAction = false;
-				final boolean boltOpenAfterAction = true;
-				return GunType.this.chargeGunControllerDispatcher.match(
-					Gun.this.mag(), boltOpenBeforeAction, boltOpenAfterAction
+				final IMag< ? > mag = Gun.this.mag();
+				final boolean hasMag = mag != null;
+				final boolean catchBefore = false;
+				final boolean catchAfter = GunType.this.catchBoltOnEmpty && hasMag && mag.isEmpty();
+				final boolean hammerReady = false;
+				final ControllerDispatcher dispatcher = GunType.this.chargeGunControllerDispatcher;
+				return dispatcher.match( mag, catchBefore, catchAfter, hammerReady );
+			}
+			
+			@Override
+			protected GunState charge( EntityPlayer player )
+			{
+				final IMag< ? > mag = Gun.this.mag();
+				final boolean noMag = mag == null;
+				if ( noMag ) { return new StateBoltRealseHammerReady(); }
+				
+				final boolean hasAmmo = !mag.isEmpty();
+				if ( hasAmmo ) { return new StateShootReady( mag.popAmmo() ); }
+				
+				return(
+					GunType.this.catchBoltOnEmpty
+					? new StateBoltCatch()
+					: new StateBoltRealseHammerReady()
 				);
 			}
 			
 			@Override
-			protected GunState charge( EntityPlayer player ) {
-				return new StateBoltOpen(); // TODO: Check if creating inner without Gun.this.new keeps current instance.
+			protected GunOpController releaseBoltController()
+			{
+				final boolean boltCatch = false;
+				final boolean hammerReady = false;
+				final ControllerDispatcher dispatcher = GunType.this.releaseBoltControllerDispatcher;
+				return dispatcher.match( Gun.this.mag(), boltCatch, boltCatch, hammerReady );
 			}
-			
-			@Override
-			protected GunOpController releaseBoltController() { throw new RuntimeException(); }
-			
-			@Override
-			protected GunState releaseBolt( EntityPlayer player ) { throw new RuntimeException(); }
 			
 			@Override
 			protected int toAmmoIdAndOrdinal() { return ORDINAL; }
@@ -818,28 +891,28 @@ public abstract class GunType<
 			protected Animation staticAnimation() { return GunType.this.staticBoltRelease; }
 		}
 		
-		protected class StateBoltRelease extends GunState
+		protected class StateBoltRealseHammerReady extends GunState
 		{
-			protected static final int ORDINAL = 2;
+			protected static final int ORDINAL = 1;
 			
 			@Override
 			protected GunOpController chargeController()
 			{
 				final IMag< ? > mag = Gun.this.mag();
-				final boolean boltCatchBeforeAction = false;
-				final boolean boltCatchAfterAction = mag != null
-                    && mag.isEmpty() && GunType.this.catchBoltOnEmpty;
-				return GunType.this.chargeGunControllerDispatcher.match(
-					mag, boltCatchBeforeAction, boltCatchAfterAction
-				);
+				final boolean hasMag = mag != null;
+				final boolean catchBefore = false;
+				final boolean catchAfter = GunType.this.catchBoltOnEmpty && hasMag && mag.isEmpty();
+				final boolean hammerReady = true;
+				final ControllerDispatcher dispatcher = GunType.this.chargeGunControllerDispatcher;
+				return dispatcher.match( mag, catchBefore, catchAfter, hammerReady );
 			}
 			
 			@Override
 			protected GunState charge( EntityPlayer player )
 			{
 				final IMag< ? > mag = Gun.this.mag();
-				final boolean magDoesNotExit = mag == null;
-				if ( magDoesNotExit ) { return this; }
+				final boolean noMag = mag == null;
+				if ( noMag ) { return this; }
 				
 				final boolean hasAmmo = !mag.isEmpty();
 				if ( hasAmmo ) { return new StateShootReady( mag.popAmmo() ); }
@@ -851,13 +924,10 @@ public abstract class GunType<
 			protected GunOpController releaseBoltController()
 			{
 				final boolean boltCatch = false;
-				return GunType.this.releaseBoltControllerDispatcher.match(
-					new GunControllerRanker( Gun.this.mag(), boltCatch, boltCatch )
-				);
+				final boolean hammerReady = true;
+				final ControllerDispatcher dispatcher = GunType.this.releaseBoltControllerDispatcher;
+				return dispatcher.match( Gun.this.mag(), boltCatch, boltCatch, hammerReady );
 			}
-			
-			@Override
-			protected GunState releaseBolt( EntityPlayer player ) { return this; }
 			
 			@Override
 			protected int toAmmoIdAndOrdinal() { return ORDINAL; }
@@ -867,72 +937,53 @@ public abstract class GunType<
 			protected Animation staticAnimation() { return GunType.this.staticBoltRelease; }
 		}
 		
-		protected class StateBoltCatch extends GunState
+		protected class StateAmmoReadyHammerRelease extends StateBoltReleaseHammerRelease
 		{
-			protected static final int ORDINAL = 3;
+			protected static final int ORDINAL = 2;
 			
-			@Override
-			protected GunOpController chargeController()
-			{
-				final IMag< ? > mag = Gun.this.mag();
-				final boolean boltCatchBeforeAction = true;
-				final boolean boltCatchAfterAction = mag != null
-                    && mag.isEmpty() && GunType.this.catchBoltOnEmpty;
-				return GunType.this.chargeGunControllerDispatcher.match(
-					mag, boltCatchBeforeAction, boltCatchAfterAction
-				);
-			}
+			protected IAmmoType ammo;
 			
-			@Override
-			protected boolean boltCatch() { return true; }
+			protected StateAmmoReadyHammerRelease( IAmmoType ammo ) { this.ammo = ammo; }
 			
 			@Override
 			protected GunState charge( EntityPlayer player )
 			{
+				// Eject ammo in chamber.
+				final int amount = 1;
+				player.dropItem( this.ammo.item(), amount );
+				
 				final IMag< ? > mag = Gun.this.mag();
 				final boolean noMag = mag == null;
-				if ( noMag ) { return new StateBoltRelease(); }
+				if ( noMag ) { return new StateBoltRealseHammerReady(); }
 				
-				final boolean hasAmmo = !mag.isEmpty();
-				return hasAmmo ? new StateShootReady( mag.popAmmo() ) : this;
-			}
-			
-			@Override
-			protected GunOpController releaseBoltController()
-			{
-				final boolean boltCatchBefore = true;
-				final boolean boltCatchAfter = false;
-				return GunType.this.releaseBoltControllerDispatcher.match(
-					new GunControllerRanker( Gun.this.mag(), boltCatchBefore, boltCatchAfter )
-				);
-			}
-			
-			@Override
-			protected GunState releaseBolt( EntityPlayer player )
-			{
-				final IMag< ? > mag = Gun.this.mag();
+				final boolean notMagEmpty = !mag.isEmpty();
+				if ( notMagEmpty ) { return new StateShootReady( mag.popAmmo() ); }
+				
 				return(
-					mag == null || mag.isEmpty()
-					? new StateBoltRelease()
-					: new StateShootReady( mag.popAmmo() )
+					GunType.this.catchBoltOnEmpty
+					? new StateBoltCatch()
+					: new StateBoltRealseHammerReady()
 				);
 			}
 			
 			@Override
-			protected int toAmmoIdAndOrdinal() { return ORDINAL; }
+			protected void forEachAmmo( Consumer< IAmmoType > visitor ) {
+				visitor.accept( this.ammo );
+			}
 			
 			@Override
-			@SideOnly( Side.CLIENT )
-			protected Animation staticAnimation() { return GunType.this.staticBoltCatch; }
+			protected int toAmmoIdAndOrdinal() {
+				return ORDINAL + ( IAmmoType.REGISTRY.getId( this.ammo ) << 16 );
+			}
 		}
 		
-		protected class StateShootReady extends GunState
+		protected class StateShootReady extends StateBoltRealseHammerReady
 		{
-			protected static final int ORDINAL = 4;
+			protected static final int ORDINAL = 3;
 			
-			protected IAmmoType ammoInChamber;
+			protected IAmmoType ammo;
 			
-			protected StateShootReady( IAmmoType ammo ) { this.ammoInChamber = ammo; }
+			protected StateShootReady( IAmmoType ammo ) { this.ammo = ammo; }
 			
 //			@Override
 //			public ShootResult tryShoot( int actedRounds, int shotCount, EntityPlayer player )
@@ -947,70 +998,95 @@ public abstract class GunType<
 //			}
 			
 			@Override
-			protected GunOpController chargeController()
-			{
-				final IMag< ? > mag = Gun.this.mag();
-				final boolean boltCatchBeforeAction = false;
-				final boolean boltCatchAfterAction = mag != null
-                    && mag.isEmpty() && GunType.this.catchBoltOnEmpty;
-				return GunType.this.chargeGunControllerDispatcher.match(
-					mag, boltCatchBeforeAction, boltCatchAfterAction
-				);
-			}
-			
-			@Override
 			protected GunState charge( EntityPlayer player )
 			{
-				if ( this.ammoInChamber != null )
-				{
-					// Eject it.
-					final int amount = 1;
-					player.dropItem( this.ammoInChamber.item(), amount );
-				}
+				// Eject ammo in chamber.
+				final int amount = 1;
+				player.dropItem( this.ammo.item(), amount );
 				
 				final IMag< ? > mag = Gun.this.mag();
 				final boolean noMag = mag == null;
-				if ( noMag ) { return new StateBoltRelease(); }
+				if ( noMag ) { return new StateBoltRealseHammerReady(); }
 				
-				final boolean hasAmmo = !mag.isEmpty();
-				if ( hasAmmo )
+				final boolean hasAmmoInMag = !mag.isEmpty();
+				if ( hasAmmoInMag )
 				{
-					this.ammoInChamber = mag.popAmmo();
+					this.ammo = mag.popAmmo();
 					return this;
 				}
 				
 				return(
 					GunType.this.catchBoltOnEmpty
 					? new StateBoltCatch()
-					: new StateBoltRelease()
+					: new StateBoltRealseHammerReady()
 				);
+			}
+			
+			@Override
+			protected void forEachAmmo( Consumer< IAmmoType > visitor ) {
+				visitor.accept( this.ammo );
+			}
+			
+			@Override
+			protected int toAmmoIdAndOrdinal() {
+				return ORDINAL + ( IAmmoType.REGISTRY.getId( this.ammo ) << 16 );
+			}
+		}
+		
+		protected class StateBoltCatch extends GunState
+		{
+			protected static final int ORDINAL = 4;
+			
+			@Override
+			protected GunOpController chargeController()
+			{
+				final IMag< ? > mag = Gun.this.mag();
+				final boolean hasMag = mag != null;
+				final boolean catchBefore = true;
+				final boolean catchAfter = hasMag && mag.isEmpty();
+				final boolean hammerReady = true;
+				final ControllerDispatcher dispatcher = GunType.this.chargeGunControllerDispatcher;
+				return dispatcher.match( mag, catchBefore, catchAfter, hammerReady );
+			}
+			
+			@Override
+			protected GunState charge( EntityPlayer player )
+			{
+				final IMag< ? > mag = Gun.this.mag();
+				final boolean noMag = mag == null;
+				if ( noMag ) { return new StateBoltRealseHammerReady(); }
+				
+				final boolean magHasAmmo = !mag.isEmpty();
+				return magHasAmmo ? new StateShootReady( mag.popAmmo() ) : this;
 			}
 			
 			@Override
 			protected GunOpController releaseBoltController()
 			{
-				final boolean boltCatch = false;
-				return GunType.this.releaseBoltControllerDispatcher.match(
-					new GunControllerRanker( Gun.this.mag(), boltCatch, boltCatch )
+				final boolean catchBefore = true;
+				final boolean catchAfter = false;
+				final boolean hammerReady = false;
+				final ControllerDispatcher dispatcher = GunType.this.releaseBoltControllerDispatcher;
+				return dispatcher.match( Gun.this.mag(), catchBefore, catchAfter, hammerReady );
+			}
+			
+			@Override
+			protected GunState releaseBolt( EntityPlayer player )
+			{
+				final IMag< ? > mag = Gun.this.mag();
+				return(
+					mag != null && !mag.isEmpty()
+					? new StateShootReady( mag.popAmmo() )
+					: new StateBoltRealseHammerReady()
 				);
 			}
 			
 			@Override
-			protected GunState releaseBolt( EntityPlayer player ) { return this; }
-			
-			@Override
-			protected void forEachAmmo( Consumer< IAmmoType > visitor ) {
-				visitor.accept( this.ammoInChamber );
-			}
-			
-			@Override
-			protected int toAmmoIdAndOrdinal() {
-				return ORDINAL + ( Item.getIdFromItem( this.ammoInChamber.item() ) << 16 );
-			}
+			protected int toAmmoIdAndOrdinal() { return ORDINAL; }
 			
 			@Override
 			@SideOnly( Side.CLIENT )
-			protected Animation staticAnimation() { return GunType.this.staticBoltRelease; }
+			protected Animation staticAnimation() { return GunType.this.staticBoltCatch; }
 		}
 		
 		protected class OperationOnGun extends Operation< OperationController >
@@ -1102,7 +1178,9 @@ public abstract class GunType<
 	
 	protected static abstract class GunState
 	{
-		protected boolean boltCatch() { return false; }
+		protected boolean isBoltCatch() { return false; }
+		
+		protected boolean isHammerReady() { return true; }
 		
 //		protected abstract ShootResult tryShoot( int actedRounds, int shotNumber, EntityPlayer player );
 		
@@ -1112,7 +1190,7 @@ public abstract class GunType<
 		
 		protected abstract GunOpController releaseBoltController();
 		
-		protected abstract GunState releaseBolt( EntityPlayer player );
+		protected GunState releaseBolt( EntityPlayer player ) { return this; }
 		
 		protected void forEachAmmo( Consumer< IAmmoType > visitor ) { }
 		

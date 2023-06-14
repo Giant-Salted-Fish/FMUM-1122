@@ -10,6 +10,7 @@ import java.util.function.Function;
 
 import static com.fmum.common.gun.ControllerDispatcher.ATTR_BOLT_CATCH_AFTER_ACTION;
 import static com.fmum.common.gun.ControllerDispatcher.ATTR_BOLT_CATCH_BEFORE_ACTION;
+import static com.fmum.common.gun.ControllerDispatcher.ATTR_HAMMER_READY_BEFORE_ACTION;
 import static com.fmum.common.gun.ControllerDispatcher.ATTR_IGNORE_MAG;
 import static com.fmum.common.gun.ControllerDispatcher.ATTR_MAG_CATEGORY;
 import static com.fmum.common.gun.ControllerDispatcher.ATTR_REQUIRE_NO_MAG;
@@ -29,7 +30,8 @@ public class GunControllerRanker
 	public GunControllerRanker(
 		@Nullable IMag< ? > mag,
 		boolean boltCatchBeforeAction,
-		boolean boltCatchAfterAction
+		boolean boltCatchAfterAction,
+		boolean hammerReadyBeforeAction
 	) {
 		this( mag );
 		
@@ -40,6 +42,10 @@ public class GunControllerRanker
 		this.flagRankers.put(
 			ATTR_BOLT_CATCH_AFTER_ACTION,
 			flag -> flag == boltCatchAfterAction ? 64 : 0
+		);
+		this.flagRankers.put(
+			ATTR_HAMMER_READY_BEFORE_ACTION,
+			flag -> flag == hammerReadyBeforeAction ? 32 : 0
 		);
 	}
 	

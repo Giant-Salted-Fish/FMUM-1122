@@ -45,6 +45,8 @@ public class ControllerDispatcher
 				.put( ATTR_BOLT_CATCH_BEFORE_ACTION, controller );
 			( condition.boltCatchAfterAction ? this.invertedMapTrue : this.invertedMapFalse )
 				.put( ATTR_BOLT_CATCH_AFTER_ACTION, controller );
+			( condition.hammerReadyBeforeAction ? this.invertedMapTrue : this.invertedMapFalse )
+				.put( ATTR_HAMMER_READY_BEFORE_ACTION, controller );
 			( condition.requireNoMag ? this.invertedMapTrue : this.invertedMapFalse )
 				.put( ATTR_REQUIRE_NO_MAG, controller );
 			final boolean noMagCategorySpecified = condition.magCategory == ModuleCategory.END;
@@ -66,11 +68,15 @@ public class ControllerDispatcher
 	public GunOpController match(
 		@Nullable IMag< ? > mag,
 		boolean boltCatchBeforeAction,
-		boolean boltCatchAfterAction
+		boolean boltCatchAfterAction,
+		boolean hammerReadyBeforeAction
 	) {
-		return this.match(
-			new GunControllerRanker( mag, boltCatchBeforeAction, boltCatchAfterAction )
-		);
+		return this.match( new GunControllerRanker(
+			mag,
+			boltCatchBeforeAction,
+			boltCatchAfterAction,
+			hammerReadyBeforeAction
+		) );
 	}
 	
 	public GunOpController match( GunControllerRanker ranker )
