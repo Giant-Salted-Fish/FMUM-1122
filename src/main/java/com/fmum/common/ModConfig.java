@@ -53,4 +53,13 @@ public final class ModConfig
 	@Comment( "How long the server will wait for next client shoot request to continue fire." )
 	@RangeInt( min = 1 )
 	public static int shootRequestTimeoutTicks = 5;
+	
+	@LangKey( "fmum.config.common.misfire_possibility_multiplier" )
+	@Comment(
+		"This will impact the overall possibility to meet misfire rounds. Set to 0 will fully "
+		+ "disable misfire. PS: This may not work on class based ammo types if they used "
+		+ "customized misfire possibility control."
+	)
+	@RangeDouble( min = 0F )
+	public static float misfirePossibilityMultiplier = 1F;
 }
