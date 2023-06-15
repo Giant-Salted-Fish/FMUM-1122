@@ -301,7 +301,7 @@ public class FMUM extends URLClassLoader implements IContentProvider
 		// Has to put it before the item registry as current implementation will create an \
 		// corresponding item for it.
 		final JsonObject indicator = new JsonObject();
-		indicator.addProperty( "creativeTab", FMUM.HIDE_TAB.name() );
+		indicator.addProperty( "creativeTab", HIDE_TAB.name() );
 		indicator.addProperty( "model", "models/modify_indicator.json" );
 		indicator.addProperty( "texture", "textures/0x00ff00.png" );
 		JsonGunPartType.LOADER.parser.apply( indicator ).build( MODIFY_INDICATOR, this );

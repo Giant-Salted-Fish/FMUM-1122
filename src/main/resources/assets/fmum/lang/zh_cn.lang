@@ -15,6 +15,8 @@ fmum.config.common.cam_drop_ampl=视角坠落特效幅度
 fmum.config.common.cam_drop_ampl.tooltip=这个参数多数时候能够控制玩家从空中坠落时视角晃动的幅度。
 fmum.config.common.cam_drop_impact=视角落地冲击幅度
 fmum.config.common.cam_drop_impact.tooltip=这个参数多数时候能够控制玩家落地时镜头冲击效果的幅度。
+fmum.config.common.misfire_possibility_multiplier=哑火弹概率乘数
+fmum.config.common.misfire_possibility_multiplier.tooltip=这个参数会影响哑火弹出现的概率，设置成 0 将会完全关闭哑火弹功能。注意：该功能可能在基于 class 的弹药上不生效。
 
 fmum.config.client=客户端配置
 fmum.config.client.tooltip=这些配置仅在客户端有意义。

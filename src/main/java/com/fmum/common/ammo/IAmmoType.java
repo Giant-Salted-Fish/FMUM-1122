@@ -12,7 +12,12 @@ public interface IAmmoType extends IItemType
 	
 	String category();
 	
-	boolean isCase();
+	/**
+	 * This is called right before firing this round. Can be used to create misfire rounds randomly.
+	 */
+	IAmmoType onShoot(); // TODO: Maybe pass in some "IShooter" in as reference.
+	
+	boolean isShootable();
 	
 	@SideOnly( Side.CLIENT )
 	void render();

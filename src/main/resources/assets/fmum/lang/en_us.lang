@@ -15,6 +15,8 @@ fmum.config.common.cam_drop_ampl=Camera Drop Amplitude
 fmum.config.common.cam_drop_ampl.tooltip=This decides the amplitude of the camera shake when player falls from sky.
 fmum.config.common.cam_drop_impact=Camera Drop Impact
 fmum.config.common.cam_drop_impact.tooltip=This decides the amplitude of the camera shake when player impacts on the ground.
+fmum.config.common.misfire_possibility_multiplier=Misfire Possibility Multiplier
+fmum.config.common.misfire_possibility_multiplier.tooltip=This will impact the overall possibility to meet misfire rounds. Set to 0 will fully disable misfire. PS: This may not work on class based ammo types if they used customized misfire possibility control.
 
 fmum.config.client=Client Config
 fmum.config.client.tooltip=These settings is meaningless on server side.
