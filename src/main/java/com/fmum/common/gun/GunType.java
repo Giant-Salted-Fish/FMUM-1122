@@ -35,6 +35,7 @@ import com.fmum.util.Animation;
 import com.fmum.util.ArmTracker;
 import com.google.gson.annotations.SerializedName;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
@@ -44,7 +45,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -162,7 +162,7 @@ public abstract class GunType<
 		@Nullable
 		@Override
 		public IMag< ? > mag() {
-			return this.hasMag() ? (com.fmum.common.mag.IMag< ? > ) this.getInstalled( 0, 0 ) : null;
+			return this.hasMag() ? ( IMag< ? > ) this.getInstalled( 0, 0 ) : null;
 		}
 		
 		@Override
@@ -174,7 +174,7 @@ public abstract class GunType<
 		public void loadMag( IMag< ? > mag ) { this.install( 0, mag ); }
 		
 		@Override
-		public IMag< ? > unloadMag() { return (com.fmum.common.mag.IMag< ? > ) this.remove( 0, 0 ); }
+		public IMag< ? > unloadMag() { return ( IMag< ? > ) this.remove( 0, 0 ); }
 		
 		@Override
 		public void switchFireMode( EntityPlayer player )
@@ -187,8 +187,6 @@ public abstract class GunType<
 			this.fireController = GunType.this.fireControllers[ newIdx ];
 			data[ dataIdx ] = 0xFFFF0000 & val | newIdx;
 			this.syncAndUpdate();
-			
-			player.sendMessage( new TextComponentTranslation( this.fireController.promptMsg() ) );
 		}
 		
 		@Override
@@ -527,6 +525,17 @@ public abstract class GunType<
 							);
 							return this;
 						}
+						
+						@Override
+						protected void doHandleEffect( EntityPlayer player )
+						{
+							final int[] data = Gun.this.nbt.getIntArray( DATA_TAG );
+							final int dataIdx = Gun.super.dataSize() + 1;
+							final int prevIdx = 0xFFFF & data[ dataIdx ];
+							final int newIdx = ( prevIdx + 1 ) % GunType.this.fireControllers.length;
+							final IFireController newCtrl = GunType.this.fireControllers[ newIdx ];
+							FMUMClient.sendPlayerPrompt( I18n.format( newCtrl.promptMsg() ) );
+						}
 					} );
 				};
 				pressHandlerRegistry.accept( Key.SWITCH_FIRE_MODE, switchFireMode );
@@ -710,7 +719,7 @@ public abstract class GunType<
 					
 					// Install the loading mag to render it. // Copy before use.
 					final ItemStack stack = inv.getStackInSlot( invSlot ).copy();
-					final IMag< ? > mag = (com.fmum.common.mag.IMag< ? > ) IItemTypeHost.getItem( stack );
+					final IMag< ? > mag = ( IMag< ? > ) IItemTypeHost.getItem( stack );
 					copiedGun.loadMag( mag );
 					mag.setAsLoadingMag();
 					
@@ -733,7 +742,7 @@ public abstract class GunType<
 						final ItemStack stack = inv.getStackInSlot( i );
 						final IItem item = IItemTypeHost.getItemOrDefault( stack );
 						final boolean isMag = item instanceof IMag< ? >;
-						final boolean isValidMag = isMag && Gun.this.isAllowed( (com.fmum.common.mag.IMag< ? > ) item );
+						final boolean isValidMag = isMag && Gun.this.isAllowed( ( IMag< ? > ) item );
 						if ( isValidMag ) { return i; }
 					}
 					return -1;
@@ -1123,7 +1132,7 @@ public abstract class GunType<
 				final ItemStack stack = player.inventory.getStackInSlot( this.magInvSlot );
 				final IItem item = IItemTypeHost.getItemOrDefault( stack );
 				final boolean isMag = item instanceof IMag< ? >;
-				final boolean isValidMag = isMag && this.gun.isAllowed( (com.fmum.common.mag.IMag< ? > ) item );
+				final boolean isValidMag = isMag && this.gun.isAllowed( ( IMag< ? > ) item );
 				return isValidMag ? this : IOperation.NONE;
 			}
 			
@@ -1136,7 +1145,7 @@ public abstract class GunType<
 				final boolean isMag = item instanceof IMag< ? >;
 				if ( !isMag ) { return; }
 				
-				final IMag< ? > mag = (com.fmum.common.mag.IMag< ? > ) item;
+				final IMag< ? > mag = ( IMag< ? > ) item;
 				if ( !this.gun.isAllowed( mag ) ) { return; }
 				
 				this.gun.loadMag( mag );

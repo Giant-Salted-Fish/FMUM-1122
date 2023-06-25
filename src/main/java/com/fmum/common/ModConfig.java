@@ -39,7 +39,7 @@ public final class ModConfig
 	@RequiresWorldRestart
 	public static float camDropCycle = 1F;
 	
-	@LangKey( "fmum.config.common.cam_drop_ampl")
+	@LangKey( "fmum.config.common.cam_drop_ampl" )
 	@Comment( "This decides the amplitude of the camera shake when player falls from sky." )
 	@RequiresWorldRestart
 	public static float camDropAmpl = 1F;

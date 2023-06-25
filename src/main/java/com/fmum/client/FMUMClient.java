@@ -433,7 +433,7 @@ public final class FMUMClient extends FMUM
 	public static void sendPlayerPrompt( String... messages )
 	{
 		final GuiNewChat chatGui = MC.ingameGUI.getChatGUI();
-		for ( int i = 0; i < messages.length; ++i )
+		for ( int i = 0; i < messages.length; i += 1 )
 		{
 			final TextComponentString text = new TextComponentString( messages[ i ] );
 			chatGui.printChatMessageWithOptionalDeletion( text, CHAT_LINE_ID + i );
