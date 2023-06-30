@@ -2,7 +2,6 @@ package com.fmum.client.player;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.client.render.IAnimator;
-import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.network.PacketTerminateOp;
 import com.fmum.common.player.IOperation;
 import com.fmum.common.player.Operation;
@@ -12,25 +11,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public abstract class OperationClient< T extends IEquippedItem< ? >, C extends OperationController >
+public abstract class OperationClient< C extends OperationController >
 	extends Operation< C >
 {
-	protected T equipped;
-	
-	public OperationClient( T equipped, C controller )
-	{
-		super( controller );
-		
-		this.equipped = equipped;
-	}
-	
-	@Override
-	@SuppressWarnings( "unchecked" )
-	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
-	{
-		this.equipped = ( T ) newEquipped;
-		return this;
-	}
+	public OperationClient( C controller ) { super( controller ); }
 	
 	@Override
 	public IOperation terminate( EntityPlayer player )

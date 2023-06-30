@@ -45,7 +45,7 @@ public interface IEquippedItem< T extends IItem >
 	 * refer to same instance. And this also helps to prevent others from calling this method as
 	 * they do not have the corresponding context to supply. </p>
 	 */
-	default void tickInHand( EntityPlayer player, EnumHand hand ) { }
+	default void tickInHand( IItem item, EntityPlayer player, EnumHand hand ) { }
 	
 	default void handlePacket( ByteBuf buf, EntityPlayer player ) { }
 	

@@ -62,13 +62,6 @@ public class GunPartWrapper<
 	}
 	
 	@Override
-	public IEquippedItem< ? > onStackUpdate(
-		IEquippedItem< ? > prevEquipped,
-		EntityPlayer player,
-		EnumHand hand
-	) { return this.primary.onStackUpdate( prevEquipped, player, hand ); }
-	
-	@Override
 	public int leftHandPriority() { return this.primary.leftHandPriority(); }
 	
 	@Override

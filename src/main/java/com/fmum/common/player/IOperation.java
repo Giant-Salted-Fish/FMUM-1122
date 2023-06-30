@@ -21,13 +21,7 @@ public interface IOperation
 	/**
 	 * Placeholder operation instance. Represents that no operation is currently running.
 	 */
-	IOperation NONE = new IOperation()
-	{
-		@Override
-		public IOperation onStackUpdate( IEquippedItem< ? > newEquipped,  EntityPlayer player ) {
-			return this;
-		}
-		
+	IOperation NONE = new IOperation() {
 		@Override
 		public String toString() { return "Operation::NONE"; }
 	};
@@ -83,11 +77,4 @@ public interface IOperation
 	default IOperation onItemChange( IEquippedItem< ? > newEquipped, EntityPlayer player ) {
 		return this.terminate( player );
 	}
-	
-	/**
-	 * Called when the corresponding stack of the current item has been updated.
-	 * 
-	 * @return {@link #NONE} if this operation should terminate on stack update.
-	 */
-	IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player );
 }

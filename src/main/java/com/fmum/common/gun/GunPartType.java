@@ -13,6 +13,7 @@ import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.IEquippedItem;
+import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemTypeHost;
 import com.fmum.common.item.ItemType;
 import com.fmum.common.load.IContentProvider;
@@ -279,9 +280,9 @@ public abstract class GunPartType<
 			FMUM.MOD.clientOnly( () -> this.renderer = GunPartType.this.model.newRenderer() );
 		}
 		
-		protected GunPart( boolean UNUSED_waitForDeserialize )
+		protected GunPart( NBTTagCompound nbt )
 		{
-			super( UNUSED_waitForDeserialize );
+			super( nbt );
 			
 			// TODO: This will create renderer on local server
 			// TODO: maybe provide more information on instantiation
@@ -310,24 +311,17 @@ public abstract class GunPartType<
 			}
 			else // if ( !isLogicServer )
 			{
-				// If id changed to the new id updated by server side, then just ignore.
+				// If id changed to the new id updated on server side, then just ignore.
 				final IEquippedItem< ? > prev = PlayerPatchClient.instance.getEquipped( hand );
 				final int prevStackId = prev.item().stackId();
 				final int seed = prevStackId + player.inventory.currentItem;
 				final int updatedStackId = new Random( seed ).nextInt();
-				final boolean shouldIgnore = stackId == updatedStackId;
-				if ( shouldIgnore ) { return this.onStackUpdate( prev, player, hand ); }
+				final boolean isIdUpdate = stackId == updatedStackId;
+				if ( isIdUpdate ) { return prev; }
 			}
 			
 			return this.newEquipped( player, hand );
 		}
-		
-		@Override
-		public IEquippedItem< ? > onStackUpdate(
-			IEquippedItem< ? > prevEquipped,
-			EntityPlayer player,
-			EnumHand hand
-		) { return this.copyEquipped( prevEquipped, player, hand ); }
 		
 		@Override
 		public int stackId() { throw new RuntimeException(); }
@@ -472,6 +466,7 @@ public abstract class GunPartType<
 		
 		protected abstract IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand );
 		
+		// FIXME: Remove this?
 		protected abstract IEquippedItem< ? > copyEquipped(
 			IEquippedItem< ? > target,
 			EntityPlayer player,
@@ -525,7 +520,7 @@ public abstract class GunPartType<
 			public C item() { return ( C ) GunPart.this.base; }
 			
 			@Override
-			public void tickInHand( EntityPlayer player, EnumHand hand )
+			public void tickInHand( IItem item, EntityPlayer player, EnumHand hand )
 			{
 				if ( player.world.isRemote ) {
 					this.renderer.tickInHand( this.renderDelegate(), hand );

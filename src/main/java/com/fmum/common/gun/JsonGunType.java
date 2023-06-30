@@ -58,7 +58,7 @@ public class JsonGunType extends GunType<
 	@Override
 	public IModule< ? > deserializeContexted( NBTTagCompound nbt )
 	{
-		final Gun gun = new Gun( false )
+		final Gun gun = new Gun( nbt )
 		{
 			@Override
 			protected IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand ) {

@@ -59,7 +59,7 @@ public class JsonMagType extends MagType<
 	@Override
 	public IModule< ? > deserializeContexted( NBTTagCompound nbt )
 	{
-		final Mag mag = new Mag( false )
+		final Mag mag = new Mag( nbt )
 		{
 			@Override
 			protected IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand ) {

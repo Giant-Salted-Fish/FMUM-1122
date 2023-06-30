@@ -81,7 +81,7 @@ public abstract class MagType<
 		
 		protected Mag() { this.ammoNBTHandler = new CountAmmoNBTHandler(); }
 		
-		protected Mag( boolean ignoredWaitForDeserialize ) { super( ignoredWaitForDeserialize ); }
+		protected Mag( NBTTagCompound nbt ) { super( nbt ); }
 		
 		@Override
 		public boolean isFull() {
@@ -440,17 +440,14 @@ public abstract class MagType<
 			}
 			
 			@SideOnly( Side.CLIENT )
-			protected class OpLoadAmmoClient
-				extends OperationClient< EquippedMag, OperationController >
+			protected class OpLoadAmmoClient extends OperationClient< OperationController >
 			{
-				protected OpLoadAmmoClient() {
-					super( EquippedMag.this, MagType.this.loadAmmoController );
-				}
+				protected OpLoadAmmoClient() { super( MagType.this.loadAmmoController ); }
 				
 				@Override
 				public IOperation launch( EntityPlayer player )
 				{
-					final boolean alreadyFull = this.equipped.item().isFull();
+					final boolean alreadyFull = EquippedMag.this.item().isFull();
 					if ( alreadyFull ) { return IOperation.NONE; }
 					
 					final int offset = Key.ASSIST.down ? 1 : 0;
@@ -476,7 +473,7 @@ public abstract class MagType<
 				
 				protected int findValidAmmoSlot( IInventory inv, int offset )
 				{
-					final IMag< ? > mag = this.equipped.item();
+					final IMag< ? > mag = EquippedMag.this.item();
 					int invSlot = -1;
 					for ( int i = 0, size = inv.getSizeInventory(); offset >= 0 && i < size; ++i )
 					{
@@ -495,17 +492,14 @@ public abstract class MagType<
 			}
 			
 			@SideOnly( Side.CLIENT )
-			protected class OpUnloadAmmoClient
-				extends OperationClient< EquippedMag, OperationController >
+			protected class OpUnloadAmmoClient extends OperationClient< OperationController >
 			{
-				protected OpUnloadAmmoClient() {
-					super( EquippedMag.this, MagType.this.unloadAmmoController );
-				}
+				protected OpUnloadAmmoClient() { super( MagType.this.unloadAmmoController ); }
 				
 				@Override
 				public IOperation launch( EntityPlayer player )
 				{
-					final boolean alreadyEmpty = this.equipped.item().isEmpty();
+					final boolean alreadyEmpty = EquippedMag.this.item().isEmpty();
 					if ( alreadyEmpty ) { return IOperation.NONE; }
 					
 					FMUMClient.sendPacketToServer( new PacketNotifyEquipped(
@@ -525,27 +519,7 @@ public abstract class MagType<
 			}
 		}
 		
-		protected class OperationOnMag extends Operation< OperationController >
-		{
-			protected Mag mag;
-			
-			protected OperationOnMag( OperationController controller )
-			{
-				super( controller );
-				
-				this.mag = Mag.this;
-			}
-			
-			@Override
-			@SuppressWarnings( "unchecked" )
-			public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
-			{
-				this.mag = ( Mag ) newEquipped.item();
-				return this;
-			}
-		}
-		
-		protected class OpLoadAmmo extends OperationOnMag
+		protected class OpLoadAmmo extends Operation< OperationController >
 		{
 			protected final int ammoInvSlot;
 			
@@ -561,13 +535,13 @@ public abstract class MagType<
 			@Override
 			public IOperation launch( EntityPlayer player )
 			{
-				final boolean alreadyFull = this.mag.isFull();
+				final boolean alreadyFull = Mag.this.isFull();
 				if ( alreadyFull ) { return IOperation.NONE; }
 				
 				final ItemStack stack = player.inventory.getStackInSlot( this.ammoInvSlot );
 				final IItemType type = IItemTypeHost.getTypeOrDefault( stack.getItem() );
 				final boolean isAmmo = type instanceof IAmmoType;
-				final boolean isValidAmmo = isAmmo && this.mag.isAllowed( ( IAmmoType ) type );
+				final boolean isValidAmmo = isAmmo && Mag.this.isAllowed( ( IAmmoType ) type );
 				return isValidAmmo ? this : IOperation.NONE;
 			}
 			
@@ -592,15 +566,15 @@ public abstract class MagType<
 				if ( !isAmmo ) { return; }
 				
 				final IAmmoType ammo = ( IAmmoType ) type;
-				if ( !this.mag.isAllowed( ammo ) ) { return; }
+				if ( !Mag.this.isAllowed( ammo ) ) { return; }
 				
-				this.mag.pushAmmo( ammo );
+				Mag.this.pushAmmo( ammo );
 //				if ( !this.player.isCreative() )
 					stack.shrink( 1 );
 			}
 		}
 		
-		protected class OpUnloadAmmo extends OperationOnMag
+		protected class OpUnloadAmmo extends Operation< OperationController >
 		{
 			protected IOperation next = IOperation.NONE;
 			
@@ -608,7 +582,7 @@ public abstract class MagType<
 			
 			@Override
 			public IOperation launch( EntityPlayer player ) {
-				return this.mag.isEmpty() ? IOperation.NONE : this;
+				return Mag.this.isEmpty() ? IOperation.NONE : this;
 			}
 			
 			@Override
@@ -626,7 +600,7 @@ public abstract class MagType<
 			@Override
 			protected void doHandleEffect( EntityPlayer player )
 			{
-				final IAmmoType ammo = this.mag.popAmmo();
+				final IAmmoType ammo = Mag.this.popAmmo();
 				final ItemStack ammoStack = new ItemStack( ammo.item() );
 				player.addItemStackToInventory( ammoStack );
 			}

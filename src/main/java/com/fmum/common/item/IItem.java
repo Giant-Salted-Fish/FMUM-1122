@@ -24,13 +24,6 @@ public interface IItem
 		}
 		
 		@Override
-		public IEquippedItem< ? > onStackUpdate(
-			IEquippedItem< ? > prevEquipped,
-			EntityPlayer player,
-			EnumHand hand
-		) { return IEquippedItem.VANILLA; }
-		
-		@Override
 		@SideOnly( Side.CLIENT )
 		public ResourceLocation texture() { return null; }
 	};
@@ -46,15 +39,6 @@ public interface IItem
 	 * Called when player is trying to take out this item.
 	 */
 	IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand );
-	
-	/**
-	 * Called when the corresponding stack in hand has changed.
-	 */
-	IEquippedItem< ? > onStackUpdate(
-		IEquippedItem< ? > prevEquipped,
-		EntityPlayer player,
-		EnumHand hand
-	);
 	
 	@SideOnly( Side.CLIENT )
 	ResourceLocation texture();

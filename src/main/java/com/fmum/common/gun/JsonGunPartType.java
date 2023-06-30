@@ -59,7 +59,7 @@ public class JsonGunPartType extends GunPartType<
 	@Override
 	public IModule< ? > deserializeContexted( NBTTagCompound nbt )
 	{
-		final GunPart gunPart = new GunPart( false )
+		final GunPart gunPart = new GunPart( nbt )
 		{
 			@Override
 			protected IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand ) {

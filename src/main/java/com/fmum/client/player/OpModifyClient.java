@@ -430,37 +430,6 @@ public abstract class OpModifyClient extends TogglableOperation< OperationContro
 	}
 	
 	@Override
-	public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
-	{
-		this.equipped = newEquipped;
-		this.clearPrimary();
-
-		final boolean hasSelected = this.index() != -1;
-		final boolean hasPreview = this.previewInvSlot != -1;
-		switch ( ( hasSelected ? 2 : 0 ) + ( hasPreview ? 1 : 0 ) )
-		{
-		case 1:
-			final IModule< ? > base = this.primary.getInstalled( this.loc, this.locLen - 2 );
-			final InventoryPlayer inv = MC.player.inventory;
-			final ItemStack previewStack = inv.getStackInSlot( this.previewInvSlot ).copy();
-			final IModule< ? > previewMod = ( IModule< ? > ) IItemTypeHost.getItem( previewStack );
-			this.previewPredicate = base.tryInstall( this.slot(), previewMod );
-			
-		case 2:
-		case 3:
-			this.fetchCursor();
-			this.cursor.setOffsetStep( this.curOffset, this.curStep );
-			this.fetchCursor();
-			this.paintable.setPaintjob( this.curPaintjob );
-			this.fetchCursorForNewPosition();
-		break;
-		
-		case 0: this.setupIndicator();
-		}
-		return this;
-	}
-	
-	@Override
 	protected abstract void endCallback();
 	
 	protected abstract IModule< ? > replicateDelegatePrimary();

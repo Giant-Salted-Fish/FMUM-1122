@@ -154,7 +154,7 @@ public abstract class GunType<
 			data[ baseIdx + 1 ] = roundsShot;
 		}
 		
-		protected Gun( boolean ignoredWaitForDeserialize ) { super( ignoredWaitForDeserialize ); }
+		protected Gun( NBTTagCompound nbt ) { super( nbt ); }
 		
 		@Override
 		public boolean hasMag() { return this.getInstalledCount( 0 ) > 0; }
@@ -363,9 +363,9 @@ public abstract class GunType<
 			}
 			
 			@Override
-			public void tickInHand( EntityPlayer player, EnumHand hand )
+			public void tickInHand( IItem item, EntityPlayer player, EnumHand hand )
 			{
-				super.tickInHand( player, hand );
+				super.tickInHand( item, player, hand );
 				
 				this.triggerHandler = this.triggerHandler.tick( player );
 			}
@@ -390,13 +390,13 @@ public abstract class GunType<
 				case OP_SWITCH_FIRE_MODE:
 					final boolean boltCatch = Gun.this.state.isBoltCatch();
 					final boolean hammerReady = Gun.this.state.isHammerReady();
-					PlayerPatch.get( player ).launch( new OperationOnGun(
+					PlayerPatch.get( player ).launch( new Operation< OperationController >(
 						GunType.this.switchFireModeControllerDispatcher
 							.match( Gun.this.mag(), boltCatch, boltCatch, hammerReady )
 					) {
 						@Override
 						protected void doHandleEffect( EntityPlayer player ) {
-							this.gun.switchFireMode( player );
+							Gun.this.switchFireMode( player );
 						}
 					} );
 					break;
@@ -504,7 +504,7 @@ public abstract class GunType<
 				final Consumer< IInput > inspectWeapon = key -> {
 					final boolean boltCatch = Gun.this.state.isBoltCatch();
 					final boolean hammerReady = Gun.this.state.isHammerReady();
-					PlayerPatchClient.instance.launch( new OperationOnGunClient(
+					PlayerPatchClient.instance.launch( new OpOnGunClient(
 						GunType.this.inspectControllerDispatcher
 							.match( Gun.this.mag(), boltCatch, boltCatch, hammerReady )
 					) );
@@ -515,7 +515,7 @@ public abstract class GunType<
 				final Consumer< IInput > switchFireMode = key -> {
 					final boolean boltCatch = Gun.this.state.isBoltCatch();
 					final boolean hammerReady = Gun.this.state.isHammerReady();
-					PlayerPatchClient.instance.launch( new OperationOnGunClient(
+					PlayerPatchClient.instance.launch( new OpOnGunClient(
 						GunType.this.switchFireModeControllerDispatcher
 							.match( Gun.this.mag(), boltCatch, boltCatch, hammerReady )
 					) {
@@ -639,41 +639,38 @@ public abstract class GunType<
 			protected final Gun inner() { return Gun.this; }
 			
 			@SideOnly( Side.CLIENT )
-			protected class OperationOnGunClient
-				extends OperationClient< EquippedGun, GunOpController >
+			protected class OpOnGunClient extends OperationClient< GunOpController >
 			{
-				protected OperationOnGunClient( GunOpController controller ) {
-					super( EquippedGun.this, controller );
-				}
+				protected OpOnGunClient( GunOpController controller ) { super( controller ); }
 				
 				@Override
 				@SuppressWarnings( "unchecked" )
 				public IOperation launch( EntityPlayer player )
 				{
-					this.equipped.renderer.useOperateAnimation(
+					EquippedGun.this.renderer.useOperateAnimation(
 						new CoupledAnimation( this.controller.animation(), this::smoothedProgress )
 					);
 					this.controller.setupStaticAnimation( EquippedGun.this.renderer::useGunAnimation );
-					this.equipped.renderDelegate = ori -> ( E ) EquippedGun.this;
+					EquippedGun.this.renderDelegate = ori -> ( E ) EquippedGun.this;
 					
 					final ICameraController camera = PlayerPatchClient.instance.camera;
-					camera.useAnimation( new ReadOnlyAnimator( this.equipped.animator() ) );
+					camera.useAnimation( new ReadOnlyAnimator( EquippedGun.this.animator() ) );
 					return this;
 				}
 				
 				@Override
 				protected void endCallback()
 				{
-					this.equipped.renderDelegate = original -> original;
-					this.equipped.renderer.useOperateAnimation( IAnimator.NONE );
+					EquippedGun.this.renderDelegate = original -> original;
+					EquippedGun.this.renderer.useOperateAnimation( IAnimator.NONE );
 					EquippedGun.this.renderer.useGunAnimation(
-						new CoupledAnimation( this.equipped.inner().state.staticAnimation() )
+						new CoupledAnimation( EquippedGun.this.inner().state.staticAnimation() )
 					);
 				}
 			}
 			
 			@SideOnly( Side.CLIENT )
-			protected class OpUnloadMagClient extends OperationOnGunClient
+			protected class OpUnloadMagClient extends OpOnGunClient
 			{
 				protected OpUnloadMagClient() { super( Gun.this.unloadMagController() ); }
 				
@@ -688,7 +685,7 @@ public abstract class GunType<
 			}
 			
 			@SideOnly( Side.CLIENT )
-			protected class OpLoadMagClient extends OperationOnGunClient
+			protected class OpLoadMagClient extends OpOnGunClient
 			{
 				protected OpLoadMagClient() { super( Gun.this.loadMagController() ); }
 				
@@ -705,7 +702,7 @@ public abstract class GunType<
 					super.launch( player );
 					
 					// Copy this gun to install the loading mag.
-					final EquippedGun copied = ( EquippedGun ) this.equipped.copy();
+					final EquippedGun copied = ( EquippedGun ) EquippedGun.this.copy();
 					final C copiedGun = copied.item();
 					
 					// Install the loading mag to render it. // Copy before use.
@@ -715,7 +712,7 @@ public abstract class GunType<
 					mag.setAsLoadingMag();
 					
 					// Delegate render to copied gun.
-					this.equipped.renderDelegate = ori -> ( E ) copied;
+					EquippedGun.this.renderDelegate = ori -> ( E ) copied;
 					
 					// Send out packet!
 					FMUMClient.sendPacketToServer( new PacketNotifyEquipped( buf -> {
@@ -741,7 +738,7 @@ public abstract class GunType<
 			}
 			
 			@SideOnly( Side.CLIENT )
-			protected class OpChargeGunClient extends OperationOnGunClient
+			protected class OpChargeGunClient extends OpOnGunClient
 			{
 				protected OpChargeGunClient() { super( Gun.this.state.chargeController() ); }
 				
@@ -756,7 +753,7 @@ public abstract class GunType<
 			}
 			
 			@SideOnly( Side.CLIENT )
-			protected class OpReleaseBoltClient extends OperationOnGunClient
+			protected class OpReleaseBoltClient extends OpOnGunClient
 			{
 				protected OpReleaseBoltClient() { super( Gun.this.state.releaseBoltController() ); }
 				
@@ -1089,21 +1086,7 @@ public abstract class GunType<
 			protected Animation staticAnimation() { return GunType.this.staticBoltCatch; }
 		}
 		
-		protected class OperationOnGun extends Operation< OperationController >
-		{
-			protected OperationOnGun( OperationController controller ) { super( controller ); }
-			
-			protected IGun< ? > gun = Gun.this;
-			
-			@Override
-			public IOperation onStackUpdate( IEquippedItem< ? > newEquipped, EntityPlayer player )
-			{
-				this.gun = ( IGun< ? > ) newEquipped.item();
-				return this;
-			}
-		}
-		
-		protected class OpLoadMag extends OperationOnGun
+		protected class OpLoadMag extends Operation< OperationController >
 		{
 			protected final int magInvSlot;
 			
@@ -1117,13 +1100,13 @@ public abstract class GunType<
 			@Override
 			public IOperation launch( EntityPlayer player )
 			{
-				final boolean alreadyHasMag = this.gun.hasMag();
+				final boolean alreadyHasMag = Gun.this.hasMag();
 				if ( alreadyHasMag ) { return IOperation.NONE; }
 				
 				final ItemStack stack = player.inventory.getStackInSlot( this.magInvSlot );
 				final IItem item = IItemTypeHost.getItemOrDefault( stack );
 				final boolean isMag = item instanceof IMag< ? >;
-				final boolean isValidMag = isMag && this.gun.isAllowed( (com.fmum.common.mag.IMag< ? > ) item );
+				final boolean isValidMag = isMag && Gun.this.isAllowed( ( IMag< ? > ) item );
 				return isValidMag ? this : IOperation.NONE;
 			}
 			
@@ -1137,42 +1120,42 @@ public abstract class GunType<
 				if ( !isMag ) { return; }
 				
 				final IMag< ? > mag = (com.fmum.common.mag.IMag< ? > ) item;
-				if ( !this.gun.isAllowed( mag ) ) { return; }
+				if ( !Gun.this.isAllowed( mag ) ) { return; }
 				
-				this.gun.loadMag( mag );
+				Gun.this.loadMag( mag );
 				inv.setInventorySlotContents( this.magInvSlot, ItemStack.EMPTY );
 			}
 		}
 		
-		protected class OpUnloadMag extends OperationOnGun
+		protected class OpUnloadMag extends Operation< OperationController >
 		{
 			protected OpUnloadMag() { super( Gun.this.unloadMagController() ); }
 			
 			@Override
 			public IOperation launch( EntityPlayer player ) {
-				return this.gun.hasMag() ? this : IOperation.NONE;
+				return Gun.this.hasMag() ? this : IOperation.NONE;
 			}
 			
 			@Override
 			protected void doHandleEffect( EntityPlayer player ) {
-				player.addItemStackToInventory( this.gun.unloadMag().toStack() );
+				player.addItemStackToInventory( Gun.this.unloadMag().toStack() );
 			}
 		}
 		
-		protected class OpChargeGun extends OperationOnGun
+		protected class OpChargeGun extends Operation< OperationController >
 		{
 			protected OpChargeGun() { super( Gun.this.state.chargeController() ); }
 			
 			@Override
-			protected void doHandleEffect( EntityPlayer player ) { this.gun.chargeGun( player ); }
+			protected void doHandleEffect( EntityPlayer player ) { Gun.this.chargeGun( player ); }
 		}
 		
-		protected class OpReleaseBolt extends OperationOnGun
+		protected class OpReleaseBolt extends Operation< OperationController >
 		{
 			protected OpReleaseBolt() { super( Gun.this.state.releaseBoltController() ); }
 			
 			@Override
-			protected void doHandleEffect( EntityPlayer player ) { this.gun.releaseBolt( player ); }
+			protected void doHandleEffect( EntityPlayer player ) { Gun.this.releaseBolt( player ); }
 		}
 	}
 	

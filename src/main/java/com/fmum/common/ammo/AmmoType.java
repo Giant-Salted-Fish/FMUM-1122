@@ -128,26 +128,12 @@ public abstract class AmmoType<
 		public int stackId() { return this.hashCode(); }
 		
 		@Override
-		public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand ) {
-			return this.newEquipped( player, hand );
-		}
-		
-		@Override
-		public IEquippedItem< ? > onStackUpdate(
-			IEquippedItem< ? > prevEquipped,
-			EntityPlayer player,
-			EnumHand hand
-		) { return newEquipped( player, hand ); }
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public ResourceLocation texture() { return AmmoType.this.texture; }
-		
-		final IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand )
+		public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand )
 		{
 			return new IEquippedItem< IItem >()
 			{
-				IEquippedItemRenderer< ? super IEquippedItem< ? > > renderer;
+				@SideOnly( Side.CLIENT )
+				private IEquippedItemRenderer< ? super IEquippedItem< ? > > renderer;
 				{
 					if ( player.world.isRemote ) {
 						this.renderer = AmmoType.this.model.newRenderer().onTakeOut( hand );
@@ -174,5 +160,9 @@ public abstract class AmmoType<
 				public IAnimator animator() { return this.renderer.animator(); }
 			};
 		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public ResourceLocation texture() { return AmmoType.this.texture; }
 	}
 }

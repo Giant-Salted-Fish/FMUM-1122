@@ -36,13 +36,11 @@ public class PlayerPatch implements ICapabilityProvider
 	 */
 	protected IOperation executing = IOperation.NONE;
 	
-	/// *** Stuffs for main hand item. *** ///
-	protected ItemStack mainStack = ItemStack.EMPTY;
+	// For main hand item.
 	protected IItem mainItem = IItem.VANILLA;
 	protected IEquippedItem< ? > mainEquipped = IEquippedItem.VANILLA;
 	
-	/// *** Stuffs for off-hand item. *** ///
-	protected ItemStack offStack = ItemStack.EMPTY;
+	// For off-hand item.
 	protected IItem offItem = IItem.VANILLA;
 	protected IEquippedItem< ? > offEquipped = IEquippedItem.VANILLA;
 	
@@ -52,7 +50,7 @@ public class PlayerPatch implements ICapabilityProvider
 	{
 		final InventoryPlayer inv = this.player.inventory;
 		
-		/// *** Main hand stuff. *** ///
+		// Main hand stuff.
 		{
 			final EnumHand hand = EnumHand.MAIN_HAND;
 			final ItemStack stack = inv.getCurrentItem();
@@ -64,17 +62,11 @@ public class PlayerPatch implements ICapabilityProvider
 				this.mainEquipped = item.onTakeOut( this.player, hand );
 				this.executing = this.executing.onItemChange( this.mainEquipped, this.player );
 			}
-			else if ( stack != this.mainStack )
-			{
-				this.mainStack = stack;
-				this.mainEquipped = item.onStackUpdate( this.mainEquipped, this.player, hand );
-				this.executing = this.executing.onStackUpdate( this.mainEquipped, this.player );
-			}
 			
-			this.mainEquipped.tickInHand( this.player, hand );
+			this.mainEquipped.tickInHand( item, this.player, hand );
 		}
 		
-		/// *** Off-hand stuff. *** ///
+		// Off-hand stuff.
 		{
 			final EnumHand hand = EnumHand.OFF_HAND;
 			final ItemStack stack = inv.offHandInventory.get( 0 );
@@ -85,13 +77,8 @@ public class PlayerPatch implements ICapabilityProvider
 				this.offItem = item;
 				this.offEquipped = item.onTakeOut( this.player, hand );
 			}
-			else if ( stack != this.offStack )
-			{
-				this.offStack = stack;
-				this.offEquipped = item.onStackUpdate( this.offEquipped, this.player, hand );
-			}
 			
-			this.offEquipped.tickInHand( this.player, hand );
+			this.offEquipped.tickInHand( item, this.player, hand );
 		}
 		
 		this.executing = this.executing.tick( this.player );
