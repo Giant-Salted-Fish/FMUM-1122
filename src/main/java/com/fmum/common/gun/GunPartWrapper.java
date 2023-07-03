@@ -24,8 +24,13 @@ public class GunPartWrapper<
 	T extends IGunPart< ? extends I >
 > extends ModuleWrapper< I, T > implements IGunPart< I >
 {
-	public static final String STACK_ID_TAG = "i";
+	public static final String
+		STACK_ID_TAG = "i",
+		PRIMARY_TAG = "_";
 	
+	/**
+	 * Bounden stack of this wrapper.
+	 */
 	protected final ItemStack stack;
 	
 	protected GunPartWrapper( T primary, ItemStack stack )
@@ -92,7 +97,7 @@ public class GunPartWrapper<
 	public final ResourceLocation texture() { return this.primary.texture(); }
 	
 	@Override
-	protected final void syncNBTData() {
-		this.stack.getTagCompound().setTag( "_", this.primary.serializeNBT() );
+	public final void syncNBTTag() {
+		this.stack.getTagCompound().setTag( PRIMARY_TAG, this.primary.serializeNBT() );
 	}
 }

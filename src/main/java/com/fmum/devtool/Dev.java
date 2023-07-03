@@ -12,7 +12,6 @@ import net.minecraftforge.fml.relauncher.Side;
 @EventBusSubscriber( modid = FMUM.MODID, value = Side.CLIENT )
 public class Dev
 {
-	
 	public static int dirtyMark() { return 0; }
 	
 //	public static final Consumer< Boolean > DEBUG_BOX = new Consumer< Boolean >()

@@ -53,8 +53,8 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
+import static com.fmum.common.gun.GunPartWrapper.PRIMARY_TAG;
 import static com.fmum.common.gun.GunPartWrapper.STACK_ID_TAG;
 
 public abstract class GunPartType<
@@ -168,17 +168,11 @@ public abstract class GunPartType<
 		@SuppressWarnings( "unchecked" )
 		public ICapabilityProvider initCapabilities( ItemStack stack, NBTTagCompound capTag )
 		{
-			final Function< C, ICapabilityProvider > finializer = primary -> {
-				final ICapabilityProvider wrapper = GunPartType.this.newWrapper( primary, stack );
-				primary.syncAndUpdate();
-				return wrapper;
-			};
-			
 			// 4 case to handle: \
-			// has-stackTag | has-capTag}: {ItemStack#ItemStack(NBTTagCompound)} \
-			// has-stackTag | no--capTag}: \
-			// no--stackTag | has-capTag}: {ItemStack#copy()} \
-			// no--stackTag | no--capTag}: {new ItemStack(...)}, {PacketBuffer#readItemStack()} \
+			// has-stackTag | has-capTag: {ItemStack#ItemStack(NBTTagCompound)} \
+			// has-stackTag | no--capTag: \
+			// no--stackTag | has-capTag: {ItemStack#copy()} \
+			// no--stackTag | no--capTag: {new ItemStack(...)}, {PacketBuffer#readItemStack()} \
 			final NBTTagCompound stackTag = stack.getTagCompound();
 			if ( capTag != null )
 			{
@@ -187,23 +181,19 @@ public abstract class GunPartType<
 				// has-stackTag | has-capTag: {ItemStack#ItemStack(NBTTagCompound)}.
 				final NBTTagCompound nbt = capTag.getCompoundTag( "Parent" );
 				
-				// Remove "Parent" tag to prevent repeat deserialization.
+				// Remove "Parent" tag to prevent repeated deserialization.
 				// See CapabilityDispatcher#deserializeNBT(NBTTagCompound).
 				capTag.removeTag( "Parent" );
 				
-				NBTTagCompound primaryTag;
-				if ( stackTag == null )
-				{
-					// Has to copy before use if it is the first case as the capability tag \
-					// provided here could be the same as the bounden tag of copy target.
-					primaryTag = nbt.copy();
-					
-					// To ensure #syncAndUpdate() call will not crash on null.
-					stack.setTagCompound( new NBTTagCompound() ); // TODO: static instance
-				}
-				else primaryTag = nbt;
+				// Has to copy before use if it is the first case as the capability tag \
+				// provided here could be the same as the bounden tag of the copy target.
+				final boolean isStackCopy = stackTag == null;
+				final NBTTagCompound primaryTag = isStackCopy ? nbt.copy() : nbt;
 				
-				return finializer.apply( ( C ) GunPartType.this.fromTag( primaryTag ) );
+				final C gunPart = ( C ) GunPartType.this.fromTag( primaryTag );
+				final ICapabilityProvider wrapper = GunPartType.this.newWrapper( gunPart, stack );
+				gunPart.refreshEventSubscribe();
+				return wrapper;
 			}
 			
 			if ( stackTag != null )
@@ -225,7 +215,11 @@ public abstract class GunPartType<
 			// See GunPartWrapper#stackId().
 			
 			final NBTTagCompound primaryTag = GunPartType.this.compiledSnapshotNBT.copy();
-			return finializer.apply( ( C ) GunPartType.this.deserializeContexted( primaryTag ) );
+			final C gunPart = ( C ) GunPartType.this.deserializeContexted( primaryTag );
+			final ICapabilityProvider wrapper = GunPartType.this.newWrapper( gunPart, stack );
+			gunPart.refreshEventSubscribe();
+			gunPart.syncNBTTag();
+			return wrapper;
 		}
 		
 		@Override
@@ -233,13 +227,13 @@ public abstract class GunPartType<
 		{
 			stack.setTagCompound( nbt ); // Copied from super.
 			
-			// See GunPartWrapper#syncNBTData().
-			final NBTTagCompound primaryTag = nbt.getCompoundTag( "_" );
+			// See GunPartWrapper#syncNBTTag().
+			final NBTTagCompound primaryTag = nbt.getCompoundTag( PRIMARY_TAG );
 			final IModule< ? > primary = GunPartType.this.fromTag( primaryTag );
 			
 			final C wrapper = GunPartType.this.getContexted( stack );
 			wrapper.setBase( primary, -1 ); // See GunPartWrapper#setBase(...).
-			wrapper.syncAndUpdate();
+			wrapper.refreshEventSubscribe();
 		}
 		
 		/**
@@ -309,7 +303,7 @@ public abstract class GunPartType<
 				final int newStackId = new Random( seed ).nextInt();
 				stackTag.setInteger( STACK_ID_TAG, newStackId );
 			}
-			else // if ( !isLogicServer )
+			else // On client side.
 			{
 				// If id changed to the new id updated on server side, then just ignore.
 				final IEquippedItem< ? > prev = PlayerPatchClient.instance.getEquipped( hand );
@@ -317,7 +311,12 @@ public abstract class GunPartType<
 				final int seed = prevStackId + player.inventory.currentItem;
 				final int updatedStackId = new Random( seed ).nextInt();
 				final boolean isIdUpdate = stackId == updatedStackId;
-				if ( isIdUpdate ) { return prev; }
+				if ( isIdUpdate )
+				{
+					final ItemStack stack = GunPart.this.base.toStack();
+					stack.getTagCompound().setInteger( STACK_ID_TAG, stackId );
+					return prev;
+				}
 			}
 			
 			return this.newEquipped( player, hand );
@@ -466,20 +465,10 @@ public abstract class GunPartType<
 		
 		protected abstract IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand );
 		
-		// FIXME: Remove this?
-		protected abstract IEquippedItem< ? > copyEquipped(
-			IEquippedItem< ? > target,
-			EntityPlayer player,
-			EnumHand hand
-		);
-		
 		protected class EquippedGunPart implements IEquippedItem< C >
 		{
 			@SideOnly( Side.CLIENT )
 			protected ER renderer;
-			
-			@SideOnly( Side.CLIENT )
-			protected Function< E, E > renderDelegate;
 			
 			@SideOnly( Side.CLIENT )
 			protected HashMap< Object, Consumer< IInput > > keyPressHandler, keyReleaseHandler;
@@ -489,25 +478,6 @@ public abstract class GunPartType<
 				if ( player.world.isRemote )
 				{
 					this.renderer = GunPart.this.renderer.onTakeOut( hand );
-					this.renderDelegate = original -> original;
-					
-					this.keyPressHandler = new HashMap<>();
-					this.keyReleaseHandler = new HashMap<>();
-					this.setupInputHandler( this.keyPressHandler::put, this.keyReleaseHandler::put );
-				}
-			}
-			
-			@SuppressWarnings( "unchecked" )
-			protected EquippedGunPart(
-				IEquippedItem< ? > prevEquipped,
-				EntityPlayer player,
-				EnumHand ignored
-			) {
-				if ( player.world.isRemote )
-				{
-					final EquippedGunPart prev = ( EquippedGunPart ) prevEquipped;
-					this.renderer = prev.renderer;
-					this.renderDelegate = prev.renderDelegate;
 					
 					this.keyPressHandler = new HashMap<>();
 					this.keyReleaseHandler = new HashMap<>();
@@ -522,8 +492,23 @@ public abstract class GunPartType<
 			@Override
 			public void tickInHand( IItem item, EntityPlayer player, EnumHand hand )
 			{
-				if ( player.world.isRemote ) {
+				final GunPartType< ?, ?, ?, ?, ?, ? >.GunPart
+					gunPart = ( GunPartType< ?, ?, ?, ?, ?, ? >.GunPart ) item;
+				
+				if ( player.world.isRemote )
+				{
+					// Make sure we sync any update from the server side.
+					final boolean nbtChanged = !GunPart.this.nbt.equals( gunPart.nbt );
+					if ( nbtChanged ) {
+						GunPart.this.deserializeNBT( gunPart.nbt );
+					}
+					
 					this.renderer.tickInHand( this.renderDelegate(), hand );
+				}
+				else // On server side.
+				{
+					// Make sure all the updates is applied to the target item.
+					gun.base.toStack();
 				}
 			}
 			
@@ -592,7 +577,8 @@ public abstract class GunPartType<
 					}
 					
 					// Launch modify operation.
-					final OpModifyClient modifyOp = new OpModifyClient( this ) {
+					final OpModifyClient modifyOp = new OpModifyClient( this )
+					{
 						@Override
 						@SuppressWarnings( "unchecked" )
 						protected IModule< ? > replicateDelegatePrimary()
@@ -627,12 +613,12 @@ public abstract class GunPartType<
 			protected final E renderDelegate() { return this.renderDelegate.apply( ( E ) this ); }
 			
 			@SideOnly( Side.CLIENT )
-			@SuppressWarnings( "unchecked" )
 			protected IEquippedItem< ? > copy()
 			{
 				final ItemStack copiedStack = GunPart.this.base.toStack().copy();
 				final IModule< ? > wrapper = ( IModule< ? > ) IItemTypeHost.getItem( copiedStack );
-				final GunPart copied = ( GunPart ) wrapper.getInstalled( null, 0 );
+				final GunPartType< ?, ?, ?, ?, ?, ? >.GunPart copied =
+					( GunPartType< ?, ?, ?, ?, ?, ? >.GunPart ) wrapper.getInstalled( null, 0 );
 				return copied.copyEquipped(
 					EquippedGunPart.this,
 					FMUMClient.MC.player,

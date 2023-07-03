@@ -46,13 +46,6 @@ public class JsonGunPartType extends GunPartType<
 			protected IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand ) {
 				return null;
 			}
-			
-			@Override
-			protected IEquippedItem< ? > copyEquipped(
-				IEquippedItem< ? > target,
-				EntityPlayer player,
-				EnumHand hand
-			) { return null; }
 		};
 	}
 	
@@ -65,13 +58,6 @@ public class JsonGunPartType extends GunPartType<
 			protected IEquippedItem< ? > newEquipped( EntityPlayer player, EnumHand hand ) {
 				return new EquippedGunPart( player, hand );
 			}
-			
-			@Override
-			protected IEquippedItem< ? > copyEquipped(
-				IEquippedItem< ? > target,
-				EntityPlayer player,
-				EnumHand hand
-			) { return new EquippedGunPart( target, player, hand ); }
 		};
 		gunPart.deserializeNBT( nbt );
 		return gunPart;

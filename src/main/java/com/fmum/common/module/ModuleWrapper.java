@@ -77,15 +77,14 @@ public abstract class ModuleWrapper<
 	}
 	
 	@Override
-	public final void syncAndUpdate()
+	public final void refreshEventSubscribe()
 	{
-		this.syncNBTData();
 		this.eventSubscribers.clear();
-		this.primary.updateModuleState( this.eventSubscribers::put );
+		this.primary.subscribeModuleEvents( this.eventSubscribers::put );
 	}
 	
 	@Override
-	public final void updateModuleState(
+	public void subscribeModuleEvents(
 		BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry
 	) { throw new RuntimeException(); }
 	
@@ -208,6 +207,4 @@ public abstract class ModuleWrapper<
 	
 	@Override
 	public String toString() { return "Wrapper{" + this.primary + "}"; }
-	
-	protected abstract void syncNBTData();
 }

@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 @FunctionalInterface
 public interface IModuleEventSubscriber< T >
 {
-	void onReceiveEvent( T evt );
+	void onEvent( T evt );
 	
 	default int priority() { return 0; }
 	

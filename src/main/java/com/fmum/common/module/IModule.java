@@ -2,6 +2,7 @@ package com.fmum.common.module;
 
 import com.fmum.client.render.IAnimator;
 import com.fmum.util.Mat4f;
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -37,16 +38,22 @@ public interface IModule< T extends IModule< ? extends T > >
 	void postEvent( Object evt );
 	
 	/**
-	 * Synchronize NBT tag data and do update.
-	 * 
-	 * @see #updateModuleState(BiConsumer)
+	 * Force NBT change to be updated to the bounden target, so that the {@link Minecraft} will
+	 * synchronize it to client side and save it on quit.
 	 */
-	void syncAndUpdate();
+	void syncNBTTag();
 	
 	/**
-	 * Used in {@link #syncAndUpdate()}.
+	 * Force to redo event subscribe.
+	 *
+	 * @see #subscribeModuleEvents(BiConsumer)
 	 */
-	void updateModuleState( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry );
+	void refreshEventSubscribe();
+	
+	/**
+	 * Called to register module event subscribers.
+	 */
+	void subscribeModuleEvents( BiConsumer< Class< ? >, IModuleEventSubscriber< ? > > registry );
 	
 	IPreviewPredicate tryInstall( int slot, IModule< ? > module );
 	
