@@ -5,73 +5,84 @@ import com.fmum.common.FMUM;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.function.Supplier;
 
 /**
- * Content packs that organized as folders.
- * 
+ * For content packs that organized in form of folders.
+ *
  * @author Giant_Salted_Fish
  */
 public class FolderPack extends LocalPack
 {
-	public FolderPack( File source ) { super( source ); }
+	public FolderPack( File source ) {
+		super( source );
+	}
 	
 	@Override
-	public void load()
+	public void loadContent( ILoadContext ctx )
 	{
-		// Read pack info first if it exists.
-		final File infoFile = new File( this.source, this.infoFile() );
-		if ( infoFile.exists() )
+		// Read pack metadata first if it exists.
+		final File meta_file = new File( this.source, META_FILE_PATH );
+		if ( meta_file.exists() )
 		{
-			try ( FileReader in = new FileReader( infoFile ) ) { this.setupInfoWith( in ); }
+			try ( FileReader in = new FileReader( meta_file ) )
+			{
+				final PackMetadataTemplate data = ctx.gson().
+													 fromJson( in, PackMetadataTemplate.class );
+				this._setupMetaDataWith( data );
+			}
 			catch ( IOException e ) {
-				FMUM.logException( e, ERROR_LOADING_INFO, this.sourceName() + "/" + this.infoFile() );
+				FMUM.logException( e, ERROR_LOADING_INFO, this.sourceName() + "/pack.json" );
 			}
 		}
 		
-		// Load all types in rest folders except "assets/" folder.
+		// Load all types in rest folder except the ignored ones(for example, "assets/" folder).
 		for ( final File dir : this.source.listFiles() )
 		{
-			final String dirName = dir.getName();
-			if ( dir.isDirectory() && !this.ignoredEntries.contains( dirName ) )
+			final String dir_name = dir.getName();
+			if ( dir.isDirectory() && !this.ignored_entries.contains( dir_name ) )
 			{
-				final String fallbackType = dirName;
-				final Supplier< String > sourceTrace = () -> dirName;
-				this.tryLoadFrom( dir, fallbackType, sourceTrace );
+				final String fallback_type = dir_name;
+				this._tryLoadFrom( dir, fallback_type, dir_name, ctx );
 			}
 		}
 	}
 	
-	protected void tryLoadFrom( File dir, String fallbackType, Supplier< String > parentPath )
-	{
-		for ( final File file : dir.listFiles() )
+	protected void _tryLoadFrom(
+		File search_in_dir,
+		String fallback_type,
+		String parent_path,
+		ILoadContext ctx
+	) {
+		for ( final File file : search_in_dir.listFiles() )
 		{
-			final String fName = file.getName();
+			final String file_name = file.getName();
+			final String file_path = parent_path + "/" + file_name;
 			if ( file.isDirectory() )
 			{
-				this.tryLoadFrom( file, fallbackType, () -> parentPath.get() + "/" + fName );
+				this._tryLoadFrom( file, fallback_type, file_path, ctx );
 				continue;
 			}
 			
-			final Supplier< String > sourceTrace =
-				() -> this.sourceName() + "/" + parentPath.get() + "/" + fName;
 			try
 			{
-				if ( fName.endsWith( ".json" ) )
+				if ( file_name.endsWith( ".json" ) )
 				{
-					try ( FileReader in = new FileReader( file ) )
-					{
-						final String name = fName.substring( 0, fName.length() - 5 );
-						this.loadJsonType( in, fallbackType, name, sourceTrace );
+					try ( FileReader in = new FileReader( file ) ) {
+						this._loadJsonEntry( in, fallback_type, file_path, ctx );
 					}
 				}
-				else if ( fName.endsWith( ".class" ) )
-				{
-					final String classPath = parentPath.get().replace( '/', '.' ) + "." + fName;
-					this.loadClassType( classPath );
-				}
+				
+//				else if ( file_name.endsWith( ".class" ) )
+//				{
+//					final String class_path = file_path.replace( '/', '.' );
+//					this._loadClassEntry( class_path, context );
+//				}
 			}
-			catch ( Exception e ) { FMUM.logException( e, ERROR_LOADING_TYPE, sourceTrace.get() ); }
+			catch ( Exception e )
+			{
+				final String source_trace = this.sourceName() + "/" + file_path;
+				FMUM.logException( e, ERROR_LOADING_TYPE, source_trace );
+			}
 		}
 	}
 }
