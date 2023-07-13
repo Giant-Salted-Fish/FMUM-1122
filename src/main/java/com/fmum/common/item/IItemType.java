@@ -1,25 +1,13 @@
 package com.fmum.common.item;
 
-import com.fmum.common.meta.IMeta;
-import com.fmum.common.meta.MetaRegistry;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import com.fmum.common.Registry;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-/**
- * @see IItem
- * @author Giant_Salted_Fish
- */
-public interface IItemType extends IMeta
+public interface IItemType
 {
-	MetaRegistry< IItemType > REGISTRY = new MetaRegistry<>();
+	Registry< IItemType > REGISTRY = new Registry<>( IItemType::name );
 	
 	IItemType VANILLA = new IItemType()
 	{
@@ -27,35 +15,34 @@ public interface IItemType extends IMeta
 		public String name() { return "vanilla"; }
 		
 		@Override
-		public Item item() { return Items.AIR; }
+		public Item vanillaItem() { return Items.AIR; }
 		
 		@Override
-		public IItem getContexted( ItemStack stack ) { return IItem.VANILLA; }
+		public IItem getItem( ItemStack stack ) { return IItem.VANILLA; }
 	};
 	
-	// TODO: for paintjob name override?
-//	public static final String
-//		TRANSLATION_PREFIX = "item.",
-//		TRANSLATION_SUFFIX = ".name";
+	String name();
+	
+	Item vanillaItem();
+	
+	IItem getItem( ItemStack stack );
 	
 	/**
-	 * @return Corresponding vanilla item.
+	 * Given item must be an instance of {@link IFMUMVanillaItem}.
+	 *
+	 * @see #getFromOrDefault(Item)
 	 */
-	Item item();
-	
-	IItem getContexted( ItemStack stack );
-	
-	default void onRegisterItem( RegistryEvent.Register< Item > evt ) {
-		evt.getRegistry ().register( this.item() );
+	static IItemType getFrom( Item vanilla_item ) {
+		return ( ( IFMUMVanillaItem ) vanilla_item ).type();
 	}
 	
-	// FIXME: model register need to be override if item has sub-types
-	@SideOnly( Side.CLIENT )
-	default void onModelRegister( ModelRegistryEvent ignored )
+	/**
+	 * @see #getFrom(Item)
+	 * @return {@link #VANILLA} if given item is not an instance of {@link IFMUMVanillaItem}.
+	 */
+	static IItemType getFromOrDefault( Item vanilla_item )
 	{
-		final Item item = this.item();
-		final ResourceLocation location = item.getRegistryName();
-		final ModelResourceLocation modelRes = new ModelResourceLocation( location, "inventory" );
-		ModelLoader.setCustomModelResourceLocation( item, 0, modelRes );
+		final boolean is_fmum_item = vanilla_item instanceof IFMUMVanillaItem;
+		return is_fmum_item ? getFrom( vanilla_item ) : VANILLA;
 	}
 }

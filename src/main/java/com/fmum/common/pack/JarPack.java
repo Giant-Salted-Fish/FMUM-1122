@@ -7,72 +7,77 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.file.Files;
-import java.util.function.Supplier;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class JarPack extends LocalPack
 {
-	public JarPack( File source ) { super( source ); }
+	public JarPack( File source ) {
+		super( source );
+	}
 	
 	@Override
-	public void load()
+	public void loadContent( ILoadContext ctx )
 	{
-		// Load pack info first if it exists.
+		// Load pack metadata if exists.
 		try (
-			ZipInputStream zipIn = new ZipInputStream(
-				Files.newInputStream( this.source.toPath() )
-			)
+			ZipInputStream in = new ZipInputStream(
+				Files.newInputStream( this.source.toPath() ) )
 		) {
-			final String infoFile = this.infoFile();
-			for ( ZipEntry e; ( e = zipIn.getNextEntry () ) != null; )
+			for ( ZipEntry e; ( e = in.getNextEntry() ) != null; )
 			{
-				final boolean isInfoFile = e.getName().equals( infoFile );
-				if ( isInfoFile ) { this.setupInfoWith( new InputStreamReader( zipIn ) ); }
+				if ( e.getName().equals( META_FILE_PATH ) )
+				{
+					final Reader reader = new InputStreamReader( in );
+					final PackMetadataTemplate data = ctx.gson()
+						.fromJson( reader, PackMetadataTemplate.class );
+					this._setupMetaDataWith( data );
+					break;
+				}
 			}
 		}
 		catch ( IOException e )
 		{
-			final String filePath = this.sourceName() + "/" + this.infoFile();
-			FMUM.logException( e, ERROR_LOADING_INFO, filePath );
+			final String file_path = this.sourceName() + "/" + META_FILE_PATH;
+			FMUM.logException( e, ERROR_LOADING_INFO, file_path );
 		}
 		
 		try (
-			ZipInputStream zipIn = new ZipInputStream(
-				Files.newInputStream( this.source.toPath() )
-			)
+			ZipInputStream in = new ZipInputStream(
+				Files.newInputStream( this.source.toPath() ) )
 		) {
-			for ( ZipEntry e; ( e = zipIn.getNextEntry() ) != null; )
+			for ( ZipEntry e; ( e = in.getNextEntry() ) != null; )
 			{
-				if ( e.isDirectory() ) { continue; }
+				if ( e.isDirectory() ) {
+					continue;
+				}
 				
-				final String eName = e.getName();
-				final int i = eName.indexOf( '/' );
-				final boolean isInFolder = i != -1;
-				if ( !isInFolder ) { continue; }
+				final String file_path = e.getName();
+				final int i = file_path.indexOf( '/' );
+				final boolean not_in_folder = i < 0;
+				if ( not_in_folder ) {
+					continue;
+				}
 				
-				final String entry = eName.substring( 0, i );
-				final boolean isIgnoredFolder = this.ignoredEntries.contains( entry );
-				if ( isIgnoredFolder ) { continue; }
+				final String entry = file_path.substring( 0, i );
+				final boolean is_ignored_entry = this.ignored_entries.contains( entry );
+				if ( is_ignored_entry ) {
+					continue;
+				}
 				
-				final Supplier< String > sourceTrace = () -> this.sourceName() + "/" + eName;
 				try
 				{
-					if ( eName.endsWith( ".json" ) )
+					if ( file_path.endsWith( ".json" ) )
 					{
-						final Reader in = new InputStreamReader( zipIn );
-						final String fallbackType = entry;
-						final int nameHead = eName.lastIndexOf( '/' ) + 1;
-						final int nameEnd = eName.length() - ".json".length();
-						final String name = eName.substring( nameHead,  nameEnd );
-						this.loadJsonType( in, fallbackType, name, sourceTrace );
-					}
-					else if ( eName.endsWith( ".class" ) ) {
-						this.loadClassType( eName.replace( '/', '.' ) );
+						final Reader reader = new InputStreamReader( in );
+						final String fallback_type = entry;
+						this._loadJsonEntry( reader, fallback_type, file_path, ctx );
 					}
 				}
-				catch ( Exception ee ) {
-					FMUM.logException( ee, ERROR_LOADING_TYPE, sourceTrace.get() );
+				catch ( Exception e_ )
+				{
+					final String source_trace = this.sourceName() + "/" + file_path;
+					FMUM.logException( e_, ERROR_LOADING_TYPE, source_trace );
 				}
 			}
 		}

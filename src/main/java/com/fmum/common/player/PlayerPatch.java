@@ -1,9 +1,7 @@
 package com.fmum.common.player;
 
-import com.fmum.common.FMUM;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IItem;
-import com.fmum.common.item.IItemTypeHost;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
@@ -16,108 +14,79 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/**
- * Additional patch that added to the player to do extra logic required by {@link FMUM}.
- * 
- * @author Giant_Salted_Fish
- */
 public class PlayerPatch implements ICapabilityProvider
 {
-	@CapabilityInject( PlayerPatch.class )
-	private static final Capability< PlayerPatch > CAPABILITY = null;
+	protected IItem main_item = IItem.VANILLA;
+	protected IEquippedItem< ? > main_equipped = IEquippedItem.VANILLA;
 	
-	/**
-	 * Host player of this patch.
-	 */
-	protected final EntityPlayer player;
+	protected IItem off_item = IItem.VANILLA;
+	protected IEquippedItem< ? > off_equipped = IEquippedItem.VANILLA;
 	
-	/**
-	 * Operation that is currently executing. {@link IOperation#NONE} if is idle.
-	 */
-	protected IOperation executing = IOperation.NONE;
+	protected IOperation operation = IOperation.NONE;
 	
-	// For main hand item.
-	protected IItem mainItem = IItem.VANILLA;
-	protected IEquippedItem< ? > mainEquipped = IEquippedItem.VANILLA;
-	
-	// For off-hand item.
-	protected IItem offItem = IItem.VANILLA;
-	protected IEquippedItem< ? > offEquipped = IEquippedItem.VANILLA;
-	
-	public PlayerPatch( EntityPlayer player ) { this.player = player; }
-	
-	public void tick()
+	public void tick( EntityPlayer player )
 	{
-		final InventoryPlayer inv = this.player.inventory;
+		final InventoryPlayer inv = player.inventory;
 		
-		// Main hand stuff.
+		// Main hand update.
 		{
 			final EnumHand hand = EnumHand.MAIN_HAND;
 			final ItemStack stack = inv.getCurrentItem();
-			final IItem item = IItemTypeHost.getItemOrDefault( stack );
+			final IItem item = IItem.getFromOrDefault( stack );
 			
-			if ( item.stackId() != this.mainItem.stackId() )
+			final boolean is_equipped_changed = item.stackId() != this.main_item.stackId();
+			if ( is_equipped_changed )
 			{
-				this.mainItem = item;
-				this.mainEquipped = item.onTakeOut( this.player, hand );
-				this.executing = this.executing.onItemChange( this.mainEquipped, this.player );
+				this.main_item = item;
+				this.main_equipped = item.onTakeOut( player, hand );
+				this.operation = this.operation.onEquippedChanged( this.main_equipped, player );
 			}
 			
-			this.mainEquipped.tickInHand( item, this.player, hand );
+			this.main_equipped.tickInHand( item, player, hand );
 		}
 		
-		// Off-hand stuff.
+		// Off-hand update.
 		{
 			final EnumHand hand = EnumHand.OFF_HAND;
 			final ItemStack stack = inv.offHandInventory.get( 0 );
-			final IItem item = IItemTypeHost.getItemOrDefault( stack );
+			final IItem item = IItem.getFromOrDefault( stack );
 			
-			if ( item.stackId() != this.offItem.stackId() )
+			final boolean is_equipped_changed = item.stackId() != this.off_item.stackId();
+			if ( is_equipped_changed )
 			{
-				this.offItem = item;
-				this.offEquipped = item.onTakeOut( this.player, hand );
+				this.off_item = item;
+				this.off_equipped = item.onTakeOut( player, hand );
 			}
 			
-			this.offEquipped.tickInHand( item, this.player, hand );
+			this.off_equipped.tickInHand( item, player, hand );
 		}
 		
-		this.executing = this.executing.tick( this.player );
+		this.operation = this.operation.tick( player );
 	}
 	
-	public final IEquippedItem< ? > getEquipped( EnumHand hand ) {
-		return hand == EnumHand.OFF_HAND ? this.offEquipped : this.mainEquipped;
-	}
+	public final IOperation operation() { return this.operation; }
 	
-	public final IOperation executing() { return this.executing; }
 	
-	public final IOperation launch( IOperation operation ) {
-		return this.executing = this.executing.onOtherTryLaunch( operation, this.player );
-	}
-	
-	public final IOperation terminateExecuting() {
-		return this.executing = this.executing.terminate( this.player );
-	}
-	
-	public final IOperation toggleExecuting() {
-		return this.executing = this.executing.toggle( this.player );
-	}
+	@CapabilityInject( PlayerPatch.class )
+	private static final Capability< PlayerPatch > CAPABILITY = null;
 	
 	@Override
 	@SuppressWarnings( "ConstantValue" )
-	public final boolean hasCapability(
+	public boolean hasCapability(
 		@Nonnull Capability< ? > capability,
-		@Nullable EnumFacing facing )
-	{ return capability == CAPABILITY; }
+		@Nullable EnumFacing facing
+	) { return capability == CAPABILITY; }
 	
 	@Nullable
 	@Override
 	@SuppressWarnings( "ConstantValue" )
-	public final < T > T getCapability(
+	public < T > T getCapability(
 		@Nonnull Capability< T > capability,
 		@Nullable EnumFacing facing
 	) { return capability == CAPABILITY ? CAPABILITY.cast( this ) : null; }
 	
-	public static PlayerPatch get( EntityPlayer player ) {
+	@SuppressWarnings( "DataFlowIssue" )
+	public static PlayerPatch getFrom( EntityPlayer player ) {
 		return player.getCapability( CAPABILITY, null );
 	}
 }

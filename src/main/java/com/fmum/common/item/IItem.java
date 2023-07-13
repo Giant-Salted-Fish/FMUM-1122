@@ -1,16 +1,10 @@
 package com.fmum.common.item;
 
+import com.fmum.common.player.PlayerPatch;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-/**
- * Represents {@link IItemType} with context.
- * 
- * @author Giant_Salted_Fish
- */
 public interface IItem
 {
 	IItem VANILLA = new IItem()
@@ -20,26 +14,35 @@ public interface IItem
 		
 		@Override
 		public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand ) {
-			return IEquippedItem.VANILLA;
+			return null;
 		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public ResourceLocation texture() { return null; }
 	};
 	
 	/**
-	 * This will be used to determinate whether the item in hand has changed.
-	 * 
-	 * @return A universe id that identifies an item stack.
+	 * Used by {@link PlayerPatch} to determine whether the item in hand has changed or not.
 	 */
 	int stackId();
 	
-	/**
-	 * Called when player is trying to take out this item.
-	 */
 	IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand );
 	
-	@SideOnly( Side.CLIENT )
-	ResourceLocation texture();
+	/**
+	 * This will crash if the item of given stack is not of type {@link IFMUMVanillaItem}.
+	 *
+	 * @see #getFromOrDefault(ItemStack)
+	 */
+	static IItem getFrom( ItemStack stack )
+	{
+		final IItemType type = IItemType.getFrom( stack.getItem() );
+		return type.getItem( stack );
+	}
+	
+	/**
+	 * @see #getFrom(ItemStack)
+	 * @return {@link #VANILLA} if the item of given stack is not of type {@link IFMUMVanillaItem}.
+	 */
+	static IItem getFromOrDefault( ItemStack stack )
+	{
+		final IItemType type = IItemType.getFromOrDefault( stack.getItem() );
+		return type.getItem( stack );
+	}
 }

@@ -6,7 +6,6 @@ import com.fmum.client.gun.JsonGripModel;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.gun.IGunPart;
 import com.fmum.common.item.IEquippedItem;
-import com.fmum.common.load.IContentProvider;
 import com.fmum.util.ArmTracker;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Vec3f;

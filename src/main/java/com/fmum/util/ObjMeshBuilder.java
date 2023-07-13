@@ -11,7 +11,7 @@ import java.util.Optional;
 public class ObjMeshBuilder extends Mesh.Builder
 {
 	public ObjMeshBuilder load( String path ) throws Exception {
-		return this.load( new ResourceLocation( FMUM.MODID, path ) );
+		return this.load( new ResourceLocation( FMUM.MOD_ID, path ) );
 	}
 	
 	public ObjMeshBuilder load( ResourceLocation res ) throws Exception

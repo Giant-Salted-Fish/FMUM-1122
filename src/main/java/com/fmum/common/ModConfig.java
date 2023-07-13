@@ -7,13 +7,8 @@ import net.minecraftforge.common.config.Config.RangeDouble;
 import net.minecraftforge.common.config.Config.RangeInt;
 import net.minecraftforge.common.config.Config.RequiresWorldRestart;
 
-/**
- * Configurations that will be loaded on both client and server side.
- * 
- * @author Giant_Salted_Fish
- */
 @LangKey( "fmum.config.common" )
-@Config( modid = FMUM.MODID, category = "common" )
+@Config( modid = FMUM.MOD_ID, category = "common" )
 public final class ModConfig
 {
 	@LangKey( "fmum.config.common.max_modify_layers" )
@@ -49,17 +44,19 @@ public final class ModConfig
 	@RequiresWorldRestart
 	public static float camDropImpact = 1F;
 	
-	@LangKey( "fmum.config.common.shoot_request_timeout_ticks" )
-	@Comment( "How long the server will wait for next client shoot request to continue fire." )
-	@RangeInt( min = 1 )
-	public static int shootRequestTimeoutTicks = 5;
+//	@LangKey( "fmum.config.common.shoot_request_timeout_ticks" )
+//	@Comment( "How long the server will wait for next client shoot request to continue fire." )
+//	@RangeInt( min = 1 )
+//	public static int shootRequestTimeoutTicks = 5;
+//
+//	@LangKey( "fmum.config.common.misfire_possibility_multiplier" )
+//	@Comment(
+//		"This will impact the overall possibility to meet misfire rounds. Set to 0 will fully "
+//		+ "disable misfire. PS: This may not work on class based ammo types if they used "
+//		+ "customized misfire possibility control."
+//	)
+//	@RangeDouble( min = 0F )
+//	public static float misfirePossibilityMultiplier = 1F;
 	
-	@LangKey( "fmum.config.common.misfire_possibility_multiplier" )
-	@Comment(
-		"This will impact the overall possibility to meet misfire rounds. Set to 0 will fully "
-		+ "disable misfire. PS: This may not work on class based ammo types if they used "
-		+ "customized misfire possibility control."
-	)
-	@RangeDouble( min = 0F )
-	public static float misfirePossibilityMultiplier = 1F;
+	private ModConfig() { }
 }

@@ -1,121 +1,91 @@
 package com.fmum.common.pack;
 
 import com.fmum.common.FMUM;
-import com.fmum.common.load.BuildableLoader;
-import com.fmum.common.load.IContentProvider;
-import com.fmum.common.meta.IMeta;
-import com.fmum.common.meta.Meta;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.Reader;
-import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
+import java.util.Optional;
+import java.util.Set;
 
-/**
- * Represents a content pack on local disk.
- * 
- * @author Giant_Salted_Fish
- */
-public abstract class LocalPack extends Meta implements IContentProvider
+public abstract class LocalPack implements IContentPack
 {
 	protected static final String ERROR_LOADING_INFO = "fmum.error_loading_pack_info";
 	protected static final String ERROR_LOADING_TYPE = "fmum.error_loading_type";
 	
-	/**
-	 * Source file of this pack on local disk.
-	 */
+	protected static final String META_FILE_PATH = "pack.json";
+	
 	protected final File source;
+	protected final HashSet< String > ignored_entries = new HashSet<>();
 	
-	/**
-	 * Author of the pack. Usually read from the ".json" pack info file.
-	 */
+	protected String name;
 	protected String author = "fmum.author_missing";
-	
-	protected final HashSet< String > ignoredEntries = new HashSet<>();
 	
 	protected LocalPack( File source )
 	{
-		this.name = source.getName();
 		this.source = source;
-		this.ignoredEntries.add( "assets" );
+		this.name = source.getName();
+		this.ignored_entries.add( "assets" );
 	}
 	
 	@Override
-	public void preLoad( BiConsumer< Type, JsonDeserializer< ? > > gsonAdapterRegis ) {
-		FMUM.MOD.addResourceDomain( this.source );
+	public void prepareLoad( IPrepareContext ctx ) {
+		ctx.regisResourceDomain( this.source );
 	}
 	
 	@Override
-	public String author() { return this.author; }
+	public String name() {
+		return this.name;
+	}
 	
 	@Override
-	public String sourceName() { return this.source.getName(); }
+	public String author() {
+		return this.author;
+	}
 	
-	/**
-	 * @return Path of the pack info file to load.
-	 */
-	protected String infoFile() { return "pack.json"; }
+	@Override
+	public String sourceName() {
+		return this.source.getName();
+	}
 	
-	/**
-	 * This is required to be complete before the actual type load to ensure the integrity of the
-	 * pack's information.
-	 */
-	protected void setupInfoWith( Reader in )
+	protected void _setupMetaDataWith( PackMetadataTemplate data )
 	{
-		final JsonObject obj = FMUM.GSON.fromJson( in, JsonObject.class );
-		if ( obj.has( "name" ) ) {
-			this.name = obj.get( "name" ).getAsString();
-		}
-		if ( obj.has( "author" ) ) {
-			this.author = obj.get( "author" ).getAsString();
-		}
-		if ( obj.has( "ignoredEntries" ) )
-		{
-			final JsonArray arr = obj.get( "ignoredEntries" ).getAsJsonArray();
-			for ( int i = arr.size(); i-- > 0; ) {
-				this.ignoredEntries.add( arr.get( i ).getAsString() );
-			}
-		}
+		this.name = Optional.ofNullable( data.name ).orElse( this.name );
+		this.author = Optional.ofNullable( data.author ).orElse( this.author );
+		this.ignored_entries.addAll( data.ignored_entries );
 		// TODO: handle version check
 	}
 	
-	/**
-	 * Helper method to load Json meta type files.
-	 *
-	 * @param fallbackType Type to use if __type__ field is absent.
-	 * @param sourceTrace Used on error print.
-	 */
-	protected final void loadJsonType(
+	@Nullable
+	protected Object _loadJsonEntry(
 		Reader in,
-		String fallbackType,
-		String name,
-		Supplier< String > sourceTrace
+		String fallback_type,
+		String file_path,
+		ILoadContext ctx
 	) {
-		final JsonObject obj = FMUM.GSON.fromJson( in, JsonObject.class );
+		final JsonObject obj = ctx.gson().fromJson( in, JsonObject.class );
 		
-		// Check if it has specified its type.
+		// Check if it has specified a type.
 		final JsonElement type = obj.get( "__type__" );
-		final String entry = type != null ? type.getAsString().toLowerCase() : fallbackType;
-		final BuildableLoader< ? extends IMeta > loader = FMUM.TYPE_LOADERS.get( entry );
+		final String loader_entry = type != null ? type.getAsString() : fallback_type;
 		
-		if ( loader != null ) { loader.parser.apply( obj ).build( name, this ); }
-		else { FMUM.logError( "fmum.type_loader_not_found", sourceTrace.get(), entry ); }
+		try { return ctx.loadType( loader_entry, obj ); }
+		catch ( LoaderNotFoundException e )
+		{
+			final String path = this.sourceName() + "/" + file_path;
+			FMUM.logError( "fmum.type_loader_not_found", path, loader_entry );
+		}
+		return null;
 	}
 	
-	protected final void loadClassType( String filePath ) throws Exception
+	protected static class PackMetadataTemplate
 	{
-		final int suffixLen = ".class".length();
-		final String path = filePath.substring( 0, filePath.length() - suffixLen );
-		final int lastCommaAt = Math.min( 0, path.lastIndexOf( '.' ) );
-		final String name = path.substring( lastCommaAt );
-		FMUM.MOD.loadClass( path )
-			.getConstructor( String.class, IContentProvider.class )
-			.newInstance( name, this );
+		public String name;
+		public String author;
+		public Set< String > ignored_entries = Collections.emptySet();
 	}
 }
