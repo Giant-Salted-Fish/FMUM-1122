@@ -76,7 +76,7 @@ fmum.error_loading_animation=加载动画 %s 时遇到错误
 fmum.exception_call_model_load=执行 %s 的模型加载方法时出现异常，这很有可能导致游戏崩溃
 
 # 内容包摘要
-fmum.core_pack=FMUM 核心内容包
+fmum.pack=FMUM 核心内容包
 fmum.author=一条大大的咸鱼
 fmum.author_missing=未知作者
 fmum.description_missing=描述未被提供

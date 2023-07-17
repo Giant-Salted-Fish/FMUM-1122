@@ -1,9 +1,16 @@
 package com.fmum.common.item;
 
 import com.fmum.common.Registry;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IItemType
 {
@@ -20,6 +27,20 @@ public interface IItemType
 		@Override
 		public IItem getItem( ItemStack stack ) { return IItem.VANILLA; }
 	};
+	
+	default void onItemRegister( RegistryEvent.Register< Item > evt ) {
+		evt.getRegistry().register( this.vanillaItem() );
+	}
+	
+	// FIXME: model register need to be override if item has sub-types
+	@SideOnly( Side.CLIENT )
+	default void onModelRegister( ModelRegistryEvent evt )
+	{
+		final Item item = this.vanillaItem();
+		final ResourceLocation res_loc = item.getRegistryName();
+		final ModelResourceLocation model_res = new ModelResourceLocation( res_loc, "inventory" );
+		ModelLoader.setCustomModelResourceLocation( item, 0, model_res );
+	}
 	
 	String name();
 	

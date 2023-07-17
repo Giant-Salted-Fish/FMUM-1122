@@ -18,7 +18,7 @@ public class FolderPack extends LocalPack
 	}
 	
 	@Override
-	public void loadContent( ILoadContext ctx )
+	protected IContentPack _loadContentPack( ILoadContext ctx )
 	{
 		// Read pack metadata first if it exists.
 		final File meta_file = new File( this.source, META_FILE_PATH );
@@ -45,6 +45,8 @@ public class FolderPack extends LocalPack
 				this._tryLoadFrom( dir, fallback_type, dir_name, ctx );
 			}
 		}
+		
+		return this;
 	}
 	
 	protected void _tryLoadFrom(

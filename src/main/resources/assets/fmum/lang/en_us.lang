@@ -76,7 +76,7 @@ fmum.error_loading_animation=An error has occurred while attempting to load anim
 fmum.exception_call_model_load=An exception was thrown from the model load method of <%s>. This will be highly possible to crash the game.
 
 # Content pack
-fmum.core_pack=FMUM Core Content Pack
+fmum.pack=FMUM Core Pack
 fmum.author=Giant_Salted_Fish
 fmum.author_missing=Unknown author
 fmum.description_missing=Description missing

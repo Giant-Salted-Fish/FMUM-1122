@@ -1,6 +1,7 @@
 package com.fmum.common.pack;
 
 import com.fmum.common.FMUM;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -12,7 +13,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-public abstract class LocalPack implements IContentPack
+public abstract class LocalPack implements ILoadablePack, IContentPack
 {
 	protected static final String ERROR_LOADING_INFO = "fmum.error_loading_pack_info";
 	protected static final String ERROR_LOADING_TYPE = "fmum.error_loading_type";
@@ -33,11 +34,6 @@ public abstract class LocalPack implements IContentPack
 	}
 	
 	@Override
-	public void prepareLoad( IPrepareContext ctx ) {
-		ctx.regisResourceDomain( this.source );
-	}
-	
-	@Override
 	public String name() {
 		return this.name;
 	}
@@ -51,6 +47,15 @@ public abstract class LocalPack implements IContentPack
 	public String sourceName() {
 		return this.source.getName();
 	}
+	
+	@Override
+	public void prepareLoad( IPrepareContext ctx )
+	{
+		ctx.regisResourceDomain( this.source );
+		ctx.regisPackLoader( this::_loadContentPack );
+	}
+	
+	protected abstract IContentPack _loadContentPack( ILoadContext ctx );
 	
 	protected void _setupMetaDataWith( PackMetadataTemplate data )
 	{
@@ -73,7 +78,28 @@ public abstract class LocalPack implements IContentPack
 		final JsonElement type = obj.get( "__type__" );
 		final String loader_entry = type != null ? type.getAsString() : fallback_type;
 		
-		try { return ctx.loadType( loader_entry, obj ); }
+		final IBuildContext build_context = new IBuildContext()
+		{
+			@Override
+			public String fallbackName()
+			{
+				final int start = file_path.lastIndexOf( '/' );
+				final int end = file_path.length() - ".json".length();
+				return file_path.substring( start, end );
+			}
+			
+			@Override
+			public IContentPack contentPack() {
+				return LocalPack.this;
+			}
+			
+			@Override
+			public Gson gson() {
+				return ctx.gson();
+			}
+		};
+		
+		try { return ctx.loadContent( loader_entry, obj, build_context ); }
 		catch ( LoaderNotFoundException e )
 		{
 			final String path = this.sourceName() + "/" + file_path;

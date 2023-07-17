@@ -1,14 +1,20 @@
 package com.fmum.client;
 
 import com.fmum.common.FMUM;
+import com.fmum.common.FMUMResource;
+import com.fmum.common.Registry;
 import com.fmum.common.network.IPacket;
+import com.fmum.common.pack.ILoadablePack.IPrepareContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.shader.Framebuffer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GLContext;
+
+import java.util.HashMap;
 
 @SideOnly( Side.CLIENT )
 public final class FMUMClient extends FMUM
@@ -16,6 +22,8 @@ public final class FMUMClient extends FMUM
 	public static final FMUMClient MOD = new FMUMClient();
 	public static final Minecraft MC = Minecraft.getMinecraft();
 	public static final GameSettings SETTINGS = MC.gameSettings;
+	
+	private final HashMap< String, ResourceLocation > texture_pool = new HashMap<>();
 	
 	private FMUMClient() { }
 	
@@ -34,6 +42,20 @@ public final class FMUMClient extends FMUM
 		
 		// Do load content packs!
 		super._loadContentPacks();
+	}
+	
+	@Override
+	protected void _prepareContentPackLoad( IPrepareContext ctx )
+	{
+		super._prepareContentPackLoad( ctx );
+		
+		ctx.regisGsonAdapter(
+			ResourceLocation.class,
+			( json, typeOfT, context ) -> {
+				final String path = json.getAsString();
+				return this.texture_pool.computeIfAbsent( path, FMUMResource::new );
+			}
+		);
 	}
 	
 	@Override

@@ -9,7 +9,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * 
  * @author Giant_Salted_Fish
  */
-@EventBusSubscriber( modid = FMUM.MOD_ID, value = Side.CLIENT )
+@EventBusSubscriber( modid = FMUM.MODID, value = Side.CLIENT )
 public class Dev
 {
 	public static int dirtyMark() { return 0; }

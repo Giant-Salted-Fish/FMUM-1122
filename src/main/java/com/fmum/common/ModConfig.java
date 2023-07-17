@@ -8,7 +8,7 @@ import net.minecraftforge.common.config.Config.RangeInt;
 import net.minecraftforge.common.config.Config.RequiresWorldRestart;
 
 @LangKey( "fmum.config.common" )
-@Config( modid = FMUM.MOD_ID, category = "common" )
+@Config( modid = FMUM.MODID, category = "common" )
 public final class ModConfig
 {
 	@LangKey( "fmum.config.common.max_modify_layers" )

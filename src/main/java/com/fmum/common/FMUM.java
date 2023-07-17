@@ -1,15 +1,21 @@
 package com.fmum.common;
 
 import com.fmum.client.FMUMClient;
+import com.fmum.client.ModConfigClient;
 import com.fmum.common.item.IItem;
 import com.fmum.common.network.IPacket;
 import com.fmum.common.network.PacketHandler;
 import com.fmum.common.pack.FolderPack;
 import com.fmum.common.pack.IContentPack;
-import com.fmum.common.pack.IContentPack.ILoadContext;
-import com.fmum.common.pack.IContentPack.IPrepareContext;
+import com.fmum.common.pack.ILoadablePack;
+import com.fmum.common.pack.ILoadablePack.IBuildContext;
+import com.fmum.common.pack.ILoadablePack.IContentLoader;
+import com.fmum.common.pack.ILoadablePack.ILoadContext;
+import com.fmum.common.pack.ILoadablePack.IPrepareContext;
 import com.fmum.common.pack.JarPack;
 import com.fmum.common.player.PlayerPatch;
+import com.fmum.common.tab.CreativeTab;
+import com.fmum.common.tab.ICreativeTab;
 import com.fmum.util.AngleAxis4f;
 import com.fmum.util.Quat4f;
 import com.fmum.util.Vec3f;
@@ -17,7 +23,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonObject;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.server.MinecraftServer;
@@ -39,10 +44,9 @@ import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.concurrent.Callable;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -52,16 +56,16 @@ import java.util.regex.Pattern;
  * @author Giant_Salted_Fish
  */
 @Mod(
-	modid = FMUM.MOD_ID,
+	modid = FMUM.MODID,
 	name = FMUM.MOD_NAME,
 	version = FMUM.MOD_VERSION,
 	acceptedMinecraftVersions = "[1.12, 1.13)",
 	guiFactory = "com.fmum.client.ConfigGuiFactory"
 //	, clientSideOnly = true
 )
-public class FMUM
+public class FMUM implements IContentPack
 {
-	public static final String MOD_ID = "fmum";
+	public static final String MODID = "fmum";
 	public static final String MOD_NAME = "FMUM 2.0";
 	public static final String MOD_VERSION = "0.3.3-alpha";
 	
@@ -84,9 +88,41 @@ public class FMUM
 	 * @see #logError(String, Object...)
 	 * @see #logException(Throwable, String, Object...)
 	 */
-	public final static Logger LOGGER = LogManager.getLogger( MOD_ID );
+	public final static Logger LOGGER = LogManager.getLogger( MODID );
 	
-	protected static final PacketHandler PACKET_HANDLER = new PacketHandler( MOD_ID );
+	public static final ICreativeTab DEFAULT_CREATIVE_TAB = new CreativeTab()
+	{
+		private Runnable initializer = () -> {
+			final IBuildContext ctx = new IBuildContext()
+			{
+				@Override
+				public String fallbackName() {
+					return MODID;
+				}
+				
+				@Override
+				public IContentPack contentPack() {
+					return MOD;
+				}
+				
+				@Override
+				public Gson gson() {
+					return null;
+				}
+			};
+			
+			if ( MOD.isClient() ) {
+				this.buildClientSide( ctx );
+			}
+			else {
+				this.buildServerSide( ctx );
+			}
+			
+			this.initializer = () -> { };
+		};
+	};
+	
+	protected static final PacketHandler PACKET_HANDLER = new PacketHandler( MODID );
 	
 	
 	public final Registry< IContentPack > loaded_packs = new Registry<>( IContentPack::name );
@@ -114,34 +150,32 @@ public class FMUM
 	{
 		// Check content pack folder.
 		// TODO: if load packs from mods dir then allow the player to disable content pack folder.
-		final File pack_dir = new File( this.game_dir, MOD_ID );
+		final File pack_dir = new File( this.game_dir, MODID );
 		if ( !pack_dir.exists() )
 		{
 			pack_dir.mkdirs();
-			logInfo( "fmum.pack_dir_created", MOD_ID );
+			logInfo( "fmum.pack_dir_created", MODID );
 		}
 		
 		// Find possible content packs to load.
-		final HashSet< IContentPack > content_packs = new HashSet<>();
+		final LinkedList< ILoadablePack > content_packs = new LinkedList<>();
 		final Pattern jarRegex = Pattern.compile( "(.+)\\.(zip|jar)$" );
-		final Consumer< IContentPack > add_pack_and_log = pack -> {
-			content_packs.add( pack );
-			logInfo( "fmum.detect_content_pack", pack.sourceName() );
-		};
 		
 		for ( final File file : pack_dir.listFiles() )
 		{
 			final boolean is_folder_pack = file.isDirectory();
 			if ( is_folder_pack )
 			{
-				add_pack_and_log.accept( new FolderPack( file ) );
+				content_packs.add( new FolderPack( file ) );
+				logInfo( "fmum.detect_content_pack", file.getName() );
 				continue;
 			}
 			
 			final boolean is_jar_pack = jarRegex.matcher( file.getName() ).matches();
 			if ( is_jar_pack )
 			{
-				add_pack_and_log.accept( new JarPack( file ) );
+				content_packs.add( new JarPack( file ) );
+				logInfo( "fmum.detect_content_pack", file.getName() );
 				continue;
 			}
 			
@@ -157,19 +191,26 @@ public class FMUM
 		gson_builder.setLenient();
 		gson_builder.setPrettyPrinting();
 		
-		Registry< BiFunction< JsonObject, Gson, ? > > type_loaders = new Registry<>();
+		Registry< IContentLoader > content_loaders = new Registry<>();
 		
 		// Call prepare load for each pack.
+		final LinkedList< Function< ILoadContext, IContentPack > >
+			pack_loaders = new LinkedList<>();
 		final IPrepareContext prepare_context = new IPrepareContext()
 		{
+			@Override
+			public void regisPackLoader( Function< ILoadContext, IContentPack > pack_loader ) {
+				pack_loaders.add( pack_loader );
+			}
+			
 			@Override
 			public void regisGsonAdapter( Type type, JsonDeserializer< ? > adapter ) {
 				gson_builder.registerTypeAdapter( type, adapter );
 			}
 			
 			@Override
-			public void regisTypeLoader( String entry, BiFunction< JsonObject, Gson, ? > loader ) {
-				type_loaders.regis( entry, loader );
+			public void regisContentLoader( String entry, IContentLoader loader ) {
+				content_loaders.regis( entry, loader );
 			}
 			
 			@Override
@@ -227,13 +268,13 @@ public class FMUM
 			
 			@Nullable
 			@Override
-			public BiFunction< JsonObject, Gson, ? > getTypeLoader( String entry ) {
-				return type_loaders.get( entry );
+			public IContentLoader getContentLoader( String entry ) {
+				return content_loaders.get( entry );
 			}
 		};
-		content_packs.forEach( pack -> {
+		pack_loaders.forEach( loader -> {
+			final IContentPack pack = loader.apply( load_context );
 			logInfo( "fmum.load_content_pack", pack.sourceName() );
-			pack.loadContent( load_context );
 			this.loaded_packs.regis( pack );
 		} );
 	}
@@ -283,6 +324,21 @@ public class FMUM
 	}
 	
 	protected void _reloadResources() { }
+	
+	@Override
+	public final String name() {
+		return "fmum.pack";
+	}
+	
+	@Override
+	public final String author() {
+		return "fmum.author";
+	}
+	
+	@Override
+	public final String sourceName() {
+		return MOD_NAME;
+	}
 	
 	/**
 	 * Use this to do localization if your code runs on both side to avoid crash.

@@ -1,20 +1,25 @@
 package com.fmum.common;
 
 import com.fmum.client.player.PlayerPatchClient;
+import com.fmum.common.item.IItemType;
 import com.fmum.common.network.PacketConfigSync;
 import com.fmum.common.player.PlayerPatch;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 
-@EventBusSubscriber( modid = FMUM.MOD_ID )
+import java.util.Collection;
+
+@EventBusSubscriber( modid = FMUM.MODID)
 final class EventHandler
 {
 	private EventHandler() { }
@@ -56,6 +61,31 @@ final class EventHandler
 		);
 		MinecraftForge.EVENT_BUS.register( player_patcher );
 	}
+	
+	@SubscribeEvent
+	public static void onRegisterItem( RegistryEvent.Register< Item > evt )
+	{
+		FMUM.logInfo( "fmum.on_item_regis" );
+		
+		final Collection< IItemType > items = IItemType.REGISTRY.values();
+		items.forEach( it -> it.onItemRegister( evt ) );
+		
+		FMUM.logInfo( "fmum.item_regis_complete", items.size() );
+	}
+	
+//	@SubscribeEvent
+//	public static void onRegisterSound( RegistryEvent.Register< SoundEvent > evt )
+//	{
+//		FMUM.logInfo( "fmum.on_sound_regis" ); // TODO: translation
+//
+//		final IForgeRegistry< SoundEvent > registry = evt.getRegistry ();
+//		final Collection< SoundEvent > sounds = FMUM.MOD.soundPool.values();
+//		sounds.forEach( registry::register );
+//
+//		FMUM.logInfo( "fmum.sound_regis_complete", sounds.size() );
+//
+//		// TODO: clear sound pool?
+//	}
 	
 	@SubscribeEvent
 	public static void onPlayerTick( PlayerTickEvent evt )
