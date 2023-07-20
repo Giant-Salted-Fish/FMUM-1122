@@ -1,7 +1,6 @@
 package com.fmum.common;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.client.ModConfigClient;
 import com.fmum.common.item.IItem;
 import com.fmum.common.network.IPacket;
 import com.fmum.common.network.PacketHandler;
@@ -46,6 +45,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -253,7 +253,12 @@ public class FMUM implements IContentPack
 			}
 		};
 		this._prepareContentPackLoad( prepare_context );
-		content_packs.forEach( pack -> pack.prepareLoad( prepare_context ) );
+		final Consumer< ILoadablePack > call_prepare_load = (
+			this.isClient()
+			? pack -> pack.prepareLoadClientSide( prepare_context )
+			: pack -> pack.prepareLoadServerSide( prepare_context )
+		);
+		content_packs.forEach( call_prepare_load );
 		
 		final Gson gson = gson_builder.create();
 		this._reloadResources();
@@ -281,7 +286,7 @@ public class FMUM implements IContentPack
 	
 	protected void _prepareContentPackLoad( IPrepareContext ctx )
 	{
-		// Register common gson adapters.
+		// Regis common gson adapters.
 		ctx.regisGsonAdapter(
 			Vec3f.class,
 			( json, type_of_T, context ) -> {
@@ -318,9 +323,14 @@ public class FMUM implements IContentPack
 		);
 		
 		
-		// Register capabilities.
+		// Regis capabilities.
 		ctx.regisCapability( IItem.class ); // See ItemType#CONTEXTED.
 		ctx.regisCapability( PlayerPatch.class );
+		
+		
+		// Regis type loaders.
+		// TODO: Based on side.
+		ctx.regisContentLoader( "creative_tab", CreativeTab.class, CreativeTab::buildServerSide );
 	}
 	
 	protected void _reloadResources() { }

@@ -4,7 +4,6 @@ import com.fmum.client.ModConfigClient;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.IItemType;
 import com.fmum.common.pack.ILoadablePack.IBuildContext;
-import com.fmum.common.pack.ILoadablePack.IBuildableContent;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -16,7 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
-public class CreativeTab implements ICreativeTab, IBuildableContent< CreativeTab >
+public class CreativeTab implements ICreativeTab
 {
 	protected transient CreativeTabs vanilla_creative_tab;
 	
@@ -37,7 +36,6 @@ public class CreativeTab implements ICreativeTab, IBuildableContent< CreativeTab
 	@SideOnly( Side.CLIENT )
 	protected ResourceLocation background_image;
 	
-	@Override
 	public CreativeTab buildServerSide( IBuildContext ctx )
 	{
 		ICreativeTab.REGISTRY.regis( this );
@@ -45,7 +43,6 @@ public class CreativeTab implements ICreativeTab, IBuildableContent< CreativeTab
 		return this;
 	}
 	
-	@Override
 	@SideOnly( Side.CLIENT )
 	public CreativeTab buildClientSide( IBuildContext ctx )
 	{

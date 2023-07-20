@@ -1,6 +1,5 @@
 package com.fmum.common.pack;
 
-import com.fmum.common.FMUM;
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
@@ -10,6 +9,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Type;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public interface ILoadablePack
@@ -28,11 +28,11 @@ public interface ILoadablePack
 		default < T > void regisContentLoader(
 			String entry,
 			Class< T > clazz,
-			Function< T, ? > processor
+			BiFunction< T, IBuildContext, ? > processor
 		) {
 			final IContentLoader loader = ( obj, gson, ctx ) -> {
 				final T instance = gson.fromJson( obj, clazz );
-				return processor.apply( instance );
+				return processor.apply( instance, ctx );
 			};
 			this.regisContentLoader( entry, loader );
 		}

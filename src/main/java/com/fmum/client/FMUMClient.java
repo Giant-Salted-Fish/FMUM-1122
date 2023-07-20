@@ -2,9 +2,9 @@ package com.fmum.client;
 
 import com.fmum.common.FMUM;
 import com.fmum.common.FMUMResource;
-import com.fmum.common.Registry;
 import com.fmum.common.network.IPacket;
 import com.fmum.common.pack.ILoadablePack.IPrepareContext;
+import com.google.gson.JsonDeserializer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
@@ -49,13 +49,11 @@ public final class FMUMClient extends FMUM
 	{
 		super._prepareContentPackLoad( ctx );
 		
-		ctx.regisGsonAdapter(
-			ResourceLocation.class,
-			( json, typeOfT, context ) -> {
-				final String path = json.getAsString();
-				return this.texture_pool.computeIfAbsent( path, FMUMResource::new );
-			}
-		);
+		final JsonDeserializer< ResourceLocation > textureAdapter = ( json, typeOfT, context ) -> {
+			final String path = json.getAsString();
+			return this.texture_pool.computeIfAbsent( path, FMUMResource::new );
+		};
+		ctx.regisGsonAdapter( ResourceLocation.class, textureAdapter );
 	}
 	
 	@Override
