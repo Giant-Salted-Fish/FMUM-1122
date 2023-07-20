@@ -4,6 +4,8 @@ import com.fmum.common.FMUM;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -49,10 +51,16 @@ public abstract class LocalPack implements ILoadablePack, IContentPack
 	}
 	
 	@Override
-	public void prepareLoad( IPrepareContext ctx )
+	public void prepareLoadServerSide( IPrepareContext ctx )
 	{
 		ctx.regisResourceDomain( this.source );
 		ctx.regisPackLoader( this::_loadContentPack );
+	}
+	
+	@Override
+	@SideOnly( Side.CLIENT )
+	public void prepareLoadClientSide( IPrepareContext ctx ) {
+		this.prepareLoadServerSide( ctx );
 	}
 	
 	protected abstract IContentPack _loadContentPack( ILoadContext ctx );

@@ -14,7 +14,10 @@ import java.util.function.Function;
 
 public interface ILoadablePack
 {
-	void prepareLoad( IPrepareContext ctx);
+	void prepareLoadServerSide( IPrepareContext ctx);
+	
+	@SideOnly( Side.CLIENT )
+	void prepareLoadClientSide( IPrepareContext ctx );
 	
 	interface IPrepareContext
 	{
@@ -22,17 +25,14 @@ public interface ILoadablePack
 		
 		void regisGsonAdapter( Type type, JsonDeserializer< ? > adapter );
 		
-		default void regisContentLoader(
+		default < T > void regisContentLoader(
 			String entry,
-			Class< ? extends IBuildableContent< ? > > clazz
+			Class< T > clazz,
+			Function< T, ? > processor
 		) {
 			final IContentLoader loader = ( obj, gson, ctx ) -> {
-				final IBuildableContent< ? > buildable = gson.fromJson( obj, clazz );
-				return(
-					FMUM.MOD.isClient()
-					? buildable.buildClientSide( ctx )
-					: buildable.buildServerSide( ctx )
-				);
+				final T instance = gson.fromJson( obj, clazz );
+				return processor.apply( instance );
 			};
 			this.regisContentLoader( entry, loader );
 		}
@@ -77,13 +77,5 @@ public interface ILoadablePack
 		Gson gson();
 
 //		ResourceLocation loadTexture( String path );
-	}
-	
-	interface IBuildableContent< T >
-	{
-		T buildServerSide( IBuildContext ctx );
-		
-		@SideOnly( Side.CLIENT )
-		T buildClientSide( IBuildContext ctx );
 	}
 }

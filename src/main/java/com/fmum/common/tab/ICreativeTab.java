@@ -6,7 +6,7 @@ import net.minecraft.creativetab.CreativeTabs;
 
 public interface ICreativeTab
 {
-	Registry< ICreativeTab > REGISTRY = new Registry<>(  );
+	Registry< ICreativeTab > REGISTRY = new Registry<>( ICreativeTab::name );
 	
 	String name();
 	
