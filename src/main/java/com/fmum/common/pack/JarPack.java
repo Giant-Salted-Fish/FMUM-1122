@@ -17,7 +17,7 @@ public class JarPack extends LocalPack
 	}
 	
 	@Override
-	protected IContentPack _loadContentPack( ILoadContext ctx )
+	protected void _loadContent( ILoadContext ctx )
 	{
 		// Load pack metadata if exists.
 		try (
@@ -84,6 +84,5 @@ public class JarPack extends LocalPack
 		catch ( IOException e ) {
 			FMUM.logError( "An IO exception has occurred loading <%s>", this.sourceName() );
 		}
-		return this;
 	}
 }

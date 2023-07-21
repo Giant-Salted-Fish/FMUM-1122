@@ -26,6 +26,11 @@ public final class PacketHandler extends SimpleNetworkWrapper
 	
 	public void regisPackets()
 	{
+		final boolean is_replay_attack = this.discriminator > 0;
+		if ( is_replay_attack ) {
+			return;
+		}
+		
 //		this.regis( PacketTerminateOp.class, Side.SERVER );
 //		this.regis( PacketNotifyEquipped.class, Side.SERVER );
 //		this.regis( PacketModify.class, Side.SERVER );

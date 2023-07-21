@@ -11,6 +11,7 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public interface ILoadablePack
 {
@@ -21,7 +22,7 @@ public interface ILoadablePack
 	
 	interface IPrepareContext
 	{
-		void regisPackLoader( Function< ILoadContext, IContentPack > pack_loader );
+		void regisPackLoader( Function< ILoadContext, Supplier< IContentPack > > pack_loader );
 		
 		void regisGsonAdapter( Type type, JsonDeserializer< ? > adapter );
 		
@@ -75,7 +76,9 @@ public interface ILoadablePack
 		IContentPack contentPack();
 		
 		Gson gson();
-
+		
+		void regisPostLoadCallback( Runnable callback );
+		
 //		ResourceLocation loadTexture( String path );
 	}
 }

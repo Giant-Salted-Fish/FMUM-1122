@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Set;
 
@@ -27,6 +28,8 @@ public abstract class LocalPack implements ILoadablePack, IContentPack
 	
 	protected String name;
 	protected String author = "fmum.author_missing";
+	
+	private final LinkedList< Runnable > post_load_callbacks = new LinkedList<>();
 	
 	protected LocalPack( File source )
 	{
@@ -54,7 +57,16 @@ public abstract class LocalPack implements ILoadablePack, IContentPack
 	public void prepareLoadServerSide( IPrepareContext ctx )
 	{
 		ctx.regisResourceDomain( this.source );
-		ctx.regisPackLoader( this::_loadContentPack );
+		ctx.regisPackLoader( ctx_ -> {
+			FMUM.logInfo( "fmum.load_content_pack", this.sourceName() );
+			this._loadContent( ctx_ );
+			
+			return () -> {
+				this.post_load_callbacks.forEach( Runnable::run );
+				this.post_load_callbacks.clear();
+				return this;
+			};
+		} );
 	}
 	
 	@Override
@@ -63,7 +75,7 @@ public abstract class LocalPack implements ILoadablePack, IContentPack
 		this.prepareLoadServerSide( ctx );
 	}
 	
-	protected abstract IContentPack _loadContentPack( ILoadContext ctx );
+	protected abstract void _loadContent( ILoadContext ctx );
 	
 	protected void _setupMetaDataWith( PackMetadataTemplate data )
 	{
@@ -104,6 +116,11 @@ public abstract class LocalPack implements ILoadablePack, IContentPack
 			@Override
 			public Gson gson() {
 				return ctx.gson();
+			}
+			
+			@Override
+			public void regisPostLoadCallback( Runnable callback ) {
+				LocalPack.this.post_load_callbacks.add( callback );
 			}
 		};
 		

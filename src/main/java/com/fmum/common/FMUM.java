@@ -32,6 +32,8 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.LogManager;
@@ -107,7 +109,12 @@ public class FMUM implements IContentPack
 				
 				@Override
 				public Gson gson() {
-					return null;
+					throw new RuntimeException();
+				}
+				
+				@Override
+				public void regisPostLoadCallback( Runnable callback ) {
+					throw new RuntimeException();
 				}
 			};
 			
@@ -125,9 +132,11 @@ public class FMUM implements IContentPack
 	protected static final PacketHandler PACKET_HANDLER = new PacketHandler( MODID );
 	
 	
-	public final Registry< IContentPack > loaded_packs = new Registry<>( IContentPack::name );
+	public final Registry< IContentPack > content_packs = new Registry<>( IContentPack::name );
 	
 	protected final File game_dir = Loader.instance().getConfigDir().getParentFile();
+	
+	private final LinkedList< Supplier< IContentPack > > unfinalized_packs = new LinkedList<>();
 	
 	// TODO: This may also be temporary?
 	private final FMUMClassLoader class_loader = new FMUMClassLoader();
@@ -137,54 +146,37 @@ public class FMUM implements IContentPack
 	@Mod.EventHandler
 	public final void onPreInit( FMLPreInitializationEvent evt )
 	{
-		// Info load start.
 		logInfo( "fmum.on_pre_init" );
 		
-		// Load content packs.
 		this._loadContentPacks();
 		
 		logInfo( "fmum.pre_init_complete" );
 	}
 	
+	@Mod.EventHandler
+	public final void onInit( FMLInitializationEvent evt )
+	{
+		logInfo( "fmum.on_init" );
+		this.__finalizePacksAndPacketHandler();
+		logInfo( "fmum.init_complete" );
+		
+		this.__printAllLoadedPacks();
+	}
+	
+	@Mod.EventHandler
+	public final void onPostInit( FMLPostInitializationEvent evt )
+	{
+		logInfo( "fmum.on_post_init" );
+		
+		// TODO: Whether to support packets registration for packs?
+//		PACKET_HANDLER.postInit();
+		
+		logInfo( "fmum.post_init_complete" );
+	}
+	
 	protected void _loadContentPacks()
 	{
-		// Check content pack folder.
-		// TODO: if load packs from mods dir then allow the player to disable content pack folder.
-		final File pack_dir = new File( this.game_dir, MODID );
-		if ( !pack_dir.exists() )
-		{
-			pack_dir.mkdirs();
-			logInfo( "fmum.pack_dir_created", MODID );
-		}
-		
-		// Find possible content packs to load.
-		final LinkedList< ILoadablePack > content_packs = new LinkedList<>();
-		final Pattern jarRegex = Pattern.compile( "(.+)\\.(zip|jar)$" );
-		
-		for ( final File file : pack_dir.listFiles() )
-		{
-			final boolean is_folder_pack = file.isDirectory();
-			if ( is_folder_pack )
-			{
-				content_packs.add( new FolderPack( file ) );
-				logInfo( "fmum.detect_content_pack", file.getName() );
-				continue;
-			}
-			
-			final boolean is_jar_pack = jarRegex.matcher( file.getName() ).matches();
-			if ( is_jar_pack )
-			{
-				content_packs.add( new JarPack( file ) );
-				logInfo( "fmum.detect_content_pack", file.getName() );
-				continue;
-			}
-			
-			final String file_path = pack_dir.getName() + "/" + file.getName();
-			logError( "fmum.unknown_pack_file_type", file_path );
-		}
-		
-		// TODO: Post provider registry event to get providers from other mods?
-//		MinecraftForge.EVENT_BUS.post( new ContentProviderRegistryEvent( providers ) );
+		final Iterable< ILoadablePack > loadable_packs = this.__gatherLoadablePacks();
 		
 		// Prepare JSON parser and type loader.
 		final GsonBuilder gson_builder = new GsonBuilder();
@@ -194,14 +186,14 @@ public class FMUM implements IContentPack
 		Registry< IContentLoader > content_loaders = new Registry<>();
 		
 		// Call prepare load for each pack.
-		final LinkedList< Function< ILoadContext, IContentPack > >
+		final LinkedList< Function< ILoadContext, Supplier< IContentPack > > >
 			pack_loaders = new LinkedList<>();
 		final IPrepareContext prepare_context = new IPrepareContext()
 		{
 			@Override
-			public void regisPackLoader( Function< ILoadContext, IContentPack > pack_loader ) {
-				pack_loaders.add( pack_loader );
-			}
+			public void regisPackLoader(
+				Function< ILoadContext, Supplier< IContentPack > > pack_loader
+			) { pack_loaders.add( pack_loader ); }
 			
 			@Override
 			public void regisGsonAdapter( Type type, JsonDeserializer< ? > adapter ) {
@@ -214,16 +206,8 @@ public class FMUM implements IContentPack
 			}
 			
 			@Override
-			public void regisResourceDomain( File file )
-			{
-				try
-				{
-					final URL path_url = file.toURI().toURL();
-					FMUM.this.class_loader.addURL( path_url );
-				}
-				catch ( MalformedURLException e ) {
-					logException( e, "fmum.error_adding_classpath", file.getName() );
-				}
+			public void regisResourceDomain( File file ) {
+				FMUM.this._regisResourceDomain( file );
 			}
 			
 			@Override
@@ -252,13 +236,10 @@ public class FMUM implements IContentPack
 					capability_class, defaultSerializer, default_factory );
 			}
 		};
-		this._prepareContentPackLoad( prepare_context );
-		final Consumer< ILoadablePack > call_prepare_load = (
-			this.isClient()
-			? pack -> pack.prepareLoadClientSide( prepare_context )
-			: pack -> pack.prepareLoadServerSide( prepare_context )
-		);
-		content_packs.forEach( call_prepare_load );
+		this.__regisCapability( prepare_context );
+		this._regisGsonAdapter( prepare_context );
+		this._regisContentLoader( prepare_context );
+		loadable_packs.forEach( this._callPrepareLoadPack( prepare_context ) );
 		
 		final Gson gson = gson_builder.create();
 		this._reloadResources();
@@ -278,23 +259,79 @@ public class FMUM implements IContentPack
 			}
 		};
 		pack_loaders.forEach( loader -> {
-			final IContentPack pack = loader.apply( load_context );
-			logInfo( "fmum.load_content_pack", pack.sourceName() );
-			this.loaded_packs.regis( pack );
+			final Supplier< IContentPack > loaded_pack = loader.apply( load_context );
+			this.unfinalized_packs.add( loaded_pack );
 		} );
 	}
 	
-	protected void _prepareContentPackLoad( IPrepareContext ctx )
+	private Iterable< ILoadablePack > __gatherLoadablePacks()
 	{
-		// Regis common gson adapters.
+		final File pack_dir = new File( this.game_dir, MODID );
+		if ( !pack_dir.exists() )
+		{
+			pack_dir.mkdirs();
+			logInfo( "fmum.pack_dir_created", MODID );
+		}
+		
+		final LinkedList< ILoadablePack > loadable_packs = new LinkedList<>();
+		final Pattern jarRegex = Pattern.compile( "(.+)\\.(zip|jar)$" );
+		
+		for ( final File file : pack_dir.listFiles() )
+		{
+			// TODO: if load packs from mods dir then allow the player to disable content pack folder.
+			final boolean is_folder_pack = file.isDirectory();
+			if ( is_folder_pack )
+			{
+				loadable_packs.add( new FolderPack( file ) );
+				logInfo( "fmum.detect_content_pack", file.getName() );
+				continue;
+			}
+			
+			final boolean is_jar_pack = jarRegex.matcher( file.getName() ).matches();
+			if ( is_jar_pack )
+			{
+				loadable_packs.add( new JarPack( file ) );
+				logInfo( "fmum.detect_content_pack", file.getName() );
+				continue;
+			}
+			
+			final String file_path = pack_dir.getName() + "/" + file.getName();
+			logError( "fmum.unknown_pack_file_type", file_path );
+		}
+		
+		// TODO: Post provider registry event to get providers from other mods?
+//		MinecraftForge.EVENT_BUS.post( new GatherLoadablePackEvent( loadable_packs::add ) );
+		return loadable_packs;
+	}
+	
+	protected void _regisResourceDomain( File file )
+	{
+		try
+		{
+			final URL path_url = file.toURI().toURL();
+			FMUM.this.class_loader.addURL( path_url );
+		}
+		catch ( MalformedURLException e ) {
+			logException( e, "fmum.error_adding_classpath", file.getName() );
+		}
+	}
+	
+	private void __regisCapability( IPrepareContext ctx )
+	{
+		ctx.regisCapability( IItem.class ); // See ItemType#CONTEXTED.
+		ctx.regisCapability( PlayerPatch.class );
+	}
+	
+	protected void _regisGsonAdapter(IPrepareContext ctx )
+	{
 		ctx.regisGsonAdapter(
 			Vec3f.class,
 			( json, type_of_T, context ) -> {
 				final JsonArray arr = json.getAsJsonArray();
 				return new Vec3f(
-					arr.get( 0 ).getAsFloat(),
-					arr.get( 1 ).getAsFloat(),
-					arr.get( 2 ).getAsFloat()
+						arr.get( 0 ).getAsFloat(),
+						arr.get( 1 ).getAsFloat(),
+						arr.get( 2 ).getAsFloat()
 				);
 			}
 		);
@@ -307,9 +344,9 @@ public class FMUM implements IContentPack
 				final float f1 = arr.get( 1 ).getAsFloat();
 				final float f2 = arr.get( 2 ).getAsFloat();
 				return (
-					arr.size() < 4
-					? new AngleAxis4f( f0, f1, f2 )
-					: new AngleAxis4f( f0, f1, f2, arr.get( 3 ).getAsFloat() )
+						arr.size() < 4
+								? new AngleAxis4f( f0, f1, f2 )
+								: new AngleAxis4f( f0, f1, f2, arr.get( 3 ).getAsFloat() )
 				);
 			}
 		);
@@ -321,19 +358,39 @@ public class FMUM implements IContentPack
 				return new Quat4f( rot );
 			}
 		);
-		
-		
-		// Regis capabilities.
-		ctx.regisCapability( IItem.class ); // See ItemType#CONTEXTED.
-		ctx.regisCapability( PlayerPatch.class );
-		
-		
-		// Regis type loaders.
-		// TODO: Based on side.
+	}
+	
+	protected void _regisContentLoader( IPrepareContext ctx )
+	{
 		ctx.regisContentLoader( "creative_tab", CreativeTab.class, CreativeTab::buildServerSide );
 	}
 	
+	protected Consumer< ILoadablePack > _callPrepareLoadPack(IPrepareContext ctx ) {
+		return pack -> pack.prepareLoadServerSide( ctx );
+	}
+	
 	protected void _reloadResources() { }
+	
+	private void __finalizePacksAndPacketHandler()
+	{
+		this.unfinalized_packs.forEach( unfinalized_pack -> {
+			final IContentPack pack = unfinalized_pack.get();
+			this.content_packs.regis( pack );
+		} );
+		this.unfinalized_packs.clear();
+		
+		PACKET_HANDLER.regisPackets();
+	}
+	
+	private void __printAllLoadedPacks()
+	{
+		logInfo( "fmum.total_loaded_packs", String.valueOf( this.content_packs.size() ) );
+		this.content_packs.values().forEach( pack -> {
+			final String pack_name = this.format( pack.name() );
+			final String pack_author = this.format( pack.author() );
+			logInfo( "fmum.info_loaded_pack", pack_name, pack_author );
+		} );
+	}
 	
 	@Override
 	public final String name() {
@@ -376,7 +433,7 @@ public class FMUM implements IContentPack
 		LOGGER.error( MOD.format( translate_key, parameters ), e );
 	}
 	
-	public static void sendPacketTo( IPacket packet, EntityPlayerMP player ) {
+	public static void sendToPlayer( IPacket packet, EntityPlayerMP player ) {
 		PACKET_HANDLER.sendTo( packet, player );
 	}
 	
