@@ -41,7 +41,7 @@ public class Mesh implements IReleasable
 	public Mesh( List< Vertex > vertices, @Nullable List< Integer > indices )
 	{
 		this.vao = genVao( vertices, indices );
-		if ( indices != null && indices.size() > 0 )
+		if ( indices != null && !indices.isEmpty() )
 		{
 			final int size = indices.size();
 			this.drawCall = () -> GL11.glDrawElements(
@@ -207,7 +207,7 @@ public class Mesh implements IReleasable
 		public Builder genNormal()
 		{
 			final Iterator< Vertex > itr = (
-				this.indices.size() > 0
+				!this.indices.isEmpty()
 				? new Iterator< Vertex >() {
 					final Iterator< Integer > itr = Builder.this.indices.iterator();
 					
@@ -287,7 +287,7 @@ public class Mesh implements IReleasable
 		
 		public Mesh build()
 		{
-			final int size = this.indices.size() > 0 ? this.indices.size() : this.vertices.size();
+			final int size = !this.indices.isEmpty() ? this.indices.size() : this.vertices.size();
 			if ( ( size % 4 ) != 0 ) // if ( ( size & 3 ) != 0 )
 				throw new IllegalArgumentException(
 					"Mesh currently only support quads: "

@@ -46,6 +46,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -157,7 +158,9 @@ public class FMUM implements IContentPack
 	public final void onInit( FMLInitializationEvent evt )
 	{
 		logInfo( "fmum.on_init" );
+		
 		this.__finalizePacksAndPacketHandler();
+		
 		logInfo( "fmum.init_complete" );
 		
 		this.__printAllLoadedPacks();
@@ -252,10 +255,9 @@ public class FMUM implements IContentPack
 				return gson;
 			}
 			
-			@Nullable
 			@Override
-			public IContentLoader getContentLoader( String entry ) {
-				return content_loaders.get( entry );
+			public Optional< IContentLoader > getContentLoader( String entry ) {
+				return Optional.ofNullable( content_loaders.get( entry ) );
 			}
 		};
 		pack_loaders.forEach( loader -> {

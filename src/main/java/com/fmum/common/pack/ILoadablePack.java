@@ -9,6 +9,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Type;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -52,16 +53,12 @@ public interface ILoadablePack
 		default Object loadContent( String loader_entry, JsonObject object, IBuildContext ctx )
 			throws LoaderNotFoundException
 		{
-			final IContentLoader loader = this.getContentLoader( loader_entry );
-			if ( loader == null ) {
-				throw new LoaderNotFoundException();
-			}
-			
-			return loader.loadFrom( object, this.gson(), ctx );
+			return this.getContentLoader( loader_entry )
+				.orElseThrow( LoaderNotFoundException::new )
+				.loadFrom( object, this.gson(), ctx );
 		}
 		
-		@Nullable
-		IContentLoader getContentLoader( String entry );
+		Optional< IContentLoader > getContentLoader( String entry );
 	}
 	
 	@FunctionalInterface

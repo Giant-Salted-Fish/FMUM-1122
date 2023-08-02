@@ -85,8 +85,7 @@ public abstract class LocalPack implements ILoadablePack, IContentPack
 		// TODO: handle version check
 	}
 	
-	@Nullable
-	protected Object _loadJsonEntry(
+	protected Optional< Object > _loadJsonEntry(
 		Reader in,
 		String fallback_type,
 		String file_path,
@@ -124,13 +123,13 @@ public abstract class LocalPack implements ILoadablePack, IContentPack
 			}
 		};
 		
-		try { return ctx.loadContent( loader_entry, obj, build_context ); }
+		try { return Optional.of( ctx.loadContent( loader_entry, obj, build_context ) ); }
 		catch ( LoaderNotFoundException e )
 		{
 			final String path = this.sourceName() + "/" + file_path;
 			FMUM.logError( "fmum.type_loader_not_found", path, loader_entry );
 		}
-		return null;
+		return Optional.empty();
 	}
 	
 	protected static class PackMetadataTemplate
