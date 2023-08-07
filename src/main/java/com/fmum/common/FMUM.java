@@ -26,12 +26,14 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -80,7 +82,7 @@ public class FMUM implements IContentPack
 		MOD = side.isServer() ? new FMUM() : ( FMUM ) client_mod.get();
 	}
 	@Mod.InstanceFactory
-	public static FMUM instance() { return MOD; }
+	private static FMUM create() { return MOD; }  // This method will only be called once by FML.
 	
 	/**
 	 * You can use this to customized log if none of the util log function provided in this class
@@ -145,7 +147,7 @@ public class FMUM implements IContentPack
 	protected FMUM() { }
 	
 	@Mod.EventHandler
-	public final void onPreInit( FMLPreInitializationEvent evt )
+	private void onPreInit( FMLPreInitializationEvent evt )
 	{
 		logInfo( "fmum.on_pre_init" );
 		
@@ -155,7 +157,7 @@ public class FMUM implements IContentPack
 	}
 	
 	@Mod.EventHandler
-	public final void onInit( FMLInitializationEvent evt )
+	private void onInit( FMLInitializationEvent evt )
 	{
 		logInfo( "fmum.on_init" );
 		
@@ -167,7 +169,7 @@ public class FMUM implements IContentPack
 	}
 	
 	@Mod.EventHandler
-	public final void onPostInit( FMLPostInitializationEvent evt )
+	private void onPostInit( FMLPostInitializationEvent evt )
 	{
 		logInfo( "fmum.on_post_init" );
 		
@@ -186,7 +188,7 @@ public class FMUM implements IContentPack
 		gson_builder.setLenient();
 		gson_builder.setPrettyPrinting();
 		
-		Registry< IContentLoader > content_loaders = new Registry<>();
+		final Registry< IContentLoader > content_loaders = new Registry<>();
 		
 		// Call prepare load for each pack.
 		final LinkedList< Function< ILoadContext, Supplier< IContentPack > > >
@@ -320,7 +322,7 @@ public class FMUM implements IContentPack
 	
 	private void __regisCapability( IPrepareContext ctx )
 	{
-		ctx.regisCapability( IItem.class ); // See ItemType#CONTEXTED.
+		ctx.regisCapability( IItem.class );  // See ItemType#CAPABILITY.
 		ctx.regisCapability( PlayerPatch.class );
 	}
 	
@@ -331,9 +333,9 @@ public class FMUM implements IContentPack
 			( json, type_of_T, context ) -> {
 				final JsonArray arr = json.getAsJsonArray();
 				return new Vec3f(
-						arr.get( 0 ).getAsFloat(),
-						arr.get( 1 ).getAsFloat(),
-						arr.get( 2 ).getAsFloat()
+					arr.get( 0 ).getAsFloat(),
+					arr.get( 1 ).getAsFloat(),
+					arr.get( 2 ).getAsFloat()
 				);
 			}
 		);
@@ -346,9 +348,9 @@ public class FMUM implements IContentPack
 				final float f1 = arr.get( 1 ).getAsFloat();
 				final float f2 = arr.get( 2 ).getAsFloat();
 				return (
-						arr.size() < 4
-								? new AngleAxis4f( f0, f1, f2 )
-								: new AngleAxis4f( f0, f1, f2, arr.get( 3 ).getAsFloat() )
+					arr.size() < 4
+					? new AngleAxis4f( f0, f1, f2 )
+					: new AngleAxis4f( f0, f1, f2, arr.get( 3 ).getAsFloat() )
 				);
 			}
 		);

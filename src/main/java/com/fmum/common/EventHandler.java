@@ -19,7 +19,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 
 import java.util.Collection;
 
-@EventBusSubscriber( modid = FMUM.MODID)
+@EventBusSubscriber( modid = FMUM.MODID )
 final class EventHandler
 {
 	private EventHandler() { }
@@ -63,7 +63,7 @@ final class EventHandler
 	}
 	
 	@SubscribeEvent
-	public static void onRegisterItem( RegistryEvent.Register< Item > evt )
+	static void onRegisterItem( RegistryEvent.Register< Item > evt )
 	{
 		FMUM.logInfo( "fmum.on_item_regis" );
 		
@@ -74,7 +74,7 @@ final class EventHandler
 	}
 	
 //	@SubscribeEvent
-//	public static void onRegisterSound( RegistryEvent.Register< SoundEvent > evt )
+//	static void onRegisterSound( RegistryEvent.Register< SoundEvent > evt )
 //	{
 //		FMUM.logInfo( "fmum.on_sound_regis" ); // TODO: translation
 //
@@ -88,7 +88,7 @@ final class EventHandler
 //	}
 	
 	@SubscribeEvent
-	public static void onPlayerTick( PlayerTickEvent evt )
+	static void onPlayerTick( PlayerTickEvent evt )
 	{
 		switch ( evt.phase )
 		{
@@ -102,9 +102,9 @@ final class EventHandler
 	
 	// This event seems to only be posted on server side.
 	@SubscribeEvent
-	public static void onPlayerLogin( PlayerLoggedInEvent evt )
+	static void onPlayerLogin( PlayerLoggedInEvent evt )
 	{
 		final EntityPlayerMP player = ( EntityPlayerMP ) evt.player;
-		FMUM.sendPacketTo( new PacketConfigSync(), player );
+		FMUM.sendToPlayer( new PacketConfigSync(), player );
 	}
 }

@@ -11,13 +11,13 @@ public final class PacketConfigSync implements IPacket
 	@Override
 	public void toBytes( ByteBuf buf )
 	{
-		buf.writeByte( ModConfig.maxModifyLayers );
-		buf.writeByte( ModConfig.maxSlotCapacity );
+		buf.writeByte( ModConfig.max_modify_layers );
+		buf.writeByte( ModConfig.max_slot_capacity );
 
-		buf.writeFloat( ModConfig.camDropCycle );
-		buf.writeFloat( ModConfig.camDropAmpl );
-		buf.writeFloat( ModConfig.camDropImpact );
-		buf.writeFloat( ModConfig.freeViewLimit );
+		buf.writeFloat( ModConfig.cam_drop_cycle );
+		buf.writeFloat( ModConfig.cam_drop_ampl );
+		buf.writeFloat( ModConfig.cam_drop_impact );
+		buf.writeFloat( ModConfig.free_view_limit );
 	}
 	
 	@Override

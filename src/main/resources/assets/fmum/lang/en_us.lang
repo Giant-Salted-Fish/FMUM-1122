@@ -40,6 +40,7 @@ fmum.can_not_find_update_group=Can not find key update group <%2$s> required by 
 fmum.pack_dir_created=Content pack folder <%s> has been created for you. Go find some content packs that support FMUM and drop them into this folder!
 fmum.unknown_pack_file_type=Can not load content pack <%s>. FMUM only support content packs of these three type: [ <folder>, <.jar>, <.zip> ].
 fmum.detect_content_pack=Find content pack <%s>
+fmum.invalid_mod_based_pack=%s(%s) is not a valid mod based pack
 fmum.error_adding_classpath=Failed to register class path for <%s>. Contents in this pack could be broken.
 fmum.load_content_pack=Loading content pack <%s>...
 fmum.error_loading_pack_info=An error has occurred while attempting to load pack info file <%s>
