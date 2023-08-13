@@ -97,7 +97,7 @@ public class CreativeTab implements ICreativeTab
 				return new ItemStack( item, 1, icon_item_damage );
 			}
 			
-			FMUM.logError(
+			FMUM.MOD.logError(
 				"fmum.can_not_find_tab_icon_item",
 				this.getTabLabel(),
 				CreativeTab.this.icon_item

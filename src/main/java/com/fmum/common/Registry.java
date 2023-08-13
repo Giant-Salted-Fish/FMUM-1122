@@ -40,7 +40,7 @@ public class Registry< T >
 		this.regis_table.compute( identifier, ( key, old_value ) -> {
 			final boolean is_already_registered = old_value != null;
 			if ( is_already_registered ) {
-				FMUM.logWarning( "fmum.duplicate_regis", old_value, value );
+				FMUM.MOD.logWarning( "fmum.duplicate_regis", old_value, value );
 			}
 			
 			// Do not override old value if already existed.

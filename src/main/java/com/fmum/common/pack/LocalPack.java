@@ -4,86 +4,71 @@ import com.fmum.common.FMUM;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nullable;
-import java.io.File;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public abstract class LocalPack implements ILoadablePack, IContentPack
 {
-	protected static final String ERROR_LOADING_INFO = "fmum.error_loading_pack_info";
 	protected static final String ERROR_LOADING_TYPE = "fmum.error_loading_type";
 	
-	protected static final String META_FILE_PATH = "pack.json";
-	
-	protected final File source;
+	protected final ModContainer mod_container;
 	protected final HashSet< String > ignored_entries = new HashSet<>();
-	
-	protected String name;
-	protected String author = "fmum.author_missing";
 	
 	private final LinkedList< Runnable > post_load_callbacks = new LinkedList<>();
 	
-	protected LocalPack( File source )
+	protected LocalPack( ModContainer mod_container )
 	{
-		this.source = source;
-		this.name = source.getName();
+		this.mod_container = mod_container;
 		this.ignored_entries.add( "assets" );
 	}
 	
 	@Override
 	public String name() {
-		return this.name;
+		return this.mod_container.getName();
 	}
 	
 	@Override
 	public String author() {
-		return this.author;
+		return String.join( ", ", this.mod_container.getMetadata().authorList );
 	}
 	
 	@Override
 	public String sourceName() {
-		return this.source.getName();
+		return this.mod_container.getSource().getName();
 	}
 	
 	@Override
-	public void prepareLoadServerSide( IPrepareContext ctx )
+	public Function< ILoadContext, Supplier< IContentPack > > prepareLoadServerSide( IPrepareContext ctx )
 	{
-		ctx.regisResourceDomain( this.source );
-		ctx.regisPackLoader( ctx_ -> {
-			FMUM.logInfo( "fmum.load_content_pack", this.sourceName() );
-			this._loadContent( ctx_ );
+		return ctx_ -> {
+			FMUM.MOD.logInfo( "fmum.load_content_pack", this.sourceName() );
+			this._loadPackContent( ctx_ );
 			
 			return () -> {
 				this.post_load_callbacks.forEach( Runnable::run );
 				this.post_load_callbacks.clear();
 				return this;
 			};
-		} );
+		};
 	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public void prepareLoadClientSide( IPrepareContext ctx ) {
-		this.prepareLoadServerSide( ctx );
-	}
+	public Function< ILoadContext, Supplier< IContentPack > > prepareLoadClientSide(
+		IPrepareContext ctx
+	) { return this.prepareLoadServerSide( ctx ); }
 	
-	protected abstract void _loadContent( ILoadContext ctx );
-	
-	protected void _setupMetaDataWith( PackMetadataTemplate data )
-	{
-		this.name = Optional.ofNullable( data.name ).orElse( this.name );
-		this.author = Optional.ofNullable( data.author ).orElse( this.author );
-		this.ignored_entries.addAll( data.ignored_entries );
-		// TODO: handle version check
-	}
+	protected abstract void _loadPackContent( ILoadContext ctx );
 	
 	protected Optional< Object > _loadJsonEntry(
 		Reader in,
@@ -127,7 +112,7 @@ public abstract class LocalPack implements ILoadablePack, IContentPack
 		catch ( LoaderNotFoundException e )
 		{
 			final String path = this.sourceName() + "/" + file_path;
-			FMUM.logError( "fmum.type_loader_not_found", path, loader_entry );
+			FMUM.MOD.logError( "fmum.type_loader_not_found", path, loader_entry );
 		}
 		return Optional.empty();
 	}

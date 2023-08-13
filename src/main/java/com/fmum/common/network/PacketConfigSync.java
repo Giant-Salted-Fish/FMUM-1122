@@ -1,9 +1,6 @@
 package com.fmum.common.network;
 
-import com.fmum.client.FMUMClient;
-import com.fmum.common.FMUM;
 import com.fmum.common.ModConfig;
-import com.fmum.util.Util;
 import io.netty.buffer.ByteBuf;
 
 public final class PacketConfigSync implements IPacket

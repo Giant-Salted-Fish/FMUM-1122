@@ -1,8 +1,8 @@
 package com.fmum.common.pack;
 
 import com.fmum.common.FMUM;
+import net.minecraftforge.fml.common.ModContainer;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -12,39 +12,16 @@ import java.util.zip.ZipInputStream;
 
 public class JarPack extends LocalPack
 {
-	public JarPack( File source ) {
-		super( source );
+	public JarPack( ModContainer mod_container ) {
+		super( mod_container );
 	}
 	
 	@Override
-	protected void _loadContent( ILoadContext ctx )
+	protected void _loadPackContent( ILoadContext ctx )
 	{
-		// Load pack metadata if exists.
 		try (
 			ZipInputStream in = new ZipInputStream(
-				Files.newInputStream( this.source.toPath() ) )
-		) {
-			for ( ZipEntry e; ( e = in.getNextEntry() ) != null; )
-			{
-				if ( e.getName().equals( META_FILE_PATH ) )
-				{
-					final Reader reader = new InputStreamReader( in );
-					final PackMetadataTemplate data = ctx.gson()
-						.fromJson( reader, PackMetadataTemplate.class );
-					this._setupMetaDataWith( data );
-					break;
-				}
-			}
-		}
-		catch ( IOException e )
-		{
-			final String file_path = this.sourceName() + "/" + META_FILE_PATH;
-			FMUM.logException( e, ERROR_LOADING_INFO, file_path );
-		}
-		
-		try (
-			ZipInputStream in = new ZipInputStream(
-				Files.newInputStream( this.source.toPath() ) )
+				Files.newInputStream( this.mod_container.getSource().toPath() ) )
 		) {
 			for ( ZipEntry e; ( e = in.getNextEntry() ) != null; )
 			{
@@ -73,16 +50,21 @@ public class JarPack extends LocalPack
 						final String fallback_type = entry;
 						this._loadJsonEntry( reader, fallback_type, file_path, ctx );
 					}
+					
+					else if ( file_path.endsWith( ".class" ) )
+					{
+					
+					}
 				}
 				catch ( Exception e_ )
 				{
 					final String source_trace = this.sourceName() + "/" + file_path;
-					FMUM.logException( e_, ERROR_LOADING_TYPE, source_trace );
+					FMUM.MOD.logException( e_, ERROR_LOADING_TYPE, source_trace );
 				}
 			}
 		}
 		catch ( IOException e ) {
-			FMUM.logError( "An IO exception has occurred loading <%s>", this.sourceName() );
+			FMUM.MOD.logError( "An IO exception has occurred loading <%s>", this.sourceName() );
 		}
 	}
 }

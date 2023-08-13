@@ -9,6 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
@@ -26,7 +27,7 @@ final class EventHandler
 	
 	static
 	{
-		final FMUMResource identifier = new FMUMResource( "patch" );
+		final ResourceLocation identifier = new ResourceLocation( FMUM.MODID, "patch" );
 		final Object player_patcher = (
 			FMUM.MOD.isClient()
 			? new Object()
@@ -65,12 +66,12 @@ final class EventHandler
 	@SubscribeEvent
 	static void onRegisterItem( RegistryEvent.Register< Item > evt )
 	{
-		FMUM.logInfo( "fmum.on_item_regis" );
+		FMUM.MOD.logInfo( "fmum.on_item_regis" );
 		
 		final Collection< IItemType > items = IItemType.REGISTRY.values();
 		items.forEach( it -> it.onItemRegister( evt ) );
 		
-		FMUM.logInfo( "fmum.item_regis_complete", items.size() );
+		FMUM.MOD.logInfo( "fmum.item_regis_complete", items.size() );
 	}
 	
 //	@SubscribeEvent
@@ -105,6 +106,6 @@ final class EventHandler
 	static void onPlayerLogin( PlayerLoggedInEvent evt )
 	{
 		final EntityPlayerMP player = ( EntityPlayerMP ) evt.player;
-		FMUM.sendToPlayer( new PacketConfigSync(), player );
+		FMUM.MOD.sendPacketS2C( new PacketConfigSync(), player );
 	}
 }

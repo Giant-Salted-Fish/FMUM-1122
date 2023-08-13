@@ -1,10 +1,10 @@
 package com.fmum.common.pack;
 
 import com.fmum.common.FMUM;
+import net.minecraftforge.fml.common.ModContainer;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 
 /**
  * For content packs that organized in form of folders.
@@ -13,30 +13,14 @@ import java.io.IOException;
  */
 public class FolderPack extends LocalPack
 {
-	public FolderPack( File source ) {
-		super( source );
+	public FolderPack( ModContainer mod_container ) {
+		super( mod_container );
 	}
 	
 	@Override
-	protected void _loadContent( ILoadContext ctx )
+	protected void _loadPackContent( ILoadContext ctx )
 	{
-		// Read pack metadata first if it exists.
-		final File meta_file = new File( this.source, META_FILE_PATH );
-		if ( meta_file.exists() )
-		{
-			try ( FileReader in = new FileReader( meta_file ) )
-			{
-				final PackMetadataTemplate data = ctx.gson().
-													 fromJson( in, PackMetadataTemplate.class );
-				this._setupMetaDataWith( data );
-			}
-			catch ( IOException e ) {
-				FMUM.logException( e, ERROR_LOADING_INFO, this.sourceName() + "/pack.json" );
-			}
-		}
-		
-		// Load all types in rest folder except the ignored ones(for example, "assets/" folder).
-		for ( final File dir : this.source.listFiles() )
+		for ( final File dir : this.mod_container.getSource().listFiles() )
 		{
 			final String dir_name = dir.getName();
 			if ( dir.isDirectory() && !this.ignored_entries.contains( dir_name ) )
@@ -81,7 +65,7 @@ public class FolderPack extends LocalPack
 			catch ( Exception e )
 			{
 				final String source_trace = this.sourceName() + "/" + file_path;
-				FMUM.logException( e, ERROR_LOADING_TYPE, source_trace );
+				FMUM.MOD.logException( e, ERROR_LOADING_TYPE, source_trace );
 			}
 		}
 	}

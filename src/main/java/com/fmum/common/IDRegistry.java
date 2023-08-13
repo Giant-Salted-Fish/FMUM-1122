@@ -36,7 +36,7 @@ public class IDRegistry< T > extends Registry< T >
 			final boolean is_already_registered = old_value != null;
 			if ( is_already_registered )
 			{
-				FMUM.logWarning( "fmum.duplicate_meta_regis", old_value, value );
+				FMUM.MOD.logWarning( "fmum.duplicate_meta_regis", old_value, value );
 				return old_value;
 			}
 			

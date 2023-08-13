@@ -18,11 +18,11 @@ public final class EventHandlerClient
 	@SubscribeEvent
 	public static void onModelRegister( ModelRegistryEvent evt )
 	{
-		FMUM.logInfo( "fmum.on_model_regis" );
+		FMUM.MOD.logInfo( "fmum.on_model_regis" );
 		
 		final Collection< IItemType > items = IItemType.REGISTRY.values();
 		items.forEach( it -> it.onModelRegister( evt ) );
 		
-		FMUM.logInfo( "fmum.model_regis_complete", items.size() );
+		FMUM.MOD.logInfo( "fmum.model_regis_complete", items.size() );
 	}
 }

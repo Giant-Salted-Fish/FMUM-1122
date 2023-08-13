@@ -1,6 +1,5 @@
 package com.fmum.common.item;
 
-import com.fmum.common.FMUM;
 import com.fmum.common.pack.ILoadablePack.IBuildContext;
 import com.google.gson.annotations.SerializedName;
 import net.minecraft.item.Item;
@@ -14,8 +13,8 @@ public class ItemType extends Item implements IItemType
 {
 	protected String name;
 	
-	@SerializedName( value = "creative_tab", alternate = "item_group" )
-	protected String creative_tab = FMUM.DEFAULT_CREATIVE_TAB.name();
+//	@SerializedName( value = "creative_tab", alternate = "item_group" )
+//	protected String creative_tab = FMUM.DEFAULT_CREATIVE_TAB.name();
 	
 	public ItemType buildServerSide( IBuildContext ctx )
 	{

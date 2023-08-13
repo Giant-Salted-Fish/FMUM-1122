@@ -16,15 +16,23 @@ import java.util.function.Supplier;
 
 public interface ILoadablePack
 {
-	void prepareLoadServerSide( IPrepareContext ctx);
+	/**
+	 * Load pack info, regis necessary {@link Gson} adapters and content loaders.
+	 *
+	 * @see #prepareLoadClientSide(IPrepareContext)
+	 */
+	Function< ILoadContext, Supplier< IContentPack > > prepareLoadServerSide( IPrepareContext ctx);
 	
+	/**
+	 * Load pack info, regis necessary {@link Gson} adapters and content loaders.
+	 *
+	 * @see #prepareLoadServerSide(IPrepareContext)
+	 */
 	@SideOnly( Side.CLIENT )
-	void prepareLoadClientSide( IPrepareContext ctx );
+	Function< ILoadContext, Supplier< IContentPack > > prepareLoadClientSide( IPrepareContext ctx );
 	
 	interface IPrepareContext
 	{
-		void regisPackLoader( Function< ILoadContext, Supplier< IContentPack > > pack_loader );
-		
 		void regisGsonAdapter( Type type, JsonDeserializer< ? > adapter );
 		
 		default < T > void regisContentLoader(
@@ -40,8 +48,6 @@ public interface ILoadablePack
 		}
 		
 		void regisContentLoader( String entry, IContentLoader loader );
-		
-		void regisResourceDomain( File file );
 		
 		< T > void regisCapability( Class< T > capability_class );
 	}
