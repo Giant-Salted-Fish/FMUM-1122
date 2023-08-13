@@ -21,7 +21,7 @@ public interface ILoadablePack
 	 *
 	 * @see #prepareLoadClientSide(IPrepareContext)
 	 */
-	Function< ILoadContext, Supplier< IContentPack > > prepareLoadServerSide( IPrepareContext ctx);
+	Function< ILoadContext, Supplier< IContentPack > > prepareLoadServerSide( IPrepareContext ctx );
 	
 	/**
 	 * Load pack info, regis necessary {@link Gson} adapters and content loaders.

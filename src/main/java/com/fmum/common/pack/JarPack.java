@@ -63,8 +63,10 @@ public class JarPack extends LocalPack
 				}
 			}
 		}
-		catch ( IOException e ) {
-			FMUM.MOD.logError( "An IO exception has occurred loading <%s>", this.sourceName() );
+		catch ( IOException e )
+		{
+			FMUM.MOD.logException( e,
+				"An IO exception has occurred loading <%s>", this.sourceName() );
 		}
 	}
 }

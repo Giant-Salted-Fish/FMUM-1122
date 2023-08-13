@@ -11,6 +11,7 @@ import com.fmum.common.pack.ILoadablePack.ILoadContext;
 import com.fmum.common.pack.ILoadablePack.IPrepareContext;
 import com.fmum.common.player.PlayerPatch;
 import com.fmum.common.tab.CreativeTab;
+import com.fmum.common.tab.ICreativeTab;
 import com.fmum.util.AngleAxis4f;
 import com.fmum.util.Quat4f;
 import com.fmum.util.Vec3f;
@@ -30,6 +31,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
 
@@ -75,8 +77,6 @@ public class FMUM
 	
 	public final Registry< IContentPack > content_packs = new Registry<>( IContentPack::name );
 	
-//	public final ICreativeTab default_creative_tab;
-	
 	protected final PacketHandler packet_handler = new PacketHandler( MODID );
 	
 	protected File config_dir;
@@ -90,6 +90,9 @@ public class FMUM
 	 * @see #logException(Throwable, String, Object...)
 	 */
 	private Logger logger;
+	
+//	private ICreativeTab default_creative_tab;
+	private ICreativeTab hide_tab;
 	
 	protected FMUM() { }
 	
@@ -143,7 +146,7 @@ public class FMUM
 	public String format( String translate_key, Object... parameters )
 	{
 		return net.minecraft.util.text.translation
-				   .I18n.translateToLocalFormatted( translate_key, parameters );
+.			I18n.translateToLocalFormatted( translate_key, parameters );
 	}
 	
 	public boolean isClient() {
@@ -225,7 +228,9 @@ public class FMUM
 		this.__regisCapability( prepare_context );
 		this._regisGsonAdapter( prepare_context );
 		this._regisContentLoader( prepare_context );
-		loadable_packs.forEach( this._callPackPrepareLoad( prepare_context ) );
+		final Function< ILoadablePack, Function< ILoadContext, Supplier< IContentPack > > >
+			callPrepare = this._callPackPrepareLoad( prepare_context );
+		loadable_packs.forEach( pack -> pack_loaders.add( callPrepare.apply( pack ) ) );
 		
 		final Gson gson = gson_builder.create();
 		
@@ -246,9 +251,9 @@ public class FMUM
   			this.unfinalized_packs.add( loader.apply( load_context ) ) );
 	}
 	
-	protected Consumer< ILoadablePack > _callPackPrepareLoad( IPrepareContext ctx ) {
-		return pack -> pack.prepareLoadServerSide( ctx );
-	}
+	protected Function< ILoadablePack, Function< ILoadContext, Supplier< IContentPack > > >
+		_callPackPrepareLoad( IPrepareContext ctx )
+	{ return pack -> pack.prepareLoadServerSide( ctx ); }
 	
 	protected void _regisGsonAdapter( IPrepareContext ctx )
 	{
@@ -301,25 +306,41 @@ public class FMUM
 	
 	private void __forEachPackInModFolder( BiConsumer< ILoadablePack, String > visitor )
 	{
-		Loader.instance().getActiveModList().forEach( mod_container -> {
-			final boolean is_mod_based_pack = mod_container
-				.getRequirements().contains( FMUM.MODID );
-			if ( !is_mod_based_pack ) {
-				return;
-			}
-			
-			final Object pack_mod = mod_container.getMod();
-			if ( pack_mod instanceof ILoadablePack )
+		final Loader loader_ctx = Loader.instance();
+		final ArtifactVersion version = loader_ctx.activeModContainer().getProcessedVersion();
+		loader_ctx.getActiveModList().forEach( mod_container -> {
+			for ( ArtifactVersion requirement : mod_container.getRequirements() )
 			{
+				final boolean is_mod_based_pack = MODID.equals( requirement.getLabel() );
+				if ( !is_mod_based_pack ) {
+					continue;
+				}
+				
+				final boolean is_compatible_core_version = requirement.containsVersion( version );
+				if ( !is_mod_based_pack )
+				{
+					this.logError(
+						"fmum.incompatible_core_version",
+						version.getVersionString(), requirement.getRangeString()
+					);
+					break;
+				}
+				
+				final Object pack_mod = mod_container.getMod();
+				final boolean is_correct_implementation = pack_mod instanceof ILoadablePack;
+				if ( !is_correct_implementation )
+				{
+					this.logError(
+						"fmum.invalid_mod_based_pack",
+						mod_container.getName(), mod_container.getModId()
+					);
+					break;
+				}
+				
 				final String source_name = mod_container.getSource().getName();
 				visitor.accept( ( ILoadablePack ) pack_mod, source_name );
-				return;
+				break;
 			}
-			
-			this.logError(
-				"fmum.invalid_mod_based_pack",
-				mod_container.getName(), mod_container.getModId()
-			);
 		} );
 	}
 	
