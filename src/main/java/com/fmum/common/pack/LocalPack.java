@@ -1,6 +1,7 @@
 package com.fmum.common.pack;
 
 import com.fmum.common.FMUM;
+import com.fmum.common.pack.IPreparedPack.ILoadContext;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -14,8 +15,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public abstract class LocalPack implements ILoadablePack, IContentPack
 {
@@ -48,7 +47,7 @@ public abstract class LocalPack implements ILoadablePack, IContentPack
 	}
 	
 	@Override
-	public Function< ILoadContext, Supplier< IContentPack > > prepareLoadServerSide( IPrepareContext ctx )
+	public IPreparedPack prepareLoadServerSide( IPrepareContext ctx )
 	{
 		return ctx_ -> {
 			FMUM.MOD.logInfo( "fmum.load_content_pack", this.sourceName() );
@@ -64,9 +63,9 @@ public abstract class LocalPack implements ILoadablePack, IContentPack
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public Function< ILoadContext, Supplier< IContentPack > > prepareLoadClientSide(
-		IPrepareContext ctx
-	) { return this.prepareLoadServerSide( ctx ); }
+	public IPreparedPack prepareLoadClientSide( IPrepareContext ctx ) {
+		return this.prepareLoadServerSide( ctx );
+	}
 	
 	protected abstract void _loadPackContent( ILoadContext ctx );
 	
@@ -82,7 +81,7 @@ public abstract class LocalPack implements ILoadablePack, IContentPack
 		final JsonElement type = obj.get( "__type__" );
 		final String loader_entry = type != null ? type.getAsString() : fallback_type;
 		
-		final IBuildContext build_context = new IBuildContext()
+		final IContentBuildContext build_context = new IContentBuildContext()
 		{
 			@Override
 			public String fallbackName()

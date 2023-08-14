@@ -2,10 +2,9 @@ package com.fmum.client;
 
 import com.fmum.common.FMUM;
 import com.fmum.common.network.IPacket;
-import com.fmum.common.pack.IContentPack;
 import com.fmum.common.pack.ILoadablePack;
-import com.fmum.common.pack.ILoadablePack.ILoadContext;
 import com.fmum.common.pack.ILoadablePack.IPrepareContext;
+import com.fmum.common.pack.IPreparedPack;
 import com.fmum.common.tab.CreativeTab;
 import com.google.gson.JsonDeserializer;
 import net.minecraft.client.Minecraft;
@@ -18,9 +17,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GLContext;
 
 import java.util.HashMap;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 @SideOnly( Side.CLIENT )
 public final class FMUMClient extends FMUM
@@ -69,9 +66,9 @@ public final class FMUMClient extends FMUM
 	}
 	
 	@Override
-	protected Function< ILoadablePack, Function< ILoadContext, Supplier< IContentPack > > >
-		_callPackPrepareLoad( IPrepareContext ctx )
-	{ return pack -> pack.prepareLoadClientSide( ctx ); }
+	protected Function< ILoadablePack, IPreparedPack > _callPackPrepareLoad( IPrepareContext ctx ) {
+		return pack -> pack.prepareLoadClientSide( ctx );
+	}
 	
 	/**
 	 * Send packet to server.

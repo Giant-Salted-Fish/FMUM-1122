@@ -4,11 +4,13 @@ import com.fmum.client.FMUMClient;
 import com.fmum.common.item.IItem;
 import com.fmum.common.network.IPacket;
 import com.fmum.common.network.PacketHandler;
+import com.fmum.common.pack.IContentLoader;
 import com.fmum.common.pack.IContentPack;
 import com.fmum.common.pack.ILoadablePack;
-import com.fmum.common.pack.ILoadablePack.IContentLoader;
-import com.fmum.common.pack.ILoadablePack.ILoadContext;
 import com.fmum.common.pack.ILoadablePack.IPrepareContext;
+import com.fmum.common.pack.ILoadedPack;
+import com.fmum.common.pack.IPreparedPack;
+import com.fmum.common.pack.IPreparedPack.ILoadContext;
 import com.fmum.common.player.PlayerPatch;
 import com.fmum.common.tab.CreativeTab;
 import com.fmum.common.tab.ICreativeTab;
@@ -42,7 +44,6 @@ import java.util.LinkedList;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -81,7 +82,7 @@ public class FMUM
 	
 	protected File config_dir;
 	
-	private final LinkedList< Supplier< IContentPack > > unfinalized_packs = new LinkedList<>();
+	private final LinkedList< ILoadedPack > unfinalized_packs = new LinkedList<>();
 	
 	/**
 	 * @see #logInfo(String, Object...)
@@ -185,8 +186,7 @@ public class FMUM
 		final Registry< IContentLoader > content_loaders = new Registry<>();
 		
 		// Call prepare load for each pack.
-		final LinkedList< Function< ILoadContext, Supplier< IContentPack > > >
-			pack_loaders = new LinkedList<>();
+		final LinkedList< IPreparedPack > prepared_packs = new LinkedList<>();
 		final IPrepareContext prepare_context = new IPrepareContext()
 		{
 			@Override
@@ -228,9 +228,9 @@ public class FMUM
 		this.__regisCapability( prepare_context );
 		this._regisGsonAdapter( prepare_context );
 		this._regisContentLoader( prepare_context );
-		final Function< ILoadablePack, Function< ILoadContext, Supplier< IContentPack > > >
+		final Function< ILoadablePack, IPreparedPack >
 			callPrepare = this._callPackPrepareLoad( prepare_context );
-		loadable_packs.forEach( pack -> pack_loaders.add( callPrepare.apply( pack ) ) );
+		loadable_packs.forEach( pack -> prepared_packs.add( callPrepare.apply( pack ) ) );
 		
 		final Gson gson = gson_builder.create();
 		
@@ -247,13 +247,15 @@ public class FMUM
 				return Optional.ofNullable( content_loaders.get( entry ) );
 			}
 		};
-		pack_loaders.forEach( loader ->
-  			this.unfinalized_packs.add( loader.apply( load_context ) ) );
+		prepared_packs.forEach( pack -> {
+			final ILoadedPack loaded_pack = pack.loadPack( load_context );
+			this.unfinalized_packs.add( loaded_pack );
+		} );
 	}
 	
-	protected Function< ILoadablePack, Function< ILoadContext, Supplier< IContentPack > > >
-		_callPackPrepareLoad( IPrepareContext ctx )
-	{ return pack -> pack.prepareLoadServerSide( ctx ); }
+	protected Function< ILoadablePack, IPreparedPack > _callPackPrepareLoad( IPrepareContext ctx ) {
+		return pack -> pack.prepareLoadServerSide( ctx );
+	}
 	
 	protected void _regisGsonAdapter( IPrepareContext ctx )
 	{
@@ -316,6 +318,7 @@ public class FMUM
 					continue;
 				}
 				
+				// TODO: Check why this is predicated as always false by IDEA.
 				final boolean is_compatible_core_version = requirement.containsVersion( version );
 				if ( !is_mod_based_pack )
 				{
@@ -346,9 +349,9 @@ public class FMUM
 	
 	private void __finalizePacksAndPacketHandler()
 	{
-		this.unfinalized_packs.forEach( unfinalized_pack -> {
-			final IContentPack pack = unfinalized_pack.get();
-			this.content_packs.regis( pack );
+		this.unfinalized_packs.forEach( pack -> {
+			final IContentPack finalized_pack = pack.finalizePack();
+			this.content_packs.regis( finalized_pack );
 		} );
 		this.unfinalized_packs.clear();
 		

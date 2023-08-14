@@ -21,7 +21,7 @@ fmum.config.common.misfire_possibility_multiplier.tooltip=This will impact the o
 fmum.config.client=Client Config
 fmum.config.client.tooltip=These settings is meaningless on server side.
 fmum.config.client.use_flan_compatible_mousehelper=Use Flan Compatible MouseHelper
-fmum.config.client.use_flan_compatible_mousehelper.tooltip=The default MouseHelper used in FMUM may conflict with the MouseHelper used in Flan's Mod. This could cause bugs when you enter a vehicle in Flan's Mod. You can try to fix this issue by enabling this setting.
+fmum.config.client.use_flan_compatible_mousehelper.tooltip=The default MouseHelper used in FMUM may cause the malfunction of the view rotation when driving the Flan's Mod vehicles. You can try to turn on this option to fix this problem.
 fmum.config.client.default_creative_tab_icon_item=Default Creative Tab Icon Item
 fmum.config.client.default_creative_tab_icon_item.tooltip=This icon item will be used if FMUM fails to find icon item for a creative tab.
 fmum.config.client.shot_sync_wait_ticks=Shot State Sync Wait Ticks
@@ -29,34 +29,30 @@ fmum.config.client.shot_sync_wait_ticks.tooltip=The ticks that will wait before 
 
 # Load phase info
 fmum.on_pre_init=Pre-initializing FMUM...
-fmum.opengl_version_too_low=Your OpenGL version is too low! Minimum requirement is OpenGL3.0. Please update your GPU or driver and try again.
-fmum.stencil_not_supported=Stencil test not supported. Please update your GPU or driver and try again.
-fmum.error_creating_key_binds_file=An error has occurred while attempting to create key binds file for FMUM
-fmum.error_saving_key_binds=An error has occurred while attempting to save key binds for FMUM
-fmum.error_reading_key_binds=An error has occurred while attempting to read key binds for FMUM
-fmum.unrecognized_key_bind=Unrecognized key bind <%s> for FMUM
-fmum.key_code_format_error=Key code format error <%s> for FMUM
-fmum.can_not_find_update_group=Can not find key update group <%2$s> required by key bind <%1$s>
+fmum.opengl_version_too_low=Your OpenGL version is too low! Minimum requirement is OpenGL3.0. Please upgrade your GPU or driver.
+fmum.stencil_not_supported=Stencil test not supported. Please upgrade your GPU or driver.
+fmum.error_creating_key_binds_file=An error has occurred while attempting to create key binds file for FMUM.
+fmum.error_saving_key_binds=An error has occurred while attempting to save key binds for FMUM.
+fmum.error_reading_key_binds=An error has occurred while attempting to read key binds for FMUM.
+fmum.unrecognized_key_bind=Unrecognized key bind <%s> for FMUM.
+fmum.key_code_format_error=Key code format error <%s> for FMUM.
+fmum.can_not_find_update_group=Can not find key update group <%2$s> required by key bind <%1$s>.
 fmum.pack_dir_created=Content pack folder <%s> has been created for you. Go find some content packs that support FMUM and drop them into this folder!
 fmum.unknown_pack_file_type=Can not load content pack <%s>. FMUM only support content packs of these three type: [ <folder>, <.jar>, <.zip> ].
-fmum.detect_content_pack=Find content pack <%s>
-fmum.invalid_mod_based_pack=%s(%s) is not a valid mod based pack
-fmum.error_adding_classpath=Failed to register class path for <%s>. Contents in this pack could be broken.
+fmum.detect_content_pack=Find content pack <%s>.
+fmum.invalid_mod_based_pack=%s(%s) is not a valid mod based pack.
 fmum.load_content_pack=Loading content pack <%s>...
-fmum.error_loading_pack_info=An error has occurred while attempting to load pack info file <%s>
-fmum.type_loader_not_found=Can not find type loader <%2$s> required by <%1$s>
-fmum.fire_controller_loader_not_found=Can not find fire controller loader corresponds to <%s>
-fmum.error_loading_type=An error has occurred while attempting to load <%s>
-fmum.duplicate_meta_regis=Duplicate meta registration <%s> : <%s>
-fmum.error_loading_renderer=An error has occurred while loading renderer <%s>
-fmum.fail_to_find_tab=Can not find creative tab <%2$s> required by <%1$s>
-fmum.fail_to_find_indicator=Can not find modify indicator <%2$s> required by <%1$s>
-fmum.expaintjob_target_not_found=Can not find inject target <%2$s> required by external paintjob <%1$s>
-fmum.model_loader_not_found=Can not found model loader <%2$s> required by <%1$s>
-fmum.pre_init_complete=FMUM pre-initialization complete \
+fmum.type_loader_not_found=Can not find type loader <%2$s> required by <%1$s>.
+fmum.error_loading_type=An error has occurred while attempting to load <%s>.
+fmum.duplicate_content_regis=Duplicate content registration <%s> : <%s>.
+fmum.fail_to_find_tab=Can not find creative tab <%2$s> required by <%1$s>.
+fmum.fail_to_find_indicator=Can not find modify indicator <%2$s> required by <%1$s>.
+fmum.expaintjob_target_not_found=Can not find inject target <%2$s> required by external paintjob <%1$s>.
+fmum.model_loader_not_found=Can not found model loader <%2$s> required by <%1$s>.
+fmum.pre_init_complete=FMUM pre-initialization complete.
 
 fmum.on_item_regis=Registering items for FMUM content packs...
-fmum.fail_to_find_module=Can not find required snapshot module <%s>
+fmum.fail_to_find_module=Can not find required snapshot module <%s>.
 fmum.item_regis_complete=Item registration complete. %s item(s) registered.
 fmum.on_sound_regis=Registering sounds for FMUM content packs...
 fmum.sound_regis_complete=Item registration complete. %s sound(s) registered.
@@ -64,43 +60,36 @@ fmum.on_model_regis=Registering models for FMUM content packs...
 fmum.model_regis_complete=Model registration complete. %s model(s) registered.
 
 fmum.on_init=Initializing FMUM...
-fmum.init_complete=FMUM initialization complete \
-fmum.total_loaded_packs=Loaded %s content pack(s)
+fmum.init_complete=FMUM initialization complete.
+fmum.total_loaded_packs=Loaded %s content pack(s):
 fmum.info_loaded_pack=    - %s by %s
 
 fmum.on_post_init=Post-initializing FMUM...
-fmum.post_init_complete=FMUM post-initialization complete \
+fmum.post_init_complete=FMUM post-initialization complete.
 
 # Runtime info
-fmum.error_loading_mesh=An error has occurred while attempting to load mesh <%s>
-fmum.error_loading_animation=An error has occurred while attempting to load animation <%s>
-fmum.exception_call_model_load=An exception was thrown from the model load method of <%s>. This will be highly possible to crash the game.
-
-# Content pack
-fmum.pack=FMUM Core Pack
-fmum.author=Giant_Salted_Fish
-fmum.author_missing=Unknown author
-fmum.description_missing=Description missing
+fmum.error_loading_mesh=An error has occurred while attempting to load mesh <%s>.
+fmum.error_loading_animation=An error has occurred while attempting to load animation <%s>.
 
 # Creative tab
-itemGroup.fmum=FMUM Default Group
+itemGroup.fmum=FMUM Item
 
 # Item
 
 # Item tooltip
 
 # Prompt chat message
-fmum.msg.arrive_max_module_capacity=Reached the max number of modules can be installed: %s
-fmum.msg.modify_mode_slot=Switch to SLOT modify mode
-fmum.msg.modify_mode_module=Switch to MODULE modify mode
-fmum.msg.modify_mode_paintjob=Switch to PAINTJOB modify mode
+fmum.msg.arrive_max_module_capacity=Reached the max number of modules can be installed: %s.
+fmum.msg.modify_mode_slot=Switch to SLOT modify mode.
+fmum.msg.modify_mode_module=Switch to MODULE modify mode.
+fmum.msg.modify_mode_paintjob=Switch to PAINTJOB modify mode.
 fmum.msg.safety=Safety On
 fmum.msg.full_auto=Full Auto
 fmum.msg.semi_auto=Semi-Auto
 fmum.msg.burst=Burst
 
 # Key binds
-fmum.key_category.general=FMUM General
+fmum.key_category.common=FMUM Common
 fmum.key.free_view=Free View
 
 fmum.key_category.gun=FMUM Weapon

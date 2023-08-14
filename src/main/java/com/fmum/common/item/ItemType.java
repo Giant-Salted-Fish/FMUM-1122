@@ -1,7 +1,6 @@
 package com.fmum.common.item;
 
-import com.fmum.common.pack.ILoadablePack.IBuildContext;
-import com.google.gson.annotations.SerializedName;
+import com.fmum.common.pack.IContentBuildContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -16,7 +15,7 @@ public class ItemType extends Item implements IItemType
 //	@SerializedName( value = "creative_tab", alternate = "item_group" )
 //	protected String creative_tab = FMUM.DEFAULT_CREATIVE_TAB.name();
 	
-	public ItemType buildServerSide( IBuildContext ctx )
+	public ItemType buildServerSide( IContentBuildContext ctx )
 	{
 		IItemType.REGISTRY.regis( this );
 		this.name = Optional.ofNullable( this.name ).orElseGet( ctx::fallbackName );
@@ -24,7 +23,7 @@ public class ItemType extends Item implements IItemType
 	}
 	
 	@SideOnly( Side.CLIENT )
-	public ItemType buildClientSide( IBuildContext ctx )
+	public ItemType buildClientSide( IContentBuildContext ctx )
 	{
 		this.buildServerSide( ctx );
 		

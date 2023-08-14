@@ -3,7 +3,7 @@ package com.fmum.common.tab;
 import com.fmum.client.ModConfigClient;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.IItemType;
-import com.fmum.common.pack.ILoadablePack.IBuildContext;
+import com.fmum.common.pack.IContentBuildContext;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -36,7 +36,7 @@ public class CreativeTab implements ICreativeTab
 	@SideOnly( Side.CLIENT )
 	protected ResourceLocation background_image;
 	
-	public CreativeTab buildServerSide( IBuildContext ctx )
+	public CreativeTab buildServerSide( IContentBuildContext ctx )
 	{
 		ICreativeTab.REGISTRY.regis( this );
 		this.name = Optional.ofNullable( this.name ).orElseGet( ctx::fallbackName );
@@ -44,7 +44,7 @@ public class CreativeTab implements ICreativeTab
 	}
 	
 	@SideOnly( Side.CLIENT )
-	public CreativeTab buildClientSide( IBuildContext ctx )
+	public CreativeTab buildClientSide( IContentBuildContext ctx )
 	{
 		this.buildServerSide( ctx );
 		
