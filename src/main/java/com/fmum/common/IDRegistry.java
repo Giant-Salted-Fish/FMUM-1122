@@ -2,6 +2,8 @@ package com.fmum.common;
 
 import com.google.common.collect.HashBiMap;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -22,7 +24,11 @@ public class IDRegistry< T > extends Registry< T >
 	}
 	
 	public final T get( Integer id ) {
-		return this.id_map_table.get( id );
+		return Objects.requireNonNull( this.id_map_table.get( id ) );
+	}
+	
+	public final Optional< T > find( Integer id ) {
+		return Optional.ofNullable( this.id_map_table.get( id ) );
 	}
 	
 	public final Integer getID( T value ) {

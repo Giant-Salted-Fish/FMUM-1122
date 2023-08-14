@@ -8,17 +8,24 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Optional;
 
-public class ItemType extends Item implements IItemType
+public abstract class ItemType extends Item implements IItemType
 {
 	protected String name;
 	
 //	@SerializedName( value = "creative_tab", alternate = "item_group" )
 //	protected String creative_tab = FMUM.DEFAULT_CREATIVE_TAB.name();
 	
+	protected transient Item vanilla_item;
+	
 	public ItemType buildServerSide( IContentBuildContext ctx )
 	{
 		IItemType.REGISTRY.regis( this );
+		
 		this.name = Optional.ofNullable( this.name ).orElseGet( ctx::fallbackName );
+		this.vanilla_item = this._createVanillaItem();
+		
+		// Item creative tab may not be loaded yet, so we defer it to post load.
+		ctx.regisPostLoadCallback( this::_setupCreativeTab );
 		return this;
 	}
 	
@@ -46,4 +53,8 @@ public class ItemType extends Item implements IItemType
 	{
 		return null;
 	}
+	
+	protected abstract Item _createVanillaItem();
+	
+	protected abstract void _setupCreativeTab();
 }

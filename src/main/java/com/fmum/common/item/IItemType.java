@@ -12,6 +12,8 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Optional;
+
 public interface IItemType
 {
 	Registry< IItemType > REGISTRY = new Registry<>( IItemType::name );
@@ -65,5 +67,12 @@ public interface IItemType
 	{
 		final boolean is_fmum_item = vanilla_item instanceof IFMUMVanillaItem;
 		return is_fmum_item ? getFrom( vanilla_item ) : VANILLA;
+	}
+	
+	static Optional< Item > findItem( String identifier )
+	{
+		final Optional< IItemType > type = REGISTRY.find( identifier );
+		return Optional.ofNullable(
+			type.isPresent() ? type.get().vanillaItem() : Item.getByNameOrId( identifier ) );
 	}
 }

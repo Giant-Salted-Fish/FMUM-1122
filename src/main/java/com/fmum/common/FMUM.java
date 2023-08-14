@@ -1,9 +1,12 @@
 package com.fmum.common;
 
 import com.fmum.client.FMUMClient;
+import com.fmum.client.ModConfigClient;
 import com.fmum.common.item.IItem;
+import com.fmum.common.item.IItemType;
 import com.fmum.common.network.IPacket;
 import com.fmum.common.network.PacketHandler;
+import com.fmum.common.pack.IContentBuildContext;
 import com.fmum.common.pack.IContentLoader;
 import com.fmum.common.pack.IContentPack;
 import com.fmum.common.pack.ILoadablePack;
@@ -21,7 +24,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
@@ -35,6 +41,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
@@ -92,10 +99,79 @@ public class FMUM
 	 */
 	private Logger logger;
 	
-//	private ICreativeTab default_creative_tab;
-	private ICreativeTab hide_tab;
+	private ICreativeTab default_creative_tab = new ICreativeTab()
+	{
+		private CreativeTabs vanilla_tab;
+		
+		@Override
+		public String name() {
+			return MODID;
+		}
+		
+		@Override
+		public void regisItem( IItemType item )
+		{
+			this.vanilla_tab = Optional.ofNullable( this.vanilla_tab )
+				.orElseGet( this::vanillaCreativeTab );
+			item.vanillaItem().setCreativeTab( this.vanilla_tab );
+		}
+		
+		@Override
+		public CreativeTabs vanillaCreativeTab()
+		{
+			return new CreativeTabs( MODID )
+			{
+				@Override
+				@SideOnly( Side.CLIENT )
+				public ItemStack createIcon()
+				{
+					final Item icon_item = Item.getByNameOrId(
+						ModConfigClient.default_creative_tab_icon_item );
+					return new ItemStack( Optional.ofNullable( icon_item ).orElseGet( () -> {
+					
+					} ) );
+				}
+			};
+		}
+	};
 	
 	protected FMUM() { }
+	
+	protected ICreativeTab _createDefaultTab()
+	{
+	
+	}
+	
+	protected ICreativeTab _createHideTab()
+	{
+	
+	}
+	
+	private IContentBuildContext __fallbackBuildCtx( String fallback_name )
+	{
+		return new IContentBuildContext()
+		{
+			@Override
+			public String fallbackName() {
+				return fallback_name;
+			}
+			
+			@Override
+			public IContentPack contentPack() {
+				return null;
+			}
+			
+			@Override
+			public Gson gson() {
+				return null;
+			}
+			
+			@Override
+			public void regisPostLoadCallback( Runnable callback ) {
+				callback.run();
+			}
+		};
+	}
 	
 	@Mod.EventHandler
 	private void onPreInit( FMLPreInitializationEvent evt )

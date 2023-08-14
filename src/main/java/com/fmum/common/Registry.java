@@ -2,6 +2,8 @@ package com.fmum.common;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class Registry< T >
@@ -18,7 +20,11 @@ public class Registry< T >
 	}
 	
 	public final T get( String identifier ) {
-		return this.regis_table.get( identifier );
+		return Objects.requireNonNull( this.regis_table.get( identifier ) );
+	}
+	
+	public final Optional< T > find( String identifier ) {
+		return Optional.ofNullable( this.regis_table.get( identifier ) );
 	}
 	
 	public final Collection< T > values() {

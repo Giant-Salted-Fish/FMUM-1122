@@ -3,6 +3,7 @@ package com.fmum.common.tab;
 import com.fmum.client.ModConfigClient;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.IItemType;
+import com.fmum.common.item.ItemType;
 import com.fmum.common.pack.IContentBuildContext;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
@@ -49,17 +50,15 @@ public class CreativeTab implements ICreativeTab
 		this.buildServerSide( ctx );
 		
 		this.icon_item = Optional.ofNullable( this.icon_item )
-	 		.orElse( ModConfigClient.defaultCreativeTabIconItem );
+	 		.orElse( ModConfigClient.default_creative_tab_icon_item );
 		this.background_image = Optional.ofNullable( this.background_image )
 			.orElseGet( CreativeTabs.BUILDING_BLOCKS::getBackgroundImage );
 		
 		this.vanilla_creative_tab = this._createVanillaTab();
 		if ( this.no_scroll_bar ) {
-			this.vanilla_creative_tab.setNoScrollbar();
-		}
+			this.vanilla_creative_tab.setNoScrollbar(); }
 		if ( this.no_title ) {
-			this.vanilla_creative_tab.setNoTitle();
-		}
+			this.vanilla_creative_tab.setNoTitle(); }
 		return this;
 	}
 	
@@ -88,21 +87,11 @@ public class CreativeTab implements ICreativeTab
 		@SideOnly( Side.CLIENT )
 		public ItemStack createIcon()
 		{
-			final String icon_item = CreativeTab.this.icon_item;
-			final short icon_item_damage = CreativeTab.this.icon_item_damage;
-			
-			final IItemType type = IItemType.REGISTRY.get( icon_item );
-			final Item item = type != null ? type.vanillaItem() : Item.getByNameOrId( icon_item );
-			if ( item != null ) {
-				return new ItemStack( item, 1, icon_item_damage );
-			}
-			
-			FMUM.MOD.logError(
-				"fmum.can_not_find_tab_icon_item",
-				this.getTabLabel(),
-				CreativeTab.this.icon_item
-			);
-			return new ItemStack( Items.FISH ); // Fallback to fish!
+			final Optional< Item > item = IItemType.findItem( CreativeTab.this.icon_item );
+			return(
+				item.isPresent()
+				? new ItemStack( item.get(), 1, CreativeTab.this.icon_item_damage )
+				: new ItemStack(  );
 		}
 		
 		@Nonnull
