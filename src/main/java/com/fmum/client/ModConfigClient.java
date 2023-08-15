@@ -31,12 +31,12 @@ public final class ModConfigClient
 	public static String default_creative_tab_icon_item = Items.FISH.getRegistryName().toString();
 	
 	@RequiresMcRestart
-	@LangKey( "fmum.config.client.default_creative_tab_icon_item_damage" )
+	@LangKey( "fmum.config.client.default_creative_tab_icon_item_meta" )
 	@Comment(
-		"See description of default_creative_tab_icon_item."
-		+ " This helps to decide the variant of the icon item."
+		"See description of default_creative_tab_icon_item. "
+		+ "This helps to decide the variant of the icon item."
 	)
-	public static short default_creative_tab_icon_item_damage = 0;
+	public static short default_creative_tab_icon_item_meta = 0;
 	
 	private ModConfigClient() { }
 }

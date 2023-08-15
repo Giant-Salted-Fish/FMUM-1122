@@ -24,6 +24,8 @@ fmum.config.client.use_flan_compatible_mousehelper=Use Flan Compatible MouseHelp
 fmum.config.client.use_flan_compatible_mousehelper.tooltip=The default MouseHelper used in FMUM may cause the malfunction of the view rotation when driving the Flan's Mod vehicles. You can try to turn on this option to fix this problem.
 fmum.config.client.default_creative_tab_icon_item=Default Creative Tab Icon Item
 fmum.config.client.default_creative_tab_icon_item.tooltip=This icon item will be used if FMUM fails to find icon item for a creative tab.
+fmum.config.client.default_creative_tab_icon_item_meta=Default Creative Tab Icon Item Meta
+fmum.config.client.default_creative_tab_icon_item_meta.tooltip=See description of default_creative_tab_icon_item. This helps to decide the variant of the icon item.
 fmum.config.client.shot_sync_wait_ticks=Shot State Sync Wait Ticks
 fmum.config.client.shot_sync_wait_ticks.tooltip=The ticks that will wait before synchronize the state of the weapon after shot. The optimal value is slightly bigger than the max ping. PS: 1tick = 50ms.
 

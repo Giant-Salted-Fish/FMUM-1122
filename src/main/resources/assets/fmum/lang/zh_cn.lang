@@ -22,8 +22,10 @@ fmum.config.client=客户端配置
 fmum.config.client.tooltip=这些配置仅在客户端有意义。
 fmum.config.client.use_flan_compatible_mousehelper=使用兼容 Flan 的 MouseHelper
 fmum.config.client.use_flan_compatible_mousehelper.tooltip=FMUM 默认的 MouseHelper 可能会导致 Flan's Mod 中的载具无法转动视角。启用该选项将尝试使用兼容性的 MouseHelper 以解决该问题。
-fmum.config.client.default_creative_tab_icon_item=默认创造模式物品组图标物品
+fmum.config.client.default_creative_tab_icon_item=默认创造模式物品栏图标
 fmum.config.client.default_creative_tab_icon_item.tooltip=如果 FMUM 无法为某个创造模式物品栏找到指定的图标物品，则该设置中的物品将成为其图标物品。
+fmum.config.client.default_creative_tab_icon_item_meta=默认创造模式物品栏图标变种
+fmum.config.client.default_creative_tab_icon_item_meta.tooltip=请查看“默认创造模式物品栏图标”相关描述。该值决定了图标物品的变种类型。
 fmum.config.client.shot_sync_wait_ticks=射击状态同步等待游戏刻
 fmum.config.client.shot_sync_wait_ticks.tooltip=该参数决定了武器射击后等待多少个游戏刻后进行状态同步。理想的情况下此参数应比最大网络延迟稍大。注：1游戏刻=50毫秒。
 
