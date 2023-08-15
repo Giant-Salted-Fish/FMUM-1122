@@ -2,9 +2,9 @@ package com.fmum.client;
 
 import com.fmum.common.FMUM;
 import com.fmum.common.network.IPacket;
-import com.fmum.common.pack.ILoadablePack;
-import com.fmum.common.pack.ILoadablePack.IPrepareContext;
-import com.fmum.common.pack.IPreparedPack;
+import com.fmum.common.pack.IContentPack;
+import com.fmum.common.pack.IContentPackFactory;
+import com.fmum.common.pack.IContentPackFactory.IPrepareContext;
 import com.fmum.common.tab.CreativeTab;
 import com.google.gson.JsonDeserializer;
 import net.minecraft.client.Minecraft;
@@ -66,9 +66,9 @@ public final class FMUMClient extends FMUM
 	}
 	
 	@Override
-	protected Function< ILoadablePack, IPreparedPack > _callPackPrepareLoad( IPrepareContext ctx ) {
-		return pack -> pack.prepareLoadClientSide( ctx );
-	}
+	protected Function< IContentPackFactory, IContentPack >
+		_callSideBasedCreate( IPrepareContext ctx )
+	{ return pack -> pack.createClientSide( ctx ); }
 	
 	/**
 	 * Send packet to server.
@@ -78,12 +78,12 @@ public final class FMUMClient extends FMUM
 	}
 	
 	@Override
-	public String format( String translate_key, Object... parameters ) {
-		return net.minecraft.client.resources.I18n.format( translate_key, parameters );
+	public boolean isClient() {
+		return true;
 	}
 	
 	@Override
-	public boolean isClient() {
-		return true;
+	public String format( String translate_key, Object... parameters ) {
+		return net.minecraft.client.resources.I18n.format( translate_key, parameters );
 	}
 }

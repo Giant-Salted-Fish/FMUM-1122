@@ -1,7 +1,6 @@
 package com.fmum.common.pack;
 
 import com.fmum.common.FMUM;
-import com.fmum.common.pack.IPreparedPack.ILoadContext;
 import net.minecraftforge.fml.common.ModContainer;
 
 import java.io.IOException;

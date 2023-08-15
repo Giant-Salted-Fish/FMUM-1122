@@ -87,11 +87,8 @@ public class CreativeTab implements ICreativeTab
 		@SideOnly( Side.CLIENT )
 		public ItemStack createIcon()
 		{
-			final Optional< Item > item = IItemType.findItem( CreativeTab.this.icon_item );
-			return(
-				item.isPresent()
-				? new ItemStack( item.get(), 1, CreativeTab.this.icon_item_damage )
-				: new ItemStack(  );
+			final Optional< Item > icon_item = IItemType.findItem( CreativeTab.this.icon_item );
+			return icon_item.map( item -> new ItemStack( item, 1, CreativeTab.this.icon_item_damage ) ).orElseGet(  )
 		}
 		
 		@Nonnull

@@ -1,7 +1,6 @@
 package com.fmum.common.pack;
 
 import com.fmum.common.FMUM;
-import com.fmum.common.pack.IPreparedPack.ILoadContext;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -15,15 +14,14 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
-public abstract class LocalPack implements ILoadablePack, IContentPack
+public abstract class LocalPack implements IContentPackFactory, IContentPack
 {
 	protected static final String ERROR_LOADING_TYPE = "fmum.error_loading_type";
 	
 	protected final ModContainer mod_container;
 	protected final HashSet< String > ignored_entries = new HashSet<>();
-	
-	private final LinkedList< Runnable > post_load_callbacks = new LinkedList<>();
 	
 	protected LocalPack( ModContainer mod_container )
 	{
@@ -47,24 +45,19 @@ public abstract class LocalPack implements ILoadablePack, IContentPack
 	}
 	
 	@Override
-	public IPreparedPack prepareLoadServerSide( IPrepareContext ctx )
+	public IContentPack createServerSide( IPrepareContext ctx )
 	{
-		return ctx_ -> {
-			FMUM.MOD.logInfo( "fmum.load_content_pack", this.sourceName() );
+		ctx.regisLoadCallback( ctx_ -> {
+			FMUM.MOD.logInfo( "fmum.load_content_pack", this.name() );
 			this._loadPackContent( ctx_ );
-			
-			return () -> {
-				this.post_load_callbacks.forEach( Runnable::run );
-				this.post_load_callbacks.clear();
-				return this;
-			};
-		};
+		} );
+		return this;
 	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public IPreparedPack prepareLoadClientSide( IPrepareContext ctx ) {
-		return this.prepareLoadServerSide( ctx );
+	public IContentPack createClientSide( IPrepareContext ctx ) {
+		return this.createServerSide( ctx );
 	}
 	
 	protected abstract void _loadPackContent( ILoadContext ctx );
@@ -102,8 +95,8 @@ public abstract class LocalPack implements ILoadablePack, IContentPack
 			}
 			
 			@Override
-			public void regisPostLoadCallback( Runnable callback ) {
-				LocalPack.this.post_load_callbacks.add( callback );
+			public void regisPostLoadCallback( Consumer< IPostLoadContext > callback ) {
+				ctx.regisPostLoadCallback( callback );
 			}
 		};
 		
