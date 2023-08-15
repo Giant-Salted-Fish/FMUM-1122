@@ -4,8 +4,6 @@ import net.minecraft.util.math.MathHelper;
 
 /**
  * This class simulates the movement of the object that connected to a spring in 3D space.
- * 
- * @author Giant_Salted_Fish
  */
 public final class DynamicPos
 {

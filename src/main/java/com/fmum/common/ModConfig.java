@@ -12,11 +12,6 @@ import net.minecraftforge.common.config.Config.RequiresWorldRestart;
 @Config( modid = FMUM.MODID, category = "common" )
 public final class ModConfig
 {
-	@LangKey( "fmum.config.common.ignore_pack_folder" )
-	@Comment( "If true, then the mod will only load content packs in .minecraft/mods/ folder." )
-	@RequiresMcRestart
-	public static boolean ignore_pack_folder;
-	
 	@LangKey( "fmum.config.common.max_modify_layers" )
 	@Comment( "This decides the max number of layers you can have when you modify your weapon." )
 	@RangeInt( min = 1, max = 255 )
@@ -31,24 +26,24 @@ public final class ModConfig
 	
 	@LangKey( "fmum.config.common.free_view_limit" )
 	@Comment( "This decides the max angle that you can turn your head around when you hold ALT." )
-	@RangeDouble( min = 0D, max = 180D )
+	@RangeDouble( min = 0.0D, max = 180.0D )
 	@RequiresWorldRestart
-	public static float free_view_limit = 130F;
+	public static float free_view_limit = 130.0F;
 	
 	@LangKey( "fmum.config.common.cam_drop_cycle" )
 	@Comment( "This decides the frequency of the camera shake when player falls from sky." )
 	@RequiresWorldRestart
-	public static float cam_drop_cycle = 1F;
+	public static float cam_drop_cycle = 1.0F;
 	
 	@LangKey( "fmum.config.common.cam_drop_ampl")
 	@Comment( "This decides the amplitude of the camera shake when player falls from sky." )
 	@RequiresWorldRestart
-	public static float cam_drop_ampl = 1F;
+	public static float cam_drop_ampl = 1.0F;
 	
 	@LangKey( "fmum.config.common.cam_drop_impact" )
 	@Comment( "This decides the amplitude of the camera shake when player impacts on the ground." )
 	@RequiresWorldRestart
-	public static float cam_drop_impact = 1F;
+	public static float cam_drop_impact = 1.0F;
 	
 //	@LangKey( "fmum.config.common.shoot_request_timeout_ticks" )
 //	@Comment( "How long the server will wait for next client shoot request to continue fire." )
@@ -61,8 +56,8 @@ public final class ModConfig
 //		+ "disable misfire. PS: This may not work on class based ammo types if they used "
 //		+ "customized misfire possibility control."
 //	)
-//	@RangeDouble( min = 0F )
-//	public static float misfire_possibility_multiplier = 1F;
+//	@RangeDouble( min = 0.0F )
+//	public static float misfire_possibility_multiplier = 1.0F;
 	
 	private ModConfig() { }
 }

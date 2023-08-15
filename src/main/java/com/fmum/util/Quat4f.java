@@ -29,7 +29,7 @@ public final class Quat4f extends javax.vecmath.Quat4f implements IReleasable
 	/**
 	 * Create a quaternion with (x,y,z,w) to be (0,0,0,1).
 	 */
-	public Quat4f() { super( 0F, 0F, 0F, 1F ); }
+	public Quat4f() { super( 0.0F, 0.0F, 0.0F, 1.0F ); }
 	
 	/**
 	 * Initialize this quaternion with given euler rotation applied in order ZXY.

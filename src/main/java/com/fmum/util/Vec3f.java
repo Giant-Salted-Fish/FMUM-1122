@@ -44,9 +44,9 @@ public class Vec3f extends Vector3f implements IReleasable
 		this.z += z;
 	}
 	
-	public final void setZero() { this.x = this.y = this.z = 0F; }
+	public final void setZero() { this.x = this.y = this.z = 0.0F; }
 	
-	public final boolean nonZero() { return this.x != 0F || this.y != 0F || this.z != 0F; }
+	public final boolean nonZero() { return this.x != 0.0F || this.y != 0.0F || this.z != 0.0F; }
 	
 	public final void getEulerAngle( Vec3f dst )
 	{

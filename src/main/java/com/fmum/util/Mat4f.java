@@ -109,7 +109,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 		final float radians = angle * Util.TO_RADIANS;
 		final float sinTheta = MathHelper.sin( radians );
 		final float cosTheta = MathHelper.cos( radians );
-		final float t = 1F - cosTheta;
+		final float t = 1.0F - cosTheta;
 		
 		final float rm00 = t * ax * ax + cosTheta;
 		final float rm01 = t * xy - sinTheta * az;

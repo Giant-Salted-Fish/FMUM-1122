@@ -12,7 +12,7 @@ import java.io.IOException;
 /**
  * <p> Do two things: </p>
  * <ol>
- *     <li> Ensure all "vt" value is inside of {@code 0F-1F} (required by {@link OBJLoader}. </li>
+ *     <li> Ensure all "vt" value is inside of {@code 0.0-1.0} (required by {@link OBJLoader}. </li>
  *     <li> Comment "mtllib" and "usemtl" if represent. </li>
  * </ol>
  * 

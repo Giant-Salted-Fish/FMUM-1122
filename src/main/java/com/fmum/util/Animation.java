@@ -18,7 +18,7 @@ public class Animation
 		public void getRot( String channel, Quat4f dst ) { dst.clearRot(); }
 		
 		@Override
-		public float getFactor( String channel ) { return 0F; }
+		public float getFactor( String channel ) { return 0.0F; }
 	};
 	
 	public final Map< String, BoneAnimation > channels = new HashMap<>();
@@ -48,6 +48,6 @@ public class Animation
 	{
 		final BoneAnimation ani = this.channels.get( channel );
 		if ( ani != null ) { return ani.a; }
-		else { return 1F; }
+		else { return 1.0F; }
 	}
 }

@@ -63,13 +63,11 @@ public class CreativeTab implements ICreativeTab
 		if ( this.no_title ) {
 			this.vanilla_creative_tab.setNoTitle(); }
 		
-		ctx.regisPostLoadCallback( ctx_ -> {
-			final Optional< Item > icon_item = IItemType.findItem( this.icon_item_name );
-			final int meta = CreativeTab.this.icon_item_meta;
-			this.icon_item = icon_item
-				.map( item -> new ItemStack( item, 1, meta ) )
-				.orElseGet( ctx_::defaultTabIconItem );
-		} );
+		ctx.regisPostLoadCallback(
+			ctx_ -> this.icon_item = IItemType.findItem( this.icon_item_name )
+				.map( item -> new ItemStack( item, 1, this.icon_item_meta ) )
+				.orElseGet( ctx_::defaultTabIconItem )
+		);
 		return this;
 	}
 	

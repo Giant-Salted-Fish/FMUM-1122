@@ -14,8 +14,6 @@ import java.util.Set;
 /**
  * Reference: <a href="https://harbinger.covertdragon.team/chapter-26/config-gui.html">
  *     Harbinger: Chapter-26.1 </a>
- * 
- * @author Giant_Salted_Fish
  */
 @SideOnly( Side.CLIENT )
 public final class ConfigGuiFactory implements IModGuiFactory

@@ -9,8 +9,6 @@ import net.minecraftforge.common.config.Config.RequiresMcRestart;
 
 /**
  * Client only configurations.
- *
- * @author Giant_Salted_Fish
  */
 //@SideOnly( Side.CLIENT ) // Commented as it will crash the load.
 @LangKey( "fmum.config.client" )

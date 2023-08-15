@@ -8,8 +8,6 @@ import java.io.FileReader;
 
 /**
  * For content packs that organized in form of folders.
- *
- * @author Giant_Salted_Fish
  */
 public class FolderPack extends LocalPack
 {

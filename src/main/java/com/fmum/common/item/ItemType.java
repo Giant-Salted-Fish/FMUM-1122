@@ -1,6 +1,7 @@
 package com.fmum.common.item;
 
 import com.fmum.common.pack.IContentBuildContext;
+import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -56,5 +57,5 @@ public abstract class ItemType extends Item implements IItemType
 	
 	protected abstract Item _createVanillaItem();
 	
-	protected abstract void _setupCreativeTab();
+	protected abstract void _setupCreativeTab( IPostLoadContext ctx );
 }

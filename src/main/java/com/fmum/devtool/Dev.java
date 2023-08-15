@@ -6,8 +6,6 @@ import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * A temporary class that helps with development. Should be removed on release.
- * 
- * @author Giant_Salted_Fish
  */
 @EventBusSubscriber( modid = FMUM.MODID, value = Side.CLIENT )
 public class Dev

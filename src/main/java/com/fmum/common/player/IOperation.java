@@ -13,10 +13,10 @@ public interface IOperation
 		public String toString() { return "Operation::NONE"; }
 	};
 	
-	default float progress() { return 1F; }
+	default float progress() { return 1.0F; }
 	
 	@SideOnly( Side.CLIENT )
-	default float smoothedProgress() { return 1F; }
+	default float smoothedProgress() { return 1.0F; }
 	
 	default IOperation _launch( EntityPlayer player ) { return this; }
 	

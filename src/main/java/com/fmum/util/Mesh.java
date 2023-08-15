@@ -14,8 +14,6 @@ import java.util.List;
 
 /**
  * This mesh implementation uses VAO to draw {@link GL11#GL_QUADS}.
- * 
- * @author Giant_Salted_Fish
  */
 public class Mesh implements IReleasable
 {
@@ -145,8 +143,6 @@ public class Mesh implements IReleasable
 	
 	/**
 	 * A C like struct used to pass vertex data.
-	 * 
-	 * @author Giant_Salted_Fish
 	 */
 	public static final class Vertex extends Vec3f
 	{
@@ -156,8 +152,6 @@ public class Mesh implements IReleasable
 	
 	/**
 	 * Add all vertices and indices of a model into this builder to build a {@link Mesh}.
-	 * 
-	 * @author Giant_Salted_Fish
 	 */
 	public static class Builder
 	{

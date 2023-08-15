@@ -7,7 +7,7 @@ public class ArmTracker
 	/**
 	 * Recommended forearm and upper arm length. It is the typical value for standard Steve model.
 	 */
-	public static final float RECOMMENDED_ARM_LENGTH = 10F / 16F;
+	public static final float RECOMMENDED_ARM_LENGTH = 10.0F / 16.0F;
 	
 	protected final float forearmLen;
 	protected final float upperArmLen;
@@ -20,7 +20,7 @@ public class ArmTracker
 	
 	public final Vec3f elbowPos = new Vec3f();
 	
-	public float armRotZ = 0F;
+	public float armRotZ = 0.0F;
 	
 	protected final Mat4f mat = new Mat4f();
 	protected final Vec3f vec = new Vec3f();
@@ -86,9 +86,9 @@ public class ArmTracker
 			final float a_2 = a * a;
 			final float b_2 = distanceSquared;
 			final float c_2 = this.upperArmLen * this.upperArmLen;
-			final float cos = ( a_2 + b_2 - c_2 ) / ( 2F * a * b );
-			final float sin = MathHelper.sqrt( 1F - cos * cos );
-			this.elbowPos.set( 0F, -this.forearmLen * sin, distance - this.forearmLen * cos );
+			final float cos = ( a_2 + b_2 - c_2 ) / ( 2.0F * a * b );
+			final float sin = MathHelper.sqrt( 1.0F - cos * cos );
+			this.elbowPos.set( 0.0F, -this.forearmLen * sin, distance - this.forearmLen * cos );
 			
 			// Get elbow coordinate in 3D space.
 			mat.setIdentity();

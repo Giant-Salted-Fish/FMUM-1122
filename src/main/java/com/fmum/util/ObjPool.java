@@ -9,8 +9,6 @@ import java.util.function.Supplier;
  * A simple pool to buffer instances like {@link Vec3f}.
  *
  * @param <T> Class of buffered instance.
- * 
- * @author Giant_Salted_Fish
  */
 public final class ObjPool< T >
 {

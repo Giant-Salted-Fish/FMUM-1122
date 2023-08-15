@@ -4,12 +4,12 @@ import javax.vecmath.AxisAngle4f;
 
 public final class AngleAxis4f extends AxisAngle4f
 {
-	public static final AngleAxis4f ORIGIN = new AngleAxis4f( 0F, 0F, 1F, 0F );
+	public static final AngleAxis4f ORIGIN = new AngleAxis4f( 0.0F, 0.0F, 1.0F, 0F );
 	
 	public static final Vec3f
-		AXIS_X = new Vec3f( 1F, 0F, 0F ),
-		AXIS_Y = new Vec3f( 0F, 1F, 0F ),
-		AXIS_Z = new Vec3f( 0F, 0F, 1F );
+		AXIS_X = new Vec3f( 1.0F, 0.0F, 0.0F ),
+		AXIS_Y = new Vec3f( 0.0F, 1.0F, 0.0F ),
+		AXIS_Z = new Vec3f( 0.0F, 0.0F, 1.0F );
 	
 	private static final long serialVersionUID = 6249913083904720177L;
 	
@@ -29,7 +29,7 @@ public final class AngleAxis4f extends AxisAngle4f
 	
 	public AngleAxis4f( float angle, float axisX, float axisY, float axisZ )
 	{
-		final float s = 1F / ( float ) Math.sqrt( axisX * axisX + axisY * axisY + axisZ * axisZ );
+		final float s = 1.0F / ( float ) Math.sqrt( axisX * axisX + axisY * axisY + axisZ * axisZ );
 		
 		this.angle = angle * Util.TO_RADIANS;
 		this.x = axisX * s;

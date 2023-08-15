@@ -4,6 +4,8 @@ import com.fmum.client.FMUMClient;
 import com.fmum.client.ModConfigClient;
 import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemType;
+import com.fmum.common.module.CategoryDomain;
+import com.fmum.common.module.ModuleCategory;
 import com.fmum.common.network.IPacket;
 import com.fmum.common.network.PacketHandler;
 import com.fmum.common.pack.IContentLoader;
@@ -304,6 +306,16 @@ public class FMUM
 	protected void _regisGsonAdapter( IPrepareContext ctx )
 	{
 		ctx.regisGsonAdapter(
+			ModuleCategory.class,
+			( json, type_of_T, context ) -> new ModuleCategory( json.getAsString() )
+		);
+		
+		ctx.regisGsonAdapter(
+			CategoryDomain.class,
+			( json, type_of_T, context ) -> new CategoryDomain( json )
+		);
+		
+		ctx.regisGsonAdapter(
 			Vec3f.class,
 			( json, type_of_T, context ) -> {
 				final JsonArray arr = json.getAsJsonArray();
@@ -363,6 +375,7 @@ public class FMUM
 				}
 				
 				// TODO: Check why this is predicated as always false by IDEA.
+				// TODO: And make version as a specially constructed range to test compatible version.
 				final boolean is_compatible_core_version = requirement.containsVersion( version );
 				if ( !is_mod_based_pack )
 				{
@@ -445,10 +458,10 @@ public class FMUM
 	@SideOnly( Side.CLIENT )
 	private ItemStack __createDefaultTabIconItem()
 	{
-		final Optional< Item > icon_item = IItemType.findItem(
-			ModConfigClient.default_creative_tab_icon_item );
+		final String icon_item = ModConfigClient.default_creative_tab_icon_item;
 		final short meta = ModConfigClient.default_creative_tab_icon_item_meta;
-		return icon_item.map( item -> new ItemStack( item, 1, meta ) )
+		return IItemType.findItem( icon_item )
+			.map( item -> new ItemStack( item, 1, meta ) )
 			.orElseGet( () -> new ItemStack( Items.FISH ) );
 	}
 	

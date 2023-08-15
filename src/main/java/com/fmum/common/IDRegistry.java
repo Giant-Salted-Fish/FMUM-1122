@@ -8,8 +8,6 @@ import java.util.function.Function;
 
 /**
  * In default the numerical id only has 16-bits of effective range.
- *
- * @author Giant_Salted_Fish
  */
 public class IDRegistry< T > extends Registry< T >
 {
