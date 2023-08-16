@@ -49,7 +49,7 @@ fmum.error_loading_type=An error has occurred while attempting to load <%s>.
 fmum.duplicate_content_regis=Duplicate content registration <%s> : <%s>.
 fmum.fail_to_find_tab=Can not find creative tab <%2$s> required by <%1$s>.
 fmum.fail_to_find_indicator=Can not find modify indicator <%2$s> required by <%1$s>.
-fmum.expaintjob_target_not_found=Can not find inject target <%2$s> required by external paintjob <%1$s>.
+fmum.paintjob_inject_target_not_found=Can not find inject target <%2$s> required by external paintjob <%1$s>.
 fmum.model_loader_not_found=Can not found model loader <%2$s> required by <%1$s>.
 fmum.pre_init_complete=FMUM pre-initialization complete.
 

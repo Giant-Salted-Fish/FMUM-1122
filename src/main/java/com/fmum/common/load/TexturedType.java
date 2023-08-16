@@ -2,6 +2,10 @@ package com.fmum.common.load;
 
 import com.fmum.client.FMUMClient;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Optional;
 
 public abstract class TexturedType extends BuildableType
 {
@@ -11,12 +15,12 @@ public abstract class TexturedType extends BuildableType
 	protected TexturedType() { }
 	
 	@SideOnly( Side.CLIENT )
-	protected void _buildClientSide( IContentBuildContext ctx )
+	public void buildClientSide( IContentBuildContext ctx )
 	{
-		super._buildClientSide( ctx );
+		super.buildClientSide( ctx );
 		
 		this.texture = Optional.ofNullable( this.texture )
-			.orElseGet( this::_fallbackTexture );
+			.orElseGet( () -> this._fallbackTexture( ctx ) );
 	}
 	
 	@SideOnly( Side.CLIENT )

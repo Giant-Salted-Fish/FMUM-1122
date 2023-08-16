@@ -1,5 +1,8 @@
 package com.fmum.common.pack;
 
+import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.load.IContentLoader;
+import com.fmum.common.load.LoaderNotFoundException;
 import com.fmum.common.tab.ICreativeTab;
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializer;
@@ -54,8 +57,8 @@ public interface IContentPackFactory
 		) throws LoaderNotFoundException
 		{
 			return this.getContentLoader( loader_entry )
-					   .orElseThrow( LoaderNotFoundException::new )
-					   .loadFrom( object, this.gson(), ctx );
+				.orElseThrow( LoaderNotFoundException::new )
+				.loadFrom( object, this.gson(), ctx );
 		}
 		
 		Optional< IContentLoader > getContentLoader( String entry );

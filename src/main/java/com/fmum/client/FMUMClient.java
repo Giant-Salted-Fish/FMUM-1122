@@ -1,11 +1,13 @@
 package com.fmum.client;
 
 import com.fmum.common.FMUM;
+import com.fmum.common.load.BuildableType;
+import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.load.IContentLoader;
 import com.fmum.common.network.IPacket;
 import com.fmum.common.pack.IContentPack;
 import com.fmum.common.pack.IContentPackFactory;
 import com.fmum.common.pack.IContentPackFactory.IPrepareContext;
-import com.fmum.common.tab.CreativeTab;
 import com.google.gson.JsonDeserializer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
@@ -27,9 +29,9 @@ public final class FMUMClient extends FMUM
 	public static final GameSettings SETTINGS = MC.gameSettings;
 	
 	public static final ResourceLocation
-		TEXTURE_RED = new ResourceLocation( MODID, ),
-		TEXTURE_GREEN = new ResourceLocation( MODID, ),
-		TEXTURE_BLUE = new ResourceLocation( MODID, );
+		TEXTURE_RED = new ResourceLocation( MODID, "textures/0xff0000.png" ),
+		TEXTURE_GREEN = new ResourceLocation( MODID, "textures/0x00ff00.png" ),
+		TEXTURE_BLUE = new ResourceLocation( MODID, "textures/0x0000ff.png" );
 	
 	private final HashMap< String, ResourceLocation > texture_pool = new HashMap<>();
 	
@@ -65,9 +67,8 @@ public final class FMUMClient extends FMUM
 	}
 	
 	@Override
-	protected void _regisContentLoader( IPrepareContext ctx )
-	{
-		ctx.regisContentLoader( "creative_tab", CreativeTab.class, CreativeTab::buildClientSide );
+	protected void _callContentBuild( BuildableType buildable, IContentBuildContext ctx ) {
+		buildable.buildClientSide( ctx );
 	}
 	
 	@Override

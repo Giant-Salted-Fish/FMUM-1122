@@ -1,5 +1,6 @@
 package com.fmum.common.load;
 
+import com.fmum.common.pack.IContentPack;
 import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
 import com.google.gson.Gson;
 

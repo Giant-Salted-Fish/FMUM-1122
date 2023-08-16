@@ -8,5 +8,5 @@ public interface IPaintableType
 	
 	String name();
 	
-	void injectPaintjob();
+	void injectPaintjob( IPaintjob paintjob );
 }

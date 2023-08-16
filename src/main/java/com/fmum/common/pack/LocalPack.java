@@ -1,6 +1,8 @@
 package com.fmum.common.pack;
 
 import com.fmum.common.FMUM;
+import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.load.LoaderNotFoundException;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -11,7 +13,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -37,6 +38,11 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 	@Override
 	public String author() {
 		return String.join( ", ", this.mod_container.getMetadata().authorList );
+	}
+	
+	@Override
+	public String resourceDomain() {
+		return this.mod_container.getModId();
 	}
 	
 	@Override

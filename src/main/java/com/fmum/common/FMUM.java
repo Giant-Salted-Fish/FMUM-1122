@@ -4,16 +4,19 @@ import com.fmum.client.FMUMClient;
 import com.fmum.client.ModConfigClient;
 import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemType;
+import com.fmum.common.load.BuildableType;
+import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.load.IContentLoader;
 import com.fmum.common.module.CategoryDomain;
 import com.fmum.common.module.ModuleCategory;
 import com.fmum.common.network.IPacket;
 import com.fmum.common.network.PacketHandler;
-import com.fmum.common.pack.IContentLoader;
 import com.fmum.common.pack.IContentPack;
 import com.fmum.common.pack.IContentPackFactory;
 import com.fmum.common.pack.IContentPackFactory.ILoadContext;
 import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
 import com.fmum.common.pack.IContentPackFactory.IPrepareContext;
+import com.fmum.common.paintjob.JsonPaintjob;
 import com.fmum.common.player.PlayerPatch;
 import com.fmum.common.tab.CreativeTab;
 import com.fmum.common.tab.ICreativeTab;
@@ -27,7 +30,6 @@ import com.google.gson.JsonDeserializer;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.EnumFacing;
@@ -246,7 +248,7 @@ public class FMUM
 		};
 		this.__regisCapability( prepare_context );
 		this._regisGsonAdapter( prepare_context );
-		this._regisContentLoader( prepare_context );
+		this.__regisContentLoader( prepare_context );
 		final Function< IContentPackFactory, IContentPack >
 			callCreate = this._callSideBasedCreate( prepare_context );
 		pack_factories.forEach( pack -> this.content_packs.regis( callCreate.apply( pack ) ) );
@@ -351,9 +353,22 @@ public class FMUM
 		);
 	}
 	
-	protected void _regisContentLoader( IPrepareContext ctx )
+	private void __regisContentLoader( IPrepareContext ctx )
 	{
-		ctx.regisContentLoader( "creative_tab", CreativeTab.class, CreativeTab::buildServerSide );
+		final BiConsumer< String, Class< ? extends BuildableType > > regis = ( entry, clazz ) -> {
+			final IContentLoader loader = ( obj, gson, ctx_ ) -> {
+				final BuildableType buildable = gson.fromJson( obj, clazz );
+				this._callContentBuild( buildable, ctx_ );
+				return buildable;
+			};
+			ctx.regisContentLoader( entry, loader );
+		};
+		regis.accept( "creative_tab", CreativeTab.class );
+		regis.accept( "paintjob", JsonPaintjob.class );
+	}
+	
+	protected void _callContentBuild( BuildableType buildable, IContentBuildContext ctx ) {
+		buildable.buildServerSide( ctx );
 	}
 	
 	private void __regisCapability( IPrepareContext ctx )

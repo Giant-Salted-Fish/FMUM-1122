@@ -2,10 +2,11 @@ package com.fmum.common.tab;
 
 import com.fmum.client.ModConfigClient;
 import com.fmum.common.item.IItemType;
-import com.fmum.common.pack.IContentBuildContext;
+import com.fmum.common.load.BuildableType;
+import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.load.TexturedType;
 import com.google.gson.annotations.SerializedName;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -14,11 +15,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
-public class CreativeTab implements ICreativeTab
+public class CreativeTab extends BuildableType implements ICreativeTab
 {
 	protected transient CreativeTabs vanilla_creative_tab;
-	
-	protected String name;
 	
 	@SideOnly( Side.CLIENT )
 	@SerializedName( value = "icon_item" )
@@ -39,18 +38,19 @@ public class CreativeTab implements ICreativeTab
 	@SideOnly( Side.CLIENT )
 	protected ResourceLocation background_image;
 	
-	public CreativeTab buildServerSide( IContentBuildContext ctx )
+	@Override
+	public void buildServerSide( IContentBuildContext ctx )
 	{
-		ICreativeTab.REGISTRY.regis( this );
+		super.buildServerSide( ctx );
 		
-		this.name = Optional.ofNullable( this.name ).orElseGet( ctx::fallbackName );
-		return this;
+		ICreativeTab.REGISTRY.regis( this );
 	}
 	
+	@Override
 	@SideOnly( Side.CLIENT )
-	public CreativeTab buildClientSide( IContentBuildContext ctx )
+	public void buildClientSide( IContentBuildContext ctx )
 	{
-		this.buildServerSide( ctx );
+		super.buildClientSide( ctx );
 		
 		this.icon_item_name = Optional.ofNullable( this.icon_item_name )
 	 		.orElse( ModConfigClient.default_creative_tab_icon_item );
@@ -68,7 +68,11 @@ public class CreativeTab implements ICreativeTab
 				.map( item -> new ItemStack( item, 1, this.icon_item_meta ) )
 				.orElseGet( ctx_::defaultTabIconItem )
 		);
-		return this;
+	}
+	
+	@Override
+	public CreativeTabs vanillaCreativeTab() {
+		return this.vanilla_creative_tab;
 	}
 	
 	protected CreativeTabs _createVanillaTab() {
@@ -76,13 +80,8 @@ public class CreativeTab implements ICreativeTab
 	}
 	
 	@Override
-	public String name() {
-		return this.name;
-	}
-	
-	@Override
-	public CreativeTabs vanillaCreativeTab() {
-		return this.vanilla_creative_tab;
+	protected String _typeHint() {
+		return "CREATIVE_TAB";
 	}
 	
 	protected class VanillaCreativeTab extends CreativeTabs

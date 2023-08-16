@@ -49,7 +49,7 @@ fmum.error_loading_type=加载 %s 时遇到意外错误。
 fmum.duplicate_content_regis=重复的内容注册 %s : %s。
 fmum.fail_to_find_tab=找不到 %s 指定的创造模式物品栏 %s。
 fmum.fail_to_find_indicator=找不到 %s 指定的改装指示器 %s。
-fmum.expaintjob_target_not_found=找不到皮肤 %s 指定的注入目标 %s。
+fmum.paintjob_inject_target_not_found=找不到皮肤 %s 指定的注入目标 %s。
 fmum.model_loader_not_found=找不到 %s 需要的模型加载器 %s。
 fmum.pre_init_complete=FMUM 预初始化完成。
 
