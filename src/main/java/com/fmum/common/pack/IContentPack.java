@@ -7,8 +7,12 @@ public interface IContentPack
 	String author();
 	
 	/**
-	 * Used in error handling procedure to give human-readable names that can be used to identify
-	 * problems.
+	 * Corresponding domain to construct {@link ResourceLocation}.
+	 */
+	String resourceDomain();
+
+	/**
+	 * Used in error handling to give human-readable hints about the problem.
 	 */
 	String sourceName();
 }

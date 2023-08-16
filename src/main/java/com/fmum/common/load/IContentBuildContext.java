@@ -1,4 +1,4 @@
-package com.fmum.common.pack;
+package com.fmum.common.load;
 
 import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
 import com.google.gson.Gson;
@@ -9,6 +9,9 @@ public interface IContentBuildContext
 {
 	String fallbackName();
 	
+	/**
+	 * The pack that the building content is loaded from.
+	 */
 	IContentPack contentPack();
 	
 	Gson gson();

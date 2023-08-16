@@ -26,6 +26,11 @@ public final class FMUMClient extends FMUM
 	public static final Minecraft MC = Minecraft.getMinecraft();
 	public static final GameSettings SETTINGS = MC.gameSettings;
 	
+	public static final ResourceLocation
+		TEXTURE_RED = new ResourceLocation( MODID, ),
+		TEXTURE_GREEN = new ResourceLocation( MODID, ),
+		TEXTURE_BLUE = new ResourceLocation( MODID, );
+	
 	private final HashMap< String, ResourceLocation > texture_pool = new HashMap<>();
 	
 	private FMUMClient() { }

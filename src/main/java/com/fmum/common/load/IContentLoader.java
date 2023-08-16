@@ -1,4 +1,4 @@
-package com.fmum.common.pack;
+package com.fmum.common.load;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

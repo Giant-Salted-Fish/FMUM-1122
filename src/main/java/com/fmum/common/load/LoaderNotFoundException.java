@@ -1,3 +1,3 @@
-package com.fmum.common.pack;
+package com.fmum.common.load;
 
 public class LoaderNotFoundException extends RuntimeException { }

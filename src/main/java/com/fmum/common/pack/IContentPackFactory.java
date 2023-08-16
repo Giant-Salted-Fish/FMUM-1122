@@ -38,18 +38,6 @@ public interface IContentPackFactory
 		
 		void regisGsonAdapter( Type type, JsonDeserializer< ? > adapter );
 		
-		default < T > void regisContentLoader(
-			String entry,
-			Class< T > clazz,
-			BiFunction< T, IContentBuildContext, ? > processor
-		) {
-			final IContentLoader loader = ( obj, gson, ctx ) -> {
-				final T instance = gson.fromJson( obj, clazz );
-				return processor.apply( instance, ctx );
-			};
-			this.regisContentLoader( entry, loader );
-		}
-		
 		void regisContentLoader( String entry, IContentLoader loader );
 		
 		< T > void regisCapability( Class< T > capability_class );
