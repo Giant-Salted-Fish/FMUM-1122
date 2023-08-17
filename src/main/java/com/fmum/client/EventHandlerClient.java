@@ -16,7 +16,7 @@ public final class EventHandlerClient
 	private EventHandlerClient() { }
 	
 	@SubscribeEvent
-	public static void onModelRegister( ModelRegistryEvent evt )
+	static void onModelRegister( ModelRegistryEvent evt )
 	{
 		FMUM.MOD.logInfo( "fmum.on_model_regis" );
 		

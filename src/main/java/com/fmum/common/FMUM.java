@@ -338,8 +338,8 @@ public class FMUM
 				final float f2 = arr.get( 2 ).getAsFloat();
 				return (
 					arr.size() < 4
-						? new AngleAxis4f( f0, f1, f2 )
-						: new AngleAxis4f( f0, f1, f2, arr.get( 3 ).getAsFloat() )
+					? new AngleAxis4f( f0, f1, f2 )
+					: new AngleAxis4f( f0, f1, f2, arr.get( 3 ).getAsFloat() )
 				);
 			}
 		);
