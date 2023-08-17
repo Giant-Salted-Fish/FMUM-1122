@@ -14,6 +14,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GLContext;
@@ -33,7 +34,8 @@ public final class FMUMClient extends FMUM
 		TEXTURE_GREEN = new ResourceLocation( MODID, "textures/0x00ff00.png" ),
 		TEXTURE_BLUE = new ResourceLocation( MODID, "textures/0x0000ff.png" );
 	
-	private final HashMap< String, ResourceLocation > texture_pool = new HashMap<>();
+	private final HashMap< String, ResourceLocation >
+		texture_pool = new HashMap<>();
 	
 	private FMUMClient() { }
 	
@@ -41,13 +43,17 @@ public final class FMUMClient extends FMUM
 	protected void _loadContentPacks()
 	{
 		// Check render device capabilities.
-		if ( !GLContext.getCapabilities().OpenGL30 ) {
-			throw new RuntimeException( I18n.format( "fmum.opengl_version_too_low" ) );
+		if ( !GLContext.getCapabilities().OpenGL30 )
+		{
+			final String err_msg = I18n.format( "fmum.opengl_version_too_low" );
+			throw new RuntimeException( err_msg );
 		}
 		
 		final Framebuffer framebuffer = MC.getFramebuffer();
-		if ( !framebuffer.isStencilEnabled() && !framebuffer.enableStencil() ) {
-			throw new RuntimeException( I18n.format( "fmum.stencil_not_supported" ) );
+		if ( !framebuffer.isStencilEnabled() && !framebuffer.enableStencil() )
+		{
+			final String err_msg = I18n.format( "fmum.stencil_not_supported" );
+			throw new RuntimeException( err_msg );
 		}
 		
 		// Do load content packs!
@@ -59,17 +65,26 @@ public final class FMUMClient extends FMUM
 	{
 		super._regisGsonAdapter( ctx );
 		
-		final JsonDeserializer< ResourceLocation > textureAdapter = ( json, typeOfT, context ) -> {
-			final String path = json.getAsString();
-			return this.texture_pool.computeIfAbsent( path, ResourceLocation::new );
-		};
-		ctx.regisGsonAdapter( ResourceLocation.class, textureAdapter );
+		ctx.regisGsonAdapter(
+			ResourceLocation.class,
+			( json, type_of_T, context ) -> {
+				final String path = json.getAsString();
+				return this.texture_pool.computeIfAbsent(
+					path, ResourceLocation::new );
+			}
+		);
+		
+		ctx.regisGsonAdapter(
+			KeyModifier.class,
+			( json, type_of_T, context ) ->
+				KeyModifier.valueFromString( json.getAsString() )
+		);
 	}
 	
 	@Override
-	protected void _callContentBuild( BuildableType buildable, IContentBuildContext ctx ) {
-		buildable.buildClientSide( ctx );
-	}
+	protected void _callContentBuild(
+		BuildableType buildable, IContentBuildContext ctx
+	) { buildable.buildClientSide( ctx ); }
 	
 	@Override
 	protected Function< IContentPackFactory, IContentPack >
@@ -90,6 +105,6 @@ public final class FMUMClient extends FMUM
 	
 	@Override
 	public String format( String translate_key, Object... parameters ) {
-		return net.minecraft.client.resources.I18n.format( translate_key, parameters );
+		return I18n.format( translate_key, parameters );
 	}
 }

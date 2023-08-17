@@ -36,9 +36,9 @@ public abstract  class Module< T extends IModule< ? extends T > > implements IMo
 	}
 	
 	/**
-	 * Unfortunately calling {@link #deserializeNBT(NBTBase)} could cause error as it the fields of
-	 * the subclass may not have been properly initialized. Hence, it needs to be delay after the
-	 * constructor finishes its work.
+	 * Unfortunately calling {@link #deserializeNBT(NBTBase)} could cause error
+	 * as it the fields of the subclass may not have been properly initialized.
+	 * Hence, it needs to be delay after the constructor finishes its work.
 	 *
 	 * @param nbt To distinguish this from {@link #Module()}. Currently not used.
 	 */
@@ -72,8 +72,11 @@ public abstract  class Module< T extends IModule< ? extends T > > implements IMo
 	}
 	
 	@Override
-	public int getNumInstalledInSlot( int slot_idx ) {
-		return this._getSlotStartIdx( slot_idx + 1 ) - this._getSlotStartIdx( slot_idx );
+	public int getNumInstalledInSlot( int slot_idx )
+	{
+		final int start_idx = this._getSlotStartIdx( slot_idx );
+		final int end_idx = this._getSlotStartIdx( slot_idx + 1 );
+		return end_idx - start_idx;
 	}
 	
 	@Override

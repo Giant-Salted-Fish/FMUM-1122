@@ -17,16 +17,21 @@ public final class ModConfigClient
 {
 	@LangKey( "fmum.config.client.use_flan_compatible_mousehelper" )
 	@Comment(
-		"The default mouse helper used in FMUM may conflict with the mouse helper used in Flan's "
-		+ "Mod. This could cause bugs when you enter a vehicle in Flan's Mod. You can try to fix "
-		+ "this issue by enabling this setting."
+		"The default mouse helper used in FMUM may conflict with the mouse "
+		+ "helper used in Flan's Mod. This could cause bugs when you enter a "
+		+ "vehicle in Flan's Mod. You can try to fix this issue by enabling "
+		+ "this setting."
 	)
 	public static boolean use_flan_compatible_mousehelper = false;
 	
 	@RequiresMcRestart
 	@LangKey( "fmum.config.client.default_creative_tab_icon_item" )
-	@Comment( "This icon item will be used if FMUM fails to find icon item for a creative tab." )
-	public static String default_creative_tab_icon_item = Items.FISH.getRegistryName().toString();
+	@Comment(
+		"This icon item will be used if FMUM fails to find icon item for a "
+		+ "creative tab."
+	)
+	public static String default_creative_tab_icon_item
+		= Items.FISH.getRegistryName().toString();
 	
 	@RequiresMcRestart
 	@LangKey( "fmum.config.client.default_creative_tab_icon_item_meta" )

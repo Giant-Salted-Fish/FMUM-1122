@@ -1,5 +1,12 @@
 package com.fmum.client.input;
 
+import com.fmum.client.FMUMClient;
+import com.fmum.client.input.IKeyBind.BindingState;
+import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent.MouseInputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -8,38 +15,38 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class KeyBindManager
 {
 	private KeyBindManager() { }
-
-	@EventSubscriber
+	
+	@SubscribeEvent
 	static void onKeyboardInput( KeyInputEvent evt )
 	{
-
+	
 	}
-
-	@EventSubscriber
-	static void onMouseInput( MouserInputEvent )
+	
+	@SubscribeEvent
+	static void onMouseInput( MouseInputEvent evt )
 	{
-
+	
 	}
-
+	
 	public static void restoreMcKeyBind()
 	{
 		IKeyBind.REGISTRY.values().forEach( IKeyBind::restoreVanillaKeyBind );
 	}
-
+	
 	public static void clearMcKeyBind()
 	{
 		boolean changed = false;
 		for ( IKeyBind kb : IKeyBind.REGISTRY.values() )
 		{
-			final KeyBIndState state = kb.clearVanillaKeyBind();
-			changed |= state == KeyBIndState.BOUNDEN_KEY_CHANGED;
+			final BindingState state = kb.clearVanillaKeyBind();
+			changed |= state == BindingState.CHANGED;
 		}
-
+		
 		KeyBinding.resetKeyBindingArrayAndHash();
-
+		
 		if ( changed )
 		{
-			
+		
 		}
 	}
 }

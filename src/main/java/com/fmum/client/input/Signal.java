@@ -1,5 +1,8 @@
 package com.fmum.client.input;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 @SideOnly( Side.CLIENT )
 public final class Signal
 {
@@ -31,7 +34,7 @@ public final class Signal
 		SWITCH_TO_NEXT_MODULE = "switch_to_next_module",
 		SWITCH_TO_LAST_MODULE = "switch_to_last_module",
 
-		CONFIRM_CHANGES = "confirm_changes",
+		CONFIRM_CHANGES = "confirm_changes";
 
 
 	private Signal() { }

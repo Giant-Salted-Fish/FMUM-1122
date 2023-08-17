@@ -8,7 +8,7 @@ public class ModuleCategory
 	public static final ModuleCategory END = new ModuleCategory()
 	{
 		@Override
-		public int getMatchingDepth( ModuleCategory other ) {
+		public int getMatchedDepth( ModuleCategory other ) {
 			return 0;
 		}
 	};
@@ -40,10 +40,10 @@ public class ModuleCategory
 		this.sub = this;
 	}
 	
-	public int getMatchingDepth( ModuleCategory other )
+	public int getMatchedDepth( ModuleCategory other )
 	{
 		final boolean matched = this.value.equals( other.value );
-		return matched ? this.sub.getMatchingDepth( other.sub ) + 1 : 0;
+		return matched ? this.sub.getMatchedDepth( other.sub ) + 1 : 0;
 	}
 	
 	public final int depth()

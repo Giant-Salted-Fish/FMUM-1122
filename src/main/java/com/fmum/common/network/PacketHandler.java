@@ -15,11 +15,11 @@ public final class PacketHandler extends SimpleNetworkWrapper
 	public PacketHandler( String channel ) { super( channel ); }
 	
 	private static final IMessageHandler< IPacket, IMessage >
-		S_HANDLER = ( msg, ctx ) -> {
+		C2S_HANDLER = ( msg, ctx ) -> {
 			msg.handleServerSide( ctx );
 			return null;
 		},
-		C_HANDLER = ( msg, ctx ) -> {
+		S2C_HANDLER = ( msg, ctx ) -> {
 			msg.handleClientSide( ctx );
 			return null;
 		};
@@ -31,19 +31,22 @@ public final class PacketHandler extends SimpleNetworkWrapper
 			return;
 		}
 		
-//		this.regis( PacketTerminateOp.class, Side.SERVER );
-//		this.regis( PacketNotifyEquipped.class, Side.SERVER );
-//		this.regis( PacketModify.class, Side.SERVER );
-//		this.regis( PacketGunShoot.class, Side.SERVER );
+//		this.__regisPacket( PacketTerminateOp.class, Side.SERVER );
+//		this.__regisPacket( PacketNotifyEquipped.class, Side.SERVER );
+//		this.__regisPacket( PacketModify.class, Side.SERVER );
+//		this.__regisPacket( PacketGunShoot.class, Side.SERVER );
 		
-		this.__regis( PacketConfigSync.class, Side.CLIENT );
+		this.__regisPacket( PacketConfigSync.class, Side.CLIENT );
 	}
 	
-	private void __regis( Class< ? extends IPacket > packet_class, Side handle_on_side )
-	{
+	private void __regisPacket(
+		Class< ? extends IPacket > packet_class, Side handle_on_side
+	) {
 		final boolean is_server_side = handle_on_side.isServer();
-		final IMessageHandler< IPacket, IMessage > handler = is_server_side ? S_HANDLER : C_HANDLER;
-		this.registerMessage( handler, packet_class, this.discriminator, handle_on_side );
+		final IMessageHandler< IPacket, IMessage > handler =
+			is_server_side ? C2S_HANDLER : S2C_HANDLER;
+		this.registerMessage(
+			handler, packet_class, this.discriminator, handle_on_side );
 		this.discriminator += 1;
 	}
 }

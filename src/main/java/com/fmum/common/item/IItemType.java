@@ -40,7 +40,8 @@ public interface IItemType
 	{
 		final Item item = this.vanillaItem();
 		final ResourceLocation res_loc = item.getRegistryName();
-		final ModelResourceLocation model_res = new ModelResourceLocation( res_loc, "inventory" );
+		final ModelResourceLocation model_res =
+			new ModelResourceLocation( res_loc, "inventory" );
 		ModelLoader.setCustomModelResourceLocation( item, 0, model_res );
 	}
 	
@@ -71,8 +72,9 @@ public interface IItemType
 	
 	static Optional< Item > findItem( String identifier )
 	{
-		final Optional< IItemType > type = REGISTRY.find( identifier );
 		return Optional.ofNullable(
-			type.isPresent() ? type.get().vanillaItem() : Item.getByNameOrId( identifier ) );
+			REGISTRY.find( identifier ).map( IItemType::vanillaItem )
+				.orElseGet( () -> Item.getByNameOrId( identifier ) )
+		);
 	}
 }

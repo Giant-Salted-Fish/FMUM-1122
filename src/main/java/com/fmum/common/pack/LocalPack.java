@@ -74,11 +74,10 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 		String file_path,
 		ILoadContext ctx
 	) {
+		// Check if it has specified a type(loader).
 		final JsonObject obj = ctx.gson().fromJson( in, JsonObject.class );
-		
-		// Check if it has specified a type.
-		final JsonElement type = obj.get( "__type__" );
-		final String loader_entry = type != null ? type.getAsString() : fallback_type;
+		final String loader = Optional.ofNullable( obj.get( "__type__" ) )
+			.map( JsonElement::getAsString ).orElse( fallback_type );
 		
 		final IContentBuildContext build_context = new IContentBuildContext()
 		{
@@ -101,16 +100,20 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 			}
 			
 			@Override
-			public void regisPostLoadCallback( Consumer< IPostLoadContext > callback ) {
-				ctx.regisPostLoadCallback( callback );
-			}
+			public void regisPostLoadCallback(
+				Consumer< IPostLoadContext > callback
+			) { ctx.regisPostLoadCallback( callback ); }
 		};
 		
-		try { return Optional.of( ctx.loadContent( loader_entry, obj, build_context ) ); }
+		try
+		{
+			return Optional.of(
+				ctx.loadContent( loader, obj, build_context ) );
+		}
 		catch ( LoaderNotFoundException e )
 		{
 			final String path = this.sourceName() + "/" + file_path;
-			FMUM.MOD.logError( "fmum.type_loader_not_found", path, loader_entry );
+			FMUM.MOD.logError( "fmum.type_loader_not_found", path, loader );
 		}
 		return Optional.empty();
 	}

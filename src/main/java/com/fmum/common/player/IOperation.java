@@ -26,11 +26,11 @@ public interface IOperation
 	
 	default IOperation tick( EntityPlayer player ) { return this; }
 	
-	default IOperation onOtherTryLaunch( IOperation other, EntityPlayer player ) {
-		return this;
-	}
+	default IOperation onOtherTryLaunch(
+		IOperation other, EntityPlayer player
+	) { return this; }
 	
-	default IOperation onEquippedChanged( IEquippedItem< ? > new_equipped, EntityPlayer player ) {
-		return this.terminate( player );
-	}
+	default IOperation onEquippedChanged(
+		IEquippedItem< ? > new_equipped, EntityPlayer player
+	) { return this.terminate( player ); }
 }

@@ -22,7 +22,8 @@ public abstract class ItemType extends Item implements IItemType
 	{
 		IItemType.REGISTRY.regis( this );
 		
-		this.name = Optional.ofNullable( this.name ).orElseGet( ctx::fallbackName );
+		this.name = Optional.ofNullable( this.name )
+			.orElseGet( ctx::fallbackName );
 		this.vanilla_item = this._createVanillaItem();
 		
 		// Item creative tab may not be loaded yet, so we defer it to post load.

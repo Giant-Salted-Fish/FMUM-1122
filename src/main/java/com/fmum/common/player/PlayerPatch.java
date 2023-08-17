@@ -34,12 +34,14 @@ public class PlayerPatch implements ICapabilityProvider
 			final ItemStack stack = inv.getCurrentItem();
 			final IItem item = IItem.getFromOrDefault( stack );
 			
-			final boolean is_equipped_changed = item.stackId() != this.main_item.stackId();
+			final boolean is_equipped_changed =
+				item.stackId() != this.main_item.stackId();
 			if ( is_equipped_changed )
 			{
 				this.main_item = item;
 				this.main_equipped = item.onTakeOut( player, hand );
-				this.operation = this.operation.onEquippedChanged( this.main_equipped, player );
+				this.operation = this.operation.onEquippedChanged(
+					this.main_equipped, player );
 			}
 			
 			this.main_equipped.tickInHand( item, player, hand );
@@ -51,7 +53,8 @@ public class PlayerPatch implements ICapabilityProvider
 			final ItemStack stack = inv.offHandInventory.get( 0 );
 			final IItem item = IItem.getFromOrDefault( stack );
 			
-			final boolean is_equipped_changed = item.stackId() != this.off_item.stackId();
+			final boolean is_equipped_changed =
+				item.stackId() != this.off_item.stackId();
 			if ( is_equipped_changed )
 			{
 				this.off_item = item;

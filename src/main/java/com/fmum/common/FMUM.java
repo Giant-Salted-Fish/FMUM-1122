@@ -87,7 +87,8 @@ public class FMUM
 	@Mod.InstanceFactory
 	private static FMUM create() { return MOD; }
 	
-	public final Registry< IContentPack > content_packs = new Registry<>( IContentPack::name );
+	public final Registry< IContentPack >
+		content_packs = new Registry<>( IContentPack::name );
 	
 	protected final PacketHandler packet_handler = new PacketHandler( MODID );
 	
@@ -176,13 +177,14 @@ public class FMUM
 		this.logger.error( this.format( translate_key, parameters ) );
 	}
 	
-	public final void logException( Throwable e, String translate_key, Object... parameters ) {
-		this.logger.error( this.format( translate_key, parameters ), e );
-	}
+	public final void logException(
+		Throwable e, String translate_key, Object... parameters
+	) { this.logger.error( this.format( translate_key, parameters ), e ); }
 	
 	protected void _loadContentPacks()
 	{
-		final LinkedList< IContentPackFactory > pack_factories = new LinkedList<>();
+		final LinkedList< IContentPackFactory >
+			pack_factories = new LinkedList<>();
 		this.__forEachPackFactoryInModFolder( ( pack, source_name ) -> {
 			pack_factories.add( pack );
 			this.logInfo( "fmum.detect_content_pack", source_name );
@@ -196,8 +198,10 @@ public class FMUM
 		final Registry< IContentLoader > content_loaders = new Registry<>();
 		
 		// Prepare pack load.
-		final LinkedList< Consumer< ILoadContext > > load_callbacks = new LinkedList<>();
-		final LinkedList< Consumer< IPostLoadContext > > post_load_callbacks = new LinkedList<>();
+		final LinkedList< Consumer< ILoadContext > >
+			load_callbacks = new LinkedList<>();
+		final LinkedList< Consumer< IPostLoadContext > >
+			post_load_callbacks = new LinkedList<>();
 		final IPrepareContext prepare_context = new IPrepareContext()
 		{
 			@Override
@@ -206,19 +210,19 @@ public class FMUM
 			}
 			
 			@Override
-			public void regisPostLoadCallback( Consumer< IPostLoadContext > callback ) {
-				post_load_callbacks.add( callback );
-			}
+			public void regisPostLoadCallback(
+				Consumer< IPostLoadContext > callback
+			) { post_load_callbacks.add( callback ); }
 			
 			@Override
-			public void regisGsonAdapter( Type type, JsonDeserializer< ? > adapter ) {
-				gson_builder.registerTypeAdapter( type, adapter );
-			}
+			public void regisGsonAdapter(
+				Type type, JsonDeserializer< ? > adapter
+			) { gson_builder.registerTypeAdapter( type, adapter ); }
 			
 			@Override
-			public void regisContentLoader( String entry, IContentLoader loader ) {
-				content_loaders.regis( entry, loader );
-			}
+			public void regisContentLoader(
+				String entry, IContentLoader loader
+			) { content_loaders.regis( entry, loader ); }
 			
 			@Override
 			public < T > void regisCapability( Class< T > capability_class )
@@ -251,7 +255,8 @@ public class FMUM
 		this.__regisContentLoader( prepare_context );
 		final Function< IContentPackFactory, IContentPack >
 			callCreate = this._callSideBasedCreate( prepare_context );
-		pack_factories.forEach( pack -> this.content_packs.regis( callCreate.apply( pack ) ) );
+		pack_factories.forEach(
+			pack -> this.content_packs.regis( callCreate.apply( pack ) ) );
 		
 		final Gson gson = gson_builder.create();
 		
@@ -259,9 +264,9 @@ public class FMUM
 		final ILoadContext load_context = new ILoadContext()
 		{
 			@Override
-			public void regisPostLoadCallback( Consumer< IPostLoadContext > callback ) {
-				post_load_callbacks.add( callback );
-			}
+			public void regisPostLoadCallback(
+				Consumer< IPostLoadContext > callback
+			) { post_load_callbacks.add( callback ); }
 			
 			@Override
 			public Gson gson() {
@@ -297,7 +302,8 @@ public class FMUM
 					return hidden_tab;
 				}
 			};
-			post_load_callbacks.forEach( callback -> callback.accept( post_load_context ) );
+			post_load_callbacks.forEach(
+				callback -> callback.accept( post_load_context ) );
 		};
 	}
 	
@@ -309,7 +315,8 @@ public class FMUM
 	{
 		ctx.regisGsonAdapter(
 			ModuleCategory.class,
-			( json, type_of_T, context ) -> new ModuleCategory( json.getAsString() )
+			( json, type_of_T, context ) ->
+				new ModuleCategory( json.getAsString() )
 		);
 		
 		ctx.regisGsonAdapter(
@@ -347,7 +354,8 @@ public class FMUM
 		ctx.regisGsonAdapter(
 			Quat4f.class,
 			( json, type_of_T, context ) -> {
-				final AngleAxis4f rot = context.deserialize( json, AngleAxis4f.class );
+				final AngleAxis4f rot = context.deserialize(
+					json, AngleAxis4f.class );
 				return new Quat4f( rot );
 			}
 		);
@@ -355,7 +363,9 @@ public class FMUM
 	
 	private void __regisContentLoader( IPrepareContext ctx )
 	{
-		final BiConsumer< String, Class< ? extends BuildableType > > regis = ( entry, clazz ) -> {
+		final BiConsumer<
+			String, Class< ? extends BuildableType >
+		> regis = ( entry, clazz ) -> {
 			final IContentLoader loader = ( obj, gson, ctx_ ) -> {
 				final BuildableType buildable = gson.fromJson( obj, clazz );
 				this._callContentBuild( buildable, ctx_ );
@@ -367,9 +377,9 @@ public class FMUM
 		regis.accept( "paintjob", JsonPaintjob.class );
 	}
 	
-	protected void _callContentBuild( BuildableType buildable, IContentBuildContext ctx ) {
-		buildable.buildServerSide( ctx );
-	}
+	protected void _callContentBuild(
+		BuildableType buildable, IContentBuildContext ctx
+	) { buildable.buildServerSide( ctx ); }
 	
 	private void __regisCapability( IPrepareContext ctx )
 	{
@@ -377,21 +387,25 @@ public class FMUM
 		ctx.regisCapability( PlayerPatch.class );
 	}
 	
-	private void __forEachPackFactoryInModFolder( BiConsumer< IContentPackFactory, String > visitor )
-	{
+	private void __forEachPackFactoryInModFolder(
+		BiConsumer< IContentPackFactory, String > visitor
+	) {
 		final Loader loader_ctx = Loader.instance();
-		final ArtifactVersion version = loader_ctx.activeModContainer().getProcessedVersion();
+		final ArtifactVersion version = loader_ctx
+			.activeModContainer().getProcessedVersion();
 		loader_ctx.getActiveModList().forEach( mod_container -> {
 			for ( ArtifactVersion requirement : mod_container.getRequirements() )
 			{
-				final boolean is_mod_based_pack = MODID.equals( requirement.getLabel() );
+				final boolean is_mod_based_pack =
+					MODID.equals( requirement.getLabel() );
 				if ( !is_mod_based_pack ) {
 					continue;
 				}
 				
 				// TODO: Check why this is predicated as always false by IDEA.
 				// TODO: And make version as a specially constructed range to test compatible version.
-				final boolean is_compatible_core_version = requirement.containsVersion( version );
+				final boolean is_compatible_core_version =
+					requirement.containsVersion( version );
 				if ( !is_mod_based_pack )
 				{
 					this.logError(
@@ -402,7 +416,8 @@ public class FMUM
 				}
 				
 				final Object pack_mod = mod_container.getMod();
-				final boolean is_correct_implementation = pack_mod instanceof IContentPackFactory;
+				final boolean is_correct_implementation =
+					pack_mod instanceof IContentPackFactory;
 				if ( !is_correct_implementation )
 				{
 					this.logError(
@@ -482,7 +497,8 @@ public class FMUM
 	
 	private void __printAllLoadedPacks()
 	{
-		this.logInfo( "fmum.total_loaded_packs", String.valueOf( this.content_packs.size() ) );
+		final String num_packs = String.valueOf( this.content_packs.size() );
+		this.logInfo( "fmum.total_loaded_packs", num_packs );
 		this.content_packs.values().forEach( pack ->
 			this.logInfo( "fmum.info_loaded_pack", pack.name(), pack.author() ) );
 	}

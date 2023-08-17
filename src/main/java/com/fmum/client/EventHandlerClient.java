@@ -6,10 +6,11 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Collection;
 
-//@SideOnly( Side.CLIENT )
+@SideOnly( Side.CLIENT )
 @EventBusSubscriber( modid = FMUM.MODID, value = Side.CLIENT )
 public final class EventHandlerClient
 {

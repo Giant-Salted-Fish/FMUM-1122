@@ -64,13 +64,15 @@ public interface IModule< T extends IModule< ? extends T > >
 	void modifyWith( Consumer< IModificationContext > modifier );
 	
 	/**
-	 * <p> This is the standard method to get id from the any given module tag. Make sure your
-	 * implementation is compatible with this method to guarantee your module will be deserialized
-	 * correctly when it is installed onto some other modules that are not provided by you as they
-	 * can not make a prediction of how to retrieve id from your module tag. </p>
+	 * <p> This is the standard method to get id from the any given module tag.
+	 * Make sure your implementation is compatible with this method to guarantee
+	 * your module will be deserialized correctly when it is installed onto some
+	 * other modules that are not provided by you as they can not make a
+	 * prediction of how to retrieve id from your module tag. </p>
 	 *
-	 * <p> For similar reason you should use this method to retrieve id from the data tag of the
-	 * modules installed on your module to ensure compatibility. </p>
+	 * <p> For similar reason you should use this method to retrieve id from the
+	 * data tag of the modules installed on your module to ensure compatibility.
+	 * </p>
 	 */
 	static int getModuleID( NBTTagCompound tag ) {
 		return 0xFFFF & tag.getIntArray( DATA_TAG )[ 0 ];

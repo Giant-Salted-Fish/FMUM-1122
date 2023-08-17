@@ -37,7 +37,8 @@ public class JarPack extends LocalPack
 				}
 				
 				final String entry = file_path.substring( 0, i );
-				final boolean is_ignored_entry = this.ignored_entries.contains( entry );
+				final boolean is_ignored_entry =
+					this.ignored_entries.contains( entry );
 				if ( is_ignored_entry ) {
 					continue;
 				}
@@ -48,7 +49,8 @@ public class JarPack extends LocalPack
 					{
 						final Reader reader = new InputStreamReader( in );
 						final String fallback_type = entry;
-						this._loadJsonEntry( reader, fallback_type, file_path, ctx );
+						this._loadJsonEntry(
+							reader, fallback_type, file_path, ctx );
 					}
 					
 					else if ( file_path.endsWith( ".class" ) )
@@ -58,15 +60,15 @@ public class JarPack extends LocalPack
 				}
 				catch ( Exception e_ )
 				{
-					final String source_trace = this.sourceName() + "/" + file_path;
-					FMUM.MOD.logException( e_, ERROR_LOADING_TYPE, source_trace );
+					final String err_src = this.sourceName() + "/" + file_path;
+					FMUM.MOD.logException( e_, ERROR_LOADING_TYPE, err_src );
 				}
 			}
 		}
 		catch ( IOException e )
 		{
-			FMUM.MOD.logException(
-				e, "An IO exception has occurred loading <%s>", this.sourceName() );
+			final String err_msg = "An IO exception has occurred loading <%s>";
+			FMUM.MOD.logException( e, err_msg, this.sourceName() );
 		}
 	}
 }

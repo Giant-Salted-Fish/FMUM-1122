@@ -18,9 +18,9 @@ public interface IItem
 		public int stackId() { return 0; }
 		
 		@Override
-		public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand ) {
-			return null;
-		}
+		public IEquippedItem< ? > onTakeOut(
+			EntityPlayer player, EnumHand hand
+		) { return null; }
 	};
 	
 	/**

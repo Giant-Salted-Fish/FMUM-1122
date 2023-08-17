@@ -27,7 +27,6 @@ public class Paintjob extends TexturedType implements IPaintjob
 	// TODO: paintjob material
 	public static class PaintjobMaterial
 	{
-		@SerializedName( value = "item", alternate = { "required", "material" } )
 		public String item;
 		public short meta;
 		public short amount = 1;

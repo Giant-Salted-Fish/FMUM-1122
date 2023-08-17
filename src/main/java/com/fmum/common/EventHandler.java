@@ -17,6 +17,8 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Collection;
 
@@ -27,40 +29,53 @@ final class EventHandler
 	
 	static
 	{
-		final ResourceLocation identifier = new ResourceLocation( FMUM.MODID, "patch" );
+		final ResourceLocation identifier
+			= new ResourceLocation( FMUM.MODID, "patch" );
 		final Object player_patcher = (
 			FMUM.MOD.isClient()
-			? new Object()
-			{
-				@SubscribeEvent
-				public void onEntityCapAttach( AttachCapabilitiesEvent< Entity > evt )
-				{
-					final Entity entity = evt.getObject();
-					final boolean is_player = entity instanceof EntityPlayer;
-					if ( is_player )
-					{
-						final EntityPlayer player = ( EntityPlayer ) entity;
-						final boolean is_player_sp = player instanceof EntityPlayerSP;
-						final PlayerPatch player_patch = (
-							is_player_sp ? new PlayerPatchClient() : new PlayerPatch() );
-						evt.addCapability( identifier, player_patch );
-					}
-				}
-			}
-			: new Object()
-			{
-				@SubscribeEvent
-				public void onEntityCapAttach( AttachCapabilitiesEvent< Entity > evt )
-				{
-					final Entity entity = evt.getObject();
-					final boolean is_player = entity instanceof EntityPlayer;
-					if ( is_player ) {
-						evt.addCapability( identifier, new PlayerPatch() );
-					}
-				}
-			}
+			? __createPlayerPatcherC( identifier )
+			: __createPlayerPatcherS( identifier )
 		);
 		MinecraftForge.EVENT_BUS.register( player_patcher );
+	}
+	
+	private static Object __createPlayerPatcherS( ResourceLocation identifier )
+	{
+		return new Object()
+		{
+			@SubscribeEvent
+			void onEntityCapAttach( AttachCapabilitiesEvent< Entity > evt )
+			{
+				final Entity entity = evt.getObject();
+				final boolean is_player = entity instanceof EntityPlayer;
+				if ( is_player ) {
+					evt.addCapability( identifier, new PlayerPatch() );
+				}
+			}
+		};
+	}
+	
+	@SideOnly( Side.CLIENT )
+	private static Object __createPlayerPatcherC( ResourceLocation identifier )
+	{
+		return new Object()
+		{
+			@SubscribeEvent
+			void onEntityCapAttach( AttachCapabilitiesEvent< Entity > evt )
+			{
+				final Entity entity = evt.getObject();
+				final boolean is_player = entity instanceof EntityPlayer;
+				if ( !is_player ) {
+					return;
+				}
+				
+				final EntityPlayer player = ( EntityPlayer ) entity;
+				final boolean is_player_sp = player instanceof EntityPlayerSP;
+				final PlayerPatch player_patch = (
+					is_player_sp ? new PlayerPatchClient() : new PlayerPatch() );
+				evt.addCapability( identifier, player_patch );
+			}
+		};
 	}
 	
 	@SubscribeEvent
