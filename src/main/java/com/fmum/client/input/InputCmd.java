@@ -4,7 +4,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public final class Signal
+public final class InputCmd
 {
 	public static final String
 		FREE_VIEW = "free_view";
@@ -37,5 +37,5 @@ public final class Signal
 		CONFIRM_CHANGES = "confirm_changes";
 
 
-	private Signal() { }
+	public InputCmd( String ) { }
 }

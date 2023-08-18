@@ -14,6 +14,21 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @EventBusSubscriber( modid = FMUMClient.MODID, value = Side.CLIENT )
 public class KeyBindManager
 {
+	private static final HashMultimap< Integer, KeyBind >
+		GLOBAL_TABLE = HashMultimap.create(),
+		NORMAL_TABLE = HashMultimap.create(),
+		CTRL_TABLE = HashMultimap.create(),
+		SHIFT_TABLE = HashMultimap.create(),
+		ALT_TABLE = HashMultimap.create();
+
+	private static final HashMap< keyModifier, HashMultimap< Integer, KeyBind > >
+		MODIFIER_2_UPDATE_TABLE = new HashMap<>();
+	static
+	{
+		MODIFIER_2_UPDATE_TABLE.put( KeyModifier.NONE, NORMAL_TABLE );
+		MODIFIER_2_UPDATE_TABLE.put( KeyModifier.CONTROL, )
+	}
+
 	private KeyBindManager() { }
 	
 	@SubscribeEvent

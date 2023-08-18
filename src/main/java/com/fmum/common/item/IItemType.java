@@ -72,9 +72,9 @@ public interface IItemType
 	
 	static Optional< Item > findItem( String identifier )
 	{
-		return Optional.ofNullable(
-			REGISTRY.find( identifier ).map( IItemType::vanillaItem )
-				.orElseGet( () -> Item.getByNameOrId( identifier ) )
-		);
+		final Optional< IItemType > type = REGISTRY.find( identifier );
+		final Item item = type.map( IItemType::vanillaItem )
+			.orElseGet( () -> Item.getByNameOrId( identifier ) );
+		return Optional.ofNullable( item );
 	}
 }

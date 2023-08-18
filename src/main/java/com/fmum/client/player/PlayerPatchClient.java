@@ -12,6 +12,11 @@ public final class PlayerPatchClient extends PlayerPatch
 	public PlayerPatchClient() {
 		instance = this;
 	}
+
+	public void onInputCmd( InputCmd cmd )
+	{
+		
+	}
 	
 	public static PlayerPatchClient get() { return instance; }
 }
