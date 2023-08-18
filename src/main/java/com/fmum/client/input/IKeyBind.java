@@ -8,11 +8,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public interface IKeyBind
 {
-	Registry< IKeyBind > REGISTRY = new Registry<>( IKeyBind::name );
-	
-	String name();
-	
-	String category();
+	Registry< IKeyBind > REGISTRY = new Registry<>();
 	
 	boolean isDown();
 	

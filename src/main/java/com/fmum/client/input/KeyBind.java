@@ -16,8 +16,6 @@ public class KeyBind extends BuildableType implements IKeyBind
 	
 	protected KeyModifier key_modifier = KeyModifier.NONE;
 	
-	protected String category;
-	
 	protected transient KeyBinding vanilla_key_bind;
 	
 	protected transient boolean is_down;
@@ -28,48 +26,6 @@ public class KeyBind extends BuildableType implements IKeyBind
 		super.buildClientSide( ctx );
 
 		IKeyBind.REGISTRY.regis( this );
-	}
-	
-	@Override
-	public String category() {
-		return this.category;
-	}
-	
-	@Override
-	public boolean isDown() {
-		return this.is_down;
-	}
-	
-	@Override
-	public int keyCode() {
-		return this.key_code;
-	}
-	
-	@Override
-	public KeyModifier keyModifier() {
-		return this.key_modifier;
-	}
-	
-	@Override
-	public void activeUpdate( boolean is_down )
-	{
-		if ( this.is_down != is_down )
-		{
-			this.is_down = is_down;
-			final Runnable callback = 
-				is_down ? this::_onPress : this::_onRelease;
-			callback.run();
-		}
-	}
-	
-	@Override
-	public void inactiveUpdate( boolean is_down )
-	{
-		if ( !is_down && this.is_down )
-		{
-			this.is_down = false;
-			this._onRelease();
-		}
 	}
 	
 	@Override
@@ -95,14 +51,6 @@ public class KeyBind extends BuildableType implements IKeyBind
 			|| this.key_modifier != prev_key_modifier
 		);
 		return is_binding_changed ? BindingState.CHANGED : BindingState.UNCHANGED;
-	}
-	
-	protected void _onPress() {
-	
-	}
-	
-	protected void _onRelease() {
-	
 	}
 	
 	@Override
