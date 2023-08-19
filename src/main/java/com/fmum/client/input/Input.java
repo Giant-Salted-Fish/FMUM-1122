@@ -5,7 +5,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
 @FunctionalInterface
-public interface IInputAdapter
+public interface Input
 {
 	boolean asFlag();
 

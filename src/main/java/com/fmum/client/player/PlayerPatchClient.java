@@ -13,7 +13,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		instance = this;
 	}
 
-	public void onInputCmd( InputCmd cmd )
+	public void onInputCmd( String cmd, Input input )
 	{
 		
 	}
