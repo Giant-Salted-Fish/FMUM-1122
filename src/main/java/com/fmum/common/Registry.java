@@ -23,7 +23,7 @@ public class Registry< T >
 		return Objects.requireNonNull( this.regis_table.get( identifier ) );
 	}
 	
-	public final Optional< T > find( String identifier ) {
+	public final Optional< T > lookup( String identifier ) {
 		return Optional.ofNullable( this.regis_table.get( identifier ) );
 	}
 	

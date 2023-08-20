@@ -1,7 +1,7 @@
 package com.fmum.util;
 
 @FunctionalInterface
-public interface IReleasable
+public interface Releasable
 {
 	void release();
 }

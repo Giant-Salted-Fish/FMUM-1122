@@ -25,7 +25,7 @@ public class IDRegistry< T > extends Registry< T >
 		return Objects.requireNonNull( this.id_map_table.get( id ) );
 	}
 	
-	public final Optional< T > find( Integer id ) {
+	public final Optional< T > lookup( Integer id ) {
 		return Optional.ofNullable( this.id_map_table.get( id ) );
 	}
 	

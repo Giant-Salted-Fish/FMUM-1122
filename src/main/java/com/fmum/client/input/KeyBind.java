@@ -1,60 +1,32 @@
 package com.fmum.client.input;
 
-import com.fmum.common.load.BuildableType;
-import com.fmum.common.load.IContentBuildContext;
-import net.minecraft.client.settings.KeyBinding;
+import com.fmum.common.Registry;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.input.Keyboard;
 
 @SideOnly( Side.CLIENT )
-public class KeyBind extends BuildableType implements IKeyBind
+public interface KeyBind
 {
-	// TODO: maybe add support to parse string key code?
-	protected int key_code = Keyboard.KEY_NONE;
+	Registry< KeyBind > REGISTRY = new Registry<>( KeyBind::identifier );
 	
-	protected KeyModifier key_modifier = KeyModifier.NONE;
+	String identifier();
 	
-	protected transient KeyBinding vanilla_key_bind;
+	int keyCode();
 	
-	protected transient boolean is_down;
+	KeyModifier keyModifier();
 	
-	@Override
-	public void buildClientSide( IContentBuildContext ctx )
+	void update( boolean is_down );
+	
+	void setKeyCodeAndModifier( int key_code, KeyModifier key_modifier );
+	
+	void restoreVanillaKeyBind();
+	
+	BindingState clearVanillaKeyBind();
+	
+	enum BindingState
 	{
-		super.buildClientSide( ctx );
-
-		IKeyBind.REGISTRY.regis( this );
-	}
-	
-	@Override
-	public void restoreVanillaKeyBind()
-	{
-		this.vanilla_key_bind.setKeyModifierAndCode(
-			this.key_modifier, this.key_code );
-	}
-	
-	@Override
-	public BindingState clearVanillaKeyBind()
-	{
-		final int prev_key_code = this.key_code;
-		final KeyModifier prev_key_modifier = this.key_modifier;
-		this.key_code = this.vanilla_key_bind.getKeyCode();
-		this.key_modifier = this.vanilla_key_bind.getKeyModifier();
-		
-		this.vanilla_key_bind.setKeyModifierAndCode(
-			KeyModifier.NONE, Keyboard.KEY_NONE );
-		
-		final boolean is_binding_changed = (
-			this.key_code != prev_key_code
-			|| this.key_modifier != prev_key_modifier
-		);
-		return is_binding_changed ? BindingState.CHANGED : BindingState.UNCHANGED;
-	}
-	
-	@Override
-	protected String _typeHint() {
-		return "KEY_BIND";
+		CHANGED,
+		UNCHANGED,
 	}
 }

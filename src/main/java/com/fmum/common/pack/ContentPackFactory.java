@@ -1,9 +1,9 @@
 package com.fmum.common.pack;
 
-import com.fmum.common.load.IContentBuildContext;
-import com.fmum.common.load.IContentLoader;
+import com.fmum.common.load.ContentBuildContext;
+import com.fmum.common.load.ContentLoader;
 import com.fmum.common.load.LoaderNotFoundException;
-import com.fmum.common.tab.ICreativeTab;
+import com.fmum.common.tab.CreativeTab;
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
@@ -13,17 +13,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-public interface IContentPackFactory
+public interface ContentPackFactory
 {
 	/**
 	 * Load pack info, regis necessary {@link Gson} adapters and content loaders.
 	 *
 	 * @see #createClientSide(IPrepareContext)
 	 */
-	IContentPack createServerSide( IPrepareContext ctx );
+	ContentPack createServerSide( IPrepareContext ctx );
 	
 	/**
 	 * Load pack info, regis necessary {@link Gson} adapters and content loaders.
@@ -31,7 +30,7 @@ public interface IContentPackFactory
 	 * @see #createServerSide(IPrepareContext)
 	 */
 	@SideOnly( Side.CLIENT )
-	IContentPack createClientSide( IPrepareContext ctx );
+	ContentPack createClientSide( IPrepareContext ctx );
 	
 	interface IPrepareContext
 	{
@@ -41,7 +40,7 @@ public interface IContentPackFactory
 		
 		void regisGsonAdapter( Type type, JsonDeserializer< ? > adapter );
 		
-		void regisContentLoader( String entry, IContentLoader loader );
+		void regisContentLoader( String entry, ContentLoader loader );
 		
 		< T > void regisCapability( Class< T > capability_class );
 	}
@@ -53,7 +52,7 @@ public interface IContentPackFactory
 		Gson gson();
 		
 		default Object loadContent(
-			String loader_entry, JsonObject object, IContentBuildContext ctx
+			String loader_entry, JsonObject object, ContentBuildContext ctx
 		) throws LoaderNotFoundException
 		{
 			return this.getContentLoader( loader_entry )
@@ -61,7 +60,7 @@ public interface IContentPackFactory
 				.loadFrom( object, this.gson(), ctx );
 		}
 		
-		Optional< IContentLoader > getContentLoader( String entry );
+		Optional< ContentLoader > getContentLoader( String entry );
 	}
 	
 	interface IPostLoadContext
@@ -69,8 +68,8 @@ public interface IContentPackFactory
 		@SideOnly( Side.CLIENT )
 		ItemStack defaultTabIconItem();
 		
-		ICreativeTab defaultCreativeTab();
+		CreativeTab defaultCreativeTab();
 		
-		ICreativeTab hideCreativeTab();
+		CreativeTab hideCreativeTab();
 	}
 }

@@ -5,7 +5,7 @@ import com.fmum.devtool.Dev;
 
 import javax.vecmath.Vector3f;
 
-public class Vec3f extends Vector3f implements IReleasable
+public class Vec3f extends Vector3f implements Releasable
 {
 	/**
 	 * Use this but NEVER change its value!!!

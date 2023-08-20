@@ -1,7 +1,7 @@
 package com.fmum.common.pack;
 
 import com.fmum.common.FMUM;
-import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.load.ContentBuildContext;
 import com.fmum.common.load.LoaderNotFoundException;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public abstract class LocalPack implements IContentPackFactory, IContentPack
+public abstract class LocalPack implements ContentPackFactory, ContentPack
 {
 	protected static final String ERROR_LOADING_TYPE = "fmum.error_loading_type";
 	
@@ -51,8 +51,11 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 	}
 	
 	@Override
-	public IContentPack createServerSide( IPrepareContext ctx )
+	public ContentPack createServerSide( IPrepareContext ctx )
 	{
+		// Skip key bind on server side.
+		this.ignored_entries.add( "key_bind" );
+		
 		ctx.regisLoadCallback( ctx_ -> {
 			FMUM.MOD.logInfo( "fmum.load_content_pack", this.name() );
 			this._loadPackContent( ctx_ );
@@ -62,8 +65,13 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public IContentPack createClientSide( IPrepareContext ctx ) {
-		return this.createServerSide( ctx );
+	public ContentPack createClientSide( IPrepareContext ctx )
+	{
+		ctx.regisLoadCallback( ctx_ -> {
+			FMUM.MOD.logInfo( "fmum.load_content_pack", this.name() );
+			this._loadPackContent( ctx_ );
+		} );
+		return this;
 	}
 	
 	protected abstract void _loadPackContent( ILoadContext ctx );
@@ -79,7 +87,7 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 		final String loader = Optional.ofNullable( obj.get( "__type__" ) )
 			.map( JsonElement::getAsString ).orElse( fallback_type );
 		
-		final IContentBuildContext build_context = new IContentBuildContext()
+		final ContentBuildContext build_context = new ContentBuildContext()
 		{
 			@Override
 			public String fallbackName()
@@ -90,7 +98,7 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 			}
 			
 			@Override
-			public IContentPack contentPack() {
+			public ContentPack contentPack() {
 				return LocalPack.this;
 			}
 			

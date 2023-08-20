@@ -3,7 +3,7 @@ package com.fmum.util;
 import com.fmum.common.FMUM;
 import com.fmum.devtool.Dev;
 
-public final class Quat4f extends javax.vecmath.Quat4f implements IReleasable
+public final class Quat4f extends javax.vecmath.Quat4f implements Releasable
 {
 	/**
 	 * Use this but NEVER change its value!!!

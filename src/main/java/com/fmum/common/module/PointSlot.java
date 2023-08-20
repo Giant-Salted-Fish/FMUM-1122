@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
 /**
  * A simple implementation that represents a slot that provides a fixed attach point.
  */
-public class PointSlot implements IModuleSlot
+public class PointSlot implements ModuleSlot
 {
 	@SerializedName( value = "category_domain", alternate = "allowed_modules" )
 	protected CategoryDomain category_domain = CategoryDomain.DEFAULT;
@@ -17,7 +17,7 @@ public class PointSlot implements IModuleSlot
 	protected Vec3f origin = Vec3f.ORIGIN;
 	
 	@Override
-	public boolean isCompatible( IModule< ? > module ) {
+	public boolean isCompatible( Module< ? > module ) {
 		return this.category_domain.isCompatible( module.category() );
 	}
 	
@@ -32,7 +32,7 @@ public class PointSlot implements IModuleSlot
 	}
 	
 	@Override
-	public void applyTransform( IModule< ? > child_module, Mat4f dst ) {
+	public void applyTransform( Module< ? > child_module, Mat4f dst ) {
 		dst.translate( this.origin );
 	}
 }

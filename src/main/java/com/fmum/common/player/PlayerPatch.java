@@ -22,7 +22,7 @@ public class PlayerPatch implements ICapabilityProvider
 	protected IItem off_item = IItem.VANILLA;
 	protected IEquippedItem< ? > off_equipped = IEquippedItem.VANILLA;
 	
-	protected IOperation operation = IOperation.NONE;
+	protected Operation operation = Operation.NONE;
 	
 	public void tick( EntityPlayer player )
 	{
@@ -67,7 +67,7 @@ public class PlayerPatch implements ICapabilityProvider
 		this.operation = this.operation.tick( player );
 	}
 	
-	public final IOperation operation() { return this.operation; }
+	public final Operation operation() { return this.operation; }
 	
 	
 	@CapabilityInject( PlayerPatch.class )

@@ -5,9 +5,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public interface IOperation
+public interface Operation
 {
-	IOperation NONE = new IOperation()
+	Operation NONE = new Operation()
 	{
 		@Override
 		public String toString() { return "Operation::NONE"; }
@@ -18,19 +18,19 @@ public interface IOperation
 	@SideOnly( Side.CLIENT )
 	default float smoothedProgress() { return 1.0F; }
 	
-	default IOperation _launch( EntityPlayer player ) { return this; }
+	default Operation _launch( EntityPlayer player ) { return this; }
 	
-	default IOperation toggle( EntityPlayer player ) { return this; }
+	default Operation toggle( EntityPlayer player ) { return this; }
 	
-	default IOperation terminate( EntityPlayer player ) { return NONE; }
+	default Operation terminate( EntityPlayer player ) { return NONE; }
 	
-	default IOperation tick( EntityPlayer player ) { return this; }
+	default Operation tick( EntityPlayer player ) { return this; }
 	
-	default IOperation onOtherTryLaunch(
-		IOperation other, EntityPlayer player
+	default Operation onOtherTryLaunch(
+		Operation other, EntityPlayer player
 	) { return this; }
 	
-	default IOperation onEquippedChanged(
+	default Operation onEquippedChanged(
 		IEquippedItem< ? > new_equipped, EntityPlayer player
 	) { return this.terminate( player ); }
 }

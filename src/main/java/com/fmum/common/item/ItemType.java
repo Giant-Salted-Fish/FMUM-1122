@@ -1,7 +1,7 @@
 package com.fmum.common.item;
 
-import com.fmum.common.load.IContentBuildContext;
-import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
+import com.fmum.common.load.ContentBuildContext;
+import com.fmum.common.pack.ContentPackFactory.IPostLoadContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -18,7 +18,7 @@ public abstract class ItemType extends Item implements IItemType
 	
 	protected transient Item vanilla_item;
 	
-	public ItemType buildServerSide( IContentBuildContext ctx )
+	public ItemType buildServerSide( ContentBuildContext ctx )
 	{
 		IItemType.REGISTRY.regis( this );
 		
@@ -32,7 +32,7 @@ public abstract class ItemType extends Item implements IItemType
 	}
 	
 	@SideOnly( Side.CLIENT )
-	public ItemType buildClientSide( IContentBuildContext ctx )
+	public ItemType buildClientSide( ContentBuildContext ctx )
 	{
 		this.buildServerSide( ctx );
 		

@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 /**
- * This is used by {@link IModuleSlot} to check compatibility of the module that is going to be
+ * This is used by {@link ModuleSlot} to check compatibility of the module that is going to be
  * installed.
  *
  * @see ModuleCategory

@@ -8,7 +8,7 @@ import org.lwjgl.opengl.GL11;
 import javax.vecmath.Matrix4f;
 import java.nio.FloatBuffer;
 
-public final class Mat4f extends Matrix4f implements IReleasable
+public final class Mat4f extends Matrix4f implements Releasable
 {
 	private static final ObjPool< Mat4f > POOL = new ObjPool<>( Mat4f::new );
 	private static int count = Dev.dirtyMark();

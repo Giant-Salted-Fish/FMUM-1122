@@ -1,19 +1,19 @@
 package com.fmum.common.load;
 
-import com.fmum.common.pack.IContentPack;
-import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
+import com.fmum.common.pack.ContentPack;
+import com.fmum.common.pack.ContentPackFactory.IPostLoadContext;
 import com.google.gson.Gson;
 
 import java.util.function.Consumer;
 
-public interface IContentBuildContext
+public interface ContentBuildContext
 {
 	String fallbackName();
 	
 	/**
 	 * The pack that the building content is loaded from.
 	 */
-	IContentPack contentPack();
+	ContentPack contentPack();
 	
 	Gson gson();
 	

@@ -33,7 +33,7 @@ public class StepRailSlot extends PointSlot
 	}
 	
 	@Override
-	public void applyTransform( IModule< ? > child_module, Mat4f dst )
+	public void applyTransform( Module< ? > child_module, Mat4f dst )
 	{
 		final Vec3f origin = this.origin;
 		final float step_offset = this.step_len * child_module.step();
