@@ -44,24 +44,6 @@ public final class FMUMClient extends FMUM
 	private FMUMClient() { }
 	
 	@Override
-	protected void _gatherSelfKeyBindPack(
-		ModContainer container,
-		BiConsumer< ContentPackFactory, String > visitor
-	) {
-		final FolderPack pack = new FolderPack( container )
-		{
-			@Override
-			protected void _loadPackContent( ILoadContext ctx )
-			{
-				final File dir = new File(
-					FMUMClient.this.config_dir, "fmum-key_bind" );
-				this._tryLoadFrom( dir, "key_bind", dir.getPath(), ctx );
-			}
-		};
-		visitor.accept( pack, MOD_NAME );
-	}
-	
-	@Override
 	protected void _loadContentPacks()
 	{
 		// Check render device capabilities.
@@ -101,15 +83,6 @@ public final class FMUMClient extends FMUM
 			( json, type_of_T, context ) ->
 				KeyModifier.valueFromString( json.getAsString() )
 		);
-	}
-	
-	@Override
-	protected void _doRegisContentLoader(
-		BiConsumer< String, Class< ? extends BuildableType > > regis
-	) {
-		super._doRegisContentLoader( regis );
-		
-		regis.accept( "key_bind", JsonKeyBindType.class );
 	}
 	
 	@Override

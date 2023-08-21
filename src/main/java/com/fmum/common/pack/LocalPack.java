@@ -53,9 +53,6 @@ public abstract class LocalPack implements ContentPackFactory, ContentPack
 	@Override
 	public ContentPack createServerSide( IPrepareContext ctx )
 	{
-		// Skip key bind on server side.
-		this.ignored_entries.add( "key_bind" );
-		
 		ctx.regisLoadCallback( ctx_ -> {
 			FMUM.MOD.logInfo( "fmum.load_content_pack", this.name() );
 			this._loadPackContent( ctx_ );
@@ -67,14 +64,20 @@ public abstract class LocalPack implements ContentPackFactory, ContentPack
 	@SideOnly( Side.CLIENT )
 	public ContentPack createClientSide( IPrepareContext ctx )
 	{
-		ctx.regisLoadCallback( ctx_ -> {
-			FMUM.MOD.logInfo( "fmum.load_content_pack", this.name() );
-			this._loadPackContent( ctx_ );
-		} );
+		this.createServerSide( ctx );
+
+		// Load key binds on client side.
+		ctx.regisLoadCallback( this::_loadKeyBinds )
 		return this;
 	}
 	
 	protected abstract void _loadPackContent( ILoadContext ctx );
+	
+	@SideOnly( Side.CLIENT )
+	protected void _loadKeyBind( ILoadContext ctx )
+	{
+		
+	}
 	
 	protected Optional< Object > _loadJsonEntry(
 		Reader in,

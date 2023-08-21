@@ -186,12 +186,12 @@ public class FMUM
 	{
 		final LinkedList< ContentPackFactory >
 			pack_factories = new LinkedList<>();
-		this.__forEachPackFactoryInModFolder( ( pack, source_name ) -> {
-			pack_factories.add( pack );
-			this.logInfo( "fmum.detect_content_pack", source_name );
+		this.__forEachPackFactoryInModFolder( ( factory, source ) -> {
+			pack_factories.add( factory );
+			this.logInfo( "fmum.detect_content_pack", source );
 		} );
 		
-		// Prepare JSON parser and type loader.
+		// Prepare JSON parser and content loader.
 		final GsonBuilder gson_builder = new GsonBuilder();
 		gson_builder.setLenient();
 		gson_builder.setPrettyPrinting();
@@ -364,19 +364,17 @@ public class FMUM
 	
 	private void __regisContentLoader( IPrepareContext ctx )
 	{
-		this._doRegisContentLoader( ( entry, clazz ) -> {
+		final BiConsumer<
+			String, Class< ? extends BuildableType >
+		> regis = ( entry, clazz ) -> {
 			final ContentLoader loader = ( obj, gson, ctx_ ) -> {
 				final BuildableType buildable = gson.fromJson( obj, clazz );
 				this._callContentBuildOnSide( buildable, ctx_ );
 				return buildable;
-			};
+			}
 			ctx.regisContentLoader( entry, loader );
-		} );
-	}
-	
-	protected void _doRegisContentLoader(
-		final BiConsumer< String, Class< ? extends BuildableType > > regis
-	) {
+		};
+		
 		regis.accept( "creative_tab", JsonCreativeTab.class );
 		regis.accept( "paintjob", JsonPaintjob.class );
 	}
@@ -398,8 +396,6 @@ public class FMUM
 		final Loader loader_ctx = Loader.instance();
 		final ModContainer self_container = loader_ctx.activeModContainer();
 		final ArtifactVersion version = self_container.getProcessedVersion();
-		this._gatherSelfKeyBindPack( self_container, visitor );
-		
 		loader_ctx.getActiveModList().forEach( mod_container -> {
 			for ( ArtifactVersion requirement : mod_container.getRequirements() )
 			{
@@ -440,11 +436,6 @@ public class FMUM
 			}
 		} );
 	}
-	
-	protected void _gatherSelfKeyBindPack(
-		ModContainer container,
-		BiConsumer< ContentPackFactory, String > visitor
-	) { }
 	
 	private CreativeTab __createDefaultTab()
 	{
