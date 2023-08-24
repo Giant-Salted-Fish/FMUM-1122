@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 @SideOnly( Side.CLIENT )
 public class KeyBindType extends BuildableType
 {
-	protected String category = "fmum.key_category_common";
+	protected String category = "fmum.key_category.common";
 	
 	protected String signal;
 	
@@ -32,6 +32,28 @@ public class KeyBindType extends BuildableType
 	
 	protected IKeyConflictContext conflict_context = KeyConflictContext.IN_GAME;
 	
+	public KeyBindType() { }
+	
+	public KeyBindType(
+		String name,
+		String category,
+		String signal,
+		String depend_on_signal,
+		int default_key_code,
+		KeyModifier default_key_modifier,
+		IKeyConflictContext conflict_context
+	) {
+		this.name = name;
+		this.category = category;
+		this.signal = signal;
+		this.depend_on_signal = depend_on_signal;
+		this.default_key_code = default_key_code;
+		this.default_key_modifier = default_key_modifier;
+		this.conflict_context = conflict_context;
+		
+		new CKeyBind();
+	}
+	
 	@Override
 	public void buildClientSide( ContentBuildContext ctx )
 	{
@@ -39,6 +61,10 @@ public class KeyBindType extends BuildableType
 		
 		this.signal = Optional.ofNullable( this.signal ).orElse( this.name );
 		new CKeyBind();
+	}
+	
+	protected String _translationKey() {
+		return "fmum.key." + this.name;
 	}
 	
 	@Override
@@ -54,7 +80,7 @@ public class KeyBindType extends BuildableType
 		
 		protected KeyModifier key_modifier;
 		
-		protected Supplier< Boolean > pre_condition = () -> true;
+		protected Supplier< Boolean > active_condition;
 		
 		protected boolean is_down;
 		
@@ -63,7 +89,7 @@ public class KeyBindType extends BuildableType
 			KeyBind.REGISTRY.regis( this );
 			
 			this.vanilla_key_bind = new KeyBinding(
-				KeyBindType.this.name,
+				KeyBindType.this._translationKey(),
 				KeyBindType.this.conflict_context,
 				KeyBindType.this.default_key_modifier,
 				KeyBindType.this.default_key_code,
@@ -103,18 +129,20 @@ public class KeyBindType extends BuildableType
 			this.key_code = key_code;
 			this.key_modifier = key_modifier;
 			
-			// Setup pre-condition.
+			// Setup active condition.
 			final IKeyConflictContext ctx = KeyBindType.this.conflict_context;
-			this.pre_condition = (
+			final Supplier< Boolean > vanilla_condition =
+				() -> ctx.isActive() && key_modifier.isActive( ctx );
+			this.active_condition = (
 				KeyBindType.this.depend_on_signal.isEmpty()
-				? ctx::isActive
+				? vanilla_condition
 				: () -> {
 					// TODO: This is intentional to put inside the lambda, as \
 					// otherwise it will fall when this key bind is created \
 					// since not all of them are putted into the InputMgr yet.
 					final Input signal = InputSignal.get(
 						KeyBindType.this.depend_on_signal );
-					return ctx.isActive() && signal.asBool();
+					return vanilla_condition.get() && signal.asBool();
 				}
 			);
 		}
@@ -127,7 +155,7 @@ public class KeyBindType extends BuildableType
 				this.is_down = false;
 				this._onRelease();
 			}
-			else if ( this.pre_condition.get() && is_down && !this.is_down )
+			else if ( this.active_condition.get() && is_down && !this.is_down )
 			{
 				this.is_down = true;
 				this._onPress();

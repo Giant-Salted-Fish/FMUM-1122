@@ -2,8 +2,9 @@ package com.fmum.common;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.client.ModConfigClient;
-import com.fmum.common.item.IItem;
-import com.fmum.common.item.IItemType;
+import com.fmum.client.input.KeyBind;
+import com.fmum.common.item.Item;
+import com.fmum.common.item.ItemType;
 import com.fmum.common.load.BuildableType;
 import com.fmum.common.load.ContentBuildContext;
 import com.fmum.common.load.ContentLoader;
@@ -13,9 +14,10 @@ import com.fmum.common.network.Packet;
 import com.fmum.common.network.PacketHandler;
 import com.fmum.common.pack.ContentPack;
 import com.fmum.common.pack.ContentPackFactory;
-import com.fmum.common.pack.ContentPackFactory.ILoadContext;
-import com.fmum.common.pack.ContentPackFactory.IPostLoadContext;
-import com.fmum.common.pack.ContentPackFactory.IPrepareContext;
+import com.fmum.common.pack.ContentPackFactory.LoadContext;
+import com.fmum.common.pack.ContentPackFactory.PostLoadContext;
+import com.fmum.common.pack.ContentPackFactory.PrepareContext;
+import com.fmum.common.pack.LocalPack;
 import com.fmum.common.paintjob.JsonPaintjob;
 import com.fmum.common.player.PlayerPatch;
 import com.fmum.common.tab.JsonCreativeTab;
@@ -27,6 +29,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializer;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
@@ -51,12 +54,14 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -199,25 +204,30 @@ public class FMUM
 		final Registry< ContentLoader > content_loaders = new Registry<>();
 		
 		// Prepare pack load.
-		final LinkedList< Consumer< ILoadContext > >
+		final LinkedList< Consumer< LoadContext > >
 			load_callbacks = new LinkedList<>();
-		final LinkedList< Consumer< IPostLoadContext > >
+		final LinkedList< Consumer< PostLoadContext > >
 			post_load_callbacks = new LinkedList<>();
-		final IPrepareContext prepare_context = new IPrepareContext()
+		final PrepareContext prepare_context = new PrepareContext()
 		{
 			@Override
-			public void regisLoadCallback( Consumer< ILoadContext > callback ) {
+			public void regisLoadCallback( Consumer< LoadContext > callback ) {
 				load_callbacks.add( callback );
 			}
 			
 			@Override
 			public void regisPostLoadCallback(
-				Consumer< IPostLoadContext > callback
+				Consumer< PostLoadContext > callback
 			) { post_load_callbacks.add( callback ); }
 			
 			@Override
-			public void regisGsonAdapter(
+			public void regisGsonDeserializer(
 				Type type, JsonDeserializer< ? > adapter
+			) { gson_builder.registerTypeAdapter( type, adapter ); }
+			
+			@Override
+			public void regisGsonSerializer(
+				Type type, JsonSerializer< ? > adapter
 			) { gson_builder.registerTypeAdapter( type, adapter ); }
 			
 			@Override
@@ -254,19 +264,20 @@ public class FMUM
 		this.__regisCapability( prepare_context );
 		this._regisGsonAdapter( prepare_context );
 		this.__regisContentLoader( prepare_context );
-		final Function< ContentPackFactory, ContentPack >
-			callCreate = this._callCreateOnSide( prepare_context );
-		pack_factories.forEach(
-			pack -> this.content_packs.regis( callCreate.apply( pack ) ) );
+		pack_factories.forEach( factory -> {
+			final ContentPack content_pack =
+				this._callCreatePackOnSide( factory, prepare_context );
+			this.content_packs.regis( content_pack );
+		} );
 		
 		final Gson gson = gson_builder.create();
 		
 		// Fire load callbacks.
-		final ILoadContext load_context = new ILoadContext()
+		final LoadContext load_context = new LoadContext()
 		{
 			@Override
 			public void regisPostLoadCallback(
-				Consumer< IPostLoadContext > callback
+				Consumer< PostLoadContext > callback
 			) { post_load_callbacks.add( callback ); }
 			
 			@Override
@@ -281,11 +292,13 @@ public class FMUM
 		};
 		load_callbacks.forEach( callback -> callback.accept( load_context ) );
 		
+		this._loadKeyBindSettings();
+		
 		// Setup post load callback.
 		this.post_load_callback = () -> {
 			final CreativeTab default_tab = this.__createDefaultTab();
 			final CreativeTab hidden_tab = this.__createHiddenTab();
-			final IPostLoadContext post_load_context = new IPostLoadContext()
+			final PostLoadContext post_load_context = new PostLoadContext()
 			{
 				@Override
 				@SideOnly( Side.CLIENT )
@@ -308,24 +321,26 @@ public class FMUM
 		};
 	}
 	
-	protected Function< ContentPackFactory, ContentPack >
-		_callCreateOnSide( IPrepareContext ctx )
-	{ return pack -> pack.createServerSide( ctx ); }
+	protected ContentPack _callCreatePackOnSide(
+		ContentPackFactory factory, PrepareContext ctx
+	) { return factory.createServerSide( ctx ); }
 	
-	protected void _regisGsonAdapter( IPrepareContext ctx )
+	protected void _loadKeyBindSettings() { }
+	
+	protected void _regisGsonAdapter( PrepareContext ctx )
 	{
-		ctx.regisGsonAdapter(
+		ctx.regisGsonDeserializer(
 			ModuleCategory.class,
 			( json, type_of_T, context ) ->
 				new ModuleCategory( json.getAsString() )
 		);
 		
-		ctx.regisGsonAdapter(
+		ctx.regisGsonDeserializer(
 			CategoryDomain.class,
 			( json, type_of_T, context ) -> new CategoryDomain( json )
 		);
 		
-		ctx.regisGsonAdapter(
+		ctx.regisGsonDeserializer(
 			Vec3f.class,
 			( json, type_of_T, context ) -> {
 				final JsonArray arr = json.getAsJsonArray();
@@ -337,7 +352,7 @@ public class FMUM
 			}
 		);
 		
-		ctx.regisGsonAdapter(
+		ctx.regisGsonDeserializer(
 			AngleAxis4f.class,
 			( json, type_of_T, context ) -> {
 				final JsonArray arr = json.getAsJsonArray();
@@ -352,7 +367,7 @@ public class FMUM
 			}
 		);
 		
-		ctx.regisGsonAdapter(
+		ctx.regisGsonDeserializer(
 			Quat4f.class,
 			( json, type_of_T, context ) -> {
 				final AngleAxis4f rot = context.deserialize(
@@ -362,19 +377,9 @@ public class FMUM
 		);
 	}
 	
-	private void __regisContentLoader( IPrepareContext ctx )
-	{
-		final BiConsumer<
-			String, Class< ? extends BuildableType >
-		> regis = ( entry, clazz ) -> {
-			final ContentLoader loader = ( obj, gson, ctx_ ) -> {
-				final BuildableType buildable = gson.fromJson( obj, clazz );
-				this._callContentBuildOnSide( buildable, ctx_ );
-				return buildable;
-			}
-			ctx.regisContentLoader( entry, loader );
-		};
-		
+	protected void _doRegisContentLoader(
+		BiConsumer< String, Class< ? extends BuildableType > > regis
+	) {
 		regis.accept( "creative_tab", JsonCreativeTab.class );
 		regis.accept( "paintjob", JsonPaintjob.class );
 	}
@@ -384,9 +389,23 @@ public class FMUM
 		ContentBuildContext ctx
 	) { buildable.buildServerSide( ctx ); }
 	
-	private void __regisCapability( IPrepareContext ctx )
+	private void __regisContentLoader( PrepareContext ctx )
 	{
-		ctx.regisCapability( IItem.class );  // See ItemType#CAPABILITY.
+		this._doRegisContentLoader(
+			( entry, clazz ) -> {
+				final ContentLoader loader = ( obj, gson, ctx_ ) -> {
+					final BuildableType buildable = gson.fromJson( obj, clazz );
+					this._callContentBuildOnSide( buildable, ctx_ );
+					return buildable;
+				};
+				ctx.regisContentLoader( entry, loader );
+			}
+		);
+	}
+	
+	private void __regisCapability( PrepareContext ctx )
+	{
+		ctx.regisCapability( Item.class );  // See ItemType#CAPABILITY.
 		ctx.regisCapability( PlayerPatch.class );
 	}
 	
@@ -395,6 +414,20 @@ public class FMUM
 	) {
 		final Loader loader_ctx = Loader.instance();
 		final ModContainer self_container = loader_ctx.activeModContainer();
+		final File core_file = self_container.getSource();
+		final ContentPackFactory core_factory = new LocalPack( self_container )
+		{
+			@Override
+			protected void _loadPackContent( LoadContext ctx ) { }
+			
+			@Override
+			@SideOnly( Side.CLIENT )
+			protected Map< String, ? > _createDefaultKeyBinds() {
+				return FMUM.this._createDefaultKeyBinds();
+			}
+		};
+		visitor.accept( core_factory, core_file.getName() );
+		
 		final ArtifactVersion version = self_container.getProcessedVersion();
 		loader_ctx.getActiveModList().forEach( mod_container -> {
 			for ( ArtifactVersion requirement : mod_container.getRequirements() )
@@ -437,11 +470,27 @@ public class FMUM
 		} );
 	}
 	
+	@SideOnly( Side.CLIENT )
+	protected Map< String, ? > _createDefaultKeyBinds() {
+		return Collections.emptyMap();
+	}
+	
 	private CreativeTab __createDefaultTab()
 	{
 		final CreativeTab tab = new CreativeTab()
 		{
-			private CreativeTabs vanilla_tab;
+			private Supplier< CreativeTabs > vanilla_tab = () -> {
+				final CreativeTabs tabs = new CreativeTabs( MODID )
+				{
+					@Override
+					@SideOnly( Side.CLIENT )
+					public ItemStack createIcon() {
+						return FMUM.this.__createDefaultTabIconItem();
+					}
+				};
+				this.vanilla_tab = () -> tabs;  // Only create once.
+				return tabs;
+			};
 			
 			@Override
 			public String name() {
@@ -449,21 +498,8 @@ public class FMUM
 			}
 			
 			@Override
-			public CreativeTabs vanillaCreativeTab()
-			{
-				return Optional.ofNullable( this.vanilla_tab ).orElseGet(
-					() -> {
-						this.vanilla_tab = new CreativeTabs( MODID )
-						{
-							@Override
-							@SideOnly( Side.CLIENT )
-							public ItemStack createIcon() {
-								return FMUM.this.__createDefaultTabIconItem();
-							}
-						};
-						return this.vanilla_tab;
-					}
-				);
+			public CreativeTabs vanillaCreativeTab() {
+				return this.vanilla_tab.get();
 			}
 		};
 		CreativeTab.REGISTRY.regis( tab );
@@ -493,9 +529,9 @@ public class FMUM
 	{
 		final String icon_item = ModConfigClient.default_creative_tab_icon_item;
 		final short meta = ModConfigClient.default_creative_tab_icon_item_meta;
-		return IItemType.findItem( icon_item )
-			.map( item -> new ItemStack( item, 1, meta ) )
-			.orElseGet( () -> new ItemStack( Items.FISH ) );
+		return ItemType.findItem( icon_item )
+					   .map( item -> new ItemStack( item, 1, meta ) )
+					   .orElseGet( () -> new ItemStack( Items.FISH ) );
 	}
 	
 	private void __printAllLoadedPacks()

@@ -1,7 +1,7 @@
 package com.fmum.common.tab;
 
 import com.fmum.common.Registry;
-import com.fmum.common.item.IItemType;
+import com.fmum.common.item.ItemType;
 import net.minecraft.creativetab.CreativeTabs;
 
 public interface CreativeTab
@@ -12,7 +12,7 @@ public interface CreativeTab
 	
 	CreativeTabs vanillaCreativeTab();
 	
-	default void regisItem( IItemType item ) {
+	default void regisItem( ItemType item ) {
 		item.vanillaItem().setCreativeTab( this.vanillaCreativeTab() );
 	}
 }

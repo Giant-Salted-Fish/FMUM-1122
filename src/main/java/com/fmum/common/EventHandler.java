@@ -1,7 +1,7 @@
 package com.fmum.common;
 
 import com.fmum.client.player.PlayerPatchClient;
-import com.fmum.common.item.IItemType;
+import com.fmum.common.item.ItemType;
 import com.fmum.common.network.PacketConfigSync;
 import com.fmum.common.player.PlayerPatch;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -83,7 +83,7 @@ final class EventHandler
 	{
 		FMUM.MOD.logInfo( "fmum.on_item_regis" );
 		
-		final Collection< IItemType > items = IItemType.REGISTRY.values();
+		final Collection< ItemType > items = ItemType.REGISTRY.values();
 		items.forEach( it -> it.onItemRegister( evt ) );
 		
 		FMUM.MOD.logInfo( "fmum.item_regis_complete", items.size() );

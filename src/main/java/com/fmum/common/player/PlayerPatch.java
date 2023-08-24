@@ -1,7 +1,7 @@
 package com.fmum.common.player;
 
-import com.fmum.common.item.IEquippedItem;
-import com.fmum.common.item.IItem;
+import com.fmum.common.item.EquippedItem;
+import com.fmum.common.item.Item;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
@@ -16,11 +16,11 @@ import javax.annotation.Nullable;
 
 public class PlayerPatch implements ICapabilityProvider
 {
-	protected IItem main_item = IItem.VANILLA;
-	protected IEquippedItem< ? > main_equipped = IEquippedItem.VANILLA;
+	protected Item main_item = Item.VANILLA;
+	protected EquippedItem< ? > main_equipped = EquippedItem.VANILLA;
 	
-	protected IItem off_item = IItem.VANILLA;
-	protected IEquippedItem< ? > off_equipped = IEquippedItem.VANILLA;
+	protected Item off_item = Item.VANILLA;
+	protected EquippedItem< ? > off_equipped = EquippedItem.VANILLA;
 	
 	protected Operation operation = Operation.NONE;
 	
@@ -32,7 +32,7 @@ public class PlayerPatch implements ICapabilityProvider
 		{
 			final EnumHand hand = EnumHand.MAIN_HAND;
 			final ItemStack stack = inv.getCurrentItem();
-			final IItem item = IItem.getFromOrDefault( stack );
+			final Item item = Item.getFromOrDefault( stack );
 			
 			final boolean is_equipped_changed =
 				item.stackId() != this.main_item.stackId();
@@ -51,7 +51,7 @@ public class PlayerPatch implements ICapabilityProvider
 		{
 			final EnumHand hand = EnumHand.OFF_HAND;
 			final ItemStack stack = inv.offHandInventory.get( 0 );
-			final IItem item = IItem.getFromOrDefault( stack );
+			final Item item = Item.getFromOrDefault( stack );
 			
 			final boolean is_equipped_changed =
 				item.stackId() != this.off_item.stackId();

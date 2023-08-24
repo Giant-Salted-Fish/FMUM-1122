@@ -7,6 +7,7 @@ import com.fmum.common.tab.CreativeTab;
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -20,34 +21,36 @@ public interface ContentPackFactory
 	/**
 	 * Load pack info, regis necessary {@link Gson} adapters and content loaders.
 	 *
-	 * @see #createClientSide(IPrepareContext)
+	 * @see #createClientSide(PrepareContext)
 	 */
-	ContentPack createServerSide( IPrepareContext ctx );
+	ContentPack createServerSide( PrepareContext ctx );
 	
 	/**
 	 * Load pack info, regis necessary {@link Gson} adapters and content loaders.
 	 *
-	 * @see #createServerSide(IPrepareContext)
+	 * @see #createServerSide(PrepareContext)
 	 */
 	@SideOnly( Side.CLIENT )
-	ContentPack createClientSide( IPrepareContext ctx );
+	ContentPack createClientSide( PrepareContext ctx );
 	
-	interface IPrepareContext
+	interface PrepareContext
 	{
-		void regisLoadCallback( Consumer< ILoadContext > callback );
+		void regisLoadCallback( Consumer< LoadContext > callback );
 		
-		void regisPostLoadCallback( Consumer< IPostLoadContext > callback );
+		void regisPostLoadCallback( Consumer< PostLoadContext > callback );
 		
-		void regisGsonAdapter( Type type, JsonDeserializer< ? > adapter );
+		void regisGsonDeserializer( Type type, JsonDeserializer< ? > adapter );
+		
+		void regisGsonSerializer( Type type, JsonSerializer< ? > adapter );
 		
 		void regisContentLoader( String entry, ContentLoader loader );
 		
 		< T > void regisCapability( Class< T > capability_class );
 	}
 	
-	interface ILoadContext
+	interface LoadContext
 	{
-		void regisPostLoadCallback( Consumer< IPostLoadContext > callback );
+		void regisPostLoadCallback( Consumer< PostLoadContext > callback );
 		
 		Gson gson();
 		
@@ -63,7 +66,7 @@ public interface ContentPackFactory
 		Optional< ContentLoader > getContentLoader( String entry );
 	}
 	
-	interface IPostLoadContext
+	interface PostLoadContext
 	{
 		@SideOnly( Side.CLIENT )
 		ItemStack defaultTabIconItem();

@@ -1,18 +1,26 @@
 package com.fmum.common.pack;
 
+import com.fmum.client.input.KeyBind;
 import com.fmum.common.FMUM;
 import com.fmum.common.load.ContentBuildContext;
 import com.fmum.common.load.LoaderNotFoundException;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Reader;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -51,7 +59,7 @@ public abstract class LocalPack implements ContentPackFactory, ContentPack
 	}
 	
 	@Override
-	public ContentPack createServerSide( IPrepareContext ctx )
+	public ContentPack createServerSide( PrepareContext ctx )
 	{
 		ctx.regisLoadCallback( ctx_ -> {
 			FMUM.MOD.logInfo( "fmum.load_content_pack", this.name() );
@@ -62,28 +70,101 @@ public abstract class LocalPack implements ContentPackFactory, ContentPack
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public ContentPack createClientSide( IPrepareContext ctx )
+	public ContentPack createClientSide( PrepareContext ctx )
 	{
 		this.createServerSide( ctx );
-
+		
 		// Load key binds on client side.
-		ctx.regisLoadCallback( this::_loadKeyBinds )
+		ctx.regisLoadCallback( this::_loadKeyBinds );
 		return this;
 	}
 	
-	protected abstract void _loadPackContent( ILoadContext ctx );
+	protected abstract void _loadPackContent( LoadContext ctx );
 	
 	@SideOnly( Side.CLIENT )
-	protected void _loadKeyBind( ILoadContext ctx )
+	protected void _loadKeyBinds( LoadContext ctx )
 	{
+		final File config_dir = Loader.instance().getConfigDir();
+		final File key_bind_dir = new File(
+			config_dir, this.mod_container.getModId() + "-key_bind" );
+		if ( key_bind_dir.exists() )
+		{
+			final String fallback_type = "key_bind";
+			final String parent_path = config_dir.getName()
+				+ "/" + key_bind_dir.getName();
+			this._tryLoadFromDir(
+				key_bind_dir, fallback_type, parent_path, ctx );
+			return;
+		}
 		
+		final Map< String, ? > key_binds = this._createDefaultKeyBinds();
+		if ( key_binds.isEmpty() ) {
+			return;
+		}
+		
+		key_bind_dir.mkdirs();
+		final Gson gson = ctx.gson();
+		key_binds.forEach( ( id, kb ) -> {
+			final String file_name = id + ".json";
+			final File file = new File( key_bind_dir, file_name );
+			try ( FileWriter out = new FileWriter( file ) ) {
+				out.write( gson.toJson( kb ) );
+			}
+			catch ( IOException e ) {
+				// TODO: Handle exception.
+			}
+		} );
+	}
+	
+	@SideOnly( Side.CLIENT )
+	protected Map< String, ? > _createDefaultKeyBinds() {
+		return Collections.emptyMap();
+	}
+	
+	protected void _tryLoadFromDir(
+		File search_in_dir,
+		String fallback_type,
+		String parent_path,
+		LoadContext ctx
+	) {
+		for ( final File file : search_in_dir.listFiles() )
+		{
+			final String file_name = file.getName();
+			final String file_path = parent_path + "/" + file_name;
+			if ( file.isDirectory() )
+			{
+				this._tryLoadFromDir( file, fallback_type, file_path, ctx );
+				continue;
+			}
+			
+			try
+			{
+				if ( file_name.endsWith( ".json" ) )
+				{
+					try ( FileReader in = new FileReader( file ) ) {
+						this._loadJsonEntry( in, fallback_type, file_path, ctx );
+					}
+				}
+				
+//				else if ( file_name.endsWith( ".class" ) )
+//				{
+//					final String class_path = file_path.replace( '/', '.' );
+//					this._loadClassEntry( class_path, context );
+//				}
+			}
+			catch ( Exception e )
+			{
+				final String source_trace = this.sourceName() + "/" + file_path;
+				FMUM.MOD.logException( e, ERROR_LOADING_TYPE, source_trace );
+			}
+		}
 	}
 	
 	protected Optional< Object > _loadJsonEntry(
 		Reader in,
 		String fallback_type,
 		String file_path,
-		ILoadContext ctx
+		LoadContext ctx
 	) {
 		// Check if it has specified a type(loader).
 		final JsonObject obj = ctx.gson().fromJson( in, JsonObject.class );
@@ -112,7 +193,7 @@ public abstract class LocalPack implements ContentPackFactory, ContentPack
 			
 			@Override
 			public void regisPostLoadCallback(
-				Consumer< IPostLoadContext > callback
+				Consumer< PostLoadContext > callback
 			) { ctx.regisPostLoadCallback( callback ); }
 		};
 		

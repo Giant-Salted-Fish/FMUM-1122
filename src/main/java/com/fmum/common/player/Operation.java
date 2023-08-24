@@ -1,6 +1,6 @@
 package com.fmum.common.player;
 
-import com.fmum.common.item.IEquippedItem;
+import com.fmum.common.item.EquippedItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -31,6 +31,6 @@ public interface Operation
 	) { return this; }
 	
 	default Operation onEquippedChanged(
-		IEquippedItem< ? > new_equipped, EntityPlayer player
+		EquippedItem< ? > new_equipped, EntityPlayer player
 	) { return this.terminate( player ); }
 }

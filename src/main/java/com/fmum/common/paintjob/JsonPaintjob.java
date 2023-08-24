@@ -2,7 +2,7 @@ package com.fmum.common.paintjob;
 
 import com.fmum.common.FMUM;
 import com.fmum.common.load.ContentBuildContext;
-import com.fmum.common.pack.ContentPackFactory.IPostLoadContext;
+import com.fmum.common.pack.ContentPackFactory.PostLoadContext;
 
 import java.util.Optional;
 
@@ -18,7 +18,7 @@ public class JsonPaintjob extends CPaintjob
 		ctx.regisPostLoadCallback( this::_injectIntoTarget );
 	}
 	
-	protected void _injectIntoTarget( IPostLoadContext ctx )
+	protected void _injectIntoTarget( PostLoadContext ctx )
 	{
 		final Optional< PaintableType > target = PaintableType
 			.REGISTRY.lookup( this.inject_target );
