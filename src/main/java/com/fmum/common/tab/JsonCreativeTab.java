@@ -1,7 +1,7 @@
 package com.fmum.common.tab;
 
 import com.fmum.client.ModConfigClient;
-import com.fmum.common.item.IItemType;
+import com.fmum.common.item.ItemType;
 import com.fmum.common.load.BuildableType;
 import com.fmum.common.load.ContentBuildContext;
 import com.google.gson.annotations.SerializedName;
@@ -63,9 +63,9 @@ public class JsonCreativeTab extends BuildableType implements CreativeTab
 			this.vanilla_creative_tab.setNoTitle(); }
 		
 		ctx.regisPostLoadCallback(
-			ctx_ -> this.icon_item = IItemType.findItem( this.icon_item_name )
-				.map( item -> new ItemStack( item, 1, this.icon_item_meta ) )
-				.orElseGet( ctx_::defaultTabIconItem )
+			ctx_ -> this.icon_item = ItemType.findItem( this.icon_item_name )
+											 .map( item -> new ItemStack( item, 1, this.icon_item_meta ) )
+											 .orElseGet( ctx_::defaultTabIconItem )
 		);
 	}
 	

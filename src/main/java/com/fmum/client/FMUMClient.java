@@ -1,30 +1,33 @@
 package com.fmum.client;
 
 import com.fmum.client.input.JsonKeyBindType;
+import com.fmum.client.input.KeyBindManager;
+import com.fmum.client.input.KeyBindType;
 import com.fmum.common.FMUM;
 import com.fmum.common.load.BuildableType;
 import com.fmum.common.load.ContentBuildContext;
 import com.fmum.common.network.Packet;
 import com.fmum.common.pack.ContentPack;
 import com.fmum.common.pack.ContentPackFactory;
-import com.fmum.common.pack.ContentPackFactory.IPrepareContext;
-import com.fmum.common.pack.FolderPack;
+import com.fmum.common.pack.ContentPackFactory.PrepareContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.settings.IKeyConflictContext;
+import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GLContext;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 @SideOnly( Side.CLIENT )
 public final class FMUMClient extends FMUM
@@ -42,6 +45,23 @@ public final class FMUMClient extends FMUM
 		texture_pool = new HashMap<>();
 	
 	private FMUMClient() { }
+	
+	@Override
+	public boolean isClient() {
+		return true;
+	}
+	
+	@Override
+	public String format( String translate_key, Object... parameters ) {
+		return I18n.format( translate_key, parameters );
+	}
+	
+	/**
+	 * Send packet to server.
+	 */
+	public void sendPacketC2S( Packet packet ) {
+		this.packet_handler.sendToServer( packet );
+	}
 	
 	@Override
 	protected void _loadContentPacks()
@@ -65,11 +85,34 @@ public final class FMUMClient extends FMUM
 	}
 	
 	@Override
-	protected void _regisGsonAdapter( IPrepareContext ctx )
+	protected void _loadKeyBindSettings()
+	{
+		final String file_name = MODID + "-key_bind-settings.json";
+		final File settings_file = new File( this.config_dir, file_name );
+		if ( settings_file.exists() )
+		{
+			KeyBindManager.loadSettingsFrom( settings_file );
+			return;
+		}
+		
+		try
+		{
+			settings_file.createNewFile();
+		}
+		catch ( IOException e )
+		{
+			// TODO: Handle io exception
+		}
+		
+		KeyBindManager.saveSettingsTo( settings_file );
+	}
+	
+	@Override
+	protected void _regisGsonAdapter( PrepareContext ctx )
 	{
 		super._regisGsonAdapter( ctx );
 		
-		ctx.regisGsonAdapter(
+		ctx.regisGsonDeserializer(
 			ResourceLocation.class,
 			( json, type_of_T, context ) -> {
 				final String path = json.getAsString();
@@ -78,10 +121,22 @@ public final class FMUMClient extends FMUM
 			}
 		);
 		
-		ctx.regisGsonAdapter(
+		ctx.regisGsonDeserializer(
 			KeyModifier.class,
 			( json, type_of_T, context ) ->
 				KeyModifier.valueFromString( json.getAsString() )
+		);
+		
+		ctx.regisGsonDeserializer(
+			IKeyConflictContext.class,
+			( json, type_of_T, context ) -> {
+				try {
+					return KeyConflictContext.valueOf( json.getAsString() );
+				}
+				catch ( NullPointerException | IllegalArgumentException e ) {
+					return KeyConflictContext.UNIVERSAL;
+				}
+			}
 		);
 	}
 	
@@ -92,24 +147,37 @@ public final class FMUMClient extends FMUM
 	) { buildable.buildClientSide( ctx ); }
 	
 	@Override
-	protected Function< ContentPackFactory, ContentPack >
-		_callCreateOnSide( IPrepareContext ctx )
-	{ return pack -> pack.createClientSide( ctx ); }
-	
-	/**
-	 * Send packet to server.
-	 */
-	public void sendPacketC2S( Packet packet ) {
-		this.packet_handler.sendToServer( packet );
+	protected void _doRegisContentLoader(
+		BiConsumer< String, Class< ? extends BuildableType > > regis
+	) {
+		super._doRegisContentLoader( regis );
+		
+		regis.accept( "key_bind", JsonKeyBindType.class );
 	}
 	
 	@Override
-	public boolean isClient() {
-		return true;
-	}
+	protected ContentPack _callCreatePackOnSide(
+		ContentPackFactory factory, PrepareContext ctx
+	) { return factory.createClientSide( ctx ); }
 	
 	@Override
-	public String format( String translate_key, Object... parameters ) {
-		return I18n.format( translate_key, parameters );
+	protected Map< String, ? > _createDefaultKeyBinds()
+	{
+		final HashMap< String, Object > default_key_binds = new HashMap<>();
+		final String category_common = "fmum.key_category.common";
+		
+		default_key_binds.put(
+			"free_view",
+			new KeyBindType(
+				"free_view",
+				category_common,
+				"free_view",
+				"",
+				Keyboard.KEY_Z,
+				KeyModifier.NONE,
+				KeyConflictContext.IN_GAME
+			)
+		);
+		return default_key_binds;
 	}
 }

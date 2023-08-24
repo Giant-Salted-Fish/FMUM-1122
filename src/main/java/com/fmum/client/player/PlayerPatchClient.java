@@ -14,9 +14,8 @@ public final class PlayerPatchClient extends PlayerPatch
 		instance = this;
 	}
 	
-	public void onInputSignal( String signal, Input input )
-	{
-		
+	public void onInputSignal( String signal, Input input ) {
+		this.main_equipped.onInputSignal( signal, input );
 	}
 	
 	public static PlayerPatchClient get() { return instance; }

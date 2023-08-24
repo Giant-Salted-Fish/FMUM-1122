@@ -1,7 +1,7 @@
 package com.fmum.common.load;
 
 import com.fmum.common.pack.ContentPack;
-import com.fmum.common.pack.ContentPackFactory.IPostLoadContext;
+import com.fmum.common.pack.ContentPackFactory.PostLoadContext;
 import com.google.gson.Gson;
 
 import java.util.function.Consumer;
@@ -17,7 +17,7 @@ public interface ContentBuildContext
 	
 	Gson gson();
 	
-	void regisPostLoadCallback( Consumer< IPostLoadContext  > callback );
+	void regisPostLoadCallback( Consumer< PostLoadContext > callback );
 	
 //	public abstract ResourceLocation loadTexture( String path );
 }
