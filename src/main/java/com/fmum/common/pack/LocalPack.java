@@ -95,28 +95,25 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 			return;
 		}
 		
-		final Map< String, ? > key_binds = this._createDefaultKeyBinds();
-		if ( key_binds.isEmpty() ) {
-			return;
-		}
-		
-		key_bind_dir.mkdirs();
 		final Gson gson = ctx.gson();
-		key_binds.forEach( ( id, kb ) -> {
-			final String file_name = id + ".json";
-			final File file = new File( key_bind_dir, file_name );
-			try ( FileWriter out = new FileWriter( file ) ) {
-				out.write( gson.toJson( kb ) );
-			}
-			catch ( IOException e ) {
-				// TODO: Handle exception.
-			}
+		this._defaultKeyBindJson( gson ).ifPresent( o -> {
+			key_bind_dir.mkdirs();
+			o.entrySet().forEach( entry -> {
+				final String file_name = entry.getKey() + ".json";
+				final File file = new File( key_bind_dir, file_name );
+				try ( FileWriter out = new FileWriter( file ) ) {
+					out.write( gson.toJson( entry.getValue() ) );
+				}
+				catch ( IOException e ) {
+					// TODO: Handle exception.
+				}
+			} );
 		} );
 	}
 	
 	@SideOnly( Side.CLIENT )
-	protected Map< String, ? > _createDefaultKeyBinds() {
-		return Collections.emptyMap();
+	protected Optional< JsonObject > _defaultKeyBindJson( Gson gson ) {
+		return Optional.empty();
 	}
 	
 	protected void _tryLoadFromDir(
@@ -206,12 +203,5 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 			FMUM.MOD.logError( "fmum.type_loader_not_found", path, loader );
 		}
 		return Optional.empty();
-	}
-	
-	protected static class PackMetadataTemplate
-	{
-		public String name;
-		public String author;
-		public Set< String > ignored_entries = Collections.emptySet();
 	}
 }

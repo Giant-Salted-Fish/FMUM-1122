@@ -1,7 +1,7 @@
-# 由 一条大大的咸鱼 提供
+# 一条大大的咸鱼 提供
 
 # 配置文件
-fmum.config.common=通用端配置
+fmum.config.common=全局配置
 fmum.config.common.tooltip=这些配置将会同步给所有连接到此服务器（主机）的玩家。
 fmum.config.common.max_modify_layers=改装层数上限
 fmum.config.common.max_modify_layers.tooltip=这个参数决定了改装时所支持的最大配件嵌套层数。
@@ -64,7 +64,7 @@ fmum.model_regis_complete=模型注册已完成 共计 %s 个。
 fmum.on_init=正在初始化 FMUM...
 fmum.init_complete=FMUM 初始化完成。
 fmum.total_loaded_packs=共 %s 个已就绪的 FMUM 内容包：
-fmum.info_loaded_pack=    - %s <%s>
+fmum.info_loaded_pack=    - %s 开发者<%s>
 
 fmum.on_post_init=正在后初始化 FMUM...
 fmum.post_init_complete=FMUM 后初始化完成。
@@ -93,8 +93,9 @@ fmum.msg.burst=点射模式
 # 按键绑定
 fmum.key_category.common=FMUM 常规
 fmum.key.free_view=自由视角
+fmum.key.assist=辅助键
 
-fmum.key_category.gun=FMUM 武器
+fmum.key_category.gun=FMUM 枪械
 fmum.key.pull_trigger=武器开火
 fmum.key.aim_hold=按住瞄准
 fmum.key.aim_toggle=切换瞄准
@@ -105,8 +106,6 @@ fmum.key.charge_gun=武器上膛
 fmum.key.release_bolt=空挂释放
 fmum.key.inspect=检视武器
 
-fmum.key_category.assist=FMUM 辅助组合键
-fmum.key.assist=辅助键
 fmum.key.co_free_view=自由视角组合键
 fmum.key.co_switch_fire_mode=切换开火模式组合键
 fmum.key.co_reload=重新填装武器组合键
@@ -116,7 +115,7 @@ fmum.key.co_release_bolt=空挂释放组合键
 fmum.key.co_inspect=检视武器组合键
 fmum.key.co_toggle_modify=改装当前武器组合键
 
-fmum.key_category.modify=FMUM 武器改装
+fmum.key_category.modification=FMUM 改装
 fmum.key.toggle_modify=改装当前武器
 fmum.key.select_toggle=切换改装模式
 fmum.key.select_up=向上选择
@@ -125,5 +124,3 @@ fmum.key.select_left=向左选择
 fmum.key.select_right=向右选择
 fmum.key.select_confirm=确认选择
 fmum.key.select_cancel=取消选择
-
-fmum.key_category.other=FMUM 其它

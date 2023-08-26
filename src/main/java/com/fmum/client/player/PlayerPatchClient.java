@@ -18,5 +18,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		this.main_equipped.onInputSignal( signal, input );
 	}
 	
-	public static PlayerPatchClient get() { return instance; }
+	public static PlayerPatchClient get() {
+		return instance;
+	}
 }

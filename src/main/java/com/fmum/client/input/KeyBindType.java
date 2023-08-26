@@ -1,12 +1,13 @@
 package com.fmum.client.input;
 
+import com.fmum.client.FMUMClient;
 import com.fmum.common.load.BuildableType;
 import com.fmum.common.load.IContentBuildContext;
 import com.google.gson.annotations.SerializedName;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -18,7 +19,11 @@ import java.util.function.Supplier;
 @SideOnly( Side.CLIENT )
 public class KeyBindType extends BuildableType
 {
-	protected String category = "fmum.key_category.common";
+	protected static final String
+		KEY_BIND_PREFIX = FMUMClient.MODID + ".key.",
+		KEY_CATEGORY_PREFIX = FMUMClient.MODID + ".key_category.";
+	
+	protected String category = KEY_CATEGORY_PREFIX + "common";
 	
 	protected String signal;
 	
@@ -32,39 +37,17 @@ public class KeyBindType extends BuildableType
 	
 	protected IKeyConflictContext conflict_context = KeyConflictContext.IN_GAME;
 	
-	public KeyBindType() { }
-	
-	public KeyBindType(
-		String name,
-		String category,
-		String signal,
-		String depend_on_signal,
-		int default_key_code,
-		KeyModifier default_key_modifier,
-		IKeyConflictContext conflict_context
-	) {
-		this.name = name;
-		this.category = category;
-		this.signal = signal;
-		this.depend_on_signal = depend_on_signal;
-		this.default_key_code = default_key_code;
-		this.default_key_modifier = default_key_modifier;
-		this.conflict_context = conflict_context;
-		
-		new CKeyBind();
-	}
-	
 	@Override
 	public void buildClientSide( IContentBuildContext ctx )
 	{
 		super.buildClientSide( ctx );
 		
 		this.signal = Optional.ofNullable( this.signal ).orElse( this.name );
-		new CKeyBind();
+		this._createKeyBind();
 	}
 	
-	protected String _translationKey() {
-		return "fmum.key." + this.name;
+	protected void _createKeyBind() {
+		new KeyBind();
 	}
 	
 	@Override
@@ -72,7 +55,7 @@ public class KeyBindType extends BuildableType
 		return "KEY_BIND";
 	}
 	
-	public class CKeyBind implements IKeyBind
+	public class KeyBind implements IKeyBind
 	{
 		protected final KeyBinding vanilla_key_bind;
 		
@@ -84,12 +67,12 @@ public class KeyBindType extends BuildableType
 		
 		protected boolean is_down;
 		
-		protected CKeyBind()
+		protected KeyBind()
 		{
 			IKeyBind.REGISTRY.regis( this );
 			
 			this.vanilla_key_bind = new KeyBinding(
-				KeyBindType.this._translationKey(),
+				KeyBindType.this.name,
 				KeyBindType.this.conflict_context,
 				KeyBindType.this.default_key_modifier,
 				KeyBindType.this.default_key_code,

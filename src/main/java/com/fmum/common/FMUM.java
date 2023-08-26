@@ -28,6 +28,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializer;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -290,7 +291,7 @@ public class FMUM
 		};
 		load_callbacks.forEach( callback -> callback.accept( load_context ) );
 		
-		this._loadKeyBindSettings();
+		this._loadKeyBindSetting();
 		
 		// Setup post load callback.
 		this.post_load_callback = () -> {
@@ -323,7 +324,7 @@ public class FMUM
 		IContentPackFactory factory, IPrepareContext ctx
 	) { return factory.createServerSide( ctx ); }
 	
-	protected void _loadKeyBindSettings() { }
+	protected void _loadKeyBindSetting() { }
 	
 	protected void _regisGsonAdapter( IPrepareContext ctx )
 	{
@@ -420,8 +421,9 @@ public class FMUM
 			
 			@Override
 			@SideOnly( Side.CLIENT )
-			protected Map< String, ? > _createDefaultKeyBinds() {
-				return FMUM.this._createDefaultKeyBinds();
+			protected Optional< JsonObject > _defaultKeyBindJson( Gson gson )
+			{
+				return Optional.empty();
 			}
 		};
 		visitor.accept( core_factory, core_file.getName() );
@@ -430,21 +432,21 @@ public class FMUM
 		loader_ctx.getActiveModList().forEach( mod_container -> {
 			for ( ArtifactVersion requirement : mod_container.getRequirements() )
 			{
-				final boolean is_mod_based_pack =
+				final boolean is_requirement_match =
 					MODID.equals( requirement.getLabel() );
-				if ( !is_mod_based_pack ) {
+				if ( !is_requirement_match ) {
 					continue;
 				}
 				
-				// TODO: Check why this is predicated as always false by IDEA.
 				// TODO: And make version as a specially constructed range to test compatible version.
 				final boolean is_compatible_core_version =
 					requirement.containsVersion( version );
-				if ( !is_mod_based_pack )
+				if ( !is_compatible_core_version )
 				{
 					this.logError(
 						"fmum.incompatible_core_version",
-						version.getVersionString(), requirement.getRangeString()
+						version.getVersionString(),
+						requirement.getRangeString()
 					);
 					break;
 				}
@@ -456,7 +458,8 @@ public class FMUM
 				{
 					this.logError(
 						"fmum.invalid_mod_based_pack",
-						mod_container.getName(), mod_container.getModId()
+						mod_container.getName(),
+						mod_container.getModId()
 					);
 					break;
 				}
@@ -466,11 +469,6 @@ public class FMUM
 				break;
 			}
 		} );
-	}
-	
-	@SideOnly( Side.CLIENT )
-	protected Map< String, ? > _createDefaultKeyBinds() {
-		return Collections.emptyMap();
 	}
 	
 	private ICreativeTab __createDefaultTab()

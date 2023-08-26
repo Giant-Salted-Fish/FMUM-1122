@@ -10,9 +10,10 @@ import com.fmum.common.network.IPacket;
 import com.fmum.common.pack.IContentPack;
 import com.fmum.common.pack.IContentPackFactory;
 import com.fmum.common.pack.IContentPackFactory.IPrepareContext;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.settings.IKeyConflictContext;
@@ -27,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 @SideOnly( Side.CLIENT )
@@ -34,7 +36,6 @@ public final class FMUMClient extends FMUM
 {
 	public static final FMUMClient MOD = new FMUMClient();
 	public static final Minecraft MC = Minecraft.getMinecraft();
-	public static final GameSettings SETTINGS = MC.gameSettings;
 	
 	public static final ResourceLocation
 		TEXTURE_RED = new ResourceLocation( MODID, "textures/0xff0000.png" ),
@@ -85,26 +86,31 @@ public final class FMUMClient extends FMUM
 	}
 	
 	@Override
-	protected void _loadKeyBindSettings()
+	protected void _loadKeyBindSetting()
 	{
-		final String file_name = MODID + "-key_bind-settings.json";
-		final File settings_file = new File( this.config_dir, file_name );
+		final File settings_file = this._keyBindSettingFile();
 		if ( settings_file.exists() )
 		{
 			KeyBindManager.loadSettingsFrom( settings_file );
 			return;
 		}
 		
-		try
-		{
+		try {
 			settings_file.createNewFile();
 		}
 		catch ( IOException e )
 		{
-			// TODO: Handle io exception
+			this.logException( e, "fmum.error_creating_key_binds_file" );
+			return;
 		}
 		
 		KeyBindManager.saveSettingsTo( settings_file );
+	}
+	
+	File _keyBindSettingFile()
+	{
+		final String file_name = MODID + "-key_bind-setting.json";
+		return new File( this.config_dir, file_name );
 	}
 	
 	@Override
@@ -122,21 +128,8 @@ public final class FMUMClient extends FMUM
 		);
 		
 		ctx.regisGsonDeserializer(
-			KeyModifier.class,
-			( json, type_of_T, context ) ->
-				KeyModifier.valueFromString( json.getAsString() )
-		);
-		
-		ctx.regisGsonDeserializer(
 			IKeyConflictContext.class,
-			( json, type_of_T, context ) -> {
-				try {
-					return KeyConflictContext.valueOf( json.getAsString() );
-				}
-				catch ( NullPointerException | IllegalArgumentException e ) {
-					return KeyConflictContext.UNIVERSAL;
-				}
-			}
+			( json, type_of_T, context ) -> context.deserialize( json, KeyConflictContext.class )
 		);
 	}
 	
@@ -160,24 +153,14 @@ public final class FMUMClient extends FMUM
 		IContentPackFactory factory, IPrepareContext ctx
 	) { return factory.createClientSide( ctx ); }
 	
-	@Override
-	protected Map< String, ? > _createDefaultKeyBinds()
+	@FunctionalInterface
+	private interface IKeyBindCreator
 	{
-		final HashMap< String, Object > default_key_binds = new HashMap<>();
-		final String category_common = "fmum.key_category.common";
-		
-		default_key_binds.put(
-			"free_view",
-			new KeyBindType(
-				"free_view",
-				category_common,
-				"free_view",
-				"",
-				Keyboard.KEY_Z,
-				KeyModifier.NONE,
-				KeyConflictContext.IN_GAME
-			)
+		void create(
+			String raw_name,
+			String raw_category,
+			int key_code,
+			KeyModifier... key_modifier
 		);
-		return default_key_binds;
 	}
 }

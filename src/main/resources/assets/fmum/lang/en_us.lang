@@ -93,8 +93,9 @@ fmum.msg.burst=Burst
 # Key binds
 fmum.key_category.common=FMUM Common
 fmum.key.free_view=Free View
+fmum.key.assist=Assist Key
 
-fmum.key_category.gun=FMUM Weapon
+fmum.key_category.gun=FMUM Gun
 fmum.key.pull_trigger=Pull Trigger
 fmum.key.aim_hold=Aim Hold
 fmum.key.aim_toggle=Aim Toggle
@@ -105,8 +106,6 @@ fmum.key.charge_gun=Charge Gun
 fmum.key.release_bolt=Release Bolt
 fmum.key.inspect=Inspect Weapon
 
-fmum.key_category.assist=FMUM Assist
-fmum.key.assist=Assist Key
 fmum.key.co_free_view=Co-Free View
 fmum.key.co_switch_fire_mode=Co-Switch Fire Mode
 fmum.key.co_reload=Co-Reload Weapon
@@ -116,7 +115,7 @@ fmum.key.co_release_bolt=Co-Release Bolt
 fmum.key.co_inspect=Co-Inspect
 fmum.key.co_toggle_modify=Co-Modify Weapon
 
-fmum.key_category.modify=FMUM Modify
+fmum.key_category.modification=FMUM Modification
 fmum.key.toggle_modify=Modify Weapon
 fmum.key.select_toggle=Switch Modify Mode
 fmum.key.select_up=Select Up
@@ -125,5 +124,3 @@ fmum.key.select_left=Select Left
 fmum.key.select_right=Select Right
 fmum.key.select_confirm=Select Confirm
 fmum.key.select_cancel=Select Cancel
-
-fmum.key_category.other=FMUM Other

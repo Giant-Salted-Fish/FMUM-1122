@@ -10,7 +10,7 @@ import net.minecraftforge.common.config.Config.RequiresMcRestart;
 /**
  * Client only configurations.
  */
-//@SideOnly( Side.CLIENT ) // Commented as it will crash the load.
+//@SideOnly( Side.CLIENT )  // This will crash the load.
 @LangKey( "fmum.config.client" )
 @Config( modid = FMUM.MODID, category = "client" )
 public final class ModConfigClient
@@ -24,21 +24,21 @@ public final class ModConfigClient
 	)
 	public static boolean use_flan_compatible_mousehelper = false;
 	
-	@RequiresMcRestart
 	@LangKey( "fmum.config.client.default_creative_tab_icon_item" )
 	@Comment(
 		"This icon item will be used if FMUM fails to find icon item for a "
 		+ "creative tab."
 	)
+	@RequiresMcRestart
 	public static String default_creative_tab_icon_item
 		= Items.FISH.getRegistryName().toString();
 	
-	@RequiresMcRestart
 	@LangKey( "fmum.config.client.default_creative_tab_icon_item_meta" )
 	@Comment(
 		"See description of default_creative_tab_icon_item. "
 		+ "This helps to decide the variant of the icon item."
 	)
+	@RequiresMcRestart
 	public static short default_creative_tab_icon_item_meta = 0;
 	
 	private ModConfigClient() { }
