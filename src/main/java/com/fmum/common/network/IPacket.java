@@ -5,7 +5,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public interface Packet extends IMessage
+public interface IPacket extends IMessage
 {
 	default void handleServerSide( MessageContext ctx ) { }
 	

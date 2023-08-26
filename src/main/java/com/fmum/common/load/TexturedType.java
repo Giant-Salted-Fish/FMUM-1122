@@ -15,7 +15,7 @@ public abstract class TexturedType extends BuildableType
 	protected TexturedType() { }
 	
 	@SideOnly( Side.CLIENT )
-	public void buildClientSide( ContentBuildContext ctx )
+	public void buildClientSide( IContentBuildContext ctx )
 	{
 		super.buildClientSide( ctx );
 		
@@ -24,7 +24,7 @@ public abstract class TexturedType extends BuildableType
 	}
 	
 	@SideOnly( Side.CLIENT )
-	protected ResourceLocation _fallbackTexture( ContentBuildContext ctx ) {
+	protected ResourceLocation _fallbackTexture( IContentBuildContext ctx ) {
 		return FMUMClient.TEXTURE_GREEN;
 	}
 }

@@ -14,7 +14,7 @@ public class FolderPack extends LocalPack
 	}
 	
 	@Override
-	protected void _loadPackContent( LoadContext ctx )
+	protected void _loadPackContent( ILoadContext ctx )
 	{
 		for ( final File dir : this.mod_container.getSource().listFiles() )
 		{

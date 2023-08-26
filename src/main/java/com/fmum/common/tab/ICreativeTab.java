@@ -1,18 +1,18 @@
 package com.fmum.common.tab;
 
 import com.fmum.common.Registry;
-import com.fmum.common.item.ItemType;
+import com.fmum.common.item.IItemType;
 import net.minecraft.creativetab.CreativeTabs;
 
-public interface CreativeTab
+public interface ICreativeTab
 {
-	Registry< CreativeTab > REGISTRY = new Registry<>( CreativeTab::name );
+	Registry< ICreativeTab > REGISTRY = new Registry<>( ICreativeTab::name );
 	
 	String name();
 	
 	CreativeTabs vanillaCreativeTab();
 	
-	default void regisItem( ItemType item ) {
+	default void regisItem( IItemType item ) {
 		item.vanillaItem().setCreativeTab( this.vanillaCreativeTab() );
 	}
 }

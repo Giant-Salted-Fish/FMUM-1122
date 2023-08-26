@@ -2,7 +2,7 @@ package com.fmum.common.pack;
 
 import net.minecraft.util.ResourceLocation;
 
-public interface ContentPack
+public interface IContentPack
 {
 	String name();
 	

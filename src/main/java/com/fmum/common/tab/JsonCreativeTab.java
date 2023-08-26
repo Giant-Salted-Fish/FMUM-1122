@@ -1,9 +1,9 @@
 package com.fmum.common.tab;
 
 import com.fmum.client.ModConfigClient;
-import com.fmum.common.item.ItemType;
+import com.fmum.common.item.IItemType;
 import com.fmum.common.load.BuildableType;
-import com.fmum.common.load.ContentBuildContext;
+import com.fmum.common.load.IContentBuildContext;
 import com.google.gson.annotations.SerializedName;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
-public class JsonCreativeTab extends BuildableType implements CreativeTab
+public class JsonCreativeTab extends BuildableType implements ICreativeTab
 {
 	protected transient CreativeTabs vanilla_creative_tab;
 	
@@ -38,16 +38,16 @@ public class JsonCreativeTab extends BuildableType implements CreativeTab
 	protected ResourceLocation background_image;
 	
 	@Override
-	public void buildServerSide( ContentBuildContext ctx )
+	public void buildServerSide( IContentBuildContext ctx )
 	{
 		super.buildServerSide( ctx );
 		
-		CreativeTab.REGISTRY.regis( this );
+		ICreativeTab.REGISTRY.regis( this );
 	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public void buildClientSide( ContentBuildContext ctx )
+	public void buildClientSide( IContentBuildContext ctx )
 	{
 		super.buildClientSide( ctx );
 		
@@ -63,9 +63,9 @@ public class JsonCreativeTab extends BuildableType implements CreativeTab
 			this.vanilla_creative_tab.setNoTitle(); }
 		
 		ctx.regisPostLoadCallback(
-			ctx_ -> this.icon_item = ItemType.findItem( this.icon_item_name )
-											 .map( item -> new ItemStack( item, 1, this.icon_item_meta ) )
-											 .orElseGet( ctx_::defaultTabIconItem )
+			ctx_ -> this.icon_item = IItemType.findItem( this.icon_item_name )
+				.map( item -> new ItemStack( item, 1, this.icon_item_meta ) )
+				.orElseGet( ctx_::defaultTabIconItem )
 		);
 	}
 	

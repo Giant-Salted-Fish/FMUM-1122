@@ -7,18 +7,18 @@ import net.minecraft.util.EnumHand;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 
-public interface Item
+public interface IItem
 {
-	@CapabilityInject( Item.class )
-	Capability< Item > CAPABILITY = null;
+	@CapabilityInject( IItem.class )
+	Capability< IItem > CAPABILITY = null;
 	
-	Item VANILLA = new Item()
+	IItem VANILLA = new IItem()
 	{
 		@Override
 		public int stackId() { return 0; }
 		
 		@Override
-		public EquippedItem< ? > onTakeOut(
+		public IEquippedItem< ? > onTakeOut(
 			EntityPlayer player, EnumHand hand
 		) { return null; }
 	};
@@ -28,26 +28,26 @@ public interface Item
 	 */
 	int stackId();
 	
-	EquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand );
+	IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand );
 	
 	/**
-	 * This will crash if the item of given stack is not of type {@link FMUMVanillaItem}.
+	 * This will crash if the item of given stack is not of type {@link IFMUMVanillaItem}.
 	 *
 	 * @see #getFromOrDefault(ItemStack)
 	 */
-	static Item getFrom( ItemStack stack )
+	static IItem getFrom( ItemStack stack )
 	{
-		final ItemType type = ItemType.getFrom( stack.getItem() );
+		final IItemType type = IItemType.getFrom( stack.getItem() );
 		return type.getItem( stack );
 	}
 	
 	/**
 	 * @see #getFrom(ItemStack)
-	 * @return {@link #VANILLA} if the item of given stack is not of type {@link FMUMVanillaItem}.
+	 * @return {@link #VANILLA} if the item of given stack is not of type {@link IFMUMVanillaItem}.
 	 */
-	static Item getFromOrDefault( ItemStack stack )
+	static IItem getFromOrDefault( ItemStack stack )
 	{
-		final ItemType type = ItemType.getFromOrDefault( stack.getItem() );
+		final IItemType type = IItemType.getFromOrDefault( stack.getItem() );
 		return type.getItem( stack );
 	}
 }

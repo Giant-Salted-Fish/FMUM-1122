@@ -3,7 +3,7 @@ package com.fmum.common.network;
 import com.fmum.common.ModConfig;
 import io.netty.buffer.ByteBuf;
 
-public final class PacketConfigSync implements Packet
+public final class PacketConfigSync implements IPacket
 {
 	@Override
 	public void toBytes( ByteBuf buf )

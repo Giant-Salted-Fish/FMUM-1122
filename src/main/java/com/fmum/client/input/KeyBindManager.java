@@ -1,7 +1,7 @@
 package com.fmum.client.input;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.client.input.KeyBind.BindingState;
+import com.fmum.client.input.IKeyBind.BindingState;
 import com.google.common.collect.HashMultimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,7 +29,7 @@ import java.util.Map.Entry;
 @EventBusSubscriber( modid = FMUMClient.MODID, value = Side.CLIENT )
 public final class KeyBindManager
 {
-	private static final HashMultimap< Integer, KeyBind >
+	private static final HashMultimap< Integer, IKeyBind >
 		UPDATE_TABLE = HashMultimap.create();
 	
 	private static final Gson GSON;
@@ -61,13 +61,13 @@ public final class KeyBindManager
 	
 	public static void restoreVanillaKeyBind()
 	{
-		KeyBind.REGISTRY.values().forEach( KeyBind::restoreVanillaKeyBind );
+		IKeyBind.REGISTRY.values().forEach( IKeyBind::restoreVanillaKeyBind );
 	}
 	
 	public static void clearVanillaKeyBind( File file )
 	{
 		boolean is_changed = false;
-		for ( KeyBind kb : KeyBind.REGISTRY.values() ) {
+		for ( IKeyBind kb : IKeyBind.REGISTRY.values() ) {
 			is_changed |= kb.clearVanillaKeyBind() == BindingState.CHANGED;
 		}
 		
@@ -85,7 +85,7 @@ public final class KeyBindManager
 		try ( FileWriter out = new FileWriter( file ) )
 		{
 			final HashMap< String, String > data = new HashMap<>();
-			KeyBind.REGISTRY.values().forEach( kb -> {
+			IKeyBind.REGISTRY.values().forEach( kb -> {
 				final String setting = kb.keyCode() + "+" + kb.keyModifier();
 				data.put( kb.identifier(), setting );
 			} );
@@ -120,7 +120,7 @@ public final class KeyBindManager
 	{
 		try
 		{
-			final KeyBind kb = KeyBind.REGISTRY.get( e.getKey() );
+			final IKeyBind kb = IKeyBind.REGISTRY.get( e.getKey() );
 			final String[] setting = e.getValue().getAsString().split( "\\+" );
 			final int key_code = Integer.parseInt( setting[0] );
 			final KeyModifier modifier = KeyModifier.valueFromString( setting[1] );
@@ -137,7 +137,7 @@ public final class KeyBindManager
 	private static void __updateMappingTable()
 	{
 		UPDATE_TABLE.clear();
-		KeyBind.REGISTRY.values().forEach(
+		IKeyBind.REGISTRY.values().forEach(
 			kb -> UPDATE_TABLE.put( kb.keyCode(), kb ) );
 	}
 }

@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * This mesh implementation uses VAO to draw {@link GL11#GL_QUADS}.
  */
-public class Mesh implements Releasable
+public class Mesh implements IReleasable
 {
 	/**
 	 * A fixed instance that renders nothing.

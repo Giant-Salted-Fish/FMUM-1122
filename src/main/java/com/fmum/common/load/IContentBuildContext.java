@@ -1,23 +1,23 @@
 package com.fmum.common.load;
 
-import com.fmum.common.pack.ContentPack;
-import com.fmum.common.pack.ContentPackFactory.PostLoadContext;
+import com.fmum.common.pack.IContentPack;
+import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
 import com.google.gson.Gson;
 
 import java.util.function.Consumer;
 
-public interface ContentBuildContext
+public interface IContentBuildContext
 {
 	String fallbackName();
 	
 	/**
 	 * The pack that the building content is loaded from.
 	 */
-	ContentPack contentPack();
+	IContentPack contentPack();
 	
 	Gson gson();
 	
-	void regisPostLoadCallback( Consumer< PostLoadContext > callback );
+	void regisPostLoadCallback( Consumer< IPostLoadContext > callback );
 	
 //	public abstract ResourceLocation loadTexture( String path );
 }

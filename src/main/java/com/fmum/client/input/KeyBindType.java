@@ -1,7 +1,7 @@
 package com.fmum.client.input;
 
 import com.fmum.common.load.BuildableType;
-import com.fmum.common.load.ContentBuildContext;
+import com.fmum.common.load.IContentBuildContext;
 import com.google.gson.annotations.SerializedName;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
@@ -55,7 +55,7 @@ public class KeyBindType extends BuildableType
 	}
 	
 	@Override
-	public void buildClientSide( ContentBuildContext ctx )
+	public void buildClientSide( IContentBuildContext ctx )
 	{
 		super.buildClientSide( ctx );
 		
@@ -72,7 +72,7 @@ public class KeyBindType extends BuildableType
 		return "KEY_BIND";
 	}
 	
-	public class CKeyBind implements KeyBind
+	public class CKeyBind implements IKeyBind
 	{
 		protected final KeyBinding vanilla_key_bind;
 		
@@ -86,7 +86,7 @@ public class KeyBindType extends BuildableType
 		
 		protected CKeyBind()
 		{
-			KeyBind.REGISTRY.regis( this );
+			IKeyBind.REGISTRY.regis( this );
 			
 			this.vanilla_key_bind = new KeyBinding(
 				KeyBindType.this._translationKey(),
@@ -140,7 +140,7 @@ public class KeyBindType extends BuildableType
 					// TODO: This is intentional to put inside the lambda, as \
 					// otherwise it will fall when this key bind is created \
 					// since not all of them are putted into the InputMgr yet.
-					final Input signal = InputSignal.get(
+					final IInput signal = InputSignal.get(
 						KeyBindType.this.depend_on_signal );
 					return vanilla_condition.get() && signal.asBool();
 				}

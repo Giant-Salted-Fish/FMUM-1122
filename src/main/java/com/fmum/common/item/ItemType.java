@@ -1,79 +1,62 @@
 package com.fmum.common.item;
 
-import com.fmum.common.Registry;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.init.Items;
+import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Optional;
 
-public interface ItemType
+public abstract class ItemType extends Item implements IItemType
 {
-	Registry< ItemType > REGISTRY = new Registry<>( ItemType::name );
+	protected String name;
 	
-	ItemType VANILLA = new ItemType()
+//	@SerializedName( value = "creative_tab", alternate = "item_group" )
+//	protected String creative_tab = FMUM.DEFAULT_CREATIVE_TAB.name();
+	
+	protected transient Item vanilla_item;
+	
+	public ItemType buildServerSide( IContentBuildContext ctx )
 	{
-		@Override
-		public String name() { return "vanilla"; }
+		IItemType.REGISTRY.regis( this );
 		
-		@Override
-		public net.minecraft.item.Item vanillaItem() { return Items.AIR; }
+		this.name = Optional.ofNullable( this.name )
+			.orElseGet( ctx::fallbackName );
+		this.vanilla_item = this._createVanillaItem();
 		
-		@Override
-		public Item getItem( ItemStack stack ) { return Item.VANILLA; }
-	};
-	
-	default void onItemRegister( RegistryEvent.Register< net.minecraft.item.Item > evt ) {
-		evt.getRegistry().register( this.vanillaItem() );
+		// Item creative tab may not be loaded yet, so we defer it to post load.
+		ctx.regisPostLoadCallback( this::_setupCreativeTab );
+		return this;
 	}
 	
-	// FIXME: model register need to be override if item has sub-types
 	@SideOnly( Side.CLIENT )
-	default void onModelRegister( ModelRegistryEvent evt )
+	public ItemType buildClientSide( IContentBuildContext ctx )
 	{
-		final net.minecraft.item.Item item = this.vanillaItem();
-		final ResourceLocation res_loc = item.getRegistryName();
-		final ModelResourceLocation model_res =
-			new ModelResourceLocation( res_loc, "inventory" );
-		ModelLoader.setCustomModelResourceLocation( item, 0, model_res );
+		this.buildServerSide( ctx );
+		
+		return this;
 	}
 	
-	String name();
-	
-	net.minecraft.item.Item vanillaItem();
-	
-	Item getItem( ItemStack stack );
-	
-	/**
-	 * Given item must be an instance of {@link FMUMVanillaItem}.
-	 *
-	 * @see #getFromOrDefault(net.minecraft.item.Item)
-	 */
-	static ItemType getFrom( net.minecraft.item.Item vanilla_item ) {
-		return ( ( FMUMVanillaItem ) vanilla_item ).type();
+	@Override
+	public String name() {
+		return this.name;
 	}
 	
-	/**
-	 * @see #getFrom(net.minecraft.item.Item)
-	 * @return {@link #VANILLA} if given item is not an instance of {@link FMUMVanillaItem}.
-	 */
-	static ItemType getFromOrDefault( net.minecraft.item.Item vanilla_item )
+	@Override
+	public Item vanillaItem()
 	{
-		final boolean is_fmum_item = vanilla_item instanceof FMUMVanillaItem;
-		return is_fmum_item ? getFrom( vanilla_item ) : VANILLA;
+		return null;
 	}
 	
-	static Optional< net.minecraft.item.Item > findItem( String identifier )
+	@Override
+	public IItem getItem( ItemStack stack )
 	{
-		final Optional< ItemType > type = REGISTRY.lookup( identifier );
-		final net.minecraft.item.Item item = type.map( ItemType::vanillaItem )
-												 .orElseGet( () -> net.minecraft.item.Item.getByNameOrId( identifier ) );
-		return Optional.ofNullable( item );
+		return null;
 	}
+	
+	protected abstract Item _createVanillaItem();
+	
+	protected abstract void _setupCreativeTab( IPostLoadContext ctx );
 }

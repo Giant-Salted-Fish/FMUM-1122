@@ -6,9 +6,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public interface KeyBind
+public interface IKeyBind
 {
-	Registry< KeyBind > REGISTRY = new Registry<>( KeyBind::identifier );
+	Registry< IKeyBind > REGISTRY = new Registry<>( IKeyBind::identifier );
 	
 	String identifier();
 	

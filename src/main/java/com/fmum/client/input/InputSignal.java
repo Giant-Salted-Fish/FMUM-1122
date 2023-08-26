@@ -45,10 +45,10 @@ public final class InputSignal
 	
 	private InputSignal() { }
 	
-	public static Input get( String signal )
+	public static IInput get( String signal )
 	{
 		// TODO: Maybe not nullable?
-		return Optional.< Input >ofNullable(
+		return Optional.< IInput >ofNullable(
 			SIGNAL_2_BOOL_INPUT.get( signal ) ).orElse( () -> false );
 	}
 	
@@ -63,7 +63,7 @@ public final class InputSignal
 		}
 	}
 	
-	private static final class BoolInput implements Input
+	private static final class BoolInput implements IInput
 	{
 		private int active_count = 0;
 		

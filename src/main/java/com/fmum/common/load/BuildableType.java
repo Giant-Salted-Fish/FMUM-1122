@@ -1,6 +1,6 @@
 package com.fmum.common.load;
 
-import com.fmum.common.pack.ContentPack;
+import com.fmum.common.pack.IContentPack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -10,11 +10,11 @@ public abstract class BuildableType
 {
 	protected String name;
 	
-	protected ContentPack loaded_from;
+	protected IContentPack loaded_from;
 	
 	protected BuildableType() { }
 	
-	public void buildServerSide( ContentBuildContext ctx )
+	public void buildServerSide( IContentBuildContext ctx )
 	{
 		this.name = Optional.ofNullable( this.name )
 			.orElseGet( ctx::fallbackName );
@@ -22,7 +22,7 @@ public abstract class BuildableType
 	}
 	
 	@SideOnly( Side.CLIENT )
-	public void buildClientSide( ContentBuildContext ctx ) {
+	public void buildClientSide( IContentBuildContext ctx ) {
 		this.buildServerSide( ctx );
 	}
 	

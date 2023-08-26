@@ -2,9 +2,9 @@ package com.fmum.common.module;
 
 import com.fmum.util.Mat4f;
 
-public interface ModuleSlot
+public interface IModuleSlot
 {
-	boolean isCompatible( Module< ? > module );
+	boolean isCompatible( IModule< ? > module );
 	
 	int maxCapacity();
 	
@@ -12,5 +12,5 @@ public interface ModuleSlot
 	
 	void scaleGeometryParams( float scale );
 	
-	void applyTransform( Module< ? > child_module, Mat4f dst );
+	void applyTransform( IModule< ? > child_module, Mat4f dst );
 }

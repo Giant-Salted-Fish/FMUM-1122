@@ -2,26 +2,25 @@ package com.fmum.common;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.client.ModConfigClient;
-import com.fmum.client.input.KeyBind;
-import com.fmum.common.item.Item;
-import com.fmum.common.item.ItemType;
+import com.fmum.common.item.IItem;
+import com.fmum.common.item.IItemType;
 import com.fmum.common.load.BuildableType;
-import com.fmum.common.load.ContentBuildContext;
-import com.fmum.common.load.ContentLoader;
+import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.load.IContentLoader;
 import com.fmum.common.module.CategoryDomain;
 import com.fmum.common.module.ModuleCategory;
-import com.fmum.common.network.Packet;
+import com.fmum.common.network.IPacket;
 import com.fmum.common.network.PacketHandler;
-import com.fmum.common.pack.ContentPack;
-import com.fmum.common.pack.ContentPackFactory;
-import com.fmum.common.pack.ContentPackFactory.LoadContext;
-import com.fmum.common.pack.ContentPackFactory.PostLoadContext;
-import com.fmum.common.pack.ContentPackFactory.PrepareContext;
+import com.fmum.common.pack.IContentPack;
+import com.fmum.common.pack.IContentPackFactory;
+import com.fmum.common.pack.IContentPackFactory.ILoadContext;
+import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
+import com.fmum.common.pack.IContentPackFactory.IPrepareContext;
 import com.fmum.common.pack.LocalPack;
 import com.fmum.common.paintjob.JsonPaintjob;
 import com.fmum.common.player.PlayerPatch;
 import com.fmum.common.tab.JsonCreativeTab;
-import com.fmum.common.tab.CreativeTab;
+import com.fmum.common.tab.ICreativeTab;
 import com.fmum.util.AngleAxis4f;
 import com.fmum.util.Quat4f;
 import com.fmum.util.Vec3f;
@@ -54,7 +53,6 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
@@ -93,8 +91,8 @@ public class FMUM
 	@Mod.InstanceFactory
 	private static FMUM create() { return MOD; }
 	
-	public final Registry< ContentPack >
-		content_packs = new Registry<>( ContentPack::name );
+	public final Registry< IContentPack >
+		content_packs = new Registry<>( IContentPack::name );
 	
 	protected final PacketHandler packet_handler = new PacketHandler( MODID );
 	
@@ -153,7 +151,7 @@ public class FMUM
 	/**
 	 * Send packet to client.
 	 */
-	public final void sendPacketS2C( Packet packet, EntityPlayerMP player ) {
+	public final void sendPacketS2C( IPacket packet, EntityPlayerMP player ) {
 		this.packet_handler.sendTo( packet, player );
 	}
 	
@@ -189,7 +187,7 @@ public class FMUM
 	
 	protected void _loadContentPacks()
 	{
-		final LinkedList< ContentPackFactory >
+		final LinkedList< IContentPackFactory >
 			pack_factories = new LinkedList<>();
 		this.__forEachPackFactoryInModFolder( ( factory, source ) -> {
 			pack_factories.add( factory );
@@ -201,23 +199,23 @@ public class FMUM
 		gson_builder.setLenient();
 		gson_builder.setPrettyPrinting();
 		
-		final Registry< ContentLoader > content_loaders = new Registry<>();
+		final Registry< IContentLoader > content_loaders = new Registry<>();
 		
 		// Prepare pack load.
-		final LinkedList< Consumer< LoadContext > >
+		final LinkedList< Consumer< ILoadContext > >
 			load_callbacks = new LinkedList<>();
-		final LinkedList< Consumer< PostLoadContext > >
+		final LinkedList< Consumer< IPostLoadContext > >
 			post_load_callbacks = new LinkedList<>();
-		final PrepareContext prepare_context = new PrepareContext()
+		final IPrepareContext prepare_context = new IPrepareContext()
 		{
 			@Override
-			public void regisLoadCallback( Consumer< LoadContext > callback ) {
+			public void regisLoadCallback( Consumer< ILoadContext > callback ) {
 				load_callbacks.add( callback );
 			}
 			
 			@Override
 			public void regisPostLoadCallback(
-				Consumer< PostLoadContext > callback
+				Consumer< IPostLoadContext > callback
 			) { post_load_callbacks.add( callback ); }
 			
 			@Override
@@ -232,7 +230,7 @@ public class FMUM
 			
 			@Override
 			public void regisContentLoader(
-				String entry, ContentLoader loader
+				String entry, IContentLoader loader
 			) { content_loaders.regis( entry, loader ); }
 			
 			@Override
@@ -265,7 +263,7 @@ public class FMUM
 		this._regisGsonAdapter( prepare_context );
 		this.__regisContentLoader( prepare_context );
 		pack_factories.forEach( factory -> {
-			final ContentPack content_pack =
+			final IContentPack content_pack =
 				this._callCreatePackOnSide( factory, prepare_context );
 			this.content_packs.regis( content_pack );
 		} );
@@ -273,11 +271,11 @@ public class FMUM
 		final Gson gson = gson_builder.create();
 		
 		// Fire load callbacks.
-		final LoadContext load_context = new LoadContext()
+		final ILoadContext load_context = new ILoadContext()
 		{
 			@Override
 			public void regisPostLoadCallback(
-				Consumer< PostLoadContext > callback
+				Consumer< IPostLoadContext > callback
 			) { post_load_callbacks.add( callback ); }
 			
 			@Override
@@ -286,7 +284,7 @@ public class FMUM
 			}
 			
 			@Override
-			public Optional< ContentLoader > getContentLoader( String entry ) {
+			public Optional< IContentLoader > getContentLoader( String entry ) {
 				return Optional.ofNullable( content_loaders.get( entry ) );
 			}
 		};
@@ -296,9 +294,9 @@ public class FMUM
 		
 		// Setup post load callback.
 		this.post_load_callback = () -> {
-			final CreativeTab default_tab = this.__createDefaultTab();
-			final CreativeTab hidden_tab = this.__createHiddenTab();
-			final PostLoadContext post_load_context = new PostLoadContext()
+			final ICreativeTab default_tab = this.__createDefaultTab();
+			final ICreativeTab hidden_tab = this.__createHiddenTab();
+			final IPostLoadContext post_load_context = new IPostLoadContext()
 			{
 				@Override
 				@SideOnly( Side.CLIENT )
@@ -307,12 +305,12 @@ public class FMUM
 				}
 				
 				@Override
-				public CreativeTab defaultCreativeTab() {
+				public ICreativeTab defaultCreativeTab() {
 					return default_tab;
 				}
 				
 				@Override
-				public CreativeTab hideCreativeTab() {
+				public ICreativeTab hideCreativeTab() {
 					return hidden_tab;
 				}
 			};
@@ -321,13 +319,13 @@ public class FMUM
 		};
 	}
 	
-	protected ContentPack _callCreatePackOnSide(
-		ContentPackFactory factory, PrepareContext ctx
+	protected IContentPack _callCreatePackOnSide(
+		IContentPackFactory factory, IPrepareContext ctx
 	) { return factory.createServerSide( ctx ); }
 	
 	protected void _loadKeyBindSettings() { }
 	
-	protected void _regisGsonAdapter( PrepareContext ctx )
+	protected void _regisGsonAdapter( IPrepareContext ctx )
 	{
 		ctx.regisGsonDeserializer(
 			ModuleCategory.class,
@@ -386,14 +384,14 @@ public class FMUM
 	
 	protected void _callContentBuildOnSide(
 		BuildableType buildable,
-		ContentBuildContext ctx
+		IContentBuildContext ctx
 	) { buildable.buildServerSide( ctx ); }
 	
-	private void __regisContentLoader( PrepareContext ctx )
+	private void __regisContentLoader( IPrepareContext ctx )
 	{
 		this._doRegisContentLoader(
 			( entry, clazz ) -> {
-				final ContentLoader loader = ( obj, gson, ctx_ ) -> {
+				final IContentLoader loader = ( obj, gson, ctx_ ) -> {
 					final BuildableType buildable = gson.fromJson( obj, clazz );
 					this._callContentBuildOnSide( buildable, ctx_ );
 					return buildable;
@@ -403,22 +401,22 @@ public class FMUM
 		);
 	}
 	
-	private void __regisCapability( PrepareContext ctx )
+	private void __regisCapability( IPrepareContext ctx )
 	{
-		ctx.regisCapability( Item.class );  // See ItemType#CAPABILITY.
+		ctx.regisCapability( IItem.class );  // See ItemType#CAPABILITY.
 		ctx.regisCapability( PlayerPatch.class );
 	}
 	
 	private void __forEachPackFactoryInModFolder(
-		BiConsumer< ContentPackFactory, String > visitor
+		BiConsumer< IContentPackFactory, String > visitor
 	) {
 		final Loader loader_ctx = Loader.instance();
 		final ModContainer self_container = loader_ctx.activeModContainer();
 		final File core_file = self_container.getSource();
-		final ContentPackFactory core_factory = new LocalPack( self_container )
+		final IContentPackFactory core_factory = new LocalPack( self_container )
 		{
 			@Override
-			protected void _loadPackContent( LoadContext ctx ) { }
+			protected void _loadPackContent( ILoadContext ctx ) { }
 			
 			@Override
 			@SideOnly( Side.CLIENT )
@@ -453,7 +451,7 @@ public class FMUM
 				
 				final Object pack_mod = mod_container.getMod();
 				final boolean is_correct_implementation =
-					pack_mod instanceof ContentPackFactory;
+					pack_mod instanceof IContentPackFactory;
 				if ( !is_correct_implementation )
 				{
 					this.logError(
@@ -464,7 +462,7 @@ public class FMUM
 				}
 				
 				final String source_name = mod_container.getSource().getName();
-				visitor.accept( ( ContentPackFactory ) pack_mod, source_name );
+				visitor.accept( ( IContentPackFactory ) pack_mod, source_name );
 				break;
 			}
 		} );
@@ -475,9 +473,9 @@ public class FMUM
 		return Collections.emptyMap();
 	}
 	
-	private CreativeTab __createDefaultTab()
+	private ICreativeTab __createDefaultTab()
 	{
-		final CreativeTab tab = new CreativeTab()
+		final ICreativeTab tab = new ICreativeTab()
 		{
 			private Supplier< CreativeTabs > vanilla_tab = () -> {
 				final CreativeTabs tabs = new CreativeTabs( MODID )
@@ -502,13 +500,13 @@ public class FMUM
 				return this.vanilla_tab.get();
 			}
 		};
-		CreativeTab.REGISTRY.regis( tab );
+		ICreativeTab.REGISTRY.regis( tab );
 		return tab;
 	}
 	
-	private CreativeTab __createHiddenTab()
+	private ICreativeTab __createHiddenTab()
 	{
-		final CreativeTab tab = new CreativeTab()
+		final ICreativeTab tab = new ICreativeTab()
 		{
 			@Override
 			public String name() {
@@ -520,7 +518,7 @@ public class FMUM
 				return null;
 			}
 		};
-		CreativeTab.REGISTRY.regis( tab );
+		ICreativeTab.REGISTRY.regis( tab );
 		return tab;
 	}
 	
@@ -529,9 +527,9 @@ public class FMUM
 	{
 		final String icon_item = ModConfigClient.default_creative_tab_icon_item;
 		final short meta = ModConfigClient.default_creative_tab_icon_item_meta;
-		return ItemType.findItem( icon_item )
-					   .map( item -> new ItemStack( item, 1, meta ) )
-					   .orElseGet( () -> new ItemStack( Items.FISH ) );
+		return IItemType.findItem( icon_item )
+						.map( item -> new ItemStack( item, 1, meta ) )
+						.orElseGet( () -> new ItemStack( Items.FISH ) );
 	}
 	
 	private void __printAllLoadedPacks()

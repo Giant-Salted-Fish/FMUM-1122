@@ -1,26 +1,26 @@
 package com.fmum.common.paintjob;
 
 import com.fmum.common.FMUM;
-import com.fmum.common.load.ContentBuildContext;
-import com.fmum.common.pack.ContentPackFactory.PostLoadContext;
+import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
 
 import java.util.Optional;
 
-public class JsonPaintjob extends CPaintjob
+public class JsonPaintjob extends Paintjob
 {
 	protected String inject_target = "unspecified";
 	
 	@Override
-	public void buildServerSide( ContentBuildContext ctx )
+	public void buildServerSide( IContentBuildContext ctx )
 	{
 		super.buildServerSide( ctx );
 		
 		ctx.regisPostLoadCallback( this::_injectIntoTarget );
 	}
 	
-	protected void _injectIntoTarget( PostLoadContext ctx )
+	protected void _injectIntoTarget( IPostLoadContext ctx )
 	{
-		final Optional< PaintableType > target = PaintableType
+		final Optional< IPaintableType > target = IPaintableType
 			.REGISTRY.lookup( this.inject_target );
 		if ( target.isPresent() ) {
 			target.get().injectPaintjob( this ); }

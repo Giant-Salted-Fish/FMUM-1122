@@ -1,7 +1,7 @@
 package com.fmum.client;
 
 import com.fmum.common.FMUM;
-import com.fmum.common.item.ItemType;
+import com.fmum.common.item.IItemType;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -21,7 +21,7 @@ public final class EventHandlerClient
 	{
 		FMUM.MOD.logInfo( "fmum.on_model_regis" );
 		
-		final Collection< ItemType > items = ItemType.REGISTRY.values();
+		final Collection< IItemType > items = IItemType.REGISTRY.values();
 		items.forEach( it -> it.onModelRegister( evt ) );
 		
 		FMUM.MOD.logInfo( "fmum.model_regis_complete", items.size() );

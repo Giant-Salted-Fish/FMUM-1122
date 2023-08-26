@@ -1,7 +1,7 @@
 package com.fmum.common.item;
 
 @FunctionalInterface
-public interface FMUMVanillaItem
+public interface IFMUMVanillaItem
 {
-	ItemType type();
+	IItemType type();
 }

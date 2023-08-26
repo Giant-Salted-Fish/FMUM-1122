@@ -1,9 +1,9 @@
 package com.fmum.common.pack;
 
-import com.fmum.common.load.ContentBuildContext;
-import com.fmum.common.load.ContentLoader;
+import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.load.IContentLoader;
 import com.fmum.common.load.LoaderNotFoundException;
-import com.fmum.common.tab.CreativeTab;
+import com.fmum.common.tab.ICreativeTab;
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
@@ -16,46 +16,48 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public interface ContentPackFactory
+public interface IContentPackFactory
 {
 	/**
 	 * Load pack info, regis necessary {@link Gson} adapters and content loaders.
 	 *
-	 * @see #createClientSide(PrepareContext)
+	 * @see #createClientSide(IPrepareContext)
 	 */
-	ContentPack createServerSide( PrepareContext ctx );
+	IContentPack createServerSide( IPrepareContext ctx );
 	
 	/**
 	 * Load pack info, regis necessary {@link Gson} adapters and content loaders.
 	 *
-	 * @see #createServerSide(PrepareContext)
+	 * @see #createServerSide(IPrepareContext)
 	 */
 	@SideOnly( Side.CLIENT )
-	ContentPack createClientSide( PrepareContext ctx );
+	IContentPack createClientSide( IPrepareContext ctx );
 	
-	interface PrepareContext
+	interface IPrepareContext
 	{
-		void regisLoadCallback( Consumer< LoadContext > callback );
+		void regisLoadCallback( Consumer< ILoadContext > callback );
 		
-		void regisPostLoadCallback( Consumer< PostLoadContext > callback );
+		void regisPostLoadCallback( Consumer< IPostLoadContext > callback );
 		
 		void regisGsonDeserializer( Type type, JsonDeserializer< ? > adapter );
 		
 		void regisGsonSerializer( Type type, JsonSerializer< ? > adapter );
 		
-		void regisContentLoader( String entry, ContentLoader loader );
+		void regisContentLoader( String entry, IContentLoader loader );
 		
 		< T > void regisCapability( Class< T > capability_class );
 	}
 	
-	interface LoadContext
+	interface ILoadContext
 	{
-		void regisPostLoadCallback( Consumer< PostLoadContext > callback );
+		void regisPostLoadCallback( Consumer< IPostLoadContext > callback );
 		
 		Gson gson();
 		
 		default Object loadContent(
-			String loader_entry, JsonObject object, ContentBuildContext ctx
+			String loader_entry,
+			JsonObject object,
+			IContentBuildContext ctx
 		) throws LoaderNotFoundException
 		{
 			return this.getContentLoader( loader_entry )
@@ -63,16 +65,16 @@ public interface ContentPackFactory
 				.loadFrom( object, this.gson(), ctx );
 		}
 		
-		Optional< ContentLoader > getContentLoader( String entry );
+		Optional< IContentLoader > getContentLoader( String entry );
 	}
 	
-	interface PostLoadContext
+	interface IPostLoadContext
 	{
 		@SideOnly( Side.CLIENT )
 		ItemStack defaultTabIconItem();
 		
-		CreativeTab defaultCreativeTab();
+		ICreativeTab defaultCreativeTab();
 		
-		CreativeTab hideCreativeTab();
+		ICreativeTab hideCreativeTab();
 	}
 }

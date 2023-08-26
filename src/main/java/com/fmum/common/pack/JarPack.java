@@ -17,7 +17,7 @@ public class JarPack extends LocalPack
 	}
 	
 	@Override
-	protected void _loadPackContent( LoadContext ctx )
+	protected void _loadPackContent( ILoadContext ctx )
 	{
 		try (
 			ZipInputStream in = new ZipInputStream(

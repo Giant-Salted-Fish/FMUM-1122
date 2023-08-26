@@ -1,8 +1,7 @@
 package com.fmum.common.pack;
 
-import com.fmum.client.input.KeyBind;
 import com.fmum.common.FMUM;
-import com.fmum.common.load.ContentBuildContext;
+import com.fmum.common.load.IContentBuildContext;
 import com.fmum.common.load.LoaderNotFoundException;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -17,7 +16,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,7 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public abstract class LocalPack implements ContentPackFactory, ContentPack
+public abstract class LocalPack implements IContentPackFactory, IContentPack
 {
 	protected static final String ERROR_LOADING_TYPE = "fmum.error_loading_type";
 	
@@ -59,7 +57,7 @@ public abstract class LocalPack implements ContentPackFactory, ContentPack
 	}
 	
 	@Override
-	public ContentPack createServerSide( PrepareContext ctx )
+	public IContentPack createServerSide( IPrepareContext ctx )
 	{
 		ctx.regisLoadCallback( ctx_ -> {
 			FMUM.MOD.logInfo( "fmum.load_content_pack", this.name() );
@@ -70,7 +68,7 @@ public abstract class LocalPack implements ContentPackFactory, ContentPack
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public ContentPack createClientSide( PrepareContext ctx )
+	public IContentPack createClientSide( IPrepareContext ctx )
 	{
 		this.createServerSide( ctx );
 		
@@ -79,10 +77,10 @@ public abstract class LocalPack implements ContentPackFactory, ContentPack
 		return this;
 	}
 	
-	protected abstract void _loadPackContent( LoadContext ctx );
+	protected abstract void _loadPackContent( ILoadContext ctx );
 	
 	@SideOnly( Side.CLIENT )
-	protected void _loadKeyBinds( LoadContext ctx )
+	protected void _loadKeyBinds( ILoadContext ctx )
 	{
 		final File config_dir = Loader.instance().getConfigDir();
 		final File key_bind_dir = new File(
@@ -125,7 +123,7 @@ public abstract class LocalPack implements ContentPackFactory, ContentPack
 		File search_in_dir,
 		String fallback_type,
 		String parent_path,
-		LoadContext ctx
+		ILoadContext ctx
 	) {
 		for ( final File file : search_in_dir.listFiles() )
 		{
@@ -164,14 +162,14 @@ public abstract class LocalPack implements ContentPackFactory, ContentPack
 		Reader in,
 		String fallback_type,
 		String file_path,
-		LoadContext ctx
+		ILoadContext ctx
 	) {
 		// Check if it has specified a type(loader).
 		final JsonObject obj = ctx.gson().fromJson( in, JsonObject.class );
 		final String loader = Optional.ofNullable( obj.get( "__type__" ) )
 			.map( JsonElement::getAsString ).orElse( fallback_type );
 		
-		final ContentBuildContext build_context = new ContentBuildContext()
+		final IContentBuildContext build_context = new IContentBuildContext()
 		{
 			@Override
 			public String fallbackName()
@@ -182,7 +180,7 @@ public abstract class LocalPack implements ContentPackFactory, ContentPack
 			}
 			
 			@Override
-			public ContentPack contentPack() {
+			public IContentPack contentPack() {
 				return LocalPack.this;
 			}
 			
@@ -193,7 +191,7 @@ public abstract class LocalPack implements ContentPackFactory, ContentPack
 			
 			@Override
 			public void regisPostLoadCallback(
-				Consumer< PostLoadContext > callback
+				Consumer< IPostLoadContext > callback
 			) { ctx.regisPostLoadCallback( callback ); }
 		};
 		

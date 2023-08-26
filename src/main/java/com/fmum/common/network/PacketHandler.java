@@ -14,7 +14,7 @@ public final class PacketHandler extends SimpleNetworkWrapper
 	
 	public PacketHandler( String channel ) { super( channel ); }
 	
-	private static final IMessageHandler< Packet, IMessage >
+	private static final IMessageHandler< IPacket, IMessage >
 		C2S_HANDLER = ( msg, ctx ) -> {
 			msg.handleServerSide( ctx );
 			return null;
@@ -40,10 +40,10 @@ public final class PacketHandler extends SimpleNetworkWrapper
 	}
 	
 	private void __regisPacket(
-		Class< ? extends Packet > packet_class, Side handle_on_side
+		Class< ? extends IPacket > packet_class, Side handle_on_side
 	) {
 		final boolean is_server_side = handle_on_side.isServer();
-		final IMessageHandler< Packet, IMessage > handler =
+		final IMessageHandler< IPacket, IMessage > handler =
 			is_server_side ? C2S_HANDLER : S2C_HANDLER;
 		this.registerMessage(
 			handler, packet_class, this.discriminator, handle_on_side );

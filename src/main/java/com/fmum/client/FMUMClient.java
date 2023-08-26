@@ -5,11 +5,11 @@ import com.fmum.client.input.KeyBindManager;
 import com.fmum.client.input.KeyBindType;
 import com.fmum.common.FMUM;
 import com.fmum.common.load.BuildableType;
-import com.fmum.common.load.ContentBuildContext;
-import com.fmum.common.network.Packet;
-import com.fmum.common.pack.ContentPack;
-import com.fmum.common.pack.ContentPackFactory;
-import com.fmum.common.pack.ContentPackFactory.PrepareContext;
+import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.network.IPacket;
+import com.fmum.common.pack.IContentPack;
+import com.fmum.common.pack.IContentPackFactory;
+import com.fmum.common.pack.IContentPackFactory.IPrepareContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
@@ -59,7 +59,7 @@ public final class FMUMClient extends FMUM
 	/**
 	 * Send packet to server.
 	 */
-	public void sendPacketC2S( Packet packet ) {
+	public void sendPacketC2S( IPacket packet ) {
 		this.packet_handler.sendToServer( packet );
 	}
 	
@@ -108,7 +108,7 @@ public final class FMUMClient extends FMUM
 	}
 	
 	@Override
-	protected void _regisGsonAdapter( PrepareContext ctx )
+	protected void _regisGsonAdapter( IPrepareContext ctx )
 	{
 		super._regisGsonAdapter( ctx );
 		
@@ -143,7 +143,7 @@ public final class FMUMClient extends FMUM
 	@Override
 	protected void _callContentBuildOnSide(
 		BuildableType buildable,
-		ContentBuildContext ctx
+		IContentBuildContext ctx
 	) { buildable.buildClientSide( ctx ); }
 	
 	@Override
@@ -156,8 +156,8 @@ public final class FMUMClient extends FMUM
 	}
 	
 	@Override
-	protected ContentPack _callCreatePackOnSide(
-		ContentPackFactory factory, PrepareContext ctx
+	protected IContentPack _callCreatePackOnSide(
+		IContentPackFactory factory, IPrepareContext ctx
 	) { return factory.createClientSide( ctx ); }
 	
 	@Override

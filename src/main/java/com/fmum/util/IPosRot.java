@@ -1,6 +1,6 @@
 package com.fmum.util;
 
-public interface PosRot
+public interface IPosRot
 {
 	void getPos( Vec3f dst );
 

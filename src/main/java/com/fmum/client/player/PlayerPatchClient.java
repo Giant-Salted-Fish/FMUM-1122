@@ -1,6 +1,6 @@
 package com.fmum.client.player;
 
-import com.fmum.client.input.Input;
+import com.fmum.client.input.IInput;
 import com.fmum.common.player.PlayerPatch;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -14,7 +14,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		instance = this;
 	}
 	
-	public void onInputSignal( String signal, Input input ) {
+	public void onInputSignal( String signal, IInput input ) {
 		this.main_equipped.onInputSignal( signal, input );
 	}
 	
