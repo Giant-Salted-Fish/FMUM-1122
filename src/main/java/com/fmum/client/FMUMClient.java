@@ -1,6 +1,6 @@
 package com.fmum.client;
 
-import com.fmum.client.input.JsonKeyBindType;
+import com.fmum.client.input.ToggleKeyBindType;
 import com.fmum.client.input.KeyBindManager;
 import com.fmum.client.input.KeyBindType;
 import com.fmum.common.FMUM;
@@ -10,25 +10,19 @@ import com.fmum.common.network.IPacket;
 import com.fmum.common.pack.IContentPack;
 import com.fmum.common.pack.IContentPackFactory;
 import com.fmum.common.pack.IContentPackFactory.IPrepareContext;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GLContext;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 
 @SideOnly( Side.CLIENT )
@@ -122,14 +116,15 @@ public final class FMUMClient extends FMUM
 			ResourceLocation.class,
 			( json, type_of_T, context ) -> {
 				final String path = json.getAsString();
-				return this.texture_pool.computeIfAbsent(
-					path, ResourceLocation::new );
+				return this.texture_pool
+					.computeIfAbsent( path, ResourceLocation::new );
 			}
 		);
 		
 		ctx.regisGsonDeserializer(
 			IKeyConflictContext.class,
-			( json, type_of_T, context ) -> context.deserialize( json, KeyConflictContext.class )
+			( json, type_of_T, context ) ->
+				context.deserialize( json, KeyConflictContext.class )
 		);
 	}
 	
@@ -145,22 +140,12 @@ public final class FMUMClient extends FMUM
 	) {
 		super._doRegisContentLoader( regis );
 		
-		regis.accept( "key_bind", JsonKeyBindType.class );
+		regis.accept( "key_bind", KeyBindType.class );
+		regis.accept( "toggle_key_bind", ToggleKeyBindType.class );
 	}
 	
 	@Override
 	protected IContentPack _callCreatePackOnSide(
 		IContentPackFactory factory, IPrepareContext ctx
 	) { return factory.createClientSide( ctx ); }
-	
-	@FunctionalInterface
-	private interface IKeyBindCreator
-	{
-		void create(
-			String raw_name,
-			String raw_category,
-			int key_code,
-			KeyModifier... key_modifier
-		);
-	}
 }

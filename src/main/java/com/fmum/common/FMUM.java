@@ -52,7 +52,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -423,7 +429,19 @@ public class FMUM
 			@SideOnly( Side.CLIENT )
 			protected Optional< JsonObject > _defaultKeyBindJson( Gson gson )
 			{
-				return Optional.empty();
+				final String path = "/key_bind.json";
+				try (
+					Reader in = new InputStreamReader(
+						this.getClass().getResourceAsStream( path ) )
+				) {
+					final JsonObject o = gson.fromJson( in, JsonObject.class );
+					return Optional.of( o );
+				}
+				catch ( IOException e )
+				{
+					// TODO: Handle io exception
+					return Optional.empty();
+				}
 			}
 		};
 		visitor.accept( core_factory, core_file.getName() );

@@ -12,13 +12,17 @@ public interface IKeyBind
 	
 	String identifier();
 	
+	boolean isDown();
+	
 	int keyCode();
 	
 	KeyModifier keyModifier();
 	
-	void update( boolean is_down );
-	
 	void setKeyCodeAndModifier( int key_code, KeyModifier key_modifier );
+	
+	String activeConditionRepr();
+	
+	void update( boolean is_down );
 	
 	void restoreVanillaKeyBind();
 	

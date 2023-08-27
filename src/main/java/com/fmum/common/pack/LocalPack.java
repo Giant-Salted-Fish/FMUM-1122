@@ -85,30 +85,33 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 		final File config_dir = Loader.instance().getConfigDir();
 		final File key_bind_dir = new File(
 			config_dir, this.mod_container.getModId() + "-key_bind" );
-		if ( key_bind_dir.exists() )
+		if ( !key_bind_dir.exists() )
 		{
-			final String fallback_type = "key_bind";
-			final String parent_path = config_dir.getName()
-				+ "/" + key_bind_dir.getName();
-			this._tryLoadFromDir(
-				key_bind_dir, fallback_type, parent_path, ctx );
-			return;
-		}
-		
-		final Gson gson = ctx.gson();
-		this._defaultKeyBindJson( gson ).ifPresent( o -> {
+			final Gson gson = ctx.gson();
+			final Optional< JsonObject > data = this._defaultKeyBindJson( gson );
+			if ( !data.isPresent() ) {
+				return;
+			}
+			
 			key_bind_dir.mkdirs();
-			o.entrySet().forEach( entry -> {
+			data.get().entrySet().forEach( entry -> {
 				final String file_name = entry.getKey() + ".json";
 				final File file = new File( key_bind_dir, file_name );
-				try ( FileWriter out = new FileWriter( file ) ) {
+				try ( FileWriter out = new FileWriter( file ) )
+				{
 					out.write( gson.toJson( entry.getValue() ) );
 				}
-				catch ( IOException e ) {
+				catch ( IOException e )
+				{
 					// TODO: Handle exception.
 				}
 			} );
-		} );
+		}
+		
+		final String fallback_type = "key_bind";
+		final String parent_path = config_dir.getName()
+			+ "/" + key_bind_dir.getName();
+		this._tryLoadFromDir( key_bind_dir, fallback_type, parent_path, ctx );
 	}
 	
 	@SideOnly( Side.CLIENT )
@@ -171,7 +174,7 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 			@Override
 			public String fallbackName()
 			{
-				final int start = file_path.lastIndexOf( '/' );
+				final int start = file_path.lastIndexOf( '/' ) + 1;
 				final int end = file_path.length() - ".json".length();
 				return file_path.substring( start, end );
 			}

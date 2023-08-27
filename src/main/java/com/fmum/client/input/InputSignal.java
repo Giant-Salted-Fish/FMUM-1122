@@ -11,13 +11,15 @@ import java.util.Optional;
 public final class InputSignal
 {
 	public static final String
-		FREE_VIEW = "free_view";
+		FREE_VIEW = "free_view",
+		ASSIST = "assist";
 	
 	public static final String
 		PULL_TRIGGER = "pull_trigger",
 		TOGGLE_ADS = "toggle_ads",
 	
-		SWITCH_FIRE_MODE = "switch_fire_mode",
+		LAST_FIRE_MODE = "last_fire_mode",
+		NEXT_FIRE_MODE = "next_fire_mode",
 		RELOAD_WEAPON = "reload_weapon",
 		LOAD_OR_UNLOAD_MAG = "load_or_unload_mag",
 	
@@ -28,17 +30,24 @@ public final class InputSignal
 	
 	public static final String
 		OPEN_MODIFY_VIEW = "open_modify_view",
-		SWITCH_MODIFY_MODE = "switch_modify_mode",
+		LAST_MODIFY_MODE = "last_modify_mode",
+		NEXT_MODIFY_MODE = "next_modify_mode",
 	
 		ENTER_LAYER = "enter_layer",
 		QUIT_LAYER = "quit_layer",
 	
-		SWITCH_TO_NEXT_SLOT = "switch_to_next_slot",
-		SWITCH_TO_LAST_SLOT = "switch_to_last_slot",
-		SWITCH_TO_NEXT_MODULE = "switch_to_next_module",
-		SWITCH_TO_LAST_MODULE = "switch_to_last_module",
+		LAST_SLOT = "last_slot",
+		NEXT_SLOT = "next_slot",
+		LAST_MODULE = "last_module",
+		NEXT_MODULE = "next_module",
 	
-		CONFIRM_CHANGES = "confirm_changes";
+		LAST_PREVIEW = "last_preview",
+		NEXT_PREVIEW = "next_preview",
+		LAST_CHANGE = "last_change",
+		NEXT_CHANGE = "next_change",
+	
+		CONFIRM_CHANGE = "confirm_change",
+		REMOVE_MODULE = "remove_module";
 	
 	private static final HashMap< String, BoolInput >
 		SIGNAL_2_BOOL_INPUT = new HashMap<>();
