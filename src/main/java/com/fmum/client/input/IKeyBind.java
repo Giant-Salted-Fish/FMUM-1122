@@ -20,17 +20,11 @@ public interface IKeyBind
 	
 	void setKeyCodeAndModifier( int key_code, KeyModifier key_modifier );
 	
-	String activeConditionRepr();
+	String boundenKeyRepr();
 	
 	void update( boolean is_down );
 	
 	void restoreVanillaKeyBind();
 	
-	BindingState clearVanillaKeyBind();
-	
-	enum BindingState
-	{
-		CHANGED,
-		UNCHANGED,
-	}
+	boolean clearVanillaKeyBind();
 }

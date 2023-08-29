@@ -424,25 +424,6 @@ public class FMUM
 		{
 			@Override
 			protected void _loadPackContent( ILoadContext ctx ) { }
-			
-			@Override
-			@SideOnly( Side.CLIENT )
-			protected Optional< JsonObject > _defaultKeyBindJson( Gson gson )
-			{
-				final String path = "/key_bind.json";
-				try (
-					Reader in = new InputStreamReader(
-						this.getClass().getResourceAsStream( path ) )
-				) {
-					final JsonObject o = gson.fromJson( in, JsonObject.class );
-					return Optional.of( o );
-				}
-				catch ( IOException e )
-				{
-					// TODO: Handle io exception
-					return Optional.empty();
-				}
-			}
 		};
 		visitor.accept( core_factory, core_file.getName() );
 		

@@ -1,7 +1,6 @@
 package com.fmum.client.input;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.client.input.IKeyBind.BindingState;
 import com.google.common.collect.HashMultimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -68,7 +67,7 @@ public final class KeyBindManager
 	{
 		boolean is_changed = false;
 		for ( IKeyBind kb : IKeyBind.REGISTRY.values() ) {
-			is_changed |= kb.clearVanillaKeyBind() == BindingState.CHANGED;
+			is_changed |= kb.clearVanillaKeyBind();
 		}
 		
 		KeyBinding.resetKeyBindingArrayAndHash();

@@ -34,6 +34,7 @@ fmum.on_pre_init=正在预初始化 FMUM...
 fmum.opengl_version_too_low=您的 OpenGL 版本过低，最低要求为 OpenGL3.0。请更新显卡驱动或更换显卡后重试。
 fmum.stencil_not_supported=您的设备不支持模板测试，请升级显卡或更新驱动后重试。
 fmum.error_creating_key_binds_file=创建按键绑定文件时出现错误，FMUM 按键绑定设置可能会不同步。
+fmum.error_reading_default_key_binds=读取默认按键绑定配置时出现错误，%s 指定的按键绑定可能不会被创建。
 fmum.error_saving_key_binds=存储按键绑定时出现错误，FMUM 按键绑定设置可能会不同步。
 fmum.error_reading_key_binds=读取按键绑定时出现错误，FMUM 按键绑定设置可能会不同步。
 fmum.unrecognized_key_bind=FMUM 按键绑定 %s 不存在。

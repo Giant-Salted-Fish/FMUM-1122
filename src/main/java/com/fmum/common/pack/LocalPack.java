@@ -1,11 +1,16 @@
 package com.fmum.common.pack;
 
+import com.fmum.client.FMUMClient;
 import com.fmum.common.FMUM;
 import com.fmum.common.load.IContentBuildContext;
 import com.fmum.common.load.LoaderNotFoundException;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.client.resources.AbstractResourcePack;
+import net.minecraft.client.resources.IResourcePack;
+import net.minecraft.client.resources.ResourcePackFileNotFoundException;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -15,17 +20,48 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Collections;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 
 public abstract class LocalPack implements IContentPackFactory, IContentPack
 {
 	protected static final String ERROR_LOADING_TYPE = "fmum.error_loading_type";
+	
+	protected static final Method AbstractResourcePack_getInputStreamByName;
+	static
+	{
+		final Class< ? > target = AbstractResourcePack.class;
+		final String srg_name = "func_110591_a";
+		final String mcp_name = "getInputStreamByName";
+		final Class< ? > param_class = String.class;
+		Method method;
+		try {
+			method = target.getDeclaredMethod( srg_name, param_class );
+		}
+		catch ( NoSuchMethodException e )
+		{
+			try {
+				method = target.getDeclaredMethod( mcp_name, param_class );
+			}
+			catch ( NoSuchMethodException e_ )
+			{
+				final String err_msg = FMUM.MOD.format(
+					"fmum.error_method_reflection",
+					target.getName(), srg_name, mcp_name
+				);
+				throw new RuntimeException( err_msg, e_ );
+			}
+		}
+		
+		method.setAccessible( true );
+		AbstractResourcePack_getInputStreamByName = method;
+	}
 	
 	protected final ModContainer mod_container;
 	protected final HashSet< String > ignored_entries = new HashSet<>();
@@ -115,7 +151,36 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 	}
 	
 	@SideOnly( Side.CLIENT )
-	protected Optional< JsonObject > _defaultKeyBindJson( Gson gson ) {
+	protected Optional< JsonObject > _defaultKeyBindJson( Gson gson )
+	{
+		final IResourcePack res_pack = FMLClientHandler.instance()
+			.getResourcePackFor( this.mod_container.getModId() );
+		final String path = "key_bind.json";
+		final Consumer< Exception > err_log = e -> {
+			final String translate_key = "fmum.error_reading_default_key_binds";
+			FMUMClient.MOD.logException( e, translate_key, this.name() );
+		};
+		try (
+			Reader in = new InputStreamReader( ( InputStream )
+				AbstractResourcePack_getInputStreamByName.invoke( res_pack, path ) )
+		) {
+			final JsonObject o = gson.fromJson( in, JsonObject.class );
+			return Optional.of( o );
+		}
+		catch ( InvocationTargetException e )
+		{
+			final boolean no_default_key_bind =
+				e.getCause() instanceof ResourcePackFileNotFoundException;
+			if ( !no_default_key_bind ) {
+				err_log.accept( e );
+			}
+		}
+		catch ( IOException e ){
+			err_log.accept( e );
+		}
+		catch ( IllegalAccessException e ) {
+			throw new RuntimeException( "This should never happen.", e );
+		}
 		return Optional.empty();
 	}
 	

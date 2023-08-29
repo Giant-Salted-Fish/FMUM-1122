@@ -83,7 +83,7 @@ public class KeyBindType extends BuildableType
 			) {
 				@Override
 				public String getDisplayName() {
-					return KeyBind.this.activeConditionRepr();
+					return KeyBind.this.boundenKeyRepr();
 				}
 			};
 			ClientRegistry.registerKeyBinding( this.vanilla_key_bind );
@@ -127,14 +127,14 @@ public class KeyBindType extends BuildableType
 		}
 		
 		@Override
-		public String activeConditionRepr()
+		public String boundenKeyRepr()
 		{
 			final String repr = this.key_modifier
 				.getLocalizedComboName( this.key_code );
 			final Optional< IKeyBind > depend_on = IKeyBind
 				.REGISTRY.lookup( KeyBindType.this.depend_on );
 			return depend_on.map(
-				kb -> kb.activeConditionRepr() + " + " + repr ).orElse( repr );
+				kb -> kb.boundenKeyRepr() + " + " + repr ).orElse( repr );
 		}
 		
 		@Override
@@ -165,7 +165,7 @@ public class KeyBindType extends BuildableType
 		}
 		
 		@Override
-		public BindingState clearVanillaKeyBind()
+		public boolean clearVanillaKeyBind()
 		{
 			final int prev_key_code = this.key_code;
 			final KeyModifier prev_key_modifier = this.key_modifier;
@@ -181,11 +181,7 @@ public class KeyBindType extends BuildableType
 				this.key_code != prev_key_code
 				|| this.key_modifier != prev_key_modifier
 			);
-			return(
-				is_binding_changed
-				? BindingState.CHANGED
-				: BindingState.UNCHANGED
-			);
+			return is_binding_changed;
 		}
 		
 		protected void _setupDependency()

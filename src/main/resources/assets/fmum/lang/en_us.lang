@@ -34,6 +34,7 @@ fmum.on_pre_init=Pre-initializing FMUM...
 fmum.opengl_version_too_low=Your OpenGL version is too low! Minimum requirement is OpenGL3.0. Please upgrade your GPU or driver.
 fmum.stencil_not_supported=Stencil test not supported. Please upgrade your GPU or driver.
 fmum.error_creating_key_binds_file=An error has occurred while attempting to create key binds file for FMUM.
+fmum.error_reading_default_key_binds=An error has occurred while attempt to read default key binds for <%s>.
 fmum.error_saving_key_binds=An error has occurred while attempting to save key binds for FMUM.
 fmum.error_reading_key_binds=An error has occurred while attempting to read key binds for FMUM.
 fmum.unrecognized_key_bind=Unrecognized key bind <%s> for FMUM.
