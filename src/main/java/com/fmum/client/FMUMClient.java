@@ -36,6 +36,16 @@ public final class FMUMClient extends FMUM
 		TEXTURE_GREEN = new ResourceLocation( MODID, "textures/0x00ff00.png" ),
 		TEXTURE_BLUE = new ResourceLocation( MODID, "textures/0x0000ff.png" );
 	
+	
+	// Synced Config settings.
+	public static float free_view_limit_squared;
+	
+	public static float camera_drop_cycle;
+	public static float camera_drop_amplitude;
+	
+	public static float camera_drop_impact;
+	
+	
 	private final HashMap< String, ResourceLocation >
 		texture_pool = new HashMap<>();
 	

@@ -68,7 +68,7 @@ public final class InputSignal
 		final int prev_count = input.active_count;
 		input.active_count += flag ? 1 : -1;
 		if ( input.active_count + prev_count == 1 ) {
-			PlayerPatchClient.get().onInputSignal( signal, input );
+			PlayerPatchClient.instance.onInputSignal( signal, input );
 		}
 	}
 	

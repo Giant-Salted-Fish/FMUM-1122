@@ -16,7 +16,7 @@ public class FolderPack extends LocalPack
 	@Override
 	protected void _loadPackContent( ILoadContext ctx )
 	{
-		for ( final File dir : this.mod_container.getSource().listFiles() )
+		for ( File dir : this.mod_container.getSource().listFiles() )
 		{
 			final String dir_name = dir.getName();
 			if ( dir.isDirectory() && !this.ignored_entries.contains( dir_name ) )

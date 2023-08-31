@@ -190,7 +190,7 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 		String parent_path,
 		ILoadContext ctx
 	) {
-		for ( final File file : search_in_dir.listFiles() )
+		for ( File file : search_in_dir.listFiles() )
 		{
 			final String file_name = file.getName();
 			final String file_path = parent_path + "/" + file_name;

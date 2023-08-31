@@ -5,7 +5,6 @@ import net.minecraftforge.common.config.Config.Comment;
 import net.minecraftforge.common.config.Config.LangKey;
 import net.minecraftforge.common.config.Config.RangeDouble;
 import net.minecraftforge.common.config.Config.RangeInt;
-import net.minecraftforge.common.config.Config.RequiresMcRestart;
 import net.minecraftforge.common.config.Config.RequiresWorldRestart;
 
 @LangKey( "fmum.config.common" )
@@ -39,29 +38,29 @@ public final class ModConfig
 	@RequiresWorldRestart
 	public static float free_view_limit = 130.0F;
 	
-	@LangKey( "fmum.config.common.cam_drop_cycle" )
+	@LangKey( "fmum.config.common.camera_drop_cycle" )
 	@Comment(
 		"This decides the frequency of the camera shake "
 		+ "when player falls from sky."
 	)
 	@RequiresWorldRestart
-	public static float cam_drop_cycle = 1.0F;
+	public static float camera_drop_cycle = 1.0F;
 	
-	@LangKey( "fmum.config.common.cam_drop_ampl")
+	@LangKey( "fmum.config.common.camera_drop_amplitude" )
 	@Comment(
 		"This decides the amplitude of the camera shake "
 		+ "when player falls from sky."
 	)
 	@RequiresWorldRestart
-	public static float cam_drop_ampl = 1.0F;
+	public static float camera_drop_amplitude = 1.0F;
 	
-	@LangKey( "fmum.config.common.cam_drop_impact" )
+	@LangKey( "fmum.config.common.camera_drop_impact" )
 	@Comment(
 		"This decides the amplitude of the camera shake "
 		+ "when player impacts on the ground."
 	)
 	@RequiresWorldRestart
-	public static float cam_drop_impact = 1.0F;
+	public static float camera_drop_impact = 1.0F;
 	
 //	@LangKey( "fmum.config.common.shoot_request_timeout_ticks" )
 //	@Comment( "How long the server will wait for next client shoot request to continue fire." )

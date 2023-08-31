@@ -1,13 +1,13 @@
 package com.fmum.util;
 
-public final class Util
+public final class MathUtil
 {
 	public static final float PI = ( float ) Math.PI;
 	
 	public static final float TO_RADIANS = PI / 180.0F;
 	public static final float TO_DEGREES = 180.0F / PI;
 	
-	private Util() { }
+	private MathUtil() { }
 	
 //	public static float lerp( float start, float end, float factor ) {
 //		return start + ( end - start ) * factor;

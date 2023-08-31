@@ -13,6 +13,20 @@ public interface IEquippedItem< T extends IItem >
 	{
 		@Override
 		public IItem item() { return IItem.VANILLA; }
+		
+		@Override
+		public boolean onRenderHand( EnumHand hand )
+		{
+			final boolean cancel_vanilla_hand_render = false;
+			return cancel_vanilla_hand_render;
+		}
+		
+		@Override
+		public boolean onRenderSpecificHand( EnumHand hand )
+		{
+			final boolean cancel_vanilla_hand_render = false;
+			return cancel_vanilla_hand_render;
+		}
 	};
 	
 	T item();
@@ -22,11 +36,40 @@ public interface IEquippedItem< T extends IItem >
 	// TODO: Add support for off-hand?
 	default void onItemPacket( ByteBuf buf, EntityPlayer player ) { }
 	
+	default void prepareRenderInHand( EnumHand enumHand ) { }
+	
+	/**
+	 * @see net.minecraftforge.client.event.RenderHandEvent
+	 * @return {@code true} if should cancel vanilla hand render.
+	 */
+	@SideOnly( Side.CLIENT )
+	boolean onRenderHand( EnumHand hand );
+	
+	@SideOnly( Side.CLIENT )
+	boolean onRenderSpecificHand( EnumHand hand );
+	
+	@SideOnly( Side.CLIENT )
+	default boolean onMouseWheelInput( int dwheel )
+	{
+		final boolean should_cancel_event = false;
+		return should_cancel_event;
+	}
+	
 	@SideOnly( Side.CLIENT )
 	default void onInputSignal( String signal, IInput input ) { }
 	
 	@SideOnly( Side.CLIENT )
-	default boolean shouldDisableCrosshair() {
+	default boolean updateViewBobbing( boolean original ) {
+		return original;
+	}
+	
+	@SideOnly( Side.CLIENT )
+	default boolean shouldHideCrosshair() {
 		return false;
+	}
+	
+	@SideOnly( Side.CLIENT )
+	default float getMouseSensitivity( float original ) {
+		return original;
 	}
 }

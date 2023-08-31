@@ -31,11 +31,11 @@ public final class AngleAxis4f extends AxisAngle4f
 	{
 		final float s = 1.0F / ( float ) Math.sqrt( axisX * axisX + axisY * axisY + axisZ * axisZ );
 		
-		this.angle = angle * Util.TO_RADIANS;
+		this.angle = angle * MathUtil.TO_RADIANS;
 		this.x = axisX * s;
 		this.y = axisY * s;
 		this.z = axisZ * s;
 	}
 	
-	public AngleAxis4f( float angle, Vec3f axis ) { super( axis, angle * Util.TO_RADIANS ); }
+	public AngleAxis4f( float angle, Vec3f axis ) { super( axis, angle * MathUtil.TO_RADIANS ); }
 }

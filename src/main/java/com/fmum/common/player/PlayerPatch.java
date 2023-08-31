@@ -67,6 +67,12 @@ public class PlayerPatch implements ICapabilityProvider
 		this.operation = this.operation.tick( player );
 	}
 	
+	public final IEquippedItem< ? > getEquipped( EnumHand hand )
+	{
+		final boolean is_main_hand = hand == EnumHand.MAIN_HAND;
+		return is_main_hand ? this.main_equipped : this.off_equipped;
+	}
+	
 	public final IOperation operation() { return this.operation; }
 	
 	

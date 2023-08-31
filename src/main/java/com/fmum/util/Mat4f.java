@@ -106,7 +106,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 		final float xy = ax * ay;
 		final float yz = ay * az;
 		
-		final float radians = angle * Util.TO_RADIANS;
+		final float radians = angle * MathUtil.TO_RADIANS;
 		final float sinTheta = MathHelper.sin( radians );
 		final float cosTheta = MathHelper.cos( radians );
 		final float t = 1.0F - cosTheta;
@@ -148,7 +148,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	 */
 	public void rotateX( float angle )
 	{
-		final float radians = angle * Util.TO_RADIANS;
+		final float radians = angle * MathUtil.TO_RADIANS;
 		final float sin = MathHelper.sin( radians );
 		final float cos = MathHelper.cos( radians );
 		
@@ -172,7 +172,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	 */
 	public void rotateY( float angle )
 	{
-		final float radians = angle * Util.TO_RADIANS;
+		final float radians = angle * MathUtil.TO_RADIANS;
 		final float sin = MathHelper.sin( radians );
 		final float cos = MathHelper.cos( radians );
 		
@@ -196,7 +196,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	 */
 	public void rotateZ( float angle )
 	{
-		final float radians = angle * Util.TO_RADIANS;
+		final float radians = angle * MathUtil.TO_RADIANS;
 		final float sin = MathHelper.sin( radians );
 		final float cos = MathHelper.cos( radians );
 		
@@ -282,9 +282,9 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	public void getEulerAngleYXZ( Vec3f dst )
 	{
 		dst.set(
-			Util.TO_DEGREES * ( float ) -Math.asin( this.m12 ),
-			Util.TO_DEGREES * ( float ) Math.atan2( this.m02, this.m22 ),
-			Util.TO_DEGREES * ( float ) Math.atan2( this.m10, this.m11 )
+			MathUtil.TO_DEGREES * ( float ) -Math.asin( this.m12 ),
+			MathUtil.TO_DEGREES * ( float ) Math.atan2( this.m02, this.m22 ),
+			MathUtil.TO_DEGREES * ( float ) Math.atan2( this.m10, this.m11 )
 		);
 	}
 	
@@ -292,7 +292,7 @@ public final class Mat4f extends Matrix4f implements IReleasable
 	 * @return Z euler angle in YXZ order in degrees.
 	 */
 	public float getEulerAngleZ() {
-		return Util.TO_DEGREES * ( float ) Math.atan2( this.m10, this.m11 );
+		return MathUtil.TO_DEGREES * ( float ) Math.atan2( this.m10, this.m11 );
 	}
 	
 	public void transformAsPoint( Vec3f point )

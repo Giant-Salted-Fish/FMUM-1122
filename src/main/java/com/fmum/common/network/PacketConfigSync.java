@@ -1,6 +1,8 @@
 package com.fmum.common.network;
 
+import com.fmum.client.FMUMClient;
 import com.fmum.common.ModConfig;
+import com.fmum.util.MathUtil;
 import io.netty.buffer.ByteBuf;
 
 public final class PacketConfigSync implements IPacket
@@ -11,9 +13,9 @@ public final class PacketConfigSync implements IPacket
 		buf.writeByte( ModConfig.max_modify_layers );
 		buf.writeByte( ModConfig.max_slot_capacity );
 
-		buf.writeFloat( ModConfig.cam_drop_cycle );
-		buf.writeFloat( ModConfig.cam_drop_ampl );
-		buf.writeFloat( ModConfig.cam_drop_impact );
+		buf.writeFloat( ModConfig.camera_drop_cycle );
+		buf.writeFloat( ModConfig.camera_drop_amplitude );
+		buf.writeFloat( ModConfig.camera_drop_impact );
 		buf.writeFloat( ModConfig.free_view_limit );
 	}
 	
@@ -24,12 +26,12 @@ public final class PacketConfigSync implements IPacket
 //		FMUMClient.modifyLoc = new byte[ 2 * ( 0xFF & buf.readByte() ) ];
 //		FMUM.maxSlotCapacity = 0xFF & buf.readByte();
 //
-//		// Camera settings.
-//		FMUMClient.camDropCycle  = buf.readFloat() * Util.PI * 0.3F;
-//		FMUMClient.camDropAmpl   = buf.readFloat() * 3F;
-//		FMUMClient.camDropImpact = buf.readFloat() * 7.5F;
-//
-//		final float f = buf.readFloat();
-//		FMUMClient.freeViewLimitSquared = f * f;
+		// Camera settings.
+		FMUMClient.camera_drop_cycle = buf.readFloat() * MathUtil.PI * 0.3F;
+		FMUMClient.camera_drop_amplitude = buf.readFloat() * 3F;
+		FMUMClient.camera_drop_impact = buf.readFloat() * 7.5F;
+		
+		final float f = buf.readFloat();
+		FMUMClient.free_view_limit_squared = f * f;
 	}
 }
