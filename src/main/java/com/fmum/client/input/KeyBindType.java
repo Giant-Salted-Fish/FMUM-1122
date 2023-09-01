@@ -205,11 +205,11 @@ public class KeyBindType extends BuildableType
 		}
 		
 		protected void _onPress() {
-			InputSignal.emitBoolSignal( KeyBindType.this.signal, true );
+			InputManager.emitBoolSignal( KeyBindType.this.signal, true );
 		}
 		
 		protected void _onRelease() {
-			InputSignal.emitBoolSignal( KeyBindType.this.signal, false );
+			InputManager.emitBoolSignal( KeyBindType.this.signal, false );
 		}
 	}
 }

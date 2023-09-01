@@ -17,7 +17,7 @@ public class ToggleKeyBindType extends KeyBindType
 			protected void _onPress()
 			{
 				final boolean new_state = !this.state_flag;
-				InputSignal.emitBoolSignal(
+				InputManager.emitBoolSignal(
 					ToggleKeyBindType.this.signal, new_state );
 				this.state_flag = new_state;
 			}

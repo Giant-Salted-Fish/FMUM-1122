@@ -1,7 +1,8 @@
 package com.fmum.client.camera;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.client.input.InputSignal;
+import com.fmum.client.input.InputManager;
+import com.fmum.client.input.Inputs;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.util.DynamicPos;
 import com.fmum.util.Mat4f;
@@ -28,7 +29,7 @@ public class CameraController implements ICameraController
 	
 	protected final Mat4f view_mat = new Mat4f();
 	
-	protected final Vec3f heading_rot = new Vec3f();
+	protected final Vec3f player_rot = new Vec3f();
 	
 	protected final DynamicPos free_view_rot = new DynamicPos();
 	
@@ -37,7 +38,7 @@ public class CameraController implements ICameraController
 	@Override
 	public void tick()
 	{
-		if ( InputSignal.get( InputSignal.FREE_VIEW ).asBool() )
+		if ( InputManager.getInput( Inputs.FREE_VIEW ).asBool() )
 		{
 			// Clear camera recover speed when looking around.
 			this.camera_easing.velocity.setZero();
@@ -87,7 +88,7 @@ public class CameraController implements ICameraController
 		final Minecraft mc = FMUMClient.MC;
 		final EntityPlayerSP player = mc.player;
 		final DynamicPos free_view_rot = this.free_view_rot;
-		final Vec3f heading_rot = this.heading_rot;
+		final Vec3f player_rot = this.player_rot;
 		final float smoother = mc.getRenderPartialTicks();
 		
 		// Process input mouse delta.
@@ -98,7 +99,54 @@ public class CameraController implements ICameraController
 		final float raw_delta_yaw = mouse.deltaX * mouse_factor;
 		
 		// Make sure delta pitch is inside the limit.
-//		final float camera_off_
+		final float free_view_rot_x = free_view_rot.getX( smoother );
+		final float raw_view_pitch = player.rotationPitch + free_view_rot_x;
+		final float new_view_pitch = MathHelper.clamp(
+			raw_view_pitch + raw_delta_pitch, -90.0F, 90.0F );
+		final float delta_pitch = new_view_pitch - raw_view_pitch;
+		
+		// If looking around, apply view rot to off-axis.
+		if ( InputManager.getInput( Inputs.FREE_VIEW ).asBool() )
+		{
+			player_rot.set( player.rotationPitch, player.rotationYaw, 0.0F );
+			
+			final Vec3f cur_fv_rot = free_view_rot.curPos;
+			// This is commented as the state of look around key is updated by tick so there is no \
+			// way it can change in between the ticks. And may be the key update event is earlier \
+			// than the item tick hence set it with smoothed value will actually cause that view \
+			// jump effect.
+//			free_view_rot.smoothedPos( cur_fv_rot, smoother );
+			cur_fv_rot.x += delta_pitch;
+			
+			// Make sure the yaw rotation would not exceed the limit.
+			final float pitch_squared = new_view_pitch *  new_view_pitch;
+			final float yaw_limit_squared = FMUMClient.free_view_limit_squared - pitch_squared;
+			final float yaw_limit = MathHelper.sqrt( yaw_limit_squared );
+			cur_fv_rot.y = MathHelper.clamp( cur_fv_rot.y + raw_delta_yaw, -yaw_limit, yaw_limit );
+			
+			// Set previous to current value to avoid bobbing.
+			free_view_rot.prevPos.set( cur_fv_rot );
+			
+			// Clear mouse input to prevent walking direction change.
+			mouse.deltaX = 0;
+			mouse.deltaY = 0;
+			
+			this._updateViewRot( cur_fv_rot.x, cur_fv_rot.y );
+		}
+		else
+		{
+			final float pitch = player.rotationPitch + delta_pitch;
+			final float yaw = player.rotationYaw + raw_delta_yaw;
+			player_rot.set( pitch, yaw, 0.0F );
+			this._updateViewRot( free_view_rot_x, free_view_rot.getY( smoother ) );
+		}
+	}
+	
+	protected final void _updateViewRot( float free_view_rot_x, float free_view_rot_y )
+	{
+		// Apply easing and camera animation.
+		final float view_pitch = this.player_rot.x + free_view_rot_x;
+		final float view_yaw = this.player_rot.y + free_view_rot_y;
 	}
 	
 	protected final float _getMouseFactor()
