@@ -3,6 +3,7 @@ package com.fmum.client;
 import com.fmum.client.input.ToggleKeyBindType;
 import com.fmum.client.input.KeyBindManager;
 import com.fmum.client.input.KeyBindType;
+import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.common.FMUM;
 import com.fmum.common.load.BuildableType;
 import com.fmum.common.load.IContentBuildContext;
@@ -87,6 +88,9 @@ public final class FMUMClient extends FMUM
 		
 		// Do load content packs!
 		super._loadContentPacks();
+		
+		PlayerPatchClient.setMouseHelperStrategy(
+			ModConfigClient.use_flan_compatible_mousehelper );
 	}
 	
 	@Override

@@ -28,7 +28,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Collection;
-import java.util.Objects;
 
 @SideOnly( Side.CLIENT )
 @EventBusSubscriber( modid = FMUM.MODID, value = Side.CLIENT )
@@ -110,7 +109,7 @@ public final class EventHandlerClient
 	}
 	
 	@SubscribeEvent
-	public static void onCameraSetup( CameraSetup evt )
+	static void onCameraSetup( CameraSetup evt )
 	{
 		evt.setYaw( 0.0F );
 		evt.setPitch( 0.0F );
@@ -124,7 +123,7 @@ public final class EventHandlerClient
 	
 	// TODO: Apply FOV modification here for scope glass texture rendering.
 //	@SubscribeEvent
-//	public static void onFOVModify( FOVModifier evt )
+//	static void onFOVModify( FOVModifier evt )
 //	{
 //
 //	}
@@ -137,7 +136,7 @@ public final class EventHandlerClient
 	}
 	
 	@SubscribeEvent
-	public static void onMouseInput( MouseEvent evt )
+	static void onMouseInput( MouseEvent evt )
 	{
 		final int dwheel = evt.getDwheel();
 		if ( dwheel != 0 )
@@ -149,7 +148,7 @@ public final class EventHandlerClient
 	}
 	
 	@SubscribeEvent
-	public static void onConfigChanged( OnConfigChangedEvent evt )
+	static void onConfigChanged( OnConfigChangedEvent evt )
 	{
 		final boolean is_fmum_config = evt.getModID().equals( FMUM.MODID );
 		if ( is_fmum_config )

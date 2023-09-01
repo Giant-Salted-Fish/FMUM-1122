@@ -10,9 +10,9 @@ public final class PacketConfigSync implements IPacket
 	@Override
 	public void toBytes( ByteBuf buf )
 	{
-		buf.writeByte( ModConfig.max_modify_layers );
-		buf.writeByte( ModConfig.max_slot_capacity );
-
+//		buf.writeByte( ModConfig.max_modify_layers );
+//		buf.writeByte( ModConfig.max_slot_capacity );
+		
 		buf.writeFloat( ModConfig.camera_drop_cycle );
 		buf.writeFloat( ModConfig.camera_drop_amplitude );
 		buf.writeFloat( ModConfig.camera_drop_impact );
@@ -25,7 +25,7 @@ public final class PacketConfigSync implements IPacket
 		// TODO: also server side?
 //		FMUMClient.modifyLoc = new byte[ 2 * ( 0xFF & buf.readByte() ) ];
 //		FMUM.maxSlotCapacity = 0xFF & buf.readByte();
-//
+		
 		// Camera settings.
 		FMUMClient.camera_drop_cycle = buf.readFloat() * MathUtil.PI * 0.3F;
 		FMUMClient.camera_drop_amplitude = buf.readFloat() * 3F;

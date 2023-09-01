@@ -41,8 +41,8 @@ public class KeyBindType extends BuildableType
 		
 		this.signal = Optional.ofNullable( this.signal ).orElseGet( () -> {
 			// Remove prefix that associated to specific pack if present.
-			final int idx = this.name.indexOf( '.' );
-			return this.name.substring( Math.max( 0, idx ) );
+			final int idx = this.name.lastIndexOf( '.' );
+			return this.name.substring( idx + 1 );
 		} );
 		
 		final KeyBind kb = this._createKeyBind();

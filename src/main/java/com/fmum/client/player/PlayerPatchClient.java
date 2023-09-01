@@ -57,6 +57,8 @@ public final class PlayerPatchClient extends PlayerPatch
 	
 	public static PlayerPatchClient instance;
 	
+	private static Runnable mouse_helper_checker;
+	
 	/**
 	 * Player's eye position.
 	 */
@@ -73,8 +75,6 @@ public final class PlayerPatchClient extends PlayerPatch
 		prev_acceleration = new Vec3f();
 	
 	public ICameraController camera = CameraController.INSTANCE;
-	
-	private Runnable mouse_helper_checker;
 	
 	public PlayerPatchClient() {
 		instance = this;
@@ -108,14 +108,14 @@ public final class PlayerPatchClient extends PlayerPatch
 		
 		this.prev_acceleration.set( this.acceleration );
 		this.acceleration.set( this.velocity );
-		this.acceleration.sub( this.prev_acceleration );
+		this.acceleration.sub( this.prev_velocity );
 		
 		// Tick camera effects.
 		this.camera.tick();
 		
 		// Ensure mouse helper as mods like Flan's Mod \
 		// may change mouse helper under certain conditions.
-		this.mouse_helper_checker.run();
+		mouse_helper_checker.run();
 	}
 	
 	public boolean onRenderHand()
@@ -188,7 +188,7 @@ public final class PlayerPatchClient extends PlayerPatch
 	public static void setMouseHelperStrategy(
 		boolean use_flan_compatible_helper
 	) {
-		instance.mouse_helper_checker = (
+		mouse_helper_checker = (
 			use_flan_compatible_helper
 			? FLAN_COMPATIBLE_MOUSE_HELPER_CHECKER
 			: DEFAULT_MOUSE_HELPER_CHECKER

@@ -1,11 +1,13 @@
 package com.fmum.client.camera;
 
 import com.fmum.client.FMUMClient;
+import com.fmum.client.animation.IAnimator;
 import com.fmum.client.input.InputManager;
 import com.fmum.client.input.Inputs;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.util.DynamicPos;
 import com.fmum.util.Mat4f;
+import com.fmum.util.Quat4f;
 import com.fmum.util.Vec3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -34,6 +36,8 @@ public class CameraController implements ICameraController
 	protected final DynamicPos free_view_rot = new DynamicPos();
 	
 	protected final DynamicPos camera_easing = new DynamicPos();
+	
+	protected IAnimator animator = IAnimator.NONE;
 	
 	@Override
 	public void tick()
@@ -145,8 +149,47 @@ public class CameraController implements ICameraController
 	protected final void _updateViewRot( float free_view_rot_x, float free_view_rot_y )
 	{
 		// Apply easing and camera animation.
+		final Minecraft mc = FMUMClient.MC;
 		final float view_pitch = this.player_rot.x + free_view_rot_x;
 		final float view_yaw = this.player_rot.y + free_view_rot_y;
+		
+//		this.animator.update();
+		
+		final Mat4f mat = this.view_mat;
+		final Quat4f quat = Quat4f.locate();
+		this.animator.getRot( ANI_CHANNEL, quat );
+		mat.set( quat );
+		quat.release();
+		
+		final Vec3f vec = Vec3f.locate();
+		this.camera_easing.get( mc.getRenderPartialTicks(), vec );
+		mat.rotateZ( vec.z );
+		mat.rotateX( vec.x );
+		mat.rotateY( vec.y );
+		
+		this.animator.getPos( ANI_CHANNEL, vec );
+		mat.translate( vec );
+		vec.release();
+		
+		mat.rotateX( view_pitch );
+		mat.rotateY( 180.0F + view_yaw );
+		
+		// Apply a tiny change to player's pitch rotation to force view frustum culling update if
+		// off-axis has changed.
+		final EntityPlayerSP player = mc.player;
+		final Vec3f prev_free_view_rot = this.free_view_rot.prevPos;
+		final float pitch_change = Math.abs( free_view_rot_x - prev_free_view_rot.x );
+		final float yaw_change = Math.abs( free_view_rot_y - prev_free_view_rot.y );
+		
+		final float raw_jitter = Math.min( PITCH_JITTER, pitch_change + yaw_change );
+		final float pitch_jitter = raw_jitter < PITCH_JITTER ? 0.0F : raw_jitter;
+		player.rotationPitch += pitch_jitter;
+		player.prevRotationPitch += pitch_jitter;
+	}
+	
+	@Override
+	public void getViewMat( Mat4f dst ) {
+		dst.set( this.view_mat );
 	}
 	
 	protected final float _getMouseFactor()
@@ -156,10 +199,5 @@ public class CameraController implements ICameraController
 			.instance.getMouseSensitivity( settings.mouseSensitivity );
 		final float factor = sensi * 0.6F + 0.2F;
 		return factor * factor * factor * 8F * 0.15F;
-	}
-	
-	@Override
-	public void getViewMat( Mat4f dst ) {
-		dst.set( this.view_mat );
 	}
 }

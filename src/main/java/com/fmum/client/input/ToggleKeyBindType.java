@@ -23,9 +23,7 @@ public class ToggleKeyBindType extends KeyBindType
 			}
 			
 			@Override
-			protected void _onRelease() {
-				this._onPress();
-			}
+			protected void _onRelease() { }
 		};
 	}
 }
