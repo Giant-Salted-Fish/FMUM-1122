@@ -516,8 +516,8 @@ public class FMUM
 		final String icon_item = ModConfigClient.default_creative_tab_icon_item;
 		final short meta = ModConfigClient.default_creative_tab_icon_item_meta;
 		return IItemType.findItem( icon_item )
-						.map( item -> new ItemStack( item, 1, meta ) )
-						.orElseGet( () -> new ItemStack( Items.FISH ) );
+			.map( item -> new ItemStack( item, 1, meta ) )
+			.orElseGet( () -> new ItemStack( Items.FISH ) );
 	}
 	
 	private void __printAllLoadedPacks()

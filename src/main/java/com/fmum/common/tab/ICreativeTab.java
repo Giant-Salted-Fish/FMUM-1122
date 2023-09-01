@@ -12,7 +12,7 @@ public interface ICreativeTab
 	
 	CreativeTabs vanillaCreativeTab();
 	
-	default void regisItem( IItemType item ) {
+	default void appendItem( IItemType item ) {
 		item.vanillaItem().setCreativeTab( this.vanillaCreativeTab() );
 	}
 }

@@ -1,18 +1,26 @@
 package com.fmum.common.item;
 
 import com.fmum.client.FMUMClient;
+import com.fmum.common.FMUM;
 import com.fmum.common.load.IContentBuildContext;
 import com.fmum.common.pack.IContentPack;
 import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
+import com.fmum.common.tab.ICreativeTab;
+import com.google.gson.annotations.SerializedName;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 
-public abstract class ItemType extends Item implements IItemType
+public abstract class ItemType extends Item
+	implements IItemType, IFMUMVanillaItem
 {
 	protected String name;
 	
@@ -21,8 +29,8 @@ public abstract class ItemType extends Item implements IItemType
 	@SideOnly( Side.CLIENT )
 	protected ResourceLocation texture;
 	
-//	@SerializedName( value = "creative_tab", alternate = "item_group" )
-//	protected String creative_tab = FMUM.DEFAULT_CREATIVE_TAB.name();
+	@SerializedName( value = "creative_tab", alternate = "item_group" )
+	protected String creative_tab = FMUM.MODID;
 	
 	public void buildServerSide( IContentBuildContext ctx )
 	{
@@ -31,6 +39,9 @@ public abstract class ItemType extends Item implements IItemType
 		this.name = Optional.ofNullable( this.name )
 			.orElseGet( ctx::fallbackName );
 		this.from_pack = ctx.contentPack();
+		
+		this.setRegistryName( this.name );
+		this.setTranslationKey( this.name );
 		
 		// Item creative tab may not be loaded yet, so we defer it to post load.
 		ctx.regisPostLoadCallback( this::_setupCreativeTab );
@@ -56,10 +67,21 @@ public abstract class ItemType extends Item implements IItemType
 	}
 	
 	@Override
+	public IItemType type() {
+		return this;
+	}
+	
+	@Override
 	public IItem getItem( ItemStack stack )
 	{
-		return null;
+		final EnumFacing facing = null;
+		return stack.getCapability( IItem.CAPABILITY, facing );
 	}
+	
+	@Nullable
+	@Override
+	public abstract ICapabilityProvider
+		initCapabilities( ItemStack stack, @Nullable NBTTagCompound nbt );
 	
 	public String toString()
 	{
@@ -71,7 +93,19 @@ public abstract class ItemType extends Item implements IItemType
 	
 	protected abstract String _typeHint();
 	
-	protected abstract void _setupCreativeTab( IPostLoadContext ctx );
+	protected void _setupCreativeTab( IPostLoadContext ctx )
+	{
+		ICreativeTab.REGISTRY.lookup( this.creative_tab ).orElseGet( () -> {
+			FMUM.MOD.logError(
+				"fmum.fail_to_find_tab",
+				this.toString(), this.creative_tab
+			);
+			return ctx.defaultCreativeTab();
+		} ).appendItem( this );
+		
+		// No longer needed, release it.
+		this.creative_tab = null;
+	}
 	
 	@SideOnly( Side.CLIENT )
 	protected ResourceLocation _fallbackTexture( IContentBuildContext ctx ) {
