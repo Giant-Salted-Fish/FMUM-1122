@@ -1,9 +1,12 @@
 package com.fmum.common.item;
 
+import com.fmum.client.FMUMClient;
 import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.pack.IContentPack;
 import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -13,30 +16,33 @@ public abstract class ItemType extends Item implements IItemType
 {
 	protected String name;
 	
+	protected IContentPack from_pack;
+	
+	@SideOnly( Side.CLIENT )
+	protected ResourceLocation texture;
+	
 //	@SerializedName( value = "creative_tab", alternate = "item_group" )
 //	protected String creative_tab = FMUM.DEFAULT_CREATIVE_TAB.name();
 	
-	protected transient Item vanilla_item;
-	
-	public ItemType buildServerSide( IContentBuildContext ctx )
+	public void buildServerSide( IContentBuildContext ctx )
 	{
 		IItemType.REGISTRY.regis( this );
 		
 		this.name = Optional.ofNullable( this.name )
 			.orElseGet( ctx::fallbackName );
-		this.vanilla_item = this._createVanillaItem();
+		this.from_pack = ctx.contentPack();
 		
 		// Item creative tab may not be loaded yet, so we defer it to post load.
 		ctx.regisPostLoadCallback( this::_setupCreativeTab );
-		return this;
 	}
 	
 	@SideOnly( Side.CLIENT )
-	public ItemType buildClientSide( IContentBuildContext ctx )
+	public void buildClientSide( IContentBuildContext ctx )
 	{
 		this.buildServerSide( ctx );
 		
-		return this;
+		this.texture = Optional.ofNullable( this.texture )
+			.orElseGet( () -> this._fallbackTexture( ctx ) );
 	}
 	
 	@Override
@@ -45,9 +51,8 @@ public abstract class ItemType extends Item implements IItemType
 	}
 	
 	@Override
-	public Item vanillaItem()
-	{
-		return null;
+	public Item vanillaItem() {
+		return this;
 	}
 	
 	@Override
@@ -56,7 +61,20 @@ public abstract class ItemType extends Item implements IItemType
 		return null;
 	}
 	
-	protected abstract Item _createVanillaItem();
+	public String toString()
+	{
+		return String.format(
+			"%s::<%s.%s>", this._typeHint(),
+			this.from_pack.toString(), this.name
+		);
+	}
+	
+	protected abstract String _typeHint();
 	
 	protected abstract void _setupCreativeTab( IPostLoadContext ctx );
+	
+	@SideOnly( Side.CLIENT )
+	protected ResourceLocation _fallbackTexture( IContentBuildContext ctx ) {
+		return FMUMClient.TEXTURE_GREEN;
+	}
 }

@@ -29,6 +29,7 @@ public class CameraController implements ICameraController
 	
 	protected static float drop_distance_cycle = 0.0F;
 	
+	
 	protected final Mat4f view_mat = new Mat4f();
 	
 	protected final Vec3f player_rot = new Vec3f();

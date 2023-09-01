@@ -10,7 +10,7 @@ public abstract class BuildableType
 {
 	protected String name;
 	
-	protected IContentPack loaded_from;
+	protected IContentPack from_pack;
 	
 	protected BuildableType() { }
 	
@@ -18,7 +18,7 @@ public abstract class BuildableType
 	{
 		this.name = Optional.ofNullable( this.name )
 			.orElseGet( ctx::fallbackName );
-		this.loaded_from = ctx.contentPack();
+		this.from_pack = ctx.contentPack();
 	}
 	
 	@SideOnly( Side.CLIENT )
@@ -34,7 +34,8 @@ public abstract class BuildableType
 	{
 		return String.format(
 			"%s::<%s.%s>", this._typeHint(),
-			this.loaded_from.toString(), this.name );
+			this.from_pack.toString(), this.name
+		);
 	}
 	
 	protected abstract String _typeHint();

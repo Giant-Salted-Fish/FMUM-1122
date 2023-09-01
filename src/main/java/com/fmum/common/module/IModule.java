@@ -1,5 +1,6 @@
 package com.fmum.common.module;
 
+import com.fmum.util.Category;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,7 +15,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	
 	String name();
 	
-	ModuleCategory category();
+	Category category();
 	
 	ItemStack boundenItemStack();
 	

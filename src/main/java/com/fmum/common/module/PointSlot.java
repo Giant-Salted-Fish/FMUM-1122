@@ -1,5 +1,6 @@
 package com.fmum.common.module;
 
+import com.fmum.util.CategoryDomain;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Vec3f;
 import com.google.gson.annotations.SerializedName;

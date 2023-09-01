@@ -1,16 +1,22 @@
 package com.fmum.common.module;
 
+import com.fmum.common.paintjob.IPaintable;
 import com.fmum.util.Mat4f;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.common.util.Constants.NBT;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.function.Consumer;
 
-public abstract  class Module< T extends IModule< ? extends T > > implements IModule< T >
+public abstract  class Module< T extends IModule< ? extends T > >
+	implements IModule< T >, IPaintable
 {
+	// TODO: Maybe make this configurable?
 	protected static final String MODULE_TAG = "+";
 	
 	protected IModule< ? > parent;
@@ -34,9 +40,10 @@ public abstract  class Module< T extends IModule< ? extends T > > implements IMo
 	}
 	
 	/**
-	 * Unfortunately calling {@link #deserializeNBT(NBTBase)} could cause error
-	 * as it the fields of the subclass may not have been properly initialized.
-	 * Hence, it needs to be delay after the constructor finishes its work.
+	 * Unfortunately calling {@link #deserializeNBT(NBTTagCompound)} could cause
+	 * error as it the fields of the subclass may not have been properly
+	 * initialized. Hence, it needs to be delay after the constructor finishes
+	 * its work.
 	 *
 	 * @param nbt To distinguish this from {@link #Module()}. Currently not used.
 	 */
@@ -84,6 +91,66 @@ public abstract  class Module< T extends IModule< ? extends T > > implements IMo
 		return this.installed_modules.get( idx );
 	}
 	
+	@Override
+	public int paintjob() {
+		return this.paintjob_idx;
+	}
+	
+	@Override
+	public void setPaintjob( int paintjob_idx ) {
+		this.paintjob_idx = paintjob_idx;
+	}
+	
+	@Override
+	public Optional< Runnable > testAffordable( EntityPlayer player )
+	{
+		// TODO: Test affordability.
+		if ( player.capabilities.isCreativeMode )
+		{
+			return Optional.of( () -> { } );
+		}
+		
+		return Optional.empty();
+	}
+	
+	@Override
+	public NBTTagCompound serializeNBT() {
+		return this.nbt;
+	}
+	
+	@Override
+	@SuppressWarnings( "unchecked" )
+	public void deserializeNBT( NBTTagCompound nbt )
+	{
+		// Bind to given NBT tag.
+		this.nbt = nbt;
+		
+		// Read paintjob.
+		final int[] data = nbt.getIntArray( DATA_TAG );
+		this.paintjob_idx = ( short ) ( data[ 0 ] >>> 16 );
+		
+		// Read install indices.
+		for ( int i = this.split_indices.length; i > 0; i -= 1 ) {
+			this._setSlotStartIdx( i, _getSlotStartIdxFrom( data, i ) );
+		}
+		
+		// Read installed modules.
+		this.installed_modules.clear();
+		final NBTTagList mod_list = nbt
+			.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
+		for ( int i = 0, size = mod_list.tagCount(), slot = 0; i < size; i += 1)
+		{
+			final NBTTagCompound mod_tag = mod_list.getCompoundTagAt( i );
+			final IModule< ? > module = this.readModuleTag( mod_tag );
+			
+			while ( i >= this._getSlotStartIdx( slot + 1 ) ) {
+				slot += 1;
+			}
+			module._setParent( this, slot );
+			this.installed_modules.add( ( T ) module );
+		}
+	}
+	
 	/**
 	 * @return 16-bits valid in default implementation.
 	 */
@@ -92,6 +159,8 @@ public abstract  class Module< T extends IModule< ? extends T > > implements IMo
 	protected int _dataArrSize() {
 		return 1 + ( this.split_indices.length + 3 ) / 4;
 	}
+	
+	protected abstract IModule< ? > readModuleTag( NBTTagCompound tag );
 	
 	protected final int _getSlotStartIdx( int slot_idx ) {
 		return slot_idx > 0 ? 0xFF & this.split_indices[ slot_idx - 1 ] : 0;

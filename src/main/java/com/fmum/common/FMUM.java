@@ -7,8 +7,8 @@ import com.fmum.common.item.IItemType;
 import com.fmum.common.load.BuildableType;
 import com.fmum.common.load.IContentBuildContext;
 import com.fmum.common.load.IContentLoader;
-import com.fmum.common.module.CategoryDomain;
-import com.fmum.common.module.ModuleCategory;
+import com.fmum.util.CategoryDomain;
+import com.fmum.util.Category;
 import com.fmum.common.network.IPacket;
 import com.fmum.common.network.PacketHandler;
 import com.fmum.common.pack.IContentPack;
@@ -28,7 +28,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializer;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -52,17 +51,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.lang.reflect.Type;
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
@@ -335,9 +326,9 @@ public class FMUM
 	protected void _regisGsonAdapter( IPrepareContext ctx )
 	{
 		ctx.regisGsonDeserializer(
-			ModuleCategory.class,
+			Category.class,
 			( json, type_of_T, context ) ->
-				new ModuleCategory( json.getAsString() )
+				new Category( json.getAsString() )
 		);
 		
 		ctx.regisGsonDeserializer(

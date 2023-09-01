@@ -1,4 +1,4 @@
-package com.fmum.common.module;
+package com.fmum.util;
 
 import com.google.gson.JsonElement;
 
@@ -9,10 +9,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 /**
- * This is used by {@link IModuleSlot} to check compatibility of the module that is going to be
- * installed.
- *
- * @see ModuleCategory
+ * @see Category
  */
 public final class CategoryDomain
 {
@@ -28,8 +25,8 @@ public final class CategoryDomain
 		// extracted and reused in both cases.
 		final BiConsumer< String, Boolean > processer = ( raw_category, flag ) -> {
 			CategoryDomain domain = this;
-			ModuleCategory category = new ModuleCategory( raw_category );
-			while ( category != ModuleCategory.END )
+			Category category = new Category( raw_category );
+			while ( category != Category.END )
 			{
 				final CategoryDomain sub_domain = new CategoryDomain();
 				domain.__addSubDomain( category.value, sub_domain );
@@ -58,7 +55,7 @@ public final class CategoryDomain
 	
 	private CategoryDomain() { }
 	
-	public boolean isCompatible( ModuleCategory category )
+	public boolean isCompatible( Category category )
 	{
 		return Optional.ofNullable( this.sub_domains.get( category.value ) )
 			.map( filter -> filter.isCompatible( category.sub ) )
