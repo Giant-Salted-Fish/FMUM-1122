@@ -115,10 +115,10 @@ public class CameraController implements ICameraController
 			player_rot.set( player.rotationPitch, player.rotationYaw, 0.0F );
 			
 			final Vec3f cur_fv_rot = free_view_rot.curPos;
-			// This is commented as the state of look around key is updated by tick so there is no \
-			// way it can change in between the ticks. And may be the key update event is earlier \
-			// than the item tick hence set it with smoothed value will actually cause that view \
-			// jump effect.
+			// This is commented as the state of look around key is updated by \
+			// tick so there is no way it can change in between the ticks. And \
+			// may be the key update event is earlier than the item tick hence \
+			// set it with smoothed value will actually cause that view jump effect.
 //			free_view_rot.smoothedPos( cur_fv_rot, smoother );
 			cur_fv_rot.x += delta_pitch;
 			
@@ -126,7 +126,8 @@ public class CameraController implements ICameraController
 			final float pitch_squared = new_view_pitch *  new_view_pitch;
 			final float yaw_limit_squared = FMUMClient.free_view_limit_squared - pitch_squared;
 			final float yaw_limit = MathHelper.sqrt( yaw_limit_squared );
-			cur_fv_rot.y = MathHelper.clamp( cur_fv_rot.y + raw_delta_yaw, -yaw_limit, yaw_limit );
+			final float yaw_rot = cur_fv_rot.y + raw_delta_yaw;
+			cur_fv_rot.y = MathHelper.clamp( yaw_rot, -yaw_limit, yaw_limit );
 			
 			// Set previous to current value to avoid bobbing.
 			free_view_rot.prevPos.set( cur_fv_rot );
@@ -153,7 +154,7 @@ public class CameraController implements ICameraController
 		final float view_pitch = this.player_rot.x + free_view_rot_x;
 		final float view_yaw = this.player_rot.y + free_view_rot_y;
 		
-//		this.animator.update();
+		this.animator.update();
 		
 		final Mat4f mat = this.view_mat;
 		final Quat4f quat = Quat4f.locate();
@@ -174,8 +175,8 @@ public class CameraController implements ICameraController
 		mat.rotateX( view_pitch );
 		mat.rotateY( 180.0F + view_yaw );
 		
-		// Apply a tiny change to player's pitch rotation to force view frustum culling update if
-		// off-axis has changed.
+		// Apply a tiny change to player's pitch rotation to force view \
+		// frustum culling update if off-axis has changed.
 		final EntityPlayerSP player = mc.player;
 		final Vec3f prev_free_view_rot = this.free_view_rot.prevPos;
 		final float pitch_change = Math.abs( free_view_rot_x - prev_free_view_rot.x );

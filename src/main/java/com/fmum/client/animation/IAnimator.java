@@ -27,6 +27,8 @@ public interface IAnimator
 		}
 	};
 	
+	default void update() { }
+	
 	void getPos( String channel, Vec3f dst );
 	
 	void getRot( String channel, Quat4f dst );
