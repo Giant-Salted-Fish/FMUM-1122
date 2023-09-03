@@ -10,7 +10,7 @@ public interface IModuleSlot
 	
 	default int maxStep() { return 0; }
 	
-	void scaleGeometryParams( float scale );
+	void scaleParam( float scale );
 	
 	void applyTransform( IModule< ? > child_module, Mat4f dst );
 }

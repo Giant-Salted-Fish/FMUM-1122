@@ -52,11 +52,11 @@ public interface IModule< T extends IModule< ? extends T > >
 		return mod;
 	}
 	
-	int totalSlotCount();
+	int slotCount();
 	
 	IModuleSlot getSlot( int idx );
 	
-	int totalOffsetCount();
+	int offsetCount();
 	
 	int offset();
 	

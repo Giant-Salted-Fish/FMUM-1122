@@ -19,5 +19,7 @@ public interface IContentBuildContext
 	
 	void regisPostLoadCallback( Consumer< IPostLoadContext > callback );
 	
+	void regisMeshLoadCallback( run)
+	
 //	public abstract ResourceLocation loadTexture( String path );
 }

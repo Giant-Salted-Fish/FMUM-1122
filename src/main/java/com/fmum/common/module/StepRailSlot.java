@@ -26,9 +26,9 @@ public class StepRailSlot extends PointSlot
 	}
 	
 	@Override
-	public void scaleGeometryParams( float scale )
+	public void scaleParam( float scale )
 	{
-		super.scaleGeometryParams( scale );
+		super.scaleParam( scale );
 		this.step_len *= scale;
 	}
 	

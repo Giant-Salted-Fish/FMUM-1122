@@ -13,9 +13,7 @@ public class IDRegistry< T > extends Registry< T >
 {
 	protected final HashBiMap< Integer, T > id_map_table = HashBiMap.create();
 	
-	public IDRegistry() {
-		super();
-	}
+	public IDRegistry() { }
 	
 	public IDRegistry( Function< T, String > identifier_retriever ) {
 		super( identifier_retriever );

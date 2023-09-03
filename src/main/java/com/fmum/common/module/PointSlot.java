@@ -28,7 +28,7 @@ public class PointSlot implements IModuleSlot
 	}
 	
 	@Override
-	public void scaleGeometryParams( float scale ) {
+	public void scaleParam( float scale ) {
 		this.origin.scale( scale );
 	}
 	

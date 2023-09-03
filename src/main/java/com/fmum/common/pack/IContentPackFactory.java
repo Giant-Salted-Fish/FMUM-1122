@@ -77,4 +77,10 @@ public interface IContentPackFactory
 		
 		ICreativeTab hideCreativeTab();
 	}
+	
+	@SideOnly( Side.CLIENT )
+	interface IMeshLoadContext
+	{
+	
+	}
 }

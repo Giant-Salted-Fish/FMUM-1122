@@ -4,7 +4,6 @@ import com.fmum.common.paintjob.IPaintable;
 import com.fmum.util.Mat4f;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants.NBT;
@@ -26,14 +25,14 @@ public abstract  class Module< T extends IModule< ? extends T > >
 	protected int paintjob_idx;
 	
 	protected final ArrayList< T > installed_modules = new ArrayList<>();
-	protected final byte[] split_indices = new byte[ this.totalSlotCount() ];
+	protected final byte[] split_indices = new byte[ this.slotCount() ];
 	
 	protected NBTTagCompound nbt;
 	
 	protected Module()
 	{
 		this.nbt = new NBTTagCompound();
-		final int[] data = new int[ this._dataArrSize() ];
+		final int[] data = new int[ this._dataSize() ];
 		data[ 0 ] = this._id();
 		this.nbt.setIntArray( DATA_TAG, data );
 		this.nbt.setTag( MODULE_TAG, new NBTTagList() );
@@ -156,7 +155,7 @@ public abstract  class Module< T extends IModule< ? extends T > >
 	 */
 	protected abstract int _id();
 	
-	protected int _dataArrSize() {
+	protected int _dataSize() {
 		return 1 + ( this.split_indices.length + 3 ) / 4;
 	}
 	
