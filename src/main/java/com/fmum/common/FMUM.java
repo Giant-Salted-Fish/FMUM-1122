@@ -7,6 +7,7 @@ import com.fmum.common.item.IItemType;
 import com.fmum.common.load.BuildableType;
 import com.fmum.common.load.IContentBuildContext;
 import com.fmum.common.load.IContentLoader;
+import com.fmum.common.pack.IContentPackFactory.IMeshLoadContext;
 import com.fmum.util.CategoryDomain;
 import com.fmum.util.Category;
 import com.fmum.common.network.IPacket;
@@ -277,6 +278,12 @@ public class FMUM
 			) { post_load_callbacks.add( callback ); }
 			
 			@Override
+			@SideOnly( Side.CLIENT )
+			public void regisMeshLoadCallback(
+				Consumer< IMeshLoadContext > callback
+			) { FMUM.this._regisMeshLoadCallback( callback ); }
+			
+			@Override
 			public Gson gson() {
 				return gson;
 			}
@@ -322,6 +329,11 @@ public class FMUM
 	) { return factory.createServerSide( ctx ); }
 	
 	protected void _loadKeyBindSetting() { }
+	
+	@SideOnly( Side.CLIENT )
+	protected void _regisMeshLoadCallback(
+		Consumer< IMeshLoadContext > callback
+	) { }
 	
 	protected void _regisGsonAdapter( IPrepareContext ctx )
 	{

@@ -7,11 +7,14 @@ import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.common.FMUM;
 import com.fmum.common.load.BuildableType;
 import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.load.LoaderNotFoundException;
 import com.fmum.common.network.IPacket;
 import com.fmum.common.pack.IContentPack;
 import com.fmum.common.pack.IContentPackFactory;
+import com.fmum.common.pack.IContentPackFactory.IMeshLoadContext;
 import com.fmum.common.pack.IContentPackFactory.IPrepareContext;
 import com.fmum.util.Mesh;
+import com.fmum.util.Mesh.Builder;
 import com.fmum.util.ObjMeshBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
@@ -26,7 +29,9 @@ import org.lwjgl.opengl.GLContext;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 @SideOnly( Side.CLIENT )
@@ -50,7 +55,10 @@ public final class FMUMClient extends FMUM
 	public static float camera_drop_impact;
 	
 	
-	final HashMap< String, Mesh > mesh_pool = new HashMap<>();
+	private final LinkedList< Consumer< IMeshLoadContext > >
+		mesh_load_callbacks = new LinkedList<>();
+	
+	private final HashMap< String, Mesh > mesh_pool = new HashMap<>();
 	
 	private final HashMap< String, ResourceLocation >
 		texture_pool = new HashMap<>();
@@ -168,31 +176,40 @@ public final class FMUMClient extends FMUM
 		IContentPackFactory factory, IPrepareContext ctx
 	) { return factory.createClientSide( ctx ); }
 	
-	private Mesh loadMesh(
-		String path,
-		Function< Mesh.Builder, Mesh.Builder > processor
-	) throws Exception
+	void _onMeshLoad()
 	{
-		final Runnable
-		return this.mesh_pool.computeIfAbsent( path, path_ -> {
-			try
-			{
+		final IMeshLoadContext context = ( path, processor ) ->
+			FMUMClient.this.mesh_pool.computeIfAbsent( path, path_ -> {
 				// TODO: Support other types of models with mesh loader?
 				if ( path_.endsWith( ".obj" ) )
 				{
-					final Mesh.Builder builder = new ObjMeshBuilder().load( path_ );
+					final Builder builder = new ObjMeshBuilder().load( path_ );
 					return processor.apply( builder ).quickBuild();
 				}
 				
 				// Unknown mesh type.
-				this.logError( "fmum.unsupported_mesh_type", path_ );
-				return Mesh.NONE;
+				throw new LoaderNotFoundException( path_ );
+			} );
+		
+		this.mesh_load_callbacks.forEach( callback -> {
+			// Throwing any exception on world load could jam the load \
+			// progress and print a lot of error messages that will barely \
+			// help with debug. Hence, we generally want to avoid any \
+			// exception being thrown out here especially when you think of \
+			// that the callback method is provided by the pack makers who may \
+			// not aware of this.
+			try {
+				callback.accept( context );
 			}
 			catch ( Exception e )
 			{
-				this.logException( e, "fmum.error_loading_mesh", path_ );
-				return Mesh.NONE;
+				final String translation_key = "fmum.error_calling_mesh_load";
+				this.logException( e, translation_key, callback.toString() );
 			}
 		} );
+		
+		// Clear resources after mesh load.
+		this.mesh_load_callbacks.clear();
+		this.mesh_pool.clear();
 	}
 }

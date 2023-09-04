@@ -73,6 +73,7 @@ fmum.post_init_complete=FMUM post-initialization complete.
 
 # Runtime info
 fmum.error_loading_mesh=An error has occurred while attempting to load mesh <%s>.
+fmum.error_calling_mesh_load=An error has occurred while calling the mesh load callback <%s>.
 fmum.error_loading_animation=An error has occurred while attempting to load animation <%s>.
 
 # Creative tab

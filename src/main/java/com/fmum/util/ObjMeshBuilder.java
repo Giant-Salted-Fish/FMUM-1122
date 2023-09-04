@@ -10,13 +10,18 @@ import java.util.Optional;
 
 public class ObjMeshBuilder extends Mesh.Builder
 {
-	public ObjMeshBuilder load( String path ) throws Exception {
+	public ObjMeshBuilder load( String path ) {
 		return this.load( new ResourceLocation( FMUM.MODID, path ) );
 	}
 	
-	public ObjMeshBuilder load( ResourceLocation res ) throws Exception
+	public ObjMeshBuilder load( ResourceLocation res )
 	{
-		this.load( ( OBJModel ) OBJLoader.INSTANCE.loadModel( res ) );
+		try {
+			this.load( ( OBJModel ) OBJLoader.INSTANCE.loadModel( res ) );
+		}
+		catch ( Exception e ) {
+			throw new RuntimeException( e );
+		}
 		return this;
 	}
 	

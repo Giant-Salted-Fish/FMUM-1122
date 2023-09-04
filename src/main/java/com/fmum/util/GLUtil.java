@@ -1,6 +1,8 @@
 package com.fmum.util;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.BufferUtils;
@@ -12,8 +14,12 @@ import java.util.ArrayList;
 @SideOnly( Side.CLIENT )
 public final class GLUtil
 {
-	private static final FloatBuffer float_buffer = BufferUtils.createFloatBuffer( 16 );
+	private static final Minecraft MC = Minecraft.getMinecraft();
+	public static void bindTexture( ResourceLocation texture ) {
+		MC.renderEngine.bindTexture( texture );
+	}
 	
+	private static final FloatBuffer float_buffer = BufferUtils.createFloatBuffer( 16 );
 	/**
 	 * Currently not thread safe.
 	 */

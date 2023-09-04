@@ -1,8 +1,11 @@
 package com.fmum.common.load;
 
 import com.fmum.common.pack.IContentPack;
+import com.fmum.common.pack.IContentPackFactory.IMeshLoadContext;
 import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
 import com.google.gson.Gson;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.function.Consumer;
 
@@ -19,7 +22,8 @@ public interface IContentBuildContext
 	
 	void regisPostLoadCallback( Consumer< IPostLoadContext > callback );
 	
-	void regisMeshLoadCallback( run)
+	@SideOnly( Side.CLIENT )
+	void regisMeshLoadCallback( Consumer< IMeshLoadContext > callback );
 	
 //	public abstract ResourceLocation loadTexture( String path );
 }

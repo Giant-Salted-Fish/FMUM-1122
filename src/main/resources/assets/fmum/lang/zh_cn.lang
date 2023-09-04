@@ -73,6 +73,7 @@ fmum.post_init_complete=FMUM 后初始化完成。
 
 # 运行时日志
 fmum.error_loading_mesh=加载模型网格 %s 时遇到错误。
+fmum.error_calling_mesh_load=调用模型加载回调时发生错误：%s。
 fmum.error_loading_animation=加载动画 %s 时遇到错误。
 
 # 创造模式物品栏

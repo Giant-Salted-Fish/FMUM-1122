@@ -9,6 +9,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public interface IAnimator
 {
+	String ABSENT_CHANNEL = "";
+	
 	IAnimator NONE = new IAnimator()
 	{
 		@Override

@@ -4,6 +4,7 @@ import com.fmum.common.load.IContentBuildContext;
 import com.fmum.common.load.IContentLoader;
 import com.fmum.common.load.LoaderNotFoundException;
 import com.fmum.common.tab.ICreativeTab;
+import com.fmum.util.Mesh;
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
@@ -15,6 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public interface IContentPackFactory
 {
@@ -52,6 +54,9 @@ public interface IContentPackFactory
 	{
 		void regisPostLoadCallback( Consumer< IPostLoadContext > callback );
 		
+		@SideOnly( Side.CLIENT )
+		void regisMeshLoadCallback( Consumer< IMeshLoadContext > callback );
+		
 		Gson gson();
 		
 		default Object loadContent(
@@ -61,7 +66,7 @@ public interface IContentPackFactory
 		) throws LoaderNotFoundException
 		{
 			return this.getContentLoader( loader_entry )
-				.orElseThrow( LoaderNotFoundException::new )
+				.orElseThrow( () -> new LoaderNotFoundException( loader_entry ) )
 				.loadFrom( object, this.gson(), ctx );
 		}
 		
@@ -81,6 +86,9 @@ public interface IContentPackFactory
 	@SideOnly( Side.CLIENT )
 	interface IMeshLoadContext
 	{
-	
+		Mesh loadMesh(
+			String path,
+			Function< Mesh.Builder, Mesh.Builder > processor
+		) throws LoaderNotFoundException;
 	}
 }

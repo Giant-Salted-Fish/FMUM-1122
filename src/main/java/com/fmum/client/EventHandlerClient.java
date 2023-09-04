@@ -4,6 +4,7 @@ import com.fmum.client.input.KeyBindManager;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.IItemType;
+import com.fmum.common.pack.IContentPackFactory.IMeshLoadContext;
 import com.fmum.util.GLUtil;
 import com.fmum.util.Mat4f;
 import net.minecraft.client.gui.GuiControls;
@@ -19,8 +20,10 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -28,6 +31,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.function.Consumer;
 
 @SideOnly( Side.CLIENT )
 @EventBusSubscriber( modid = FMUM.MODID, value = Side.CLIENT )
@@ -40,6 +45,22 @@ public final class EventHandlerClient
 		ori_view_bobbing = settings.viewBobbing;
 	}
 	
+	// Handle mesh load on first time entering the world.
+	static
+	{
+		MinecraftForge.EVENT_BUS.register( new Object() {
+			@SubscribeEvent
+			void onWorldLoad( WorldEvent.Load evt )
+			{
+				// Only load once on logical client side.
+				if ( evt.getWorld().isRemote )
+				{
+					FMUMClient.MOD._onMeshLoad();
+					MinecraftForge.EVENT_BUS.unregister( this );
+				}
+			}
+		} );
+	}
 	
 	private EventHandlerClient() { }
 	

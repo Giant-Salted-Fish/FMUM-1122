@@ -258,6 +258,12 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 			public void regisPostLoadCallback(
 				Consumer< IPostLoadContext > callback
 			) { ctx.regisPostLoadCallback( callback ); }
+			
+			@Override
+			@SideOnly( Side.CLIENT )
+			public void regisMeshLoadCallback(
+				Consumer< IMeshLoadContext > callback
+			) { ctx.regisMeshLoadCallback( callback ); }
 		};
 		
 		try
