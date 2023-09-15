@@ -1,7 +1,7 @@
 package com.fmum.client.camera;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.client.animation.IAnimator;
+import com.fmum.client.render.IAnimator;
 import com.fmum.client.input.InputManager;
 import com.fmum.client.input.Inputs;
 import com.fmum.client.player.PlayerPatchClient;

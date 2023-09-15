@@ -19,8 +19,11 @@ public class Registry< T >
 		this.identifier_retriever = identifier_retriever;
 	}
 	
-	public final T get( String identifier ) {
-		return Objects.requireNonNull( this.regis_table.get( identifier ) );
+	public final T get( String identifier )
+	{
+		final T value = this.regis_table.get( identifier );
+		assert value != null;
+		return value;
 	}
 	
 	public final Optional< T > lookup( String identifier ) {

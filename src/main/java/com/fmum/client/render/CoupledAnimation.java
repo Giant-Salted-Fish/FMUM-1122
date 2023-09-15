@@ -1,4 +1,4 @@
-package com.fmum.client.animation;
+package com.fmum.client.render;
 
 import com.fmum.util.Animation;
 import com.fmum.util.Quat4f;

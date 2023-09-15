@@ -12,14 +12,20 @@ import com.fmum.util.Mat4f;
 import com.fmum.util.Vec3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MouseHelper;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 
 @SideOnly( Side.CLIENT )
 public final class PlayerPatchClient extends PlayerPatch
@@ -182,6 +188,58 @@ public final class PlayerPatchClient extends PlayerPatch
 	
 	public boolean shouldHideCrosshair() {
 		return this.main_equipped.shouldHideCrosshair();
+	}
+	
+	public void setupInHandAndRender( Runnable callback )
+	{
+		GL11.glPushMatrix(); {
+		
+		// Do customized rendering.
+		final Minecraft mc = FMUMClient.MC;
+		final EntityPlayer player = mc.player;
+		
+		// Copied from {@link EntityRenderer#renderHand(float, int)}.
+		final EntityRenderer renderer = mc.entityRenderer;
+		renderer.enableLightmap();
+		
+		/// Copied from {@link ItemRenderer#renderItemInFirstPerson(float)}.
+		// {@link ItemRenderer#rotateArroundXAndY(float, float)}.
+		final Mat4f mat = Mat4f.locate();
+		this.camera.getViewMat( mat );
+		GLUtil.glMulMatrix( mat );
+		mat.release();
+		
+		GLUtil.glRotateYf( 180.0F );
+		RenderHelper.enableStandardItemLighting();
+		
+		// {@link ItemRenderer#setLightmap()}.
+		final double eye_height = player.posY + player.getEyeHeight();
+		final BlockPos blockPos = new BlockPos(
+			player.posX, eye_height, player.posZ );
+		int light = mc.world.getCombinedLight( blockPos, 0 );
+		
+		final float x = light & 0xFFFF;
+		final float y = light >> 16;
+		OpenGlHelper.setLightmapTextureCoords(
+			OpenGlHelper.lightmapTexUnit, x, y );
+		
+		// {@link ItemRenderer#rotateArm(float)} is not applied to avoid shift.
+		
+		// TODO: Re-scale may not be needed. Do not forget that there is a disable pair call.
+		GlStateManager.enableRescaleNormal();
+		
+		// Setup and render!
+		GLUtil.glRotateYf( 180.0F - player.rotationYaw );
+		GLUtil.glRotateXf( player.rotationPitch );
+		callback.run();
+		
+		GlStateManager.disableRescaleNormal();
+		RenderHelper.disableStandardItemLighting();
+		/// End of {@link ItemRenderer#renderItemInFirstPerson(float)}.
+		
+		renderer.disableLightmap();
+		
+		} GL11.glPopMatrix();
 	}
 	
 	

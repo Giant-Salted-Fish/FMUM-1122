@@ -39,9 +39,7 @@ fmum.error_saving_key_binds=An error has occurred while attempting to save key b
 fmum.error_reading_key_binds=An error has occurred while attempting to read key binds for FMUM.
 fmum.unrecognized_key_bind=Unrecognized key bind <%s> for FMUM.
 fmum.key_code_format_error=Key code format error <%s> for FMUM.
-fmum.can_not_find_update_group=Can not find key update group <%2$s> required by key bind <%1$s>.
 fmum.pack_dir_created=Content pack folder <%s> has been created for you. Go find some content packs that support FMUM and drop them into this folder!
-fmum.unknown_pack_file_type=Can not load content pack <%s>. FMUM only support content packs of these three type: [ <folder>, <.jar>, <.zip> ].
 fmum.detect_content_pack=Find content pack <%s>.
 fmum.invalid_mod_based_pack=%s(%s) is not a valid mod based pack.
 fmum.load_content_pack=Loading content pack <%s>...
@@ -51,7 +49,6 @@ fmum.duplicate_content_regis=Duplicate content registration <%s> : <%s>.
 fmum.fail_to_find_tab=Can not find creative tab <%2$s> required by <%1$s>.
 fmum.fail_to_find_indicator=Can not find modify indicator <%2$s> required by <%1$s>.
 fmum.paintjob_inject_target_not_found=Can not find inject target <%2$s> required by external paintjob <%1$s>.
-fmum.model_loader_not_found=Can not found model loader <%2$s> required by <%1$s>.
 fmum.pre_init_complete=FMUM pre-initialization complete.
 
 fmum.on_item_regis=Registering items for FMUM content packs...

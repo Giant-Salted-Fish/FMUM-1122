@@ -1,22 +1,18 @@
 package com.fmum.common.module;
 
-import com.fmum.common.paintjob.IPaintable;
 import com.fmum.util.Mat4f;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.Constants.NBT;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public abstract  class Module< T extends IModule< ? extends T > >
-	implements IModule< T >, IPaintable
+public abstract class Module< T extends IModule< ? extends T > >
+	implements IModule< T >
 {
 	// TODO: Maybe make this configurable?
 	protected static final String MODULE_TAG = "+";
@@ -25,7 +21,7 @@ public abstract  class Module< T extends IModule< ? extends T > >
 	protected int installation_slot_idx;
 	protected final Mat4f mat = new Mat4f();
 	
-	protected int paintjob_idx;
+	protected int paintjob;
 	
 	protected final ArrayList< T > installed_modules = new ArrayList<>();
 	protected final byte[] split_indices = new byte[ this.slotCount() ];
@@ -52,7 +48,7 @@ public abstract  class Module< T extends IModule< ? extends T > >
 	protected Module( NBTTagCompound nbt ) { }
 	
 	@Override
-	public ItemStack boundenItemStack() {
+	public ItemStack itemStack() {
 		throw new RuntimeException();
 	}
 	
@@ -74,6 +70,11 @@ public abstract  class Module< T extends IModule< ? extends T > >
 	}
 	
 	@Override
+	public void _syncNBTTag() {
+		this.parent._syncNBTTag();
+	}
+	
+	@Override
 	public void forEachInstalled( Consumer< ? super T > visitor ) {
 		this.installed_modules.forEach( visitor );
 	}
@@ -87,20 +88,15 @@ public abstract  class Module< T extends IModule< ? extends T > >
 	}
 	
 	@Override
-	public T getInstalled( int slot_idx, int module_idx )
+	public T getInstalled( int slot_idx, int install_idx )
 	{
-		final int idx = this._getSlotStartIdx( slot_idx ) + module_idx;
+		final int idx = this._getSlotStartIdx( slot_idx ) + install_idx;
 		return this.installed_modules.get( idx );
 	}
 	
 	@Override
 	public int paintjob() {
-		return this.paintjob_idx;
-	}
-	
-	@Override
-	public void setPaintjob( int paintjob_idx ) {
-		this.paintjob_idx = paintjob_idx;
+		return this.paintjob;
 	}
 	
 	@Override
@@ -129,7 +125,7 @@ public abstract  class Module< T extends IModule< ? extends T > >
 		
 		// Read paintjob.
 		final int[] data = nbt.getIntArray( DATA_TAG );
-		this.paintjob_idx = ( short ) ( data[ 0 ] >>> 16 );
+		this.paintjob = ( short ) ( data[ 0 ] >>> 16 );
 		
 		// Read install indices.
 		for ( int i = this.split_indices.length; i > 0; i -= 1 ) {
@@ -143,7 +139,7 @@ public abstract  class Module< T extends IModule< ? extends T > >
 		for ( int i = 0, size = mod_list.tagCount(), slot = 0; i < size; i += 1)
 		{
 			final NBTTagCompound mod_tag = mod_list.getCompoundTagAt( i );
-			final IModule< ? > module = this.readModuleTag( mod_tag );
+			final IModule< ? > module = IModule.deserializeFrom( mod_tag );
 			
 			while ( i >= this._getSlotStartIdx( slot + 1 ) ) {
 				slot += 1;
@@ -151,6 +147,14 @@ public abstract  class Module< T extends IModule< ? extends T > >
 			module._setParent( this, slot );
 			this.installed_modules.add( ( T ) module );
 		}
+	}
+	
+	protected void _setPaintjob( int paintjob )
+	{
+		this.paintjob = paintjob;
+		final int[] data = this.nbt.getIntArray( DATA_TAG );
+		data[ 0 ] &= 0xFFFF;
+		data[ 0 ] |= paintjob << 16;
 	}
 	
 	/**
@@ -161,8 +165,6 @@ public abstract  class Module< T extends IModule< ? extends T > >
 	protected int _dataSize() {
 		return 1 + ( this.split_indices.length + 3 ) / 4;
 	}
-	
-	protected abstract IModule< ? > readModuleTag( NBTTagCompound tag );
 	
 	protected final int _getSlotStartIdx( int slot_idx ) {
 		return slot_idx > 0 ? 0xFF & this.split_indices[ slot_idx - 1 ] : 0;

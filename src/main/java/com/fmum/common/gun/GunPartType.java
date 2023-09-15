@@ -1,11 +1,12 @@
 package com.fmum.common.gun;
 
-import com.fmum.client.FMUMClient;
 import com.fmum.client.player.PlayerPatchClient;
+import com.fmum.client.render.IAnimator;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.ItemType;
 import com.fmum.common.load.IContentBuildContext;
-import com.fmum.common.load.Model;
+import com.fmum.client.render.Model;
+import com.fmum.common.module.IModule;
 import com.fmum.common.module.IModuleSlot;
 import com.fmum.common.module.IModuleType;
 import com.fmum.common.module.Module;
@@ -14,12 +15,8 @@ import com.fmum.common.paintjob.IPaintjob;
 import com.fmum.util.Category;
 import com.fmum.util.GLUtil;
 import com.fmum.util.Mat4f;
+import com.fmum.util.MathUtil;
 import com.google.gson.annotations.SerializedName;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -27,15 +24,18 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class GunPartType extends ItemType implements IModuleType, IPaintableType
 {
@@ -55,6 +55,9 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	@SideOnly( Side.CLIENT )
 	@SerializedName( value = "model", alternate = "mesh" )
 	protected Model model;
+	
+	@SideOnly( Side.CLIENT )
+	protected String module_animation_channel;
 	
 	@Override
 	public void buildServerSide( IContentBuildContext ctx )
@@ -84,11 +87,79 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	@Override
+	@SideOnly( Side.CLIENT )
 	public void buildClientSide( IContentBuildContext ctx )
 	{
 		super.buildClientSide( ctx );
 		
 		ctx.regisMeshLoadCallback( this.model::loadMesh );
+	}
+	
+	@Override
+	public ICapabilityProvider initCapabilities(
+		ItemStack stack,
+		@Nullable NBTTagCompound cap_tag
+	) {
+		// 4 case to handle: \
+		// has-stack_tag | has-cap_tag: {ItemStack#ItemStack(NBTTagCompound)} \
+		// has-stack_tag | no--cap_tag: \
+		// no--stack_tag | has-cap_tag: {ItemStack#copy()} \
+		// no--stack_tag | no--cap_tag: {new ItemStack(...)}, {PacketBuffer#readItemStack()} \
+		final NBTTagCompound stack_tag = stack.getTagCompound();
+		final boolean has_cap_tag = cap_tag != null;
+		if ( has_cap_tag )
+		{
+			// 2 cases possible:
+			// no--stack_tag | has-cap_tag: {ItemStack#copy()}.
+			// has-stack_tag | has-cap_tag: {ItemStack#ItemStack(NBTTagCompound)}.
+			final NBTTagCompound nbt = cap_tag.getCompoundTag( "Parent" );
+			
+			// Remove "Parent" tag to prevent repeated deserialization.
+			// See CapabilityDispatcher#deserializeNBT(NBTTagCompound).
+			cap_tag.removeTag( "Parent" );
+			
+			// Has to copy before use if it is the first case as the \
+			// capability tag provided here could be the same as the bounden \
+			// tag of the copy target.
+			final boolean is_stack_copy = stack_tag == null;
+			final NBTTagCompound root_tag = is_stack_copy ? nbt.copy() : nbt;
+			
+			final IModule< ? > self = IModule.deserializeFrom( root_tag );
+			final ICapabilityProvider wrapper = this._wrap( self, stack );
+//			TODO: self.refreshEventSubscribe();
+			return wrapper;
+		}
+		
+		// has-stack_tag | no--cap_tag: should never happen.
+		assert stack_tag != null;
+		
+		// no--stackTag | no--capTag: {new ItemStack(...)}, {PacketBuffer#readItemStack()}
+		// We basically have no way to distinguish from these two cases. But \
+		// it will work fine if we simply deserialize and setup it with the \
+		// compiled snapshot NBT. That is because #readNBTShareTag(ItemStack, NBTTagCompound) \
+		// will later be called for the network packet case. The downside is \
+		// that it will actually deserialize twice for the network packet case.
+		final NBTTagCompound new_stack_tag = new NBTTagCompound();
+		final int stack_id = MathUtil.RAND.nextInt();
+		new_stack_tag.setInteger( GunPartWrapper.STACK_ID_TAG, stack_id );
+		stack.setTagCompound( new_stack_tag );
+		
+		final NBTTagCompound root_tag =
+		return null;
+	}
+	
+	@Override
+	public void readNBTShareTag( ItemStack stack, NBTTagCompound nbt )
+	{
+		super.readNBTShareTag( stack, nbt );
+		
+		// See GunPartWrapper#syncNBTTag().
+		final NBTTagCompound root_tag = nbt.getCompoundTag( GunPartWrapper.ROOT_TAG );
+		final IModule< ? > root = IModule.deserializeFrom( root_tag );
+		
+		final IModule< ? > wrapper = ( IModule< ? > ) this.getItem( stack );
+		wrapper._setParent( root, -1 );  // See GunPartWrapper#_setParent(...).
+//		TODO: wrapper._refreshEventSubscribe();
 	}
 	
 	@Override
@@ -121,6 +192,17 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		@Nonnull ItemStack stack,
 		@Nonnull EntityPlayer player
 	) { return false; }
+	
+	protected ICapabilityProvider _wrap( IModule< ? > self, ItemStack stack )
+	{
+		final GunPart< ? > gun_part = ( GunPart< ? > ) self;
+		return new GunPartWrapper<>( gun_part, stack );
+	}
+	
+	@Override
+	protected String _typeHint() {
+		return "GUN_PART";
+	}
 	
 	
 	protected class GunPart< I extends IGunPart< ? extends I > >
@@ -184,6 +266,64 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		}
 		
 		@Override
+		public void writeAccess( Consumer< ? super IModuleWriteContext > writer )
+		{
+			final IModuleWriteContext ctx = new IModuleWriteContext()
+			{
+				@Override
+				public void setOffsetAndStep( int offset, int step ) {
+					GunPart.this._setOffsetAndStep( offset, step );
+				}
+				
+				@Override
+				public void setPaintjob( int paintjob ) {
+					GunPart.this._setPaintjob( paintjob );
+				}
+			};
+			
+			// TODO: Handle events.
+			writer.accept( ctx );
+			this._syncNBTTag();
+		}
+		
+		@Override
+		public void _getInstalledTransform(
+			IModule< ? > installed,
+			IAnimator animator,
+			Mat4f dst
+		) {
+			// Copy self transform.
+			this.mat.set( dst );
+			
+			// Apply Slot transform.
+			final IModuleSlot slot = GunPartType.this
+				.slots.get( installed.installationSlotIdx() );
+			slot.applyTransform( installed, dst );
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public void _prepareRenderInHand(
+			IAnimator animator,
+			IInHandRenderContext ctx
+		) {
+			this.parent._getInstalledTransform( this, animator, this.mat );
+			animator.applyChannel( GunPartType.this.module_animation_channel, this.mat );
+			
+			// TODO: We can buffer animator so no instance will be created for this closure?
+			ctx.addQueuedRenderer( () -> {
+				GL11.glPushMatrix(); {
+				GLUtil.glMulMatrix( this.mat );
+				GLUtil.bindTexture( this._texture() );
+				GunPartType.this.model.render();
+				} GL11.glPopMatrix();
+			} );
+			
+			this.installed_modules.forEach(
+				mod -> mod._prepareRenderInHand( animator, ctx ) );
+		}
+		
+		@Override
 		public void deserializeNBT( NBTTagCompound nbt )
 		{
 			super.deserializeNBT( nbt );
@@ -199,6 +339,17 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			return String.format( "Item<%s>", GunPartType.this );
 		}
 		
+		protected void _setOffsetAndStep( int offset, int step )
+		{
+			this.offset = ( short ) offset;
+			this.step = ( short ) step;
+			final int[] data = this.nbt.getIntArray( DATA_TAG );
+			data[ super._dataSize() ] = 0xFFFF & offset | step << 16;
+			
+			// TODO: What animator to use?
+			this.parent._getInstalledTransform( this, IAnimator.NONE, this.mat );
+		}
+		
 		@Override
 		protected int _id() {
 			return IModuleType.REGISTRY.getID( GunPartType.this );
@@ -211,7 +362,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		
 		@SideOnly( Side.CLIENT )
 		protected ResourceLocation _texture() {
-			return GunPartType.this.paintjobs.get( this.paintjob_idx ).texture();
+			return GunPartType.this.paintjobs.get( this.paintjob ).texture();
 		}
 		
 		
@@ -227,61 +378,26 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			@SideOnly( Side.CLIENT )
 			public void prepareRenderInHand( EnumHand enumHand )
 			{
-			
+				RenderQueue.NORMAL.clear();
+				RenderQueue.PRIORITIZED.clear();
+				GunPart.this._prepareRenderInHand(
+					IAnimator.NONE, RenderQueue.IN_HAND_CONTEXT );
 			}
 			
 			@Override
 			@SideOnly( Side.CLIENT )
 			public boolean onRenderHand( EnumHand hand )
 			{
-				GL11.glPushMatrix(); {
-				
-				// Do customized rendering.
-				final Minecraft mc = FMUMClient.MC;
-				final EntityPlayer player = mc.player;
-				
-				// Copied from {@link EntityRenderer#renderHand(float, int)}.
-				final EntityRenderer renderer = mc.entityRenderer;
-				renderer.enableLightmap();
-				
-				/// Copied from {@link ItemRenderer#renderItemInFirstPerson(float)}. ///
-				// {@link ItemRenderer#rotateArroundXAndY(float, float)}.
-				final Mat4f mat = Mat4f.locate();
-				PlayerPatchClient.instance.camera.getViewMat( mat );
-				GLUtil.glMulMatrix( mat );
-				mat.release();
-				
-				GLUtil.glRotateYf( 180.0F );
-				RenderHelper.enableStandardItemLighting();
-				
-				// {@link ItemRenderer#setLightmap()}.
-				final double eye_height = player.posY + player.getEyeHeight();
-				final BlockPos blockPos = new BlockPos(
-					player.posX, eye_height, player.posZ );
-				int light = mc.world.getCombinedLight( blockPos, 0 );
-				
-				final float x = light & 0xFFFF;
-				final float y = light >> 16;
-				OpenGlHelper.setLightmapTextureCoords(
-					OpenGlHelper.lightmapTexUnit, x, y );
-				
-				// {@link ItemRenderer#rotateArm(float)} is not applied to avoid shift.
-				
-				// TODO: Re-scale may not be needed. Do not forget that there is a disable pair call.
-				GlStateManager.enableRescaleNormal();
-				
-				// Setup and render!
-				GL11.glRotatef( 180F - player.rotationYaw, 0F, 1F, 0F );
-				GL11.glRotatef( player.rotationPitch, 1F, 0F, 0F );
-				this._doRenderInHand( hand );
-				
-				GlStateManager.disableRescaleNormal();
-				RenderHelper.disableStandardItemLighting();
-				/// End of {@link ItemRenderer#renderItemInFirstPerson(float)}. ///
-				
-				renderer.disableLightmap();
-				
-				} GL11.glPopMatrix();
+				PlayerPatchClient.instance.setupInHandAndRender( () -> {
+					RenderQueue.NORMAL.forEach( Runnable::run );
+					RenderQueue.PRIORITIZED.sort(
+						( r0, r1 ) -> Float.compare( r0.priority(), r1.priority() ) );
+					RenderQueue.PRIORITIZED.forEach( IPrioritizedRenderer::render );
+					
+					// Clear to release references as quick as possible.
+					RenderQueue.NORMAL.clear();
+					RenderQueue.PRIORITIZED.clear();
+				} );
 				
 				final boolean cancel_vanilla_hand_render = true;
 				return cancel_vanilla_hand_render;
@@ -291,18 +407,6 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			@SideOnly( Side.CLIENT )
 			public boolean onRenderSpecificHand( EnumHand hand ) {
 				return true;
-			}
-			
-			@SideOnly( Side.CLIENT )
-			protected void _doRenderInHand( EnumHand hand )
-			{
-				final Mat4f mat = Mat4f.locate();
-//				this.animator.getChannel( CHANNEL_ITEM, mat );
-				GLUtil.glMulMatrix( mat );
-				mat.release();
-				
-				GLUtil.bindTexture( GunPart.this._texture() );
-				GunPartType.this.model.render();
 			}
 		}
 	}

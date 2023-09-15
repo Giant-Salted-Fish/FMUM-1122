@@ -109,7 +109,7 @@ public final class KeyBindManager
 			data.entrySet().forEach( KeyBindManager::__loadKeyBindSettingFrom );
 		}
 		catch ( IOException e ) {
-			FMUMClient.MOD.logException( e, "fmum.key_code_format_error" );
+			FMUMClient.MOD.logException( e, "fmum.error_reading_key_binds" );
 		}
 		
 		__updateMappingTable();

@@ -176,10 +176,15 @@ public final class FMUMClient extends FMUM
 		IContentPackFactory factory, IPrepareContext ctx
 	) { return factory.createClientSide( ctx ); }
 	
+	@Override
+	protected void _regisMeshLoadCallback(
+		Consumer< IMeshLoadContext > callback
+	) { this.mesh_load_callbacks.add( callback ); }
+	
 	void _onMeshLoad()
 	{
 		final IMeshLoadContext context = ( path, processor ) ->
-			FMUMClient.this.mesh_pool.computeIfAbsent( path, path_ -> {
+			this.mesh_pool.computeIfAbsent( path, path_ -> {
 				// TODO: Support other types of models with mesh loader?
 				if ( path_.endsWith( ".obj" ) )
 				{

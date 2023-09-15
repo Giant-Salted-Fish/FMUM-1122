@@ -1,11 +1,15 @@
 package com.fmum.util;
 
+import java.util.Random;
+
 public final class MathUtil
 {
 	public static final float PI = ( float ) Math.PI;
 	
 	public static final float TO_RADIANS = PI / 180.0F;
 	public static final float TO_DEGREES = 180.0F / PI;
+	
+	public static final Random RAND = new Random();
 	
 	private MathUtil() { }
 	

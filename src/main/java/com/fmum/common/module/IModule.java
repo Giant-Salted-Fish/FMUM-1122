@@ -1,11 +1,15 @@
 package com.fmum.common.module;
 
+import com.fmum.client.render.IAnimator;
 import com.fmum.util.Category;
+import com.fmum.util.Mat4f;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public interface IModule< T extends IModule< ? extends T > >
@@ -17,7 +21,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	
 	Category category();
 	
-	ItemStack boundenItemStack();
+	ItemStack itemStack();
 	
 	IModule< ? > parent();
 	
@@ -32,16 +36,18 @@ public interface IModule< T extends IModule< ? extends T > >
 	 * Force NBT change to be updated to the bounden target, so that the {@link Minecraft} will
 	 * synchronize it to client side and save it on quit.
 	 */
-	void syncNBTTag();
+	void _syncNBTTag();
 	
 	void forEachInstalled( Consumer< ? super T > visitor );
 	
 	int getNumInstalledInSlot( int slot_idx );
 	
-	T getInstalled( int slot_idx, int module_idx );
+	T getInstalled( int slot_idx, int install_idx );
 	
-	default IModule< ? > getInstalled( byte[] idx_sequence, int sequence_len )
-	{
+	default IModule< ? > getInstalled(
+		byte[] idx_sequence,
+		int sequence_len
+	) {
 		IModule< ? > mod = this;
 		for ( int i = 0; i < sequence_len; i += 2 )
 		{
@@ -62,7 +68,19 @@ public interface IModule< T extends IModule< ? extends T > >
 	
 	int step();
 	
-	void modifyWith( Consumer< IModificationContext > modifier );
+	int paintjobCount();
+	
+	int paintjob();
+	
+	Optional< Runnable > testAffordable( EntityPlayer player );
+	
+	void writeAccess( Consumer< ? super IModuleWriteContext > writer );
+	
+	void _getInstalledTransform(
+		IModule< ? > installed,
+		IAnimator animator,
+		Mat4f dst
+	);
 	
 	/**
 	 * <p> This is the standard method to get id from the any given module tag.
@@ -79,8 +97,17 @@ public interface IModule< T extends IModule< ? extends T > >
 		return 0xFFFF & tag.getIntArray( DATA_TAG )[ 0 ];
 	}
 	
-	interface IModificationContext
+	static IModule< ? > deserializeFrom( NBTTagCompound tag )
+	{
+		final int mod_id = getModuleID( tag );
+		final IModuleType type = IModuleType.REGISTRY.get( mod_id );
+		return type.deserializeFrom( tag );
+	}
+	
+	interface IModuleWriteContext
 	{
 		void setOffsetAndStep( int offset, int step );
+		
+		void setPaintjob( int paintjob );
 	}
 }

@@ -19,8 +19,11 @@ public class IDRegistry< T > extends Registry< T >
 		super( identifier_retriever );
 	}
 	
-	public final T get( Integer id ) {
-		return Objects.requireNonNull( this.id_map_table.get( id ) );
+	public final T get( Integer id )
+	{
+		final T value = this.id_map_table.get( id );
+		assert value != null;
+		return value;
 	}
 	
 	public final Optional< T > lookup( Integer id ) {
