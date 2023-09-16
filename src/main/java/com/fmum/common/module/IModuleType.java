@@ -9,5 +9,7 @@ public interface IModuleType
 	
 	String name();
 	
+	IModule< ? > createRawModule();
+	
 	IModule< ? > deserializeFrom( NBTTagCompound nbt );
 }

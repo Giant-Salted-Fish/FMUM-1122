@@ -158,7 +158,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		final IModule< ? > root = IModule.deserializeFrom( root_tag );
 		
 		final IModule< ? > wrapper = ( IModule< ? > ) this.getItem( stack );
-		wrapper._setParent( root, -1 );  // See GunPartWrapper#_setParent(...).
+		wrapper._setBase( root, -1 );  // See GunPartWrapper#_setParent(...).
 //		TODO: wrapper._refreshEventSubscribe();
 	}
 	
@@ -266,27 +266,6 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		}
 		
 		@Override
-		public void writeAccess( Consumer< ? super IModuleWriteContext > writer )
-		{
-			final IModuleWriteContext ctx = new IModuleWriteContext()
-			{
-				@Override
-				public void setOffsetAndStep( int offset, int step ) {
-					GunPart.this._setOffsetAndStep( offset, step );
-				}
-				
-				@Override
-				public void setPaintjob( int paintjob ) {
-					GunPart.this._setPaintjob( paintjob );
-				}
-			};
-			
-			// TODO: Handle events.
-			writer.accept( ctx );
-			this._syncNBTTag();
-		}
-		
-		@Override
 		public void _getInstalledTransform(
 			IModule< ? > installed,
 			IAnimator animator,
@@ -307,7 +286,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			IAnimator animator,
 			IInHandRenderContext ctx
 		) {
-			this.parent._getInstalledTransform( this, animator, this.mat );
+			this.base._getInstalledTransform( this, animator, this.mat );
 			animator.applyChannel( GunPartType.this.module_animation_channel, this.mat );
 			
 			// TODO: We can buffer animator so no instance will be created for this closure?
@@ -347,7 +326,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			data[ super._dataSize() ] = 0xFFFF & offset | step << 16;
 			
 			// TODO: What animator to use?
-			this.parent._getInstalledTransform( this, IAnimator.NONE, this.mat );
+			this.base._getInstalledTransform( this, IAnimator.NONE, this.mat );
 		}
 		
 		@Override

@@ -4,9 +4,9 @@ import com.fmum.util.Mat4f;
 
 public interface IModuleSlot
 {
-	boolean isCompatible( IModule< ? > module );
+	boolean isCompatibleWith( IModule< ? > module );
 	
-	int maxCapacity();
+	int capacity();
 	
 	default int maxStep() { return 0; }
 	

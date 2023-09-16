@@ -23,20 +23,24 @@ public interface IModule< T extends IModule< ? extends T > >
 	
 	ItemStack itemStack();
 	
-	IModule< ? > parent();
+	IModule< ? > base();
 	
 	int installationSlotIdx();
 	
 	/**
 	 * Friend method that should only be used in between {@link IModule} instances.
 	 */
-	void _setParent( IModule< ? > parent, int installation_slot_idx );
+	void _setBase( IModule< ? > base, int base_slot_idx );
 	
 	/**
 	 * Force NBT change to be updated to the bounden target, so that the {@link Minecraft} will
 	 * synchronize it to client side and save it on quit.
 	 */
 	void _syncNBTTag();
+	
+	IModule< ? > _onBeingInstalled( IModule< ? > base, int base_slot_idx );
+	
+	IModule< ? > _onBeingRemoved();
 	
 	void forEachInstalled( Consumer< ? super T > visitor );
 	
@@ -74,7 +78,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	
 	Optional< Runnable > testAffordable( EntityPlayer player );
 	
-	void writeAccess( Consumer< ? super IModuleWriteContext > writer );
+	IModuleModifySession< T > newModifySession();
 	
 	void _getInstalledTransform(
 		IModule< ? > installed,
@@ -102,12 +106,5 @@ public interface IModule< T extends IModule< ? extends T > >
 		final int mod_id = getModuleID( tag );
 		final IModuleType type = IModuleType.REGISTRY.get( mod_id );
 		return type.deserializeFrom( tag );
-	}
-	
-	interface IModuleWriteContext
-	{
-		void setOffsetAndStep( int offset, int step );
-		
-		void setPaintjob( int paintjob );
 	}
 }

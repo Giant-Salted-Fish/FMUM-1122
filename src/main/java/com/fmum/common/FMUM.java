@@ -90,6 +90,8 @@ public class FMUM
 	@Mod.InstanceFactory
 	private static FMUM create() { return MOD; }
 	
+	public static int max_slot_capacity;
+	
 	public final Registry< IContentPack >
 		content_packs = new Registry<>( IContentPack::name );
 	

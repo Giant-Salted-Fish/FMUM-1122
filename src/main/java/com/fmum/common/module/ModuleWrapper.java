@@ -19,7 +19,7 @@ public abstract class ModuleWrapper<
 	protected ModuleWrapper( T wrapped )
 	{
 		this.wrapped = wrapped;
-		wrapped._setParent( this, -1 );
+		wrapped._setBase( this, -1 );
 	}
 	
 	@Override
@@ -38,16 +38,16 @@ public abstract class ModuleWrapper<
 	}
 	
 	@Override
-	public final IModule< ? > parent() {
+	public final IModule< ? > base() {
 		throw new RuntimeException();
 	}
 	
 	@Override
 	@SuppressWarnings( "unchecked" )
-	public final void _setParent( IModule< ? > wrapped, int installation_slot_idx )
+	public final void _setBase( IModule< ? > wrapped, int installation_slot_idx )
 	{
 		this.wrapped = ( T ) wrapped;
-		wrapped._setParent( this, -1 );
+		wrapped._setBase( this, -1 );
 	}
 	
 	@Override
@@ -113,7 +113,7 @@ public abstract class ModuleWrapper<
 	
 	@Override
 	public final void writeAccess(
-		Consumer< ? super IModuleWriteContext > writer
+		Consumer< ? super IModuleModifySession > writer
 	) { throw new RuntimeException(); }
 	
 	@Override

@@ -18,12 +18,12 @@ public class PointSlot implements IModuleSlot
 	protected Vec3f origin = Vec3f.ORIGIN;
 	
 	@Override
-	public boolean isCompatible( IModule< ? > module ) {
+	public boolean isCompatibleWith( IModule< ? > module ) {
 		return this.category_domain.isCompatible( module.category() );
 	}
 	
 	@Override
-	public int maxCapacity() {
+	public int capacity() {
 		return this.max_capacity;
 	}
 	

@@ -81,7 +81,7 @@ itemGroup.fmum=FMUM 物品
 # 物品提示框
 
 # 对话框提示消息
-fmum.msg.arrive_max_module_capacity=已达最大单槽模组数上限：%s。
+fmum.msg.exceed_max_slot_capacity=已达最大单槽安装数上限：%s。
 fmum.msg.modify_mode_slot=切换至槽位改装模式。
 fmum.msg.modify_mode_module=切换至模组改装模式。
 fmum.msg.modify_mode_paintjob=切换至涂装改装模式。

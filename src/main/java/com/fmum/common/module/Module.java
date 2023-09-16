@@ -1,5 +1,6 @@
 package com.fmum.common.module;
 
+import com.fmum.common.FMUM;
 import com.fmum.util.Mat4f;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -8,6 +9,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants.NBT;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -17,8 +19,8 @@ public abstract class Module< T extends IModule< ? extends T > >
 	// TODO: Maybe make this configurable?
 	protected static final String MODULE_TAG = "+";
 	
-	protected IModule< ? > parent;
-	protected int installation_slot_idx;
+	protected IModule< ? > base;
+	protected int base_slot_idx;
 	protected final Mat4f mat = new Mat4f();
 	
 	protected int paintjob;
@@ -53,25 +55,30 @@ public abstract class Module< T extends IModule< ? extends T > >
 	}
 	
 	@Override
-	public IModule< ? > parent() {
-		return this.parent;
+	public IModule< ? > base() {
+		return this.base;
 	}
 	
 	@Override
 	public int installationSlotIdx() {
-		return this.installation_slot_idx;
+		return this.base_slot_idx;
 	}
 	
 	@Override
-	public void _setParent( IModule< ? > parent, int installation_slot_idx )
+	public void _setBase( IModule< ? > base, int base_slot_idx )
 	{
-		this.parent = parent;
-		this.installation_slot_idx = installation_slot_idx;
+		this.base = base;
+		this.base_slot_idx = base_slot_idx;
 	}
 	
 	@Override
 	public void _syncNBTTag() {
-		this.parent._syncNBTTag();
+		this.base._syncNBTTag();
+	}
+	
+	@Override
+	public IModule< ? > _onBeingInstalled( IModule< ? > base, int base_slot_idx ) {
+		return this;
 	}
 	
 	@Override
@@ -112,6 +119,11 @@ public abstract class Module< T extends IModule< ? extends T > >
 	}
 	
 	@Override
+	public IModuleModifySession< T > newModifySession() {
+		return new ModifySession();
+	}
+	
+	@Override
 	public NBTTagCompound serializeNBT() {
 		return this.nbt;
 	}
@@ -136,7 +148,7 @@ public abstract class Module< T extends IModule< ? extends T > >
 		this.installed_modules.clear();
 		final NBTTagList mod_list = nbt
 			.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
-		for ( int i = 0, size = mod_list.tagCount(), slot = 0; i < size; i += 1)
+		for ( int i = 0, size = mod_list.tagCount(), slot = 0; i < size; i += 1 )
 		{
 			final NBTTagCompound mod_tag = mod_list.getCompoundTagAt( i );
 			final IModule< ? > module = IModule.deserializeFrom( mod_tag );
@@ -144,17 +156,9 @@ public abstract class Module< T extends IModule< ? extends T > >
 			while ( i >= this._getSlotStartIdx( slot + 1 ) ) {
 				slot += 1;
 			}
-			module._setParent( this, slot );
+			module._setBase( this, slot );
 			this.installed_modules.add( ( T ) module );
 		}
-	}
-	
-	protected void _setPaintjob( int paintjob )
-	{
-		this.paintjob = paintjob;
-		final int[] data = this.nbt.getIntArray( DATA_TAG );
-		data[ 0 ] &= 0xFFFF;
-		data[ 0 ] |= paintjob << 16;
 	}
 	
 	/**
@@ -182,10 +186,137 @@ public abstract class Module< T extends IModule< ? extends T > >
 	
 	protected static void _setSlotStartIdxTo( int[] data, int slot_idx, int val )
 	{
-		final int s = slot_idx -= 1;
+		final int s = slot_idx - 1;
 		final int i = 1 + s / 4;
 		final int offset = ( s % 4 ) * 8;
 		data[ i ] &= ~( 0xFF << offset );       // Clear old value.
 		data[ i ] |= ( 0xFF & val ) << offset;  // Set new value.
+	}
+	
+	
+	protected class ModifySession implements IModuleModifySession< T >
+	{
+		protected final LinkedList< Runnable > modify_commands = new LinkedList<>();
+		protected boolean is_valid_state = true;
+		protected boolean can_preview = true;
+		protected String cause = "";
+		
+		@Override
+		public void setOffsetAndStep( int offset, int step ) { }
+		
+		@Override
+		public void setPaintjob( int paintjob )
+		{
+			this.modify_commands.add( () -> {
+				Module.this.paintjob = paintjob;
+				final int[] data = Module.this.nbt.getIntArray( DATA_TAG );
+				data[ 0 ] &= 0xFFFF;
+				data[ 0 ] |= paintjob << 16;
+			} );
+		}
+		
+		@Override
+		@SuppressWarnings( "unchecked" )
+		public void install(
+			int slot_idx,
+			IModule< ? > module,
+			Consumer< Integer > _out_install_idx
+		) {
+			this.modify_commands.add( () -> {
+				final T mod = ( T ) module._onBeingInstalled( Module.this, slot_idx );
+				
+				// Update installed list.
+				final int idx = Module.this._getSlotStartIdx( slot_idx + 1 );
+				Module.this.installed_modules.add( idx, mod );
+				
+				// Update NBT tag.
+				final NBTTagList mod_list = Module.this.nbt.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
+				final NBTTagCompound mod_tag = mod.serializeNBT();
+				mod_list.appendTag( mod_tag );
+				for ( int i = mod_list.tagCount() - 1; i > idx; i -= 1 ) {
+					mod_list.set( i, mod_list.get( i - 1 ) );
+				}
+				mod_list.set( idx, mod_tag );
+				
+				// Update indices.
+				final int[] data = Module.this.nbt.getIntArray( DATA_TAG );
+				for ( int i = slot_idx; i < Module.this.split_indices.length; i += 1 )
+				{
+					final int val = 1 + Module.this._getSlotStartIdx( i );
+					Module.this._setSlotStartIdx( i, val );
+					_setSlotStartIdxTo( data, i, val );
+				}
+				
+				final int install_idx = idx - Module.this._getSlotStartIdx( slot_idx );
+				_out_install_idx.accept( install_idx );
+			} );
+			
+			final IModuleSlot slot = Module.this.getSlot( slot_idx );
+			if ( !slot.isCompatibleWith( module ) )
+			{
+				this.is_valid_state = false;
+				this.can_preview = false;
+				this.cause += "Slot is not compatible with module.";
+				return;
+			}
+			
+			final int capacity = Math.min( FMUM.max_slot_capacity, slot.capacity() );
+			if ( Module.this.getNumInstalledInSlot( slot_idx ) > capacity )
+			{
+				this.can_preview = false;
+				this.cause += FMUM.MOD.format( "fmum.msg.exceed_max_slot_capacity", capacity );
+				return;
+			}
+			
+			// TODO: Check layer limit.
+			// TODO: Post installation event.
+		}
+		
+		@Override
+		@SuppressWarnings( "unchecked" )
+		public void remove( int slot_idx, int install_idx, Consumer< T > _out_removed_module )
+		{
+			// TODO: Post remove event.
+			final int idx = Module.this._getSlotStartIdx( slot_idx ) + install_idx;
+			final T raw_removed = Module.this.installed_modules.remove( idx );
+			
+			// Update NBT tag.
+			final NBTTagList mod_list = Module.this.nbt.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
+			mod_list.removeTag( idx );
+			
+			// Update indices.
+			final int[] data = Module.this.nbt.getIntArray( DATA_TAG );
+			for ( int i = slot_idx + 1; i <= Module.this.split_indices.length; i += 1 )
+			{
+				final int val = -1 + Module.this._getSlotStartIdx( i );
+				Module.this._setSlotStartIdx( i, val );
+				_setSlotStartIdxTo( data, i, val );
+			}
+			
+			final T removed = ( T ) raw_removed._onBeingRemoved();
+			_out_removed_module.accept( removed );
+		}
+		
+		@Override
+		public boolean isValidState() {
+			return this.is_valid_state;
+		}
+		
+		@Override
+		public boolean canPreview() {
+			return this.can_preview;
+		}
+		
+		@Override
+		public String cause() {
+			return this.cause;
+		}
+		
+		@Override
+		public void apply()
+		{
+			this.modify_commands.forEach( Runnable::run );
+			Module.this._syncNBTTag();
+		}
 	}
 }
