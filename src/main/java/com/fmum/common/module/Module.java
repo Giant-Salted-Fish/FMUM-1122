@@ -119,7 +119,7 @@ public abstract class Module< T extends IModule< ? extends T > >
 	}
 	
 	@Override
-	public IModuleModifySession< T > newModifySession() {
+	public IModuleModifySession< T > openModifySession() {
 		return new ModifySession();
 	}
 	
@@ -313,7 +313,7 @@ public abstract class Module< T extends IModule< ? extends T > >
 		}
 		
 		@Override
-		public void apply()
+		public void commit()
 		{
 			this.modify_commands.forEach( Runnable::run );
 			Module.this._syncNBTTag();

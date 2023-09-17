@@ -78,7 +78,7 @@ public interface IModule< T extends IModule< ? extends T > >
 	
 	Optional< Runnable > testAffordable( EntityPlayer player );
 	
-	IModuleModifySession< T > newModifySession();
+	IModuleModifySession< T > openModifySession();
 	
 	void _getInstalledTransform(
 		IModule< ? > installed,

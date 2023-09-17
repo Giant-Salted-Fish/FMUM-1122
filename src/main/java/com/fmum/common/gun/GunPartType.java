@@ -2,6 +2,7 @@ package com.fmum.common.gun;
 
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.IAnimator;
+import com.fmum.common.FMUM;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.ItemType;
 import com.fmum.common.load.IContentBuildContext;
@@ -10,6 +11,8 @@ import com.fmum.common.module.IModule;
 import com.fmum.common.module.IModuleSlot;
 import com.fmum.common.module.IModuleType;
 import com.fmum.common.module.Module;
+import com.fmum.common.module.ModuleSnapshot;
+import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
 import com.fmum.common.paintjob.IPaintableType;
 import com.fmum.common.paintjob.IPaintjob;
 import com.fmum.util.Category;
@@ -48,6 +51,9 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	
 	protected List< IModuleSlot > slots = Collections.emptyList();
 	
+	protected ModuleSnapshot snapshot = ModuleSnapshot.DEFAULT;
+	protected transient NBTTagCompound snapshot_nbt;
+	
 	protected float[] offsets = DEFAULT_OFFSETS;
 	
 	protected List< IPaintjob > paintjobs = Collections.emptyList();
@@ -84,6 +90,8 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		// Apply param scale.
 		this.slots.forEach( slot -> slot.scaleParam( this.param_scale ) );
 		// TODO: Scale hit boxes.
+		
+		ctx.regisPostLoadCallback( this::_setupSnapshotNBT );
 	}
 	
 	@Override
@@ -192,6 +200,19 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		@Nonnull ItemStack stack,
 		@Nonnull EntityPlayer player
 	) { return false; }
+	
+	protected void _setupSnapshotNBT( IPostLoadContext ctx )
+	{
+		final IModule< ? > self = this.createRawModule();
+		this.snapshot.restore( self, name -> {
+			final Optional< IModule< ? > > module = IModuleType
+				.REGISTRY.lookup( name ).map( IModuleType::createRawModule );
+			if ( !module.isPresent() ) {
+				FMUM.MOD.logError( "fmum.fail_to_find_module", name );
+			}
+			return module;
+		} );
+	}
 	
 	protected ICapabilityProvider _wrap( IModule< ? > self, ItemStack stack )
 	{

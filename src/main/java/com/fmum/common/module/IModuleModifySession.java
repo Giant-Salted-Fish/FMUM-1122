@@ -18,5 +18,5 @@ public interface IModuleModifySession< T >
 	
 	String cause();
 	
-	void apply();
+	void commit();
 }
