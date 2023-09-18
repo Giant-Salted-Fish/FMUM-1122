@@ -12,6 +12,7 @@ import com.fmum.common.module.IModuleSlot;
 import com.fmum.common.module.IModuleType;
 import com.fmum.common.module.Module;
 import com.fmum.common.module.ModuleSnapshot;
+import com.fmum.common.module.ModuleWrapper;
 import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
 import com.fmum.common.paintjob.IPaintableType;
 import com.fmum.common.paintjob.IPaintjob;
@@ -31,6 +32,7 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
+import scala.util.Random;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.RandomAccess;
 import java.util.function.Consumer;
 
 public class GunPartType extends ItemType implements IModuleType, IPaintableType
@@ -246,6 +249,48 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		}
 		
 		@Override
+		public IEquippedItem< ? > onTakeOut( EntityPlayer player, EnumHand hand )
+		{
+			final NBTTagCompound stack_tag = this.base.itemStack().getTagCompound();
+			final int stack_id = stack_tag.getInteger( GunPartWrapper.STACK_ID_TAG );
+			
+			final boolean is_logic_server = !player.world.isRemote;
+			if ( is_logic_server )
+			{
+				// This is required because we have no way to assign a new id \
+				// for a copied gun stack without using the mixin, which means \
+				// two guns in player's inventory could have essentially \
+				// identical id! This hack generates a new id for gun in hand \
+				// on taking out, which can not fully settle this problem, but \
+				// should be enough to make it work in most of the time.
+				
+				// Only update id on server side.
+				final int seed = stack_id + player.inventory.currentItem;
+				final int new_stack_id = new Random( seed ).nextInt();
+				stack_tag.setInteger( GunPartWrapper.STACK_ID_TAG, new_stack_id );
+			}
+			else  // On client side.
+			{
+				// Ignore if id changed to the new id updated by server.
+				final IEquippedItem< ? > prev_equipped =
+					PlayerPatchClient.instance.getEquipped( hand );
+				final int prev_stack_id = prev_equipped.item().stackId();
+				final int seed = prev_stack_id + player.inventory.currentItem;
+				final int new_stack_id = new Random( seed ).nextInt();
+				final boolean is_take_out_id_update = stack_id == new_stack_id;
+				if ( is_take_out_id_update )
+				{
+					final ItemStack stack = this.base.itemStack();
+					final NBTTagCompound stack_nbt = stack.getTagCompound();
+					assert stack_nbt != null;
+					stack_nbt.setInteger( GunPartWrapper.STACK_ID_TAG, stack_id );
+				}
+			}
+			
+			return this._createEquipped( player, hand );
+		}
+		
+		@Override
 		public int stackId() {
 			throw new RuntimeException();
 		}
@@ -369,10 +414,18 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			return GunPartType.this.paintjobs.get( this.paintjob ).texture();
 		}
 		
+		protected IEquippedItem< ? >
+			_createEquipped( EntityPlayer player, EnumHand hand )
+		{ return new EquippedGunPart( player, hand ); }
 		
 		protected class EquippedGunPart
 			implements IEquippedItem< IGunPart< ? > >
 		{
+			protected EquippedGunPart( EntityPlayer player, EnumHand hand )
+			{
+			
+			}
+			
 			@Override
 			public IGunPart< ? > item() {
 				return GunPart.this;
