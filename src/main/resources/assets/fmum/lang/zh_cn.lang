@@ -52,7 +52,7 @@ fmum.paintjob_inject_target_not_found=找不到皮肤 %s 指定的注入目标 %
 fmum.pre_init_complete=FMUM 预初始化完成。
 
 fmum.on_item_regis=正在为 FMUM 所属内容注册物品...
-fmum.fail_to_find_module=找不到要求的快照改件 %s。
+fmum.fail_to_find_module=找不到 %s 要求的快照改件 %s。
 fmum.depend_on_key_not_found=找不到 %s 指定的依赖按键 %s。
 fmum.item_regis_complete=物品注册已完成 共计 %s 个。
 fmum.on_sound_regis=正在为 FMUM 所属内容注册音效...

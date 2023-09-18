@@ -152,8 +152,12 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		new_stack_tag.setInteger( GunPartWrapper.STACK_ID_TAG, stack_id );
 		stack.setTagCompound( new_stack_tag );
 		
-		final NBTTagCompound root_tag =
-		return null;
+		final NBTTagCompound root_tag = this.snapshot_nbt.copy();
+		final IModule< ? > self = this.deserializeFrom( root_tag );
+		final ICapabilityProvider wrapper = this._wrap( self, stack );
+		// TODO: Refresh event subscribe.
+		self._syncNBTTag();
+		return wrapper;
 	}
 	
 	@Override
@@ -208,7 +212,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			final Optional< IModule< ? > > module = IModuleType
 				.REGISTRY.lookup( name ).map( IModuleType::createRawModule );
 			if ( !module.isPresent() ) {
-				FMUM.MOD.logError( "fmum.fail_to_find_module", name );
+				FMUM.MOD.logError( "fmum.fail_to_find_module", this, name );
 			}
 			return module;
 		} );

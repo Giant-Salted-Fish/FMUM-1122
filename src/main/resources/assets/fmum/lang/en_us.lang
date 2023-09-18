@@ -52,7 +52,7 @@ fmum.paintjob_inject_target_not_found=Can not find inject target <%2$s> required
 fmum.pre_init_complete=FMUM pre-initialization complete.
 
 fmum.on_item_regis=Registering items for FMUM content packs...
-fmum.fail_to_find_module=Can not find required snapshot module <%s>.
+fmum.fail_to_find_module=Can not find snapshot module <%2$s> required by <%1$s>.
 fmum.depend_on_key_not_found=Can not find depend on key binding <%2$s> required by <%1$s>.
 fmum.item_regis_complete=Item registration complete. %s item(s) registered.
 fmum.on_sound_regis=Registering sounds for FMUM content packs...
