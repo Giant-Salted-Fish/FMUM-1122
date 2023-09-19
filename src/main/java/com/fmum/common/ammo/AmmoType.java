@@ -1,12 +1,15 @@
 package com.fmum.common.ammo;
 
 import com.fmum.common.item.IEquippedItem;
+import com.fmum.common.item.IFMUMVanillaItem;
 import com.fmum.common.item.IItem;
+import com.fmum.common.item.IItemType;
 import com.fmum.common.item.ItemType;
 import com.fmum.common.load.IContentBuildContext;
 import com.fmum.util.Category;
 import com.google.gson.annotations.SerializedName;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -43,8 +46,6 @@ public class AmmoType extends ItemType implements IAmmoType
 		
 		IAmmoType.REGISTRY.regis( this );
 		
-		this.setMaxStackSize( this.max_stack_size );
-		
 		this.category = Optional.ofNullable( this.category )
 			.orElseGet( () -> new Category( this.name ) );
 		
@@ -67,19 +68,37 @@ public class AmmoType extends ItemType implements IAmmoType
 		return this.canShoot;
 	}
 	
-	@Nullable
 	@Override
-	public ICapabilityProvider initCapabilities(
-		ItemStack stack,
-		@Nullable NBTTagCompound nbt
-	) { return new Ammo(); }
+	protected Item _createItem() {
+		return new _AmmoItem();
+	}
 	
 	@Override
 	protected String _typeHint() {
 		return "AMMO";
 	}
 	
-	protected class Ammo implements IItem, ICapabilityProvider
+	
+	protected class _AmmoItem extends Item implements IFMUMVanillaItem
+	{
+		protected _AmmoItem() {
+			this.setMaxStackSize( AmmoType.this.max_stack_size );
+		}
+		
+		@Override
+		public final IItemType type() {
+			return AmmoType.this;
+		}
+		
+		@Override
+		public ICapabilityProvider initCapabilities(
+			@Nonnull ItemStack stack,
+			@Nullable NBTTagCompound nbt
+		) { return new _Ammo(); }
+	}
+	
+	
+	protected class _Ammo implements IItem, ICapabilityProvider
 	{
 		@Override
 		public boolean hasCapability(
@@ -105,7 +124,7 @@ public class AmmoType extends ItemType implements IAmmoType
 			{
 				@Override
 				public IItem item() {
-					return Ammo.this;
+					return _Ammo.this;
 				}
 				
 				@Override

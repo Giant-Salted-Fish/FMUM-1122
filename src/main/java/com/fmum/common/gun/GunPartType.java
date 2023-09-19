@@ -4,6 +4,9 @@ import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.IAnimator;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.IEquippedItem;
+import com.fmum.common.item.IFMUMVanillaItem;
+import com.fmum.common.item.IItem;
+import com.fmum.common.item.IItemType;
 import com.fmum.common.item.ItemType;
 import com.fmum.common.load.IContentBuildContext;
 import com.fmum.client.render.Model;
@@ -22,6 +25,7 @@ import com.fmum.util.Mat4f;
 import com.fmum.util.MathUtil;
 import com.google.gson.annotations.SerializedName;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
@@ -40,8 +44,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.RandomAccess;
-import java.util.function.Consumer;
 
 public class GunPartType extends ItemType implements IModuleType, IPaintableType
 {
@@ -76,9 +78,6 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		IModuleType.REGISTRY.regis( this );
 		IPaintableType.REGISTRY.regis( this );
 		
-		// Set it as not stackable.
-		this.setMaxStackSize( 1 );
-		
 		// Check member variable setup.
 		this.category = Optional.ofNullable( this.category )
 			.orElseGet( () -> new Category( this.name ) );
@@ -107,74 +106,23 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	@Override
-	public ICapabilityProvider initCapabilities(
-		ItemStack stack,
-		@Nullable NBTTagCompound cap_tag
-	) {
-		// 4 case to handle: \
-		// has-stack_tag | has-cap_tag: {ItemStack#ItemStack(NBTTagCompound)} \
-		// has-stack_tag | no--cap_tag: \
-		// no--stack_tag | has-cap_tag: {ItemStack#copy()} \
-		// no--stack_tag | no--cap_tag: {new ItemStack(...)}, {PacketBuffer#readItemStack()} \
-		final NBTTagCompound stack_tag = stack.getTagCompound();
-		final boolean has_cap_tag = cap_tag != null;
-		if ( has_cap_tag )
-		{
-			// 2 cases possible:
-			// no--stack_tag | has-cap_tag: {ItemStack#copy()}.
-			// has-stack_tag | has-cap_tag: {ItemStack#ItemStack(NBTTagCompound)}.
-			final NBTTagCompound nbt = cap_tag.getCompoundTag( "Parent" );
-			
-			// Remove "Parent" tag to prevent repeated deserialization.
-			// See CapabilityDispatcher#deserializeNBT(NBTTagCompound).
-			cap_tag.removeTag( "Parent" );
-			
-			// Has to copy before use if it is the first case as the \
-			// capability tag provided here could be the same as the bounden \
-			// tag of the copy target.
-			final boolean is_stack_copy = stack_tag == null;
-			final NBTTagCompound root_tag = is_stack_copy ? nbt.copy() : nbt;
-			
-			final IModule< ? > self = IModule.deserializeFrom( root_tag );
-			final ICapabilityProvider wrapper = this._wrap( self, stack );
-//			TODO: self.refreshEventSubscribe();
-			return wrapper;
-		}
-		
-		// has-stack_tag | no--cap_tag: should never happen.
-		assert stack_tag != null;
-		
-		// no--stackTag | no--capTag: {new ItemStack(...)}, {PacketBuffer#readItemStack()}
-		// We basically have no way to distinguish from these two cases. But \
-		// it will work fine if we simply deserialize and setup it with the \
-		// compiled snapshot NBT. That is because #readNBTShareTag(ItemStack, NBTTagCompound) \
-		// will later be called for the network packet case. The downside is \
-		// that it will actually deserialize twice for the network packet case.
-		final NBTTagCompound new_stack_tag = new NBTTagCompound();
-		final int stack_id = MathUtil.RAND.nextInt();
-		new_stack_tag.setInteger( GunPartWrapper.STACK_ID_TAG, stack_id );
-		stack.setTagCompound( new_stack_tag );
-		
-		final NBTTagCompound root_tag = this.snapshot_nbt.copy();
-		final IModule< ? > self = this.deserializeFrom( root_tag );
-		final ICapabilityProvider wrapper = this._wrap( self, stack );
-		// TODO: Refresh event subscribe.
-		self._syncNBTTag();
-		return wrapper;
+	public IModule< ? > createRawModule()
+	{
+		// FIXME: Specialized so that it will not break on snapshot restore.
+		return new GunPart<>();
 	}
 	
 	@Override
-	public void readNBTShareTag( ItemStack stack, NBTTagCompound nbt )
+	public IModule< ? > deserializeFrom( NBTTagCompound nbt )
 	{
-		super.readNBTShareTag( stack, nbt );
-		
-		// See GunPartWrapper#syncNBTTag().
-		final NBTTagCompound root_tag = nbt.getCompoundTag( GunPartWrapper.ROOT_TAG );
-		final IModule< ? > root = IModule.deserializeFrom( root_tag );
-		
-		final IModule< ? > wrapper = ( IModule< ? > ) this.getItem( stack );
-		wrapper._setBase( root, -1 );  // See GunPartWrapper#_setParent(...).
-//		TODO: wrapper._refreshEventSubscribe();
+		final GunPart< ? > self = new GunPart<>( nbt );
+		self.deserializeNBT( nbt );
+		return self;
+	}
+	
+	@Override
+	public IGunPart< ? > getItem( ItemStack stack ) {
+		return ( IGunPart< ? > ) super.getItem( stack );
 	}
 	
 	@Override
@@ -182,31 +130,10 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		this.paintjobs.add( paintjob );
 	}
 	
-	/**
-	 * <p> {@inheritDoc} </p>
-	 *
-	 * <p> In default avoid to break the block when holding a this item in
-	 * survive mode. </p>
-	 */
 	@Override
-	public boolean onBlockStartBreak(
-		@Nonnull ItemStack itemstack,
-		@Nonnull BlockPos pos,
-		@Nonnull EntityPlayer player
-	) { return true; }
-	
-	/**
-	 * <p> {@inheritDoc} </p>
-	 *
-	 * <p> In default avoid to break the block when holding this item in creative mode. </p>
-	 */
-	@Override
-	public boolean canDestroyBlockInCreative(
-		@Nonnull World world,
-		@Nonnull BlockPos pos,
-		@Nonnull ItemStack stack,
-		@Nonnull EntityPlayer player
-	) { return false; }
+	protected Item _createItem() {
+		return new GunPartItem();
+	}
 	
 	protected void _setupSnapshotNBT( IPostLoadContext ctx )
 	{
@@ -230,6 +157,122 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	@Override
 	protected String _typeHint() {
 		return "GUN_PART";
+	}
+	
+	
+	protected class GunPartItem extends Item implements IFMUMVanillaItem
+	{
+		protected GunPartItem()
+		{
+			this.setRegistryName( GunPartType.this.name );
+			this.setTranslationKey( GunPartType.this.name );
+			
+			// Set it as not stackable.
+			this.setMaxStackSize( 1 );
+			// TODO: Handle paintjobs.
+		}
+		
+		@Override
+		public final IItemType type() {
+			return GunPartType.this;
+		}
+		
+		@Override
+		public ICapabilityProvider initCapabilities(
+			ItemStack stack,
+			@Nullable NBTTagCompound cap_tag
+		) {
+			// 4 case to handle: \
+			// has-stack_tag | has-cap_tag: {ItemStack#ItemStack(NBTTagCompound)} \
+			// has-stack_tag | no--cap_tag: \
+			// no--stack_tag | has-cap_tag: {ItemStack#copy()} \
+			// no--stack_tag | no--cap_tag: {new ItemStack(...)}, {PacketBuffer#readItemStack()} \
+			final NBTTagCompound stack_tag = stack.getTagCompound();
+			final boolean has_cap_tag = cap_tag != null;
+			if ( has_cap_tag )
+			{
+				// 2 cases possible:
+				// no--stack_tag | has-cap_tag: {ItemStack#copy()}.
+				// has-stack_tag | has-cap_tag: {ItemStack#ItemStack(NBTTagCompound)}.
+				final NBTTagCompound nbt = cap_tag.getCompoundTag( "Parent" );
+				
+				// Remove "Parent" tag to prevent repeated deserialization.
+				// See CapabilityDispatcher#deserializeNBT(NBTTagCompound).
+				cap_tag.removeTag( "Parent" );
+				
+				// Has to copy before use if it is the first case as the \
+				// capability tag provided here could be the same as the bounden \
+				// tag of the copy target.
+				final boolean is_stack_copy = stack_tag == null;
+				final NBTTagCompound root_tag = is_stack_copy ? nbt.copy() : nbt;
+				
+				final IModule< ? > self = IModule.deserializeFrom( root_tag );
+				final ICapabilityProvider wrapper = GunPartType.this._wrap( self, stack );
+				// TODO: self.refreshEventSubscribe();
+				return wrapper;
+			}
+			
+			// has-stack_tag | no--cap_tag: should never happen.
+			assert stack_tag != null;
+			
+			// no--stackTag | no--capTag: {new ItemStack(...)}, {PacketBuffer#readItemStack()}
+			// We basically have no way to distinguish from these two cases. But \
+			// it will work fine if we simply deserialize and setup it with the \
+			// compiled snapshot NBT. That is because #readNBTShareTag(ItemStack, NBTTagCompound) \
+			// will later be called for the network packet case. The downside is \
+			// that it will actually deserialize twice for the network packet case.
+			final NBTTagCompound new_stack_tag = new NBTTagCompound();
+			final int stack_id = MathUtil.RAND.nextInt();
+			new_stack_tag.setInteger( GunPartWrapper.STACK_ID_TAG, stack_id );
+			stack.setTagCompound( new_stack_tag );
+			
+			final NBTTagCompound root_tag = GunPartType.this.snapshot_nbt.copy();
+			final IModule< ? > self = GunPartType.this.deserializeFrom( root_tag );
+			final ICapabilityProvider wrapper = GunPartType.this._wrap( self, stack );
+			// TODO: Refresh event subscribe.
+			self._syncNBTTag();
+			return wrapper;
+		}
+		
+		@Override
+		public void readNBTShareTag( ItemStack stack, NBTTagCompound nbt )
+		{
+			super.readNBTShareTag( stack, nbt );
+			
+			// See GunPartWrapper#syncNBTTag().
+			final NBTTagCompound root_tag = nbt.getCompoundTag( GunPartWrapper.ROOT_TAG );
+			final IModule< ? > root = IModule.deserializeFrom( root_tag );
+			
+			final IModule< ? > wrapper = GunPartType.this.getItem( stack );
+			wrapper._setBase( root, -1 );  // See GunPartWrapper#_setParent(...).
+			//		TODO: wrapper._refreshEventSubscribe();
+		}
+		
+		/**
+		 * <p> {@inheritDoc} </p>
+		 *
+		 * <p> In default avoid to break the block when holding a this item in
+		 * survive mode. </p>
+		 */
+		@Override
+		public boolean onBlockStartBreak(
+			@Nonnull ItemStack itemstack,
+			@Nonnull BlockPos pos,
+			@Nonnull EntityPlayer player
+		) { return true; }
+		
+		/**
+		 * <p> {@inheritDoc} </p>
+		 *
+		 * <p> In default avoid to break the block when holding this item in creative mode. </p>
+		 */
+		@Override
+		public boolean canDestroyBlockInCreative(
+			@Nonnull World world,
+			@Nonnull BlockPos pos,
+			@Nonnull ItemStack stack,
+			@Nonnull EntityPlayer player
+		) { return false; }
 	}
 	
 	
@@ -277,8 +320,8 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 				final int prev_stack_id = prev_equipped.item().stackId();
 				final int seed = prev_stack_id + player.inventory.currentItem;
 				final int new_stack_id = new Random( seed ).nextInt();
-				final boolean is_take_out_id_update = stack_id == new_stack_id;
-				if ( is_take_out_id_update )
+				final boolean is_id_update = stack_id == new_stack_id;
+				if ( is_id_update )
 				{
 					final ItemStack stack = this.base.itemStack();
 					final NBTTagCompound stack_nbt = stack.getTagCompound();
@@ -333,6 +376,18 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		@Override
 		public int step() {
 			return this.step;
+		}
+		
+		@Override
+		public IModule< ? > _onBeingRemoved()
+		{
+			final ItemStack stack = new ItemStack( GunPartType.this.item );
+			final IModule< ? > wrapper = GunPartType.this.getItem( stack );
+			wrapper._setBase( this, -1 );
+			
+			this._syncNBTTag();
+			// TODO: Update module event subscribe.
+			return wrapper;
 		}
 		
 		@Override

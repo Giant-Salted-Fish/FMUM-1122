@@ -51,6 +51,16 @@ public abstract class ModuleWrapper<
 	}
 	
 	@Override
+	public final IModule< ? >
+		_onBeingInstalled( IModule< ? > base, int base_slot_idx )
+	{ return this.wrapped._onBeingInstalled( base, base_slot_idx ); }
+	
+	@Override
+	public final IModule< ? > _onBeingRemoved() {
+		throw new RuntimeException();
+	}
+	
+	@Override
 	public final void forEachInstalled( Consumer< ? super I > visitor ) {
 		this.wrapped.forEachInstalled( visitor );
 	}
@@ -112,9 +122,9 @@ public abstract class ModuleWrapper<
 	}
 	
 	@Override
-	public final void writeAccess(
-		Consumer< ? super IModuleModifySession > writer
-	) { throw new RuntimeException(); }
+	public IModuleModifySession< I > openModifySession() {
+		throw new RuntimeException();
+	}
 	
 	@Override
 	public void _getInstalledTransform(

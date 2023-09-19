@@ -5,6 +5,7 @@ import com.fmum.client.input.KeyBindManager;
 import com.fmum.client.input.KeyBindType;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.common.FMUM;
+import com.fmum.common.gun.GunPartType;
 import com.fmum.common.load.BuildableType;
 import com.fmum.common.load.IContentBuildContext;
 import com.fmum.common.load.LoaderNotFoundException;
@@ -13,6 +14,8 @@ import com.fmum.common.pack.IContentPack;
 import com.fmum.common.pack.IContentPackFactory;
 import com.fmum.common.pack.IContentPackFactory.IMeshLoadContext;
 import com.fmum.common.pack.IContentPackFactory.IPrepareContext;
+import com.fmum.common.paintjob.JsonPaintjob;
+import com.fmum.common.tab.JsonCreativeTab;
 import com.fmum.util.Mesh;
 import com.fmum.util.Mesh.Builder;
 import com.fmum.util.ObjMeshBuilder;
@@ -156,19 +159,34 @@ public final class FMUMClient extends FMUM
 	}
 	
 	@Override
-	protected void _callContentBuildOnSide(
-		BuildableType buildable,
-		IContentBuildContext ctx
-	) { buildable.buildClientSide( ctx ); }
-	
-	@Override
-	protected void _doRegisContentLoader(
-		BiConsumer< String, Class< ? extends BuildableType > > regis
-	) {
-		super._doRegisContentLoader( regis );
+	protected void _regisContentLoader( IPrepareContext ctx )
+	{
+		this._quickRegisContentLoader(
+			ctx, "creative_tab",
+			JsonCreativeTab.class,
+			JsonCreativeTab::buildClientSide
+		);
+		this._quickRegisContentLoader(
+			ctx, "paintjob",
+			JsonPaintjob.class,
+			JsonPaintjob::buildClientSide
+		);
+		this._quickRegisContentLoader(
+			ctx, "gun_part",
+			GunPartType.class,
+			GunPartType::buildClientSide
+		);
 		
-		regis.accept( "key_bind", KeyBindType.class );
-		regis.accept( "toggle_key_bind", ToggleKeyBindType.class );
+		this._quickRegisContentLoader(
+			ctx, "key_bind",
+			KeyBindType.class,
+			KeyBindType::buildClientSide
+		);
+		this._quickRegisContentLoader(
+			ctx, "toggle_key_bind",
+			ToggleKeyBindType.class,
+			ToggleKeyBindType::buildClientSide
+		);
 	}
 	
 	@Override

@@ -2,11 +2,14 @@ package com.fmum.common;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.client.ModConfigClient;
+import com.fmum.common.gun.GunPartType;
 import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemType;
 import com.fmum.common.load.BuildableType;
 import com.fmum.common.load.IContentBuildContext;
 import com.fmum.common.load.IContentLoader;
+import com.fmum.common.module.IModuleSlot;
+import com.fmum.common.module.StepRailSlot;
 import com.fmum.common.pack.IContentPackFactory.IMeshLoadContext;
 import com.fmum.util.CategoryDomain;
 import com.fmum.util.Category;
@@ -262,7 +265,7 @@ public class FMUM
 		};
 		this.__regisCapability( prepare_context );
 		this._regisGsonAdapter( prepare_context );
-		this.__regisContentLoader( prepare_context );
+		this._regisContentLoader( prepare_context );
 		pack_factories.forEach( factory -> {
 			final IContentPack content_pack =
 				this._callCreatePackOnSide( factory, prepare_context );
@@ -340,6 +343,11 @@ public class FMUM
 	protected void _regisGsonAdapter( IPrepareContext ctx )
 	{
 		ctx.regisGsonDeserializer(
+			IModuleSlot.class,
+			( json, type_of_T, context ) -> context.deserialize( json, StepRailSlot.class )
+		);
+		
+		ctx.regisGsonDeserializer(
 			Category.class,
 			( json, type_of_T, context ) ->
 				new Category( json.getAsString() )
@@ -387,30 +395,36 @@ public class FMUM
 		);
 	}
 	
-	protected void _doRegisContentLoader(
-		BiConsumer< String, Class< ? extends BuildableType > > regis
-	) {
-		regis.accept( "creative_tab", JsonCreativeTab.class );
-		regis.accept( "paintjob", JsonPaintjob.class );
+	protected void _regisContentLoader( IPrepareContext ctx )
+	{
+		this._quickRegisContentLoader(
+			ctx, "creative_tab",
+			JsonCreativeTab.class,
+			JsonCreativeTab::buildServerSide
+		);
+		this._quickRegisContentLoader(
+			ctx, "paintjob",
+			JsonPaintjob.class,
+			JsonPaintjob::buildServerSide
+		);
+		this._quickRegisContentLoader(
+			ctx, "gun_part",
+			GunPartType.class,
+			GunPartType::buildServerSide
+		);
 	}
 	
-	protected void _callContentBuildOnSide(
-		BuildableType buildable,
-		IContentBuildContext ctx
-	) { buildable.buildServerSide( ctx ); }
-	
-	private void __regisContentLoader( IPrepareContext ctx )
-	{
-		this._doRegisContentLoader(
-			( entry, clazz ) -> {
-				final IContentLoader loader = ( obj, gson, ctx_ ) -> {
-					final BuildableType buildable = gson.fromJson( obj, clazz );
-					this._callContentBuildOnSide( buildable, ctx_ );
-					return buildable;
-				};
-				ctx.regisContentLoader( entry, loader );
-			}
-		);
+	protected final < T > void _quickRegisContentLoader(
+		IPrepareContext ctx,
+		String entry,
+		Class< T > clazz,
+		BiConsumer< T, IContentBuildContext > processor
+	) {
+		ctx.regisContentLoader( entry, ( obj, gson, ctx_ ) -> {
+			final T buildable = gson.fromJson( obj, clazz );
+			processor.accept( buildable, ctx_ );
+			return buildable;
+		} );
 	}
 	
 	private void __regisCapability( IPrepareContext ctx )

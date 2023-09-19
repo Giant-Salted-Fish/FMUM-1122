@@ -3,6 +3,7 @@ package com.fmum.common.item;
 import com.fmum.client.FMUMClient;
 import com.fmum.common.FMUM;
 import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.load.TexturedType;
 import com.fmum.common.pack.IContentPack;
 import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
 import com.fmum.common.tab.ICreativeTab;
@@ -19,29 +20,20 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public abstract class ItemType extends Item
-	implements IItemType, IFMUMVanillaItem
+public abstract class ItemType extends TexturedType implements IItemType
 {
-	protected String name;
-	
-	protected IContentPack from_pack;
-	
-	@SideOnly( Side.CLIENT )
-	protected ResourceLocation texture;
-	
 	@SerializedName( value = "creative_tab", alternate = "item_group" )
 	protected String creative_tab = FMUM.MODID;
 	
+	protected transient Item item;
+	
+	@Override
 	public void buildServerSide( IContentBuildContext ctx )
 	{
+		super.buildServerSide( ctx );
+		
 		IItemType.REGISTRY.regis( this );
-		
-		this.name = Optional.ofNullable( this.name )
-			.orElseGet( ctx::fallbackName );
-		this.from_pack = ctx.contentPack();
-		
-		this.setRegistryName( this.name );
-		this.setTranslationKey( this.name );
+		this.item = this._createItem();
 		
 		// Item creative tab may not be loaded yet, so we defer it to post load.
 		ctx.regisPostLoadCallback( this::_setupCreativeTab );
@@ -63,12 +55,7 @@ public abstract class ItemType extends Item
 	
 	@Override
 	public Item vanillaItem() {
-		return this;
-	}
-	
-	@Override
-	public IItemType type() {
-		return this;
+		return this.item;
 	}
 	
 	@Override
@@ -78,11 +65,6 @@ public abstract class ItemType extends Item
 		return stack.getCapability( IItem.CAPABILITY, facing );
 	}
 	
-	@Nullable
-	@Override
-	public abstract ICapabilityProvider
-		initCapabilities( ItemStack stack, @Nullable NBTTagCompound nbt );
-	
 	public String toString()
 	{
 		return String.format(
@@ -90,6 +72,8 @@ public abstract class ItemType extends Item
 			this.from_pack.toString(), this.name
 		);
 	}
+	
+	protected abstract Item _createItem();
 	
 	protected abstract String _typeHint();
 	

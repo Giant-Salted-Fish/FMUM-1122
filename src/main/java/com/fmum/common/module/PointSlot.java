@@ -10,7 +10,7 @@ import com.google.gson.annotations.SerializedName;
  */
 public class PointSlot implements IModuleSlot
 {
-	@SerializedName( value = "category_domain", alternate = "allowed_modules" )
+	@SerializedName( value = "category_domain", alternate = "allowed" )
 	protected CategoryDomain category_domain = CategoryDomain.DEFAULT;
 	
 	protected int max_capacity = 1;
