@@ -33,7 +33,7 @@ public abstract class ItemType extends TexturedType implements IItemType
 		super.buildServerSide( ctx );
 		
 		IItemType.REGISTRY.regis( this );
-		this.item = this._createItem();
+		this.item = this._createItem( ctx );
 		
 		// Item creative tab may not be loaded yet, so we defer it to post load.
 		ctx.regisPostLoadCallback( this::_setupCreativeTab );
@@ -73,7 +73,7 @@ public abstract class ItemType extends TexturedType implements IItemType
 		);
 	}
 	
-	protected abstract Item _createItem();
+	protected abstract Item _createItem( IContentBuildContext ctx );
 	
 	protected abstract String _typeHint();
 	

@@ -69,7 +69,7 @@ public class AmmoType extends ItemType implements IAmmoType
 	}
 	
 	@Override
-	protected Item _createItem() {
+	protected Item _createItem( IContentBuildContext ctx ) {
 		return new _AmmoItem();
 	}
 	

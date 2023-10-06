@@ -13,13 +13,12 @@ import java.util.LinkedList;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public abstract class Module< T extends IModule< ? extends T > >
-	implements IModule< T >
+public abstract class Module< T extends IModule > implements IModule
 {
 	// TODO: Maybe make this configurable?
 	protected static final String MODULE_TAG = "+";
 	
-	protected IModule< ? > base;
+	protected IModule base;
 	protected int base_slot_idx;
 	protected final Mat4f mat = new Mat4f();
 	
@@ -55,7 +54,7 @@ public abstract class Module< T extends IModule< ? extends T > >
 	}
 	
 	@Override
-	public IModule< ? > base() {
+	public IModule base() {
 		return this.base;
 	}
 	
@@ -65,7 +64,7 @@ public abstract class Module< T extends IModule< ? extends T > >
 	}
 	
 	@Override
-	public void _setBase( IModule< ? > base, int base_slot_idx )
+	public void _setBase( IModule base, int base_slot_idx )
 	{
 		this.base = base;
 		this.base_slot_idx = base_slot_idx;
@@ -77,12 +76,12 @@ public abstract class Module< T extends IModule< ? extends T > >
 	}
 	
 	@Override
-	public IModule< ? > _onBeingInstalled( IModule< ? > base, int base_slot_idx ) {
+	public IModule _onBeingInstalled( IModule base, int base_slot_idx ) {
 		return this;
 	}
 	
 	@Override
-	public void forEachInstalled( Consumer< ? super T > visitor ) {
+	public void forEachInstalled( Consumer< ? super IModule > visitor ) {
 		this.installed_modules.forEach( visitor );
 	}
 	
@@ -95,7 +94,7 @@ public abstract class Module< T extends IModule< ? extends T > >
 	}
 	
 	@Override
-	public T getInstalled( int slot_idx, int install_idx )
+	public IModule getInstalled( int slot_idx, int install_idx )
 	{
 		final int idx = this._getSlotStartIdx( slot_idx ) + install_idx;
 		return this.installed_modules.get( idx );
@@ -119,7 +118,7 @@ public abstract class Module< T extends IModule< ? extends T > >
 	}
 	
 	@Override
-	public IModuleModifySession< T > openModifySession() {
+	public IModuleModifySession openModifySession() {
 		return new ModifySession();
 	}
 	
@@ -151,7 +150,7 @@ public abstract class Module< T extends IModule< ? extends T > >
 		for ( int i = 0, size = mod_list.tagCount(), slot = 0; i < size; i += 1 )
 		{
 			final NBTTagCompound mod_tag = mod_list.getCompoundTagAt( i );
-			final IModule< ? > module = IModule.deserializeFrom( mod_tag );
+			final IModule module = IModule.deserializeFrom( mod_tag );
 			
 			while ( i >= this._getSlotStartIdx( slot + 1 ) ) {
 				slot += 1;
@@ -194,7 +193,7 @@ public abstract class Module< T extends IModule< ? extends T > >
 	}
 	
 	
-	protected class ModifySession implements IModuleModifySession< T >
+	protected class ModifySession implements IModuleModifySession
 	{
 		protected final LinkedList< Runnable > modify_commands = new LinkedList<>();
 		protected boolean is_valid_state = true;
@@ -219,7 +218,7 @@ public abstract class Module< T extends IModule< ? extends T > >
 		@SuppressWarnings( "unchecked" )
 		public void install(
 			int slot_idx,
-			IModule< ? > module,
+			IModule module,
 			Consumer< Integer > _out_install_idx
 		) {
 			this.modify_commands.add( () -> {
@@ -274,8 +273,11 @@ public abstract class Module< T extends IModule< ? extends T > >
 		
 		@Override
 		@SuppressWarnings( "unchecked" )
-		public void remove( int slot_idx, int install_idx, Consumer< T > _out_removed_module )
-		{
+		public void remove(
+			int slot_idx,
+			int install_idx,
+			Consumer< IModule > _out_removed_module
+		) {
 			// TODO: Post remove event.
 			final int idx = Module.this._getSlotStartIdx( slot_idx ) + install_idx;
 			final T raw_removed = Module.this.installed_modules.remove( idx );
@@ -286,7 +288,8 @@ public abstract class Module< T extends IModule< ? extends T > >
 			
 			// Update indices.
 			final int[] data = Module.this.nbt.getIntArray( DATA_TAG );
-			for ( int i = slot_idx + 1; i <= Module.this.split_indices.length; i += 1 )
+			final int size = Module.this.split_indices.length;
+			for ( int i = slot_idx + 1; i <= size; i += 1 )
 			{
 				final int val = -1 + Module.this._getSlotStartIdx( i );
 				Module.this._setSlotStartIdx( i, val );

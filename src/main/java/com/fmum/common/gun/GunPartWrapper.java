@@ -17,10 +17,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class GunPartWrapper<
-	I extends IGunPart< ? extends I >,
-	T extends IGunPart< ? extends I >
-> extends ModuleWrapper< I, T > implements IGunPart< I >, ICapabilityProvider
+public class GunPartWrapper< T extends IGunPart >
+	extends ModuleWrapper< T > implements IGunPart, ICapabilityProvider
 {
 	public static final String
 		STACK_ID_TAG = "i",

@@ -4,7 +4,7 @@ import com.fmum.util.Mat4f;
 
 public interface IModuleSlot
 {
-	boolean isCompatibleWith( IModule< ? > module );
+	boolean isCompatibleWith( IModule module );
 	
 	int capacity();
 	
@@ -12,5 +12,5 @@ public interface IModuleSlot
 	
 	void scaleParam( float scale );
 	
-	void applyTransform( IModule< ? > child_module, Mat4f dst );
+	void applyTransform( IModule child_module, Mat4f dst );
 }

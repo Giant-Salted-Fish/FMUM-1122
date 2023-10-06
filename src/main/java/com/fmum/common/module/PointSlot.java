@@ -18,7 +18,7 @@ public class PointSlot implements IModuleSlot
 	protected Vec3f origin = Vec3f.ORIGIN;
 	
 	@Override
-	public boolean isCompatibleWith( IModule< ? > module ) {
+	public boolean isCompatibleWith( IModule module ) {
 		return this.category_domain.isCompatible( module.category() );
 	}
 	
@@ -33,7 +33,7 @@ public class PointSlot implements IModuleSlot
 	}
 	
 	@Override
-	public void applyTransform( IModule< ? > child_module, Mat4f dst ) {
+	public void applyTransform( IModule child_module, Mat4f dst ) {
 		dst.translate( this.origin );
 	}
 }

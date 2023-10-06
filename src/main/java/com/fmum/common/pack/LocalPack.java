@@ -113,6 +113,11 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 		return this;
 	}
 	
+	@Override
+	public String toString() {
+		return this.name();
+	}
+	
 	protected abstract void _loadPackContent( ILoadContext ctx );
 	
 	@SideOnly( Side.CLIENT )
@@ -190,7 +195,10 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 		String parent_path,
 		ILoadContext ctx
 	) {
-		for ( File file : search_in_dir.listFiles() )
+		final File[] files = search_in_dir.listFiles();
+		assert files != null;
+		
+		for ( File file : files )
 		{
 			final String file_name = file.getName();
 			final String file_path = parent_path + "/" + file_name;

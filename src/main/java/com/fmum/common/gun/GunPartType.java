@@ -5,7 +5,6 @@ import com.fmum.client.render.IAnimator;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IFMUMVanillaItem;
-import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemType;
 import com.fmum.common.item.ItemType;
 import com.fmum.common.load.IContentBuildContext;
@@ -15,7 +14,6 @@ import com.fmum.common.module.IModuleSlot;
 import com.fmum.common.module.IModuleType;
 import com.fmum.common.module.Module;
 import com.fmum.common.module.ModuleSnapshot;
-import com.fmum.common.module.ModuleWrapper;
 import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
 import com.fmum.common.paintjob.IPaintableType;
 import com.fmum.common.paintjob.IPaintjob;
@@ -59,6 +57,9 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	protected ModuleSnapshot snapshot = ModuleSnapshot.DEFAULT;
 	protected transient NBTTagCompound snapshot_nbt;
 	
+	protected transient Item raw_item;
+	protected transient NBTTagCompound raw_root_nbt;
+	
 	protected float[] offsets = DEFAULT_OFFSETS;
 	
 	protected List< IPaintjob > paintjobs = Collections.emptyList();
@@ -78,6 +79,9 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		IModuleType.REGISTRY.regis( this );
 		IPaintableType.REGISTRY.regis( this );
 		
+		this.raw_item = this._createRawItem( ctx );
+		this.raw_root_nbt = this._genRawRootNBT( ctx );
+		
 		// Check member variable setup.
 		this.category = Optional.ofNullable( this.category )
 			.orElseGet( () -> new Category( this.name ) );
@@ -93,7 +97,8 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		this.slots.forEach( slot -> slot.scaleParam( this.param_scale ) );
 		// TODO: Scale hit boxes.
 		
-		ctx.regisPostLoadCallback( this::_setupSnapshotNBT );
+		ctx.regisPostLoadCallback( ctx_ ->
+			this.snapshot_nbt = this._genSnapshotNBT( ctx_ ) );
 	}
 	
 	@Override
@@ -106,14 +111,15 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	@Override
-	public IModule< ? > createRawModule()
+	public IModule createRawModule()
 	{
 		// FIXME: Specialized so that it will not break on snapshot restore.
-		return new GunPart<>();
+		final ItemStack stack = new ItemStack( this.raw_item );
+		return this.getItem( stack );
 	}
 	
 	@Override
-	public IModule< ? > deserializeFrom( NBTTagCompound nbt )
+	public IModule deserializeFrom( NBTTagCompound nbt )
 	{
 		final GunPart< ? > self = new GunPart<>( nbt );
 		self.deserializeNBT( nbt );
@@ -121,8 +127,8 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	@Override
-	public IGunPart< ? > getItem( ItemStack stack ) {
-		return ( IGunPart< ? > ) super.getItem( stack );
+	public IGunPart getItem( ItemStack stack ) {
+		return ( IGunPart ) super.getItem( stack );
 	}
 	
 	@Override
@@ -131,24 +137,56 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	@Override
-	protected Item _createItem() {
-		return new GunPartItem();
+	protected Item _createItem( IContentBuildContext ctx ) {
+		return new ItemGunPart();
 	}
 	
-	protected void _setupSnapshotNBT( IPostLoadContext ctx )
+	protected NBTTagCompound _genSnapshotNBT( IPostLoadContext ctx )
 	{
-		final IModule< ? > self = this.createRawModule();
+		final IModule self = this.createRawModule();
 		this.snapshot.restore( self, name -> {
-			final Optional< IModule< ? > > module = IModuleType
+			final Optional< IModule > module = IModuleType
 				.REGISTRY.lookup( name ).map( IModuleType::createRawModule );
 			if ( !module.isPresent() ) {
 				FMUM.MOD.logError( "fmum.fail_to_find_module", this, name );
 			}
 			return module;
 		} );
+		return self.serializeNBT();
 	}
 	
-	protected ICapabilityProvider _wrap( IModule< ? > self, ItemStack stack )
+	protected Item _createRawItem( IContentBuildContext ctx )
+	{
+		return new ItemGunPart()
+		{
+			@Override
+			public ICapabilityProvider initCapabilities(
+				ItemStack stack,
+				@Nullable NBTTagCompound cap_tag
+			) { return GunPartType.this._initRawItemStack( stack ); }
+		};
+	}
+	
+	protected final ICapabilityProvider _initRawItemStack( ItemStack stack )
+	{
+		final NBTTagCompound stack_tag = new NBTTagCompound();
+		final int stack_id = MathUtil.RAND.nextInt();
+		stack_tag.setInteger( GunPartWrapper.STACK_ID_TAG, stack_id );
+		stack.setTagCompound( stack_tag );
+		
+		final NBTTagCompound root_tag = GunPartType.this.raw_root_nbt.copy();
+		final IModule self = GunPartType.this.deserializeFrom( root_tag );
+		final ICapabilityProvider wrapper = GunPartType.this._wrap( self, stack );
+		// TODO: Refresh event subscribe.
+		self._syncNBTTag();
+		return wrapper;
+	}
+	
+	protected NBTTagCompound _genRawRootNBT( IContentBuildContext ctx ) {
+		return new GunPart<>().serializeNBT();
+	}
+	
+	protected ICapabilityProvider _wrap( IModule self, ItemStack stack )
 	{
 		final GunPart< ? > gun_part = ( GunPart< ? > ) self;
 		return new GunPartWrapper<>( gun_part, stack );
@@ -160,9 +198,9 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	
-	protected class GunPartItem extends Item implements IFMUMVanillaItem
+	protected class ItemGunPart extends Item implements IFMUMVanillaItem
 	{
-		protected GunPartItem()
+		protected ItemGunPart()
 		{
 			this.setRegistryName( GunPartType.this.name );
 			this.setTranslationKey( GunPartType.this.name );
@@ -206,7 +244,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 				final boolean is_stack_copy = stack_tag == null;
 				final NBTTagCompound root_tag = is_stack_copy ? nbt.copy() : nbt;
 				
-				final IModule< ? > self = IModule.deserializeFrom( root_tag );
+				final IModule self = IModule.deserializeFrom( root_tag );
 				final ICapabilityProvider wrapper = GunPartType.this._wrap( self, stack );
 				// TODO: self.refreshEventSubscribe();
 				return wrapper;
@@ -227,7 +265,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			stack.setTagCompound( new_stack_tag );
 			
 			final NBTTagCompound root_tag = GunPartType.this.snapshot_nbt.copy();
-			final IModule< ? > self = GunPartType.this.deserializeFrom( root_tag );
+			final IModule self = GunPartType.this.deserializeFrom( root_tag );
 			final ICapabilityProvider wrapper = GunPartType.this._wrap( self, stack );
 			// TODO: Refresh event subscribe.
 			self._syncNBTTag();
@@ -235,17 +273,17 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		}
 		
 		@Override
-		public void readNBTShareTag( ItemStack stack, NBTTagCompound nbt )
+		public void readNBTShareTag( @Nonnull ItemStack stack, NBTTagCompound nbt )
 		{
 			super.readNBTShareTag( stack, nbt );
 			
 			// See GunPartWrapper#syncNBTTag().
 			final NBTTagCompound root_tag = nbt.getCompoundTag( GunPartWrapper.ROOT_TAG );
-			final IModule< ? > root = IModule.deserializeFrom( root_tag );
+			final IModule root = IModule.deserializeFrom( root_tag );
 			
-			final IModule< ? > wrapper = GunPartType.this.getItem( stack );
+			final IModule wrapper = GunPartType.this.getItem( stack );
 			wrapper._setBase( root, -1 );  // See GunPartWrapper#_setParent(...).
-			//		TODO: wrapper._refreshEventSubscribe();
+			// TODO: wrapper._refreshEventSubscribe();
 		}
 		
 		/**
@@ -276,8 +314,8 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	
-	protected class GunPart< I extends IGunPart< ? extends I > >
-		extends Module< I > implements IGunPart< I >
+	protected class GunPart< T extends IGunPart >
+		extends Module< T > implements IGunPart
 	{
 		protected short offset;
 		protected short step;
@@ -379,10 +417,10 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		}
 		
 		@Override
-		public IModule< ? > _onBeingRemoved()
+		public IModule _onBeingRemoved()
 		{
 			final ItemStack stack = new ItemStack( GunPartType.this.item );
-			final IModule< ? > wrapper = GunPartType.this.getItem( stack );
+			final IModule wrapper = GunPartType.this.getItem( stack );
 			wrapper._setBase( this, -1 );
 			
 			this._syncNBTTag();
@@ -392,7 +430,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		
 		@Override
 		public void _getInstalledTransform(
-			IModule< ? > installed,
+			IModule installed,
 			IAnimator animator,
 			Mat4f dst
 		) {
@@ -474,7 +512,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		{ return new EquippedGunPart( player, hand ); }
 		
 		protected class EquippedGunPart
-			implements IEquippedItem< IGunPart< ? > >
+			implements IEquippedItem< IGunPart >
 		{
 			protected EquippedGunPart( EntityPlayer player, EnumHand hand )
 			{
@@ -482,7 +520,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			}
 			
 			@Override
-			public IGunPart< ? > item() {
+			public IGunPart item() {
 				return GunPart.this;
 			}
 			

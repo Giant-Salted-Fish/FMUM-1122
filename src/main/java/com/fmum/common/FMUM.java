@@ -324,8 +324,7 @@ public class FMUM
 					return hidden_tab;
 				}
 			};
-			post_load_callbacks.forEach(
-				callback -> callback.accept( post_load_context ) );
+			post_load_callbacks.forEach( cb -> cb.accept( post_load_context ) );
 		};
 	}
 	

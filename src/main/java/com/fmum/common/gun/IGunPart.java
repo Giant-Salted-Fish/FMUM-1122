@@ -8,8 +8,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.ArrayList;
 
-public interface IGunPart< T extends IGunPart< ? extends T > >
-	extends IItem, IModule< T >
+public interface IGunPart extends IItem, IModule
 {
 	@SideOnly( Side.CLIENT )
 	void _prepareRenderInHand( IAnimator animator, IInHandRenderContext ctx );

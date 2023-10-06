@@ -9,10 +9,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public abstract class ModuleWrapper<
-	I extends IModule< ? extends I >,
-	T extends IModule< ? extends I >
-> implements IModule< I >
+public abstract class ModuleWrapper< T extends IModule > implements IModule
 {
 	protected T wrapped;
 	
@@ -38,30 +35,30 @@ public abstract class ModuleWrapper<
 	}
 	
 	@Override
-	public final IModule< ? > base() {
+	public final IModule base() {
 		throw new RuntimeException();
 	}
 	
 	@Override
 	@SuppressWarnings( "unchecked" )
-	public final void _setBase( IModule< ? > wrapped, int installation_slot_idx )
+	public final void _setBase( IModule wrapped, int installation_slot_idx )
 	{
 		this.wrapped = ( T ) wrapped;
 		wrapped._setBase( this, -1 );
 	}
 	
 	@Override
-	public final IModule< ? >
-		_onBeingInstalled( IModule< ? > base, int base_slot_idx )
-	{ return this.wrapped._onBeingInstalled( base, base_slot_idx ); }
+	public final IModule _onBeingInstalled( IModule base, int base_slot_idx ) {
+		return this.wrapped._onBeingInstalled( base, base_slot_idx );
+	}
 	
 	@Override
-	public final IModule< ? > _onBeingRemoved() {
+	public final IModule _onBeingRemoved() {
 		throw new RuntimeException();
 	}
 	
 	@Override
-	public final void forEachInstalled( Consumer< ? super I > visitor ) {
+	public final void forEachInstalled( Consumer< ? super IModule > visitor ) {
 		this.wrapped.forEachInstalled( visitor );
 	}
 	
@@ -71,13 +68,12 @@ public abstract class ModuleWrapper<
 	}
 	
 	@Override
-	public final IModule< ? > getInstalled(
-		byte[] idx_sequence,
-		int sequence_len
-	) { throw new RuntimeException(); }
+	public final IModule getInstalled( byte[] idx_sequence, int sequence_len ) {
+		throw new RuntimeException();
+	}
 	
 	@Override
-	public final I getInstalled( int slot_idx, int install_idx ) {
+	public final IModule getInstalled( int slot_idx, int install_idx ) {
 		throw new RuntimeException();
 	}
 	
@@ -122,13 +118,14 @@ public abstract class ModuleWrapper<
 	}
 	
 	@Override
-	public IModuleModifySession< I > openModifySession() {
-		throw new RuntimeException();
+	public IModuleModifySession openModifySession() {
+		// TODO: Is it ok to make modification start with wrapper?
+		return this.wrapped.openModifySession();
 	}
 	
 	@Override
 	public void _getInstalledTransform(
-		IModule< ? > installed,
+		IModule installed,
 		IAnimator animator,
 		Mat4f dst
 	) {

@@ -12,8 +12,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public interface IModule< T extends IModule< ? extends T > >
-	extends INBTSerializable< NBTTagCompound >
+public interface IModule extends INBTSerializable< NBTTagCompound >
 {
 	String DATA_TAG = "*";
 	
@@ -23,14 +22,14 @@ public interface IModule< T extends IModule< ? extends T > >
 	
 	ItemStack itemStack();
 	
-	IModule< ? > base();
+	IModule base();
 	
 	int installationSlotIdx();
 	
 	/**
 	 * Friend method that should only be used in between {@link IModule} instances.
 	 */
-	void _setBase( IModule< ? > base, int base_slot_idx );
+	void _setBase( IModule base, int base_slot_idx );
 	
 	/**
 	 * Force NBT change to be updated to the bounden target, so that the {@link Minecraft} will
@@ -38,21 +37,19 @@ public interface IModule< T extends IModule< ? extends T > >
 	 */
 	void _syncNBTTag();
 	
-	IModule< ? > _onBeingInstalled( IModule< ? > base, int base_slot_idx );
+	IModule _onBeingInstalled( IModule base, int base_slot_idx );
 	
-	IModule< ? > _onBeingRemoved();
+	IModule _onBeingRemoved();
 	
-	void forEachInstalled( Consumer< ? super T > visitor );
+	void forEachInstalled( Consumer< ? super IModule > visitor );
 	
 	int getNumInstalledInSlot( int slot_idx );
 	
-	T getInstalled( int slot_idx, int install_idx );
+	IModule getInstalled( int slot_idx, int install_idx );
 	
-	default IModule< ? > getInstalled(
-		byte[] idx_sequence,
-		int sequence_len
-	) {
-		IModule< ? > mod = this;
+	default IModule getInstalled( byte[] idx_sequence, int sequence_len )
+	{
+		IModule mod = this;
 		for ( int i = 0; i < sequence_len; i += 2 )
 		{
 			final int slot_idx = 0xFF & idx_sequence[ i ];
@@ -78,10 +75,10 @@ public interface IModule< T extends IModule< ? extends T > >
 	
 	Optional< Runnable > testAffordable( EntityPlayer player );
 	
-	IModuleModifySession< T > openModifySession();
+	IModuleModifySession openModifySession();
 	
 	void _getInstalledTransform(
-		IModule< ? > installed,
+		IModule installed,
 		IAnimator animator,
 		Mat4f dst
 	);
@@ -101,7 +98,7 @@ public interface IModule< T extends IModule< ? extends T > >
 		return 0xFFFF & tag.getIntArray( DATA_TAG )[ 0 ];
 	}
 	
-	static IModule< ? > deserializeFrom( NBTTagCompound tag )
+	static IModule deserializeFrom( NBTTagCompound tag )
 	{
 		final int mod_id = getModuleID( tag );
 		final IModuleType type = IModuleType.REGISTRY.get( mod_id );
