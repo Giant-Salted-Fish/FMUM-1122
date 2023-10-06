@@ -2,13 +2,13 @@ package com.fmum.common.gun;
 
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.IAnimator;
+import com.fmum.client.render.Model;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.IEquippedItem;
 import com.fmum.common.item.IFMUMVanillaItem;
 import com.fmum.common.item.IItemType;
 import com.fmum.common.item.ItemType;
 import com.fmum.common.load.IContentBuildContext;
-import com.fmum.client.render.Model;
 import com.fmum.common.module.IModule;
 import com.fmum.common.module.IModuleSlot;
 import com.fmum.common.module.IModuleType;

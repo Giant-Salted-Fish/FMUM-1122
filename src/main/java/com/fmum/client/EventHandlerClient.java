@@ -4,7 +4,6 @@ import com.fmum.client.input.KeyBindManager;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.IItemType;
-import com.fmum.common.pack.IContentPackFactory.IMeshLoadContext;
 import com.fmum.util.GLUtil;
 import com.fmum.util.Mat4f;
 import net.minecraft.client.gui.GuiControls;
@@ -31,8 +30,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.function.Consumer;
 
 @SideOnly( Side.CLIENT )
 @EventBusSubscriber( modid = FMUM.MODID, value = Side.CLIENT )

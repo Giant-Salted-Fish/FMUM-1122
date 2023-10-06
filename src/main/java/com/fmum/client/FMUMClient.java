@@ -1,13 +1,11 @@
 package com.fmum.client;
 
-import com.fmum.client.input.ToggleKeyBindType;
 import com.fmum.client.input.KeyBindManager;
 import com.fmum.client.input.KeyBindType;
+import com.fmum.client.input.ToggleKeyBindType;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.common.FMUM;
 import com.fmum.common.gun.GunPartType;
-import com.fmum.common.load.BuildableType;
-import com.fmum.common.load.IContentBuildContext;
 import com.fmum.common.load.LoaderNotFoundException;
 import com.fmum.common.network.IPacket;
 import com.fmum.common.pack.IContentPack;
@@ -33,9 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 @SideOnly( Side.CLIENT )
 public final class FMUMClient extends FMUM

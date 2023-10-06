@@ -4,20 +4,16 @@ import com.fmum.client.FMUMClient;
 import com.fmum.common.FMUM;
 import com.fmum.common.load.IContentBuildContext;
 import com.fmum.common.load.TexturedType;
-import com.fmum.common.pack.IContentPack;
 import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
 import com.fmum.common.tab.ICreativeTab;
 import com.google.gson.annotations.SerializedName;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 
 public abstract class ItemType extends TexturedType implements IItemType

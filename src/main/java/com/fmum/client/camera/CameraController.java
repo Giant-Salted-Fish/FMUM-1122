@@ -1,10 +1,10 @@
 package com.fmum.client.camera;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.client.render.IAnimator;
 import com.fmum.client.input.InputManager;
 import com.fmum.client.input.Inputs;
 import com.fmum.client.player.PlayerPatchClient;
+import com.fmum.client.render.IAnimator;
 import com.fmum.util.DynamicPos;
 import com.fmum.util.Mat4f;
 import com.fmum.util.Quat4f;

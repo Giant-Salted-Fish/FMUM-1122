@@ -1,7 +1,6 @@
 package com.fmum.client.render;
 
 import com.fmum.client.FMUMClient;
-import com.fmum.client.render.IAnimator;
 import com.fmum.common.pack.IContentPackFactory.IMeshLoadContext;
 import com.fmum.util.Mesh;
 import net.minecraftforge.fml.relauncher.Side;
