@@ -1,9 +1,7 @@
 package com.fmum.common.ammo;
 
 import com.fmum.common.item.IEquippedItem;
-import com.fmum.common.item.IFMUMVanillaItem;
 import com.fmum.common.item.IItem;
-import com.fmum.common.item.IItemType;
 import com.fmum.common.item.ItemType;
 import com.fmum.common.load.IContentBuildContext;
 import com.fmum.util.Category;
@@ -70,7 +68,7 @@ public class AmmoType extends ItemType implements IAmmoType
 	
 	@Override
 	protected Item _createItem( IContentBuildContext ctx ) {
-		return new _AmmoItem();
+		return new _ItemAmmo();
 	}
 	
 	@Override
@@ -79,15 +77,10 @@ public class AmmoType extends ItemType implements IAmmoType
 	}
 	
 	
-	protected class _AmmoItem extends Item implements IFMUMVanillaItem
+	protected class _ItemAmmo extends _FMUMItem
 	{
-		protected _AmmoItem() {
+		protected _ItemAmmo() {
 			this.setMaxStackSize( AmmoType.this.max_stack_size );
-		}
-		
-		@Override
-		public final IItemType type() {
-			return AmmoType.this;
 		}
 		
 		@Override

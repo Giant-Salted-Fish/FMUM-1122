@@ -5,7 +5,6 @@ import com.fmum.client.render.IAnimator;
 import com.fmum.client.render.Model;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.IEquippedItem;
-import com.fmum.common.item.IFMUMVanillaItem;
 import com.fmum.common.item.IItemType;
 import com.fmum.common.item.ItemType;
 import com.fmum.common.load.IContentBuildContext;
@@ -121,7 +120,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	@Override
 	public IModule deserializeFrom( NBTTagCompound nbt )
 	{
-		final GunPart< ? > self = new GunPart<>( nbt );
+		final _GunPart< ? > self = new _GunPart<>( nbt );
 		self.deserializeNBT( nbt );
 		return self;
 	}
@@ -138,7 +137,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	
 	@Override
 	protected Item _createItem( IContentBuildContext ctx ) {
-		return new ItemGunPart();
+		return new _ItemGunPart();
 	}
 	
 	protected NBTTagCompound _genSnapshotNBT( IPostLoadContext ctx )
@@ -157,7 +156,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	
 	protected Item _createRawItem( IContentBuildContext ctx )
 	{
-		return new ItemGunPart()
+		return new _ItemGunPart()
 		{
 			@Override
 			public ICapabilityProvider initCapabilities(
@@ -183,12 +182,12 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	protected NBTTagCompound _genRawRootNBT( IContentBuildContext ctx ) {
-		return new GunPart<>().serializeNBT();
+		return new _GunPart<>().serializeNBT();
 	}
 	
 	protected ICapabilityProvider _wrap( IModule self, ItemStack stack )
 	{
-		final GunPart< ? > gun_part = ( GunPart< ? > ) self;
+		final _GunPart< ? > gun_part = ( _GunPart< ? > ) self;
 		return new GunPartWrapper<>( gun_part, stack );
 	}
 	
@@ -198,13 +197,10 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	
-	protected class ItemGunPart extends Item implements IFMUMVanillaItem
+	protected class _ItemGunPart extends _FMUMItem
 	{
-		protected ItemGunPart()
+		protected _ItemGunPart()
 		{
-			this.setRegistryName( GunPartType.this.name );
-			this.setTranslationKey( GunPartType.this.name );
-			
 			// Set it as not stackable.
 			this.setMaxStackSize( 1 );
 			// TODO: Handle paintjobs.
@@ -314,15 +310,15 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	
-	protected class GunPart< T extends IGunPart >
+	protected class _GunPart< T extends IGunPart >
 		extends Module< T > implements IGunPart
 	{
 		protected short offset;
 		protected short step;
 		
-		protected GunPart() { }
+		protected _GunPart() { }
 		
-		protected GunPart( NBTTagCompound nbt )
+		protected _GunPart( NBTTagCompound nbt )
 		{
 			super( nbt );
 			
@@ -511,8 +507,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			_createEquipped( EntityPlayer player, EnumHand hand )
 		{ return new EquippedGunPart( player, hand ); }
 		
-		protected class EquippedGunPart
-			implements IEquippedItem< IGunPart >
+		protected class EquippedGunPart implements IEquippedItem< IGunPart >
 		{
 			protected EquippedGunPart( EntityPlayer player, EnumHand hand )
 			{
@@ -521,7 +516,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			
 			@Override
 			public IGunPart item() {
-				return GunPart.this;
+				return _GunPart.this;
 			}
 			
 			@Override
@@ -530,7 +525,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			{
 				RenderQueue.NORMAL.clear();
 				RenderQueue.PRIORITIZED.clear();
-				GunPart.this._prepareRenderInHand(
+				_GunPart.this._prepareRenderInHand(
 					IAnimator.NONE, RenderQueue.IN_HAND_CONTEXT );
 			}
 			

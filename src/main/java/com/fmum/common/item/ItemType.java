@@ -91,4 +91,19 @@ public abstract class ItemType extends TexturedType implements IItemType
 	protected ResourceLocation _fallbackTexture( IContentBuildContext ctx ) {
 		return FMUMClient.TEXTURE_GREEN;
 	}
+	
+	protected class _FMUMItem extends Item implements IFMUMVanillaItem
+	{
+		protected _FMUMItem()
+		{
+			final String domain = ItemType.this.from_pack.resourceDomain();
+			this.setRegistryName( domain, ItemType.this.name );
+			this.setTranslationKey( ItemType.this.name );
+		}
+		
+		@Override
+		public IItemType type() {
+			return ItemType.this;
+		}
+	}
 }
