@@ -5,6 +5,7 @@ import com.fmum.client.input.KeyBindType;
 import com.fmum.client.input.ToggleKeyBindType;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.common.FMUM;
+import com.fmum.common.ammo.AmmoType;
 import com.fmum.common.gun.GunPartType;
 import com.fmum.common.load.LoaderNotFoundException;
 import com.fmum.common.network.IPacket;
@@ -157,28 +158,33 @@ public final class FMUMClient extends FMUM
 	@Override
 	protected void _regisContentLoader( IPrepareContext ctx )
 	{
-		this._quickRegisContentLoader(
+		_quickRegisContentLoader(
 			ctx, "creative_tab",
 			JsonCreativeTab.class,
 			JsonCreativeTab::buildClientSide
 		);
-		this._quickRegisContentLoader(
+		_quickRegisContentLoader(
 			ctx, "paintjob",
 			JsonPaintjob.class,
 			JsonPaintjob::buildClientSide
 		);
-		this._quickRegisContentLoader(
+		_quickRegisContentLoader(
 			ctx, "gun_part",
 			GunPartType.class,
 			GunPartType::buildClientSide
 		);
+		_quickRegisContentLoader(
+			ctx, "ammo",
+			AmmoType.class,
+			AmmoType::buildClientSide
+		);
 		
-		this._quickRegisContentLoader(
+		_quickRegisContentLoader(
 			ctx, "key_bind",
 			KeyBindType.class,
 			KeyBindType::buildClientSide
 		);
-		this._quickRegisContentLoader(
+		_quickRegisContentLoader(
 			ctx, "toggle_key_bind",
 			ToggleKeyBindType.class,
 			ToggleKeyBindType::buildClientSide

@@ -33,34 +33,38 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 {
 	protected static final String ERROR_LOADING_TYPE = "fmum.error_loading_type";
 	
-	protected static final Method AbstractResourcePack_getInputStreamByName;
+	@SideOnly( Side.CLIENT )
+	protected static Method AbstractResourcePack_getInputStreamByName;
 	static
 	{
-		final Class< ? > target = AbstractResourcePack.class;
-		final String srg_name = "func_110591_a";
-		final String mcp_name = "getInputStreamByName";
-		final Class< ? > param_class = String.class;
-		Method method;
-		try {
-			method = target.getDeclaredMethod( srg_name, param_class );
-		}
-		catch ( NoSuchMethodException e )
+		if ( FMUM.MOD.isClient() )
 		{
+			final Class< ? > target = AbstractResourcePack.class;
+			final String srg_name = "func_110591_a";
+			final String mcp_name = "getInputStreamByName";
+			final Class< ? > param_class = String.class;
+			Method method;
 			try {
-				method = target.getDeclaredMethod( mcp_name, param_class );
+				method = target.getDeclaredMethod( srg_name, param_class );
 			}
-			catch ( NoSuchMethodException e_ )
+			catch ( NoSuchMethodException e )
 			{
-				final String err_msg = FMUM.MOD.format(
-					"fmum.error_method_reflection",
-					target.getName(), srg_name, mcp_name
-				);
-				throw new RuntimeException( err_msg, e_ );
+				try {
+					method = target.getDeclaredMethod( mcp_name, param_class );
+				}
+				catch ( NoSuchMethodException e_ )
+				{
+					final String err_msg = FMUM.MOD.format(
+						"fmum.error_method_reflection",
+						target.getName(), srg_name, mcp_name
+					);
+					throw new RuntimeException( err_msg, e_ );
+				}
 			}
+			
+			method.setAccessible( true );
+			AbstractResourcePack_getInputStreamByName = method;
 		}
-		
-		method.setAccessible( true );
-		AbstractResourcePack_getInputStreamByName = method;
 	}
 	
 	protected final ModContainer mod_container;

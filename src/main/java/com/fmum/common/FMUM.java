@@ -2,6 +2,7 @@ package com.fmum.common;
 
 import com.fmum.client.FMUMClient;
 import com.fmum.client.ModConfigClient;
+import com.fmum.common.ammo.AmmoType;
 import com.fmum.common.gun.GunPartType;
 import com.fmum.common.item.IItem;
 import com.fmum.common.item.IItemType;
@@ -395,24 +396,29 @@ public class FMUM
 	
 	protected void _regisContentLoader( IPrepareContext ctx )
 	{
-		this._quickRegisContentLoader(
+		_quickRegisContentLoader(
 			ctx, "creative_tab",
 			JsonCreativeTab.class,
 			JsonCreativeTab::buildServerSide
 		);
-		this._quickRegisContentLoader(
+		_quickRegisContentLoader(
 			ctx, "paintjob",
 			JsonPaintjob.class,
 			JsonPaintjob::buildServerSide
 		);
-		this._quickRegisContentLoader(
+		_quickRegisContentLoader(
 			ctx, "gun_part",
 			GunPartType.class,
 			GunPartType::buildServerSide
 		);
+		_quickRegisContentLoader(
+			ctx, "ammo",
+			AmmoType.class,
+			AmmoType::buildServerSide
+		);
 	}
 	
-	protected final < T > void _quickRegisContentLoader(
+	protected static < T > void _quickRegisContentLoader(
 		IPrepareContext ctx,
 		String entry,
 		Class< T > clazz,
