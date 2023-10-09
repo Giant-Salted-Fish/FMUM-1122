@@ -45,11 +45,6 @@ public abstract class ItemType extends TexturedType implements IItemType
 	}
 	
 	@Override
-	public String name() {
-		return this.name;
-	}
-	
-	@Override
 	public Item vanillaItem() {
 		return this.item;
 	}

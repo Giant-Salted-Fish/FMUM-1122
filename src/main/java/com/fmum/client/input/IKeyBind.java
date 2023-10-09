@@ -1,6 +1,7 @@
 package com.fmum.client.input;
 
 import com.fmum.common.Registry;
+import com.google.gson.JsonElement;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -22,9 +23,27 @@ public interface IKeyBind
 	
 	String boundenKeyRepr();
 	
-	void update( boolean is_down );
+	int priority();
+	
+	UpdateResult update( boolean is_down );
 	
 	void restoreVanillaKeyBind();
 	
-	boolean clearVanillaKeyBind();
+	ClearState clearVanillaKeyBind();
+	
+	Object serialize();
+	
+	void deserialize( JsonElement data );
+	
+	enum UpdateResult
+	{
+		PASS,
+		CONSUMED
+	}
+	
+	enum ClearState
+	{
+		CHANGED,
+		UNCHANGED
+	}
 }

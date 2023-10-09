@@ -1,13 +1,12 @@
 package com.fmum.client.input;
 
 import com.fmum.client.FMUMClient;
-import com.google.common.collect.HashMultimap;
+import com.fmum.client.input.IKeyBind.ClearState;
+import com.fmum.client.input.IKeyBind.UpdateResult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
@@ -21,15 +20,19 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.List;
+import java.util.Optional;
 
 @SideOnly( Side.CLIENT )
 @EventBusSubscriber( modid = FMUMClient.MODID, value = Side.CLIENT )
 public final class KeyBindManager
 {
-	private static final HashMultimap< Integer, IKeyBind >
-		UPDATE_TABLE = HashMultimap.create();
+	private static final HashMap< Integer, List< IKeyBind > >
+		UPDATE_TABLE = new HashMap<>();
 	
 	private static final Gson GSON;
 	static
@@ -47,7 +50,13 @@ public final class KeyBindManager
 		final int char_code = Keyboard.getEventCharacter();
 		final int key = key_code == 0 ? char_code + 256 : key_code;
 		final boolean is_down = Keyboard.getEventKeyState();
-		UPDATE_TABLE.get( key ).forEach( kb -> kb.update( is_down ) );
+		for ( IKeyBind kb : UPDATE_TABLE.getOrDefault( key, Collections.emptyList() ) )
+		{
+			final UpdateResult result = kb.update( is_down );
+			if ( result == UpdateResult.CONSUMED ) {
+				break;
+			}
+		}
 	}
 	
 	@SubscribeEvent
@@ -55,7 +64,13 @@ public final class KeyBindManager
 	{
 		final int button = Mouse.getEventButton() - 100;
 		final boolean is_down = Mouse.getEventButtonState();
-		UPDATE_TABLE.get( button ).forEach( kb -> kb.update( is_down ) );
+		for ( IKeyBind kb : UPDATE_TABLE.getOrDefault( button, Collections.emptyList() ) )
+		{
+			final UpdateResult result = kb.update( is_down );
+			if ( result == UpdateResult.CONSUMED ) {
+				break;
+			}
+		}
 	}
 	
 	public static void restoreVanillaKeyBind()
@@ -65,14 +80,16 @@ public final class KeyBindManager
 	
 	public static void clearVanillaKeyBind( File file )
 	{
-		boolean is_changed = false;
-		for ( IKeyBind kb : IKeyBind.REGISTRY.values() ) {
-			is_changed |= kb.clearVanillaKeyBind();
+		boolean is_key_bind_changed = false;
+		for ( IKeyBind kb : IKeyBind.REGISTRY.values() )
+		{
+			final ClearState state = kb.clearVanillaKeyBind();
+			is_key_bind_changed |= state == ClearState.CHANGED;
 		}
 		
 		KeyBinding.resetKeyBindingArrayAndHash();
 		
-		if ( is_changed )
+		if ( is_key_bind_changed )
 		{
 			__updateMappingTable();
 			saveSettingsTo( file );
@@ -83,11 +100,9 @@ public final class KeyBindManager
 	{
 		try ( FileWriter out = new FileWriter( file ) )
 		{
-			final HashMap< String, String > data = new HashMap<>();
-			IKeyBind.REGISTRY.values().forEach( kb -> {
-				final String setting = kb.keyCode() + "+" + kb.keyModifier();
-				data.put( kb.identifier(), setting );
-			} );
+			final HashMap< String, Object > data = new HashMap<>();
+			IKeyBind.REGISTRY.values().forEach(
+				kb -> data.put( kb.identifier(), kb.serialize() ) );
 			out.write( GSON.toJson( data ) );
 		}
 		catch ( IOException e ) {
@@ -106,37 +121,51 @@ public final class KeyBindManager
 		try ( FileReader in = new FileReader( file ) )
 		{
 			final JsonObject data = GSON.fromJson( in, JsonObject.class );
-			data.entrySet().forEach( KeyBindManager::__loadKeyBindSettingFrom );
+			data.entrySet().forEach( e -> {
+				final String id = e.getKey();
+				final Optional< IKeyBind > kb = IKeyBind.REGISTRY.lookup( id );
+				if ( kb.isPresent() )
+				{
+					try {
+						kb.get().deserialize( e.getValue() );
+					}
+					catch ( Exception e_ )
+					{
+						final String err_msg = "fmum.error_reading_key_bind_setting";
+						FMUMClient.MOD.logError( err_msg, id );
+					}
+				}
+				else
+				{
+					final String err_msg = "fmum.unrecognized_key_bind";
+					FMUMClient.MOD.logError( err_msg, id );
+				}
+			} );
 		}
-		catch ( IOException e ) {
-			FMUMClient.MOD.logException( e, "fmum.error_reading_key_binds" );
+		catch ( IOException e )
+		{
+			final String err_msg = "fmum.error_reading_key_binds";
+			FMUMClient.MOD.logException( e, err_msg );
 		}
 		
 		__updateMappingTable();
-	}
-	
-	private static void __loadKeyBindSettingFrom( Entry< String, JsonElement > e )
-	{
-		try
-		{
-			final IKeyBind kb = IKeyBind.REGISTRY.get( e.getKey() );
-			final String[] setting = e.getValue().getAsString().split( "\\+" );
-			final int key_code = Integer.parseInt( setting[0] );
-			final KeyModifier modifier = KeyModifier.valueFromString( setting[1] );
-			kb.setKeyCodeAndModifier( key_code, modifier );
-		}
-		catch ( NullPointerException e_ ) {
-			FMUMClient.MOD.logError( "fmum.unrecognized_key_bind", e.getKey() );
-		}
-		catch ( IllegalArgumentException e_ ) {
-			FMUMClient.MOD.logError( "fmum.key_code_format_error", e.toString() );
-		}
 	}
 	
 	private static void __updateMappingTable()
 	{
 		UPDATE_TABLE.clear();
 		IKeyBind.REGISTRY.values().forEach(
-			kb -> UPDATE_TABLE.put( kb.keyCode(), kb ) );
+			kb -> UPDATE_TABLE.compute( kb.keyCode(), ( code, list ) -> {
+				if ( list == null ) {
+					list = new ArrayList<>();
+				}
+				list.add( kb );
+				return list;
+			} )
+		);
+		
+		final Comparator< IKeyBind > cmp =
+			Comparator.comparingInt( IKeyBind::priority );
+		UPDATE_TABLE.values().forEach( arr -> arr.sort( cmp ) );
 	}
 }

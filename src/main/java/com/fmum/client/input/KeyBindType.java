@@ -3,6 +3,8 @@ package com.fmum.client.input;
 import com.fmum.client.FMUMClient;
 import com.fmum.common.load.BuildableType;
 import com.fmum.common.load.IContentBuildContext;
+import com.fmum.common.pack.IContentPackFactory.IPostLoadContext;
+import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.IKeyConflictContext;
@@ -13,8 +15,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.Set;
 
 @SideOnly( Side.CLIENT )
 public class KeyBindType extends BuildableType
@@ -23,14 +27,13 @@ public class KeyBindType extends BuildableType
 	
 	protected String signal;
 	
-	@SerializedName( value = "depend_on_signal", alternate = "depend_on" )
-	protected String depend_on = "";
-	
 	@SerializedName( value = "default_key_code", alternate = "key_code" )
 	protected int default_key_code = Keyboard.KEY_NONE;
 	
 	@SerializedName( value = "default_key_modifier", alternate = "key_modifier" )
 	protected KeyModifier default_key_modifier = KeyModifier.NONE;
+	
+	protected Set< String > combinations = Collections.emptySet();
 	
 	protected IKeyConflictContext conflict_context = KeyConflictContext.IN_GAME;
 	
@@ -39,24 +42,27 @@ public class KeyBindType extends BuildableType
 	{
 		super.buildClientSide( ctx );
 		
-		this.signal = Optional.ofNullable( this.signal ).orElseGet( () -> {
+		if ( this.signal == null )
+		{
 			// Remove prefix that associated to specific pack if present.
 			final int idx = this.name.lastIndexOf( '.' );
-			return this.name.substring( idx + 1 );
-		} );
+			this.signal = this.name.substring( idx + 1 );
+		}
 		
-		final KeyBind kb = this._createKeyBind();
-		ctx.regisPostLoadCallback( c -> kb._setupDependency() );
+		this._createKeyBind( ctx );
 	}
 	
-	protected KeyBind _createKeyBind() {
-		return new KeyBind();
+	protected void _createKeyBind( IContentBuildContext ctx )
+	{
+		final KeyBind kb = new KeyBind();
+		ctx.regisPostLoadCallback( kb::_setupCombinations );
 	}
 	
 	@Override
 	protected String _typeHint() {
 		return "KEY_BIND";
 	}
+	
 	
 	public class KeyBind implements IKeyBind
 	{
@@ -66,7 +72,7 @@ public class KeyBindType extends BuildableType
 		
 		protected KeyModifier key_modifier;
 		
-		protected Supplier< Boolean > depend_on_is_down = () -> true;
+		protected final HashSet< IKeyBind > combinations = new HashSet<>();
 		
 		protected boolean is_down;
 		
@@ -129,32 +135,66 @@ public class KeyBindType extends BuildableType
 		@Override
 		public String boundenKeyRepr()
 		{
-			final String repr = this.key_modifier
-				.getLocalizedComboName( this.key_code );
-			final Optional< IKeyBind > depend_on = IKeyBind
-				.REGISTRY.lookup( KeyBindType.this.depend_on );
-			return depend_on.map(
-				kb -> kb.boundenKeyRepr() + " + " + repr ).orElse( repr );
+			String repr = this.key_modifier.getLocalizedComboName( this.key_code );
+			for ( IKeyBind cb : this.combinations ) {
+				repr = String.format( "%s + %s", cb.boundenKeyRepr(), repr );
+			}
+			return repr;
 		}
 		
 		@Override
-		public void update( boolean is_down )
+		public UpdateResult update( boolean is_down )
 		{
 			if ( !is_down && this.is_down )
 			{
 				this.is_down = false;
 				this._onRelease();
+				return UpdateResult.PASS;
 			}
-			else if (
+			
+			final IKeyConflictContext conflict_ctx =
+				KeyBindType.this.conflict_context;
+			if (
 				is_down && !this.is_down
-				&& KeyBindType.this.conflict_context.isActive()
-				&& this.key_modifier.isActive(
-					KeyBindType.this.conflict_context )
-				&& this.depend_on_is_down.get()
+					&& conflict_ctx.isActive()
+					&& this.key_modifier.isActive( conflict_ctx )
+					&& this._isCombinationsActive()
 			) {
 				this.is_down = true;
 				this._onPress();
+				return UpdateResult.CONSUMED;
 			}
+			
+			return UpdateResult.PASS;
+		}
+		
+		protected final boolean _isCombinationsActive()
+		{
+			for ( IKeyBind cb : this.combinations )
+			{
+				if ( !cb.isDown() ) {
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		protected void _onPress() {
+			InputManager.emitBoolSignal( KeyBindType.this.signal, true );
+		}
+		
+		protected void _onRelease() {
+			InputManager.emitBoolSignal( KeyBindType.this.signal, false );
+		}
+		
+		@Override
+		public int priority()
+		{
+			int priority = 0;
+			priority += this.key_code != Keyboard.KEY_NONE ? 1 : 0;
+			priority += this.key_modifier != KeyModifier.NONE ? 1 : 0;
+			priority += this.combinations.size();
+			return priority;
 		}
 		
 		@Override
@@ -165,7 +205,7 @@ public class KeyBindType extends BuildableType
 		}
 		
 		@Override
-		public boolean clearVanillaKeyBind()
+		public ClearState clearVanillaKeyBind()
 		{
 			final int prev_key_code = this.key_code;
 			final KeyModifier prev_key_modifier = this.key_modifier;
@@ -177,39 +217,41 @@ public class KeyBindType extends BuildableType
 			this.vanilla_key_bind.setKeyModifierAndCode(
 				KeyModifier.NONE, Keyboard.KEY_NONE );
 			
-			final boolean is_binding_changed = (
+			final boolean flag = (
 				this.key_code != prev_key_code
-				|| this.key_modifier != prev_key_modifier
+					|| this.key_modifier != prev_key_modifier
 			);
-			return is_binding_changed;
+			return flag ? ClearState.CHANGED : ClearState.UNCHANGED;
 		}
 		
-		protected void _setupDependency()
+		@Override
+		public Object serialize() {
+			return this.key_code + "+" + this.key_modifier;
+		}
+		
+		@Override
+		public void deserialize( JsonElement data )
 		{
-			if ( KeyBindType.this.depend_on.isEmpty() ) {
-				return;
-			}
-			
-			final Optional< IKeyBind > depend_on = IKeyBind
-				.REGISTRY.lookup( KeyBindType.this.depend_on );
-			this.depend_on_is_down = depend_on.map(
-				kb -> ( Supplier< Boolean > ) kb::isDown
-			).orElseGet( () -> {
-				FMUMClient.MOD.logError(
-					"fmum.depend_on_key_not_found",
-					KeyBindType.this.name,
-					KeyBindType.this.depend_on
-				);
-				return () -> true;
+			final String[] setting = data.getAsString().split( "\\+" );
+			final int key_code = Integer.parseInt( setting[ 0 ] );
+			final KeyModifier modifier = KeyModifier.valueFromString( setting[ 1 ] );
+			this.setKeyCodeAndModifier( key_code, modifier );
+		}
+		
+		protected void _setupCombinations( IPostLoadContext ctx )
+		{
+			this.combinations.clear();
+			KeyBindType.this.combinations.forEach( id -> {
+				final Optional< IKeyBind > kb = IKeyBind.REGISTRY.lookup( id );
+				if ( kb.isPresent() ) {
+					this.combinations.add( kb.get() );
+				}
+				else
+				{
+					final String err_msg = "fmum.can_not_find_combination_key_bind";
+					FMUMClient.MOD.logError( err_msg, this, id );
+				}
 			} );
-		}
-		
-		protected void _onPress() {
-			InputManager.emitBoolSignal( KeyBindType.this.signal, true );
-		}
-		
-		protected void _onRelease() {
-			InputManager.emitBoolSignal( KeyBindType.this.signal, false );
 		}
 	}
 }

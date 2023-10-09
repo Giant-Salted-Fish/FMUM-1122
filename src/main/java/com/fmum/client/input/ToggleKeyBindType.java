@@ -1,5 +1,6 @@
 package com.fmum.client.input;
 
+import com.fmum.common.load.IContentBuildContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -7,9 +8,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ToggleKeyBindType extends KeyBindType
 {
 	@Override
-	protected KeyBind _createKeyBind()
+	protected void _createKeyBind( IContentBuildContext ctx )
 	{
-		return new KeyBind()
+		final KeyBind kb = new KeyBind()
 		{
 			private boolean state_flag;
 			
@@ -25,5 +26,6 @@ public class ToggleKeyBindType extends KeyBindType
 			@Override
 			protected void _onRelease() { }
 		};
+		ctx.regisPostLoadCallback( kb::_setupCombinations );
 	}
 }
