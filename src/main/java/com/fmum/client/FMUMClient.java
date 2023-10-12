@@ -1,8 +1,8 @@
 package com.fmum.client;
 
+import com.fmum.client.input.KeyBind;
 import com.fmum.client.input.KeyBindManager;
-import com.fmum.client.input.KeyBindType;
-import com.fmum.client.input.ToggleKeyBindType;
+import com.fmum.client.input.ToggleKeyBind;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.common.FMUM;
 import com.fmum.common.ammo.AmmoType;
@@ -29,7 +29,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GLContext;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.function.Consumer;
@@ -109,29 +108,9 @@ public final class FMUMClient extends FMUM
 	@Override
 	protected void _loadKeyBindSetting()
 	{
-		final File settings_file = this._keyBindSettingFile();
-		if ( settings_file.exists() )
-		{
-			KeyBindManager.loadSettingsFrom( settings_file );
-			return;
-		}
-		
-		try {
-			settings_file.createNewFile();
-		}
-		catch ( IOException e )
-		{
-			this.logException( e, "fmum.error_creating_key_binds_file" );
-			return;
-		}
-		
-		KeyBindManager.saveSettingsTo( settings_file );
-	}
-	
-	File _keyBindSettingFile()
-	{
 		final String file_name = MODID + "-key_bind-setting.json";
-		return new File( this.config_dir, file_name );
+		final File settings_file = new File( this.config_dir, file_name );
+		KeyBindManager.loadSettingsFrom( settings_file );
 	}
 	
 	@Override
@@ -181,13 +160,13 @@ public final class FMUMClient extends FMUM
 		
 		_quickRegisContentLoader(
 			ctx, "key_bind",
-			KeyBindType.class,
-			KeyBindType::buildClientSide
+			KeyBind.class,
+			KeyBind::buildClientSide
 		);
 		_quickRegisContentLoader(
 			ctx, "toggle_key_bind",
-			ToggleKeyBindType.class,
-			ToggleKeyBindType::buildClientSide
+			ToggleKeyBind.class,
+			ToggleKeyBind::buildClientSide
 		);
 	}
 	

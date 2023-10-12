@@ -1,6 +1,6 @@
 package com.fmum.client;
 
-import com.fmum.client.input.KeyBindManager;
+import com.fmum.client.input.GuiControlsProxy;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.common.FMUM;
 import com.fmum.common.item.IItemType;
@@ -61,24 +61,20 @@ public final class EventHandlerClient
 	
 	private EventHandlerClient() { }
 	
-	private static GuiScreen prev_gui = null;
 	@SubscribeEvent
-	static void onGUIOpen( GuiOpenEvent evt )
+	static void _onGUIOpen( GuiOpenEvent evt )
 	{
 		final GuiScreen gui = evt.getGui();
+		final GuiScreen prev_gui = FMUMClient.MC.currentScreen;
 		final GameSettings settings = FMUMClient.MC.gameSettings;
 		
-		// Show restore vanilla key bindings if control GUI is activated.
-		if ( gui instanceof GuiControls )
-		{
-			KeyBindManager.restoreVanillaKeyBind();
-		}
-		else if ( prev_gui instanceof GuiControls )
-		{
-			KeyBindManager.clearVanillaKeyBind(
-				FMUMClient.MOD._keyBindSettingFile() );
+		// Replace vanilla controls with enhanced one.
+		// TODO: Add support to disable it to avoid conflict.
+		if ( gui instanceof GuiControls ) {
+			evt.setGui( new GuiControlsProxy( prev_gui, settings ) );
 		}
 		
+		// TODO: This may also be accomplished by replacing the GUI.
 		else if ( gui instanceof GuiVideoSettings )
 		{
 			settings.viewBobbing = ori_view_bobbing;
@@ -88,12 +84,10 @@ public final class EventHandlerClient
 		{
 			ori_view_bobbing = settings.viewBobbing;
 		}
-		
-		prev_gui = gui;
 	}
 	
 	@SubscribeEvent
-	static void onModelRegister( ModelRegistryEvent evt )
+	static void _onModelRegister( ModelRegistryEvent evt )
 	{
 		FMUM.MOD.logInfo( "fmum.on_model_regis" );
 		
@@ -104,7 +98,7 @@ public final class EventHandlerClient
 	}
 	
 	@SubscribeEvent
-	static void onRenderGameOverlay$Pre( RenderGameOverlayEvent.Pre evt )
+	static void _onRenderGameOverlay$Pre( RenderGameOverlayEvent.Pre evt )
 	{
 		if ( evt.getType() == ElementType.CROSSHAIRS ) {
 			evt.setCanceled( PlayerPatchClient.instance.shouldHideCrosshair() );
@@ -112,14 +106,14 @@ public final class EventHandlerClient
 	}
 	
 	@SubscribeEvent
-	static void onRenderHand( RenderHandEvent evt )
+	static void _onRenderHand( RenderHandEvent evt )
 	{
 		final boolean cancel_evt = PlayerPatchClient.instance.onRenderHand();
 		evt.setCanceled( cancel_evt );
 	}
 	
 	@SubscribeEvent
-	static void onRenderSpecificHand( RenderSpecificHandEvent evt )
+	static void _onRenderSpecificHand( RenderSpecificHandEvent evt )
 	{
 		final boolean cancel_evt = PlayerPatchClient
 			.instance.onRenderSpecificHand( evt.getHand() );
@@ -127,7 +121,7 @@ public final class EventHandlerClient
 	}
 	
 	@SubscribeEvent
-	static void onCameraSetup( CameraSetup evt )
+	static void _onCameraSetup( CameraSetup evt )
 	{
 		evt.setYaw( 0.0F );
 		evt.setPitch( 0.0F );
@@ -141,20 +135,20 @@ public final class EventHandlerClient
 	
 	// TODO: Apply FOV modification here for scope glass texture rendering.
 //	@SubscribeEvent
-//	static void onFOVModify( FOVModifier evt )
+//	static void _onFOVModify( FOVModifier evt )
 //	{
 //
 //	}
 	
 	@SubscribeEvent
-	static void onFOVUpdate( FOVUpdateEvent evt )
+	static void _onFOVUpdate( FOVUpdateEvent evt )
 	{
 		// Disable dynamic FOV.
 		evt.setNewfov( 1.0F );
 	}
 	
 	@SubscribeEvent
-	static void onMouseInput( MouseEvent evt )
+	static void _onMouseInput( MouseEvent evt )
 	{
 		final int dwheel = evt.getDwheel();
 		if ( dwheel != 0 )
@@ -166,7 +160,7 @@ public final class EventHandlerClient
 	}
 	
 	@SubscribeEvent
-	static void onConfigChanged( OnConfigChangedEvent evt )
+	static void _onConfigChanged( OnConfigChangedEvent evt )
 	{
 		final boolean is_fmum_config = evt.getModID().equals( FMUM.MODID );
 		if ( is_fmum_config )

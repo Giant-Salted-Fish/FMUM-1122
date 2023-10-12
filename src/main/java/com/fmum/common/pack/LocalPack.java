@@ -78,7 +78,7 @@ public abstract class LocalPack implements IContentPackFactory, IContentPack
 	
 	@Override
 	public String name() {
-		return this.mod_container.getName();
+		return "pack." + this.mod_container.getModId();
 	}
 	
 	@Override

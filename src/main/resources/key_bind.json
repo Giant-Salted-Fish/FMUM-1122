@@ -2,9 +2,6 @@
 	"fmum.key.free_view": {
 		"key_code": 56
 	},
-	"fmum.key.assist": {
-		"key_code": 44
-	},
 	"fmum.key.pull_trigger": {
 		"category": "fmum.key_category.gun",
 		"key_code": -100
@@ -42,7 +39,7 @@
 	"fmum.key.inspect_weapon": {
 		"category": "fmum.key_category.gun",
 		"key_code": 47,
-		"depend_on": "fmum.key.assist"
+		"combinations": [ 44 ]
 	},
 	"fmum.key.open_modify_view": {
 		"category": "fmum.key_category.modification",
@@ -79,31 +76,31 @@
 	"fmum.key.last_preview": {
 		"category": "fmum.key_category.modification",
 		"key_code": 200,
-		"depend_on": "fmum.key.assist"
+		"combinations": [ 44 ]
 	},
 	"fmum.key.next_preview": {
 		"category": "fmum.key_category.modification",
 		"key_code": 208,
-		"depend_on": "fmum.key.assist"
+		"combinations": [ 44 ]
 	},
 	"fmum.key.last_change": {
 		"category": "fmum.key_category.modification",
 		"key_code": 203,
-		"depend_on": "fmum.key.assist"
+		"combinations": [ 44 ]
 	},
 	"fmum.key.next_change": {
 		"category": "fmum.key_category.modification",
 		"key_code": 205,
-		"depend_on": "fmum.key.assist"
+		"combinations": [ 44 ]
 	},
 	"fmum.key.confirm_change": {
 		"category": "fmum.key_category.modification",
 		"key_code": 34,
-		"depend_on": "fmum.key.assist"
+		"combinations": [ 44 ]
 	},
 	"fmum.key.remove_module": {
 		"category": "fmum.key_category.modification",
 		"key_code": 35,
-		"depend_on": "fmum.key.assist"
+		"combinations": [ 44 ]
 	}
 }

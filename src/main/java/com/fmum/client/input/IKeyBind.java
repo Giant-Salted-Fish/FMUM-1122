@@ -1,49 +1,31 @@
 package com.fmum.client.input;
 
-import com.fmum.common.Registry;
-import com.google.gson.JsonElement;
-import net.minecraftforge.client.settings.KeyModifier;
+import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Set;
 
 @SideOnly( Side.CLIENT )
 public interface IKeyBind
 {
-	Registry< IKeyBind > REGISTRY = new Registry<>( IKeyBind::identifier );
-	
 	String identifier();
 	
-	boolean isDown();
+	String category();
 	
-	int keyCode();
+	IKeyConflictContext conflictContext();
 	
-	KeyModifier keyModifier();
+	int defaultKeyCode();
 	
-	void setKeyCodeAndModifier( int key_code, KeyModifier key_modifier );
+	Set< Integer > defaultCombinations();
 	
-	String boundenKeyRepr();
+	ActivateResult activate();
 	
-	int priority();
+	void deactivate();
 	
-	UpdateResult update( boolean is_down );
-	
-	void restoreVanillaKeyBind();
-	
-	ClearState clearVanillaKeyBind();
-	
-	Object serialize();
-	
-	void deserialize( JsonElement data );
-	
-	enum UpdateResult
+	enum ActivateResult
 	{
-		PASS,
-		CONSUMED
-	}
-	
-	enum ClearState
-	{
-		CHANGED,
-		UNCHANGED
+		ACTIVATED,
+		PASS
 	}
 }

@@ -7,8 +7,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public final class Inputs
 {
 	public static final String
-		FREE_VIEW = "free_view",
-		ASSIST = "assist";
+		FREE_VIEW = "free_view";
 	
 	public static final String
 		PULL_TRIGGER = "pull_trigger",

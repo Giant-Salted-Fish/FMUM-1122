@@ -79,7 +79,7 @@ final class EventHandler
 	}
 	
 	@SubscribeEvent
-	static void onRegisterItem( RegistryEvent.Register< Item > evt )
+	static void _onRegisterItem( RegistryEvent.Register< Item > evt )
 	{
 		FMUM.MOD.logInfo( "fmum.on_item_regis" );
 		
@@ -104,7 +104,7 @@ final class EventHandler
 //	}
 	
 	@SubscribeEvent
-	static void onPlayerTick( PlayerTickEvent evt )
+	static void _onPlayerTick( PlayerTickEvent evt )
 	{
 		switch ( evt.phase )
 		{
@@ -118,7 +118,7 @@ final class EventHandler
 	
 	// This event seems to only be posted on server side.
 	@SubscribeEvent
-	static void onPlayerLogin( PlayerLoggedInEvent evt )
+	static void _onPlayerLogin( PlayerLoggedInEvent evt )
 	{
 		final EntityPlayerMP player = ( EntityPlayerMP ) evt.player;
 		FMUM.MOD.sendPacketS2C( new PacketConfigSync(), player );
