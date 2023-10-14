@@ -1,0 +1,80 @@
+package gsf.fmum.common;
+
+import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.config.Config.Comment;
+import net.minecraftforge.common.config.Config.LangKey;
+import net.minecraftforge.common.config.Config.RangeDouble;
+import net.minecraftforge.common.config.Config.RangeInt;
+import net.minecraftforge.common.config.Config.RequiresWorldRestart;
+
+@LangKey( "fmum.config.common" )
+@Config( modid = FMUM.MODID, category = "common" )
+public final class ModConfig
+{
+	@LangKey( "fmum.config.common.max_modify_layers" )
+	@Comment(
+		"This decides the max number of layers you can have"
+		+ " when you modify your weapon."
+	)
+	@RangeInt( min = 1, max = 255 )
+	@RequiresWorldRestart
+	public static int max_modify_layers = 8;
+	
+	@LangKey( "fmum.config.common.max_slot_capacity" )
+	@Comment(
+		"This decides the max number of modules that "
+		+ "you can installed in a single slot."
+	)
+	@RangeInt( min = 1, max = 254 )
+	@RequiresWorldRestart
+	public static int max_slot_capacity = 5;
+	
+	@LangKey( "fmum.config.common.free_view_limit" )
+	@Comment(
+		"This decides the max angle that "
+		+ "you can turn your head around when you hold ALT."
+	)
+	@RangeDouble( min = 0.0D, max = 180.0D )
+	@RequiresWorldRestart
+	public static float free_view_limit = 130.0F;
+	
+	@LangKey( "fmum.config.common.camera_drop_cycle" )
+	@Comment(
+		"This decides the frequency of the camera shake "
+		+ "when player falls from sky."
+	)
+	@RequiresWorldRestart
+	public static float camera_drop_cycle = 1.0F;
+	
+	@LangKey( "fmum.config.common.camera_drop_amplitude" )
+	@Comment(
+		"This decides the amplitude of the camera shake "
+		+ "when player falls from sky."
+	)
+	@RequiresWorldRestart
+	public static float camera_drop_amplitude = 1.0F;
+	
+	@LangKey( "fmum.config.common.camera_drop_impact" )
+	@Comment(
+		"This decides the amplitude of the camera shake "
+		+ "when player impacts on the ground."
+	)
+	@RequiresWorldRestart
+	public static float camera_drop_impact = 1.0F;
+	
+//	@LangKey( "fmum.config.common.shoot_request_timeout_ticks" )
+//	@Comment( "How long the server will wait for next client shoot request to continue fire." )
+//	@RangeInt( min = 1 )
+//	public static int shoot_request_timeout_ticks = 5;
+//
+//	@LangKey( "fmum.config.common.misfire_possibility_multiplier" )
+//	@Comment(
+//		"This will impact the overall possibility to meet misfire rounds. Set to 0 will fully "
+//		+ "disable misfire. PS: This may not work on class based ammo types if they used "
+//		+ "customized misfire possibility control."
+//	)
+//	@RangeDouble( min = 0.0F )
+//	public static float misfire_possibility_multiplier = 1.0F;
+	
+	private ModConfig() { }
+}

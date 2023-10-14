@@ -6,7 +6,7 @@ plugins {
 }
 
 version = '0.1.0-dev'
-group = 'com.fmum' // See http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group = 'gsf.fmum' // See http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = '[MC-1.12.2] FMUM 2.0 v'
 
 // Need this here to correctly generate the Eclipse task.
@@ -77,15 +77,15 @@ dependencies {
 // Example for how to get properties into the manifest for reading by the runtime.
 jar {
 	manifest {
-		attributes( [
+		attributes([
 			"Specification-Title": project.name,
 			"Specification-Vendor": "Giant_Salted_Fish",
 			"Specification-Version": "1",  // We are version 1 of ourselves
 			"Implementation-Title": project.name,
 			"Implementation-Version": "${version}",
-			"Implementation-Vendor" :"Giant_Salted_Fish",
+			"Implementation-Vendor": "Giant_Salted_Fish",
 			"Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-		] )
+		])
 	}
 }
 
