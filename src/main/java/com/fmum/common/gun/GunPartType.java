@@ -30,6 +30,7 @@ import com.fmum.devtool.Dev;
 import com.fmum.util.ArmTracker;
 import com.fmum.util.Mat4f;
 import com.google.gson.annotations.SerializedName;
+import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

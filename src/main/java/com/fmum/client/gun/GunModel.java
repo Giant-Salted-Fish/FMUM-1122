@@ -18,6 +18,7 @@ import com.fmum.util.Vec3f;
 import com.google.gson.annotations.SerializedName;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
@@ -497,12 +498,16 @@ public abstract class GunModel<
 				
 				glMulMatrix( mat );
 				mat.release();
-				
-				this.bindTexture( TEXTURE_ALEX );
+
+				this.bindTexture(Minecraft.getMinecraft().player.getLocationSkin());
 				
 //				GL11.glEnable( GL11.GL_BLEND );
 //				GL11.glColor4f( 1F, 1F, 1F, 0.5F );
-				ALEX_ARM.render();
+				if(!Minecraft.getMinecraft().player.getSkinType().equals("slim")) {
+					ALEX_ARM.render();
+				}else {
+					STEVE_ARM.render();
+				}
 //				GL11.glDisable( GL11.GL_BLEND );
 				
 				GL11.glPopMatrix();
