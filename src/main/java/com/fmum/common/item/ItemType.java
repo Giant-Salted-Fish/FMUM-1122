@@ -90,14 +90,14 @@ public abstract class ItemType< C extends IItem, M extends IItemModel< ? > >
 			this.setMaxStackSize( maxStackSize );
 			this.setMaxDamage( maxDamage );
 		}
-
+		
 		@Override
-		public boolean onEntitySwing(EntityLivingBase entityLiving, ItemStack stack) {
+		public boolean onEntitySwing( EntityLivingBase entityLiving, ItemStack stack ) {
 			return true;
 		}
 
 		@Override
-		public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
+		public boolean onLeftClickEntity( ItemStack stack, EntityPlayer player, Entity entity ) {
 			return true;
 		}
 		

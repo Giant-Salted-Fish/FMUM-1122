@@ -5,10 +5,10 @@ import com.fmum.client.input.Key;
 import com.fmum.client.module.IDeferredRenderer;
 import com.fmum.client.player.PlayerPatchClient;
 import com.fmum.client.render.IAnimator;
+import com.fmum.client.render.Model;
 import com.fmum.common.gun.IEquippedGun;
 import com.fmum.common.gun.IGun;
 import com.fmum.common.load.IContentProvider;
-import com.fmum.devtool.Dev;
 import com.fmum.util.ArmTracker;
 import com.fmum.util.DynamicPos;
 import com.fmum.util.Mat4f;
@@ -22,7 +22,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.ResourceLocation;
@@ -498,16 +497,15 @@ public abstract class GunModel<
 				
 				glMulMatrix( mat );
 				mat.release();
-
-				this.bindTexture(Minecraft.getMinecraft().player.getLocationSkin());
+				
+				final ResourceLocation playerSkin = Minecraft.getMinecraft().player.getLocationSkin();
+				this.bindTexture( playerSkin );
 				
 //				GL11.glEnable( GL11.GL_BLEND );
 //				GL11.glColor4f( 1F, 1F, 1F, 0.5F );
-				if(!Minecraft.getMinecraft().player.getSkinType().equals("slim")) {
-					STEVE_ARM.render();
-				}else {
-					ALEX_ARM.render();
-				}
+				final boolean isAlexModel = Minecraft.getMinecraft().player.getSkinType().equals( "slim" );
+				final Model armModel = isAlexModel ? STEVE_ARM : ALEX_ARM;
+				armModel.render();
 //				GL11.glDisable( GL11.GL_BLEND );
 				
 				GL11.glPopMatrix();
