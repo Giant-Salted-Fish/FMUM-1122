@@ -8,6 +8,7 @@ import com.fmum.common.load.RenderableMeta;
 import com.fmum.common.meta.IMeta;
 import com.fmum.common.tab.ICreativeTab;
 import com.google.gson.annotations.SerializedName;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -86,6 +87,11 @@ public abstract class ItemType< C extends IItem, M extends IItemModel< ? > >
 			this.setTranslationKey( ItemType.this.name );
 			this.setMaxStackSize( maxStackSize );
 			this.setMaxDamage( maxDamage );
+		}
+
+		@Override
+		public boolean onEntitySwing(EntityLivingBase entityLiving, ItemStack stack) {
+			return true;
 		}
 		
 		@Override

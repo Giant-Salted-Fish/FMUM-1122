@@ -139,8 +139,8 @@ public final class FMUMClient extends FMUM
 		this.texturePool.put( Model.TEXTURE_RED.getPath(), Model.TEXTURE_RED );
 		this.texturePool.put( Model.TEXTURE_GREEN.getPath(), Model.TEXTURE_RED );
 		this.texturePool.put( Model.TEXTURE_BLUE.getPath(), Model.TEXTURE_RED );
-		this.texturePool.put( ItemModel.TEXTURE_STEVE.getPath(), ItemModel.TEXTURE_STEVE );
-		this.texturePool.put( ItemModel.TEXTURE_ALEX.getPath(), ItemModel.TEXTURE_ALEX );
+		//this.texturePool.put( ItemModel.TEXTURE_STEVE.getPath(), ItemModel.TEXTURE_STEVE );
+		//this.texturePool.put( ItemModel.TEXTURE_ALEX.getPath(), ItemModel.TEXTURE_ALEX );
 		
 		// The default NONE mesh and animation.
 		// Null usually is not a good choice but have to do it for animation pool.

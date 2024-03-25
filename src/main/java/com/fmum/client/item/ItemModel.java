@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -29,8 +30,7 @@ public abstract class ItemModel<
 	C extends IItem,
 	E extends IEquippedItem< ? extends C >,
 	R extends IItemRenderer< ? super C, ? extends IEquippedItemRenderer< ? super E > >
-> extends Model implements IItemModel< R >
-{
+> extends Model implements IItemModel< R > {
 	// TODO: these channels seems no need to expose
 	public static final String CHANNEL_ITEM = "__item__";
 	
