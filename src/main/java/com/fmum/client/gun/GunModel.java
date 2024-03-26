@@ -504,9 +504,9 @@ public abstract class GunModel<
 //				GL11.glEnable( GL11.GL_BLEND );
 //				GL11.glColor4f( 1F, 1F, 1F, 0.5F );
 				if(!Minecraft.getMinecraft().player.getSkinType().equals("slim")) {
-					ALEX_ARM.render();
-				}else {
 					STEVE_ARM.render();
+				}else {
+					ALEX_ARM.render();
 				}
 //				GL11.glDisable( GL11.GL_BLEND );
 				

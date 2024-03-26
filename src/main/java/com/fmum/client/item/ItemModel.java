@@ -34,11 +34,11 @@ public abstract class ItemModel<
 	// TODO: these channels seems no need to expose
 	public static final String CHANNEL_ITEM = "__item__";
 	
-	public static final ResourceLocation
-		TEXTURE_STEVE = new ResourceLocation( "textures/entity/steve.png" );
+	//public static final ResourceLocation
+	//	TEXTURE_STEVE = new ResourceLocation( "textures/entity/steve.png" );
 	
-	public static final ResourceLocation
-		TEXTURE_ALEX = new ResourceLocation( "textures/entity/alex.png" );
+	//public static final ResourceLocation
+	//	TEXTURE_ALEX = new ResourceLocation( "textures/entity/alex.png" );
 	
 	protected static final Model
 		STEVE_ARM = new Model( "models/steve_arm.obj", 0.0625F, true );
