@@ -16,7 +16,6 @@ import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -30,15 +29,16 @@ public abstract class ItemModel<
 	C extends IItem,
 	E extends IEquippedItem< ? extends C >,
 	R extends IItemRenderer< ? super C, ? extends IEquippedItemRenderer< ? super E > >
-> extends Model implements IItemModel< R > {
+> extends Model implements IItemModel< R >
+{
 	// TODO: these channels seems no need to expose
 	public static final String CHANNEL_ITEM = "__item__";
 	
-	public static final ResourceLocation
-		TEXTURE_STEVE = new ResourceLocation( "textures/entity/steve.png" );
+	//public static final ResourceLocation
+	//	TEXTURE_STEVE = new ResourceLocation( "textures/entity/steve.png" );
 	
-	public static final ResourceLocation
-		TEXTURE_ALEX = new ResourceLocation( "textures/entity/alex.png" );
+	//public static final ResourceLocation
+	//	TEXTURE_ALEX = new ResourceLocation( "textures/entity/alex.png" );
 	
 	protected static final Model
 		STEVE_ARM = new Model( "models/steve_arm.obj", 0.0625F, true );

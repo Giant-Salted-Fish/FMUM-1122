@@ -30,7 +30,6 @@ import com.fmum.devtool.Dev;
 import com.fmum.util.ArmTracker;
 import com.fmum.util.Mat4f;
 import com.google.gson.annotations.SerializedName;
-import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -103,7 +102,7 @@ public abstract class GunPartType<
 		
 		// If not category set then set it is its name.
 		this.category = Optional.ofNullable( this.category )
-            .orElseGet( () -> new ModuleCategory( this.name ) );
+			.orElseGet( () -> new ModuleCategory( this.name ) );
 		provider.clientOnly( () -> {
 			if ( this.modifyIndicator == null ) {
 				this.modifyIndicator = FMUMClient.MODIFY_INDICATOR;
