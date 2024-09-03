@@ -2,10 +2,8 @@
 	"modid": "fmum",
 	"name": "FMUM 2.0",
 	"description": "Provide highly customizable weapons in Minecraft.",
-	"version": "${version}",
-	"mcversion": "${mcversion}",
 	"url": "https://www.mcmod.cn/class/10322.html",
+	"logoFile": "fmum_2-0.png",
 	"authorList": [ "Giant_Salted_Fish" ],
-	"credits": "All code contributors.",
-	"logoFile": "fmum_2-0.png"
+	"credits": "All code contributors."
 } ]

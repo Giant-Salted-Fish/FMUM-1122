@@ -1,0 +1,106 @@
+{
+	"key.free_view": {
+		"key_code": 56
+	},
+	"key.pull_trigger": {
+		"category": "key_category.fmum_gun",
+		"key_code": -100
+	},
+	"key.hold_ads": {
+		"category": "key_category.fmum_gun",
+		"signal": "toggle_ads",
+		"key_code": -99
+	},
+	"key.toggle_ads": {
+		"is_toggle": true,
+		"category": "key_category.fmum_gun",
+		"key_code": 0
+	},
+	"key.next_fire_mode": {
+		"category": "key_category.fmum_gun",
+		"key_code": 45
+	},
+	"key.reload_weapon": {
+		"category": "key_category.fmum_gun",
+		"key_code": 19
+	},
+	"key.load_or_unload_mag": {
+		"category": "key_category.fmum_gun",
+		"key_code": 20
+	},
+	"key.charge_gun": {
+		"category": "key_category.fmum_gun",
+		"key_code": 34
+	},
+	"key.release_bolt": {
+		"category": "key_category.fmum_gun",
+		"key_code": 35
+	},
+	"key.inspect_weapon": {
+		"category": "key_category.fmum_gun",
+		"key_code": 47,
+		"combinations": [ 44 ]
+	},
+	"key.open_modify_view": {
+		"category": "key_category.fmum_modify",
+		"key_code": 23
+	},
+	"key.next_modify_mode": {
+		"category": "key_category.fmum_modify",
+		"key_code": 47
+	},
+	"key.enter_layer": {
+		"category": "key_category.fmum_modify",
+		"key_code": 34
+	},
+	"key.quit_layer": {
+		"category": "key_category.fmum_modify",
+		"key_code": 35
+	},
+	"key.last_slot": {
+		"category": "key_category.fmum_modify",
+		"key_code": 200
+	},
+	"key.next_slot": {
+		"category": "key_category.fmum_modify",
+		"key_code": 208
+	},
+	"key.last_module": {
+		"category": "key_category.fmum_modify",
+		"key_code": 203
+	},
+	"key.next_module": {
+		"category": "key_category.fmum_modify",
+		"key_code": 205
+	},
+	"key.last_preview": {
+		"category": "key_category.fmum_modify",
+		"key_code": 200,
+		"combinations": [ 44 ]
+	},
+	"key.next_preview": {
+		"category": "key_category.fmum_modify",
+		"key_code": 208,
+		"combinations": [ 44 ]
+	},
+	"key.last_change": {
+		"category": "key_category.fmum_modify",
+		"key_code": 203,
+		"combinations": [ 44 ]
+	},
+	"key.next_change": {
+		"category": "key_category.fmum_modify",
+		"key_code": 205,
+		"combinations": [ 44 ]
+	},
+	"key.confirm_change": {
+		"category": "key_category.fmum_modify",
+		"key_code": 34,
+		"combinations": [ 44 ]
+	},
+	"key.remove_module": {
+		"category": "key_category.fmum_modify",
+		"key_code": 35,
+		"combinations": [ 44 ]
+	}
+}

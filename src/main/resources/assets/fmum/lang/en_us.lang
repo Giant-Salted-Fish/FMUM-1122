@@ -1,126 +1,100 @@
-# By Giant_Salted_Fish
-
 # Mod config
-fmum.config.common=Common Config
-fmum.config.common.tooltip=These settings will be synchronized for all players connected to this server(host).
-fmum.config.common.max_modify_layers=Max Modify Layers
-fmum.config.common.max_modify_layers.tooltip=This decides the max number of layers you can have when you modify your weapon.
-fmum.config.common.max_slot_capacity=Max Slot Capacity
-fmum.config.common.max_slot_capacity.tooltip=This decides the max number of modules that you can installed in a single slot.
-fmum.config.common.free_view_limit=Free View Limit
-fmum.config.common.free_view_limit.tooltip=This decides the max angle that you can turn your head around when you hold alt.
-fmum.config.common.cam_drop_cycle=Camera Drop Cycle
-fmum.config.common.cam_drop_cycle.tooltip=This decides the frequency of the camera shake when player falls from sky.
-fmum.config.common.cam_drop_ampl=Camera Drop Amplitude
-fmum.config.common.cam_drop_ampl.tooltip=This decides the amplitude of the camera shake when player falls from sky.
-fmum.config.common.cam_drop_impact=Camera Drop Impact
-fmum.config.common.cam_drop_impact.tooltip=This decides the amplitude of the camera shake when player impacts on the ground.
+config.fmum.common=Common Config
+config.fmum.common.tooltip=These settings will be synchronized to all player clients.
+config.fmum.common.max_module_depth=Max Module Depth
+config.fmum.common.max_module_depth.tooltip=The max number of nested layers allowed for modification.
+config.fmum.common.max_slot_capacity=Max Slot Capacity
+config.fmum.common.max_slot_capacity.tooltip=The max number of modules that can be installed into a single slot
+config.fmum.common.free_view_limit=Free View Limit
+config.fmum.common.free_view_limit.tooltip=This decides the max angle that you can turn your head around when you hold alt.
+config.fmum.common.camera_drop_cycle=Camera Drop Cycle
+config.fmum.common.camera_drop_cycle.tooltip=This decides the frequency of the camera shake when player falls from sky.
+config.fmum.common.camera_drop_amplitude=Camera Drop Amplitude
+config.fmum.common.camera_drop_amplitude.tooltip=This decides the amplitude of the camera shake when player falls from sky.
+config.fmum.common.camera_drop_impact=Camera Drop Impact
+config.fmum.common.camera_drop_impact.tooltip=This decides the amplitude of the camera shake when player impacts on the ground.
 
-fmum.config.client=Client Config
-fmum.config.client.tooltip=These settings is meaningless on server side.
-fmum.config.client.use_flan_compatible_mousehelper=Use Flan Compatible MouseHelper
-fmum.config.client.use_flan_compatible_mousehelper.tooltip=The default MouseHelper used in FMUM may conflict with the MouseHelper used in Flan's Mod. This could cause bugs when you enter a vehicle in Flan's Mod. You can try to fix this issue by enabling this setting.
-fmum.config.client.default_creative_tab_icon_item=Default Creative Tab Icon Item
-fmum.config.client.default_creative_tab_icon_item.tooltip=This icon item will be used if FMUM fails to find icon item for a creative tab.
-
-# Load phase info
-fmum.on_pre_init=Pre-initializing FMUM...
-fmum.opengl_version_too_low=Your OpenGL version is too low! Minimum requirement is OpenGL3.0. Please update your GPU or driver and try again.
-fmum.stencil_not_supported=Stencil test not supported. Please update your GPU or driver and try again.
-fmum.error_creating_key_binds_file=An error has occurred while attempting to create key binds file for FMUM
-fmum.error_saving_key_binds=An error has occurred while attempting to save key binds for FMUM
-fmum.error_reading_key_binds=An error has occurred while attempting to read key binds for FMUM
-fmum.unrecognized_key_bind=Unrecognized key bind <%s> for FMUM
-fmum.key_code_format_error=Key code format error <%s> for FMUM
-fmum.can_not_find_update_group=Can not find key update group <%2$s> required by key bind <%1$s>
-fmum.pack_dir_created=Content pack folder <%s> has been created for you. Go find some content packs that support FMUM and drop them into this folder!
-fmum.unknown_pack_file_type=Can not load content pack <%s>. FMUM only support content packs of these three type: { <folder>, <.jar>, <.zip> }.
-fmum.detect_content_pack=Find content pack <%s>
-#fmum.error_adding_classpath=Failed to register class path for <%s>. Contents in this pack could be broken.
-fmum.load_content_pack=Loading content pack <%s>...
-fmum.error_loading_pack_info=An error has occurred while attempting to load pack info file <%s>
-fmum.type_loader_not_found=Can not find type loader <%2$s> required by <%1$s>
-fmum.error_loading_type=An error has occurred while attempting to load <%s>
-fmum.duplicate_meta_regis=Duplicate meta registration <%s> : <%s>
-fmum.error_loading_renderer=An error has occurred while loading renderer <%s>
-fmum.fail_to_find_tab=Can not find creative tab <%2$s> required by <%1$s>
-fmum.fail_to_find_indicator=Can not find modify indicator <%2$s> required by <%1$s>
-fmum.expaintjob_target_not_found=Can not find inject target <%2$s> required by external paintjob <%1$s>
-fmum.model_loader_not_found=Can not found model loader <%2$s> required by <%1$s>
-fmum.pre_init_complete=FMUM pre-initialization complete \
-
-fmum.on_item_regis=Registering items for FMUM content packs...
-fmum.fail_to_find_module=Can not find required snapshot module <%s>
-fmum.item_regis_complete=Item registration complete. %s item(s) registered.
-fmum.on_sound_regis=Registering sounds for FMUM content packs...
-fmum.sound_regis_complete=Item registration complete. %s sound(s) registered.
-fmum.on_model_regis=Registering models for FMUM content packs...
-fmum.model_regis_complete=Model registration complete. %s model(s) registered.
-
-fmum.on_init=Initializing FMUM...
-fmum.init_complete=FMUM initialization complete \
-fmum.total_loaded_packs=Loaded %s content pack(s)
-fmum.info_loaded_pack=    - %s by %s
-
-fmum.on_post_init=Post-initializing FMUM...
-fmum.post_init_complete=FMUM post-initialization complete \
-
-# Runtime info
-fmum.error_loading_mesh=An error has occurred while attempting to load mesh <%s>
-fmum.error_loading_animation=An error has occurred while attempting to load animation <%s>
-fmum.exception_call_model_load=An exception was thrown from the model load method of <%s>. This will be highly possible to crash the game.
+config.fmum.client=Client Config
+config.fmum.client.tooltip=This part of the config only works on client side.
+config.fmum.client.fallback_creative_tab_icon_item=Fallback Creative Tab Icon Item
+config.fmum.client.fallback_creative_tab_icon_item.tooltip=This icon item will be used if FMUM fails to find icon item required by the creative tab.
+config.fmum.client.fallback_creative_tab_icon_item_meta=Fallback Creative Tab Icon Item Meta
+config.fmum.client.fallback_creative_tab_icon_item_meta.tooltip=See description of "Fallback Creative Tab Item". This helps to decide the variant of the icon item.
+config.fmum.client.use_flan_compatible_mousehelper=Use Flan Compatible MouseHelper
+config.fmum.client.use_flan_compatible_mousehelper.tooltip=The default MouseHelper used in FMUM may cause the malfunction of the view rotation when driving the Flan's Mod vehicles. You can try to turn on this option to fix this problem.
 
 # Content pack
-fmum.core_pack=FMUM Core Content Pack
-fmum.author=Giant_Salted_Fish
-fmum.author_missing=Unknown author
-fmum.description_missing=Description missing
+pack.fmum=FMUM Core Pack
+
+# Load info
+fmum.on_pre_init=Pre-initializing FMUM...
+fmum.opengl_version_too_low=Your OpenGL version is too low! Minimum requirement is OpenGL3.0. Please upgrade your GPU or driver.
+fmum.stencil_not_supported=Stencil test not supported. Please upgrade your GPU or driver.
+fmum.incompatible_core_version=Content pack <%s(%s)> is not compatible with current version of FMUM. Required version=%s, FMUM version=%s.
+fmum.total_packs_found=Found %s loadable content packs.
+fmum.content_pack_info=    - %s(%s) by %s
+fmum.pre_load_pack=Pre Loading content pack <%s>...
+fmum.load_pack=Loading content pack <%s>...
+fmum.content_loader_not_found=Can not find type loader <%s>.
+fmum.content_load_error=An error has occurred while attempting to load <%s>.
+fmum.duplicate_content_regis=Duplicate content registration: <%s>@old, <%s>@new.
+fmum.post_load_pack=Post Loading content pack <%s>...
+fmum.item_tab_not_found=Can not find creative tab <%2$s> required by <%1$s>.
+fmum.tab_icon_not_found=Can not find icon item <%2$s> required by <%1$s>.
+fmum.fallback_tab_icon_not_found=Can not find fallback icon item <%s> configured in client config.
+fmum.pre_init_complete=FMUM pre-initialization complete.
+
+fmum.on_init=Initializing FMUM...
+fmum.setup_module_not_found=Can not find setup module <%2$s> required by <%1$s>.
+fmum.paintjob_inject_target_not_found=Can not find paintjob inject target <%2$s> required by <%1$s>.
+fmum.init_complete=FMUM initialization complete.
+
+fmum.on_post_init=Post-initializing FMUM...
+fmum.post_init_complete=FMUM post-initialization complete.
+
+fmum.mesh_load_error=An error has occurred while attempting to load mesh %s.
+
+# Runtime info
 
 # Creative tab
-itemGroup.fmum=FMUM Default Group
+itemGroup.fmum=FMUM Item
 
 # Item
 
 # Item tooltip
 
 # Prompt chat message
-fmum.msg.arrive_max_module_capacity=Reached the max number of modules can be installed: %s
-fmum.msg.modify_mode_slot=Switch to SLOT modify mode
-fmum.msg.modify_mode_module=Switch to MODULE modify mode
-fmum.msg.modify_mode_paintjob=Switch to PAINTJOB modify mode
+chat.modify_mode.paintjob_switch=Paintjob Switch Mode
+chat.modify_mode.step_adjust=Step Adjust Mode
+chat.modify_mode.offset_adjust=Offset Adjust Mode
 
-# Key binds
-fmum.key_category.general=FMUM General
-fmum.key.free_view=Free View
+# Key bindings
+key_category.fmum_common=FMUM Common
+key.free_view=Free View
 
-fmum.key_category.gun=FMUM Weapon
-fmum.key.pull_trigger=Pull Trigger
-fmum.key.aim_hold=Aim Hold
-fmum.key.aim_toggle=Aim Toggle
-fmum.key.reload=Reload Weapon
-fmum.key.load_unload_mag=Load/Unload Magazine
-fmum.key.charge_gun=Charge Gun
-fmum.key.release_bolt=Release Bolt
-fmum.key.inspect=Inspect Weapon
+key_category.fmum_gun=FMUM Gun
+key.pull_trigger=Pull Trigger
+key.hold_ads=Hold ADS
+key.toggle_ads=Toggle ADS
+key.next_fire_mode=Next Fire Mode
+key.reload_weapon=Reload Weapon
+key.load_or_unload_mag=Load/Unload Mag
+key.charge_gun=Charge Gun
+key.release_bolt=Release Bolt
+key.inspect_weapon=Inspect Weapon
 
-fmum.key_category.assist=FMUM Assist
-fmum.key.assist=Assist Key
-fmum.key.co_free_view=Co-Free View
-fmum.key.co_reload=Co-Reload Weapon
-fmum.key.co_load_unload_mag=Co-Load/Unload Magazine
-fmum.key.co_charge_gun=Co-Charge Gun
-fmum.key.co_release_bolt=Co-Release Bolt
-fmum.key.co_inspect=Co-Inspect
-fmum.key.co_toggle_modify=Co-Modify Weapon
-
-fmum.key_category.modify=FMUM Modify
-fmum.key.toggle_modify=Modify Weapon
-fmum.key.select_toggle=Switch Modify Mode
-fmum.key.select_up=Select Up
-fmum.key.select_down=Select Down
-fmum.key.select_left=Select Left
-fmum.key.select_right=Select Right
-fmum.key.select_confirm=Select Confirm
-fmum.key.select_cancel=Select Cancel
-
-fmum.key_category.other=FMUM Other
+key_category.fmum_modify=FMUM Modification
+key.open_modify_view=Open Modify View
+key.next_modify_mode=Next Modify Mode
+key.enter_layer=Enter Layer
+key.quit_layer=Quit Layer
+key.last_slot=Last Slot
+key.next_slot=Next Slot
+key.last_module=Last Module
+key.next_module=Next Module
+key.last_preview=Last Preview
+key.next_preview=Next Preview
+key.last_change=Last Change
+key.next_change=Next Change
+key.confirm_change=Confirm Change
+key.remove_module=Remove Module

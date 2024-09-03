@@ -1,126 +1,100 @@
-# By 一条大大的咸鱼
-
 # 配置文件
-fmum.config.common=通用端配置
+fmum.config.common=全局配置
 fmum.config.common.tooltip=这些配置将会同步给所有连接到此服务器（主机）的玩家。
-fmum.config.common.max_modify_layers=改装层数上限
-fmum.config.common.max_modify_layers.tooltip=这个参数决定了改装时所支持的最大配件嵌套层数。
-fmum.config.common.max_slot_capacity=单槽配件数上限
-fmum.config.common.max_slot_capacity.tooltip=这个参数决定了你最多能够在同一个槽内安装多少配件。
+fmum.config.common.max_module_depth=最大改装深度
+fmum.config.common.max_module_depth.tooltip=改装模式下支持的最大改装层数。注意：缩小此参数不会影响已经完成的改装。
+fmum.config.common.max_slot_capacity=单槽最大配件数
+fmum.config.common.max_slot_capacity.tooltip=改装模式下单个槽位支持的最大配件数。注意：缩小缩小此参数不会影响已经完成的改装。
 fmum.config.common.free_view_limit=环视角度上限
-fmum.config.common.free_view_limit.tooltip=这个参数决定了当你按住 alt 键时镜头可以转动的角度上限。
-fmum.config.common.cam_drop_cycle=视角坠落特效周期
-fmum.config.common.cam_drop_cycle.tooltip=这个参数多数时候能够改变玩家从空中坠落时视角晃动的频率。
-fmum.config.common.cam_drop_ampl=视角坠落特效幅度
-fmum.config.common.cam_drop_ampl.tooltip=这个参数多数时候能够控制玩家从空中坠落时视角晃动的幅度。
-fmum.config.common.cam_drop_impact=视角落地冲击幅度
-fmum.config.common.cam_drop_impact.tooltip=这个参数多数时候能够控制玩家落地时镜头冲击效果的幅度。
+fmum.config.common.free_view_limit.tooltip=这个参数决定了当你按住 Alt 键时镜头可以转动的角度上限。
+fmum.config.common.camera_drop_cycle=视角坠落特效周期
+fmum.config.common.camera_drop_cycle.tooltip=这个参数多数时候能够改变玩家从空中坠落时视角晃动的频率。
+fmum.config.common.camera_drop_amplitude=视角坠落特效幅度
+fmum.config.common.camera_drop_amplitude.tooltip=这个参数多数时候能够控制玩家从空中坠落时视角晃动的幅度。
+fmum.config.common.camera_drop_impact=视角落地冲击幅度
+fmum.config.common.camera_drop_impact.tooltip=这个参数多数时候能够控制玩家落地时镜头冲击效果的幅度。
 
 fmum.config.client=客户端配置
-fmum.config.client.tooltip=这些配置仅在客户端有意义。
+fmum.config.client.tooltip=这些配置仅在客户端生效。
+fmum.config.client.fallback_creative_tab_icon_item=默认创造模式物品栏图标
+fmum.config.client.fallback_creative_tab_icon_item.tooltip=当 FMUM 无法为某个物品组找到指定的图标物品时会默认使用此处指定的物品。
+fmum.config.client.fallback_creative_tab_icon_item_meta=默认创造模式物品栏图标变种
+fmum.config.client.fallback_creative_tab_icon_item_meta.tooltip=请查看“默认创造模式物品栏图标”相关描述。该值决定了图标物品的变种类型。
 fmum.config.client.use_flan_compatible_mousehelper=使用兼容 Flan 的 MouseHelper
-fmum.config.client.use_flan_compatible_mousehelper.tooltip=FMUM 使用的默认 MouseHelper 可能会导致无法正常在 Flan's Mod 的载具中转动视角。你可以启用该选项来使用兼容性的 MouseHelper 以尝试解决该问题。
-fmum.config.client.default_creative_tab_icon_item=默认创造模式物品组图标物品
-fmum.config.client.default_creative_tab_icon_item.tooltip=如果 FMUM 无法为某个创造模式物品组找到要求的图标物品，则该设置中的物品将成为其图标物品。
+fmum.config.client.use_flan_compatible_mousehelper.tooltip=FMUM 默认的 MouseHelper 可能会导致驾驶 Flan's Mod 载具时无法转动视角，该选项将尝试使用兼容性的 MouseHelper 以避免该问题。
+
+# 内容包
+pack.fmum=FMUM 核心内容包
 
 # 加载时日志
 fmum.on_pre_init=正在预初始化 FMUM...
 fmum.opengl_version_too_low=您的 OpenGL 版本过低，最低要求为 OpenGL3.0。请更新显卡驱动或更换显卡后重试。
-fmum.stencil_not_supported=模板缓冲不受支持，请更新驱动或更换显卡后重试。
-fmum.error_creating_key_binds_file=创建按键绑定文件时出现错误，FMUM 按键绑定设置可能会不同步
-fmum.error_saving_key_binds=存储按键绑定时出现错误，FMUM 按键绑定设置可能会不同步
-fmum.error_reading_key_binds=读取按键绑定时出现错误，FMUM 按键绑定设置可能会不同步
-fmum.unrecognized_key_bind=FMUM 按键绑定 %s 不存在
-fmum.key_code_format_error=FMUM 按键编号格式错误 %s
-fmum.can_not_find_update_group=找不到自定义按键 %s 所要求的更新组 %s
-fmum.pack_dir_created=已为您创建内容包文件夹 %s，寻找一些适配 FMUM 的内容包放入其中吧！
-fmum.unknown_pack_file_type=无法加载内容包 %s。FMUM 仅支持以下 { <文件夹>, <.jar>, <.zip> } 三种类型的内容包。
-fmum.detect_content_pack=检测到内容包 %s
-#fmum.error_adding_classpath=为 %s 注册Class加载路径时遇到了问题 相关内容包内容可能会无法加载
-fmum.load_content_pack=正在加载内容包 %s ...
-fmum.error_loading_pack_info=加载内容包 info 文件 %s 时遇到错误
-fmum.type_loader_not_found=找不到 %s 需要的类型加载器 %s
-fmum.error_loading_type=加载 %s 时遇到意外错误
-fmum.duplicate_meta_regis=重复的元注册 %s : %s
-fmum.error_loading_renderer=加载渲染代理 %s 时遇到错误
-fmum.fail_to_find_tab=找不到 %s 指定的创造模式物品栏 %s
-fmum.fail_to_find_indicator=找不到 %s 指定的改装指示器 %s
-fmum.expaintjob_target_not_found=找不到皮肤 %s 指定的注入目标 %s
-fmum.model_loader_not_found=找不到 %s 需要的模型加载器 %s
-fmum.pre_init_complete=FMUM 预初始化完成 \
-
-fmum.on_item_regis=正在为 FMUM 所属内容注册物品...
-fmum.fail_to_find_module=找不到要求的快照改件 %s
-fmum.item_regis_complete=物品注册已完成 共计 %s 个
-fmum.on_sound_regis=正在为 FMUM 所属内容注册音效...
-fmum.sound_regis_complete=音效注册已完成 共计 %s 个
-fmum.on_model_regis=正在为 FMUM 所属内容注册模型...
-fmum.model_regis_complete=模型注册已完成 共计 %s 个
+fmum.stencil_not_supported=您的设备不支持模板测试，请升级显卡或更新驱动后重试。
+fmum.incompatible_core_version=内容包 %s（%s）不兼容当前的 FMUM 核心版本。要求版本：%s，当前版本：%s。
+fmum.total_packs_found=检测到 %s 个可加载的内容包。
+fmum.content_pack_info=    - %s（%s）制作者 %s
+fmum.pre_load_pack=正在预加载内容包 %s...
+fmum.load_pack=正在加载内容包 %s...
+fmum.content_loader_not_found=找不到指定的内容加载器 %s。
+fmum.content_load_error=加载 %s 时遇到意外错误。
+fmum.duplicate_content_regis=重复的内容注册：%s@旧，%s@新。
+fmum.post_load_pack=正在后处理内容包 %s...
+fmum.item_tab_not_found=找不到 %s 指定的创造模式物品栏 %s。
+fmum.tab_icon_not_found=找不到创造模式物品栏 %s 指定的物品图标 %s。
+fmum.fallback_tab_icon_not_found=找不到客户端配置中指定的默认创造模式物品栏图标 %s。
+fmum.pre_init_complete=FMUM 预初始化完成。
 
 fmum.on_init=正在初始化 FMUM...
-fmum.init_complete=FMUM 初始化完成 \
-fmum.total_loaded_packs=共 %s 个已就绪的 FMUM 内容包
-fmum.info_loaded_pack=    - %s By %s
+fmum.setup_module_not_found=找不到 %s 要求的默认配置部件 %s。
+fmum.paintjob_inject_target_not_found=找不到涂装 %s 指定的注入对象 %s。
+fmum.init_complete=FMUM 初始化完成。
 
 fmum.on_post_init=正在后初始化 FMUM...
-fmum.post_init_complete=FMUM 后初始化完成 \
+fmum.post_init_complete=FMUM 后初始化完成。
+
+fmum.mesh_load_error=加载模型 %s 时遇到意外错误。
 
 # 运行时日志
-fmum.error_loading_mesh=加载模型网格 %s 时遇到错误
-fmum.error_loading_animation=加载动画 %s 时遇到错误
-fmum.exception_call_model_load=执行 %s 的模型加载方法时出现异常，这很有可能导致游戏崩溃
-
-# 内容包摘要
-fmum.core_pack=FMUM 核心内容包
-fmum.author=一条大大的咸鱼
-fmum.author_missing=未知作者
-fmum.description_missing=描述未被提供
 
 # 创造模式物品栏
-itemGroup.fmum=FMUM 默认组
+itemGroup.fmum=FMUM 物品
 
 # 物品
 
 # 物品提示框
 
 # 对话框提示消息
-fmum.msg.arrive_max_module_capacity=已达最大单槽模组数上限：%s
-fmum.msg.modify_mode_slot=切换至槽位改装模式
-fmum.msg.modify_mode_module=切换至模组改装模式
-fmum.msg.modify_mode_paintjob=切换至涂装改装模式
+chat.modify_mode.paintjob_switch=涂装切换模式
+chat.modify_mode.step_adjust=步进调整模式
+chat.modify_mode.offset_adjust=偏移调整模式
 
 # 按键绑定
-fmum.key_category.general=FMUM 通用
-fmum.key.free_view=自由视角
+key_category.fmum_common=FMUM 通用
+key.free_view=自由视角
 
-fmum.key_category.gun=FMUM 武器
-fmum.key.pull_trigger=武器开火
-fmum.key.aim_hold=按住瞄准
-fmum.key.aim_toggle=切换瞄准
-fmum.key.reload=重新填装武器
-fmum.key.load_unload_mag=卸下/填装弹匣
-fmum.key.charge_gun=武器上膛
-fmum.key.release_bolt=空挂释放
-fmum.key.inspect=检视武器
+key_category.fmum_gun=FMUM 枪械
+key.pull_trigger=武器开火
+key.hold_ads=按住瞄准
+key.toggle_ads=切换瞄准
+key.next_fire_mode=下一个开火模式
+key.reload_weapon=重新填装
+key.load_or_unload_mag=填装/卸载弹匣
+key.charge_gun=武器上膛
+key.release_bolt=空挂释放
+key.inspect_weapon=检视武器
 
-fmum.key_category.assist=FMUM 辅助
-fmum.key.assist=辅助键
-fmum.key.co_free_view=自由视角组合键
-fmum.key.co_reload=重新填装武器组合键
-fmum.key.co_load_unload_mag=卸下/填装弹匣组合键
-fmum.key.co_charge_gun=武器上膛组合键
-fmum.key.co_release_bolt=空挂释放组合键
-fmum.key.co_inspect=检视武器组合键
-fmum.key.co_toggle_modify=改装当前武器组合键
-
-fmum.key_category.modify=FMUM 改装
-fmum.key.toggle_modify=改装当前武器
-fmum.key.select_toggle=切换改装模式
-fmum.key.select_up=向上选择
-fmum.key.select_down=向下选择
-fmum.key.select_left=向左选择
-fmum.key.select_right=向右选择
-fmum.key.select_confirm=确认选择
-fmum.key.select_cancel=取消选择
-
-fmum.key_category.other=FMUM 其它
+key_category.fmum_modify=FMUM 改装
+key.open_modify_view=打开改装界面
+key.next_modify_mode=下一个改装模式
+key.enter_layer=选择节点
+key.quit_layer=退出节点
+key.last_slot=上一个槽位
+key.next_slot=下一个槽位
+key.last_module=上一个节点
+key.next_module=下一个节点
+key.last_preview=上一个预览
+key.next_preview=下一个预览
+key.last_change=上一个更改
+key.next_change=下一个更改
+key.confirm_change=确认修改
+key.remove_module=拆除节点
