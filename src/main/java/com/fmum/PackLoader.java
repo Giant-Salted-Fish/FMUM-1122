@@ -20,6 +20,7 @@ import com.fmum.load.IPackInfo;
 import com.fmum.load.IPackLoadCallback;
 import com.fmum.load.IPostLoadContext;
 import com.fmum.load.IPreLoadContext;
+import com.fmum.mag.MagType;
 import com.fmum.module.IModule;
 import com.fmum.module.IModuleType;
 import com.fmum.paintjob.IPaintableType;
@@ -353,6 +354,7 @@ final class PackLoader
 		ctx.regisContentLoader( "ammo", IContentLoader.of( AmmoType.class, IItemType.REGISTRY, IAmmoType.REGISTRY ) );
 		ctx.regisContentLoader( "gun_part", IContentLoader.of( GunPartType.class, IItemType.REGISTRY, IModuleType.REGISTRY, IPaintableType.REGISTRY ) );
 		ctx.regisContentLoader( "gun", IContentLoader.of( GunType.class, IItemType.REGISTRY, IModuleType.REGISTRY, IPaintableType.REGISTRY ) );
+		ctx.regisContentLoader( "mag", IContentLoader.of( MagType.class, IItemType.REGISTRY, IModuleType.REGISTRY, IPaintableType.REGISTRY ) );
 		
 		FMUM.SIDE.runIfClient( () -> {
 			// Key bindings are client side only.
