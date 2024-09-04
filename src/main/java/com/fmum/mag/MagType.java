@@ -21,7 +21,7 @@ public class MagType extends GunPartType
 	
 	@Expose
 	@SerializedName( "allowed_ammo" )
-	Predicate< ItemCategory > ammo_predicate = ammo -> true;
+	Predicate< ItemCategory > ammo_predicate;
 	
 	
 	protected static final String LIST_AMMO_TAG = "la";
