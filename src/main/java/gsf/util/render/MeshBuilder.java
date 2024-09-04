@@ -74,21 +74,7 @@ public class MeshBuilder
 		final Iterator< Vertex > vertex_itr = (
 			this.indices.isEmpty()
 			? this.vertices.iterator()
-			: new Iterator< Vertex >() {
-				private final Iterator< Integer > itr = MeshBuilder.this.indices.iterator();
-				
-				@Override
-				public boolean hasNext() {
-					return this.itr.hasNext();
-				}
-				
-				@Override
-				public Vertex next()
-				{
-					final int idx = this.itr.next();
-					return MeshBuilder.this.vertices.get( idx );
-				}
-			}
+			: MeshBuilder.this.indices.stream().map( MeshBuilder.this.vertices::get ).iterator()
 		);
 		
 		final NormalCalculator calc = new NormalCalculator();

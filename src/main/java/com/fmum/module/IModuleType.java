@@ -1,11 +1,11 @@
 package com.fmum.module;
 
-import com.fmum.IDRegistry;
+import com.fmum.BiRegistry;
 import net.minecraft.nbt.NBTTagCompound;
 
 public interface IModuleType
 {
-	IDRegistry< IModuleType > REGISTRY = new IDRegistry<>();
+	BiRegistry< Short, IModuleType > REGISTRY = BiRegistry.createWithShortKey();
 	
 	
 	String getName();

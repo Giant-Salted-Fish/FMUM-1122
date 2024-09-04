@@ -480,14 +480,14 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			
 			// Dispatch to child modules.
 			final ListIterator< IModule > itr = this.installed_modules.listIterator();
-			final int size = this.split_indices.length;
-			for ( int i = 0; i < size; i += 1 )
+			final int slt_cnt = this.split_indices.length;
+			for ( int slt_idx = 0; slt_idx < slt_cnt; slt_idx += 1 )
 			{
-				final int end = this._getSlotStartIdx( i + 1 );
+				final int end = this._getSlotStartIdx( slt_idx + 1 );
 				while ( itr.nextIndex() < end )
 				{
 					final IGunPart child = ( IGunPart ) itr.next();
-					child.IGunPart$prepareRender( i, animator, render_queue );
+					child.IGunPart$prepareRender( slt_idx, animator, render_queue );
 				}
 			}
 		}

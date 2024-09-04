@@ -1,11 +1,11 @@
 package com.fmum.ammo;
 
-import com.fmum.IDRegistry;
+import com.fmum.BiRegistry;
 import com.fmum.item.IItemType;
 
 public interface IAmmoType extends IItemType
 {
-	IDRegistry< IAmmoType > REGISTRY = new IDRegistry<>();
+	BiRegistry< Short, IAmmoType > REGISTRY = BiRegistry.createWithShortKey();
 	
 	
 	String getCategory();
