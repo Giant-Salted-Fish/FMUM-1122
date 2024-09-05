@@ -1,7 +1,7 @@
 package com.fmum.gunpart;
 
 import com.fmum.FMUM;
-import com.fmum.item.FMUMVanillaItem;
+import com.fmum.item.FMUMItemBase;
 import com.fmum.item.IItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Random;
 
-public class ItemGunPart extends FMUMVanillaItem
+public class ItemGunPart extends FMUMItemBase
 {
 	public static final ItemGunPart INSTANCE = new ItemGunPart();
 	static {

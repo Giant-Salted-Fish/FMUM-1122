@@ -6,6 +6,6 @@ import net.minecraft.item.ItemStack;
 /**
  * @see IItemType
  */
-public abstract class FMUMVanillaItem extends Item {
+public abstract class FMUMItemBase extends Item {
 	public abstract IItem getItemFrom( ItemStack stack );
 }

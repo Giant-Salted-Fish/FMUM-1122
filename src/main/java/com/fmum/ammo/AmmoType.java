@@ -1,7 +1,7 @@
 package com.fmum.ammo;
 
 import com.fmum.FMUM;
-import com.fmum.item.FMUMVanillaItem;
+import com.fmum.item.FMUMItemBase;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
@@ -94,10 +94,10 @@ public class AmmoType extends ItemType implements IAmmoType
 	
 	protected Item _createVanillaItem()
 	{
-		final FMUMVanillaItem item = new FMUMVanillaItem() {
+		final FMUMItemBase item = new FMUMItemBase() {
 			@Override
 			public IItem getItemFrom( ItemStack stack ) {
-				return AmmoType.this._createItem( stack );
+				return new AmmoItem( stack );
 			}
 		};
 		item.setRegistryName( this.pack_info.getNamespace(), this.name );
@@ -112,10 +112,6 @@ public class AmmoType extends ItemType implements IAmmoType
 		} );
 		
 		return item;
-	}
-	
-	protected IItem _createItem( ItemStack stack ) {
-		return new AmmoItem( stack );
 	}
 	
 	@SideOnly( Side.CLIENT )

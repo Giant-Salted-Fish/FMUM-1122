@@ -18,7 +18,7 @@ import java.util.function.Function;
  * differ in meta or NBT data. Hence, {@code new ItemStack(stack.getItem())} may
  * not produce correct result and should not be used.</p>
  *
- * @see FMUMVanillaItem
+ * @see FMUMItemBase
  */
 public interface IItemType
 {

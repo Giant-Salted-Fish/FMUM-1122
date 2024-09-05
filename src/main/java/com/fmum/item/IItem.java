@@ -43,15 +43,15 @@ public interface IItem
 	/**
 	 * @return
 	 *     {@link Optional#empty()} if {@link ItemStack#getItem()} does not
-	 *     implement {@link FMUMVanillaItem}. This usually corresponds to a
+	 *     implement {@link FMUMItemBase}. This usually corresponds to a
 	 *     vanilla item.
 	 */
 	static Optional< IItem > ofOrEmpty( ItemStack stack )
 	{
 		final Item item = stack.getItem();
-		if ( item instanceof FMUMVanillaItem )
+		if ( item instanceof FMUMItemBase )
 		{
-			final FMUMVanillaItem fi = ( FMUMVanillaItem ) item;
+			final FMUMItemBase fi = ( FMUMItemBase ) item;
 			return Optional.of( fi.getItemFrom( stack ) );
 		}
 		return Optional.empty();
