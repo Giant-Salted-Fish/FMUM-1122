@@ -30,7 +30,7 @@ public class Registry< T >
 			}
 			
 			FMUM.LOGGER.warn( "fmum.duplicate_content_regis", old_obj, obj );
-			return old_obj; // Keep old one if already existed.
+			return old_obj;  // Keep old one if already existed.
 		} );
 	}
 }

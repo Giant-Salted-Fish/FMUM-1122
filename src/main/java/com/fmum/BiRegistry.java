@@ -13,14 +13,14 @@ public abstract class BiRegistry< K, V > extends Registry< V >
 	{
 		return new BiRegistry< Short, V >() {
 			@Override
-			protected void _doBiRegis( V obj )
+			protected void _doBiRegis( String regis_name, V obj )
 			{
 				// Compute a numerical id that has not been occupied.
-				short id = ( short ) obj.hashCode();
-				while ( id == 0 || this.id_table.containsKey( id ) ) {
-					id += 1;
+				short nid = ( short ) regis_name.hashCode();
+				while ( nid == 0 || this.id_table.containsKey( nid ) ) {
+					nid += 1;
 				}
-				this.id_table.put( id, obj );
+				this.id_table.put( nid, obj );
 			}
 		};
 	}
@@ -44,11 +44,13 @@ public abstract class BiRegistry< K, V > extends Registry< V >
 				FMUM.LOGGER.warn( "fmum.duplicate_content_regis", old_value, obj );
 				return old_value;
 			}
-			
-			this._doBiRegis( obj );
-			return obj;
+			else
+			{
+				this._doBiRegis( key, obj );
+				return obj;
+			}
 		} );
 	}
 	
-	protected abstract void _doBiRegis( V obj );
+	protected abstract void _doBiRegis( String regis_name, V obj );
 }
