@@ -1,8 +1,8 @@
 package gsf.devtool;
 
+import com.fmum.FMUM;
 import com.fmum.input.Inputs;
 import com.fmum.player.ChatBoxUtil;
-import com.fmum.FMUM;
 import com.fmum.render.ModelPath;
 import com.fmum.render.Texture;
 import com.google.common.collect.Lists;

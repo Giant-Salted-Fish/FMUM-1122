@@ -171,7 +171,13 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		if ( this.paintjobs.isEmpty() ) {
 			this.paintjobs = new ArrayList<>();
 		}
-		this.paintjobs.add( 0, () -> this.texture );
+		this.paintjobs.add( 0, new IPaintjob() {
+			@Override
+			@SideOnly( Side.CLIENT )
+			public Texture getTexture() {
+				return GunPartType.this.texture;
+			}
+		} );
 		
 		// Try to assemble default setup once in post load to make sure it works.
 		ctx.regisPostLoadCallback( _ctx -> {
@@ -626,7 +632,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			this.in_hand_queue.clear();
 			
 			// Collect render callback.
-			final IAnimator animator = this._getAnimator( item );  // TODO: Replace with a real animator.
+			final IAnimator animator = this._getInHandAnimator( item );  // TODO: Replace with a real animator.
 			self.IGunPart$prepareRender( -1, animator, this.in_hand_queue );
 			
 			// Sort render callback based on priority.
@@ -635,8 +641,11 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		}
 		
 		@SideOnly( Side.CLIENT )
-		protected IAnimator _getAnimator( IItem item ) {
-			return IAnimator.NONE;  // TODO: Replace with a real animator.
+		protected IAnimator _getInHandAnimator( IItem item )
+		{
+			final GunPartType type = ( GunPartType ) item.getType();
+			final IPoseSetup in_hand_setup = IPoseSetup.of( type.fp_pos, type.fp_rot, 0.0F );
+			return ch -> ch.equals( CHANNEL_ITEM ) ? in_hand_setup : IPoseSetup.EMPTY;
 		}
 		
 		@Override
@@ -836,7 +845,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		}
 		
 		@Override
-		protected IAnimator _getAnimator( IItem item )
+		protected IAnimator _getInHandAnimator( IItem item )
 		{
 			final EntityPlayerSP player = Minecraft.getMinecraft().player;
 			final GunPartType type = ( GunPartType ) item.getType();

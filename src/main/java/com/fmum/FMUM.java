@@ -247,7 +247,7 @@ public final class FMUM
 		this.pack_loader = new PackLoader( self_container, active_mod_list );
 		this.pack_loader._preLoadPacks();
 		this.pack_loader._loadPacks();
-		Dev.init();
+		FMUM.SIDE.runIfClient( Dev::init );
 		
 		LOGGER.info( "fmum.pre_init_complete" );
 	}
@@ -311,6 +311,7 @@ public final class FMUM
 	}
 	
 	@Mod.InstanceFactory
+	@SuppressWarnings( "unused" )
 	private static FMUM __create() {
 		return new FMUM();
 	}
