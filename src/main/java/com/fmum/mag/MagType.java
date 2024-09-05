@@ -27,10 +27,15 @@ public class MagType extends GunPartType
 	protected static final String LIST_AMMO_TAG = "la";
 	protected static final String COUNT_AMMO_TAG = "ca";
 	
-	
 	protected class Mag extends GunPart implements IMag
 	{
 		protected String encoding_tag;
+		
+		/**
+		 * Tracks the number of ammo in the magazine if {@link #encoding_tag} is
+		 * {@link #COUNT_AMMO_TAG}, or the data array length need for count
+		 * encoding if {@link #encoding_tag} is {@link #LIST_AMMO_TAG}.
+		 */
 		protected int cmp_ref_val;
 		
 		protected Mag()
@@ -57,6 +62,11 @@ public class MagType extends GunPartType
 				? this._Lst$getCount( data )
 				: this.cmp_ref_val
 			);
+		}
+		
+		@Override
+		public boolean canLoadAmmo( IAmmoType ammo ) {
+			return MagType.this.ammo_predicate.test( ammo.getCategory() );
 		}
 		
 		@Override

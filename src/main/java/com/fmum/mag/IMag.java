@@ -15,6 +15,12 @@ public interface IMag extends IGunPart
 		return this.getAmmoCount() == 0;
 	}
 	
+	default boolean isFull() {
+		return this.getAmmoCount() == this.getCapacity();
+	}
+	
+	boolean canLoadAmmo( IAmmoType ammo );
+	
 	int loadAmmo( IAmmoType ammo );
 	
 	IAmmoType popAmmo();

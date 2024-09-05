@@ -5,6 +5,7 @@ import com.fmum.item.FMUMItemBase;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
+import com.fmum.item.ItemCategory;
 import com.fmum.item.ItemType;
 import com.fmum.load.IContentBuildContext;
 import com.fmum.load.IMeshLoadContext;
@@ -31,7 +32,7 @@ import org.lwjgl.opengl.GL11;
 public class AmmoType extends ItemType implements IAmmoType
 {
 	@Expose
-	protected String category;
+	protected ItemCategory category;
 	
 	@Expose
 	protected boolean can_shoot = true;
@@ -85,7 +86,7 @@ public class AmmoType extends ItemType implements IAmmoType
 		super.build( data, fallback_name, ctx );
 		
 		if ( this.category == null ) {
-			this.category = this.name;
+			this.category = ItemCategory.parse( this.name );
 		}
 		
 		this.vanilla_item = this._createVanillaItem();
@@ -120,7 +121,7 @@ public class AmmoType extends ItemType implements IAmmoType
 	}
 	
 	@Override
-	public String getCategory() {
+	public ItemCategory getCategory() {
 		return this.category;
 	}
 	
