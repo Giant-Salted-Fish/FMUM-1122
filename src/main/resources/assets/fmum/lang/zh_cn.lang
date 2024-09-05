@@ -1,27 +1,27 @@
 # 配置文件
-fmum.config.common=全局配置
-fmum.config.common.tooltip=这些配置将会同步给所有连接到此服务器（主机）的玩家。
-fmum.config.common.max_module_depth=最大改装深度
-fmum.config.common.max_module_depth.tooltip=改装模式下支持的最大改装层数。注意：缩小此参数不会影响已经完成的改装。
-fmum.config.common.max_slot_capacity=单槽最大配件数
-fmum.config.common.max_slot_capacity.tooltip=改装模式下单个槽位支持的最大配件数。注意：缩小缩小此参数不会影响已经完成的改装。
-fmum.config.common.free_view_limit=环视角度上限
-fmum.config.common.free_view_limit.tooltip=这个参数决定了当你按住 Alt 键时镜头可以转动的角度上限。
-fmum.config.common.camera_drop_cycle=视角坠落特效周期
-fmum.config.common.camera_drop_cycle.tooltip=这个参数多数时候能够改变玩家从空中坠落时视角晃动的频率。
-fmum.config.common.camera_drop_amplitude=视角坠落特效幅度
-fmum.config.common.camera_drop_amplitude.tooltip=这个参数多数时候能够控制玩家从空中坠落时视角晃动的幅度。
-fmum.config.common.camera_drop_impact=视角落地冲击幅度
-fmum.config.common.camera_drop_impact.tooltip=这个参数多数时候能够控制玩家落地时镜头冲击效果的幅度。
+config.fmum.common=全局配置
+config.fmum.common.tooltip=这些配置将会同步给所有连接到此服务器（主机）的玩家。
+config.fmum.common.max_module_depth=最大改装深度
+config.fmum.common.max_module_depth.tooltip=改装模式下支持的最大改装层数。注意：缩小此参数不会影响已经完成的改装。
+config.fmum.common.max_slot_capacity=单槽最大配件数
+config.fmum.common.max_slot_capacity.tooltip=改装模式下单个槽位支持的最大配件数。注意：缩小缩小此参数不会影响已经完成的改装。
+config.fmum.common.free_view_limit=环视角度上限
+config.fmum.common.free_view_limit.tooltip=这个参数决定了当你按住 Alt 键时镜头可以转动的角度上限。
+config.fmum.common.camera_drop_cycle=视角坠落特效周期
+config.fmum.common.camera_drop_cycle.tooltip=这个参数多数时候能够改变玩家从空中坠落时视角晃动的频率。
+config.fmum.common.camera_drop_amplitude=视角坠落特效幅度
+config.fmum.common.camera_drop_amplitude.tooltip=这个参数多数时候能够控制玩家从空中坠落时视角晃动的幅度。
+config.fmum.common.camera_drop_impact=视角落地冲击幅度
+config.fmum.common.camera_drop_impact.tooltip=这个参数多数时候能够控制玩家落地时镜头冲击效果的幅度。
 
-fmum.config.client=客户端配置
-fmum.config.client.tooltip=这些配置仅在客户端生效。
-fmum.config.client.fallback_creative_tab_icon_item=默认创造模式物品栏图标
-fmum.config.client.fallback_creative_tab_icon_item.tooltip=当 FMUM 无法为某个物品组找到指定的图标物品时会默认使用此处指定的物品。
-fmum.config.client.fallback_creative_tab_icon_item_meta=默认创造模式物品栏图标变种
-fmum.config.client.fallback_creative_tab_icon_item_meta.tooltip=请查看“默认创造模式物品栏图标”相关描述。该值决定了图标物品的变种类型。
-fmum.config.client.use_flan_compatible_mousehelper=使用兼容 Flan 的 MouseHelper
-fmum.config.client.use_flan_compatible_mousehelper.tooltip=FMUM 默认的 MouseHelper 可能会导致驾驶 Flan's Mod 载具时无法转动视角，该选项将尝试使用兼容性的 MouseHelper 以避免该问题。
+config.fmum.client=客户端配置
+config.fmum.client.tooltip=这些配置仅在客户端生效。
+config.fmum.client.fallback_creative_tab_icon_item=默认创造模式物品栏图标
+config.fmum.client.fallback_creative_tab_icon_item.tooltip=当 FMUM 无法为某个物品组找到指定的图标物品时会默认使用此处指定的物品。
+config.fmum.client.fallback_creative_tab_icon_item_meta=默认创造模式物品栏图标变种
+config.fmum.client.fallback_creative_tab_icon_item_meta.tooltip=请查看“默认创造模式物品栏图标”相关描述。该值决定了图标物品的变种类型。
+config.fmum.client.use_flan_compatible_mousehelper=使用兼容 Flan 的 MouseHelper
+config.fmum.client.use_flan_compatible_mousehelper.tooltip=FMUM 默认的 MouseHelper 可能会导致驾驶 Flan's Mod 载具时无法转动视角，该选项将尝试使用兼容性的 MouseHelper 以避免该问题。
 
 # 内容包
 pack.fmum=FMUM 核心内容包
