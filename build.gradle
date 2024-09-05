@@ -57,6 +57,9 @@ repositories {
 		name 'Cleanroom'
 		url 'https://maven.cleanroommc.com'
 	}
+	flatDir {
+		dir 'libs'
+	}
 }
 
 dependencies {
@@ -78,7 +81,8 @@ dependencies {
 
 	// These dependencies get remapped to your current MCP mappings
 //	deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-	implementation fg.deobf("curse.maven:kbp-928895:5289727" /* + "-sources-5289729-api-5289731" */ )
+//	implementation fg.deobf("curse.maven:kbp-928895:5289727" /* + "-sources-5289729-api-5289731" */ )
+	implementation fg.deobf("com.kbp:kbp:1.12.2-1.3.2.0")
 	runtimeOnly ('zone.rong:mixinbooter:9.1') {
 		transitive = false
 	}

@@ -49,7 +49,7 @@ import java.util.List;
 	updateJSON = "https://raw.githubusercontent.com/Giant-Salted-Fish/Key-Binding-Patch/1.16.X/update.json",
 	acceptedMinecraftVersions = "[1.12,1.13)",
 //	guiFactory = "com.fmum.ConfigGuiFactory",
-	dependencies = "required-client:key_binding_patch@[1.12.2-1.3.0.0,1.12.2-1.4.0.0);"
+	dependencies = "required-client:key_binding_patch@[1.12.2-1.3.2.0,1.12.2-1.4.0.0);"
 )
 public final class FMUM
 {

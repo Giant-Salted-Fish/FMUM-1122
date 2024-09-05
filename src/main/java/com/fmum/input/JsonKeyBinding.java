@@ -17,7 +17,7 @@ import org.lwjgl.input.Keyboard;
 public class JsonKeyBinding extends BuildableType
 {
 	@Expose
-	protected String category = "key_category.common";
+	protected String category = "key_category.fmum_common";
 	
 	@Expose
 	protected String signal;
@@ -26,7 +26,7 @@ public class JsonKeyBinding extends BuildableType
 	protected int key_code = Keyboard.KEY_NONE;
 	
 	@Expose
-	protected int[] combinations = { };
+	protected Integer[] combinations = { };
 	
 	@Expose
 	protected IKeyConflictContext conflict_context = KeyConflictContext.IN_GAME;
