@@ -110,15 +110,15 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	
 	@Expose
 	@SideOnly( Side.CLIENT )
-	protected Vec3f modify_pos;
-	
-	@Expose
-	@SideOnly( Side.CLIENT )
 	protected Quat4f fp_rot;
 	
 	@Expose
 	@SideOnly( Side.CLIENT )
 	protected String mod_anim_channel;
+	
+	@Expose
+	@SideOnly( Side.CLIENT )
+	protected Vec3f modify_pos;
 	
 	@Expose
 	@SideOnly( Side.CLIENT )
@@ -626,12 +626,17 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			this.in_hand_queue.clear();
 			
 			// Collect render callback.
-			final IAnimator animator = IAnimator.NONE;  // TODO: Replace with a real animator.
+			final IAnimator animator = this._getAnimator( item );  // TODO: Replace with a real animator.
 			self.IGunPart$prepareRender( -1, animator, this.in_hand_queue );
 			
 			// Sort render callback based on priority.
 			// TODO: Reverse or not?
 			this.in_hand_queue.sort( Comparator.comparing( rc -> rc.getPriority( IPoseSetup.EMPTY ) ) );
+		}
+		
+		@SideOnly( Side.CLIENT )
+		protected IAnimator _getAnimator( IItem item ) {
+			return IAnimator.NONE;  // TODO: Replace with a real animator.
 		}
 		
 		@Override
@@ -672,7 +677,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			// Setup and render!
 			GLUtil.glRotateYf( 180.0F - player.rotationYaw );
 			GLUtil.glRotateXf( player.rotationPitch );
-			this.doRenderInHand( hand, item );
+			this._doRenderInHand( hand, item );
 			
 			GlStateManager.disableRescaleNormal();
 			RenderHelper.disableStandardItemLighting();
@@ -688,7 +693,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		 * No need to push matrix here as caller should have done it.
 		 */
 		@SideOnly( Side.CLIENT )
-		protected void doRenderInHand( EnumHand hand, IItem item )
+		protected void _doRenderInHand( EnumHand hand, IItem item )
 		{
 //			Dev.cur().applyTransRot();
 			this.in_hand_queue.forEach( IRenderCallback::render );
@@ -831,16 +836,19 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		}
 		
 		@Override
-		protected void doRenderInHand( EnumHand hand, IItem item )
+		protected IAnimator _getAnimator( IItem item )
 		{
 			final EntityPlayerSP player = Minecraft.getMinecraft().player;
 			final GunPartType type = ( GunPartType ) item.getType();
 			final Vec3f modify_pos = type.modify_pos;
-			GL11.glTranslatef( 0.0F, 0.0F, modify_pos.z );
-			GLUtil.glRotateXf( -player.rotationPitch );
-			GLUtil.glRotateYf( 90.0F + player.rotationYaw );
-			GL11.glTranslatef( modify_pos.x, modify_pos.y, 0.0F );
-			super.doRenderInHand( hand, item );
+			final Mat4f mat = new Mat4f();
+			mat.setIdentity();
+			mat.translate( 0.0F, 0.0F, modify_pos.z );
+			mat.rotateX( -player.rotationPitch );
+			mat.rotateY( 90.0F + player.rotationYaw );
+			mat.translate( modify_pos.x, modify_pos.y, 0.0F );
+			final IPoseSetup in_hand_setup = IPoseSetup.of( mat );
+			return channel -> channel.equals( CHANNEL_ITEM ) ? in_hand_setup : IPoseSetup.EMPTY;
 		}
 	}
 }

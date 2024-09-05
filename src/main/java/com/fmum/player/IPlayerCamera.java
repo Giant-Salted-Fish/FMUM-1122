@@ -8,7 +8,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public interface IPlayerCamera
 {
-	String ANIM_CHANNEL = "camera";
+	String CHANNEL_CAMERA = "camera";
 	
 	
 	void tickCamera();

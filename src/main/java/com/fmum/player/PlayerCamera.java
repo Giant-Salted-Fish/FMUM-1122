@@ -163,7 +163,7 @@ public abstract class PlayerCamera implements IPlayerCamera
 		final float view_yaw = this.player_rot.y + free_view_yaw;
 		
 //		this.animator.update();  // FIXME: Animator update?
-		final IPoseSetup setup = this.animator.getChannel( ANIM_CHANNEL );
+		final IPoseSetup setup = this.animator.getChannel( CHANNEL_CAMERA );
 		
 		final Mat4f view_mat = this.view_mat;
 		final Quat4f quat = Quat4f.allocate();

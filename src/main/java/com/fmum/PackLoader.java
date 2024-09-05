@@ -397,7 +397,7 @@ final class PackLoader
 						final JsonObject bones = obj.getAsJsonObject( "bones" );
 						
 						// Camera channel is a bit special, process it independently.
-						final JsonObject cam_obj = obj.getAsJsonObject( PlayerCamera.ANIM_CHANNEL );
+						final JsonObject cam_obj = obj.getAsJsonObject( PlayerCamera.CHANNEL_CAMERA );
 						if ( cam_obj != null )
 						{
 							final Bone cam_bone = __loadBone(
@@ -420,12 +420,12 @@ final class PackLoader
 									return Quat4f.rotOf( mat );
 								}
 							);
-							anim.channels.put( PlayerCamera.ANIM_CHANNEL, cam_bone );
+							anim.channels.put( PlayerCamera.CHANNEL_CAMERA, cam_bone );
 						}
 						
 						obj.entrySet().forEach( entry -> {
 							final String channel = entry.getKey();
-							final boolean is_cam_chl = channel.equals( PlayerCamera.ANIM_CHANNEL );
+							final boolean is_cam_chl = channel.equals( PlayerCamera.CHANNEL_CAMERA );
 							if ( is_cam_chl ) {
 								return;
 							}

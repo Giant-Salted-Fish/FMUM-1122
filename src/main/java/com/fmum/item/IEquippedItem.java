@@ -11,7 +11,7 @@ public interface IEquippedItem
 	/**
 	 * Animation channel for item held in hand.
 	 */
-	String CHANNEL_ITEM = "__item__";
+	String CHANNEL_ITEM = "item";
 	
 	
 	default IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player ) {
