@@ -36,6 +36,9 @@ minecraft {
 			
 			// Recommended logging level for the console.
 			property 'forge.logging.console.level', 'debug'
+
+			// Fix player name for server test.
+//			args '--username=Player'
 		}
 		
 		server {
