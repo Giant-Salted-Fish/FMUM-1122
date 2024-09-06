@@ -63,6 +63,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -230,6 +231,10 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		final GunPartCapProvider provider = stack.getCapability( GunPartCapProvider.CAPABILITY, null );
 		final NBTTagCompound its_nbt_tag = this.snapshot_nbt.copy();
 		provider.deserializeNBT( its_nbt_tag );
+		
+		stack.getTagCompound().setShort( "nid", IModuleType.REGISTRY.lookupID( this ).get() );
+		final int stack_id = new Random().nextInt();  // TODO: Maybe buffer rand obj?
+		stack.getTagCompound().setInteger( GunPartType.STACK_ID_TAG, stack_id );
 		return stack;
 	}
 	
@@ -502,7 +507,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		@SuppressWarnings( "DataFlowIssue" )
 		public ItemStack takeAndToStack()
 		{
-			final ItemStack stack = new ItemStack( ItemGunPart.INSTANCE );
+			final ItemStack stack = GunPartType.this.newItemStack( ( short ) 0 );
 			final GunPartCapProvider provider = stack.getCapability( GunPartCapProvider.CAPABILITY, null );
 			provider.deserializeNBT( this.getBoundNBT() );
 			return stack;

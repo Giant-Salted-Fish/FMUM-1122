@@ -3,17 +3,18 @@ package com.fmum.gunpart;
 import com.fmum.FMUM;
 import com.fmum.item.FMUMItemBase;
 import com.fmum.item.IItem;
+import com.fmum.module.IModuleType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.Constants.NBT;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
-import java.util.Random;
 
 public class ItemGunPart extends FMUMItemBase
 {
@@ -71,8 +72,6 @@ public class ItemGunPart extends FMUMItemBase
 		if ( stack.getTagCompound() == null )
 		{
 			final NBTTagCompound nbt = new NBTTagCompound();
-			final int stack_id = new Random().nextInt();  // TODO: Buffer rand obj.
-			nbt.setInteger( GunPartType.STACK_ID_TAG, stack_id );
 			stack.setTagCompound( nbt );
 		}
 		
@@ -97,8 +96,20 @@ public class ItemGunPart extends FMUMItemBase
 	@SuppressWarnings( "DataFlowIssue" )
 	public void readNBTShareTag( @Nonnull ItemStack stack, @Nullable NBTTagCompound nbt )
 	{
-		final NBTTagCompound cap_nbt = nbt.getCompoundTag( CAPABILITY_TAG );
-		nbt.removeTag( CAPABILITY_TAG );
+		final NBTTagCompound cap_nbt;
+		if ( nbt.hasKey( CAPABILITY_TAG, NBT.TAG_COMPOUND ) )
+		{
+			cap_nbt = nbt.getCompoundTag( CAPABILITY_TAG );
+			nbt.removeTag( CAPABILITY_TAG );
+		}
+		else
+		{
+			short id = nbt.getShort( "nid" );
+			IModuleType mod = IModuleType.REGISTRY.lookup( id ).get();
+			final GunPartType type = ( GunPartType ) mod;
+			cap_nbt = type.snapshot_nbt.copy();
+		}
+		
 		super.readNBTShareTag( stack, nbt );
 		
 		final GunPartCapProvider provider = stack.getCapability( GunPartCapProvider.CAPABILITY, null );
