@@ -1,6 +1,0 @@
-{
-	"name": "oc.pack",
-	"author": "oc.author",
-	"version": "0.3.2-alpha",
-	"ignoredEntries": [ "com" ]
-}
