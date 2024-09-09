@@ -7,6 +7,7 @@ import com.fmum.item.IItemType;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -38,13 +39,13 @@ public class PlayerPatch
 		@Override
 		@SideOnly( Side.CLIENT )
 		public boolean renderInHand( EnumHand hand, IItem item ) {
-			return false;
+			return hand == EnumHand.OFF_HAND;  // TODO: Config setting?
 		}
 		
 		@Override
 		@SideOnly( Side.CLIENT )
 		public boolean renderSpecificInHand( EnumHand hand, IItem item ) {
-			return false;
+			return hand == EnumHand.OFF_HAND;
 		}
 	};
 	
@@ -55,16 +56,13 @@ public class PlayerPatch
 		}
 		
 		@Override
-		public ItemStack getBoundStack() {
-			throw new UnsupportedOperationException();
-		}
-		
-		@Override
 		public IEquippedItem onTakeOut( EnumHand hand, EntityPlayer player ) {
 			return VANILLA_EQUIPPED;
 		}
 	};
 	
+	
+	int inv_slot = -1;
 	
 	IItem main_item = VANILLA_ITEM;
 	IEquippedItem main_equipped = VANILLA_EQUIPPED;
@@ -80,15 +78,20 @@ public class PlayerPatch
 		// >>> Update Main Hand <<<
 		{
 			final EnumHand hand = EnumHand.MAIN_HAND;
-			final ItemStack stack = player.getHeldItemMainhand();
-			final IItem held_item = IItem.ofOrEmpty( stack ).orElse( VANILLA_ITEM );
-			this.main_equipped = (
-				this.main_item.equals( held_item )
-				? this.main_equipped.tickInHand( hand, held_item, player )
-				: held_item.onTakeOut( hand, player )
-			);
+			final InventoryPlayer inv = player.inventory;
+			final int inv_slot = inv.currentItem;
+			final ItemStack stack = inv.getStackInSlot( inv_slot );
+			final Optional< IItem > opt_item = IItem.ofOrEmpty( stack );
+			final IItem held_item = opt_item.orElse( VANILLA_ITEM );
+			if ( !this.getItemIn( hand ).equals( opt_item ) || inv_slot != this.inv_slot )
+			{
+				this.main_equipped = held_item.onTakeOut( hand, player );
+				this.inv_slot = inv_slot;
+			}
 			
-			// Not necessary, but this helps to release the old item if the instance has changed.
+			this.main_equipped = this.main_equipped.tickInHand( hand, held_item, player );
+			
+			// Necessary, because we are using #equals here.
 			this.main_item = held_item;
 		}
 		
@@ -96,13 +99,13 @@ public class PlayerPatch
 		{
 			final EnumHand hand = EnumHand.OFF_HAND;
 			final ItemStack stack = player.getHeldItemOffhand();
-			final IItem held_item = IItem.ofOrEmpty( stack ).orElse( VANILLA_ITEM );
-			this.off_equipped = (
-				this.off_item.equals( held_item )
-				? this.off_equipped.tickInHand( hand, held_item, player )
-				: held_item.onTakeOut( hand, player )
-			);
+			final Optional< IItem > opt_item = IItem.ofOrEmpty( stack );
+			final IItem held_item = opt_item.orElse( VANILLA_ITEM );
+			if ( !this.getItemIn( hand ).equals( opt_item ) ) {
+				this.off_equipped = held_item.onTakeOut( hand, player );
+			}
 			
+			this.off_equipped = this.off_equipped.tickInHand( hand, held_item, player );
 			this.off_item = held_item;
 		}
 	}

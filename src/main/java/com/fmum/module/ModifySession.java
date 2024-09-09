@@ -20,7 +20,7 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
 @SideOnly( Side.CLIENT )
-public class ModifyTracker
+public class ModifySession
 {
 	protected Pair< ? extends IModule, Supplier< ? extends IModule > > cursor_ctx;
 	protected LinkedList< Integer > cursor_location = new LinkedList<>();
@@ -34,7 +34,7 @@ public class ModifyTracker
 	
 	protected LinkedList< IModifyMode > modify_modes = new LinkedList<>();
 	
-	public ModifyTracker( Supplier< ? extends IModule > root_factory )
+	public ModifySession( Supplier< ? extends IModule > root_factory )
 	{
 		this.cursor_ctx = Pair.of( root_factory.get(), root_factory );
 		
@@ -56,7 +56,10 @@ public class ModifyTracker
 		return cursor;
 	}
 	
-	public void refresh(
+	/**
+	 * @return Whether there is inconsistency in the cursor context.
+	 */
+	public boolean refresh(
 		Supplier< ? extends IModule > root_factory,
 		IntFunction< Optional< IModule > > inv_pick
 	) {
@@ -65,7 +68,7 @@ public class ModifyTracker
 		if ( is_root_mod )
 		{
 			this.cursor_ctx = Pair.of( root_factory.get(), root_factory );
-			return;
+			return false;
 		}
 		
 		IModule cursor = root_factory.get();
@@ -73,23 +76,42 @@ public class ModifyTracker
 		while ( true )
 		{
 			final int slot_idx = itr.next();
+			if ( slot_idx >= cursor.getSlotCount() ) {
+				return true;
+			}
+			
 			final int mod_idx = itr.next();
 			final boolean has_next_layer = itr.hasNext();
 			if ( has_next_layer )
 			{
+				if ( mod_idx >= cursor.countModuleInSlot( slot_idx ) ) {
+					return true;
+				}
+				
 				cursor = cursor.getInstalled( slot_idx, mod_idx );
 				continue;
 			}
 			
 			if ( this.preview_inv_slot == null )
 			{
+				if ( mod_idx >= cursor.countModuleInSlot( slot_idx ) ) {
+					return true;
+				}
+				
 				this.cursor_ctx = cursor.getModifyCursor( slot_idx, mod_idx, this._getCtx() );
 				this.modify_modes.forEach( IModifyMode::onCursorRefresh );
 			}
 			else if ( this.preview_inv_slot >= 0 )
 			{
-				final IModule mod = inv_pick.apply( this.preview_inv_slot ).orElseThrow( IllegalStateException::new );
-				final IModifyPreview< Integer > preview = cursor.tryInstall( slot_idx, mod );
+				final Optional< IModule > mod = inv_pick.apply( this.preview_inv_slot );
+				if ( !mod.isPresent() ) {
+					return true;
+				}
+				
+				final IModifyPreview< Integer > preview = cursor.tryInstall( slot_idx, mod.get() );
+				if ( preview.getPreviewError().isPresent() ) {
+					return true;
+				}
 				
 				final int mod_inst_idx = preview.apply();
 				loc.set( 0, mod_inst_idx );
@@ -101,7 +123,7 @@ public class ModifyTracker
 				loc.removeLast();
 				this._setupPlaceholder( cursor, slot_idx );
 			}
-			break;
+			return false;
 		}
 	}
 	
@@ -446,7 +468,7 @@ public class ModifyTracker
 		@Override
 		public void resetWithCursor()
 		{
-			final IModule cursor = ModifyTracker.this.cursor_ctx.first();
+			final IModule cursor = ModifySession.this.cursor_ctx.first();
 			final int paintjob = cursor.getPaintjobIdx();
 			this.ori_paintjob = paintjob;
 			this.cur_paintjob = paintjob;
@@ -455,7 +477,7 @@ public class ModifyTracker
 		@Override
 		public void onCursorRefresh()
 		{
-			final IModule cursor = ModifyTracker.this.cursor_ctx.first();
+			final IModule cursor = ModifySession.this.cursor_ctx.first();
 			this.ori_paintjob = cursor.getPaintjobIdx();
 			if ( this.cur_paintjob != this.ori_paintjob ) {
 				this.cur_paintjob = cursor.trySetPaintjob( this.cur_paintjob ).apply();
@@ -470,7 +492,7 @@ public class ModifyTracker
 		@Override
 		public void loopChange( boolean loop_next )
 		{
-			final IModule cursor = ModifyTracker.this.cursor_ctx.first();
+			final IModule cursor = ModifySession.this.cursor_ctx.first();
 			final int count = cursor.getPaintjobCount();
 			final int incr = loop_next ? 1 : ( count - 1 );
 			final int next = ( this.cur_paintjob + incr ) % count;
@@ -486,8 +508,8 @@ public class ModifyTracker
 				return;
 			}
 			
-			final int len = ModifyTracker.this.cursor_location.size();
-			final byte[] loc = ModifyTracker.this._locToArr( len );
+			final int len = ModifySession.this.cursor_location.size();
+			final byte[] loc = ModifySession.this._locToArr( len );
 			final IPacket packet = PacketAdjustModule.ofPaintjobSwitch( loc, this.cur_paintjob );
 			FMUM.NET.sendPacketC2S( packet );
 			

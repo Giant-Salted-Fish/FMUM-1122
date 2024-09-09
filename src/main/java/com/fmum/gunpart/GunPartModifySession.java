@@ -2,7 +2,7 @@ package com.fmum.gunpart;
 
 import com.fmum.FMUM;
 import com.fmum.module.IModule;
-import com.fmum.module.ModifyTracker;
+import com.fmum.module.ModifySession;
 import com.fmum.network.IPacket;
 import com.fmum.network.PacketAdjustModule;
 import net.minecraft.client.Minecraft;
@@ -14,9 +14,9 @@ import java.util.LinkedList;
 import java.util.function.Supplier;
 
 @SideOnly( Side.CLIENT )
-public class GunPartModifyTracker extends ModifyTracker
+public class GunPartModifySession extends ModifySession
 {
-	public GunPartModifyTracker( Supplier< ? extends IModule > root_factory )
+	public GunPartModifySession( Supplier< ? extends IModule > root_factory )
 	{
 		super( root_factory );
 		
@@ -42,7 +42,7 @@ public class GunPartModifyTracker extends ModifyTracker
 		
 		public void resetWithCursor()
 		{
-			final IGunPart cursor = ( IGunPart ) GunPartModifyTracker.this.cursor_ctx.first();
+			final IGunPart cursor = ( IGunPart ) GunPartModifySession.this.cursor_ctx.first();
 			final int step = cursor.getStep();
 			this.ori_step = step;
 			this.cur_step = step;
@@ -50,7 +50,7 @@ public class GunPartModifyTracker extends ModifyTracker
 		
 		public void onCursorRefresh()
 		{
-			final IGunPart cursor = ( IGunPart ) GunPartModifyTracker.this.cursor_ctx.first();
+			final IGunPart cursor = ( IGunPart ) GunPartModifySession.this.cursor_ctx.first();
 			this.ori_step = cursor.getStep();
 			if ( this.cur_step != this.ori_step )
 			{
@@ -67,13 +67,13 @@ public class GunPartModifyTracker extends ModifyTracker
 		@Override
 		public void loopChange( boolean loop_next )
 		{
-			final LinkedList< Integer > loc = GunPartModifyTracker.this.cursor_location;
+			final LinkedList< Integer > loc = GunPartModifySession.this.cursor_location;
 			final boolean is_root_mod = loc.isEmpty();
 			if ( is_root_mod ) {
 				return;
 			}
 			
-			final IGunPart cursor = ( IGunPart ) GunPartModifyTracker.this.cursor_ctx.first();
+			final IGunPart cursor = ( IGunPart ) GunPartModifySession.this.cursor_ctx.first();
 			final IGunPart base = cursor.getBase().orElseThrow( IllegalStateException::new );
 			final int slot_idx = loc.get( 1 );
 			final int count = base.getStepCount( slot_idx );
@@ -98,8 +98,8 @@ public class GunPartModifyTracker extends ModifyTracker
 				return;
 			}
 			
-			final int len = GunPartModifyTracker.this.cursor_location.size();
-			final byte[] loc = GunPartModifyTracker.this._locToArr( len );
+			final int len = GunPartModifySession.this.cursor_location.size();
+			final byte[] loc = GunPartModifySession.this._locToArr( len );
 			final IPacket packet = PacketAdjustModule.ofStepAdjust( loc, this.cur_step );
 			FMUM.NET.sendPacketC2S( packet );
 			
@@ -120,7 +120,7 @@ public class GunPartModifyTracker extends ModifyTracker
 		@Override
 		public void resetWithCursor()
 		{
-			final IGunPart cursor = ( IGunPart ) GunPartModifyTracker.this.cursor_ctx.first();
+			final IGunPart cursor = ( IGunPart ) GunPartModifySession.this.cursor_ctx.first();
 			final int offset = cursor.getOffset();
 			this.ori_offset = offset;
 			this.cur_offset = offset;
@@ -129,7 +129,7 @@ public class GunPartModifyTracker extends ModifyTracker
 		@Override
 		public void onCursorRefresh()
 		{
-			final IGunPart cursor = ( IGunPart ) GunPartModifyTracker.this.cursor_ctx.first();
+			final IGunPart cursor = ( IGunPart ) GunPartModifySession.this.cursor_ctx.first();
 			this.ori_offset = cursor.getOffset();
 			if ( this.cur_offset != this.ori_offset )
 			{
@@ -146,7 +146,7 @@ public class GunPartModifyTracker extends ModifyTracker
 		@Override
 		public void loopChange( boolean loop_next )
 		{
-			final IGunPart cursor = ( IGunPart ) GunPartModifyTracker.this.cursor_ctx.first();
+			final IGunPart cursor = ( IGunPart ) GunPartModifySession.this.cursor_ctx.first();
 			final int count = cursor.getOffsetCount();
 			final int incr = loop_next ? 1 : ( count - 1 );
 			final int next = ( this.cur_offset + incr ) % count;
@@ -164,8 +164,8 @@ public class GunPartModifyTracker extends ModifyTracker
 				return;
 			}
 			
-			final int len = GunPartModifyTracker.this.cursor_location.size();
-			final byte[] loc = GunPartModifyTracker.this._locToArr( len );
+			final int len = GunPartModifySession.this.cursor_location.size();
+			final byte[] loc = GunPartModifySession.this._locToArr( len );
 			final IPacket packet = PacketAdjustModule.ofOffsetAdjust( loc, this.cur_offset );
 			FMUM.NET.sendPacketC2S( packet );
 			

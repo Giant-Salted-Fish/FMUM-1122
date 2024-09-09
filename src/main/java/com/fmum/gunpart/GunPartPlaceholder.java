@@ -5,6 +5,7 @@ import com.fmum.module.IModifyContext;
 import com.fmum.module.IModifyPreview;
 import com.fmum.module.IModule;
 import com.fmum.render.IAnimator;
+import com.fmum.render.IRenderCallback;
 import com.fmum.render.ModelPath;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IPoseSetup;

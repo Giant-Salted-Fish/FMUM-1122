@@ -1,12 +1,15 @@
 package com.fmum.item;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 /**
@@ -28,11 +31,6 @@ public interface IItem
 	 */
 	IItemType getType();
 	
-	/**
-	 * @return Corresponding {@link ItemStack} of this item.
-	 */
-	ItemStack getBoundStack();
-	
 	default < T > Optional< T > lookupCapability( Capability< T > capability ) {
 		return Optional.empty();
 	}
@@ -40,20 +38,26 @@ public interface IItem
 	IEquippedItem onTakeOut( EnumHand hand, EntityPlayer player );
 	
 	
-	/**
-	 * @return
-	 *     {@link Optional#empty()} if {@link ItemStack#getItem()} does not
-	 *     implement {@link FMUMItemBase}. This usually corresponds to a
-	 *     vanilla item.
-	 */
-	static Optional< IItem > ofOrEmpty( ItemStack stack )
+	@SuppressWarnings( "DataFlowIssue" )
+	static Optional< IItem > ofOrEmpty( ItemStack stack ) {
+		return Optional.ofNullable( stack.getCapability( CAPABILITY, null ) );
+	}
+	
+	static ICapabilityProvider newProviderOf( IItem item )
 	{
-		final Item item = stack.getItem();
-		if ( item instanceof FMUMItemBase )
-		{
-			final FMUMItemBase fi = ( FMUMItemBase ) item;
-			return Optional.of( fi.getItemFrom( stack ) );
-		}
-		return Optional.empty();
+		return new ICapabilityProvider() {
+			@Override
+			@SuppressWarnings( "ConstantValue" )
+			public boolean hasCapability( @Nonnull Capability< ? > capability, @Nullable EnumFacing facing ) {
+				return capability == CAPABILITY;
+			}
+			
+			@Nullable
+			@Override
+			@SuppressWarnings( "ConstantValue" )
+			public < T > T getCapability( @Nonnull Capability< T > capability, @Nullable EnumFacing facing ) {
+				return capability == CAPABILITY ? CAPABILITY.cast( item ) : null;
+			}
+		};
 	}
 }

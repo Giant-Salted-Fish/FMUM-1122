@@ -3,7 +3,6 @@ package com.fmum;
 import com.fmum.ammo.AmmoType;
 import com.fmum.ammo.IAmmoType;
 import com.fmum.gun.GunType;
-import com.fmum.gunpart.GunPartCapProvider;
 import com.fmum.gunpart.GunPartSetup;
 import com.fmum.gunpart.GunPartType;
 import com.fmum.input.JsonKeyBinding;
@@ -187,7 +186,6 @@ final class PackLoader
 		this.__regisCapability( PlayerPatch.class );
 		this.__regisCapability( IItem.class );  // See IItem#CAPABILITY.
 		this.__regisCapability( IModule.class );
-		this.__regisCapability( GunPartCapProvider.class );
 	}
 	
 	private void __regisTypeAdapter( IPreLoadContext ctx )
@@ -520,16 +518,15 @@ final class PackLoader
 	void _postLoadPacks()
 	{
 		final IPostLoadContext post_load_ctx = new IPostLoadContext() {
-			private boolean fallback_tab_created = false;
+			private CreativeTabs fallback_tab = null;
 			
 			@Override
-			public String getFallbackCreativeTab()
+			public CreativeTabs getFallbackCreativeTab()
 			{
 				// Only create default tab if it is actually used.
-				if ( !this.fallback_tab_created )
+				if ( this.fallback_tab == null )
 				{
-					this.fallback_tab_created = true;
-					new CreativeTabs( FMUM.MODID ) {
+					this.fallback_tab = new CreativeTabs( FMUM.MODID ) {
 						@Nonnull
 						@Override
 						@SideOnly( Side.CLIENT )
@@ -538,8 +535,7 @@ final class PackLoader
 						}
 					};
 				}
-				
-				return FMUM.MODID;
+				return this.fallback_tab;
 			}
 			
 			@Override

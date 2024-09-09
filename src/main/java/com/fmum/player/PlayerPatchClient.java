@@ -5,6 +5,7 @@ import com.fmum.ModConfigClient;
 import com.fmum.input.IInput;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import gsf.util.lang.Type;
 import gsf.util.math.Vec3f;
 import gsf.util.render.GLUtil;
 import net.minecraft.client.Minecraft;
@@ -13,7 +14,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.MouseHelper;
@@ -213,7 +213,6 @@ public final class PlayerPatchClient extends PlayerPatch
 	{
 		if ( evt.getType() == ElementType.CROSSHAIRS )
 		{
-			
 			final IEquippedItem equipped = instance.main_equipped;
 			final IItem item = instance.main_item;
 			evt.setCanceled( equipped.shouldDisableCrosshair( item ) );
@@ -238,33 +237,32 @@ public final class PlayerPatchClient extends PlayerPatch
 		final Minecraft mc = Minecraft.getMinecraft();
 		final GameSettings settings = mc.gameSettings;
 		final Entity entity = mc.getRenderViewEntity();
-		final boolean should_cancel_hand_render = (
+		final boolean skip_hand_render = (
 			settings.thirdPersonView != 0
-			|| (
-				entity instanceof EntityLivingBase
-				&& ( ( EntityLivingBase ) entity ).isPlayerSleeping()
-			)
+			|| Type.cast( entity, EntityPlayerSP.class ).map( EntityPlayer::isPlayerSleeping ).orElse( false )
 			|| settings.hideGUI
 			|| mc.playerController.isSpectator()
-			|| (
-				instance.main_equipped.renderInHand( EnumHand.MAIN_HAND, instance.main_item )
-				&& instance.off_equipped.renderInHand( EnumHand.OFF_HAND, instance.off_item )
-			)
 		);
-		if ( should_cancel_hand_render )
-		{
-			evt.setCanceled( true );
+		if ( skip_hand_render ) {
 			return;
 		}
 		
-		/// Otherwise, setup orientation for vanilla item rendering.
-		// Setup item lighting orientation.
-		instance.camera.getCameraSetup().glApply();
-		
-		// Cancel vanilla item lighting orientation.
-		final EntityPlayerSP player = mc.player;
-		GLUtil.glRotateYf( 180.0F - player.rotationYaw );
-		GLUtil.glRotateXf( -player.rotationPitch );
+		final boolean is_custom_main = instance.main_equipped.renderInHand( EnumHand.MAIN_HAND, instance.main_item );
+		final boolean is_custom_off = instance.off_equipped.renderInHand( EnumHand.OFF_HAND, instance.off_item );
+		if ( is_custom_main && is_custom_off ) {
+			evt.setCanceled( true );
+		}
+		else
+		{
+			// Otherwise, setup orientation for vanilla item rendering.
+			// Setup item lighting orientation.
+			instance.camera.getCameraSetup().glApply();
+			
+			// Cancel vanilla item lighting orientation.
+			final EntityPlayerSP player = mc.player;
+			GLUtil.glRotateYf( 180.0F - player.rotationYaw );
+			GLUtil.glRotateXf( -player.rotationPitch );
+		}
 	}
 	
 	@SubscribeEvent

@@ -1,4 +1,4 @@
-package com.fmum.gunpart;
+package com.fmum.render;
 
 import gsf.util.animation.IPoseSetup;
 import net.minecraftforge.fml.relauncher.Side;

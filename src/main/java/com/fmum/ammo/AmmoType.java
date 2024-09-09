@@ -1,7 +1,6 @@
 package com.fmum.ammo;
 
 import com.fmum.FMUM;
-import com.fmum.item.FMUMItemBase;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
@@ -18,16 +17,26 @@ import gsf.util.math.AxisAngle4f;
 import gsf.util.math.Vec3f;
 import gsf.util.render.GLUtil;
 import gsf.util.render.Mesh;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Objects;
 
 public class AmmoType extends ItemType implements IAmmoType
 {
@@ -62,8 +71,6 @@ public class AmmoType extends ItemType implements IAmmoType
 	protected AxisAngle4f fp_rot;
 	
 	
-	protected Item vanilla_item;
-	
 	@SideOnly( Side.CLIENT )
 	protected Mesh model;
 	
@@ -89,16 +96,19 @@ public class AmmoType extends ItemType implements IAmmoType
 			this.category = ItemCategory.parse( this.name );
 		}
 		
-		this.vanilla_item = this._createVanillaItem();
 		FMUM.SIDE.runIfClient( () -> ctx.regisMeshLoadCallback( this::_onMeshLoad ) );
 	}
 	
-	protected Item _createVanillaItem()
+	@Override
+	protected Item _setupVanillaItem( IContentBuildContext ctx )
 	{
-		final FMUMItemBase item = new FMUMItemBase() {
+		final Item item = new Item() {
 			@Override
-			public IItem getItemFrom( ItemStack stack ) {
-				return new AmmoItem( stack );
+			public ICapabilityProvider initCapabilities(
+				@Nonnull ItemStack stack,
+				@Nullable NBTTagCompound nbt
+			) {
+				return IItem.newProviderOf( new AmmoItem() );
 			}
 		};
 		item.setRegistryName( this.pack_info.getNamespace(), this.name );
@@ -109,6 +119,15 @@ public class AmmoType extends ItemType implements IAmmoType
 			@SubscribeEvent
 			void _onItemRegis( Register< Item > evt ) {
 				evt.getRegistry().register( item );
+			}
+			
+			@SubscribeEvent
+			@SideOnly( Side.CLIENT )
+			void _onModelRegis( ModelRegistryEvent evt )
+			{
+				final ResourceLocation res_loc = Objects.requireNonNull( item.getRegistryName() );
+				final ModelResourceLocation model_res = new ModelResourceLocation( res_loc, "inventory" );
+				ModelLoader.setCustomModelResourceLocation( item, 0, model_res );
 			}
 		} );
 		
@@ -144,11 +163,7 @@ public class AmmoType extends ItemType implements IAmmoType
 	
 	protected class AmmoItem implements IItem
 	{
-		protected final ItemStack stack;
-		
-		protected AmmoItem( ItemStack stack ) {
-			this.stack = stack;
-		}
+		protected AmmoItem() { }
 		
 		@Override
 		public IItemType getType() {
@@ -156,13 +171,13 @@ public class AmmoType extends ItemType implements IAmmoType
 		}
 		
 		@Override
-		public ItemStack getBoundStack() {
-			return this.stack;
+		public IEquippedItem onTakeOut( EnumHand hand, EntityPlayer player ) {
+			return new EquippedAmmo();
 		}
 		
 		@Override
-		public IEquippedItem onTakeOut( EnumHand hand, EntityPlayer player ) {
-			return new EquippedAmmo();
+		public String toString() {
+			return "Item<" + AmmoType.this.name + ">";
 		}
 	}
 	

@@ -2,8 +2,6 @@ package com.fmum.gunpart;
 
 import com.fmum.FMUM;
 import com.fmum.SyncConfig;
-import com.fmum.input.IInput;
-import com.fmum.input.Inputs;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
@@ -15,13 +13,12 @@ import com.fmum.module.IModifyContext;
 import com.fmum.module.IModifyPreview;
 import com.fmum.module.IModule;
 import com.fmum.module.IModuleType;
-import com.fmum.module.ModifyTracker;
 import com.fmum.module.Module;
 import com.fmum.paintjob.IPaintableType;
 import com.fmum.paintjob.IPaintjob;
-import com.fmum.player.PlayerPatchClient;
 import com.fmum.render.AnimatedModel;
 import com.fmum.render.IAnimator;
+import com.fmum.render.IRenderCallback;
 import com.fmum.render.ModelPath;
 import com.fmum.render.Texture;
 import com.google.gson.JsonObject;
@@ -35,30 +32,37 @@ import gsf.util.math.Quat4f;
 import gsf.util.math.Vec3f;
 import gsf.util.render.GLUtil;
 import gsf.util.render.Mesh;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraftforge.event.RegistryEvent.Register;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
@@ -67,7 +71,6 @@ import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
 public class GunPartType extends ItemType implements IModuleType, IPaintableType
 {
@@ -181,7 +184,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		} );
 		
 		// Try to assemble default setup once in post load to make sure it works.
-		ctx.regisPostLoadCallback( _ctx -> {
+		ctx.regisPostLoadCallback( c -> {
 			// This is not necessary, but put it here makes sure that the user \
 			// will get warning message early if any setup module is missing.
 			if ( this.snapshot_nbt == null ) {
@@ -192,6 +195,34 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			// Load mesh on client side.
 			ctx.regisMeshLoadCallback( this::_loadMesh );
 		} );
+	}
+	
+	@Override
+	protected Item _setupVanillaItem( IContentBuildContext ctx )
+	{
+		final ItemGunPart item = new ItemGunPart();
+		item.setRegistryName( this.pack_info.getNamespace(), this.name );
+		item.setTranslationKey( this.name );
+		item.setMaxStackSize( 1 );
+		
+		MinecraftForge.EVENT_BUS.register( new Object() {
+			@SubscribeEvent
+			void _onItemRegis( Register< Item > evt ) {
+				evt.getRegistry().register( item );
+			}
+			
+			@SubscribeEvent
+			@SideOnly( Side.CLIENT )
+			void _onModelRegis( ModelRegistryEvent evt )
+			{
+				// TODO: Regis paintjob variants.
+				final ResourceLocation res_loc = Objects.requireNonNull( item.getRegistryName() );
+				final ModelResourceLocation model_res = new ModelResourceLocation( res_loc, "inventory" );
+				ModelLoader.setCustomModelResourceLocation( item, 0, model_res );
+			}
+		} );
+		
+		return item;
 	}
 	
 	protected NBTTagCompound _buildSnapshotNBT()
@@ -219,23 +250,15 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	@Override
-	@SuppressWarnings( "DataFlowIssue" )
 	public ItemStack newItemStack( short meta )
 	{
 		// Lazy init snapshot nbt.
+		// FIXME: Recheck this.
 		if ( this.snapshot_nbt == null ) {
 			this.snapshot_nbt = this._buildSnapshotNBT();
 		}
 		
-		final ItemStack stack = new ItemStack( ItemGunPart.INSTANCE );
-		final GunPartCapProvider provider = stack.getCapability( GunPartCapProvider.CAPABILITY, null );
-		final NBTTagCompound its_nbt_tag = this.snapshot_nbt.copy();
-		provider.deserializeNBT( its_nbt_tag );
-		
-		stack.getTagCompound().setShort( "nid", IModuleType.REGISTRY.lookupID( this ).get() );
-		final int stack_id = new Random().nextInt();  // TODO: Maybe buffer rand obj?
-		stack.getTagCompound().setInteger( GunPartType.STACK_ID_TAG, stack_id );
-		return stack;
+		return new ItemStack( this.vanilla_item );
 	}
 	
 	@Override
@@ -257,11 +280,113 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	
-	protected abstract class GunPartItem implements IItem
+	protected class ItemGunPart extends Item
 	{
+		protected static final String CAPABILITY_TAG = "~";
+		
+		protected ItemGunPart() { }
+		
 		@Override
-		public IItemType getType() {
-			return GunPartType.this;
+		public ICapabilityProvider initCapabilities(
+			@Nonnull ItemStack stack,
+			@Nullable NBTTagCompound cap_nbt
+		) {
+			// 4 case to handle: \
+			// has-stack_nbt & has-cap_nbt: {ItemStack#ItemStack(NBTTagCompound)} \
+			// has-stack_nbt & no--cap_nbt: \
+			// no--stack_nbt & has-cap_nbt: {ItemStack#copy()} \
+			// no--stack_nbt & no--cap_nbt: {new ItemStack(...)}, {PacketBuffer#readItemStack()} \
+			//
+			// Case 1/3 -> CapabilityProvider#deserializeNBT(...) will be called.
+			// Case 4 - PacketBuff#... -> See #getNBTShareTag(...) and #readNBTShareTag(...).
+			if ( stack.getTagCompound() == null )
+			{
+				if ( cap_nbt != null )
+				{
+					// Because ItemStack#copy() will directly pass in the \
+					// ICapabilityProvider#serializeNBT() result, we need to \
+					// copy the tag to avoid changing the original NBT.
+					final NBTBase mod_tag = cap_nbt.getTag( "Parent" );
+					cap_nbt.setTag( "Parent", mod_tag.copy() );
+				}
+				else
+				{
+					final NBTTagCompound nbt = new NBTTagCompound();
+					nbt.setInteger( STACK_ID_TAG, new Random().nextInt() );
+					stack.setTagCompound( nbt );
+				}
+			}
+			return new CapabilityProvider( new Random().nextInt() );
+		}
+		
+		@Override
+		public NBTTagCompound getNBTShareTag( ItemStack stack )
+		{
+			// Copy to avoid changing the original NBT of the stack.
+			final NBTTagCompound stack_nbt = Objects.requireNonNull( stack.getTagCompound() );
+			final NBTTagCompound copied_nbt = stack_nbt.copy();
+			
+			final CapabilityProvider cap_provider = (
+				IItem.ofOrEmpty( stack )
+				.map( CapabilityProvider.class::cast )
+				.orElseThrow( IllegalStateException::new )
+			);
+			copied_nbt.setTag( CAPABILITY_TAG, cap_provider.serializeNBT() );
+			copied_nbt.setInteger( STACK_ID_TAG, cap_provider.stack_id );
+			return copied_nbt;
+		}
+		
+		@Override
+		@SuppressWarnings( "DataFlowIssue" )
+		public void readNBTShareTag( @Nonnull ItemStack stack, @Nullable NBTTagCompound nbt )
+		{
+			if ( nbt.hasKey( CAPABILITY_TAG, NBT.TAG_COMPOUND ) )
+			{
+				final NBTTagCompound cap_nbt = nbt.getCompoundTag( CAPABILITY_TAG );
+				final CapabilityProvider cap_provider = (
+					IItem.ofOrEmpty( stack )
+					.map( CapabilityProvider.class::cast )
+					.orElseThrow( IllegalStateException::new )
+				);
+				cap_provider.deserializeNBT( cap_nbt );
+				cap_provider.stack_id = nbt.getInteger( STACK_ID_TAG );
+				nbt.removeTag( CAPABILITY_TAG );
+				nbt.removeTag( STACK_ID_TAG );
+			}
+			super.readNBTShareTag( stack, nbt );
+		}
+		
+		// Avoid breaking blocks when holding this item in survive mode.
+		@Override
+		public boolean onBlockStartBreak(
+			@Nonnull ItemStack itemstack,
+			@Nonnull BlockPos pos,
+			@Nonnull EntityPlayer player
+		) {
+			return true;
+		}
+		
+		// Avoid breaking blocks when holding this item in creative mode.
+		@Override
+		public boolean canDestroyBlockInCreative(
+			@Nonnull World world,
+			@Nonnull BlockPos pos,
+			@Nonnull ItemStack stack,
+			@Nonnull EntityPlayer player
+		) {
+			return false;
+		}
+	}
+	
+	
+	public class CapabilityProvider implements ICapabilitySerializable< NBTTagCompound >, IItem
+	{
+		protected NBTTagCompound nbt = null;
+		protected IModule gun_part = null;
+		protected int stack_id;
+		
+		protected CapabilityProvider( int stack_id ) {
+			this.stack_id = stack_id;
 		}
 		
 		@Override
@@ -271,19 +396,69 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 				return true;
 			}
 			
-			final boolean is_gun_part = obj instanceof GunPartItem;
+			final boolean is_gun_part = obj instanceof CapabilityProvider;
 			if ( !is_gun_part ) {
 				return false;
 			}
 			
-			final GunPartItem gp = ( GunPartItem ) obj;
-			return this._getStackID() == gp._getStackID();
+			final CapabilityProvider cp = ( CapabilityProvider ) obj;
+			return this.getType() == cp.getType();
 		}
 		
-		protected int _getStackID()
+		@Override
+		@SuppressWarnings("ConstantValue")
+		public boolean hasCapability ( @Nonnull Capability < ? > capability, @Nullable EnumFacing facing ) {
+			return capability == IItem.CAPABILITY;
+		}
+		
+		@Nullable
+		@Override
+		@SuppressWarnings("ConstantValue")
+		public <T > T getCapability( @Nonnull Capability < T > capability, @Nullable EnumFacing facing ) {
+			return capability == IItem.CAPABILITY ? IItem.CAPABILITY.cast( this ) : null;
+		}
+		
+		@Override
+		public IItemType getType() {
+			return GunPartType.this;
+		}
+		
+		@Override
+		@SuppressWarnings("DataFlowIssue")
+		public < T > Optional< T > lookupCapability( Capability < T > capability )
 		{
-			final NBTTagCompound nbt = this.getBoundStack().getTagCompound();
-			return Objects.requireNonNull( nbt ).getInteger( STACK_ID_TAG );
+			if ( capability != IModule.CAPABILITY ) {
+				return Optional.empty();
+			}
+			
+			if ( this.gun_part == null )
+			{
+				if ( this.nbt == null || this.nbt.isEmpty() ) {
+					this.nbt = GunPartType.this.snapshot_nbt.copy();
+				}
+				this.gun_part = IModule.takeAndDeserialize( this.nbt );
+			}
+			
+			final T t = IModule.CAPABILITY.cast( this.gun_part );
+			return Optional.of( t );
+		}
+		
+		@Override
+		public IEquippedItem onTakeOut( EnumHand hand, EntityPlayer player ) {
+			return new EquippedGunPart();
+		}
+		
+		@Override
+		public NBTTagCompound serializeNBT ( ) {
+			return this.nbt != null ? this.nbt : new NBTTagCompound();
+		}
+		
+		@Override
+		public void deserializeNBT ( NBTTagCompound nbt )
+		{
+			assert this.gun_part == null;
+//			this.nbt = nbt.isEmpty() ? null : nbt;
+			this.nbt = nbt;
 		}
 	}
 	
@@ -382,7 +557,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			}
 			
 			final int capacity = Math.min( SyncConfig.max_slot_capacity, slot.capacity );
-			if ( GunPart.this.countModuleInSlot( slot_idx ) > capacity ) {
+			if ( GunPart.this.countModuleInSlot( slot_idx ) >= capacity ) {
 				return IModifyPreview.ofPreviewError( action, "Exceed max module capacity" );
 			}
 			
@@ -504,12 +679,15 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		}
 		
 		@Override
-		@SuppressWarnings( "DataFlowIssue" )
 		public ItemStack takeAndToStack()
 		{
 			final ItemStack stack = GunPartType.this.newItemStack( ( short ) 0 );
-			final GunPartCapProvider provider = stack.getCapability( GunPartCapProvider.CAPABILITY, null );
-			provider.deserializeNBT( this.getBoundNBT() );
+			final CapabilityProvider cap_provider = (
+				IItem.ofOrEmpty( stack )
+				.map( CapabilityProvider.class::cast )
+				.orElseThrow( IllegalStateException::new )
+			);
+			cap_provider.deserializeNBT( this.nbt.copy() );
 			return stack;
 		}
 		
@@ -550,33 +728,6 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			return String.format( "Item<%s>", GunPartType.this );
 		}
 		
-		protected IItem _createItem( ItemStack stack )
-		{
-			return new GunPartItem() {
-				@Override
-				public ItemStack getBoundStack() {
-					return stack;
-				}
-				
-				@Override
-				@SuppressWarnings( { "DataFlowIssue" } )
-				public < U > Optional< U > lookupCapability( Capability< U > capability )
-				{
-					if ( capability != IModule.CAPABILITY ) {
-						return Optional.empty();
-					}
-					
-					final U cast = IModule.CAPABILITY.cast( GunPart.this );
-					return Optional.of( cast );
-				}
-				
-				@Override
-				public IEquippedItem onTakeOut( EnumHand hand, EntityPlayer player ) {
-					return new EquippedGunPart();
-				}
-			};
-		}
-		
 		@Override
 		protected short _getModuleID()
 		{
@@ -588,281 +739,6 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		@Override
 		protected int _getDataArrLen() {
 			return 1 + super._getDataArrLen();
-		}
-	}
-	
-	
-	protected static class EquippedGunPart implements IEquippedItem
-	{
-		protected ModifyTracker operation;
-		
-		@SideOnly( Side.CLIENT )
-		protected ArrayList< IRenderCallback > in_hand_queue;
-		
-		protected EquippedGunPart() {
-			FMUM.SIDE.runIfClient( () -> this.in_hand_queue = new ArrayList<>() );
-		}
-		
-		@Override
-		public IEquippedItem tickInHand( EnumHand hand, IItem held_item, EntityPlayer player )
-		{
-			return this;
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public IEquippedItem onInputUpdate( String name, IInput input, IItem item )
-		{
-			final boolean is_activation = input.getAsBool();
-			if ( !is_activation ) {
-				return this;
-			}
-			
-			switch ( name )
-			{
-			case Inputs.OPEN_MODIFY_VIEW:
-				return new EquippedModifying( this, item );
-			}
-			
-			return this;
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public void prepareRenderInHand( EnumHand hand, IItem item )
-		{
-			final IGunPart self = this._getRenderDelegate( item );
-			
-			// Clear previous in hand queue.
-			this.in_hand_queue.clear();
-			
-			// Collect render callback.
-			final IAnimator animator = this._getInHandAnimator( item );  // TODO: Replace with a real animator.
-			self.IGunPart$prepareRender( -1, animator, this.in_hand_queue );
-			
-			// Sort render callback based on priority.
-			// TODO: Reverse or not?
-			this.in_hand_queue.sort( Comparator.comparing( rc -> rc.getPriority( IPoseSetup.EMPTY ) ) );
-		}
-		
-		@SideOnly( Side.CLIENT )
-		protected IAnimator _getInHandAnimator( IItem item )
-		{
-			final GunPartType type = ( GunPartType ) item.getType();
-			final IPoseSetup in_hand_setup = IPoseSetup.of( type.fp_pos, type.fp_rot, 0.0F );
-			return ch -> ch.equals( CHANNEL_ITEM ) ? in_hand_setup : IPoseSetup.EMPTY;
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public boolean renderInHand( EnumHand hand, IItem item )
-		{
-			GL11.glPushMatrix();
-			
-			// Apply customized rendering.
-			final Minecraft mc = Minecraft.getMinecraft();
-			final EntityPlayerSP player = mc.player;
-			
-			// Copied from {@link EntityRenderer#renderHand(float, int)}.
-			final EntityRenderer renderer = mc.entityRenderer;
-			renderer.enableLightmap();
-			
-			// Copied from {@link ItemRenderer#renderItemInFirstPerson(float)}.
-			// {@link ItemRenderer#rotateArroundXAndY(float, float)}.
-			PlayerPatchClient.get().camera.getCameraSetup().glApply();
-			
-			GLUtil.glRotateYf( 180.0F );
-			RenderHelper.enableStandardItemLighting();
-			
-			// {@link ItemRenderer#setLightmap()}.
-			final double eye_pos_y = player.posY + player.getEyeHeight();
-			final BlockPos block_pos = new BlockPos( player.posX, eye_pos_y, player.posZ );
-			final int light = mc.world.getCombinedLight( block_pos, 0 );
-			
-			final float x = light & 0xFFFF;
-			final float y = light >> 16;
-			OpenGlHelper.setLightmapTextureCoords( OpenGlHelper.lightmapTexUnit, x, y );
-			
-			// {@link ItemRenderer#rotateArm(float)} is left out to avoid shift.
-			
-			// TODO: Re-scale may not be needed. Do not forget that there is a disable pair call.
-			GlStateManager.enableRescaleNormal();
-			
-			// Setup and render!
-			GLUtil.glRotateYf( 180.0F - player.rotationYaw );
-			GLUtil.glRotateXf( player.rotationPitch );
-			this._doRenderInHand( hand, item );
-			
-			GlStateManager.disableRescaleNormal();
-			RenderHelper.disableStandardItemLighting();
-			// End of {@link ItemRenderer#renderItemInFirstPerson(float)}.
-			
-			renderer.disableLightmap();
-			
-			GL11.glPopMatrix();
-			return true;
-		}
-		
-		/**
-		 * No need to push matrix here as caller should have done it.
-		 */
-		@SideOnly( Side.CLIENT )
-		protected void _doRenderInHand( EnumHand hand, IItem item )
-		{
-//			Dev.cur().applyTransRot();
-			this.in_hand_queue.forEach( IRenderCallback::render );
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public boolean renderSpecificInHand( EnumHand hand, IItem item ) {
-			return true;
-		}
-		
-		@SideOnly( Side.CLIENT )
-		protected IGunPart _getRenderDelegate( IItem item )
-		{
-			final Optional< IModule > opt = item.lookupCapability( IModule.CAPABILITY );
-			return ( IGunPart ) opt.orElseThrow( IllegalArgumentException::new );
-		}
-	}
-	
-	
-	@SideOnly( Side.CLIENT )
-	protected static class EquippedModifying extends EquippedGunPart
-	{
-		protected final IEquippedItem wrapped;
-		protected final ModifyTracker tracker;
-		
-		protected IItem item;
-		
-		protected EquippedModifying( IEquippedItem wrapped, IItem item )
-		{
-			this.wrapped = wrapped;
-			this.tracker = new GunPartModifyTracker( this._newFactory( item ) );
-			this.item = item;
-		}
-		
-		protected Supplier< ? extends IModule > _newFactory( IItem item )
-		{
-			final IGunPart self = super._getRenderDelegate( item );
-			final NBTTagCompound nbt = self.getBoundNBT();
-			return () -> IModule.takeAndDeserialize( nbt.copy() );
-		}
-		
-		@Override
-		protected IGunPart _getRenderDelegate( IItem item ) {
-			return ( IGunPart ) this.tracker.getRoot();
-		}
-		
-		@Override
-		public IEquippedItem tickInHand( EnumHand hand, IItem held_item, EntityPlayer player )
-		{
-			if ( held_item != this.item )
-			{
-				this.tracker.refresh( this._newFactory( held_item ), i -> {
-					final InventoryPlayer inv = Minecraft.getMinecraft().player.inventory;
-					return (
-						IItem.ofOrEmpty( inv.getStackInSlot( i ) )
-						.flatMap( it -> it.lookupCapability( IModule.CAPABILITY ) )
-						// Copy to avoid side effect.
-						.map( IModule::getBoundNBT )
-						.map( NBTTagCompound::copy )
-						.map( IModule::takeAndDeserialize )
-					);
-				} );
-				this.item = held_item;
-			}
-			return this;
-		}
-		
-		@Override
-		public IEquippedItem onInputUpdate( String name, IInput input, IItem item )
-		{
-			final boolean is_activation = input.getAsBool();
-			if ( !is_activation ) {
-				return this;
-			}
-			
-			switch ( name )
-			{
-			case Inputs.OPEN_MODIFY_VIEW:
-				return this.wrapped;
-			
-			case Inputs.NEXT_MODIFY_MODE:
-				this.tracker.loopModifyMode();
-				break;
-			case Inputs.ENTER_LAYER:
-				this.tracker.enterLayer();
-				break;
-			case Inputs.QUIT_LAYER:
-				this.tracker.quitLayer( this._newFactory( item ) );
-				break;
-			case Inputs.LAST_SLOT:
-			case Inputs.NEXT_SLOT:
-				this.tracker.loopSlot( name.equals( Inputs.NEXT_SLOT ) );
-				break;
-			case Inputs.LAST_MODULE:
-			case Inputs.NEXT_MODULE:
-				this.tracker.loopModule( name.equals( Inputs.NEXT_MODULE ) );
-				break;
-			case Inputs.LAST_PREVIEW:
-			case Inputs.NEXT_PREVIEW:
-				this.tracker.loopPreview( prev_idx -> {
-					final InventoryPlayer inv = Minecraft.getMinecraft().player.inventory;
-					final int size = inv.getSizeInventory();
-					final IntStream inv_indices = (
-						name.equals( Inputs.NEXT_PREVIEW )
-						? IntStream.range( prev_idx + 1, size )
-						: IntStream.range( size - ( prev_idx + size + 1 ) % ( size + 1 ), size )
-							.map( i -> size - i - 1 )
-					);
-					return (
-						inv_indices
-						.mapToObj( i -> (
-							IItem.ofOrEmpty( inv.getStackInSlot( i ) )
-							.filter( it -> !it.equals( item ) )
-							.flatMap( it -> it.lookupCapability( IModule.CAPABILITY ) )
-							// Copy to avoid side effect.
-							.map( IModule::getBoundNBT )
-							.map( NBTTagCompound::copy )
-							.map( IModule::takeAndDeserialize )
-							.map( mod -> Pair.of( i, mod ) )
-						) )
-						.filter( Optional::isPresent )
-						.map( Optional::get )
-						.iterator()
-					);
-				} );
-				break;
-			case Inputs.LAST_CHANGE:
-			case Inputs.NEXT_CHANGE:
-				this.tracker.loopChange( name.equals( Inputs.NEXT_CHANGE ) );
-				break;
-			case Inputs.CONFIRM_CHANGE:
-				this.tracker.confirmChange();
-				break;
-			case Inputs.REMOVE_MODULE:
-				this.tracker.removeModule();
-				break;
-			}
-			return this;
-		}
-		
-		@Override
-		protected IAnimator _getInHandAnimator( IItem item )
-		{
-			final EntityPlayerSP player = Minecraft.getMinecraft().player;
-			final GunPartType type = ( GunPartType ) item.getType();
-			final Vec3f modify_pos = type.modify_pos;
-			final Mat4f mat = new Mat4f();
-			mat.setIdentity();
-			mat.translate( 0.0F, 0.0F, modify_pos.z );
-			mat.rotateX( -player.rotationPitch );
-			mat.rotateY( 90.0F + player.rotationYaw );
-			mat.translate( modify_pos.x, modify_pos.y, 0.0F );
-			final IPoseSetup in_hand_setup = IPoseSetup.of( mat );
-			return channel -> channel.equals( CHANNEL_ITEM ) ? in_hand_setup : IPoseSetup.EMPTY;
 		}
 	}
 }

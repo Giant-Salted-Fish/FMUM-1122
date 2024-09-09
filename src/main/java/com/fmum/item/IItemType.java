@@ -2,10 +2,8 @@ package com.fmum.item;
 
 import com.fmum.FMUM;
 import com.fmum.Registry;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -17,8 +15,6 @@ import java.util.function.Function;
  * {@link Item}. Multiple {@link IItemType} may share the same {@link Item} and
  * differ in meta or NBT data. Hence, {@code new ItemStack(stack.getItem())} may
  * not produce correct result and should not be used.</p>
- *
- * @see FMUMItemBase
  */
 public interface IItemType
 {
@@ -34,8 +30,6 @@ public interface IItemType
 	 * does not guarantee to work for {@link IItemType} items.
 	 */
 	ItemStack newItemStack( short meta );
-	
-	void addCreativeTabItems( CreativeTabs tab, NonNullList< ItemStack > items );
 	
 	
 	static Optional< Function< Short, ItemStack > > lookupItemFactory( String name_or_id )

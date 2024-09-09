@@ -5,6 +5,7 @@ import gsf.util.math.Quat4f;
 import gsf.util.math.Vec3f;
 import gsf.util.render.GLUtil;
 
+// TODO: Make it work like a matrix stack?
 public interface IPoseSetup
 {
 	IPoseSetup EMPTY = new IPoseSetup() {
