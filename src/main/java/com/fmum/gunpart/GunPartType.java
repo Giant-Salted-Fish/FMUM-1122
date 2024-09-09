@@ -67,16 +67,12 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class GunPartType extends ItemType implements IModuleType, IPaintableType
 {
-	protected static final String STACK_ID_TAG = "!";
-	
-	
 	@Expose
 	protected ItemCategory category;
 	
@@ -311,12 +307,11 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 				}
 				else
 				{
-					final NBTTagCompound nbt = new NBTTagCompound();
-					nbt.setInteger( STACK_ID_TAG, new Random().nextInt() );
-					stack.setTagCompound( nbt );
+					// For {new ItemStack(...)} case, set a new NBT tag to avoid NPE.
+					stack.setTagCompound( new NBTTagCompound() );
 				}
 			}
-			return new CapabilityProvider( new Random().nextInt() );
+			return new CapabilityProvider();
 		}
 		
 		@Override
@@ -332,7 +327,6 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 				.orElseThrow( IllegalStateException::new )
 			);
 			copied_nbt.setTag( CAPABILITY_TAG, cap_provider.serializeNBT() );
-			copied_nbt.setInteger( STACK_ID_TAG, cap_provider.stack_id );
 			return copied_nbt;
 		}
 		
@@ -349,9 +343,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 					.orElseThrow( IllegalStateException::new )
 				);
 				cap_provider.deserializeNBT( cap_nbt );
-				cap_provider.stack_id = nbt.getInteger( STACK_ID_TAG );
 				nbt.removeTag( CAPABILITY_TAG );
-				nbt.removeTag( STACK_ID_TAG );
 			}
 			super.readNBTShareTag( stack, nbt );
 		}
@@ -383,11 +375,8 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	{
 		protected NBTTagCompound nbt = null;
 		protected IModule gun_part = null;
-		protected int stack_id;
 		
-		protected CapabilityProvider( int stack_id ) {
-			this.stack_id = stack_id;
-		}
+		protected CapabilityProvider() { }
 		
 		@Override
 		public boolean equals( Object obj )
