@@ -422,7 +422,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			
 			if ( this.gun_part == null )
 			{
-				if ( this.nbt == null || this.nbt.isEmpty() ) {
+				if ( this.nbt == null ) {
 					this.nbt = GunPartType.this.snapshot_nbt.copy();
 				}
 				this.gun_part = IModule.takeAndDeserialize( this.nbt );
@@ -446,8 +446,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		public void deserializeNBT ( NBTTagCompound nbt )
 		{
 			assert this.gun_part == null;
-//			this.nbt = nbt.isEmpty() ? null : nbt;
-			this.nbt = nbt;
+			this.nbt = nbt.isEmpty() ? null : nbt;
 		}
 	}
 	
