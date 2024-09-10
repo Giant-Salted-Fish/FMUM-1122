@@ -64,7 +64,7 @@ public class EquippedModifying extends EquippedGunPart
 				IItem.ofOrEmpty( inv.getStackInSlot( i ) )
 				.flatMap( it -> it.lookupCapability( IModule.CAPABILITY ) )
 				// Copy to avoid side effect.
-				 .map( IModule::getBoundNBT )
+				.map( IModule::getBoundNBT )
 				.map( NBTTagCompound::copy )
 				.map( IModule::takeAndDeserialize )
 			);

@@ -19,7 +19,6 @@ import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
@@ -40,12 +39,6 @@ public class EquippedGunPart implements IEquippedItem
 	protected EquippedGunPart() {
 	FMUM.SIDE.runIfClient( () -> this.in_hand_queue = new ArrayList<>() );
 }
-	
-	@Override
-	public IEquippedItem tickInHand( EnumHand hand, IItem held_item, EntityPlayer player )
-	{
-		return this;
-	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )

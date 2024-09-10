@@ -17,7 +17,6 @@ public abstract class BuildableType
 	 * name) will be used.
 	 */
 	@Expose
-//	@SerializedName( value = "name", alternate = "名称" )  // TODO: Add Chinese support?
 	protected String name;
 	
 	
