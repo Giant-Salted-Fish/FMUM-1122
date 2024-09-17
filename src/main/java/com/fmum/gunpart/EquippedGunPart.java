@@ -6,7 +6,6 @@ import com.fmum.input.Inputs;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.module.IModule;
-import com.fmum.module.ModifySession;
 import com.fmum.player.PlayerPatchClient;
 import com.fmum.render.IAnimator;
 import com.fmum.render.IRenderCallback;
@@ -27,12 +26,9 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Optional;
 
 public class EquippedGunPart implements IEquippedItem
 {
-	protected ModifySession operation;
-	
 	@SideOnly( Side.CLIENT )
 	protected ArrayList< IRenderCallback > in_hand_queue;
 	
@@ -44,14 +40,7 @@ public class EquippedGunPart implements IEquippedItem
 	@SideOnly( Side.CLIENT )
 	public IEquippedItem onInputUpdate( String name, IInput input, IItem item )
 	{
-		final boolean is_activation = input.getAsBool();
-		if ( !is_activation ) {
-			return this;
-		}
-		
-		switch ( name )
-		{
-		case Inputs.OPEN_MODIFY_VIEW:
+		if ( input.getAsBool() && name.equals( Inputs.OPEN_MODIFY_VIEW ) ) {
 			return new EquippedModifying( this, item );
 		}
 		
@@ -62,25 +51,27 @@ public class EquippedGunPart implements IEquippedItem
 	@SideOnly( Side.CLIENT )
 	public void prepareRenderInHand( EnumHand hand, IItem item )
 	{
-		final IGunPart self = this._getRenderDelegate( item );
-		
+		final IGunPart self = (
+			item.lookupCapability( IModule.CAPABILITY )
+			.map( IGunPart.class::cast )
+			.orElseThrow( IllegalArgumentException::new )
+		);
+		final IAnimator animator = this._getInHandAnimator( hand, item );
+		this._doPrepareRenderInHand( self, animator );
+	}
+	
+	@SideOnly( Side.CLIENT )
+	protected void _doPrepareRenderInHand( IGunPart self, IAnimator animator )
+	{
 		// Clear previous in hand queue.
 		this.in_hand_queue.clear();
 		
 		// Collect render callback.
-		final IAnimator animator = this._getInHandAnimator( hand, item );  // TODO: Replace with a real animator.
 		self.IGunPart$prepareRender( -1, animator, this.in_hand_queue );
 		
 		// Sort render callback based on priority.
 		// TODO: Reverse or not?
 		this.in_hand_queue.sort( Comparator.comparing( rc -> rc.getPriority( IPoseSetup.EMPTY ) ) );
-	}
-	
-	@SideOnly( Side.CLIENT )
-	protected IGunPart _getRenderDelegate( IItem item )
-	{
-		final Optional< IModule > opt = item.lookupCapability( IModule.CAPABILITY );
-		return ( IGunPart ) opt.orElseThrow( IllegalArgumentException::new );
 	}
 	
 	@SideOnly( Side.CLIENT )

@@ -50,13 +50,13 @@ public interface IEquippedItem
 	}
 	
 	@SideOnly( Side.CLIENT )
-	default boolean shouldDisableCrosshair( IItem item ) {
-		return false;
+	default IEquippedItem onInputUpdate( String name, IInput input, IItem item ) {
+		return this;
 	}
 	
 	@SideOnly( Side.CLIENT )
-	default IEquippedItem onInputUpdate( String name, IInput input, IItem item ) {
-		return this;
+	default boolean shouldDisableCrosshair( IItem item ) {
+		return false;
 	}
 	
 	/**

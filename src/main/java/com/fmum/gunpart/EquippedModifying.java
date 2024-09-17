@@ -25,14 +25,14 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 @SideOnly( Side.CLIENT )
-public class EquippedModifying extends EquippedGunPart
+public class EquippedModifying implements IEquippedItem
 {
-	protected final IEquippedItem wrapped;
+	protected final EquippedGunPart wrapped;
 	protected final ModifySession session;
 	
 	protected IItem item;
 	
-	protected EquippedModifying( IEquippedItem wrapped, IItem item )
+	protected EquippedModifying( EquippedGunPart wrapped, IItem item )
 	{
 		this.wrapped = wrapped;
 		this.session = new GunPartModifySession( this._newFactory( item ) );
@@ -41,14 +41,13 @@ public class EquippedModifying extends EquippedGunPart
 	
 	protected Supplier< ? extends IModule > _newFactory( IItem item )
 	{
-		final IGunPart self = super._getRenderDelegate( item );
+		final IGunPart self = (
+			item.lookupCapability( IModule.CAPABILITY )
+			.map( IGunPart.class::cast )
+			.orElseThrow( IllegalArgumentException::new )
+		);
 		final NBTTagCompound nbt = self.getBoundNBT();
 		return () -> IModule.takeAndDeserialize( nbt.copy() );
-	}
-	
-	@Override
-	protected IGunPart _getRenderDelegate( IItem item ) {
-		return ( IGunPart ) this.session.getRoot();
 	}
 	
 	@Override
@@ -151,8 +150,18 @@ public class EquippedModifying extends EquippedGunPart
 	}
 	
 	@Override
+	public void prepareRenderInHand( EnumHand hand, IItem item )
+	{
+		final IGunPart delegate = ( IGunPart ) this.session.getRoot();
+		final IAnimator animator = this._getInHandAnimator( hand, item );
+		this.wrapped._doPrepareRenderInHand( delegate, animator );
+	}
+	
 	protected IAnimator _getInHandAnimator( EnumHand hand, IItem item )
 	{
+		// TODO: blend with original animator.
+		final IAnimator wrapped = this.wrapped._getInHandAnimator( hand, item );
+		
 		final EntityPlayerSP player = Minecraft.getMinecraft().player;
 		final GunPartType type = ( GunPartType ) item.getType();
 		final Vec3f modify_pos = type.modify_pos;
@@ -164,5 +173,35 @@ public class EquippedModifying extends EquippedGunPart
 		mat.translate( modify_pos.x, modify_pos.y, 0.0F );
 		final IPoseSetup in_hand_setup = IPoseSetup.of( mat );
 		return channel -> channel.equals( CHANNEL_ITEM ) ? in_hand_setup : IPoseSetup.EMPTY;
+	}
+	
+	@Override
+	public boolean renderInHand( EnumHand hand, IItem item ) {
+		return this.wrapped.renderInHand( hand, item );
+	}
+	
+	@Override
+	public boolean renderSpecificInHand( EnumHand hand, IItem item ) {
+		return this.wrapped.renderSpecificInHand( hand, item );
+	}
+	
+	@Override
+	public boolean onMouseWheelInput( int dwheel, IItem item ) {
+		return this.wrapped.onMouseWheelInput( dwheel, item );
+	}
+	
+	@Override
+	public boolean shouldDisableCrosshair( IItem item ) {
+		return this.wrapped.shouldDisableCrosshair( item );
+	}
+	
+	@Override
+	public boolean getViewBobbing( boolean original, IItem item ) {
+		return this.wrapped.getViewBobbing( original, item );
+	}
+	
+	@Override
+	public float getMouseSensitivity( float original_sensitivity, IItem item ) {
+		return this.wrapped.getMouseSensitivity( original_sensitivity, item );
 	}
 }
