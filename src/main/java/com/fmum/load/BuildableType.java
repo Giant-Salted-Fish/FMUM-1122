@@ -35,6 +35,8 @@ public abstract class BuildableType
 		this.pack_info = ctx.getPackInfo();
 	}
 	
+	// TODO: Add method to support runtime reload?
+	
 	@Override
 	public String toString()
 	{

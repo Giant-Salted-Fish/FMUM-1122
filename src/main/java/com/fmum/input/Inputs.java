@@ -13,11 +13,14 @@ public final class Inputs
 	public static final String PULL_TRIGGER = "pull_trigger";
 	public static final String TOGGLE_ADS = "toggle_ads";
 	public static final String NEXT_FIRE_MODE = "next_fire_mode";
-	public static final String RELOAD = "reload";
+	public static final String RELOAD = "reload_weapon";
 	public static final String LOAD_OR_UNLOAD_MAG = "load_or_unload_mag";
 	public static final String CHARGE_GUN = "charge_gun";
 	public static final String RELEASE_BOLT = "release_bolt";
 	public static final String INSPECT_WEAPON = "inspect_weapon";
+	public static final String LOAD_AMMO = "load_ammo";
+	public static final String UNLOAD_AMMO = "unload_ammo";
+	public static final String ALT_AMMO = "alt_ammo";
 	
 	// Category: Modification
 	public static final String OPEN_MODIFY_VIEW = "open_modify_view";

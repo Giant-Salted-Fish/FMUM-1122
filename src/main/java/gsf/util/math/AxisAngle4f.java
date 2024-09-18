@@ -2,7 +2,7 @@ package gsf.util.math;
 
 public final class AxisAngle4f extends javax.vecmath.AxisAngle4f
 {
-	public static final AxisAngle4f NO_ROT = new AxisAngle4f();
+	public static final AxisAngle4f IDENTITY = new AxisAngle4f();
 	
 	
 	public static AxisAngle4f allocate() {

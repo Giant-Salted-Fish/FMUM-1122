@@ -67,6 +67,8 @@ itemGroup.fmum=FMUM Item
 chat.modify_mode.paintjob_switch=Paintjob Switch Mode
 chat.modify_mode.step_adjust=Step Adjust Mode
 chat.modify_mode.offset_adjust=Offset Adjust Mode
+chat.mag.full_ammo=Full Ammo
+chat.mag.no_ammo=No Ammo
 
 # Key bindings
 key_category.fmum_common=FMUM Common
@@ -74,14 +76,16 @@ key.free_view=Free View
 
 key_category.fmum_gun=FMUM Gun
 key.pull_trigger=Pull Trigger
-key.hold_ads=Hold ADS
-key.toggle_ads=Toggle ADS
+key.aim_down_sight=Aim Down Sight
 key.next_fire_mode=Next Fire Mode
 key.reload_weapon=Reload Weapon
 key.load_or_unload_mag=Load/Unload Mag
 key.charge_gun=Charge Gun
 key.release_bolt=Release Bolt
 key.inspect_weapon=Inspect Weapon
+key.load_ammo=Load Ammo
+key.unload_ammo=Unload Ammo
+key.alt_ammo=Alt Ammo
 
 key_category.fmum_modify=FMUM Modification
 key.open_modify_view=Open Modify View

@@ -28,7 +28,7 @@ public interface IModifyPreview< T >
 	Optional< String > getPreviewError();
 	
 	
-	static < T > IModifyPreview< T > of( Supplier< T > application )
+	static < T > IModifyPreview< T > ok( Supplier< T > application )
 	{
 		return new IModifyPreview< T >() {
 			@Override

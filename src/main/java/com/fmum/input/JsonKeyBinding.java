@@ -16,6 +16,7 @@ import org.lwjgl.input.Keyboard;
 @SideOnly( Side.CLIENT )
 public class JsonKeyBinding extends BuildableType
 {
+	// TODO: conflict context for gun and mag.
 	@Expose
 	protected String category = "key_category.fmum_common";
 	

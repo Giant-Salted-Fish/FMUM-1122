@@ -67,6 +67,8 @@ itemGroup.fmum=FMUM 物品
 chat.modify_mode.paintjob_switch=涂装切换模式
 chat.modify_mode.step_adjust=步进调整模式
 chat.modify_mode.offset_adjust=偏移调整模式
+chat.mag.full_ammo=弹药已满
+chat.mag.no_ammo=无弹药
 
 # 按键绑定
 key_category.fmum_common=FMUM 通用
@@ -74,14 +76,16 @@ key.free_view=自由视角
 
 key_category.fmum_gun=FMUM 枪械
 key.pull_trigger=武器开火
-key.hold_ads=按住瞄准
-key.toggle_ads=切换瞄准
+key.aim_down_sight=武器瞄准
 key.next_fire_mode=下一个开火模式
 key.reload_weapon=重新填装
 key.load_or_unload_mag=填装/卸载弹匣
 key.charge_gun=武器上膛
 key.release_bolt=空挂释放
 key.inspect_weapon=检视武器
+key.load_ammo=填装弹药
+key.unload_ammo=卸载弹药
+key.alt_ammo=切换弹药顺位
 
 key_category.fmum_modify=FMUM 改装
 key.open_modify_view=打开改装界面

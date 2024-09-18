@@ -8,6 +8,7 @@ import com.fmum.item.ItemCategory;
 import com.fmum.item.ItemType;
 import com.fmum.load.IContentBuildContext;
 import com.fmum.load.IMeshLoadContext;
+import com.fmum.render.IAnimator;
 import com.fmum.render.ModelPath;
 import com.fmum.render.Texture;
 import com.google.gson.JsonObject;
@@ -82,7 +83,7 @@ public class AmmoType extends ItemType implements IAmmoType
 			this.fp_scale = 1.0F;
 			this.texture = Texture.GREEN;
 			this.fp_pos = Vec3f.ORIGIN;
-			this.fp_rot = AxisAngle4f.NO_ROT;
+			this.fp_rot = AxisAngle4f.IDENTITY;
 		} );
 	}
 	
@@ -140,6 +141,11 @@ public class AmmoType extends ItemType implements IAmmoType
 	}
 	
 	@Override
+	public ItemStack newItemStack( short meta ) {
+		return new ItemStack( this.vanilla_item, 1, meta );
+	}
+	
+	@Override
 	public ItemCategory getCategory() {
 		return this.category;
 	}
@@ -156,8 +162,12 @@ public class AmmoType extends ItemType implements IAmmoType
 	}
 	
 	@Override
-	public ItemStack newItemStack( short meta ) {
-		return new ItemStack( this.vanilla_item, 1, meta );
+	@SideOnly( Side.CLIENT )
+	public void renderModel( IAnimator animator )
+	{
+		GLUtil.bindTexture( this.texture );
+		GLUtil.glScale1f( this.fp_scale );
+		this.model.draw();
 	}
 	
 	
@@ -200,9 +210,7 @@ public class AmmoType extends ItemType implements IAmmoType
 			GLUtil.glRotateYf( 180.0F );
 			GLUtil.glTranslateV3f( type.fp_pos );
 			GLUtil.glRotateAA4f( type.fp_rot );
-			GLUtil.bindTexture( type.texture );
-			GLUtil.glScale1f( type.fp_scale );
-			type.model.draw();
+			type.renderModel( IAnimator.NONE );
 			GL11.glPopMatrix();
 			return true;
 		}

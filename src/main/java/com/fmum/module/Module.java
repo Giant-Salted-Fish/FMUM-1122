@@ -87,7 +87,7 @@ public abstract class Module implements IModule
 	
 	@Override
 	public IModifyPreview< Integer > trySetPaintjob( int paintjob ) {
-		return IModifyPreview.of( () -> this._setPaintjob( paintjob ) );
+		return IModifyPreview.ok( () -> this._setPaintjob( paintjob ) );
 	}
 	
 	protected int _setPaintjob( int paintjob )
@@ -102,7 +102,7 @@ public abstract class Module implements IModule
 	// Default implementation does not validate module to install.
 	@Override
 	public IModifyPreview< Integer > tryInstall( int slot_idx, IModule module ) {
-		return IModifyPreview.of( () -> this._install( slot_idx, module ) );
+		return IModifyPreview.ok( () -> this._install( slot_idx, module ) );
 	}
 	
 	protected int _install( int slot_idx, IModule module )
@@ -137,7 +137,7 @@ public abstract class Module implements IModule
 	
 	@Override
 	public IModifyPreview< IModule > tryRemove( int slot_idx, int module_idx ) {
-		return IModifyPreview.of( () -> this._remove( slot_idx, module_idx ) );
+		return IModifyPreview.ok( () -> this._remove( slot_idx, module_idx ) );
 	}
 	
 	protected IModule _remove( int slot_idx, int module_idx )

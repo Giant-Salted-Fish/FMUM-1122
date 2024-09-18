@@ -2,8 +2,13 @@ package com.fmum;
 
 import com.fmum.network.IPacket;
 import com.fmum.network.PacketAdjustModule;
+import com.fmum.network.PacketClearMag;
+import com.fmum.network.PacketFullMag;
 import com.fmum.network.PacketInstallModule;
+import com.fmum.network.PacketLoadAmmo;
 import com.fmum.network.PacketRemoveModule;
+import com.fmum.network.PacketUnloadAmmo;
+import com.fmum.network.PacketUnwrapEquipped;
 import com.fmum.network.PacketSyncConfig;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -24,11 +29,14 @@ final class NetBuilder
 	
 	NetBuilder _regisPackets()
 	{
-//		this.__regisPacket( PacketTerminateOp.class, Side.SERVER );
-//		this.__regisPacket( PacketNotifyEquipped.class, Side.SERVER );
 		this.__regisServerPacket( PacketInstallModule.class );
 		this.__regisServerPacket( PacketRemoveModule.class );
 		this.__regisServerPacket( PacketAdjustModule.class );
+		this.__regisServerPacket( PacketUnwrapEquipped.class );
+		this.__regisServerPacket( PacketLoadAmmo.class );
+		this.__regisServerPacket( PacketUnloadAmmo.class );
+		this.__regisServerPacket( PacketFullMag.class );
+		this.__regisServerPacket( PacketClearMag.class );
 		
 		this.__regisClientPacket( PacketSyncConfig.class );
 		return this;

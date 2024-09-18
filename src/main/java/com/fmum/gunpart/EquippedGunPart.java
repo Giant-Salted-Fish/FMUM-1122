@@ -51,11 +51,7 @@ public class EquippedGunPart implements IEquippedItem
 	@SideOnly( Side.CLIENT )
 	public void prepareRenderInHand( EnumHand hand, IItem item )
 	{
-		final IGunPart self = (
-			item.lookupCapability( IModule.CAPABILITY )
-			.map( IGunPart.class::cast )
-			.orElseThrow( IllegalArgumentException::new )
-		);
+		final IGunPart self = IGunPart.from( item );
 		final IAnimator animator = this._getInHandAnimator( hand, item );
 		this._doPrepareRenderInHand( self, animator );
 	}

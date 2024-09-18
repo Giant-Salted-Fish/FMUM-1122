@@ -6,15 +6,10 @@
 		"category": "key_category.fmum_gun",
 		"key_code": -100
 	},
-	"key.hold_ads": {
+	"key.aim_down_sight": {
+		"#is_toggle": true,
 		"category": "key_category.fmum_gun",
-		"signal": "toggle_ads",
 		"key_code": -99
-	},
-	"key.toggle_ads": {
-		"is_toggle": true,
-		"category": "key_category.fmum_gun",
-		"key_code": 0
 	},
 	"key.next_fire_mode": {
 		"category": "key_category.fmum_gun",
@@ -40,6 +35,18 @@
 		"category": "key_category.fmum_gun",
 		"key_code": 47,
 		"combinations": [ 44 ]
+	},
+	"key.load_ammo": {
+		"category": "key_category.fmum_gun",
+		"key_code": -100
+	},
+	"key.unload_ammo": {
+		"category": "key_category.fmum_gun",
+		"key_code": -99
+	},
+	"key.alt_ammo": {
+		"category": "key_category.fmum_gun",
+		"key_code": 44
 	},
 	"key.open_modify_view": {
 		"category": "key_category.fmum_modify",

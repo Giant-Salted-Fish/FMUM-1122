@@ -26,6 +26,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Patches the vanilla player with some additional logic.
@@ -114,6 +115,18 @@ public class PlayerPatch
 	{
 		final IItem item = hand == EnumHand.MAIN_HAND ? this.main_item : this.off_item;
 		return item != VANILLA_ITEM ? Optional.of( item ) : Optional.empty();
+	}
+	
+	public final < T extends IEquippedItem > Optional< T > mapEquipped(
+		Function< ? super IEquippedItem, T > mapper
+	) {
+		if ( this.main_equipped == VANILLA_EQUIPPED ) {
+			return Optional.empty();
+		}
+		
+		final T mapped = mapper.apply( this.main_equipped );
+		this.main_equipped = mapped;
+		return Optional.of( mapped );
 	}
 	
 	

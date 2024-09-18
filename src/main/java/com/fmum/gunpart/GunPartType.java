@@ -275,6 +275,10 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		return self;
 	}
 	
+	protected IEquippedItem _newEquipped( EnumHand hand, IItem item, EntityPlayer player ) {
+		return new EquippedGunPart();  // TODO: a special impl for off-hand?
+	}
+	
 	
 	protected class ItemGunPart extends Item
 	{
@@ -434,7 +438,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		
 		@Override
 		public IEquippedItem onTakeOut( EnumHand hand, EntityPlayer player ) {
-			return new EquippedGunPart();
+			return GunPartType.this._newEquipped( hand, this, player );
 		}
 		
 		@Override
@@ -523,7 +527,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		
 		@Override
 		public IModifyPreview< Pair< Integer, Integer > > trySetOffsetAndStep( int offset, int step ) {
-			return IModifyPreview.of( () -> this._setOffsetAndStep( offset, step ) );
+			return IModifyPreview.ok( () -> this._setOffsetAndStep( offset, step ) );
 		}
 		
 		protected Pair< Integer, Integer > _setOffsetAndStep( int offset, int step )
@@ -541,16 +545,16 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			final Supplier< Integer > action = () -> this._install( slot_idx, module );
 			final RailSlot slot = GunPartType.this.slots[ slot_idx ];
 			if ( !slot.category_predicate.test( module.getCategory() ) ) {
-				return IModifyPreview.ofPreviewError( action, "Incompatible module" );
+				return IModifyPreview.ofPreviewError( action, "incompatible_module" );
 			}
 			
 			final int capacity = Math.min( SyncConfig.max_slot_capacity, slot.capacity );
 			if ( GunPart.this.countModuleInSlot( slot_idx ) >= capacity ) {
-				return IModifyPreview.ofPreviewError( action, "Exceed max module capacity" );
+				return IModifyPreview.ofPreviewError( action, "exceed_max_capacity" );
 			}
 			
 			// TODO: Check layer limitation
-			return IModifyPreview.of( action );
+			return IModifyPreview.ok( action );
 		}
 		
 		@Override

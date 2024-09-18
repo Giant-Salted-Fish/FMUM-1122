@@ -73,7 +73,7 @@ public abstract class GunPartPlaceholder implements IGunPart
 	
 	@Override
 	public IModifyPreview< Integer > trySetPaintjob( int paintjob ) {
-		return IModifyPreview.of( () -> 0 );
+		return IModifyPreview.ok( () -> 0 );
 	}
 	
 	@Override
@@ -132,7 +132,7 @@ public abstract class GunPartPlaceholder implements IGunPart
 	
 	@Override
 	public IModifyPreview< Pair< Integer, Integer > > trySetOffsetAndStep( int offset, int step ) {
-		return IModifyPreview.of( () -> Pair.of( 0, 0 ) );
+		return IModifyPreview.ok( () -> Pair.of( 0, 0 ) );
 	}
 	
 	@Override

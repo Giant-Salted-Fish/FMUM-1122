@@ -2,6 +2,7 @@ package com.fmum.gunpart;
 
 import com.fmum.input.IInput;
 import com.fmum.input.Inputs;
+import com.fmum.item.EquippedWrapper;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.module.IModule;
@@ -25,27 +26,23 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 @SideOnly( Side.CLIENT )
-public class EquippedModifying implements IEquippedItem
+public class EquippedModifying extends EquippedWrapper
 {
-	protected final EquippedGunPart wrapped;
 	protected final ModifySession session;
 	
 	protected IItem item;
 	
 	protected EquippedModifying( EquippedGunPart wrapped, IItem item )
 	{
-		this.wrapped = wrapped;
+		super( wrapped );
+		
 		this.session = new GunPartModifySession( this._newFactory( item ) );
 		this.item = item;
 	}
 	
 	protected Supplier< ? extends IModule > _newFactory( IItem item )
 	{
-		final IGunPart self = (
-			item.lookupCapability( IModule.CAPABILITY )
-			.map( IGunPart.class::cast )
-			.orElseThrow( IllegalArgumentException::new )
-		);
+		final IGunPart self = IGunPart.from( item );
 		final NBTTagCompound nbt = self.getBoundNBT();
 		return () -> IModule.takeAndDeserialize( nbt.copy() );
 	}
@@ -154,13 +151,15 @@ public class EquippedModifying implements IEquippedItem
 	{
 		final IGunPart delegate = ( IGunPart ) this.session.getRoot();
 		final IAnimator animator = this._getInHandAnimator( hand, item );
-		this.wrapped._doPrepareRenderInHand( delegate, animator );
+		final EquippedGunPart eq = ( EquippedGunPart ) this.wrapped;
+		eq._doPrepareRenderInHand( delegate, animator );
 	}
 	
 	protected IAnimator _getInHandAnimator( EnumHand hand, IItem item )
 	{
 		// TODO: blend with original animator.
-		final IAnimator wrapped = this.wrapped._getInHandAnimator( hand, item );
+		final EquippedGunPart eq = ( EquippedGunPart ) this.wrapped;
+		final IAnimator wrapped = eq._getInHandAnimator( hand, item );
 		
 		final EntityPlayerSP player = Minecraft.getMinecraft().player;
 		final GunPartType type = ( GunPartType ) item.getType();
@@ -173,35 +172,5 @@ public class EquippedModifying implements IEquippedItem
 		mat.translate( modify_pos.x, modify_pos.y, 0.0F );
 		final IPoseSetup in_hand_setup = IPoseSetup.of( mat );
 		return channel -> channel.equals( CHANNEL_ITEM ) ? in_hand_setup : IPoseSetup.EMPTY;
-	}
-	
-	@Override
-	public boolean renderInHand( EnumHand hand, IItem item ) {
-		return this.wrapped.renderInHand( hand, item );
-	}
-	
-	@Override
-	public boolean renderSpecificInHand( EnumHand hand, IItem item ) {
-		return this.wrapped.renderSpecificInHand( hand, item );
-	}
-	
-	@Override
-	public boolean onMouseWheelInput( int dwheel, IItem item ) {
-		return this.wrapped.onMouseWheelInput( dwheel, item );
-	}
-	
-	@Override
-	public boolean shouldDisableCrosshair( IItem item ) {
-		return this.wrapped.shouldDisableCrosshair( item );
-	}
-	
-	@Override
-	public boolean getViewBobbing( boolean original, IItem item ) {
-		return this.wrapped.getViewBobbing( original, item );
-	}
-	
-	@Override
-	public float getMouseSensitivity( float original_sensitivity, IItem item ) {
-		return this.wrapped.getMouseSensitivity( original_sensitivity, item );
 	}
 }

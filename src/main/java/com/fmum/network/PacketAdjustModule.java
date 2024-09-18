@@ -1,11 +1,12 @@
 package com.fmum.network;
 
 import com.fmum.gunpart.IGunPart;
-import com.fmum.item.IItem;
 import com.fmum.module.IModifyPreview;
 import com.fmum.module.IModule;
+import com.fmum.player.PlayerPatch;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -69,7 +70,7 @@ public class PacketAdjustModule implements IPacket
 		player.getServerWorld().addScheduledTask( () -> {
 			final byte[] loc = this.location;
 			final Optional< IModule > module = (
-				IItem.ofOrEmpty( player.getHeldItemMainhand() )
+				PlayerPatch.of( player ).getItemIn( EnumHand.MAIN_HAND )
 				.flatMap( it -> it.lookupCapability( IModule.CAPABILITY ) )
 				.flatMap( mod -> IModule.tryGetInstalled( mod, loc, loc.length ) )
 			);

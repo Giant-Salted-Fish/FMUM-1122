@@ -1,5 +1,6 @@
 package com.fmum.gunpart;
 
+import com.fmum.item.IItem;
 import com.fmum.module.IModifyContext;
 import com.fmum.module.IModifyPreview;
 import com.fmum.module.IModule;
@@ -49,4 +50,11 @@ public interface IGunPart extends IModule
 	
 	@SideOnly( Side.CLIENT )
 	IPoseSetup IGunPart$getRenderSetup( IGunPart gun_part, int slot_idx );
+	
+	
+	static IGunPart from( IItem item )
+	{
+		final Optional< IModule > opt = item.lookupCapability( IModule.CAPABILITY );
+		return ( IGunPart ) opt.orElseThrow( IllegalArgumentException::new );
+	}
 }
