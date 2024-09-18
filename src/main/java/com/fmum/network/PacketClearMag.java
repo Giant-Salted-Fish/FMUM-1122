@@ -13,7 +13,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.stream.IntStream;
 
 public class PacketClearMag implements IPacket
 {

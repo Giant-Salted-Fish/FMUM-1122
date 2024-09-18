@@ -6,7 +6,6 @@ import com.fmum.input.Inputs;
 import com.fmum.item.EquippedWrapper;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
-import com.fmum.network.IPacket;
 import com.fmum.network.PacketClearMag;
 import com.fmum.network.PacketUnloadAmmo;
 import com.fmum.network.PacketUnwrapEquipped;

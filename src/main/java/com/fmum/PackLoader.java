@@ -60,6 +60,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.capabilities.Capability;
@@ -298,6 +299,22 @@ final class PackLoader
 				
 				final AxisAngle4f aa = context.deserialize( json, AxisAngle4f.class );
 				return Quat4f.ofAxisAngle( aa );
+			}
+		);
+		
+		ctx.regisGsonDeserializer(
+			SoundEvent.class,
+			( json, type, context ) -> {
+				final ResourceLocation loc = new ResourceLocation( json.getAsString() );
+				if ( SoundEvent.REGISTRY.containsKey( loc ) ) {
+					return SoundEvent.REGISTRY.getObject( loc );
+				}
+				else
+				{
+					final SoundEvent sound = new SoundEvent( loc );
+					SoundEvent.REGISTRY.register( -1, loc, sound );
+					return sound;
+				}
 			}
 		);
 		

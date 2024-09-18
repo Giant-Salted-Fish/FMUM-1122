@@ -5,7 +5,6 @@ import com.fmum.input.IInput;
 import com.fmum.input.Inputs;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
-import com.fmum.module.IModule;
 import com.fmum.player.PlayerPatchClient;
 import com.fmum.render.IAnimator;
 import com.fmum.render.IRenderCallback;
