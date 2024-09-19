@@ -1,8 +1,8 @@
 package gsf.util.render;
 
 import gsf.util.math.AxisAngle4f;
-import gsf.util.math.MoreMath;
 import gsf.util.math.Mat4f;
+import gsf.util.math.MoreMath;
 import gsf.util.math.Quat4f;
 import gsf.util.math.Vec3f;
 import net.minecraft.client.Minecraft;

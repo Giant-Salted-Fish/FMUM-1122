@@ -19,8 +19,8 @@ public interface IPackFactory
 		final File source = container.getSource();
 		final IPackLoadCallback load_callback = (
 			source.isFile()
-				? new JarPack( source, pack_info )
-				: new FolderPack( source, pack_info )
+			? new JarPack( source, pack_info )
+			: new FolderPack( source, pack_info )
 		);
 		return Pair.of( pack_info, load_callback );
 	}

@@ -46,7 +46,6 @@ public class PacketClearMag implements IPacket
 				return;
 			}
 			
-			
 			while ( !mag.isEmpty() )
 			{
 				final IAmmoType ammo = mag.popAmmo();
