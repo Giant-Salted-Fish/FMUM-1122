@@ -7,7 +7,7 @@ import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.module.IModule;
 import com.fmum.module.ModifySession;
-import com.fmum.render.IAnimator;
+import com.fmum.animation.IAnimator;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IPoseSetup;
 import gsf.util.math.Mat4f;

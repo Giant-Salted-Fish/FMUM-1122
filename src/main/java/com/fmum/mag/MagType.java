@@ -9,7 +9,7 @@ import com.fmum.item.ItemCategory;
 import com.fmum.load.IMeshLoadContext;
 import com.fmum.module.IModifyContext;
 import com.fmum.module.IModule;
-import com.fmum.render.IAnimator;
+import com.fmum.animation.IAnimator;
 import com.fmum.render.ModelPath;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

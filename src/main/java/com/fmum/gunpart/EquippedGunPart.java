@@ -1,13 +1,14 @@
 package com.fmum.gunpart;
 
 import com.fmum.FMUM;
+import com.fmum.animation.IAnimator;
 import com.fmum.input.IInput;
 import com.fmum.input.Inputs;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.player.PlayerPatchClient;
-import com.fmum.render.IAnimator;
-import com.fmum.render.IRenderCallback;
+import com.fmum.render.IPreparedRenderer;
+import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IPoseSetup;
 import gsf.util.math.Vec3f;
 import gsf.util.render.GLUtil;
@@ -29,11 +30,11 @@ import java.util.Comparator;
 public class EquippedGunPart implements IEquippedItem
 {
 	@SideOnly( Side.CLIENT )
-	protected ArrayList< IRenderCallback > in_hand_queue;
+	protected ArrayList< Runnable > in_hand_queue;
 	
 	protected EquippedGunPart() {
-	FMUM.SIDE.runIfClient( () -> this.in_hand_queue = new ArrayList<>() );
-}
+		FMUM.SIDE.runIfClient( () -> this.in_hand_queue = new ArrayList<>() );
+	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )
@@ -62,11 +63,13 @@ public class EquippedGunPart implements IEquippedItem
 		this.in_hand_queue.clear();
 		
 		// Collect render callback.
-		self.IGunPart$prepareRender( -1, animator, this.in_hand_queue );
-		
-		// Sort render callback based on priority.
-		// TODO: Reverse or not?
-		this.in_hand_queue.sort( Comparator.comparing( rc -> rc.getPriority( IPoseSetup.EMPTY ) ) );
+		final ArrayList< IPreparedRenderer > renderers = new ArrayList<>();
+		self.IGunPart$prepareRender( -1, animator, renderers::add );
+		renderers.stream()
+			.map( pr -> pr.with( IPoseSetup.EMPTY ) )
+			.sorted( Comparator.comparing( Pair::first ) )  // TODO: Reverse or not?
+			.map( Pair::second )
+			.forEachOrdered( this.in_hand_queue::add );
 	}
 	
 	@SideOnly( Side.CLIENT )
@@ -144,7 +147,7 @@ public class EquippedGunPart implements IEquippedItem
 	protected void _doRenderInHand( EnumHand hand, IItem item )
 	{
 //		Dev.cur().applyTransRot();
-		this.in_hand_queue.forEach( IRenderCallback::render );
+		this.in_hand_queue.forEach( Runnable::run );
 	}
 	
 	@Override

@@ -1,4 +1,4 @@
-package com.fmum.render;
+package com.fmum.animation;
 
 import gsf.util.animation.IPoseSetup;
 import net.minecraftforge.fml.relauncher.Side;

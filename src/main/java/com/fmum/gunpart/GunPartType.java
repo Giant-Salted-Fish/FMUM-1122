@@ -2,6 +2,7 @@ package com.fmum.gunpart;
 
 import com.fmum.FMUM;
 import com.fmum.SyncConfig;
+import com.fmum.animation.IAnimator;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
@@ -17,8 +18,7 @@ import com.fmum.module.Module;
 import com.fmum.paintjob.IPaintableType;
 import com.fmum.paintjob.IPaintjob;
 import com.fmum.render.AnimatedModel;
-import com.fmum.render.IAnimator;
-import com.fmum.render.IRenderCallback;
+import com.fmum.render.IPreparedRenderer;
 import com.fmum.render.ModelPath;
 import com.fmum.render.Texture;
 import com.google.gson.JsonObject;
@@ -61,13 +61,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -639,7 +639,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		public void IGunPart$prepareRender(
 			int base_slot_idx,
 			IAnimator animator,
-			Collection< IRenderCallback > render_queue
+			Consumer< IPreparedRenderer > render_queue
 		) {
 			// Obtain render transform from base module.
 			final Optional< ? extends IGunPart > base = this.getBase();
@@ -654,7 +654,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			animator.getChannel( GunPartType.this.mod_anim_channel ).applyTransform( this.mat );
 			
 			// Enqueue render callback.
-			render_queue.add( () -> this._renderModel( animator ) );
+			render_queue.accept( cam -> Pair.of( 0.0F, () -> this._renderModel( animator ) ) );
 			
 			// Dispatch to child modules.
 			final ListIterator< IModule > itr = this.installed_modules.listIterator();

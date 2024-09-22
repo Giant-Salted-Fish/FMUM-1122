@@ -1,11 +1,11 @@
 package com.fmum.gunpart;
 
+import com.fmum.animation.IAnimator;
 import com.fmum.item.ItemCategory;
 import com.fmum.module.IModifyContext;
 import com.fmum.module.IModifyPreview;
 import com.fmum.module.IModule;
-import com.fmum.render.IAnimator;
-import com.fmum.render.IRenderCallback;
+import com.fmum.render.IPreparedRenderer;
 import com.fmum.render.ModelPath;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IPoseSetup;
@@ -14,8 +14,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @SideOnly( Side.CLIENT )
@@ -144,10 +144,10 @@ public abstract class GunPartPlaceholder implements IGunPart
 	public void IGunPart$prepareRender(
 		int base_slot_idx,
 		IAnimator animator,
-		Collection< IRenderCallback > render_queue
+		Consumer< IPreparedRenderer > registry
 	) {
 		final IPoseSetup setup = this.base.IGunPart$getRenderSetup( this, base_slot_idx );
-		render_queue.add( () -> this._renderModel( animator, setup ) );
+		registry.accept( cam -> Pair.of( 0.0F, () -> this._renderModel( animator, setup ) ) );
 	}
 	
 	protected abstract void _renderModel( IAnimator animator, IPoseSetup setup );

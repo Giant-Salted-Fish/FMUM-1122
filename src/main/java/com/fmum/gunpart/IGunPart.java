@@ -1,19 +1,19 @@
 package com.fmum.gunpart;
 
+import com.fmum.animation.IAnimator;
 import com.fmum.item.IItem;
 import com.fmum.module.IModifyContext;
 import com.fmum.module.IModifyPreview;
 import com.fmum.module.IModule;
-import com.fmum.render.IAnimator;
-import com.fmum.render.IRenderCallback;
+import com.fmum.render.IPreparedRenderer;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IPoseSetup;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Gun part does not necessarily need to be an item. It can also be an installed
@@ -45,7 +45,7 @@ public interface IGunPart extends IModule
 	void IGunPart$prepareRender(
 		int base_slot_idx,
 		IAnimator animator,
-		Collection< IRenderCallback > render_queue
+		Consumer< IPreparedRenderer > registry
 	);
 	
 	@SideOnly( Side.CLIENT )

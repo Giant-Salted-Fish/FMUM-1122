@@ -1,5 +1,6 @@
 package com.fmum.render;
 
+import com.fmum.animation.IAnimator;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import gsf.util.animation.IAnimation;
