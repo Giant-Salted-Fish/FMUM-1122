@@ -5,10 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import gsf.util.animation.IAnimation;
 import gsf.util.lang.Error;
 import gsf.util.lang.Result;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -79,11 +77,6 @@ public abstract class LocalPack implements IPackLoadCallback
 			@Override
 			public Optional< IContentLoader > lookupContentLoader( String entry ) {
 				return ctx.lookupContentLoader( entry );
-			}
-			
-			@Override
-			public Optional< IAnimation > loadAnimation( ResourceLocation location ) {
-				return ctx.loadAnimation( location );
 			}
 			
 			@Override

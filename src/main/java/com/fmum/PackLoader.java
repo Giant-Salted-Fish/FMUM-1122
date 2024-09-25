@@ -27,7 +27,6 @@ import com.fmum.paintjob.IPaintableType;
 import com.fmum.paintjob.IPaintjob;
 import com.fmum.paintjob.JsonPaintjob;
 import com.fmum.paintjob.Paintjob;
-import com.fmum.player.PlayerCamera;
 import com.fmum.player.PlayerPatch;
 import com.fmum.render.AnimatedModel;
 import com.fmum.render.ModelPath;
@@ -40,14 +39,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.Animation;
-import gsf.util.animation.Bone;
 import gsf.util.animation.IAnimation;
 import gsf.util.math.AxisAngle4f;
-import gsf.util.math.Mat4f;
 import gsf.util.math.Quat4f;
 import gsf.util.math.Vec3f;
 import gsf.util.render.Mesh;
@@ -175,7 +171,7 @@ final class PackLoader
 			}
 		};
 		
-		this.__regisCapability( pre_load_ctx );
+		this.__regisCapability();
 		this.__regisTypeAdapter( pre_load_ctx );
 		this.__regisContentLoader( pre_load_ctx );
 		this.packs.forEach( pair -> {
@@ -187,7 +183,7 @@ final class PackLoader
 		this.gson = gson_builder.create();
 	}
 	
-	private void __regisCapability( IPreLoadContext ctx )
+	private void __regisCapability()
 	{
 		this.__regisCapability( PlayerPatch.class );
 		this.__regisCapability( IItem.class );  // See IItem#CAPABILITY.
@@ -308,6 +304,30 @@ final class PackLoader
 		);
 		
 		ctx.regisGsonDeserializer(
+			IAnimation.class,
+			( json, type, context ) -> {
+				final String resource = json.getAsString();
+				if ( resource.endsWith( ".json" ) )
+				{
+					// Load animation exported from BlockBench.
+					final ResourceLocation location = new ResourceLocation( resource );
+					final IResourceManager res_mgr = Minecraft.getMinecraft().getResourceManager();
+					try ( IResource res = res_mgr.getResource( location ) )
+					{
+						final InputStreamReader in = new InputStreamReader( res.getInputStream() );
+						final JsonObject obj = gson.fromJson( in, JsonObject.class );
+						return Animation.fromBBJson( obj, gson );
+					}
+					catch ( IOException e )
+					{
+						// TODO
+					}
+				}
+				return IAnimation.EMPTY;
+			}
+		);
+		
+		ctx.regisGsonDeserializer(
 			SoundEvent.class,
 			( json, type, context ) -> {
 				final ResourceLocation loc = new ResourceLocation( json.getAsString() );
@@ -399,28 +419,6 @@ final class PackLoader
 			@Override
 			public Optional< IContentLoader > lookupContentLoader( String entry ) {
 				return PackLoader.this.content_loaders.lookup( entry );
-			}
-			
-			@Override
-			public Optional< IAnimation > loadAnimation( ResourceLocation location )
-			{
-				if ( location.getPath().endsWith( ".json" ) )
-				{
-					// Load animation exported from BlockBench.
-					final IResourceManager res_mgr = Minecraft.getMinecraft().getResourceManager();
-					try ( IResource res = res_mgr.getResource( location ) )
-					{
-						final InputStreamReader in = new InputStreamReader( res.getInputStream() );
-						final JsonObject obj = gson.fromJson( in, JsonObject.class );
-						final Animation animation = Animation.fromBBJson( obj, gson );
-						return Optional.of( animation );
-					}
-					catch ( IOException e )
-					{
-						// TODO
-					}
-				}
-				return Optional.empty();
 			}
 		};
 		
