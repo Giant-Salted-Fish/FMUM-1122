@@ -6,5 +6,29 @@
 	"unload_ammo": {
 		"subtitle": "sound.pop_ammo",
 		"sounds": [ "fmum:unload_ammo" ]
+	},
+	"gun_fire": {
+		"subtitle": "sound.gun_fire",
+		"sounds": [ "fmum:gun_fire" ]
+	},
+	"gun_fire_suppressed": {
+		"subtitle": "sound.gun_fire",
+		"sounds": [ "fmum:gun_fire_suppressed" ]
+	},
+	"switch_fire_mode": {
+		"subtitle": "sound.switch_fire_mode",
+		"sounds": [ "fmum:switch_fire_mode" ]
+	},
+	"load_mag": {
+		"subtitle": "sound.load_mag",
+		"sounds": [ "fmum:load_mag" ]
+	},
+	"unload_mag": {
+		"subtitle": "sound.unload_mag",
+		"sounds": [ "fmum:unload_mag" ]
+	},
+	"release_bolt": {
+		"subtitle": "sound.release_bolt",
+		"sounds": [ "fmum:release_bolt" ]
 	}
 }
