@@ -12,7 +12,7 @@ import java.util.OptionalInt;
 
 public class EquippedUnloading extends EquippedWrapper
 {
-	protected float progress = 0.0F;
+	protected int tick_left = 0;
 	
 	public EquippedUnloading( IEquippedItem wrapped ) {
 		super( wrapped );
@@ -21,21 +21,21 @@ public class EquippedUnloading extends EquippedWrapper
 	@Override
 	public IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player )
 	{
-		if ( this.progress >= 1.0F )
+		if ( this.tick_left == 0 )
 		{
 			final IMag mag = IMag.from( item );
 			if ( mag.isEmpty() ) {
 				return this.wrapped;
 			}
 			
-			this.progress = 0.0F;
+			final MagType type = ( MagType ) item.getType();
+			this.tick_left = type.op_unload_ammo.tick_count;
 		}
 		
 		final MagType type = ( MagType ) item.getType();
-		final MagOpConfig config = type.unload_ammo_op;
-		final float progress = this.progress + config.progressor;
-		final float effect_time = config.effect_time;
-		if ( this.progress < effect_time && effect_time <= progress )
+		final MagOpConfig config = type.op_unload_ammo;
+		final int tick_left = this.tick_left - 1;
+		if ( config.tick_commit + tick_left == config.tick_count )
 		{
 			final IMag mag = IMag.from( item );
 			if ( mag.isEmpty() ) {
@@ -63,7 +63,7 @@ public class EquippedUnloading extends EquippedWrapper
 			}
 		}
 		
-		this.progress = Math.min( 1.0F, progress );
+		this.tick_left = tick_left;
 		return this;
 	}
 }

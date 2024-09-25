@@ -1,9 +1,9 @@
 package com.fmum.player;
 
 import com.fmum.SyncConfig;
+import com.fmum.animation.IAnimator;
 import com.fmum.input.InputManager;
 import com.fmum.input.Inputs;
-import com.fmum.animation.IAnimator;
 import gsf.util.animation.IPoseSetup;
 import gsf.util.animation.MassSpringMotion;
 import gsf.util.math.Mat4f;

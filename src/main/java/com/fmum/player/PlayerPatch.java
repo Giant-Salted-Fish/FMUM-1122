@@ -26,7 +26,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 /**
  * Patches the vanilla player with some additional logic.
@@ -118,13 +118,13 @@ public class PlayerPatch
 	}
 	
 	public final < T extends IEquippedItem > Optional< T > mapEquipped(
-		Function< ? super IEquippedItem, T > mapper
+		BiFunction< ? super IEquippedItem, ? super IItem, T > mapper
 	) {
 		if ( this.main_equipped == VANILLA_EQUIPPED ) {
 			return Optional.empty();
 		}
 		
-		final T mapped = mapper.apply( this.main_equipped );
+		final T mapped = mapper.apply( this.main_equipped, this.main_item );
 		this.main_equipped = mapped;
 		return Optional.of( mapped );
 	}

@@ -1,6 +1,7 @@
 package com.fmum.ammo;
 
 import com.fmum.FMUM;
+import com.fmum.animation.IAnimator;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
@@ -8,7 +9,6 @@ import com.fmum.item.ItemCategory;
 import com.fmum.item.ItemType;
 import com.fmum.load.IContentBuildContext;
 import com.fmum.load.IMeshLoadContext;
-import com.fmum.animation.IAnimator;
 import com.fmum.render.ModelPath;
 import com.fmum.render.Texture;
 import com.google.gson.JsonObject;

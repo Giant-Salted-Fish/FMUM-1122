@@ -1,20 +1,30 @@
 package com.fmum.mag;
 
+import com.fmum.animation.SoundFrame;
 import com.google.gson.annotations.Expose;
 
 public class MagOpConfig
 {
 	@Expose
-	public float progressor = 0.1F;
+	public int tick_count;
 	
 	@Expose
-	public float effect_time = 0.5F;
+	public int tick_commit;
 	
-	public MagOpConfig() { }
+	@Expose
+	public SoundFrame[] sound_frame;
 	
-	public MagOpConfig( float progressor, float effect_time )
+	public MagOpConfig()
 	{
-		this.progressor = progressor;
-		this.effect_time = effect_time;
+		this.tick_count = 10;
+		this.tick_commit = 7;
+		this.sound_frame = new SoundFrame[ 0 ];
+	}
+	
+	public MagOpConfig( int tick_count, int tick_commit, SoundFrame... sound_frame )
+	{
+		this.tick_count = tick_count;
+		this.tick_commit = tick_commit;
+		this.sound_frame = sound_frame;
 	}
 }

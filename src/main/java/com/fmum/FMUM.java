@@ -1,5 +1,6 @@
 package com.fmum;
 
+import com.fmum.animation.Sounds;
 import com.fmum.network.IPacket;
 import com.fmum.network.PacketSyncConfig;
 import gsf.devtool.Dev;
@@ -8,10 +9,12 @@ import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config.Type;
 import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -27,6 +30,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GLContext;
 
@@ -181,6 +185,17 @@ public final class FMUM
 		MinecraftForge.EVENT_BUS.register( this );
 		MinecraftForge.EVENT_BUS.register( new Object() {
 			@SubscribeEvent
+			void _onSoundRegis( RegistryEvent.Register< SoundEvent > evt )
+			{
+				final IForgeRegistry< SoundEvent > registry = evt.getRegistry();
+				registry.register( Sounds.LOAD_AMMO );
+				registry.register( Sounds.UNLOAD_AMMO );
+				FMUM.this.pack_loader._regisSounds( registry );
+				MinecraftForge.EVENT_BUS.unregister( this );
+			}
+		} );
+		MinecraftForge.EVENT_BUS.register( new Object() {
+			@SubscribeEvent
 			@SideOnly( Side.CLIENT )
 			void _onGuiChange( GuiOpenEvent evt )
 			{
@@ -259,7 +274,7 @@ public final class FMUM
 	{
 		LOGGER.info( "fmum.on_post_init" );
 		
-		// TODO: Whether to support packets registration for packs?
+		// TODO: Whether to support packets registration for packets?
 //		NET.postInit();
 		
 		LOGGER.info( "fmum.post_init_complete" );

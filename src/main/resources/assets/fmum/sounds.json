@@ -1,10 +1,10 @@
 {
 	"load_ammo": {
-		"subtitle": "fmum.sound.push_ammo",
+		"subtitle": "sound.push_ammo",
 		"sounds": [ "fmum:load_ammo" ]
 	},
 	"unload_ammo": {
-		"subtitle": "fmum.sound.pop_ammo",
+		"subtitle": "sound.pop_ammo",
 		"sounds": [ "fmum:unload_ammo" ]
 	}
 }

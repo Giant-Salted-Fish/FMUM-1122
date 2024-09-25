@@ -18,29 +18,33 @@ public class EquippedLoading extends EquippedWrapper
 	
 	protected final int ammo_slot;
 	
-	protected float progress = 0.0F;
+	protected int tick_left;
 	
 	
-	public EquippedLoading( IEquippedItem wrapped, int ammo_slot )
+	public EquippedLoading( IEquippedItem wrapped, IItem item, int ammo_slot )
 	{
 		super( wrapped );
 		
 		this.ammo_slot = ammo_slot;
 		this.next = wrapped;
+		
+		final MagType type = ( MagType ) item.getType();
+		this.tick_left = type.op_load_ammo.tick_count;
 	}
 	
 	@Override
 	public IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player )
 	{
-		if ( this.progress >= 1.0F ) {
-			return this.next;
+		if ( this.tick_left == 0 )
+		{
+			// Tick next here, otherwise we will have one tick lag with client.
+			return this.next.tickInHand( hand, item, player );
 		}
 		
 		final MagType type = ( MagType ) item.getType();
-		final MagOpConfig config = type.load_ammo_op;
-		final float progress = this.progress + config.progressor;
-		final float effect_time = config.effect_time;
-		if ( this.progress < effect_time && effect_time <= progress )
+		final MagOpConfig config = type.op_load_ammo;
+		final int tick_left = this.tick_left - 1;
+		if ( config.tick_commit + tick_left == config.tick_count )
 		{
 			final boolean success = this._doLoadAmmo( item, player );
 			if ( !success ) {
@@ -48,7 +52,7 @@ public class EquippedLoading extends EquippedWrapper
 			}
 		}
 		
-		this.progress = Math.min( 1.0F, progress );
+		this.tick_left = tick_left;
 		return this;
 	}
 	

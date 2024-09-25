@@ -25,7 +25,7 @@ public class PacketUnwrapEquipped implements IPacket
 	{
 		final EntityPlayerMP player = ctx.getServerHandler().player;
 		player.getServerWorld().addScheduledTask( () -> PlayerPatch.of( player )
-			.mapEquipped( eq -> {
+			.mapEquipped( ( eq, it ) -> {
 				if ( eq instanceof EquippedWrapper )
 				{
 					final EquippedWrapper wrapper = ( EquippedWrapper ) eq;

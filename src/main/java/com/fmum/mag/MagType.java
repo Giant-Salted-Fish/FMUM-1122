@@ -2,6 +2,9 @@ package com.fmum.mag;
 
 import com.fmum.FMUM;
 import com.fmum.ammo.IAmmoType;
+import com.fmum.animation.IAnimator;
+import com.fmum.animation.SoundFrame;
+import com.fmum.animation.Sounds;
 import com.fmum.gunpart.GunPartType;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
@@ -9,7 +12,6 @@ import com.fmum.item.ItemCategory;
 import com.fmum.load.IMeshLoadContext;
 import com.fmum.module.IModifyContext;
 import com.fmum.module.IModule;
-import com.fmum.animation.IAnimator;
 import com.fmum.render.ModelPath;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -39,8 +41,11 @@ import java.util.stream.IntStream;
 
 public class MagType extends GunPartType
 {
-	protected static final MagOpConfig LOAD_AMMO = new MagOpConfig();
+	protected static final MagOpConfig
+		OP_LOAD_AMMO = new MagOpConfig( 10, 7, new SoundFrame( 0.75F, Sounds.LOAD_AMMO ) );
 	
+	protected static final MagOpConfig
+		OP_UNLOAD_AMMO = new MagOpConfig( 8, 6, new SoundFrame( 0.75F, Sounds.UNLOAD_AMMO ) );
 	
 	@Expose
 	protected int capacity = 1;
@@ -50,10 +55,10 @@ public class MagType extends GunPartType
 	protected Predicate< ItemCategory > ammo_predicate;
 	
 	@Expose
-	protected MagOpConfig load_ammo_op = LOAD_AMMO;
+	protected MagOpConfig op_load_ammo = OP_LOAD_AMMO;
 	
 	@Expose
-	protected MagOpConfig unload_ammo_op = LOAD_AMMO;
+	protected MagOpConfig op_unload_ammo = OP_UNLOAD_AMMO;
 	
 	@Expose
 	@SideOnly( Side.CLIENT )

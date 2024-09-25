@@ -2,6 +2,7 @@ package com.fmum;
 
 import com.fmum.ammo.AmmoType;
 import com.fmum.ammo.IAmmoType;
+import com.fmum.animation.SoundFrame;
 import com.fmum.gun.GunType;
 import com.fmum.gunpart.GunPartSetup;
 import com.fmum.gunpart.GunPartType;
@@ -69,6 +70,7 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.registries.IForgeRegistry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -76,6 +78,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -96,6 +99,8 @@ final class PackLoader
 	private final Registry< IContentLoader > content_loaders = new Registry<>();
 	
 	private Gson gson;
+	
+	private final HashMap< ResourceLocation, SoundEvent > sound_pool = new HashMap<>();
 	
 	@SideOnly( Side.CLIENT )
 	private HashMap< ModelPath, Optional< Mesh > > mesh_pool; {
@@ -306,16 +311,22 @@ final class PackLoader
 			SoundEvent.class,
 			( json, type, context ) -> {
 				final ResourceLocation loc = new ResourceLocation( json.getAsString() );
-				if ( SoundEvent.REGISTRY.containsKey( loc ) ) {
-					return SoundEvent.REGISTRY.getObject( loc );
-				}
-				else
-				{
-					final SoundEvent sound = new SoundEvent( loc );
-					SoundEvent.REGISTRY.register( -1, loc, sound );
-					return sound;
-				}
+				return this.sound_pool.computeIfAbsent( loc, l -> new SoundEvent( l ).setRegistryName( l ) );
 			}
+		);
+		
+		ctx.regisGsonDeserializer(
+			SoundFrame[].class,
+			( json, type, context ) -> (
+				json.getAsJsonObject().entrySet().stream()
+				.map( e -> {
+					final float time = Float.parseFloat( e.getKey() );
+					final SoundEvent sound = context.deserialize( e.getValue(), SoundEvent.class );
+					return new SoundFrame( time, sound );
+				} )
+				.sorted( Comparator.comparing( skf -> skf.time ) )  // TODO: Sort maybe unnecessary.
+				.toArray( SoundFrame[]::new )
+			)
 		);
 		
 		FMUM.SIDE.runIfClient( () -> {
@@ -567,6 +578,12 @@ final class PackLoader
 			FMUM.LOGGER.info( "fmum.post_load_pack", info.getName() );
 			pair.second().onPostLoad( post_load_ctx );
 		} );
+	}
+	
+	void _regisSounds( IForgeRegistry< SoundEvent > registry )
+	{
+		this.sound_pool.values().forEach( registry::register );
+		this.sound_pool.clear();
 	}
 	
 	@SideOnly( Side.CLIENT )

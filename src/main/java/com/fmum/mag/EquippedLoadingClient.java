@@ -2,6 +2,7 @@ package com.fmum.mag;
 
 import com.fmum.FMUM;
 import com.fmum.ammo.IAmmoType;
+import com.fmum.animation.SoundFrame;
 import com.fmum.input.IInput;
 import com.fmum.input.InputManager;
 import com.fmum.input.Inputs;
@@ -25,9 +26,8 @@ public class EquippedLoadingClient extends EquippedWrapper
 {
 	protected final String trigger_key;
 	
-	protected float progress = 1.0F;
-	protected float prev_progress;
-	protected boolean is_packet_sent = false;
+	protected int tick_left = 0;
+	protected int sound_idx;
 	
 	public EquippedLoadingClient( IEquippedItem wrapped, String trigger_key )
 	{
@@ -39,7 +39,7 @@ public class EquippedLoadingClient extends EquippedWrapper
 	@Override
 	public IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player )
 	{
-		if ( this.progress >= 1.0F )
+		if ( this.tick_left == 0 )
 		{
 			// Check if we have next ammo to load.
 			final IMag mag = IMag.from( item );
@@ -61,8 +61,8 @@ public class EquippedLoadingClient extends EquippedWrapper
 			if ( slot.isPresent() )
 			{
 				final int ammo_slot = slot.getAsInt();
-				final boolean full_mag = player.isCreative() && this.trigger_key.equals( Inputs.RELOAD );
-				if ( full_mag )
+				final boolean full_mag = this.trigger_key.equals( Inputs.RELOAD );
+				if ( full_mag && player.isCreative() )
 				{
 					FMUM.NET.sendPacketC2S( new PacketFullMag( ammo_slot ) );
 					return this.wrapped;
@@ -70,8 +70,10 @@ public class EquippedLoadingClient extends EquippedWrapper
 				else
 				{
 					FMUM.NET.sendPacketC2S( new PacketLoadAmmo( ammo_slot ) );
-					this.is_packet_sent = true;
-					this.progress = 0.0F;
+					
+					final MagType type = ( MagType ) item.getType();
+					this.tick_left = type.op_load_ammo.tick_count;
+					this.sound_idx = 0;
 				}
 			}
 			else {
@@ -80,13 +82,12 @@ public class EquippedLoadingClient extends EquippedWrapper
 		}
 		
 		final MagType type = ( MagType ) item.getType();
-		final MagOpConfig config = type.load_ammo_op;
-		final float progress = this.progress + config.progressor;
-		// TODO: Handle sound
+		final MagOpConfig config = type.op_load_ammo;
+		final int tick_left = this.tick_left - 1;
+		final float progress = 1.0F - ( float ) tick_left / config.tick_count;
+		this.sound_idx = SoundFrame.playSound( config.sound_frame, this.sound_idx, progress, player );
 		
-		
-		this.prev_progress = this.progress;
-		this.progress = Math.min( 1.0F, progress );
+		this.tick_left = tick_left;
 		return this;
 	}
 	

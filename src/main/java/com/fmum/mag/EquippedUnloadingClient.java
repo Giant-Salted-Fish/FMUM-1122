@@ -1,6 +1,7 @@
 package com.fmum.mag;
 
 import com.fmum.FMUM;
+import com.fmum.animation.SoundFrame;
 import com.fmum.input.IInput;
 import com.fmum.input.Inputs;
 import com.fmum.item.EquippedWrapper;
@@ -21,8 +22,8 @@ public class EquippedUnloadingClient extends EquippedWrapper
 {
 	protected final String trigger_key;
 	
-	protected float progress = 1.0F;
-	protected float prev_progress;
+	protected int tick_left = 0;
+	protected int sound_idx;
 	protected boolean is_packet_sent = false;
 	
 	public EquippedUnloadingClient( IEquippedItem wrapped, String trigger_key )
@@ -35,7 +36,7 @@ public class EquippedUnloadingClient extends EquippedWrapper
 	@Override
 	public IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player )
 	{
-		if ( this.progress >= 1.0F )
+		if ( this.tick_left == 0 )
 		{
 			final IMag mag = IMag.from( item );
 			if ( mag.isEmpty() )
@@ -49,8 +50,8 @@ public class EquippedUnloadingClient extends EquippedWrapper
 			}
 			else if ( !this.is_packet_sent )
 			{
-				final boolean clear_mag = player.isCreative() && this.trigger_key.equals( Inputs.LOAD_OR_UNLOAD_MAG );
-				if ( clear_mag )
+				final boolean clear_mag = this.trigger_key.equals( Inputs.LOAD_OR_UNLOAD_MAG );
+				if ( clear_mag && player.isCreative() )
 				{
 					FMUM.NET.sendPacketC2S( new PacketClearMag() );
 					return this.wrapped;
@@ -59,19 +60,21 @@ public class EquippedUnloadingClient extends EquippedWrapper
 				{
 					FMUM.NET.sendPacketC2S( new PacketUnloadAmmo() );
 					this.is_packet_sent = true;
-					this.progress = 0.0F;
 				}
 			}
+			
+			final MagType type = ( MagType ) item.getType();
+			this.tick_left = type.op_unload_ammo.tick_count;
+			this.sound_idx = 0;
 		}
 		
 		final MagType type = ( MagType ) item.getType();
-		final MagOpConfig config = type.unload_ammo_op;
-		final float progress = this.progress + config.progressor;
-		// TODO: Handle sound
+		final MagOpConfig config = type.op_unload_ammo;
+		final int tick_left = this.tick_left - 1;
+		final float progress = 1.0F - ( float ) tick_left / config.tick_count;
+		this.sound_idx = SoundFrame.playSound( config.sound_frame, this.sound_idx, progress, player );
 		
-		
-		this.prev_progress = this.progress;
-		this.progress = Math.min( 1.0F, progress );
+		this.tick_left = tick_left;
 		return this;
 	}
 	
