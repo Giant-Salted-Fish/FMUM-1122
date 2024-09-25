@@ -7,7 +7,7 @@ public abstract class Result< T, E >
 {
 	public static < T > Result< T, Exception > of( IRunOnce< ? extends T > expression )
 	{
-		T value;
+		final T value;
 		try {
 			value = expression.run();
 		}
