@@ -3,7 +3,7 @@ package gsf.util.animation;
 @FunctionalInterface
 public interface IAnimation
 {
-	IAnimation EMPTY = progress -> AnimationState.EMPTY;
+	IAnimation EMPTY = progress -> IAnimator.NONE;
 	
 	String CHANNEL_NONE = "__none__";
 	
@@ -11,5 +11,5 @@ public interface IAnimation
 	 * @param progress Range from {@code 0.0F-1.0F}.
 	 * @return A cursor to access each animation channel.
 	 */
-	AnimationState ofProgress( float progress );
+	IAnimator ofProgress( float progress );
 }

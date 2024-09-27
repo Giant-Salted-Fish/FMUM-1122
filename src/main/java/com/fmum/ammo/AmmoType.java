@@ -1,7 +1,6 @@
 package com.fmum.ammo;
 
 import com.fmum.FMUM;
-import com.fmum.animation.IAnimator;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
@@ -14,6 +13,7 @@ import com.fmum.render.Texture;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import gsf.util.animation.IAnimator;
 import gsf.util.math.AxisAngle4f;
 import gsf.util.math.Vec3f;
 import gsf.util.render.GLUtil;

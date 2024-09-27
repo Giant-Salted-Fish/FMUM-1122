@@ -23,10 +23,10 @@ public class Bone
 		this.alpha = alpha;
 	}
 	
-	public IPoseSetup getPoseSetup( float progress, AnimationState cursor )
+	public IPoseSetup getPoseSetup( float progress, IAnimator cursor )
 	{
 		// Get parent track.
-		final IPoseSetup parent = cursor.ofChannel( this.parent );
+		final IPoseSetup parent = cursor.getChannel( this.parent );
 		
 		// Alpha track.
 		float _alpha;

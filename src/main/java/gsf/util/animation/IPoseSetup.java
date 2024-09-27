@@ -132,4 +132,61 @@ public interface IPoseSetup
 			}
 		};
 	}
+	
+	static IPoseSetup compose( IPoseSetup left, IPoseSetup right )
+	{
+		return new IPoseSetup() {
+			@Override
+			public void getPos( Vec3f dst )
+			{
+				left.getPos( dst );
+				
+				final Quat4f quat = Quat4f.allocate();
+				right.getRot( quat );
+				quat.transform( dst, dst );
+				Quat4f.release( quat );
+				
+				final Vec3f vec = Vec3f.allocate();
+				right.getPos( vec );
+				dst.add( vec );
+				Vec3f.release( vec );
+			}
+			
+			@Override
+			public void getRot( Quat4f dst )
+			{
+				left.getRot( dst );
+				final Quat4f quat = Quat4f.allocate();
+				right.getRot( quat );
+				dst.mul( dst, quat );
+				Quat4f.release( quat );
+			}
+			
+			@Override
+			public float getFactor() {
+				return left.getFactor() * right.getFactor();
+			}
+			
+			@Override
+			public void getTransform( Mat4f dst )
+			{
+				right.getTransform( dst );
+				left.applyTransform( dst );
+			}
+			
+			@Override
+			public void applyTransform( Mat4f dst )
+			{
+				right.applyTransform( dst );
+				left.applyTransform( dst );
+			}
+			
+			@Override
+			public void glApply()
+			{
+				right.glApply();
+				left.glApply();
+			}
+		};
+	}
 }

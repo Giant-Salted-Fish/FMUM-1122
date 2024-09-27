@@ -1,12 +1,12 @@
 package com.fmum.gunpart;
 
-import com.fmum.animation.IAnimator;
 import com.fmum.item.IItem;
 import com.fmum.module.IModifyContext;
 import com.fmum.module.IModifyPreview;
 import com.fmum.module.IModule;
 import com.fmum.render.IPreparedRenderer;
 import com.mojang.realmsclient.util.Pair;
+import gsf.util.animation.IAnimator;
 import gsf.util.animation.IPoseSetup;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;

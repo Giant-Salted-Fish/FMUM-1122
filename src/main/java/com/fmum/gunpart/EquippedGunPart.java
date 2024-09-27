@@ -1,7 +1,6 @@
 package com.fmum.gunpart;
 
 import com.fmum.FMUM;
-import com.fmum.animation.IAnimator;
 import com.fmum.input.IInput;
 import com.fmum.input.Inputs;
 import com.fmum.item.IEquippedItem;
@@ -9,6 +8,7 @@ import com.fmum.item.IItem;
 import com.fmum.player.PlayerPatchClient;
 import com.fmum.render.IPreparedRenderer;
 import com.mojang.realmsclient.util.Pair;
+import gsf.util.animation.IAnimator;
 import gsf.util.animation.IPoseSetup;
 import gsf.util.math.Vec3f;
 import gsf.util.render.GLUtil;

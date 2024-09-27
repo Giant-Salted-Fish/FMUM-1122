@@ -1,10 +1,10 @@
 package com.fmum.ammo;
 
 import com.fmum.BiRegistry;
-import com.fmum.animation.IAnimator;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
 import com.fmum.item.ItemCategory;
+import gsf.util.animation.IAnimator;
 import net.minecraft.inventory.IInventory;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

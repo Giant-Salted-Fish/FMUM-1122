@@ -2,7 +2,6 @@ package com.fmum.mag;
 
 import com.fmum.FMUM;
 import com.fmum.ammo.IAmmoType;
-import com.fmum.animation.IAnimator;
 import com.fmum.animation.SoundFrame;
 import com.fmum.animation.Sounds;
 import com.fmum.gunpart.GunPartType;
@@ -15,6 +14,7 @@ import com.fmum.module.IModule;
 import com.fmum.render.ModelPath;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import gsf.util.animation.IAnimator;
 import gsf.util.lang.Error;
 import gsf.util.lang.Result;
 import gsf.util.lang.Success;

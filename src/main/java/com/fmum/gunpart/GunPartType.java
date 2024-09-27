@@ -2,7 +2,6 @@ package com.fmum.gunpart;
 
 import com.fmum.FMUM;
 import com.fmum.SyncConfig;
-import com.fmum.animation.IAnimator;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
@@ -26,6 +25,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimation;
+import gsf.util.animation.IAnimator;
 import gsf.util.animation.IPoseSetup;
 import gsf.util.math.Mat4f;
 import gsf.util.math.Quat4f;
