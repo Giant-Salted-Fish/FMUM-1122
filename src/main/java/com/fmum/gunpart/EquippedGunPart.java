@@ -52,12 +52,16 @@ public class EquippedGunPart implements IEquippedItem
 	public void prepareRenderInHand( EnumHand hand, IItem item )
 	{
 		final IGunPart self = IGunPart.from( item );
-		final IAnimator animator = this._getInHandAnimator( hand, item );
-		this._doPrepareRenderInHand( self, animator );
+		final IAnimator animator = this.EquippedGunPart$getInHandAnimator( hand, item );
+		this.EquippedGunPart$doPrepareRenderInHand( self, animator );
 	}
 	
+	/**
+	 * Stateless version of the {@link #prepareRenderInHand(EnumHand, IItem)}.
+	 * This allows other equipped wrappers to fully proxy the rendering.
+	 */
 	@SideOnly( Side.CLIENT )
-	protected void _doPrepareRenderInHand( IGunPart self, IAnimator animator )
+	public void EquippedGunPart$doPrepareRenderInHand( IGunPart self, IAnimator animator )
 	{
 		// Clear previous in hand queue.
 		this.in_hand_queue.clear();
@@ -73,7 +77,7 @@ public class EquippedGunPart implements IEquippedItem
 	}
 	
 	@SideOnly( Side.CLIENT )
-	protected IAnimator _getInHandAnimator( EnumHand hand, IItem item )
+	public IAnimator EquippedGunPart$getInHandAnimator( EnumHand hand, IItem item )
 	{
 		final GunPartType type = ( GunPartType ) item.getType();
 		final Vec3f pos;

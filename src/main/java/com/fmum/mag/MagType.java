@@ -17,6 +17,7 @@ import com.fmum.module.IModifyContext;
 import com.fmum.module.IModule;
 import com.fmum.module.IModuleType;
 import com.fmum.paintjob.IPaintableType;
+import com.fmum.render.IPreparedRenderer;
 import com.fmum.render.ModelPath;
 import gsf.util.animation.IAnimator;
 import gsf.util.lang.Error;
@@ -38,6 +39,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.PrimitiveIterator;
+import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
@@ -65,6 +67,9 @@ public class MagType extends GunPartType
 	protected MagOpConfig op_load_ammo;
 	
 	protected MagOpConfig op_unload_ammo;
+	
+	@SideOnly( Side.CLIENT )
+	protected String loading_anim_channel;
 	
 	@SideOnly( Side.CLIENT )
 	protected ModelPath follower_model_path;
@@ -98,6 +103,7 @@ public class MagType extends GunPartType
 		this.op_load_ammo = data.get( "op_load_ammo", MagOpConfig.class ).orElse( OP_LOAD_AMMO );
 		this.op_unload_ammo = data.get( "op_unload_ammo", MagOpConfig.class ).orElse( OP_UNLOAD_AMMO );
 		FMUM.SIDE.runIfClient( () -> {
+			this.loading_anim_channel = data.getString( "loading_anim_channel" ).orElse( "loading_mag" );
 			this.follower_model_path = data.get( "follower_model", ModelPath.class ).orElse( ModelPath.NONE );
 			this.follower_pos = data.get( "follower_pos", Vec3f[].class ).orElse( new Vec3f[ 0 ] );
 			this.follower_rot = data.get( "follower_rot", AxisAngle4f[].class ).orElse( new AxisAngle4f[ 0 ] );
@@ -251,6 +257,27 @@ public class MagType extends GunPartType
 		{
 			// TODO: Impl.
 			return super.IGunPart$createSelectionProxy( ctx );
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public IMag IMag$createLoadingProxy()
+		{
+			return new Mag( Mag.this.nbt.copy() ) {
+				@Override
+				public void IGunPart$prepareRender(
+					int base_slot_idx,
+					IAnimator animator,
+					Consumer< IPreparedRenderer > render_queue
+				) {
+					final IAnimator wrapper = channel -> animator.getChannel(
+						channel.equals( MagType.this.mod_anim_channel )
+						? MagType.this.loading_anim_channel
+						: channel
+					);
+					super.IGunPart$prepareRender( base_slot_idx, wrapper, render_queue );
+				}
+			};
 		}
 		
 		@Override

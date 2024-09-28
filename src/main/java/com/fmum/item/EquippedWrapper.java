@@ -1,12 +1,14 @@
 package com.fmum.item;
 
 import com.fmum.input.IInput;
+import gsf.util.math.MoreMath;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class EquippedWrapper implements IEquippedItem
+public abstract class EquippedWrapper implements IEquippedItem
 {
 	public final IEquippedItem wrapped;
 	
@@ -15,9 +17,7 @@ public class EquippedWrapper implements IEquippedItem
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player ) {
-		return this.wrapped.tickInHand( hand, item, player );
-	}
+	public abstract IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player );
 	
 	@Override
 	@SideOnly( Side.CLIENT )
@@ -45,9 +45,7 @@ public class EquippedWrapper implements IEquippedItem
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public IEquippedItem onInputUpdate( String name, IInput input, IItem item ) {
-		return this.wrapped.onInputUpdate( name, input, item );
-	}
+	public abstract IEquippedItem onInputUpdate( String name, IInput input, IItem item );
 	
 	@Override
 	@SideOnly( Side.CLIENT )
@@ -65,5 +63,15 @@ public class EquippedWrapper implements IEquippedItem
 	@SideOnly( Side.CLIENT )
 	public float getMouseSensitivity( float original_sensitivity, IItem item ) {
 		return this.wrapped.getMouseSensitivity( original_sensitivity, item );
+	}
+	
+	
+	// TODO: Move this?
+	@SideOnly( Side.CLIENT )
+	protected static float _getProgress( int tick_left, int tick_count )
+	{
+		final float alpha = Minecraft.getMinecraft().getRenderPartialTicks();
+		final float partial_tick = MoreMath.lerp( tick_left + 1, tick_left, alpha );
+		return 1.0F - partial_tick / tick_count;
 	}
 }

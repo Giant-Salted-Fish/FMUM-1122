@@ -1,6 +1,7 @@
 package com.fmum.mag;
 
 import com.fmum.ammo.IAmmoType;
+import com.fmum.input.IInput;
 import com.fmum.item.EquippedWrapper;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
@@ -8,6 +9,8 @@ import gsf.util.lang.Result;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Optional;
 import java.util.function.IntSupplier;
@@ -85,5 +88,11 @@ public class EquippedLoading extends EquippedWrapper
 			stack.shrink( 1 );
 		}
 		return true;
+	}
+	
+	@Override
+	@SideOnly( Side.CLIENT )
+	public IEquippedItem onInputUpdate( String name, IInput input, IItem item ) {
+		throw new UnsupportedOperationException();
 	}
 }

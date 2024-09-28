@@ -5,6 +5,8 @@ import com.fmum.gunpart.IGunPart;
 import com.fmum.item.IItem;
 import com.fmum.module.IModule;
 import gsf.util.lang.Result;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Optional;
 import java.util.function.IntSupplier;
@@ -32,6 +34,9 @@ public interface IMag extends IGunPart
 //	IAmmoType getAmmo( int idx );
 	
 	Optional< ? extends IAmmoType > peekAmmo();
+	
+	@SideOnly( Side.CLIENT )
+	IMag IMag$createLoadingProxy();
 	
 	
 	static IMag from( IItem item )

@@ -1,12 +1,15 @@
 package com.fmum.mag;
 
 import com.fmum.ammo.IAmmoType;
+import com.fmum.input.IInput;
 import com.fmum.item.EquippedWrapper;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.OptionalInt;
 
@@ -65,5 +68,11 @@ public class EquippedUnloading extends EquippedWrapper
 		
 		this.tick_left = tick_left;
 		return this;
+	}
+	
+	@Override
+	@SideOnly( Side.CLIENT )
+	public IEquippedItem onInputUpdate( String name, IInput input, IItem item ) {
+		throw new UnsupportedOperationException();
 	}
 }

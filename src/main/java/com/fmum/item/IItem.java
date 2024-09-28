@@ -1,6 +1,7 @@
 package com.fmum.item;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -11,6 +12,8 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 /**
  * This corresponds to the concept of {@link ItemStack} in Minecraft.
@@ -41,6 +44,18 @@ public interface IItem
 	@SuppressWarnings( "DataFlowIssue" )
 	static Optional< IItem > ofOrEmpty( ItemStack stack ) {
 		return Optional.ofNullable( stack.getCapability( CAPABILITY, null ) );
+	}
+	
+	static IntStream lookupIn( IInventory inv, Predicate< ? super IItem > predicate )
+	{
+		return (
+			IntStream.range( 0, inv.getSizeInventory() )
+			.filter( i -> (
+				IItem.ofOrEmpty( inv.getStackInSlot( i ) )
+				.filter( predicate )
+				.isPresent()
+			) )
+		);
 	}
 	
 	static ICapabilityProvider newProviderOf( IItem item )

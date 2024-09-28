@@ -1,6 +1,7 @@
 package com.fmum.gunpart;
 
 import com.fmum.input.IInput;
+import com.fmum.input.InputManager;
 import com.fmum.input.Inputs;
 import com.fmum.item.EquippedWrapper;
 import com.fmum.item.IEquippedItem;
@@ -147,19 +148,24 @@ public class EquippedModifying extends EquippedWrapper
 	}
 	
 	@Override
+	public boolean shouldDisableCrosshair( IItem item ) {
+		return !InputManager.getBoolState( Inputs.FREE_VIEW );
+	}
+	
+	@Override
 	public void prepareRenderInHand( EnumHand hand, IItem item )
 	{
 		final IGunPart delegate = ( IGunPart ) this.session.getRoot();
 		final IAnimator animator = this._getInHandAnimator( hand, item );
 		final EquippedGunPart eq = ( EquippedGunPart ) this.wrapped;
-		eq._doPrepareRenderInHand( delegate, animator );
+		eq.EquippedGunPart$doPrepareRenderInHand( delegate, animator );
 	}
 	
 	protected IAnimator _getInHandAnimator( EnumHand hand, IItem item )
 	{
 		// TODO: blend with original animator.
 		final EquippedGunPart eq = ( EquippedGunPart ) this.wrapped;
-		final IAnimator wrapped = eq._getInHandAnimator( hand, item );
+		final IAnimator wrapped = eq.EquippedGunPart$getInHandAnimator( hand, item );
 		
 		final EntityPlayerSP player = Minecraft.getMinecraft().player;
 		final GunPartType type = ( GunPartType ) item.getType();

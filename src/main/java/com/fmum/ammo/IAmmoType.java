@@ -35,15 +35,11 @@ public interface IAmmoType extends IItemType
 		int offset
 	) {
 		final PrimitiveIterator.OfInt itr = (
-			IntStream.range( 0, inv.getSizeInventory() )
-			.filter( i -> (
-				IItem.ofOrEmpty( inv.getStackInSlot( i ) )
-				.map( IItem::getType )
-				.filter( IAmmoType.class::isInstance )
-				.map( IAmmoType.class::cast )
-				.filter( filter )
-				.isPresent()
-			) )
+			IItem.lookupIn( inv, it -> {
+				final IItemType type = it.getType();
+				final boolean is_ammo = type instanceof IAmmoType;
+				return is_ammo && filter.test( ( IAmmoType ) type );
+			} )
 			.iterator()
 		);
 		
