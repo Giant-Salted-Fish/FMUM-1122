@@ -19,14 +19,14 @@ public class GunOpConfig
 	public IAnimation animation;
 	
 	@Expose
-	public SoundFrame[] sound_frame;
+	public SoundFrame[] sounds;
 	
 	public GunOpConfig()
 	{
 		this.tick_count = 30;
 		this.tick_commit = 20;
 		this.animation = IAnimation.EMPTY;
-		this.sound_frame = new SoundFrame[ 0 ];
+		this.sounds = new SoundFrame[ 0 ];
 	}
 	
 	
