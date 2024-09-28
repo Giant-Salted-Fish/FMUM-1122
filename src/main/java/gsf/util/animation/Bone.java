@@ -31,8 +31,8 @@ public class Bone
 		// Alpha track.
 		float _alpha;
 		{
-			final Entry< Float, Float > floor = this.alpha.floorEntry( progress );
-			final Entry< Float, Float > ceil = this.alpha.ceilingEntry( progress );
+			final Entry< Float, Float > floor = __floor( this.alpha, progress );
+			final Entry< Float, Float > ceil = __ceiling( this.alpha, progress );
 			final float a = MoreMath.shiftDiv( progress, ceil.getKey(), -floor.getKey() );
 			_alpha = MoreMath.lerp( floor.getValue(), ceil.getValue(), a );
 		}
@@ -42,8 +42,8 @@ public class Bone
 		final Vec3f pos = new Vec3f();
 		final Quat4f rot = new Quat4f();
 		{
-			final Entry< Float, Vec3f > floor = this.pos.floorEntry( progress );
-			final Entry< Float, Vec3f > ceil = this.pos.ceilingEntry( progress );
+			final Entry< Float, Vec3f > floor = __floor( this.pos, progress );
+			final Entry< Float, Vec3f > ceil = __ceiling( this.pos, progress );
 			final float a = MoreMath.shiftDiv( progress, ceil.getKey(), -floor.getKey() );
 			pos.interpolate( floor.getValue(), ceil.getValue(), a );
 			
@@ -53,15 +53,15 @@ public class Bone
 			
 			// Apply translation from parent bone.
 			final Vec3f vec = Vec3f.allocate();
-			parent.getPos( pos );
+			parent.getPos( vec );
 			pos.add( vec );
 			Vec3f.release( vec );
 		}
 		
 		// Rotation track.
 		{
-			final Entry< Float, Quat4f > floor = this.rot.floorEntry( progress );
-			final Entry< Float, Quat4f > ceil = this.rot.ceilingEntry( progress );
+			final Entry< Float, Quat4f > floor = __floor( this.rot, progress );
+			final Entry< Float, Quat4f > ceil = __ceiling( this.rot, progress );
 			final float a = MoreMath.shiftDiv( progress, ceil.getKey(), -floor.getKey() );
 			final Quat4f quat = Quat4f.allocate();
 			quat.interpolate( floor.getValue(), ceil.getValue(), a );
