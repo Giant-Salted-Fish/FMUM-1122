@@ -20,15 +20,6 @@ public final class MoreMath
 		return ( 1.0F - alpha ) * a + alpha * b;
 	}
 	
-	/**
-	 * @return {@code (a + shift) / (b + shift)}, {@code 0.0F} if {@code b + shift == 0.0F}.
-	 */
-	public static float shiftDiv( float a, float b, float shift )
-	{
-		float divisor = b + shift;
-		return divisor != 0.0F ? ( a + shift ) / divisor : 0.0F;
-	}
-	
 	public static float fastInvSqrt( float value )
 	{
 		final float half = 0.5F * value;

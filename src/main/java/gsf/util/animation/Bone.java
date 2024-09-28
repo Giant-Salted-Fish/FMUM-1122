@@ -4,23 +4,29 @@ import gsf.util.math.MoreMath;
 import gsf.util.math.Quat4f;
 import gsf.util.math.Vec3f;
 
+import java.util.Arrays;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.function.IntFunction;
 
 public class Bone
 {
-	private final TreeMap< Float, Vec3f > pos;
-	private final TreeMap< Float, Quat4f > rot;
-	private final TreeMap< Float, Float > alpha;
-	
 	private final String parent;
 	
-	private Bone( String parent, TreeMap< Float, Vec3f > pos, TreeMap< Float, Quat4f > rot, TreeMap< Float, Float > alpha )
-	{
+	private final Track< Vec3f > pos_track;
+	private final Track< Quat4f > rot_track;
+	private final Track< Float > alpha_track;
+	
+	private Bone(
+		String parent,
+		Track< Vec3f > pos_track,
+		Track< Quat4f > rot_track,
+		Track< Float > alpha_track
+	) {
 		this.parent = parent;
-		this.pos = pos;
-		this.rot = rot;
-		this.alpha = alpha;
+		this.pos_track = pos_track;
+		this.rot_track = rot_track;
+		this.alpha_track = alpha_track;
 	}
 	
 	public IPoseSetup getPoseSetup( float progress, IAnimator cursor )
@@ -29,23 +35,32 @@ public class Bone
 		final IPoseSetup parent = cursor.getChannel( this.parent );
 		
 		// Alpha track.
-		float _alpha;
+		final float alpha;
 		{
-			final Entry< Float, Float > floor = __floor( this.alpha, progress );
-			final Entry< Float, Float > ceil = __ceiling( this.alpha, progress );
-			final float a = MoreMath.shiftDiv( progress, ceil.getKey(), -floor.getKey() );
-			_alpha = MoreMath.lerp( floor.getValue(), ceil.getValue(), a );
+			final Track< Float > track = this.alpha_track;
+			final float[] keys = track.keys;
+			final Float[] values = track.values;
+			final int key = Arrays.binarySearch( track.keys, progress );
+			final int idx = key < 0 ? -key - 1 : key;
+			final int floor = Math.max( 0, idx - 1 );
+			final int ceiling = Math.min( keys.length - 1, idx );
+			final float a = __shiftDiv( progress, keys[ ceiling ], -keys[ floor ] );
+			alpha = MoreMath.lerp( values[ floor ], values[ ceiling ], a );
 		}
-		final float alpha = _alpha;
 		
 		// Position track.
 		final Vec3f pos = new Vec3f();
 		final Quat4f rot = new Quat4f();
 		{
-			final Entry< Float, Vec3f > floor = __floor( this.pos, progress );
-			final Entry< Float, Vec3f > ceil = __ceiling( this.pos, progress );
-			final float a = MoreMath.shiftDiv( progress, ceil.getKey(), -floor.getKey() );
-			pos.interpolate( floor.getValue(), ceil.getValue(), a );
+			final Track< Vec3f > track = this.pos_track;
+			final float[] keys = track.keys;
+			final Vec3f[] values = track.values;
+			final int key = Arrays.binarySearch( track.keys, progress );
+			final int idx = key < 0 ? -key - 1 : key;
+			final int floor = Math.max( 0, idx - 1 );
+			final int ceiling = Math.min( keys.length - 1, idx );
+			final float a = __shiftDiv( progress, keys[ ceiling ], -keys[ floor ] );
+			pos.interpolate( values[ floor ], values[ ceiling ], a );
 			
 			// Apply rotation from parent bone.
 			parent.getRot( rot );
@@ -60,11 +75,17 @@ public class Bone
 		
 		// Rotation track.
 		{
-			final Entry< Float, Quat4f > floor = __floor( this.rot, progress );
-			final Entry< Float, Quat4f > ceil = __ceiling( this.rot, progress );
-			final float a = MoreMath.shiftDiv( progress, ceil.getKey(), -floor.getKey() );
+			final Track< Quat4f > track = this.rot_track;
+			final float[] keys = track.keys;
+			final Quat4f[] values = track.values;
+			final int key = Arrays.binarySearch( track.keys, progress );
+			final int idx = key < 0 ? -key - 1 : key;
+			final int floor = Math.max( 0, idx - 1 );
+			final int ceiling = Math.min( keys.length - 1, idx );
+			final float a = __shiftDiv( progress, keys[ ceiling ], -keys[ floor ] );
+			
 			final Quat4f quat = Quat4f.allocate();
-			quat.interpolate( floor.getValue(), ceil.getValue(), a );
+			quat.interpolate( values[ floor ], values[ ceiling ], a );
 			rot.mul( rot, quat );
 			Quat4f.release( quat );
 		}
@@ -72,35 +93,39 @@ public class Bone
 		return IPoseSetup.of( pos, rot, alpha );
 	}
 	
-	private static < T > Entry< Float, T > __floor( TreeMap< Float, T > src, float progress )
+	/**
+	 * @return {@code (a + shift) / (b + shift)}, {@code 0.0F} if {@code b + shift == 0.0F}.
+	 */
+	private static float __shiftDiv( float a, float b, float shift )
 	{
-		final Entry< Float, T > entry = src.floorEntry( progress );
-		return entry != null ? entry : src.ceilingEntry( progress );
+		float divisor = b + shift;
+		return divisor != 0.0F ? ( a + shift ) / divisor : 0.0F;
 	}
 	
-	private static < T > Entry< Float, T > __ceiling( TreeMap< Float, T > src, float progress )
+	
+	private static final class Track< T >
 	{
-		final Entry< Float, T > entry = src.ceilingEntry( progress );
-		return entry != null ? entry : src.floorEntry( progress );
+		private final float[] keys;
+		private final T[] values;
+		
+		private Track( float[] keys, T[] values )
+		{
+			this.keys = keys;
+			this.values = values;
+		}
 	}
 	
 	
 	public static class Builder
 	{
-		private static final TreeMap< Float, Float > FALLBACK_ALPHA_TRACK = new TreeMap<>();
-		private static final TreeMap< Float, Vec3f > FALLBACK_POS_TRACK = new TreeMap<>();
-		private static final TreeMap< Float, Quat4f > FALLBACK_ROT_TRACK = new TreeMap<>();
-		static
-		{
-			FALLBACK_ALPHA_TRACK.put( 0.0F, 0.0F );
-			FALLBACK_POS_TRACK.put( 0.0F, Vec3f.ORIGIN );
-			FALLBACK_ROT_TRACK.put( 0.0F, Quat4f.IDENTITY );
-		}
+		private static final Track< Float > FALLBACK_ALPHA_TRACK = new Track<>( new float[] { 0.0F }, new Float[] { 0.0F } );
+		private static final Track< Vec3f > FALLBACK_POS_TRACK = new Track<>( new float[] { 0.0F }, new Vec3f[] { Vec3f.ORIGIN } );
+		private static final Track< Quat4f > FALLBACK_ROT_TRACK = new Track<>( new float[] { 0.0F }, new Quat4f[] { Quat4f.IDENTITY } );
 		
+		private String parent = IAnimation.CHANNEL_NONE;
 		private final TreeMap< Float, Vec3f > pos = new TreeMap<>();
 		private final TreeMap< Float, Quat4f > rot = new TreeMap<>();
 		private TreeMap< Float, Float > alpha = null;
-		private String parent = IAnimation.CHANNEL_NONE;
 		
 		public Builder setParent( String parent )
 		{
@@ -133,10 +158,25 @@ public class Bone
 		{
 			return new Bone(
 				this.parent,
-				this.pos.isEmpty() ? FALLBACK_POS_TRACK : this.pos,
-				this.rot.isEmpty() ? FALLBACK_ROT_TRACK : this.rot,
-				this.alpha != null ? this.alpha : FALLBACK_ALPHA_TRACK
+				this.pos.isEmpty() ? FALLBACK_POS_TRACK : __buildTrack( this.pos, Vec3f[]::new ),
+				this.rot.isEmpty() ? FALLBACK_ROT_TRACK : __buildTrack( this.rot, Quat4f[]::new ),
+				this.alpha == null ? FALLBACK_ALPHA_TRACK : __buildTrack( this.alpha, Float[]::new )
 			);
+		}
+		
+		private static < T > Track< T > __buildTrack( TreeMap< Float, T > map, IntFunction< T[] > supplier )
+		{
+			final int size = map.size();
+			final float[] keys = new float[ size ];
+			final T[] values = supplier.apply( size );
+			int i = 0;
+			for ( Entry< Float, T > e : map.entrySet() )
+			{
+				keys[ i ] = e.getKey();
+				values[ i ] = e.getValue();
+				i += 1;
+			}
+			return new Track<>( keys, values );
 		}
 	}
 }
