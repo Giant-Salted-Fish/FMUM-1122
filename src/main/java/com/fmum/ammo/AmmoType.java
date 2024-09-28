@@ -7,12 +7,12 @@ import com.fmum.item.IItemType;
 import com.fmum.item.ItemCategory;
 import com.fmum.item.ItemType;
 import com.fmum.load.IContentBuildContext;
+import com.fmum.load.IContentLoader;
 import com.fmum.load.IMeshLoadContext;
+import com.fmum.load.JsonData;
 import com.fmum.render.ModelPath;
 import com.fmum.render.Texture;
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import gsf.util.animation.IAnimator;
 import gsf.util.math.AxisAngle4f;
 import gsf.util.math.Vec3f;
@@ -41,51 +41,35 @@ import java.util.Objects;
 
 public class AmmoType extends ItemType implements IAmmoType
 {
-	@Expose
+	public static final IContentLoader< AmmoType > LOADER = IContentLoader.of(
+		AmmoType::new,
+		IItemType.REGISTRY, IAmmoType.REGISTRY
+	);
+	
+	
 	protected ItemCategory category;
 	
-	@Expose
-	protected boolean can_shoot = true;
+	protected boolean can_shoot;
 	
-	@Expose
-	protected int max_stack_size = 60;
+	protected int max_stack_size;
 	
-	@Expose
-	@SerializedName( "model" )
 	@SideOnly( Side.CLIENT )
 	protected ModelPath model_path;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected float fp_scale;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected Texture texture;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected Vec3f fp_pos;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected AxisAngle4f fp_rot;
 	
-	
 	@SideOnly( Side.CLIENT )
 	protected Mesh model;
-	
-	
-	public AmmoType()
-	{
-		FMUM.SIDE.runIfClient( () -> {
-			this.model_path = ModelPath.NONE;
-			this.fp_scale = 1.0F;
-			this.texture = Texture.GREEN;
-			this.fp_pos = Vec3f.ORIGIN;
-			this.fp_rot = AxisAngle4f.IDENTITY;
-		} );
-	}
 	
 	
 	@Override
@@ -93,11 +77,25 @@ public class AmmoType extends ItemType implements IAmmoType
 	{
 		super.build( data, fallback_name, ctx );
 		
-		if ( this.category == null ) {
-			this.category = ItemCategory.parse( this.name );
-		}
-		
 		FMUM.SIDE.runIfClient( () -> ctx.regisMeshLoadCallback( this::_onMeshLoad ) );
+	}
+	
+	@Override
+	public void reload( JsonObject json, IContentBuildContext ctx )
+	{
+		super.reload( json, ctx );
+		
+		final JsonData data = new JsonData( json, ctx.getGson() );
+		this.category = data.get( "category", ItemCategory.class ).orElseGet( () -> ItemCategory.parse( this.name ) );
+		this.can_shoot = data.getBool( "can_shoot" ).orElse( true );
+		this.max_stack_size = data.getInt( "max_stack_size" ).orElse( 60 );
+		FMUM.SIDE.runIfClient( () -> {
+			this.model_path = data.get( "model", ModelPath.class ).orElse( ModelPath.NONE );
+			this.fp_scale = data.getFloat( "fp_scale" ).orElse( 1.0F );
+			this.texture = data.get( "texture", Texture.class ).orElse( Texture.GREEN );
+			this.fp_pos = data.get( "fp_pos", Vec3f.class ).orElse( Vec3f.ORIGIN );
+			this.fp_rot = data.get( "fp_rot", AxisAngle4f.class ).orElse( AxisAngle4f.IDENTITY );
+		} );
 	}
 	
 	@Override

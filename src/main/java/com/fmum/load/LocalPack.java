@@ -75,7 +75,7 @@ public abstract class LocalPack implements IPackLoadCallback
 			}
 			
 			@Override
-			public Optional< IContentLoader > lookupContentLoader( String entry ) {
+			public Optional< IContentLoader< ? > > lookupContentLoader( String entry ) {
 				return ctx.lookupContentLoader( entry );
 			}
 			

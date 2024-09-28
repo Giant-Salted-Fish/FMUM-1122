@@ -8,7 +8,9 @@ import com.fmum.item.IItemType;
 import com.fmum.item.ItemCategory;
 import com.fmum.item.ItemType;
 import com.fmum.load.IContentBuildContext;
+import com.fmum.load.IContentLoader;
 import com.fmum.load.IMeshLoadContext;
+import com.fmum.load.JsonData;
 import com.fmum.module.IModifyContext;
 import com.fmum.module.IModifyPreview;
 import com.fmum.module.IModule;
@@ -21,8 +23,6 @@ import com.fmum.render.IPreparedRenderer;
 import com.fmum.render.ModelPath;
 import com.fmum.render.Texture;
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimation;
 import gsf.util.animation.IAnimator;
@@ -61,7 +61,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
@@ -73,66 +72,53 @@ import java.util.function.Supplier;
 
 public class GunPartType extends ItemType implements IModuleType, IPaintableType
 {
-	@Expose
+	public static final IContentLoader< GunPartType > LOADER = IContentLoader.of(
+		GunPartType::new,
+		IItemType.REGISTRY, IModuleType.REGISTRY, IPaintableType.REGISTRY
+	);
+	
+	
 	protected ItemCategory category;
 	
-	@Expose
-	protected RailSlot[] slots = { };
+	protected RailSlot[] slots;
 	
-	@Expose
-	protected float[] offsets = { };
+	protected float[] offsets;
 	
-	@Expose
-	protected List< IPaintjob > paintjobs = Collections.emptyList();
+	protected List< IPaintjob > paintjobs;
 	
-	@Expose
-	protected BiFunction< IModule, Function< String, Optional< IModule > >, IModule >
-		default_setup = ( module, factory ) -> module;
-	
+	protected BiFunction< IModule, Function< String, Optional< IModule > >, IModule > default_setup;
 	
 	// >>> Render Setup <<<
-	@Expose
 	@SideOnly( Side.CLIENT )
-	@SerializedName( value = "models", alternate = "model" )
 	protected AnimatedModel[] models;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected Texture texture;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected float fp_scale;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected Vec3f fp_pos;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected Quat4f fp_rot;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected String mod_anim_channel;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected Vec3f modify_pos;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
-	@SerializedName( "placeholder_model" )
 	protected ModelPath placeholder_model_path;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected float placeholder_scale;
 	
 	@SideOnly( Side.CLIENT )
 	protected Mesh placeholder_mesh;
 	// >>> Render Setup End <<<
-	
 	
 	/**
 	 * A snapshot of the module with default setup installed. Every new
@@ -142,42 +128,10 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	protected NBTTagCompound snapshot_nbt;
 	
 	
-	public GunPartType()
-	{
-		FMUM.SIDE.runIfClient( () -> {
-			this.texture = Texture.GREEN;
-			this.models = new AnimatedModel[ 0 ];
-			this.fp_scale = 1.0F;
-			this.fp_pos = Vec3f.ORIGIN;
-			this.modify_pos = new Vec3f( 0.0F, 0.0F, 150.0F / 160.0F );
-			this.fp_rot = Quat4f.IDENTITY;
-			this.mod_anim_channel = IAnimation.CHANNEL_NONE;
-			
-			this.placeholder_model_path = GunPartPlaceholder.MODEL_PATH;
-			this.placeholder_scale = 1.0F;
-		} );
-	}
-	
-	
 	@Override
 	public void build( JsonObject data, String fallback_name, IContentBuildContext ctx )
 	{
 		super.build( data, fallback_name, ctx );
-		
-		// Validate member variable setup.
-		if ( this.category == null ) {
-			this.category = ItemCategory.parse( this.name );
-		}
-		if ( this.paintjobs.isEmpty() ) {
-			this.paintjobs = new ArrayList<>();
-		}
-		this.paintjobs.add( 0, new IPaintjob() {
-			@Override
-			@SideOnly( Side.CLIENT )
-			public Texture getTexture() {
-				return GunPartType.this.texture;
-			}
-		} );
 		
 		// Try to assemble default setup once in post load to make sure it works.
 		ctx.regisPostLoadCallback( c -> {
@@ -190,6 +144,41 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		FMUM.SIDE.runIfClient( () -> {
 			// Load mesh on client side.
 			ctx.regisMeshLoadCallback( this::_loadMesh );
+		} );
+	}
+	
+	@Override
+	public void reload( JsonObject json, IContentBuildContext ctx )
+	{
+		super.reload( json, ctx );
+		
+		final JsonData data = new JsonData( json, ctx.getGson() );
+		this.category = data.get( "category", ItemCategory.class ).orElseGet( () -> ItemCategory.parse( this.name ) );
+		this.slots = data.get( "slots", RailSlot[].class ).orElse( new RailSlot[ 0 ] );
+		this.offsets = data.get( "offsets", float[].class ).orElse( new float[ 0 ] );
+		this.paintjobs = data.getList( "paintjobs", IPaintjob.class ).orElse( new ArrayList<>() );
+		this.paintjobs.add( 0, new IPaintjob() {
+			@Override
+			@SideOnly( Side.CLIENT )
+			public Texture getTexture() {
+				return GunPartType.this.texture;
+			}
+		} );
+		this.default_setup = (
+			data.get( "default_setup", GunPartSetup.class )
+			.map( setup -> ( BiFunction< IModule, Function< String, Optional< IModule > >, IModule > ) setup::build )
+			.orElse( ( module, factory ) -> module )
+		);
+		FMUM.SIDE.runIfClient( () -> {
+			this.models = data.get( "model", AnimatedModel[].class ).orElse( new AnimatedModel[ 0 ] );
+			this.texture = data.get( "texture", Texture.class ).orElse( Texture.GREEN );
+			this.fp_scale = data.getFloat( "fp_scale" ).orElse( 1.0F );
+			this.fp_pos = data.get( "fp_pos", Vec3f.class ).orElse( new Vec3f() );
+			this.fp_rot = data.get( "fp_rot", Quat4f.class ).orElse( Quat4f.IDENTITY );
+			this.mod_anim_channel = data.get( "mod_anim_channel", String.class ).orElse( IAnimation.CHANNEL_NONE );
+			this.modify_pos = data.get( "modify_pos", Vec3f.class ).orElseGet( () -> new Vec3f( 0.0F, 0.0F, 150.0F / 160.0F ) );
+			this.placeholder_model_path = data.get( "placeholder_model", ModelPath.class ).orElse( GunPartPlaceholder.MODEL_PATH );
+			this.placeholder_scale = data.getFloat( "placeholder_scale" ).orElse( 1.0F );
 		} );
 	}
 	

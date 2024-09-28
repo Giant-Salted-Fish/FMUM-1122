@@ -1,14 +1,11 @@
 package com.fmum;
 
 import com.fmum.ammo.AmmoType;
-import com.fmum.ammo.IAmmoType;
 import com.fmum.animation.SoundFrame;
 import com.fmum.gun.GunType;
-import com.fmum.gunpart.GunPartSetup;
 import com.fmum.gunpart.GunPartType;
 import com.fmum.input.JsonKeyBinding;
 import com.fmum.item.IItem;
-import com.fmum.item.IItemType;
 import com.fmum.item.ItemCategory;
 import com.fmum.item.JsonItemStack;
 import com.fmum.load.FolderPack;
@@ -22,8 +19,6 @@ import com.fmum.load.IPostLoadContext;
 import com.fmum.load.IPreLoadContext;
 import com.fmum.mag.MagType;
 import com.fmum.module.IModule;
-import com.fmum.module.IModuleType;
-import com.fmum.paintjob.IPaintableType;
 import com.fmum.paintjob.IPaintjob;
 import com.fmum.paintjob.JsonPaintjob;
 import com.fmum.paintjob.Paintjob;
@@ -82,8 +77,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -92,7 +85,7 @@ final class PackLoader
 {
 	private final LinkedList< Pair< IPackInfo, IPackLoadCallback > > packs = new LinkedList<>();
 	
-	private final Registry< IContentLoader > content_loaders = new Registry<>();
+	private final Registry< IContentLoader< ? > > content_loaders = new Registry<>();
 	
 	private Gson gson;
 	
@@ -166,7 +159,7 @@ final class PackLoader
 			}
 			
 			@Override
-			public void regisContentLoader( String entry, IContentLoader loader ) {
+			public void regisContentLoader( String entry, IContentLoader< ? > loader ) {
 				PackLoader.this.content_loaders.regis( entry, loader );
 			}
 		};
@@ -212,8 +205,8 @@ final class PackLoader
 		ctx.regisGsonDeserializer(
 			new TypeToken< Predicate< ItemCategory > >() { }.getType(),
 			( json, type, context ) -> {
-				ItemCategory[] whitelist;
-				ItemCategory[] blacklist;
+				final ItemCategory[] whitelist;
+				final ItemCategory[] blacklist;
 				if ( json.isJsonObject() )
 				{
 					final Map< Boolean, List< ItemCategory > > lists = (
@@ -242,14 +235,6 @@ final class PackLoader
 					blacklist = new ItemCategory[ 0 ];
 				}
 				return ItemCategory.createFilterBy( whitelist, blacklist );
-			}
-		);
-		
-		ctx.regisGsonDeserializer(
-			new TypeToken< BiFunction< IModule, Function< String, Optional< IModule > >, IModule > >() { }.getType(),
-			( json, type, context ) -> {
-				final GunPartSetup setup = context.deserialize( json, GunPartSetup.class );
-				return ( BiFunction< IModule, Function< String, Optional< IModule > >, IModule > ) setup::build;
 			}
 		);
 		
@@ -395,16 +380,16 @@ final class PackLoader
 	
 	private void __regisContentLoader( IPreLoadContext ctx )
 	{
-		ctx.regisContentLoader( "creative_tab", IContentLoader.of( JsonCreativeTab.class ) );
-		ctx.regisContentLoader( "paintjob", IContentLoader.of( JsonPaintjob.class ) );
-		ctx.regisContentLoader( "ammo", IContentLoader.of( AmmoType.class, IItemType.REGISTRY, IAmmoType.REGISTRY ) );
-		ctx.regisContentLoader( "gun_part", IContentLoader.of( GunPartType.class, IItemType.REGISTRY, IModuleType.REGISTRY, IPaintableType.REGISTRY ) );
-		ctx.regisContentLoader( "gun", IContentLoader.of( GunType.class, IItemType.REGISTRY, IModuleType.REGISTRY, IPaintableType.REGISTRY ) );
-		ctx.regisContentLoader( "mag", IContentLoader.of( MagType.class, IItemType.REGISTRY, IModuleType.REGISTRY, IPaintableType.REGISTRY ) );
+		ctx.regisContentLoader( "creative_tab", JsonCreativeTab.LOADER );
+		ctx.regisContentLoader( "paintjob", JsonPaintjob.LOADER );
+		ctx.regisContentLoader( "ammo", AmmoType.LOADER );
+		ctx.regisContentLoader( "gun_part", GunPartType.LOADER );
+		ctx.regisContentLoader( "gun", GunType.LOADER );
+		ctx.regisContentLoader( "mag", MagType.LOADER );
 		
 		FMUM.SIDE.runIfClient( () -> {
 			// Key bindings are client side only.
-			ctx.regisContentLoader( "key_binding", IContentLoader.of( JsonKeyBinding.class ) );
+			ctx.regisContentLoader( "key_binding", JsonKeyBinding.LOADER );
 		} );
 	}
 	
@@ -417,7 +402,7 @@ final class PackLoader
 			}
 			
 			@Override
-			public Optional< IContentLoader > lookupContentLoader( String entry ) {
+			public Optional< IContentLoader< ? > > lookupContentLoader( String entry ) {
 				return PackLoader.this.content_loaders.lookup( entry );
 			}
 		};

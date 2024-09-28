@@ -7,13 +7,18 @@ import com.fmum.animation.Sounds;
 import com.fmum.gunpart.GunPartType;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.fmum.item.IItemType;
 import com.fmum.item.ItemCategory;
+import com.fmum.load.IContentBuildContext;
+import com.fmum.load.IContentLoader;
 import com.fmum.load.IMeshLoadContext;
+import com.fmum.load.JsonData;
 import com.fmum.module.IModifyContext;
 import com.fmum.module.IModule;
+import com.fmum.module.IModuleType;
+import com.fmum.paintjob.IPaintableType;
 import com.fmum.render.ModelPath;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.JsonObject;
 import gsf.util.animation.IAnimator;
 import gsf.util.lang.Error;
 import gsf.util.lang.Result;
@@ -33,7 +38,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
-import java.util.PrimitiveIterator.OfInt;
+import java.util.PrimitiveIterator;
 import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
@@ -41,63 +46,66 @@ import java.util.stream.IntStream;
 
 public class MagType extends GunPartType
 {
+	public static final IContentLoader< MagType > LOADER = IContentLoader.of(
+		MagType::new,
+		IItemType.REGISTRY, IModuleType.REGISTRY, IPaintableType.REGISTRY
+	);
+	
+	
 	protected static final MagOpConfig
 		OP_LOAD_AMMO = new MagOpConfig( 10, 7, new SoundFrame( 0.75F, Sounds.LOAD_AMMO ) );
 	
 	protected static final MagOpConfig
 		OP_UNLOAD_AMMO = new MagOpConfig( 8, 6, new SoundFrame( 0.75F, Sounds.UNLOAD_AMMO ) );
 	
-	@Expose
-	protected int capacity = 1;
 	
-	@Expose
-	@SerializedName( "allowed_ammo" )
+	protected int capacity;
+	
 	protected Predicate< ItemCategory > ammo_predicate;
 	
-	@Expose
-	protected MagOpConfig op_load_ammo = OP_LOAD_AMMO;
+	protected MagOpConfig op_load_ammo;
 	
-	@Expose
-	protected MagOpConfig op_unload_ammo = OP_UNLOAD_AMMO;
+	protected MagOpConfig op_unload_ammo;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
-	@SerializedName( "follower_model" )
 	protected ModelPath follower_model_path;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected Vec3f[] follower_pos;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected AxisAngle4f[] follower_rot;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected Vec3f[] ammo_pos;
 	
-	@Expose
 	@SideOnly(Side.CLIENT)
 	protected AxisAngle4f[] ammo_rot;
 	
-	@Expose
 	@SideOnly( Side.CLIENT )
 	protected boolean is_dou_col_mag;
-	
 	
 	@SideOnly( Side.CLIENT )
 	protected Mesh follower_mesh;
 	
 	
-	public MagType()
+	@Override
+	public void reload( JsonObject json, IContentBuildContext ctx )
 	{
+		super.reload( json, ctx );
+		
+		final JsonData data = new JsonData( json, ctx.getGson() );
+		this.capacity = data.getInt( "capacity" ).orElse( 1 );
+		this.ammo_predicate = data.getPredicate( "allowed_ammo", ItemCategory.class ).orElse( a -> false );
+		this.op_load_ammo = data.get( "op_load_ammo", MagOpConfig.class ).orElse( OP_LOAD_AMMO );
+		this.op_unload_ammo = data.get( "op_unload_ammo", MagOpConfig.class ).orElse( OP_UNLOAD_AMMO );
 		FMUM.SIDE.runIfClient( () -> {
-			this.follower_model_path = ModelPath.NONE;
-			this.follower_pos = new Vec3f[ 0 ];
-			this.follower_rot = new AxisAngle4f[ 0 ];
-			this.ammo_pos = new Vec3f[ 0 ];
-			this.ammo_rot = new AxisAngle4f[ 0 ];
+			this.follower_model_path = data.get( "follower_model", ModelPath.class ).orElse( ModelPath.NONE );
+			this.follower_pos = data.get( "follower_pos", Vec3f[].class ).orElse( new Vec3f[ 0 ] );
+			this.follower_rot = data.get( "follower_rot", AxisAngle4f[].class ).orElse( new AxisAngle4f[ 0 ] );
+			this.ammo_pos = data.get( "ammo_pos", Vec3f[].class ).orElse( new Vec3f[ 0 ] );
+			this.ammo_rot = data.get( "ammo_rot", AxisAngle4f[].class ).orElse( new AxisAngle4f[ 0 ] );
+			this.is_dou_col_mag = data.getBool( "is_dou_col_mag" ).orElse( false );
 		} );
 	}
 	
@@ -169,7 +177,7 @@ public class MagType extends GunPartType
 				this.encoding_tag = LIST_AMMO_TAG;
 				
 				final int[] data = nbt.getIntArray( LIST_AMMO_TAG );
-				final OfInt itr = _Lst$stream( data, false ).iterator();
+				final PrimitiveIterator.OfInt itr = _Lst$stream( data, false ).iterator();
 				int cnt_data_size = 0;
 				int prev_id = 0;
 				while ( itr.hasNext() )
@@ -408,7 +416,7 @@ public class MagType extends GunPartType
 			if ( this.encoding_tag.equals( LIST_AMMO_TAG ) )
 			{
 				final int lst_data_size = ammo_count / 2;
-				final OfInt itr = _Lst$stream( data, true ).iterator();
+				final PrimitiveIterator.OfInt itr = _Lst$stream( data, true ).iterator();
 				final int popped_id = itr.nextInt();
 				final int last_id = itr.nextInt();
 				final boolean is_diff_ammo = popped_id != last_id;
@@ -521,7 +529,7 @@ public class MagType extends GunPartType
 	protected static int[] _Lst$fromCnt( int len, int[] src )
 	{
 		final int[] data = new int[ len ];
-		final OfInt itr = _Cnt$stream( src, false ).iterator();
+		final PrimitiveIterator.OfInt itr = _Cnt$stream( src, false ).iterator();
 		for ( int i = 0; itr.hasNext(); i += 1 ) {
 			_Lst$setAmmo( data, i, itr.nextInt() );
 		}
@@ -545,7 +553,7 @@ public class MagType extends GunPartType
 	protected static int[] _Cnt$fromLst( int len, int[] src )
 	{
 		final int[] data = new int[ len ];
-		final OfInt itr = _Lst$stream( src, false ).iterator();
+		final PrimitiveIterator.OfInt itr = _Lst$stream( src, false ).iterator();
 		int prev_id = 0;
 		for ( int i = -1; itr.hasNext(); )
 		{

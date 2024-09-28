@@ -19,5 +19,5 @@ public interface ILoadContext
 	/**
 	 * Lookup a content loader that registered with {@link IPreLoadContext#regisContentLoader(String, IContentLoader)}.
 	 */
-	Optional< IContentLoader > lookupContentLoader( String entry );
+	Optional< IContentLoader< ? > > lookupContentLoader( String entry );
 }

@@ -19,5 +19,5 @@ public interface IPreLoadContext
 	 * Register a content loader that can be used by all loadable content packs
 	 * in following load phases.
 	 */
-	void regisContentLoader( String entry, IContentLoader loader );
+	void regisContentLoader( String entry, IContentLoader< ? > loader );
 }

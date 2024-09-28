@@ -2,13 +2,14 @@ package com.fmum.load;
 
 import com.fmum.Registry;
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.Expose;
+
+import java.util.function.Supplier;
 
 /**
  * A template buildable content type class that provides name, pack info, and
  * default {@link #toString()} implementation.
  *
- * @see IContentLoader#of(Class, Registry[])
+ * @see IContentLoader#of(Supplier, Registry[])
  */
 public abstract class BuildableType
 {
@@ -16,7 +17,6 @@ public abstract class BuildableType
 	 * If the name is not specified, then the fallback name (usually is the file
 	 * name) will be used.
 	 */
-	@Expose
 	protected String name;
 	
 	
@@ -29,13 +29,14 @@ public abstract class BuildableType
 	
 	public void build( JsonObject data, String fallback_name, IContentBuildContext ctx )
 	{
-		if ( this.name == null ) {
-			this.name = fallback_name;
-		}
+		this.name = fallback_name;
 		this.pack_info = ctx.getPackInfo();
+		this.reload( data, ctx );
 	}
 	
-	// TODO: Add method to support runtime reload?
+	public void reload( JsonObject data, IContentBuildContext ctx ) {
+		// Pass.
+	}
 	
 	@Override
 	public String toString()

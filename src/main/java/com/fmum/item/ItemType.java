@@ -4,21 +4,17 @@ import com.fmum.FMUM;
 import com.fmum.load.BuildableType;
 import com.fmum.load.IContentBuildContext;
 import com.fmum.load.IPostLoadContext;
+import com.fmum.load.JsonData;
 import com.fmum.tab.CreativeTabUtil;
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.Expose;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.Optional;
-
 public abstract class ItemType extends BuildableType implements IItemType
 {
-	@Expose
 	protected String creative_tab;
-	
 	
 	protected Item vanilla_item;
 	
@@ -34,17 +30,28 @@ public abstract class ItemType extends BuildableType implements IItemType
 		FMUM.SIDE.runIfClient( () -> ctx.regisPostLoadCallback( this::_checkCreativeTab ) );
 	}
 	
+	@Override
+	public void reload( JsonObject json, IContentBuildContext ctx )
+	{
+		super.reload( json, ctx );
+		
+		final JsonData data = new JsonData( json, ctx.getGson() );
+		this.creative_tab = data.getString( "creative_tab" ).orElse( "none" );
+	}
+	
 	protected abstract Item _setupVanillaItem( IContentBuildContext ctx );
 	
 	@SideOnly( Side.CLIENT )
 	protected void _checkCreativeTab( IPostLoadContext ctx )
 	{
-		final CreativeTabs tab = (
-			Optional.ofNullable( this.creative_tab )
-			.flatMap( CreativeTabUtil::lookup )
-			.orElseGet( ctx::getFallbackCreativeTab )
-		);
-		this.vanilla_item.setCreativeTab( tab );
+		if ( !this.creative_tab.equals( "none" ) )
+		{
+			final CreativeTabs tab = (
+				CreativeTabUtil.lookup( this.creative_tab )
+				.orElseGet( ctx::getFallbackCreativeTab )
+			);
+			this.vanilla_item.setCreativeTab( tab );
+		}
 	}
 	
 	@Override

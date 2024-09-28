@@ -2,8 +2,9 @@ package com.fmum.input;
 
 import com.fmum.load.BuildableType;
 import com.fmum.load.IContentBuildContext;
+import com.fmum.load.IContentLoader;
+import com.fmum.load.JsonData;
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.Expose;
 import com.kbp.client.KBPMod;
 import com.kbp.client.api.IPatchedKeyBinding;
 import com.kbp.client.api.KeyBindingBuilder;
@@ -16,38 +17,47 @@ import org.lwjgl.input.Keyboard;
 @SideOnly( Side.CLIENT )
 public class JsonKeyBinding extends BuildableType
 {
-	// TODO: conflict context for gun and mag.
-	@Expose
-	protected String category = "key_category.fmum_common";
+	public static final IContentLoader< JsonKeyBinding >
+		LOADER = IContentLoader.of( JsonKeyBinding::new );
 	
-	@Expose
+	
+	// TODO: conflict context for gun and mag.
+	protected String category;
+	
 	protected String signal;
 	
-	@Expose
-	protected int key_code = Keyboard.KEY_NONE;
+	protected int key_code;
 	
-	@Expose
-	protected Integer[] combinations = { };
+	protected Integer[] combinations;
 	
-	@Expose
-	protected IKeyConflictContext conflict_context = KeyConflictContext.IN_GAME;
+	protected IKeyConflictContext conflict_context;
 	
-	@Expose
-	protected boolean is_toggle = false;
+	protected boolean is_toggle;
 	
 	@Override
 	public void build( JsonObject data, String fallback_name, IContentBuildContext ctx )
 	{
 		super.build( data, fallback_name, ctx );
 		
-		if ( this.signal == null )
-		{
+		this._buildKeyBinding();
+	}
+	
+	@Override
+	public void reload( JsonObject json, IContentBuildContext ctx )
+	{
+		super.reload( json, ctx );
+		
+		final JsonData data = new JsonData( json, ctx.getGson() );
+		this.category = data.getString( "category" ).orElse( "key_category.fmum_common" );
+		this.signal = data.getString( "signal" ).orElseGet( () -> {
 			// Remove prefix that associated to specific pack if present.
 			final int idx = this.name.lastIndexOf( '.' );
-			this.signal = this.name.substring( idx + 1 );
-		}
-		
-		this._buildKeyBinding();
+			return this.name.substring( idx + 1 );
+		} );
+		this.key_code = data.getInt( "key_code" ).orElse( Keyboard.KEY_NONE );
+		this.combinations = data.get( "combinations", Integer[].class ).orElse( new Integer[0] );
+		this.conflict_context = data.get( "conflict_context", IKeyConflictContext.class ).orElse( KeyConflictContext.IN_GAME );
+		this.is_toggle = data.getBool( "is_toggle" ).orElse( false );
 	}
 	
 	protected void _buildKeyBinding()

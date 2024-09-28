@@ -10,7 +10,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.OptionalInt;
-import java.util.PrimitiveIterator.OfInt;
+import java.util.PrimitiveIterator;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
@@ -34,7 +34,7 @@ public interface IAmmoType extends IItemType
 		Predicate< ? super IAmmoType > filter,
 		int offset
 	) {
-		final OfInt itr = (
+		final PrimitiveIterator.OfInt itr = (
 			IntStream.range( 0, inv.getSizeInventory() )
 			.filter( i -> (
 				IItem.ofOrEmpty( inv.getStackInSlot( i ) )
