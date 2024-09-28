@@ -122,7 +122,7 @@ public abstract class LocalPack implements IPackLoadCallback
 				this._loadFromJson( data, "key_binding", fallback_name, ctx )
 					.matchAnyError( e -> {
 						final String source_trace = trace_prefix + fallback_name;
-						FMUM.LOGGER.exception( e, "fmum.content_load_error", source_trace );
+						FMUM.LOGGER.exception( e, "An error has occurred while attempting to load <{}>.", source_trace );
 					} )
 					.exhaustive();
 			} );
@@ -144,7 +144,7 @@ public abstract class LocalPack implements IPackLoadCallback
 			ctx.lookupContentLoader( type )
 			.map( loader -> Result.of( () -> loader.load( data, fallback_name, ctx ) ) )
 			.orElseGet( () -> {
-				final String msg = FMUM.I18N.format( "fmum.content_loader_not_found", type );
+				final String msg = String.format( "Can not find type loader <%s>.", type );
 				return new Error<>( new RuntimeException( msg ) );
 			} )
 		);
@@ -169,7 +169,7 @@ public abstract class LocalPack implements IPackLoadCallback
 		return e -> {
 			final String pack_source = this.pack_info.getSourceName();
 			final String source_trace = Paths.get( pack_source, path_fragments ).toString();
-			FMUM.LOGGER.exception( e, "fmum.content_load_error", source_trace );
+			FMUM.LOGGER.exception( e, "An error has occurred while attempting to load <{}>.", source_trace );
 		};
 	}
 }

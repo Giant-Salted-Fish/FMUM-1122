@@ -6,7 +6,6 @@ import com.fmum.network.PacketSyncConfig;
 import gsf.devtool.Dev;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.SoundEvent;
@@ -56,11 +55,6 @@ public final class FMUM
 	 */
 	public static final WrappedSide SIDE;
 	
-	/**
-	 * Use this for internationalization if your code runs on both side.
-	 */
-	public static final WrappedI18n I18N;
-	
 	static
 	{
 		final Side side = FMLCommonHandler.instance().getSide();
@@ -77,23 +71,6 @@ public final class FMUM
 					// Pass.
 				}
 			};
-			I18N = new WrappedI18n() {
-				@Override
-				@SuppressWarnings( "deprecation" )
-				public String format( String translate_key, Object... parameters )
-				{
-					return net.minecraft.util.text.translation.
-						I18n.translateToLocalFormatted( translate_key, parameters );
-				}
-				
-				@Override
-				@SuppressWarnings( "deprecation" )
-				public boolean hasKey( String translate_key )
-				{
-					return net.minecraft.util.text.translation.
-						I18n.canTranslate( translate_key );
-				}
-			};
 		}
 		else
 		{
@@ -108,17 +85,6 @@ public final class FMUM
 					task.run();
 				}
 			};
-			I18N = new WrappedI18n() {
-				@Override
-				public String format( String translate_key, Object... parameters ) {
-					return I18n.format( translate_key, parameters );
-				}
-				
-				@Override
-				public boolean hasKey( String translate_key ) {
-					return I18n.hasKey( translate_key );
-				}
-			};
 		}
 	}
 	
@@ -127,31 +93,25 @@ public final class FMUM
 	 */
 	public static final WrappedLogger LOGGER = new WrappedLogger() {
 		@Override
-		public void info( String translate_key, Object... parameters )
-		{
-			final String msg = I18N.format( translate_key, parameters );
-			raw_logger.info( msg );
+		public void info( String message, Object... params ) {
+			raw_logger.info( message, params );
 		}
 		
 		@Override
-		public void warn( String translate_key, Object... parameters )
-		{
-			final String msg = I18N.format( translate_key, parameters );
-			raw_logger.warn( msg );
+		public void warn( String message, Object... params ) {
+			raw_logger.warn( message, params );
 		}
 		
 		@Override
-		public void error( String translate_key, Object... parameters )
-		{
-			final String msg = I18N.format( translate_key, parameters );
-			raw_logger.error( msg );
+		public void error( String message, Object... params ) {
+			raw_logger.error( message, params );
 		}
 		
 		@Override
-		public void exception( Throwable e, String translate_key, Object... parameters )
+		public void exception( Throwable e, String message, Object... params )
 		{
-			final String msg = I18N.format( translate_key, parameters );
-			raw_logger.error( msg, e );
+			raw_logger.error( message, params );
+			raw_logger.catching( e );
 		}
 		
 		@Override
@@ -228,21 +188,17 @@ public final class FMUM
 	private void __onPreInit( FMLPreInitializationEvent evt )
 	{
 		raw_logger = evt.getModLog();
-		LOGGER.info( "fmum.on_pre_init" );
+		LOGGER.info( "Pre-initializing FMUM..." );
 		
 		// Check render device capabilities.
 		SIDE.runIfClient( () -> {
-			if ( !GLContext.getCapabilities().OpenGL30 )
-			{
-				final String err_msg = I18n.format( "fmum.opengl_version_too_low" );
-				throw new RuntimeException( err_msg );
+			if ( !GLContext.getCapabilities().OpenGL30 ) {
+				throw new RuntimeException( "Your OpenGL version is too low! Minimum requirement is OpenGL3.0. Please upgrade your GPU or driver." );
 			}
 			
 			final Framebuffer framebuffer = Minecraft.getMinecraft().getFramebuffer();
-			if ( !framebuffer.isStencilEnabled() && !framebuffer.enableStencil() )
-			{
-				final String err_msg = I18n.format( "fmum.stencil_not_supported" );
-				throw new RuntimeException( err_msg );
+			if ( !framebuffer.isStencilEnabled() && !framebuffer.enableStencil() ) {
+				throw new RuntimeException( "Stencil test not supported. Please upgrade your GPU or driver." );
 			}
 		} );
 		
@@ -255,29 +211,29 @@ public final class FMUM
 		this.pack_loader._loadPacks();
 		FMUM.SIDE.runIfClient( Dev::init );
 		
-		LOGGER.info( "fmum.pre_init_complete" );
+		LOGGER.info( "FMUM pre-initialization complete." );
 	}
 	
 	@EventHandler
 	private void __onInit( FMLInitializationEvent evt )
 	{
-		LOGGER.info( "fmum.on_init" );
+		LOGGER.info( "Initializing FMUM..." );
 		
 		net_wrapper = new NetBuilder( MODID )._regisPackets()._build();
 		this.pack_loader._postLoadPacks();
 		
-		LOGGER.info( "fmum.init_complete" );
+		LOGGER.info( "FMUM initialization complete." );
 	}
 	
 	@EventHandler
 	private void __onPostInit( FMLPostInitializationEvent evt )
 	{
-		LOGGER.info( "fmum.on_post_init" );
+		LOGGER.info( "Post-initializing FMUM..." );
 		
 		// TODO: Whether to support packets registration for packets?
 //		NET.postInit();
 		
-		LOGGER.info( "fmum.post_init_complete" );
+		LOGGER.info( "FMUM post-initialization complete." );
 	}
 	
 	@SubscribeEvent

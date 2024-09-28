@@ -41,7 +41,7 @@ public abstract class BiRegistry< K, V > extends Registry< V >
 			final boolean is_already_registered = old_value != null;
 			if ( is_already_registered )
 			{
-				FMUM.LOGGER.warn( "fmum.duplicate_content_regis", old_value, obj );
+				FMUM.LOGGER.warn( "Duplicate content registration: <{}>@old, <{}>@new.", old_value, obj );
 				return old_value;
 			}
 			else

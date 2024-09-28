@@ -7,7 +7,6 @@ import com.fmum.gunpart.GunPartType;
 import com.fmum.input.JsonKeyBinding;
 import com.fmum.item.IItem;
 import com.fmum.item.ItemCategory;
-import com.fmum.item.JsonItemStack;
 import com.fmum.load.FolderPack;
 import com.fmum.load.IContentLoader;
 import com.fmum.load.ILoadContext;
@@ -59,6 +58,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -78,7 +78,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 final class PackLoader
@@ -110,10 +109,17 @@ final class PackLoader
 		
 		// Check mods folder for content packs.
 		active_mod_list.stream()
-			.filter( container -> container.getRequirements().stream().anyMatch( req -> req.getLabel().equals( FMUM.MODID ) ) )
-			.map( container -> ( ( IPackFactory ) container.getMod() ).create( container ) )
+			.filter( container -> (
+				container.getRequirements().stream()
+				.map( ArtifactVersion::getLabel )
+				.anyMatch( FMUM.MODID::equals )
+			) )
+			.map( container -> {
+				final IPackFactory factory = ( IPackFactory ) container.getMod();
+				return factory.create( container );
+			} )
 			.forEachOrdered( this.packs::add );
-		FMUM.LOGGER.info( "fmum.total_packs_found", packs.size() );
+		FMUM.LOGGER.info( "Found {} loadable content packs.", packs.size() );
 	}
 	
 	private Pair< IPackInfo, IPackLoadCallback > __createDevPack()
@@ -169,7 +175,7 @@ final class PackLoader
 		this.__regisContentLoader( pre_load_ctx );
 		this.packs.forEach( pair -> {
 			final IPackInfo info = pair.first();
-			FMUM.LOGGER.info( "fmum.pre_load_pack", info.getName() );
+			FMUM.LOGGER.info( "Pre Loading content pack <{}>...", info.getName() );
 			pair.second().onPreLoad( pre_load_ctx );
 		} );
 		
@@ -185,18 +191,6 @@ final class PackLoader
 	
 	private void __regisTypeAdapter( IPreLoadContext ctx )
 	{
-		ctx.regisGsonDeserializer(
-			( new TypeToken< Supplier< Optional< ItemStack > > >() { } ).getType(),
-			( json, type, context ) -> {
-				final JsonItemStack factory = (
-					json.isJsonPrimitive()
-					? new JsonItemStack( json.getAsString() )
-					: context.deserialize( json, JsonItemStack.class )
-				);
-				return ( Supplier< Optional< ItemStack > > ) factory::create;
-			}
-		);
-		
 		ctx.regisGsonDeserializer(
 			ItemCategory.class,
 			( json, type, context ) -> ItemCategory.parse( json.getAsString() )
@@ -409,7 +403,7 @@ final class PackLoader
 		
 		this.packs.forEach( pair -> {
 			final IPackInfo info = pair.first();
-			FMUM.LOGGER.info( "fmum.load_pack", info.getName() );
+			FMUM.LOGGER.info( "Loading content pack <{}>...", info.getName() );
 			pair.second().onLoad( load_ctx );
 		} );
 	}
@@ -451,7 +445,7 @@ final class PackLoader
 		
 		this.packs.forEach( pair -> {
 			final IPackInfo info = pair.first();
-			FMUM.LOGGER.info( "fmum.post_load_pack", info.getName() );
+			FMUM.LOGGER.info( "Post Loading content pack <{}>...", info.getName() );
 			pair.second().onPostLoad( post_load_ctx );
 		} );
 	}
@@ -472,7 +466,7 @@ final class PackLoader
 				.map( MeshBuilder::build )
 				.map( Optional::of )
 				.orElseGet( e -> {
-					FMUM.LOGGER.exception( e, "fmum.mesh_load_error", key );
+					FMUM.LOGGER.exception( e, "An error has occurred while attempting to load mesh {}.", key );
 					return Optional.empty();
 				} )
 			)

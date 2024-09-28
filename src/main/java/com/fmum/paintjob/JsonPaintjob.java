@@ -37,13 +37,11 @@ public class JsonPaintjob extends Paintjob
 	protected void _injectPaintjob( IPostLoadContext ctx )
 	{
 		final Optional< IPaintableType > target = IPaintableType.REGISTRY.lookup( this.inject_target );
-		if ( target.isPresent() )
-		{
+		if ( target.isPresent() ) {
 			target.get().injectPaintjob( this );
-			return;
 		}
-		
-		final String translate_key = "fmum.paintjob_inject_target_not_found";
-		FMUM.LOGGER.error( translate_key, this, this.inject_target );
+		else {
+			FMUM.LOGGER.error( "Can not find paintjob inject target <{}> required by <{}>.", this.inject_target, this );
+		}
 	}
 }

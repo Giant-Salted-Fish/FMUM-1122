@@ -11,6 +11,8 @@ import net.minecraft.item.Item;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Optional;
+
 public abstract class ItemType extends BuildableType implements IItemType
 {
 	protected String creative_tab;
@@ -44,10 +46,16 @@ public abstract class ItemType extends BuildableType implements IItemType
 	{
 		if ( !this.creative_tab.equals( "none" ) )
 		{
-			final CreativeTabs tab = (
-				CreativeTabUtil.lookup( this.creative_tab )
-				.orElseGet( ctx::getFallbackCreativeTab )
-			);
+			final Optional< CreativeTabs > opt = CreativeTabUtil.lookup( this.creative_tab );
+			final CreativeTabs tab;
+			if ( opt.isPresent() ) {
+				tab = opt.get();
+			}
+			else
+			{
+				FMUM.LOGGER.error( "Can not find creative tab <{}> required by <{}>.", this.creative_tab, this.name );
+				tab = ctx.getFallbackCreativeTab();
+			}
 			this.vanilla_item.setCreativeTab( tab );
 		}
 	}

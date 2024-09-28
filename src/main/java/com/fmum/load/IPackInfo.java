@@ -1,6 +1,5 @@
 package com.fmum.load;
 
-import com.fmum.FMUM;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ModContainer;
 
@@ -33,18 +32,12 @@ public interface IPackInfo
 		return new IPackInfo() {
 			@Override
 			public String getName() {
-				return FMUM.I18N.format( "pack." + modid );
+				return modid;
 			}
 			
 			@Override
-			public String getAuthor()
-			{
-				final String key = "author." + modid;
-				return (
-					FMUM.I18N.hasKey( key )
-					? FMUM.I18N.format( key )
-					: String.join( ", ", author_lst )
-				);
+			public String getAuthor() {
+				return String.join( ", ", author_lst );
 			}
 			
 			@Override

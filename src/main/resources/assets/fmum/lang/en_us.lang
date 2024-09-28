@@ -1,4 +1,4 @@
-# Mod config
+# Mod Config
 config.fmum.common=Common Config
 config.fmum.common.tooltip=These settings will be synchronized to all player clients.
 config.fmum.common.max_module_depth=Max Module Depth
@@ -23,54 +23,21 @@ config.fmum.client.fallback_creative_tab_icon_item_meta.tooltip=See description 
 config.fmum.client.use_flan_compatible_mousehelper=Use Flan Compatible MouseHelper
 config.fmum.client.use_flan_compatible_mousehelper.tooltip=The default MouseHelper used in FMUM may cause the malfunction of the view rotation when driving the Flan's Mod vehicles. You can try to turn on this option to fix this problem.
 
-# Content pack
-pack.fmum=FMUM Core Pack
-
-# Load info
-fmum.on_pre_init=Pre-initializing FMUM...
-fmum.opengl_version_too_low=Your OpenGL version is too low! Minimum requirement is OpenGL3.0. Please upgrade your GPU or driver.
-fmum.stencil_not_supported=Stencil test not supported. Please upgrade your GPU or driver.
-fmum.incompatible_core_version=Content pack <%s(%s)> is not compatible with current version of FMUM. Required version=%s, FMUM version=%s.
-fmum.total_packs_found=Found %s loadable content packs.
-fmum.content_pack_info=    - %s(%s) by %s
-fmum.pre_load_pack=Pre Loading content pack <%s>...
-fmum.load_pack=Loading content pack <%s>...
-fmum.content_loader_not_found=Can not find type loader <%s>.
-fmum.content_load_error=An error has occurred while attempting to load <%s>.
-fmum.duplicate_content_regis=Duplicate content registration: <%s>@old, <%s>@new.
-fmum.post_load_pack=Post Loading content pack <%s>...
-fmum.item_tab_not_found=Can not find creative tab <%2$s> required by <%1$s>.
-fmum.tab_icon_not_found=Can not find icon item <%2$s> required by <%1$s>.
-fmum.fallback_tab_icon_not_found=Can not find fallback icon item <%s> configured in client config.
-fmum.pre_init_complete=FMUM pre-initialization complete.
-
-fmum.on_init=Initializing FMUM...
-fmum.setup_module_not_found=Can not find setup module <%2$s> required by <%1$s>.
-fmum.paintjob_inject_target_not_found=Can not find paintjob inject target <%2$s> required by <%1$s>.
-fmum.init_complete=FMUM initialization complete.
-
-fmum.on_post_init=Post-initializing FMUM...
-fmum.post_init_complete=FMUM post-initialization complete.
-
-fmum.mesh_load_error=An error has occurred while attempting to load mesh %s.
-
-# Runtime info
-
-# Creative tab
+# Creative Tab
 itemGroup.fmum=FMUM Item
 
 # Item
 
-# Item tooltip
+# Item Tooltip
 
-# Prompt chat message
+# Prompt Chat Message
 chat.modify_mode.paintjob_switch=Paintjob Switch Mode
 chat.modify_mode.step_adjust=Step Adjust Mode
 chat.modify_mode.offset_adjust=Offset Adjust Mode
 chat.mag.full_ammo=Full Ammo
 chat.mag.no_ammo=No Ammo
 
-# Key bindings
+# Key Bindings
 key_category.fmum_common=FMUM Common
 key.free_view=Free View
 

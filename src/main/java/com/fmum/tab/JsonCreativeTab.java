@@ -1,7 +1,7 @@
 package com.fmum.tab;
 
 import com.fmum.FMUM;
-import com.fmum.item.JsonItemStack;
+import com.fmum.item.IItemType;
 import com.fmum.load.BuildableType;
 import com.fmum.load.IContentBuildContext;
 import com.fmum.load.IContentLoader;
@@ -9,14 +9,16 @@ import com.fmum.load.IPostLoadContext;
 import com.fmum.load.JsonData;
 import com.fmum.render.Texture;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public class JsonCreativeTab extends BuildableType
 {
@@ -25,7 +27,10 @@ public class JsonCreativeTab extends BuildableType
 	
 	
 	@SideOnly( Side.CLIENT )
-	protected Supplier< Optional< ItemStack > > icon_item;
+	protected String icon_item;
+	
+	@SideOnly( Side.CLIENT )
+	protected short icon_meta;
 	
 	@SideOnly( Side.CLIENT )
 	protected boolean no_scroll_bar;
@@ -55,11 +60,11 @@ public class JsonCreativeTab extends BuildableType
 		super.reload( data, ctx );
 		
 		FMUM.SIDE.runIfClient( () -> {
-			this.icon_item = (
-				data.get( "icon_item", JsonItemStack.class )
-				.map( jis -> ( Supplier< Optional< ItemStack > > ) jis::create )
-				.orElse( Optional::empty )
-			);
+			this.icon_item = data.getString( "icon_item" ).orElseGet( () -> {
+				final ResourceLocation regis_name = Items.FISH.getRegistryName();
+				return Objects.requireNonNull( regis_name ).toString();
+			} );
+			this.icon_meta = data.get( "icon_meta", short.class ).orElse( ( short ) 0 );
 			this.no_scroll_bar = data.getBool( "no_scroll_bar" ).orElse( false );
 			this.no_title = data.getBool( "no_title" ).orElse( false );
 			this.background_image = data.get( "background_image", Texture.class ).orElseGet( () -> {
@@ -70,8 +75,17 @@ public class JsonCreativeTab extends BuildableType
 	}
 	
 	@SideOnly( Side.CLIENT )
-	protected void _setupIconItem( IPostLoadContext ctx ) {
-		this.icon_stack = this.icon_item.get().orElseGet( ctx::getFallbackTabIconItem );
+	protected void _setupIconItem( IPostLoadContext ctx )
+	{
+		final Optional< Function< Short, ItemStack > > factory = IItemType.lookupItemFactory( this.icon_item );
+		if ( factory.isPresent() ) {
+			this.icon_stack = factory.get().apply( this.icon_meta );
+		}
+		else
+		{
+			FMUM.LOGGER.error( "Can not find icon item <{}> required by <{}>", this.icon_item, this.name );
+			this.icon_stack = ctx.getFallbackTabIconItem();
+		}
 	}
 	
 	protected void _createVanillaTab()

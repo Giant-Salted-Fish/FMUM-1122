@@ -29,7 +29,7 @@ public class Registry< T >
 				return obj;
 			}
 			
-			FMUM.LOGGER.warn( "fmum.duplicate_content_regis", old_obj, obj );
+			FMUM.LOGGER.warn( "Duplicate content registration: <{}>@old, <{}>@new.", old_obj, obj );
 			return old_obj;  // Keep old one if already existed.
 		} );
 	}

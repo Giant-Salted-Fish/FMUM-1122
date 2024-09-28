@@ -23,39 +23,6 @@ config.fmum.client.fallback_creative_tab_icon_item_meta.tooltip=请查看“默�
 config.fmum.client.use_flan_compatible_mousehelper=使用兼容 Flan 的 MouseHelper
 config.fmum.client.use_flan_compatible_mousehelper.tooltip=FMUM 默认的 MouseHelper 可能会导致驾驶 Flan's Mod 载具时无法转动视角，该选项将尝试使用兼容性的 MouseHelper 以避免该问题。
 
-# 内容包
-pack.fmum=FMUM 核心内容包
-
-# 加载时日志
-fmum.on_pre_init=正在预初始化 FMUM...
-fmum.opengl_version_too_low=您的 OpenGL 版本过低，最低要求为 OpenGL3.0。请更新显卡驱动或更换显卡后重试。
-fmum.stencil_not_supported=您的设备不支持模板测试，请升级显卡或更新驱动后重试。
-fmum.incompatible_core_version=内容包 %s（%s）不兼容当前的 FMUM 核心版本。要求版本：%s，当前版本：%s。
-fmum.total_packs_found=检测到 %s 个可加载的内容包。
-fmum.content_pack_info=    - %s（%s）制作者 %s
-fmum.pre_load_pack=正在预加载内容包 %s...
-fmum.load_pack=正在加载内容包 %s...
-fmum.content_loader_not_found=找不到指定的内容加载器 %s。
-fmum.content_load_error=加载 %s 时遇到意外错误。
-fmum.duplicate_content_regis=重复的内容注册：%s@旧，%s@新。
-fmum.post_load_pack=正在后处理内容包 %s...
-fmum.item_tab_not_found=找不到 %s 指定的创造模式物品栏 %s。
-fmum.tab_icon_not_found=找不到创造模式物品栏 %s 指定的物品图标 %s。
-fmum.fallback_tab_icon_not_found=找不到客户端配置中指定的默认创造模式物品栏图标 %s。
-fmum.pre_init_complete=FMUM 预初始化完成。
-
-fmum.on_init=正在初始化 FMUM...
-fmum.setup_module_not_found=找不到 %s 要求的默认配置部件 %s。
-fmum.paintjob_inject_target_not_found=找不到涂装 %s 指定的注入对象 %s。
-fmum.init_complete=FMUM 初始化完成。
-
-fmum.on_post_init=正在后初始化 FMUM...
-fmum.post_init_complete=FMUM 后初始化完成。
-
-fmum.mesh_load_error=加载模型 %s 时遇到意外错误。
-
-# 运行时日志
-
 # 创造模式物品栏
 itemGroup.fmum=FMUM 物品
 
