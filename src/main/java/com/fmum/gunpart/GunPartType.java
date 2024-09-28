@@ -22,6 +22,8 @@ import com.fmum.render.AnimatedModel;
 import com.fmum.render.IPreparedRenderer;
 import com.fmum.render.ModelPath;
 import com.fmum.render.Texture;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimation;
 import gsf.util.animation.IAnimator;
@@ -60,14 +62,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class GunPartType extends ItemType implements IModuleType, IPaintableType
 {
@@ -85,7 +89,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	
 	protected List< IPaintjob > paintjobs;
 	
-	protected BiFunction< IModule, Function< String, Optional< IModule > >, IModule > default_setup;
+	protected JsonData default_setup_data;
 	
 	// >>> Render Setup <<<
 	@SideOnly( Side.CLIENT )
@@ -162,11 +166,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 				return GunPartType.this.texture;
 			}
 		} );
-		this.default_setup = (
-			data.get( "default_setup", GunPartSetup.class )
-			.map( setup -> ( BiFunction< IModule, Function< String, Optional< IModule > >, IModule > ) setup::build )
-			.orElse( ( module, factory ) -> module )
-		);
+		this.default_setup_data = data.getData( "default_setup" ).orElseGet( () -> new JsonData( new JsonObject(), data.gson ) );
 		FMUM.SIDE.runIfClient( () -> {
 			this.models = data.get( "model", AnimatedModel[].class ).orElse( new AnimatedModel[ 0 ] );
 			this.texture = data.get( "texture", Texture.class ).orElse( Texture.GREEN );
@@ -210,17 +210,19 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	
 	protected NBTTagCompound _buildSnapshotNBT()
 	{
-		final IModule raw = this.createRawModule();
-		final IModule built = this.default_setup.apply( raw, name -> {
-			final Optional< IModuleType > mt = IModuleType.REGISTRY.lookup( name );
-			if ( mt.isPresent() ) {
-				return mt.map( IModuleType::createRawModule );
-			}
-			
-			FMUM.LOGGER.error( "fmum.setup_module_not_found", this, name );
-			return Optional.empty();
-		} );
-		return built.getBoundNBT();
+		final JsonData data = Objects.requireNonNull( this.default_setup_data );
+		this.default_setup_data = null;
+		return (
+			this.buildSetupFactory( data, name -> {
+				final Optional< IModuleType > mt = IModuleType.REGISTRY.lookup( name );
+				if ( !mt.isPresent() ) {
+					FMUM.LOGGER.error( "Can not find setup module <{}> required by <{}>.", name, this );
+				}
+				return mt;
+			} )
+			.get()
+			.getBoundNBT()
+		);
 	}
 	
 	@SideOnly( Side.CLIENT )
@@ -250,7 +252,51 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	@Override
-	public IModule createRawModule() {
+	public Supplier< ? extends IModule > buildSetupFactory(
+		JsonData data,
+		Function< String, Optional< ? extends IModuleType > > lookup
+	) {
+		final int paintjob = data.getInt( "paintjob" ).orElse( 0 );
+		final int offset = data.getInt( "offset" ).orElse( 0 );
+		final int step = data.getInt( "step" ).orElse( 0 );
+		final List< List< Supplier< ? extends IModule > > > slots = (
+			data.get( "slots" )
+			.map( JsonElement::getAsJsonArray )
+			.map( arr -> (
+				StreamSupport.stream( arr.spliterator(), false )
+				.map( JsonElement::getAsJsonObject )
+				.map( obj -> (
+					obj.entrySet().stream()
+					.map( e -> lookup.apply( e.getKey() ).map( mt -> {
+						final JsonObject value = e.getValue().getAsJsonObject();
+						final JsonData setup = new JsonData( value, data.gson );
+						return mt.buildSetupFactory( setup, lookup );
+					} ) )
+					.filter( Optional::isPresent )
+					.map( Optional::get )
+					.collect( Collectors.< Supplier< ? extends IModule > >toList() )
+				) )
+				.collect( Collectors.toList() )
+			) )
+			.orElse( Collections.emptyList() )
+		);
+		return () -> {
+			final GunPart self = this._createRawModule();
+			final ListIterator< List< Supplier< ? extends IModule > > > itr = slots.listIterator();
+			while ( itr.hasNext() )
+			{
+				final int slot_idx = itr.nextIndex();
+				itr.next().stream()
+					.map( Supplier::get )
+					.forEachOrdered( mod -> self.tryInstall( slot_idx, mod ).apply() );
+			}
+			self.trySetPaintjob( paintjob ).apply();
+			self.trySetOffsetAndStep( offset, step ).apply();
+			return self;
+		};
+	}
+	
+	protected GunPart _createRawModule() {
 		return new GunPart();
 	}
 	

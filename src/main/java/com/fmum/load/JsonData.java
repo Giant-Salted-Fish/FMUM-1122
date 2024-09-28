@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 public final class JsonData
 {
 	private final JsonObject data;
-	private final Gson gson;
+	public final Gson gson;
 	
 	public JsonData( JsonObject data, Gson gson )
 	{

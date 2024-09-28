@@ -117,7 +117,7 @@ public class MagType extends GunPartType
 	}
 	
 	@Override
-	public IModule createRawModule() {
+	protected GunPart _createRawModule() {
 		return new Mag();
 	}
 	
