@@ -296,8 +296,10 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		};
 	}
 	
-	protected GunPart _createRawModule() {
-		return new GunPart();
+	protected GunPart _createRawModule()
+	{
+		final Optional< Short > opt = IModuleType.REGISTRY.lookupID( this );
+		return new GunPart( opt.orElseThrow( IllegalStateException::new ) );
 	}
 	
 	@Override
@@ -491,7 +493,9 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		protected short step;
 		
 		
-		protected GunPart() { }
+		protected GunPart( short id ) {
+			super( id );
+		}
 		
 		protected GunPart( NBTTagCompound nbt )
 		{
@@ -741,14 +745,6 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		@Override
 		public String toString() {
 			return String.format( "Item<%s>", GunPartType.this );
-		}
-		
-		@Override
-		protected short _getModuleID()
-		{
-			final Optional< Short > id = IModuleType.REGISTRY.lookupID( GunPartType.this );
-			assert id.isPresent();
-			return id.get();
 		}
 		
 		@Override

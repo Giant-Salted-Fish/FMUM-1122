@@ -29,11 +29,11 @@ public abstract class Module implements IModule
 	protected NBTTagCompound nbt;
 	
 	
-	protected Module()
+	protected Module( short id )
 	{
 		this.nbt = new NBTTagCompound();
 		final int[] data = new int[ this._getDataArrLen() ];
-		data[ 0 ] = 0xFFFF & this._getModuleID();
+		data[ 0 ] = 0xFFFF & id;
 		this.nbt.setIntArray( DATA_TAG, data );
 		this.nbt.setTag( MODULE_TAG, new NBTTagList() );
 	}
@@ -181,33 +181,6 @@ public abstract class Module implements IModule
 	public NBTTagCompound getBoundNBT() {
 		return this.nbt;
 	}
-	
-	protected void _deserializeAndBound( NBTTagCompound nbt )
-	{
-		// Bind to the NBT tag.
-		this.nbt = nbt;
-		
-		// Read paintjob.
-		final int[] data = nbt.getIntArray( DATA_TAG );
-		this.paintjob_idx = ( short ) ( data[ 0 ] >>> 16 );
-		
-		// Read install indices.
-		IntStream.rangeClosed( 1, this.split_indices.length )
-			.forEach( i -> this._setSlotStartIdx( i, _getSlotStartIdx( data, i ) ) );
-		
-		// Read installed modules.
-		this.installed_modules.clear();
-		final NBTTagList mod_lst = nbt.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
-		IntStream.range( 0, mod_lst.tagCount() )
-			.mapToObj( mod_lst::getCompoundTagAt )
-			.map( IModule::takeAndDeserialize )
-			.forEachOrdered( mod -> {
-				mod.IModule$setBase( this );
-				this.installed_modules.add( mod );
-			} );
-	}
-	
-	protected abstract short _getModuleID();
 	
 	protected int _getDataArrLen()
 	{

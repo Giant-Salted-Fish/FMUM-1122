@@ -117,8 +117,10 @@ public class MagType extends GunPartType
 	}
 	
 	@Override
-	protected GunPart _createRawModule() {
-		return new Mag();
+	protected GunPart _createRawModule()
+	{
+		final Optional< Short > opt = IModuleType.REGISTRY.lookupID( this );
+		return new Mag( opt.orElseThrow( IllegalStateException::new ) );
 	}
 	
 	@Override
@@ -145,8 +147,10 @@ public class MagType extends GunPartType
 		 */
 		protected int cmp_ref_val;
 		
-		protected Mag()
+		protected Mag( short id )
 		{
+			super( id );
+			
 			this.encoding_tag = COUNT_AMMO_TAG;
 			this.cmp_ref_val = 0;
 		}
