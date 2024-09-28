@@ -122,11 +122,8 @@ public class MagType extends GunPartType
 	}
 	
 	@Override
-	public IModule takeAndDeserialize( NBTTagCompound nbt )
-	{
-		final Mag mag = new Mag( nbt );
-		mag._deserializeAndBound( nbt );
-		return mag;
+	public IModule takeAndDeserialize( NBTTagCompound nbt ) {
+		return new Mag( nbt );
 	}
 	
 	@Override
@@ -154,14 +151,9 @@ public class MagType extends GunPartType
 			this.cmp_ref_val = 0;
 		}
 		
-		protected Mag( NBTTagCompound nbt ) {
-			super( nbt );
-		}
-		
-		@Override
-		protected void _deserializeAndBound( NBTTagCompound nbt )
+		protected Mag( NBTTagCompound nbt )
 		{
-			super._deserializeAndBound( nbt );
+			super( nbt );
 			
 			if ( nbt.hasKey( COUNT_AMMO_TAG, NBT.TAG_INT_ARRAY ) )
 			{

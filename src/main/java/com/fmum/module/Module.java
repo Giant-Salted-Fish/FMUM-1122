@@ -38,16 +38,29 @@ public abstract class Module implements IModule
 		this.nbt.setTag( MODULE_TAG, new NBTTagList() );
 	}
 	
-	/**
-	 * Unfortunately calling {@link #_deserializeAndBound(NBTTagCompound)} could
-	 * cause error as it the fields of the subclass may not have been properly
-	 * initialized. Hence, it needs to be delay after the constructor finishes
-	 * its work.
-	 *
-	 * @param nbt To distinguish this from {@link #Module()}. Currently not used.
-	 */
-	protected Module( NBTTagCompound nbt ) {
-		// Pass.
+	protected Module( NBTTagCompound nbt )
+	{
+		// Bind to the NBT tag.
+		this.nbt = nbt;
+		
+		// Read paintjob.
+		final int[] data = nbt.getIntArray( DATA_TAG );
+		this.paintjob_idx = ( short ) ( data[ 0 ] >>> 16 );
+		
+		// Read install indices.
+		IntStream.rangeClosed( 1, this.split_indices.length )
+			.forEach( i -> this._setSlotStartIdx( i, _getSlotStartIdx( data, i ) ) );
+		
+		// Read installed modules.
+		this.installed_modules.clear();
+		final NBTTagList mod_lst = nbt.getTagList( MODULE_TAG, NBT.TAG_COMPOUND );
+		IntStream.range( 0, mod_lst.tagCount() )
+			.mapToObj( mod_lst::getCompoundTagAt )
+			.map( IModule::takeAndDeserialize )
+			.forEachOrdered( mod -> {
+				mod.IModule$setBase( this );
+				this.installed_modules.add( mod );
+			} );
 	}
 	
 	@Override

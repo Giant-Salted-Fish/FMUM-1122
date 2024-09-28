@@ -301,11 +301,8 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	@Override
-	public IModule takeAndDeserialize( NBTTagCompound nbt )
-	{
-		final GunPart self = new GunPart( nbt );
-		self._deserializeAndBound( nbt );
-		return self;
+	public IModule takeAndDeserialize( NBTTagCompound nbt ) {
+		return new GunPart( nbt );
 	}
 	
 	protected IEquippedItem _newEquipped( EnumHand hand, IItem item, EntityPlayer player ) {
@@ -496,14 +493,9 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		
 		protected GunPart() { }
 		
-		protected GunPart( NBTTagCompound nbt ) {
-			super( nbt );  // FIXME
-		}
-		
-		@Override
-		protected void _deserializeAndBound( NBTTagCompound nbt )
+		protected GunPart( NBTTagCompound nbt )
 		{
-			super._deserializeAndBound( nbt );
+			super( nbt );
 			
 			final int[] data = nbt.getIntArray( DATA_TAG );
 			final int value = data[ super._getDataArrLen() ];
@@ -645,7 +637,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		@SideOnly( Side.CLIENT )
 		public IModule IGunPart$createSelectionProxy( IModifyContext ctx )
 		{
-			final GunPart proxy = new GunPart() {
+			return new GunPart( GunPart.this.nbt.copy() ) {
 				@Override
 				protected void _renderModel( IAnimator animator )
 				{
@@ -663,8 +655,6 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 					GL11.glPopMatrix();
 				}
 			};
-			proxy._deserializeAndBound( this.nbt.copy() );
-			return proxy;
 		}
 		
 		@Override
