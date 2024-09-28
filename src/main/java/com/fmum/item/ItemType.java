@@ -6,7 +6,6 @@ import com.fmum.load.IContentBuildContext;
 import com.fmum.load.IPostLoadContext;
 import com.fmum.load.JsonData;
 import com.fmum.tab.CreativeTabUtil;
-import com.google.gson.JsonObject;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.relauncher.Side;
@@ -20,7 +19,7 @@ public abstract class ItemType extends BuildableType implements IItemType
 	
 	
 	@Override
-	public void build( JsonObject data, String fallback_name, IContentBuildContext ctx )
+	public void build( JsonData data, String fallback_name, IContentBuildContext ctx )
 	{
 		super.build( data, fallback_name, ctx );
 		
@@ -31,11 +30,10 @@ public abstract class ItemType extends BuildableType implements IItemType
 	}
 	
 	@Override
-	public void reload( JsonObject json, IContentBuildContext ctx )
+	public void reload( JsonData data, IContentBuildContext ctx )
 	{
-		super.reload( json, ctx );
+		super.reload( data, ctx );
 		
-		final JsonData data = new JsonData( json, ctx.getGson() );
 		this.creative_tab = data.getString( "creative_tab" ).orElse( "none" );
 	}
 	

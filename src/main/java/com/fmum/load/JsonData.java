@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+/**
+ * A wrapper class for {@link JsonObject} that provides a more convenient way to
+ * access data.
+ */
 public final class JsonData
 {
 	private final JsonObject data;
@@ -23,6 +27,10 @@ public final class JsonData
 	
 	public Optional< JsonElement > get( String key ) {
 		return Optional.ofNullable( this.data.get( key ) );
+	}
+	
+	public Optional< JsonData > getData( String key ) {
+		return this.get( key ).map( e -> new JsonData( e.getAsJsonObject(), this.gson ) );
 	}
 	
 	public Optional< Integer > getInt( String key ) {

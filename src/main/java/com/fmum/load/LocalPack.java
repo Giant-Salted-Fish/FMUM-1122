@@ -2,7 +2,6 @@ package com.fmum.load;
 
 import com.fmum.FMUM;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import gsf.util.lang.Error;
@@ -115,11 +114,12 @@ public abstract class LocalPack implements IPackLoadCallback
 		final String trace_prefix = String.format( "mc:%s#", file_path );
 		try ( FileReader reader = new FileReader( key_binding_file ) )
 		{
-			final JsonObject data = gson.fromJson( reader, JsonObject.class );
-			data.entrySet().forEach( entry -> {
-				final JsonObject obj = entry.getValue().getAsJsonObject();
+			final JsonObject data_arr = gson.fromJson( reader, JsonObject.class );
+			data_arr.entrySet().forEach( entry -> {
 				final String fallback_name = entry.getKey();
-				this._loadFromJson( obj, "key_binding", fallback_name, ctx )
+				final JsonObject obj = entry.getValue().getAsJsonObject();
+				final JsonData data = new JsonData( obj, gson );
+				this._loadFromJson( data, "key_binding", fallback_name, ctx )
 					.matchAnyError( e -> {
 						final String source_trace = trace_prefix + fallback_name;
 						FMUM.LOGGER.exception( e, "fmum.content_load_error", source_trace );
@@ -133,17 +133,16 @@ public abstract class LocalPack implements IPackLoadCallback
 	}
 	
 	protected Result< ?, Exception > _loadFromJson(
-		JsonObject json_obj,
+		JsonData data,
 		String fallback_type,
 		String fallback_name,
 		IContentBuildContext ctx
 	) {
 		// Check if it has its type specified.
-		final JsonElement type_attr = json_obj.get( "__type__" );
-		final String type = type_attr != null ? type_attr.getAsString() : fallback_type;
+		final String type = data.getString( "__type__" ).orElse( fallback_type );
 		return (
 			ctx.lookupContentLoader( type )
-			.map( loader -> Result.of( () -> loader.loadFrom( json_obj, fallback_name, ctx ) ) )
+			.map( loader -> Result.of( () -> loader.load( data, fallback_name, ctx ) ) )
 			.orElseGet( () -> {
 				final String msg = FMUM.I18N.format( "fmum.content_loader_not_found", type );
 				return new Error<>( new RuntimeException( msg ) );
@@ -160,7 +159,8 @@ public abstract class LocalPack implements IPackLoadCallback
 		final Gson gson = ctx.getGson();
 		return (
 			Result.of( () -> gson.fromJson( entry_reader, JsonObject.class ) )
-			.flatMap( obj -> this._loadFromJson( obj, fallback_type, fallback_name, ctx ) )
+			.map( obj -> new JsonData( obj, gson ) )
+			.flatMap( data -> this._loadFromJson( data, fallback_type, fallback_name, ctx ) )
 		);
 	}
 	

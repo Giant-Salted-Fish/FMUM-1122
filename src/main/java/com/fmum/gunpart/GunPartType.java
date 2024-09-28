@@ -22,7 +22,6 @@ import com.fmum.render.AnimatedModel;
 import com.fmum.render.IPreparedRenderer;
 import com.fmum.render.ModelPath;
 import com.fmum.render.Texture;
-import com.google.gson.JsonObject;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimation;
 import gsf.util.animation.IAnimator;
@@ -129,7 +128,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	
 	
 	@Override
-	public void build( JsonObject data, String fallback_name, IContentBuildContext ctx )
+	public void build( JsonData data, String fallback_name, IContentBuildContext ctx )
 	{
 		super.build( data, fallback_name, ctx );
 		
@@ -148,11 +147,10 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 	}
 	
 	@Override
-	public void reload( JsonObject json, IContentBuildContext ctx )
+	public void reload( JsonData data, IContentBuildContext ctx )
 	{
-		super.reload( json, ctx );
+		super.reload( data, ctx );
 		
-		final JsonData data = new JsonData( json, ctx.getGson() );
 		this.category = data.get( "category", ItemCategory.class ).orElseGet( () -> ItemCategory.parse( this.name ) );
 		this.slots = data.get( "slots", RailSlot[].class ).orElse( new RailSlot[ 0 ] );
 		this.offsets = data.get( "offsets", float[].class ).orElse( new float[ 0 ] );

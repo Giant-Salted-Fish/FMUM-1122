@@ -442,6 +442,11 @@ final class PackLoader
 			public ItemStack getFallbackTabIconItem() {
 				return new ItemStack( Items.FISH );
 			}
+			
+			@Override
+			public Gson getGson() {
+				return PackLoader.this.gson;
+			}
 		};
 		
 		this.packs.forEach( pair -> {

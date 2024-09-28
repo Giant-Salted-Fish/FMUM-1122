@@ -18,7 +18,6 @@ import com.fmum.module.IModule;
 import com.fmum.module.IModuleType;
 import com.fmum.paintjob.IPaintableType;
 import com.fmum.render.ModelPath;
-import com.google.gson.JsonObject;
 import gsf.util.animation.IAnimator;
 import gsf.util.lang.Error;
 import gsf.util.lang.Result;
@@ -90,11 +89,10 @@ public class MagType extends GunPartType
 	
 	
 	@Override
-	public void reload( JsonObject json, IContentBuildContext ctx )
+	public void reload( JsonData data, IContentBuildContext ctx )
 	{
-		super.reload( json, ctx );
+		super.reload( data, ctx );
 		
-		final JsonData data = new JsonData( json, ctx.getGson() );
 		this.capacity = data.getInt( "capacity" ).orElse( 1 );
 		this.ammo_predicate = data.getPredicate( "allowed_ammo", ItemCategory.class ).orElse( a -> false );
 		this.op_load_ammo = data.get( "op_load_ammo", MagOpConfig.class ).orElse( OP_LOAD_AMMO );

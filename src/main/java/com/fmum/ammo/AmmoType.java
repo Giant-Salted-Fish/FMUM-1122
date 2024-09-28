@@ -12,7 +12,6 @@ import com.fmum.load.IMeshLoadContext;
 import com.fmum.load.JsonData;
 import com.fmum.render.ModelPath;
 import com.fmum.render.Texture;
-import com.google.gson.JsonObject;
 import gsf.util.animation.IAnimator;
 import gsf.util.math.AxisAngle4f;
 import gsf.util.math.Vec3f;
@@ -73,7 +72,7 @@ public class AmmoType extends ItemType implements IAmmoType
 	
 	
 	@Override
-	public void build( JsonObject data, String fallback_name, IContentBuildContext ctx )
+	public void build( JsonData data, String fallback_name, IContentBuildContext ctx )
 	{
 		super.build( data, fallback_name, ctx );
 		
@@ -81,11 +80,10 @@ public class AmmoType extends ItemType implements IAmmoType
 	}
 	
 	@Override
-	public void reload( JsonObject json, IContentBuildContext ctx )
+	public void reload( JsonData data, IContentBuildContext ctx )
 	{
-		super.reload( json, ctx );
+		super.reload( data, ctx );
 		
-		final JsonData data = new JsonData( json, ctx.getGson() );
 		this.category = data.get( "category", ItemCategory.class ).orElseGet( () -> ItemCategory.parse( this.name ) );
 		this.can_shoot = data.getBool( "can_shoot" ).orElse( true );
 		this.max_stack_size = data.getInt( "max_stack_size" ).orElse( 60 );

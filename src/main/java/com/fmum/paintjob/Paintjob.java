@@ -5,7 +5,6 @@ import com.fmum.load.BuildableType;
 import com.fmum.load.IContentBuildContext;
 import com.fmum.load.JsonData;
 import com.fmum.render.Texture;
-import com.google.gson.JsonObject;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -15,12 +14,12 @@ public class Paintjob extends BuildableType implements IPaintjob
 	protected Texture texture;
 	
 	@Override
-	public void reload( JsonObject json, IContentBuildContext ctx )
+	public void reload( JsonData data, IContentBuildContext ctx )
 	{
-		super.reload( json, ctx );
+		super.reload( data, ctx );
 		
 		FMUM.SIDE.runIfClient( () -> {
-			final JsonData data = new JsonData( json, ctx.getGson() );
+			// Texture is client only.
 			this.texture = data.get( "texture", Texture.class ).orElse( Texture.GREEN );
 		} );
 	}

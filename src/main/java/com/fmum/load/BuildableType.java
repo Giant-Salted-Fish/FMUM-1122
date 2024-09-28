@@ -1,7 +1,6 @@
 package com.fmum.load;
 
 import com.fmum.Registry;
-import com.google.gson.JsonObject;
 
 import java.util.function.Supplier;
 
@@ -27,14 +26,14 @@ public abstract class BuildableType
 	
 	protected BuildableType() { }
 	
-	public void build( JsonObject data, String fallback_name, IContentBuildContext ctx )
+	public void build( JsonData data, String fallback_name, IContentBuildContext ctx )
 	{
 		this.name = fallback_name;
 		this.pack_info = ctx.getPackInfo();
 		this.reload( data, ctx );
 	}
 	
-	public void reload( JsonObject data, IContentBuildContext ctx ) {
+	public void reload( JsonData data, IContentBuildContext ctx ) {
 		// Pass.
 	}
 	

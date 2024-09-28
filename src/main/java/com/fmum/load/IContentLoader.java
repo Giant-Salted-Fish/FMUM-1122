@@ -1,7 +1,6 @@
 package com.fmum.load;
 
 import com.fmum.Registry;
-import com.google.gson.JsonObject;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -15,13 +14,13 @@ public interface IContentLoader< T >
 	 * @param ctx Context used to build up the content.
 	 * @return The loaded content object.
 	 */
-	T loadFrom( JsonObject data, String fallback_name, IContentBuildContext ctx );
+	T load( JsonData data, String fallback_name, IContentBuildContext ctx );
 	
 	/**
-	 * @see #loadFrom(JsonObject, String, IContentBuildContext)
+	 * @see #load(JsonData, String, IContentBuildContext)
 	 * @return Empty if this type of content does not support reloading.
 	 */
-	Optional< ? extends T > reload( JsonObject data, String fallback_name, IContentBuildContext ctx );
+	Optional< ? extends T > reload( JsonData data, String fallback_name, IContentBuildContext ctx );
 	
 	
 	@SafeVarargs
@@ -31,7 +30,7 @@ public interface IContentLoader< T >
 	) {
 		return new IContentLoader< T >() {
 			@Override
-			public T loadFrom( JsonObject data, String fallback_name, IContentBuildContext ctx )
+			public T load( JsonData data, String fallback_name, IContentBuildContext ctx )
 			{
 				final T buildable = factory.get();
 				buildable.build( data, fallback_name, ctx );
@@ -41,7 +40,7 @@ public interface IContentLoader< T >
 			
 			@Override
 			@SuppressWarnings( "unchecked" )
-			public Optional< ? extends T > reload( JsonObject data, String fallback_name, IContentBuildContext ctx )
+			public Optional< ? extends T > reload( JsonData data, String fallback_name, IContentBuildContext ctx )
 			{
 				if ( registries.length == 0 ) {
 					return Optional.empty();

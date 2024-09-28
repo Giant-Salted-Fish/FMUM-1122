@@ -4,7 +4,6 @@ import com.fmum.load.BuildableType;
 import com.fmum.load.IContentBuildContext;
 import com.fmum.load.IContentLoader;
 import com.fmum.load.JsonData;
-import com.google.gson.JsonObject;
 import com.kbp.client.KBPMod;
 import com.kbp.client.api.IPatchedKeyBinding;
 import com.kbp.client.api.KeyBindingBuilder;
@@ -35,7 +34,7 @@ public class JsonKeyBinding extends BuildableType
 	protected boolean is_toggle;
 	
 	@Override
-	public void build( JsonObject data, String fallback_name, IContentBuildContext ctx )
+	public void build( JsonData data, String fallback_name, IContentBuildContext ctx )
 	{
 		super.build( data, fallback_name, ctx );
 		
@@ -43,11 +42,10 @@ public class JsonKeyBinding extends BuildableType
 	}
 	
 	@Override
-	public void reload( JsonObject json, IContentBuildContext ctx )
+	public void reload( JsonData data, IContentBuildContext ctx )
 	{
-		super.reload( json, ctx );
+		super.reload( data, ctx );
 		
-		final JsonData data = new JsonData( json, ctx.getGson() );
 		this.category = data.getString( "category" ).orElse( "key_category.fmum_common" );
 		this.signal = data.getString( "signal" ).orElseGet( () -> {
 			// Remove prefix that associated to specific pack if present.

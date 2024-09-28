@@ -5,7 +5,6 @@ import com.fmum.load.IContentBuildContext;
 import com.fmum.load.IContentLoader;
 import com.fmum.load.IPostLoadContext;
 import com.fmum.load.JsonData;
-import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 
 import java.util.Optional;
@@ -20,7 +19,7 @@ public class JsonPaintjob extends Paintjob
 	protected String inject_target;
 	
 	@Override
-	public void build( JsonObject data, String fallback_name, IContentBuildContext ctx )
+	public void build( JsonData data, String fallback_name, IContentBuildContext ctx )
 	{
 		super.build( data, fallback_name, ctx );
 		
@@ -28,11 +27,10 @@ public class JsonPaintjob extends Paintjob
 	}
 	
 	@Override
-	public void reload( JsonObject json, IContentBuildContext ctx )
+	public void reload( JsonData data, IContentBuildContext ctx )
 	{
-		super.reload( json, ctx );
+		super.reload( data, ctx );
 		
-		final JsonData data = new JsonData( json, ctx.getGson() );
 		this.inject_target = data.getString( "inject_target" ).orElse( "unspecified" );
 	}
 	
