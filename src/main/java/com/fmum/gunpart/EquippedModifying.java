@@ -48,7 +48,7 @@ public class EquippedModifying extends EquippedWrapRenderC
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( EnumHand hand, IItem held_item, EntityPlayer player )
+	public IEquippedItem tickInHand( IItem held_item, EnumHand hand, EntityPlayer player )
 	{
 		if ( held_item == this.item ) {
 			return this;
@@ -99,7 +99,7 @@ public class EquippedModifying extends EquippedWrapRenderC
 	}
 	
 	@Override
-	public IEquippedItem onInputUpdate( String name, IInput input, IItem item )
+	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
 	{
 		final boolean is_activation = input.getAsBool();
 		if ( !is_activation ) {

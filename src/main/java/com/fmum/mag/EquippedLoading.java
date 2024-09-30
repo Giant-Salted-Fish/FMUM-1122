@@ -36,12 +36,12 @@ public class EquippedLoading extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player )
+	public IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 )
 		{
 			// Tick next here, otherwise we will have one tick lag with client.
-			return this.next.tickInHand( hand, item, player );
+			return this.next.tickInHand( item, hand, player );
 		}
 		
 		final MagType type = ( MagType ) item.getType();
@@ -92,7 +92,7 @@ public class EquippedLoading extends EquippedWrapper
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public IEquippedItem onInputUpdate( String name, IInput input, IItem item ) {
+	public IEquippedItem onInputUpdate( IItem item, String name, IInput input ) {
 		throw new UnsupportedOperationException();
 	}
 }

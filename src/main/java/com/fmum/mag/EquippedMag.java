@@ -9,7 +9,7 @@ import com.fmum.item.IItem;
 public class EquippedMag extends EquippedGunPart
 {
 	@Override
-	public IEquippedItem onInputUpdate( String name, IInput input, IItem item )
+	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
 	{
 		if ( input.getAsBool() )
 		{
@@ -23,7 +23,7 @@ public class EquippedMag extends EquippedGunPart
 				return new EquippedUnloadingClient( this, name );
 			}
 		}
-		return super.onInputUpdate( name, input, item );
+		return super.onInputUpdate( item, name, input );
 	}
 	
 	

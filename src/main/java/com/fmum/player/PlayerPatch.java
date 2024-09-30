@@ -39,13 +39,13 @@ public class PlayerPatch
 	private static final IEquippedItem VANILLA_EQUIPPED = new IEquippedItem() {
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean renderInHand( EnumHand hand, IItem item ) {
+		public boolean renderInHand( IItem item, EnumHand hand ) {
 			return hand == EnumHand.OFF_HAND;  // TODO: Config setting?
 		}
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean renderSpecificInHand( EnumHand hand, IItem item ) {
+		public boolean renderSpecificInHand( IItem item, EnumHand hand ) {
 			return hand == EnumHand.OFF_HAND;
 		}
 	};
@@ -90,7 +90,7 @@ public class PlayerPatch
 				this.inv_slot = inv_slot;
 			}
 			
-			this.main_equipped = this.main_equipped.tickInHand( hand, held_item, player );
+			this.main_equipped = this.main_equipped.tickInHand( held_item, hand, player );
 			
 			// Necessary, because we are using #equals here.
 			this.main_item = held_item;
@@ -106,7 +106,7 @@ public class PlayerPatch
 				this.off_equipped = held_item.onTakeOut( hand, player );
 			}
 			
-			this.off_equipped = this.off_equipped.tickInHand( hand, held_item, player );
+			this.off_equipped = this.off_equipped.tickInHand( held_item, hand, player );
 			this.off_item = held_item;
 		}
 	}

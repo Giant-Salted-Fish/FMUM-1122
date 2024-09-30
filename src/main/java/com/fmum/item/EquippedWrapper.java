@@ -15,35 +15,35 @@ public abstract class EquippedWrapper implements IEquippedItem
 	}
 	
 	@Override
-	public abstract IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player );
+	public abstract IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player );
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public void prepareRenderInHand( EnumHand hand, IItem item ) {
-		this.wrapped.prepareRenderInHand( hand, item );
+	public void prepareRenderInHand( IItem item, EnumHand hand ) {
+		this.wrapped.prepareRenderInHand( item, hand );
 	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public boolean renderInHand( EnumHand hand, IItem item ) {
-		return this.wrapped.renderInHand( hand, item );
+	public boolean renderInHand( IItem item, EnumHand hand ) {
+		return this.wrapped.renderInHand( item, hand );
 	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public boolean renderSpecificInHand( EnumHand hand, IItem item ) {
-		return this.wrapped.renderSpecificInHand( hand, item );
+	public boolean renderSpecificInHand( IItem item, EnumHand hand ) {
+		return this.wrapped.renderSpecificInHand( item, hand );
 	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public boolean onMouseWheelInput( int dwheel, IItem item ) {
-		return this.wrapped.onMouseWheelInput( dwheel, item );
+	public boolean onMouseWheelInput( IItem item, int dwheel ) {
+		return this.wrapped.onMouseWheelInput( item, dwheel );
 	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public abstract IEquippedItem onInputUpdate( String name, IInput input, IItem item );
+	public abstract IEquippedItem onInputUpdate( IItem item, String name, IInput input );
 	
 	@Override
 	@SideOnly( Side.CLIENT )
@@ -53,13 +53,13 @@ public abstract class EquippedWrapper implements IEquippedItem
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public boolean getViewBobbing( boolean original, IItem item ) {
-		return this.wrapped.getViewBobbing( original, item );
+	public boolean getViewBobbing( IItem item, boolean original ) {
+		return this.wrapped.getViewBobbing( item, original );
 	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public float getMouseSensitivity( float original_sensitivity, IItem item ) {
-		return this.wrapped.getMouseSensitivity( original_sensitivity, item );
+	public float getMouseSensitivity( IItem item, float original_sensitivity ) {
+		return this.wrapped.getMouseSensitivity( item, original_sensitivity );
 	}
 }

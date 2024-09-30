@@ -37,7 +37,7 @@ public class EquippedLoadingClient extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player )
+	public IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 )
 		{
@@ -50,7 +50,7 @@ public class EquippedLoadingClient extends EquippedWrapper
 				
 				// Because every ammo is corresponding to a load packet, \
 				// we do not need to send unwrap packet here.
-				return this.wrapped.tickInHand( hand, item, player );
+				return this.wrapped.tickInHand( item, hand, player );
 			}
 			
 			final OptionalInt slot = IAmmoType.lookupValidAmmoSlot(
@@ -59,7 +59,7 @@ public class EquippedLoadingClient extends EquippedWrapper
 				InputManager.getBoolState( Inputs.ALT_AMMO ) ? 1 : 0
 			);
 			if ( !slot.isPresent() ) {
-				return this.wrapped.tickInHand( hand, item, player );
+				return this.wrapped.tickInHand( item, hand, player );
 			}
 			
 			final int ammo_slot = slot.getAsInt();
@@ -90,7 +90,7 @@ public class EquippedLoadingClient extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem onInputUpdate( String name, IInput input, IItem item )
+	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
 	{
 		// Use trigger key to quit.
 		final String key = input.getAsBool() ? Inputs.RELOAD : Inputs.LOAD_AMMO;

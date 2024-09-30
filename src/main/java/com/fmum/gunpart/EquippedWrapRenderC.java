@@ -16,7 +16,7 @@ public abstract class EquippedWrapRenderC extends EquippedWrapper
 	}
 	
 	@Override
-	public void prepareRenderInHand( EnumHand hand, IItem item )
+	public void prepareRenderInHand( IItem item, EnumHand hand )
 	{
 		final IGunPart delegate = this._getRenderDelegate( hand, item );
 		final IAnimator animator = this._getInHandAnimator( hand, item );
@@ -35,12 +35,12 @@ public abstract class EquippedWrapRenderC extends EquippedWrapper
 	}
 	
 	@Override
-	public boolean renderInHand( EnumHand hand, IItem item ) {
-		return this.wrapped.renderInHand( hand, null );
+	public boolean renderInHand( IItem item, EnumHand hand ) {
+		return this.wrapped.renderInHand( null, hand );
 	}
 	
 	@Override
-	public boolean renderSpecificInHand( EnumHand hand, IItem item ) {
-		return this.wrapped.renderSpecificInHand( hand, null );
+	public boolean renderSpecificInHand( IItem item, EnumHand hand ) {
+		return this.wrapped.renderSpecificInHand( null, hand );
 	}
 }

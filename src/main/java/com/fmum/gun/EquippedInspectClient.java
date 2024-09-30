@@ -28,10 +28,10 @@ public class EquippedInspectClient extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player )
+	public IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 ) {
-			return this.wrapped.tickInHand( hand, item, player );
+			return this.wrapped.tickInHand( item, hand, player );
 		}
 		
 		final GunType type = ( GunType ) item.getType();
@@ -44,7 +44,7 @@ public class EquippedInspectClient extends EquippedWrapper
 	}
 	
 	@Override
-	public void prepareRenderInHand( EnumHand hand, IItem item )
+	public void prepareRenderInHand( IItem item, EnumHand hand )
 	{
 		final IGunPart self = IGunPart.from( item );
 		final IAnimator animator = this._getInHandAnimator( hand, item );
@@ -53,7 +53,7 @@ public class EquippedInspectClient extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem onInputUpdate( String name, IInput input, IItem item ) {
+	public IEquippedItem onInputUpdate( IItem item, String name, IInput input ) {
 		return this;
 	}
 	

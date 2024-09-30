@@ -38,7 +38,7 @@ public class EquippedGunPart implements IEquippedItem
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public IEquippedItem onInputUpdate( String name, IInput input, IItem item )
+	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
 	{
 		if ( input.getAsBool() && name.equals( Inputs.OPEN_MODIFY_VIEW ) ) {
 			return new EquippedModifying( this, item );
@@ -49,7 +49,7 @@ public class EquippedGunPart implements IEquippedItem
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public void prepareRenderInHand( EnumHand hand, IItem item )
+	public void prepareRenderInHand( IItem item, EnumHand hand )
 	{
 		final IGunPart self = IGunPart.from( item );
 		final IAnimator animator = this.EquippedGunPart$getInHandAnimator( hand, item );
@@ -57,7 +57,7 @@ public class EquippedGunPart implements IEquippedItem
 	}
 	
 	/**
-	 * Stateless version of the {@link #prepareRenderInHand(EnumHand, IItem)}.
+	 * Stateless version of the {@link IEquippedItem#prepareRenderInHand(IItem, EnumHand)}.
 	 * This allows other equipped wrappers to fully proxy the rendering.
 	 */
 	@SideOnly( Side.CLIENT )
@@ -96,7 +96,7 @@ public class EquippedGunPart implements IEquippedItem
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public boolean renderInHand( EnumHand hand, IItem item )
+	public boolean renderInHand( IItem item, EnumHand hand )
 	{
 		GL11.glPushMatrix();
 		
@@ -132,7 +132,10 @@ public class EquippedGunPart implements IEquippedItem
 		// Setup and render!
 		GLUtil.glRotateYf( 180.0F - player.rotationYaw );
 		GLUtil.glRotateXf( player.rotationPitch );
-		this._doRenderInHand( hand, item );
+		
+		// TODO: Refactor out setup.
+//		Dev.cur().applyTransRot();
+		this.in_hand_queue.forEach( Runnable::run );
 		
 		GlStateManager.disableRescaleNormal();
 		RenderHelper.disableStandardItemLighting();
@@ -144,19 +147,9 @@ public class EquippedGunPart implements IEquippedItem
 		return true;
 	}
 	
-	/**
-	 * No need to push matrix here as caller should have done it.
-	 */
-	@SideOnly( Side.CLIENT )
-	protected void _doRenderInHand( EnumHand hand, IItem item )
-	{
-//		Dev.cur().applyTransRot();
-		this.in_hand_queue.forEach( Runnable::run );
-	}
-	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public boolean renderSpecificInHand( EnumHand hand, IItem item ) {
+	public boolean renderSpecificInHand( IItem item, EnumHand hand ) {
 		return true;
 	}
 }

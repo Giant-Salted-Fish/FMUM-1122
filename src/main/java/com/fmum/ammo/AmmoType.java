@@ -192,13 +192,13 @@ public class AmmoType extends ItemType implements IAmmoType
 	{
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean renderInHand( EnumHand hand, IItem item ) {
+		public boolean renderInHand( IItem item, EnumHand hand ) {
 			return false;
 		}
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean renderSpecificInHand( EnumHand hand, IItem item )
+		public boolean renderSpecificInHand( IItem item, EnumHand hand )
 		{
 			final AmmoType type = ( AmmoType ) item.getType();
 			

@@ -74,10 +74,10 @@ public class EquippedLoadingMag extends EquippedWrapRenderC
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player )
+	public IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 ) {
-			return this.wrapped.tickInHand( hand, item, player );
+			return this.wrapped.tickInHand( item, hand, player );
 		}
 		
 		final GunType type = ( GunType ) item.getType();
@@ -108,7 +108,7 @@ public class EquippedLoadingMag extends EquippedWrapRenderC
 	}
 	
 	@Override
-	public IEquippedItem onInputUpdate( String name, IInput input, IItem item ) {
+	public IEquippedItem onInputUpdate( IItem item, String name, IInput input ) {
 		return this;
 	}
 }

@@ -22,13 +22,13 @@ public class EquippedUnloading extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player )
+	public IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 )
 		{
 			final IMag mag = IMag.from( item );
 			if ( mag.isEmpty() ) {
-				return this.wrapped.tickInHand( hand, item, player );
+				return this.wrapped.tickInHand( item, hand, player );
 			}
 			
 			final MagType type = ( MagType ) item.getType();
@@ -72,7 +72,7 @@ public class EquippedUnloading extends EquippedWrapper
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public IEquippedItem onInputUpdate( String name, IInput input, IItem item ) {
+	public IEquippedItem onInputUpdate( IItem item, String name, IInput input ) {
 		throw new UnsupportedOperationException();
 	}
 }

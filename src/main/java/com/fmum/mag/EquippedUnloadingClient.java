@@ -34,7 +34,7 @@ public class EquippedUnloadingClient extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player )
+	public IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 )
 		{
@@ -46,7 +46,7 @@ public class EquippedUnloadingClient extends EquippedWrapper
 				
 				// Server side will know that this mag is empty. So no need \
 				// to send unwrap packet here.
-				return this.wrapped.tickInHand( hand, item, player );
+				return this.wrapped.tickInHand( item, hand, player );
 			}
 			else if ( !this.is_packet_sent )
 			{
@@ -79,7 +79,7 @@ public class EquippedUnloadingClient extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem onInputUpdate( String name, IInput input, IItem item )
+	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
 	{
 		// Use trigger key to quit.
 		final String key = input.getAsBool() ? Inputs.LOAD_OR_UNLOAD_MAG : Inputs.UNLOAD_AMMO;

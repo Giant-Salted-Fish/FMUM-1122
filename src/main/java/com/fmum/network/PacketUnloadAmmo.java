@@ -32,7 +32,7 @@ public class PacketUnloadAmmo implements IPacket
 				{
 					// Tick now to catch up client progress.
 					final EquippedUnloading unloading = new EquippedUnloading( eq );
-					return unloading.tickInHand( EnumHand.MAIN_HAND, it, player );
+					return unloading.tickInHand( it, EnumHand.MAIN_HAND, player );
 				}
 				else {
 					return eq;

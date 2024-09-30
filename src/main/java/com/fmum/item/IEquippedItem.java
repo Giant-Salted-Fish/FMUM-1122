@@ -16,12 +16,12 @@ public interface IEquippedItem
 	String CHANNEL_ITEM = "item";
 	
 	
-	default IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player ) {
+	default IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player ) {
 		return this;
 	}
 	
 	@SideOnly( Side.CLIENT )
-	default void prepareRenderInHand( EnumHand hand, IItem item ) {
+	default void prepareRenderInHand( IItem item, EnumHand hand ) {
 		// Override this method to prepare your customized first person in hand render.
 	}
 	
@@ -32,7 +32,7 @@ public interface IEquippedItem
 	 * @see net.minecraftforge.client.event.RenderHandEvent
 	 */
 	@SideOnly( Side.CLIENT )
-	boolean renderInHand( EnumHand hand, IItem item );
+	boolean renderInHand( IItem item, EnumHand hand );
 	
 	/**
 	 * @return
@@ -41,18 +41,18 @@ public interface IEquippedItem
 	 * @see net.minecraftforge.client.event.RenderSpecificHandEvent
 	 */
 	@SideOnly( Side.CLIENT )
-	boolean renderSpecificInHand( EnumHand hand, IItem item );
+	boolean renderSpecificInHand( IItem item, EnumHand hand );
 	
 	/**
 	 * @return Whether to cancel corresponding mouse event.
 	 */
 	@SideOnly( Side.CLIENT )
-	default boolean onMouseWheelInput( int dwheel, IItem item ) {
+	default boolean onMouseWheelInput( IItem item, int dwheel ) {
 		return false;
 	}
 	
 	@SideOnly( Side.CLIENT )
-	default IEquippedItem onInputUpdate( String name, IInput input, IItem item ) {
+	default IEquippedItem onInputUpdate( IItem item, String name, IInput input ) {
 		return this;
 	}
 	
@@ -66,12 +66,12 @@ public interface IEquippedItem
 	 * @return Enable view bobbing or not.
 	 */
 	@SideOnly( Side.CLIENT )
-	default boolean getViewBobbing( boolean original, IItem item ) {
+	default boolean getViewBobbing( IItem item, boolean original ) {
 		return original;
 	}
 	
 	@SideOnly( Side.CLIENT )
-	default float getMouseSensitivity( float original_sensitivity, IItem item ) {
+	default float getMouseSensitivity( IItem item, float original_sensitivity ) {
 		return original_sensitivity;
 	}
 	

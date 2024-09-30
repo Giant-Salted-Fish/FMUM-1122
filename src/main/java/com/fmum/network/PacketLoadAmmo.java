@@ -49,7 +49,7 @@ public class PacketLoadAmmo implements IPacket
 				{
 					// Tick now to catch up client progress.
 					final EquippedLoading loading = new EquippedLoading( eq, it, this.inv_slot );
-					return loading.tickInHand( EnumHand.MAIN_HAND, it, player );
+					return loading.tickInHand( it, EnumHand.MAIN_HAND, player );
 				}
 				else {
 					return eq;

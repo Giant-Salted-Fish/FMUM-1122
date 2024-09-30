@@ -141,7 +141,7 @@ public final class PlayerPatchClient extends PlayerPatch
 			final GameSettings settings = Minecraft.getMinecraft().gameSettings;
 			final IEquippedItem equipped = PlayerPatchClient.this.main_equipped;
 			final IItem item = PlayerPatchClient.this.main_item;
-			return equipped.getMouseSensitivity( settings.mouseSensitivity, item );
+			return equipped.getMouseSensitivity( item, settings.mouseSensitivity );
 		}
 	};
 	
@@ -163,7 +163,7 @@ public final class PlayerPatchClient extends PlayerPatch
 			final GameSettings settings = mc.gameSettings;
 			final IEquippedItem equipped = this.main_equipped;
 			final IItem item = this.main_item;
-			settings.viewBobbing = equipped.getViewBobbing( ori_view_bobbing, item );
+			settings.viewBobbing = equipped.getViewBobbing( item, ori_view_bobbing );
 		}
 		
 		// Update player motion info.
@@ -195,8 +195,8 @@ public final class PlayerPatchClient extends PlayerPatch
 		// is also updated. Hence, it is the proper place to fire prepare \
 		// render callback.
 		this.camera.prepareRender( mouse );
-		this.main_equipped.prepareRenderInHand( EnumHand.MAIN_HAND, this.main_item );
-		this.off_equipped.prepareRenderInHand( EnumHand.OFF_HAND, this.off_item );
+		this.main_equipped.prepareRenderInHand( this.main_item, EnumHand.MAIN_HAND );
+		this.off_equipped.prepareRenderInHand( this.off_item, EnumHand.OFF_HAND );
 	}
 	
 	
@@ -247,8 +247,8 @@ public final class PlayerPatchClient extends PlayerPatch
 			return;
 		}
 		
-		final boolean is_custom_main = instance.main_equipped.renderInHand( EnumHand.MAIN_HAND, instance.main_item );
-		final boolean is_custom_off = instance.off_equipped.renderInHand( EnumHand.OFF_HAND, instance.off_item );
+		final boolean is_custom_main = instance.main_equipped.renderInHand( instance.main_item, EnumHand.MAIN_HAND );
+		final boolean is_custom_off = instance.off_equipped.renderInHand( instance.off_item, EnumHand.OFF_HAND );
 		if ( is_custom_main && is_custom_off ) {
 			evt.setCanceled( true );
 		}
@@ -272,7 +272,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		final boolean is_main = hand == EnumHand.MAIN_HAND;
 		final IEquippedItem equipped = is_main ? instance.main_equipped : instance.off_equipped;
 		final IItem item = is_main ? instance.main_item : instance.off_item;
-		final boolean cancel = equipped.renderSpecificInHand( hand, item );
+		final boolean cancel = equipped.renderSpecificInHand( item, hand );
 		evt.setCanceled( cancel );
 	}
 	
@@ -284,7 +284,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		{
 			final IEquippedItem equipped = instance.main_equipped;
 			final IItem item = instance.main_item;
-			final boolean cancel = equipped.onMouseWheelInput( dwheel, item );
+			final boolean cancel = equipped.onMouseWheelInput( item, dwheel );
 			evt.setCanceled( cancel );
 		}
 	}
@@ -294,7 +294,7 @@ public final class PlayerPatchClient extends PlayerPatch
 	{
 		final IItem item = instance.main_item;
 		final IEquippedItem eq = instance.main_equipped;
-		instance.main_equipped = eq.onInputUpdate( evt.name, evt.input, item );
+		instance.main_equipped = eq.onInputUpdate( item, evt.name, evt.input );
 	}
 	
 	@SubscribeEvent
