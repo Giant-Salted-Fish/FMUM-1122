@@ -2,7 +2,7 @@ package com.fmum.player;
 
 import com.fmum.FMUM;
 import com.fmum.ModConfigClient;
-import com.fmum.input.IInput;
+import com.fmum.input.InputUpdateEvent;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import gsf.util.lang.Type;
@@ -289,8 +289,12 @@ public final class PlayerPatchClient extends PlayerPatch
 		}
 	}
 	
-	public void onInputUpdate( String name, IInput input ) {
-		this.main_equipped = this.main_equipped.onInputUpdate( name, input, this.main_item );
+	@SubscribeEvent
+	static void _onInputUpdate( InputUpdateEvent evt )
+	{
+		final IItem item = instance.main_item;
+		final IEquippedItem eq = instance.main_equipped;
+		instance.main_equipped = eq.onInputUpdate( evt.name, evt.input, item );
 	}
 	
 	@SubscribeEvent

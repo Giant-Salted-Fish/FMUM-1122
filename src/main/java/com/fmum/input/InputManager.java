@@ -1,6 +1,6 @@
 package com.fmum.input;
 
-import com.fmum.player.PlayerPatchClient;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -31,8 +31,10 @@ public final class InputManager
 		final BoolInput input = BOOL_INPUT_TABLE.computeIfAbsent( name, key -> new BoolInput() );
 		final int prev_count = input.signal_count;
 		input.signal_count += flag ? 1 : -1;
-		if ( input.signal_count + prev_count == 1 ) {
-			PlayerPatchClient.get().onInputUpdate( name, input );
+		if ( input.signal_count + prev_count == 1 )
+		{
+			final InputUpdateEvent evt = new InputUpdateEvent( name, input );
+			MinecraftForge.EVENT_BUS.post( evt );
 		}
 	}
 	
