@@ -17,10 +17,10 @@ public class EquippedMag extends EquippedGunPart
 			{
 			case Inputs.LOAD_AMMO:
 			case Inputs.RELOAD:
-				return new EquippedLoadingClient( this, name );
+				return new CEquippedLoad( this, name );
 			case Inputs.UNLOAD_AMMO:
 			case Inputs.LOAD_OR_UNLOAD_MAG:
-				return new EquippedUnloadingClient( this, name );
+				return new CEquippedUnload( this, name );
 			}
 		}
 		return super.onInputUpdate( item, name, input );

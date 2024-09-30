@@ -19,9 +19,9 @@ public class EquippedGun extends EquippedGunPart
 			switch ( name )
 			{
 			case Inputs.LOAD_OR_UNLOAD_MAG:
-				return new EquippedLoadingMag( this, item );
+				return new CEquippedLoadMag( this, item );
 			case Inputs.INSPECT_WEAPON:
-				return new EquippedInspectClient( this, item );
+				return new CEquippedInspect( this, item );
 			}
 		}
 		return super.onInputUpdate( item, name, input );

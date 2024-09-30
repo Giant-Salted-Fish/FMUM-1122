@@ -1,8 +1,6 @@
 package com.fmum.item;
 
 import com.fmum.input.IInput;
-import gsf.util.math.MoreMath;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
@@ -73,14 +71,5 @@ public interface IEquippedItem
 	@SideOnly( Side.CLIENT )
 	default float getMouseSensitivity( IItem item, float original_sensitivity ) {
 		return original_sensitivity;
-	}
-	
-	
-	@SideOnly( Side.CLIENT )
-	static float getProgress( int tick_left, int tick_count )
-	{
-		final float alpha = Minecraft.getMinecraft().getRenderPartialTicks();
-		final float partial_tick = MoreMath.lerp( tick_left + 1, tick_left, alpha );
-		return 1.0F - partial_tick / tick_count;
 	}
 }

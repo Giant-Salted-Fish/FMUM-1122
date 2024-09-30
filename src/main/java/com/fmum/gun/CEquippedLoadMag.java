@@ -2,7 +2,7 @@ package com.fmum.gun;
 
 import com.fmum.animation.SoundFrame;
 import com.fmum.gunpart.EquippedGunPart;
-import com.fmum.gunpart.EquippedWrapRenderC;
+import com.fmum.gunpart.CEquippedWrapRender;
 import com.fmum.gunpart.IGunPart;
 import com.fmum.input.IInput;
 import com.fmum.item.IEquippedItem;
@@ -24,14 +24,14 @@ import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
 @SideOnly( Side.CLIENT )
-public class EquippedLoadingMag extends EquippedWrapRenderC
+public class CEquippedLoadMag extends CEquippedWrapRender
 {
 	protected int tick_left;
 	protected int sound_idx = 0;
 	
 	protected IGun delegate;
 	
-	public EquippedLoadingMag( IEquippedItem wrapped, IItem item )
+	public CEquippedLoadMag( IEquippedItem wrapped, IItem item )
 	{
 		super( wrapped );
 		
@@ -102,7 +102,7 @@ public class EquippedLoadingMag extends EquippedWrapRenderC
 		
 		final GunType type = ( GunType ) item.getType();
 		final GunOpConfig config = type.op_load_mag;
-		final float progress = IEquippedItem.getProgress( this.tick_left, config.tick_count );
+		final float progress = _getAnimProg( this.tick_left, config.tick_count );
 		final IAnimator animation = config.animation.ofProgress( progress );
 		return IAnimator.compose( animation, base );
 	}

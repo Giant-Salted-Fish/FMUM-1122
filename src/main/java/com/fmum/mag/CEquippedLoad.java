@@ -22,14 +22,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.OptionalInt;
 
 @SideOnly( Side.CLIENT )
-public class EquippedLoadingClient extends EquippedWrapper
+public class CEquippedLoad extends EquippedWrapper
 {
 	protected final String trigger_key;
 	
 	protected int tick_left = 0;
 	protected int sound_idx;
 	
-	public EquippedLoadingClient( IEquippedItem wrapped, String trigger_key )
+	public CEquippedLoad( IEquippedItem wrapped, String trigger_key )
 	{
 		super( wrapped );
 		

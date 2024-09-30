@@ -1,6 +1,6 @@
 package com.fmum.network;
 
-import com.fmum.mag.EquippedLoading;
+import com.fmum.mag.SEquippedLoad;
 import com.fmum.mag.EquippedMag;
 import com.fmum.player.PlayerPatch;
 import io.netty.buffer.ByteBuf;
@@ -36,19 +36,19 @@ public class PacketLoadAmmo implements IPacket
 		final EntityPlayerMP player = ctx.getServerHandler().player;
 		player.getServerWorld().addScheduledTask( () -> PlayerPatch.of( player )
 			.mapEquipped( ( eq, it ) -> {
-				if ( eq instanceof EquippedLoading )
+				if ( eq instanceof SEquippedLoad )
 				{
-					EquippedLoading last = ( EquippedLoading ) eq;
-					while ( last.next instanceof EquippedLoading ) {
-						last = ( EquippedLoading ) last.next;
+					SEquippedLoad last = ( SEquippedLoad ) eq;
+					while ( last.next instanceof SEquippedLoad ) {
+						last = ( SEquippedLoad ) last.next;
 					}
-					last.next = new EquippedLoading( last.wrapped, it, this.inv_slot );
+					last.next = new SEquippedLoad( last.wrapped, it, this.inv_slot );
 					return eq;
 				}
 				else if ( eq instanceof EquippedMag )
 				{
 					// Tick now to catch up client progress.
-					final EquippedLoading loading = new EquippedLoading( eq, it, this.inv_slot );
+					final SEquippedLoad loading = new SEquippedLoad( eq, it, this.inv_slot );
 					return loading.tickInHand( it, EnumHand.MAIN_HAND, player );
 				}
 				else {

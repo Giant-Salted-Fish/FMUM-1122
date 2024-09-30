@@ -1,7 +1,7 @@
 package com.fmum.network;
 
 import com.fmum.mag.EquippedMag;
-import com.fmum.mag.EquippedUnloading;
+import com.fmum.mag.SEquippedUnload;
 import com.fmum.player.PlayerPatch;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -31,7 +31,7 @@ public class PacketUnloadAmmo implements IPacket
 				if ( eq instanceof EquippedMag )
 				{
 					// Tick now to catch up client progress.
-					final EquippedUnloading unloading = new EquippedUnloading( eq );
+					final SEquippedUnload unloading = new SEquippedUnload( eq );
 					return unloading.tickInHand( it, EnumHand.MAIN_HAND, player );
 				}
 				else {

@@ -41,7 +41,7 @@ public class EquippedGunPart implements IEquippedItem
 	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
 	{
 		if ( input.getAsBool() && name.equals( Inputs.OPEN_MODIFY_VIEW ) ) {
-			return new EquippedModifying( this, item );
+			return new CEquippedModify( this, item );
 		}
 		
 		return this;

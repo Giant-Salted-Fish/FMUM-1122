@@ -18,7 +18,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class EquippedUnloadingClient extends EquippedWrapper
+public class CEquippedUnload extends EquippedWrapper
 {
 	protected final String trigger_key;
 	
@@ -26,7 +26,7 @@ public class EquippedUnloadingClient extends EquippedWrapper
 	protected int sound_idx;
 	protected boolean is_packet_sent = false;
 	
-	public EquippedUnloadingClient( IEquippedItem wrapped, String trigger_key )
+	public CEquippedUnload( IEquippedItem wrapped, String trigger_key )
 	{
 		super( wrapped );
 		

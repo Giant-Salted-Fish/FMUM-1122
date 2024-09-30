@@ -15,7 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.Optional;
 import java.util.function.IntSupplier;
 
-public class EquippedLoading extends EquippedWrapper
+public class SEquippedLoad extends EquippedWrapper
 {
 	public IEquippedItem next;
 	
@@ -24,7 +24,7 @@ public class EquippedLoading extends EquippedWrapper
 	protected int tick_left;
 	
 	
-	public EquippedLoading( IEquippedItem wrapped, IItem item, int ammo_slot )
+	public SEquippedLoad( IEquippedItem wrapped, IItem item, int ammo_slot )
 	{
 		super( wrapped );
 		

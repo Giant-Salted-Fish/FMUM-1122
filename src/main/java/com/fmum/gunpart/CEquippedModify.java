@@ -26,13 +26,13 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 @SideOnly( Side.CLIENT )
-public class EquippedModifying extends EquippedWrapRenderC
+public class CEquippedModify extends CEquippedWrapRender
 {
 	protected final ModifySession session;
 	
 	protected IItem item;
 	
-	protected EquippedModifying( EquippedGunPart wrapped, IItem item )
+	protected CEquippedModify( EquippedGunPart wrapped, IItem item )
 	{
 		super( wrapped );
 		

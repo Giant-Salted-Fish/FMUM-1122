@@ -1,10 +1,9 @@
 package com.fmum.gun;
 
 import com.fmum.animation.SoundFrame;
+import com.fmum.gunpart.CEquippedWrapRender;
 import com.fmum.gunpart.EquippedGunPart;
-import com.fmum.gunpart.IGunPart;
 import com.fmum.input.IInput;
-import com.fmum.item.EquippedWrapper;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import gsf.util.animation.IAnimator;
@@ -14,12 +13,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public class EquippedInspectClient extends EquippedWrapper
+public class CEquippedInspect extends CEquippedWrapRender
 {
 	protected int tick_left;
 	protected int sound_idx = 0;
 	
-	public EquippedInspectClient( IEquippedItem wrapped, IItem item )
+	public CEquippedInspect( IEquippedItem wrapped, IItem item )
 	{
 		super( wrapped );
 		
@@ -44,19 +43,11 @@ public class EquippedInspectClient extends EquippedWrapper
 	}
 	
 	@Override
-	public void prepareRenderInHand( IItem item, EnumHand hand )
-	{
-		final IGunPart self = IGunPart.from( item );
-		final IAnimator animator = this._getInHandAnimator( hand, item );
-		final EquippedGunPart eq = ( EquippedGunPart ) this.wrapped;
-		eq.EquippedGunPart$doPrepareRenderInHand( self , animator );
-	}
-	
-	@Override
 	public IEquippedItem onInputUpdate( IItem item, String name, IInput input ) {
 		return this;
 	}
 	
+	@Override
 	protected IAnimator _getInHandAnimator( EnumHand hand, IItem item )
 	{
 		final EquippedGunPart eq = ( EquippedGunPart ) this.wrapped;
@@ -64,7 +55,7 @@ public class EquippedInspectClient extends EquippedWrapper
 		
 		final GunType type = ( GunType ) item.getType();
 		final GunOpConfig config = type.op_inspect;
-		final float progress = IEquippedItem.getProgress( this.tick_left, config.tick_count );
+		final float progress = _getAnimProg( this.tick_left, config.tick_count );
 		final IAnimator animation = config.animation.ofProgress( progress );
 		return IAnimator.compose( animation, base );
 	}

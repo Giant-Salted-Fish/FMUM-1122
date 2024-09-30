@@ -13,11 +13,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.OptionalInt;
 
-public class EquippedUnloading extends EquippedWrapper
+public class SEquippedUnload extends EquippedWrapper
 {
 	protected int tick_left = 0;
 	
-	public EquippedUnloading( IEquippedItem wrapped ) {
+	public SEquippedUnload( IEquippedItem wrapped ) {
 		super( wrapped );
 	}
 	
