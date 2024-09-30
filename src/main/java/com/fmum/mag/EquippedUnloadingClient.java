@@ -46,7 +46,7 @@ public class EquippedUnloadingClient extends EquippedWrapper
 				
 				// Server side will know that this mag is empty. So no need \
 				// to send unwrap packet here.
-				return this.wrapped;
+				return this.wrapped.tickInHand( hand, item, player );
 			}
 			else if ( !this.is_packet_sent )
 			{

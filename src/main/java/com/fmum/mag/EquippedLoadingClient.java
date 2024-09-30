@@ -50,7 +50,7 @@ public class EquippedLoadingClient extends EquippedWrapper
 				
 				// Because every ammo is corresponding to a load packet, \
 				// we do not need to send unwrap packet here.
-				return this.wrapped;
+				return this.wrapped.tickInHand( hand, item, player );
 			}
 			
 			final OptionalInt slot = IAmmoType.lookupValidAmmoSlot(
@@ -58,26 +58,24 @@ public class EquippedLoadingClient extends EquippedWrapper
 				a -> mag.checkAmmoForLoad( a ).isSuccess(),
 				InputManager.getBoolState( Inputs.ALT_AMMO ) ? 1 : 0
 			);
-			if ( slot.isPresent() )
-			{
-				final int ammo_slot = slot.getAsInt();
-				final boolean full_mag = this.trigger_key.equals( Inputs.RELOAD );
-				if ( full_mag && player.isCreative() )
-				{
-					FMUM.NET.sendPacketC2S( new PacketFullMag( ammo_slot ) );
-					return this.wrapped;
-				}
-				else
-				{
-					FMUM.NET.sendPacketC2S( new PacketLoadAmmo( ammo_slot ) );
-					
-					final MagType type = ( MagType ) item.getType();
-					this.tick_left = type.op_load_ammo.tick_count;
-					this.sound_idx = 0;
-				}
+			if ( !slot.isPresent() ) {
+				return this.wrapped.tickInHand( hand, item, player );
 			}
-			else {
+			
+			final int ammo_slot = slot.getAsInt();
+			final boolean full_mag = this.trigger_key.equals( Inputs.RELOAD );
+			if ( full_mag && player.isCreative() )
+			{
+				FMUM.NET.sendPacketC2S( new PacketFullMag( ammo_slot ) );
 				return this.wrapped;
+			}
+			else
+			{
+				FMUM.NET.sendPacketC2S( new PacketLoadAmmo( ammo_slot ) );
+				
+				final MagType type = ( MagType ) item.getType();
+				this.tick_left = type.op_load_ammo.tick_count;
+				this.sound_idx = 0;
 			}
 		}
 		

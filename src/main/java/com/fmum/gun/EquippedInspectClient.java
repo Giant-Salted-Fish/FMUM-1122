@@ -31,7 +31,7 @@ public class EquippedInspectClient extends EquippedWrapper
 	public IEquippedItem tickInHand( EnumHand hand, IItem item, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 ) {
-			return this.wrapped;
+			return this.wrapped.tickInHand( hand, item, player );
 		}
 		
 		final GunType type = ( GunType ) item.getType();
@@ -64,7 +64,7 @@ public class EquippedInspectClient extends EquippedWrapper
 		
 		final GunType type = ( GunType ) item.getType();
 		final GunOpConfig config = type.op_inspect;
-		final float progress = _getProgress( this.tick_left, config.tick_count );
+		final float progress = IEquippedItem.getProgress( this.tick_left, config.tick_count );
 		final IAnimator animation = config.animation.ofProgress( progress );
 		return IAnimator.compose( animation, base );
 	}

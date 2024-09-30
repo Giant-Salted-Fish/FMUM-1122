@@ -1,8 +1,6 @@
 package com.fmum.item;
 
 import com.fmum.input.IInput;
-import gsf.util.math.MoreMath;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
@@ -12,7 +10,7 @@ public abstract class EquippedWrapper implements IEquippedItem
 {
 	public final IEquippedItem wrapped;
 	
-	public EquippedWrapper( IEquippedItem wrapped ) {
+	protected EquippedWrapper( IEquippedItem wrapped ) {
 		this.wrapped = wrapped;
 	}
 	
@@ -63,15 +61,5 @@ public abstract class EquippedWrapper implements IEquippedItem
 	@SideOnly( Side.CLIENT )
 	public float getMouseSensitivity( float original_sensitivity, IItem item ) {
 		return this.wrapped.getMouseSensitivity( original_sensitivity, item );
-	}
-	
-	
-	// TODO: Move this?
-	@SideOnly( Side.CLIENT )
-	protected static float _getProgress( int tick_left, int tick_count )
-	{
-		final float alpha = Minecraft.getMinecraft().getRenderPartialTicks();
-		final float partial_tick = MoreMath.lerp( tick_left + 1, tick_left, alpha );
-		return 1.0F - partial_tick / tick_count;
 	}
 }

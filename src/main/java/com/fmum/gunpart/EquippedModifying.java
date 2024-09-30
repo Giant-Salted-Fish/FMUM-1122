@@ -3,7 +3,6 @@ package com.fmum.gunpart;
 import com.fmum.input.IInput;
 import com.fmum.input.InputManager;
 import com.fmum.input.Inputs;
-import com.fmum.item.EquippedWrapper;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.module.IModule;
@@ -27,7 +26,7 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 @SideOnly( Side.CLIENT )
-public class EquippedModifying extends EquippedWrapper
+public class EquippedModifying extends EquippedWrapRenderC
 {
 	protected final ModifySession session;
 	
@@ -72,6 +71,31 @@ public class EquippedModifying extends EquippedWrapper
 		
 		this.item = held_item;
 		return this;
+	}
+	
+	@Override
+	protected IGunPart _getRenderDelegate( EnumHand hand, IItem item ) {
+		return ( IGunPart ) this.session.getRoot();
+	}
+	
+	@Override
+	protected IAnimator _getInHandAnimator( EnumHand hand, IItem item )
+	{
+		// TODO: blend with original animator.
+		final EquippedGunPart eq = ( EquippedGunPart ) this.wrapped;
+		final IAnimator wrapped = eq.EquippedGunPart$getInHandAnimator( hand, item );
+		
+		final EntityPlayerSP player = Minecraft.getMinecraft().player;
+		final GunPartType type = ( GunPartType ) item.getType();
+		final Vec3f modify_pos = type.modify_pos;
+		final Mat4f mat = new Mat4f();
+		mat.setIdentity();
+		mat.translate( 0.0F, 0.0F, modify_pos.z );
+		mat.rotateX( -player.rotationPitch );
+		mat.rotateY( 90.0F + player.rotationYaw );
+		mat.translate( modify_pos.x, modify_pos.y, 0.0F );
+		final IPoseSetup in_hand_setup = IPoseSetup.of( mat );
+		return channel -> channel.equals( CHANNEL_ITEM ) ? in_hand_setup : IPoseSetup.EMPTY;
 	}
 	
 	@Override
@@ -150,33 +174,5 @@ public class EquippedModifying extends EquippedWrapper
 	@Override
 	public boolean shouldDisableCrosshair( IItem item ) {
 		return !InputManager.getBoolState( Inputs.FREE_VIEW );
-	}
-	
-	@Override
-	public void prepareRenderInHand( EnumHand hand, IItem item )
-	{
-		final IGunPart delegate = ( IGunPart ) this.session.getRoot();
-		final IAnimator animator = this._getInHandAnimator( hand, item );
-		final EquippedGunPart eq = ( EquippedGunPart ) this.wrapped;
-		eq.EquippedGunPart$doPrepareRenderInHand( delegate, animator );
-	}
-	
-	protected IAnimator _getInHandAnimator( EnumHand hand, IItem item )
-	{
-		// TODO: blend with original animator.
-		final EquippedGunPart eq = ( EquippedGunPart ) this.wrapped;
-		final IAnimator wrapped = eq.EquippedGunPart$getInHandAnimator( hand, item );
-		
-		final EntityPlayerSP player = Minecraft.getMinecraft().player;
-		final GunPartType type = ( GunPartType ) item.getType();
-		final Vec3f modify_pos = type.modify_pos;
-		final Mat4f mat = new Mat4f();
-		mat.setIdentity();
-		mat.translate( 0.0F, 0.0F, modify_pos.z );
-		mat.rotateX( -player.rotationPitch );
-		mat.rotateY( 90.0F + player.rotationYaw );
-		mat.translate( modify_pos.x, modify_pos.y, 0.0F );
-		final IPoseSetup in_hand_setup = IPoseSetup.of( mat );
-		return channel -> channel.equals( CHANNEL_ITEM ) ? in_hand_setup : IPoseSetup.EMPTY;
 	}
 }

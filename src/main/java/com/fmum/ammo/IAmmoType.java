@@ -12,7 +12,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.OptionalInt;
 import java.util.PrimitiveIterator;
 import java.util.function.Predicate;
-import java.util.stream.IntStream;
 
 public interface IAmmoType extends IItemType
 {

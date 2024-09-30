@@ -28,7 +28,7 @@ public class EquippedUnloading extends EquippedWrapper
 		{
 			final IMag mag = IMag.from( item );
 			if ( mag.isEmpty() ) {
-				return this.wrapped;
+				return this.wrapped.tickInHand( hand, item, player );
 			}
 			
 			final MagType type = ( MagType ) item.getType();
