@@ -32,6 +32,8 @@ public class GunType extends GunPartType
 	);
 	
 	
+	public GunOpConfig op_take_out;
+	
 	protected GunOpConfig op_load_mag;
 	
 	@SideOnly( Side.CLIENT )
@@ -44,6 +46,7 @@ public class GunType extends GunPartType
 		super.reload( data, ctx );
 		
 		this.op_load_mag = data.get( "op_load_mag", GunOpConfig.class ).orElse( GunOpConfig.DEFAULT );
+		this.op_take_out = this.op_load_mag;
 		FMUM.SIDE.runIfClient( () -> {
 			this.op_inspect = data.get( "op_inspect", GunOpConfig.class ).orElse( GunOpConfig.DEFAULT );
 		} );
@@ -62,8 +65,14 @@ public class GunType extends GunPartType
 	}
 	
 	@Override
-	protected IEquippedItem _newEquipped( EnumHand hand, IItem item, EntityPlayer player ) {
-		return new EquippedGun();
+	protected IEquippedItem _newEquipped( EnumHand hand, IItem item, EntityPlayer player )
+	{
+		final EquippedGun equipped = new EquippedGun();
+		return (
+			player.world.isRemote
+			? new CEquippedTakeOut( equipped, item )
+			: new SEquippedTakeOut( equipped, item )
+		);
 	}
 	
 	
