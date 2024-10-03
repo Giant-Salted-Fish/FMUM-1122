@@ -69,9 +69,6 @@ public class MagType extends GunPartType
 	protected MagOpConfig op_unload_ammo;
 	
 	@SideOnly( Side.CLIENT )
-	protected String loading_anim_channel;
-	
-	@SideOnly( Side.CLIENT )
 	protected ModelPath follower_model_path;
 	
 	@SideOnly( Side.CLIENT )
@@ -103,7 +100,6 @@ public class MagType extends GunPartType
 		this.op_load_ammo = data.get( "op_load_ammo", MagOpConfig.class ).orElse( OP_LOAD_AMMO );
 		this.op_unload_ammo = data.get( "op_unload_ammo", MagOpConfig.class ).orElse( OP_UNLOAD_AMMO );
 		FMUM.SIDE.runIfClient( () -> {
-			this.loading_anim_channel = data.getString( "loading_anim_channel" ).orElse( "loading_mag" );
 			this.follower_model_path = data.get( "follower_model", ModelPath.class ).orElse( ModelPath.NONE );
 			this.follower_pos = data.get( "follower_pos", Vec3f[].class ).orElse( new Vec3f[ 0 ] );
 			this.follower_rot = data.get( "follower_rot", AxisAngle4f[].class ).orElse( new AxisAngle4f[ 0 ] );
@@ -271,9 +267,9 @@ public class MagType extends GunPartType
 					Consumer< IPreparedRenderer > render_queue
 				) {
 					final IAnimator wrapper = channel -> animator.getChannel(
-						channel.equals( MagType.this.mod_anim_channel )
-						? MagType.this.loading_anim_channel
-						: channel
+						channel.equals( IEquippedItem.CHANNEL_ITEM )
+						? IEquippedItem.CHANNEL_ITEM
+						: "loading-".concat( channel )
 					);
 					super.IGunPart$prepareRender( base_slot_idx, wrapper, render_queue );
 				}
