@@ -6,6 +6,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Optional;
+
 public interface IEquippedItem
 {
 	/**
@@ -16,6 +18,10 @@ public interface IEquippedItem
 	
 	default IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player ) {
 		return this;
+	}
+	
+	default Optional< IEquippedItem > tickPutAway( IItem item, EnumHand hand, EntityPlayer player ) {
+		return Optional.empty();
 	}
 	
 	@SideOnly( Side.CLIENT )

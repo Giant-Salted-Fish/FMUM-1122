@@ -6,6 +6,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Optional;
+
 public abstract class EquippedWrapper implements IEquippedItem
 {
 	public final IEquippedItem wrapped;
@@ -16,6 +18,11 @@ public abstract class EquippedWrapper implements IEquippedItem
 	
 	@Override
 	public abstract IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player );
+	
+	@Override
+	public Optional< IEquippedItem > tickPutAway( IItem item, EnumHand hand, EntityPlayer player ) {
+		return this.wrapped.tickPutAway( item, hand, player );
+	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )

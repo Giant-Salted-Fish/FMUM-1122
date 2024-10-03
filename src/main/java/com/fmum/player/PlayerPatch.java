@@ -64,7 +64,6 @@ public class PlayerPatch
 	
 	
 	int inv_slot = -1;
-	
 	IItem main_item = VANILLA_ITEM;
 	IEquippedItem main_equipped = VANILLA_EQUIPPED;
 	
@@ -83,17 +82,29 @@ public class PlayerPatch
 			final int inv_slot = inv.currentItem;
 			final ItemStack stack = inv.getStackInSlot( inv_slot );
 			final Optional< IItem > opt_item = IItem.ofOrEmpty( stack );
-			final IItem held_item = opt_item.orElse( VANILLA_ITEM );
-			if ( !this.getItemIn( hand ).equals( opt_item ) || inv_slot != this.inv_slot )
+			if ( this.getItemIn( hand ).equals( opt_item ) && inv_slot == this.inv_slot )
 			{
-				this.main_equipped = held_item.onTakeOut( hand, player );
-				this.inv_slot = inv_slot;
+				final IItem item = opt_item.orElse( VANILLA_ITEM );
+				// Necessary, because we are using #equals here.
+				this.main_item = item;
+				this.main_equipped = this.main_equipped.tickInHand( item, hand, player );
 			}
-			
-			this.main_equipped = this.main_equipped.tickInHand( held_item, hand, player );
-			
-			// Necessary, because we are using #equals here.
-			this.main_item = held_item;
+			else
+			{
+				final Optional< IEquippedItem > opt_eq;
+				opt_eq = this.main_equipped.tickPutAway( this.main_item, hand, player );
+				if ( opt_eq.isPresent() ) {
+					this.main_equipped = opt_eq.get();
+				}
+				else
+				{
+					this.inv_slot = inv_slot;
+					final IItem item = opt_item.orElse( VANILLA_ITEM );
+					this.main_item = item;
+					final IEquippedItem equipped = item.onTakeOut( hand, player );
+					this.main_equipped = equipped.tickInHand( item, hand, player );
+				}
+			}
 		}
 		
 		// >>> Update Off-hand <<<
@@ -101,13 +112,27 @@ public class PlayerPatch
 			final EnumHand hand = EnumHand.OFF_HAND;
 			final ItemStack stack = player.getHeldItemOffhand();
 			final Optional< IItem > opt_item = IItem.ofOrEmpty( stack );
-			final IItem held_item = opt_item.orElse( VANILLA_ITEM );
-			if ( !this.getItemIn( hand ).equals( opt_item ) ) {
-				this.off_equipped = held_item.onTakeOut( hand, player );
+			if ( this.getItemIn( hand ).equals( opt_item ) )
+			{
+				final IItem item = opt_item.orElse( VANILLA_ITEM );
+				this.off_item = item;
+				this.off_equipped = this.off_equipped.tickInHand( item, hand, player );
 			}
-			
-			this.off_equipped = this.off_equipped.tickInHand( held_item, hand, player );
-			this.off_item = held_item;
+			else
+			{
+				final Optional< IEquippedItem > opt_eq;
+				opt_eq = this.off_equipped.tickPutAway( this.main_item, hand, player );
+				if ( opt_eq.isPresent() ) {
+					this.off_equipped = opt_eq.get();
+				}
+				else
+				{
+					final IItem item = opt_item.orElse( VANILLA_ITEM );
+					this.off_item = item;
+					final IEquippedItem equipped = item.onTakeOut( hand, player );
+					this.off_equipped = equipped.tickInHand( item, hand, player );
+				}
+			}
 		}
 	}
 	

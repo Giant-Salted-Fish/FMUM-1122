@@ -5,11 +5,25 @@ import com.fmum.input.IInput;
 import com.fmum.input.Inputs;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Optional;
+
 public class EquippedGun extends EquippedGunPart
 {
+	@Override
+	public Optional< IEquippedItem > tickPutAway( IItem item, EnumHand hand, EntityPlayer player )
+	{
+		return Optional.of(
+			player.world.isRemote
+			? new CEquippedPutAway( this, item )
+			: new SEquippedPutAway( this, item )
+		);
+	}
+	
 	@Override
 	@SideOnly( Side.CLIENT )
 	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
