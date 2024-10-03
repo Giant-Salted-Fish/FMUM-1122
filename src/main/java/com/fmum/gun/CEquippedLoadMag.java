@@ -1,5 +1,6 @@
 package com.fmum.gun;
 
+import com.fmum.FMUM;
 import com.fmum.animation.SoundFrame;
 import com.fmum.gunpart.EquippedGunPart;
 import com.fmum.gunpart.CEquippedWrapRender;
@@ -9,6 +10,7 @@ import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.mag.IMag;
 import com.fmum.module.IModule;
+import com.fmum.network.PacketLoadMag;
 import gsf.util.animation.IAnimator;
 import gsf.util.lang.Result;
 import net.minecraft.client.Minecraft;
@@ -35,13 +37,7 @@ public class CEquippedLoadMag extends CEquippedWrapRender
 	{
 		super( wrapped );
 		
-		final IGun gun = IGun.from( item );
-		if ( gun.getMag().isPresent() )
-		{
-			this.tick_left = 0;
-			return;
-		}
-		
+		final IGun gun = IGun.from( item );  // {gun.getMag().isPresent()} has been checked.
 		final EntityPlayerSP player = Minecraft.getMinecraft().player;
 		final IntStream slots = IItem.lookupIn( player.inventory, it -> (
 			it.lookupCapability( IModule.CAPABILITY )
@@ -51,14 +47,15 @@ public class CEquippedLoadMag extends CEquippedWrapRender
 			.map( Result::isSuccess )
 			.orElse( false )
 		) );
-		final OptionalInt mag_slot = slots.findFirst();
-		if ( !mag_slot.isPresent() )
+		final OptionalInt opt_slot = slots.findFirst();
+		if ( !opt_slot.isPresent() )
 		{
 			this.tick_left = 0;
 			return;
 		}
 		
-		final ItemStack stack = player.inventory.getStackInSlot( mag_slot.getAsInt() );
+		final int mag_slot = opt_slot.getAsInt();
+		final ItemStack stack = player.inventory.getStackInSlot( mag_slot );
 		final IMag mag = IMag.from( IItem.ofOrEmpty( stack ).orElseThrow( IllegalStateException::new ) );
 		final IMag proxy = mag.IMag$createLoadingProxy();
 		
@@ -71,6 +68,8 @@ public class CEquippedLoadMag extends CEquippedWrapRender
 		
 		final GunType type = ( GunType ) item.getType();
 		this.tick_left = type.op_load_mag.tick_count;
+		
+		FMUM.NET.sendPacketC2S( new PacketLoadMag( mag_slot ) );
 	}
 	
 	@Override

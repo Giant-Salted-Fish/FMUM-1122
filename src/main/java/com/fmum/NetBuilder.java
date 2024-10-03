@@ -6,6 +6,7 @@ import com.fmum.network.PacketClearMag;
 import com.fmum.network.PacketFullMag;
 import com.fmum.network.PacketInstallModule;
 import com.fmum.network.PacketLoadAmmo;
+import com.fmum.network.PacketLoadMag;
 import com.fmum.network.PacketRemoveModule;
 import com.fmum.network.PacketSyncConfig;
 import com.fmum.network.PacketUnloadAmmo;
@@ -37,6 +38,7 @@ final class NetBuilder
 		this.__regisServerPacket( PacketUnloadAmmo.class );
 		this.__regisServerPacket( PacketFullMag.class );
 		this.__regisServerPacket( PacketClearMag.class );
+		this.__regisServerPacket( PacketLoadMag.class );
 		
 		this.__regisClientPacket( PacketSyncConfig.class );
 		return this;
