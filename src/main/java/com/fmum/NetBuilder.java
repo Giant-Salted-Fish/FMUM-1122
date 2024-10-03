@@ -10,6 +10,7 @@ import com.fmum.network.PacketLoadMag;
 import com.fmum.network.PacketRemoveModule;
 import com.fmum.network.PacketSyncConfig;
 import com.fmum.network.PacketUnloadAmmo;
+import com.fmum.network.PacketUnloadMag;
 import com.fmum.network.PacketUnwrapEquipped;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -39,6 +40,7 @@ final class NetBuilder
 		this.__regisServerPacket( PacketFullMag.class );
 		this.__regisServerPacket( PacketClearMag.class );
 		this.__regisServerPacket( PacketLoadMag.class );
+		this.__regisServerPacket( PacketUnloadMag.class );
 		
 		this.__regisClientPacket( PacketSyncConfig.class );
 		return this;

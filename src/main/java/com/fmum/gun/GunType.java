@@ -36,6 +36,7 @@ public class GunType extends GunPartType
 	protected GunOpConfig op_put_away;
 	
 	protected GunOpConfig op_load_mag;
+	protected GunOpConfig op_unload_mag;
 	
 	@SideOnly( Side.CLIENT )
 	protected GunOpConfig op_inspect;
@@ -49,6 +50,7 @@ public class GunType extends GunPartType
 		this.op_take_out = data.get( "op_take_out", GunOpConfig.class ).orElse( GunOpConfig.DEFAULT );
 		this.op_put_away = data.get( "op_put_away", GunOpConfig.class ).orElse( GunOpConfig.DEFAULT );
 		this.op_load_mag = data.get( "op_load_mag", GunOpConfig.class ).orElse( GunOpConfig.DEFAULT );
+		this.op_unload_mag = data.get( "op_unload_mag", GunOpConfig.class ).orElse( GunOpConfig.DEFAULT );
 		FMUM.SIDE.runIfClient( () -> {
 			this.op_inspect = data.get( "op_inspect", GunOpConfig.class ).orElse( GunOpConfig.DEFAULT );
 		} );
@@ -105,6 +107,11 @@ public class GunType extends GunPartType
 				? new Error<>( error.get() )
 				: new Success<>( preview::apply )
 			);
+		}
+		
+		@Override
+		public IMag popMag() {
+			return ( IMag ) this.tryRemove( 0, 0 ).apply();
 		}
 	}
 }

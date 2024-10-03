@@ -14,6 +14,8 @@ public interface IGun extends IGunPart
 	
 	Result< Runnable, String > checkMagForLoad( IMag mag );
 	
+	IMag popMag();
+	
 	
 	static IGun from( IItem item )
 	{
