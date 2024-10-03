@@ -32,7 +32,7 @@ public class GunType extends GunPartType
 	);
 	
 	
-	public GunOpConfig op_take_out;
+	protected GunOpConfig op_take_out;
 	
 	protected GunOpConfig op_load_mag;
 	
@@ -45,8 +45,8 @@ public class GunType extends GunPartType
 	{
 		super.reload( data, ctx );
 		
+		this.op_take_out = data.get( "op_take_out", GunOpConfig.class ).orElse( GunOpConfig.DEFAULT );
 		this.op_load_mag = data.get( "op_load_mag", GunOpConfig.class ).orElse( GunOpConfig.DEFAULT );
-		this.op_take_out = this.op_load_mag;
 		FMUM.SIDE.runIfClient( () -> {
 			this.op_inspect = data.get( "op_inspect", GunOpConfig.class ).orElse( GunOpConfig.DEFAULT );
 		} );
