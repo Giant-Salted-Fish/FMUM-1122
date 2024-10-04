@@ -16,7 +16,8 @@ public class SEquippedTakeOut extends EquippedWrapper
 		super( wrapped );
 		
 		final GunType type = ( GunType ) item.getType();
-		this.tick_left = type.op_take_out.tick_count;
+		this.tick_left = type.op_take_out.tick_count - 1;  // Catch up client.
+		assert this.tick_left >= 0;
 	}
 	
 	@Override
@@ -35,8 +36,7 @@ public class SEquippedTakeOut extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
-	{
-		return null;
+	public IEquippedItem onInputUpdate( IItem item, String name, IInput input ) {
+		throw new UnsupportedOperationException();
 	}
 }

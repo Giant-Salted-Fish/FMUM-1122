@@ -18,7 +18,8 @@ public class SEquippedPutAway extends EquippedWrapper
 		super( wrapped );
 		
 		final GunType type = ( GunType ) item.getType();
-		this.tick_left = type.op_put_away.tick_count;
+		this.tick_left = type.op_put_away.tick_count - 1;  // Catch up client.
+		assert this.tick_left >= 0;
 	}
 	
 	@Override
