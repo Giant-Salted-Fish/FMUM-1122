@@ -132,10 +132,7 @@ public class EquippedGunPart implements IEquippedItem
 		// Setup and render!
 		GLUtil.glRotateYf( 180.0F - player.rotationYaw );
 		GLUtil.glRotateXf( player.rotationPitch );
-		
-		// TODO: Refactor out setup.
-//		Dev.cur().applyTransRot();
-		this.in_hand_queue.forEach( Runnable::run );
+		this._doRenderInHand( item, hand );
 		
 		GlStateManager.disableRescaleNormal();
 		RenderHelper.disableStandardItemLighting();
@@ -145,6 +142,13 @@ public class EquippedGunPart implements IEquippedItem
 		
 		GL11.glPopMatrix();
 		return true;
+	}
+	
+	@SideOnly( Side.CLIENT )
+	protected void _doRenderInHand( IItem item, EnumHand hand )
+	{
+//		Dev.cur().applyTransRot();
+		this.in_hand_queue.forEach( Runnable::run );
 	}
 	
 	@Override
