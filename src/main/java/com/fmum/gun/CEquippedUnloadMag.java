@@ -71,7 +71,7 @@ public class CEquippedUnloadMag extends CEquippedWrapRender
 		final GunOpConfig config = type.op_unload_mag;
 		final float progress = _getAnimProg( this.tick_left, config.tick_count );
 		final IAnimator animation = config.animation.ofProgress( progress );
-		return IAnimator.compose( animation, base );
+		return IAnimator.compose( base, animation );
 	}
 	
 	@Override

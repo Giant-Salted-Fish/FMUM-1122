@@ -1,6 +1,5 @@
 package com.fmum.module;
 
-import gsf.util.math.Mat4f;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants.NBT;
@@ -15,7 +14,6 @@ public abstract class Module implements IModule
 	
 	
 	protected IModule base = null;
-	protected final Mat4f mat = new Mat4f();  // TODO: Re-check this.
 	
 	protected short paintjob_idx = 0;
 	

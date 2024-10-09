@@ -4,11 +4,11 @@ import com.fmum.SyncConfig;
 import com.fmum.input.InputManager;
 import com.fmum.input.Inputs;
 import gsf.util.animation.IAnimator;
-import gsf.util.animation.IPoseSetup;
 import gsf.util.animation.MassSpringMotion;
 import gsf.util.math.Mat4f;
 import gsf.util.math.Quat4f;
 import gsf.util.math.Vec3f;
+import gsf.util.render.IPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.MouseHelper;
@@ -163,7 +163,7 @@ public abstract class PlayerCamera implements IPlayerCamera
 		final float view_yaw = this.player_rot.y + free_view_yaw;
 		
 //		this.animator.update();  // FIXME: Animator update?
-		final IPoseSetup setup = this.animator.getChannel( CHANNEL_CAMERA );
+		final IPose setup = this.animator.getChannel( CHANNEL_CAMERA );
 		
 		final Mat4f view_mat = this.view_mat;
 		final Quat4f quat = Quat4f.allocate();
@@ -204,8 +204,8 @@ public abstract class PlayerCamera implements IPlayerCamera
 	}
 	
 	@Override
-	public IPoseSetup getCameraSetup() {
-		return IPoseSetup.of( this.view_mat );
+	public IPose getCameraSetup() {
+		return IPose.ofMat( this.view_mat );
 	}
 	
 	protected float _getMouseFactor()

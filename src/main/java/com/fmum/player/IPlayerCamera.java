@@ -1,6 +1,6 @@
 package com.fmum.player;
 
-import gsf.util.animation.IPoseSetup;
+import gsf.util.render.IPose;
 import net.minecraft.util.MouseHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -15,5 +15,5 @@ public interface IPlayerCamera
 	
 	void prepareRender( MouseHelper mouse );
 	
-	IPoseSetup getCameraSetup();
+	IPose getCameraSetup();
 }

@@ -3,6 +3,7 @@ package gsf.util.animation;
 import gsf.util.math.MoreMath;
 import gsf.util.math.Quat4f;
 import gsf.util.math.Vec3f;
+import gsf.util.render.IPose;
 
 import java.util.Arrays;
 import java.util.Map.Entry;
@@ -32,7 +33,7 @@ public class Bone
 	public IPoseSetup getPoseSetup( float progress, IAnimator cursor )
 	{
 		// Get parent track.
-		final IPoseSetup parent = cursor.getChannel( this.parent );
+		final IPose parent = cursor.getChannel( this.parent );
 		
 		// Alpha track.
 		final float alpha;

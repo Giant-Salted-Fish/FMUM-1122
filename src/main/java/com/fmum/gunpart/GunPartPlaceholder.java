@@ -8,7 +8,7 @@ import com.fmum.render.IPreparedRenderer;
 import com.fmum.render.ModelPath;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimator;
-import gsf.util.animation.IPoseSetup;
+import gsf.util.render.IPose;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
@@ -142,18 +142,12 @@ public abstract class GunPartPlaceholder implements IGunPart
 	
 	@Override
 	public void IGunPart$prepareRender(
-		int base_slot_idx,
+		IPose base_pose,
 		IAnimator animator,
 		Consumer< IPreparedRenderer > registry
 	) {
-		final IPoseSetup setup = this.base.IGunPart$getRenderSetup( this, base_slot_idx );
-		registry.accept( cam -> Pair.of( 0.0F, () -> this._renderModel( animator, setup ) ) );
+		registry.accept( cam -> Pair.of( 0.0F, () -> this._renderModel( base_pose, animator ) ) );
 	}
 	
-	protected abstract void _renderModel( IAnimator animator, IPoseSetup setup );
-	
-	@Override
-	public IPoseSetup IGunPart$getRenderSetup( IGunPart gun_part, int slot_idx ) {
-		throw new UnsupportedOperationException();
-	}
+	protected abstract void _renderModel( IPose pose, IAnimator animator );
 }

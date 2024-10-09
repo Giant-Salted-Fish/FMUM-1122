@@ -9,9 +9,9 @@ import com.fmum.module.IModule;
 import com.fmum.module.ModifySession;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimator;
-import gsf.util.animation.IPoseSetup;
 import gsf.util.math.Mat4f;
 import gsf.util.math.Vec3f;
+import gsf.util.render.IPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
@@ -94,8 +94,8 @@ public class CEquippedModify extends CEquippedWrapRender
 		mat.rotateX( -player.rotationPitch );
 		mat.rotateY( 90.0F + player.rotationYaw );
 		mat.translate( modify_pos.x, modify_pos.y, 0.0F );
-		final IPoseSetup in_hand_setup = IPoseSetup.of( mat );
-		return channel -> channel.equals( CHANNEL_ITEM ) ? in_hand_setup : IPoseSetup.EMPTY;
+		final IPose in_hand_setup = IPose.ofMat( mat );
+		return channel -> channel.equals( CHANNEL_ITEM ) ? in_hand_setup : IPose.EMPTY;
 	}
 	
 	@Override

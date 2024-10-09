@@ -1,7 +1,7 @@
 package com.fmum.network;
 
-import com.fmum.mag.SEquippedLoad;
 import com.fmum.mag.EquippedMag;
+import com.fmum.mag.SEquippedLoad;
 import com.fmum.player.PlayerPatch;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;

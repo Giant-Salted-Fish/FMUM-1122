@@ -26,6 +26,7 @@ import gsf.util.lang.Success;
 import gsf.util.math.AxisAngle4f;
 import gsf.util.math.Vec3f;
 import gsf.util.render.GLUtil;
+import gsf.util.render.IPose;
 import gsf.util.render.Mesh;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -193,11 +194,11 @@ public class MagType extends GunPartType
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		protected void _renderModel( IAnimator animator )
+		protected void _renderModel( IPose pose, IAnimator animator )
 		{
 			// Render ammo first as mag itself can be transparent.
 			GL11.glPushMatrix();
-			GLUtil.glMultMatrix( this.mat );
+			pose.glApply();
 			
 			final Vec3f[] ammo_pos = MagType.this.ammo_pos;
 			final AxisAngle4f[] ammo_rot = MagType.this.ammo_rot;
@@ -244,7 +245,7 @@ public class MagType extends GunPartType
 			}
 			GL11.glPopMatrix();
 			
-			super._renderModel( animator );
+			super._renderModel( pose, animator );
 		}
 		
 		@Override
@@ -262,7 +263,7 @@ public class MagType extends GunPartType
 			return new Mag( Mag.this.nbt.copy() ) {
 				@Override
 				public void IGunPart$prepareRender(
-					int base_slot_idx,
+					IPose base_pose,
 					IAnimator animator,
 					Consumer< IPreparedRenderer > render_queue
 				) {
@@ -271,7 +272,7 @@ public class MagType extends GunPartType
 						? IEquippedItem.CHANNEL_ITEM
 						: "loading-".concat( channel )
 					);
-					super.IGunPart$prepareRender( base_slot_idx, wrapper, render_queue );
+					super.IGunPart$prepareRender( base_pose, wrapper, render_queue );
 				}
 			};
 		}

@@ -27,11 +27,10 @@ import com.google.gson.JsonObject;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimation;
 import gsf.util.animation.IAnimator;
-import gsf.util.animation.IPoseSetup;
-import gsf.util.math.Mat4f;
 import gsf.util.math.Quat4f;
 import gsf.util.math.Vec3f;
 import gsf.util.render.GLUtil;
+import gsf.util.render.IPose;
 import gsf.util.render.Mesh;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
@@ -616,16 +615,16 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		public int installPreviewPlaceholder( int slot_idx, IModifyContext ctx )
 		{
 			final RailSlot slot = GunPartType.this.slots[ slot_idx ];
-			final float offset = 0.5F * slot.step_len * slot.max_step;
+			final float factor = 0.5F * slot.max_step;
+			final Vec3f step = slot.step;
 			
-			final IGunPart placeholder = new GunPartPlaceholder()
-			{
+			final IGunPart placeholder = new GunPartPlaceholder() {
 				@Override
-				protected void _renderModel( IAnimator animator, IPoseSetup setup )
+				protected void _renderModel( IPose pose, IAnimator animator )
 				{
 					GL11.glPushMatrix();
-					setup.glApply();
-					GL11.glTranslatef( 0.0F, 0.0F, offset );
+					pose.glApply();
+					GL11.glTranslatef( factor * step.x, factor * step.y, factor * step.z );
 					GLUtil.glScale1f( GunPartType.this.placeholder_scale );
 					GLUtil.bindTexture( Texture.GREEN );
 					GLUtil.maxGlowOn();
@@ -643,10 +642,10 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		{
 			return new GunPart( GunPart.this.nbt.copy() ) {
 				@Override
-				protected void _renderModel( IAnimator animator )
+				protected void _renderModel( IPose pose, IAnimator animator )
 				{
 					GL11.glPushMatrix();
-					GLUtil.glMultMatrix( this.mat );
+					pose.glApply();
 					GLUtil.glScale1f( GunPartType.this.fp_scale );
 					
 					// Highlight in green/red to indicate selection.
@@ -664,24 +663,16 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		@Override
 		@SideOnly( Side.CLIENT )
 		public void IGunPart$prepareRender(
-			int base_slot_idx,
+			IPose base_pose,
 			IAnimator animator,
 			Consumer< IPreparedRenderer > render_queue
 		) {
-			// Obtain render transform from base module.
-			final Optional< ? extends IGunPart > base = this.getBase();
-			if ( base.isPresent() ) {
-				base.get().IGunPart$getRenderSetup( this, base_slot_idx ).getTransform( this.mat );
-			}
-			else {
-				animator.getChannel( IEquippedItem.CHANNEL_ITEM ).getTransform( this.mat );
-			}
-			
 			// Apply animation specific to this gun part.
-			animator.getChannel( GunPartType.this.mod_anim_channel ).applyTransform( this.mat );
+			final IPose anim = animator.getChannel( GunPartType.this.mod_anim_channel );
+			final IPose pose = IPose.compose( base_pose, anim );  // TODO: Maybe skip IPose.EMPTY?
 			
 			// Enqueue render callback.
-			render_queue.accept( cam -> Pair.of( 0.0F, () -> this._renderModel( animator ) ) );
+			render_queue.accept( cam -> Pair.of( 0.0F, () -> this._renderModel( pose, animator ) ) );
 			
 			// Dispatch to child modules.
 			final ListIterator< IModule > itr = this.installed_modules.listIterator();
@@ -689,10 +680,13 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			for ( int slt_idx = 0; slt_idx < slt_cnt; slt_idx += 1 )
 			{
 				final int end = this._getSlotStartIdx( slt_idx + 1 );
+				final RailSlot slot = GunPartType.this.slots[ slt_idx ];
 				while ( itr.nextIndex() < end )
 				{
 					final IGunPart child = ( IGunPart ) itr.next();
-					child.IGunPart$prepareRender( slt_idx, animator, render_queue );
+					final IPose slt_pose = slot.getPose( child.getStep() );
+					final IPose child_pose = IPose.compose( pose, slt_pose );
+					child.IGunPart$prepareRender( child_pose, animator, render_queue );
 				}
 			}
 		}
@@ -711,10 +705,10 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		}
 		
 		@SideOnly( Side.CLIENT )
-		protected void _renderModel( IAnimator animator )
+		protected void _renderModel( IPose pose, IAnimator animator )
 		{
 			GL11.glPushMatrix();
-			GLUtil.glMultMatrix( this.mat );
+			pose.glApply();
 			GLUtil.glScale1f( GunPartType.this.fp_scale );
 			GLUtil.bindTexture( this._getTexture() );
 			Arrays.stream( GunPartType.this.models ).forEachOrdered( model -> model.render( animator ) );
@@ -724,22 +718,6 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		@SideOnly( Side.CLIENT )
 		protected Texture _getTexture() {
 			return GunPartType.this.paintjobs.get( this.paintjob_idx ).getTexture();
-		}
-		
-		@Override
-		@SideOnly( Side.CLIENT )
-		public IPoseSetup IGunPart$getRenderSetup( IGunPart gun_part, int slot_idx )
-		{
-			final Mat4f dst = new Mat4f();
-			dst.set( this.mat );
-			
-			final RailSlot slot = GunPartType.this.slots[ slot_idx ];
-			final float step_offset = slot.step_len * gun_part.getStep();
-			
-			final Vec3f origin = slot.origin;
-			dst.translate( origin.x, origin.y, origin.z + step_offset );
-			dst.rotateZ( slot.rot_z );
-			return IPoseSetup.of( dst );
 		}
 		
 		@Override

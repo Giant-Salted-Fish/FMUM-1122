@@ -9,9 +9,9 @@ import com.fmum.player.PlayerPatchClient;
 import com.fmum.render.IPreparedRenderer;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimator;
-import gsf.util.animation.IPoseSetup;
 import gsf.util.math.Vec3f;
 import gsf.util.render.GLUtil;
+import gsf.util.render.IPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.EntityRenderer;
@@ -68,9 +68,10 @@ public class EquippedGunPart implements IEquippedItem
 		
 		// Collect render callback.
 		final ArrayList< IPreparedRenderer > renderers = new ArrayList<>();
-		self.IGunPart$prepareRender( -1, animator, renderers::add );
+		final IPose pose = animator.getChannel( CHANNEL_ITEM );
+		self.IGunPart$prepareRender( pose, animator, renderers::add );
 		renderers.stream()
-			.map( pr -> pr.with( IPoseSetup.EMPTY ) )
+			.map( pr -> pr.with( IPose.EMPTY ) )
 			.sorted( Comparator.comparing( Pair::first ) )  // TODO: Reverse or not?
 			.map( Pair::second )
 			.forEachOrdered( this.in_hand_queue::add );
@@ -90,8 +91,8 @@ public class EquippedGunPart implements IEquippedItem
 			pos.set( type.fp_pos );
 			pos.x = -pos.x;
 		}
-		final IPoseSetup in_hand_setup = IPoseSetup.of( pos, type.fp_rot, 0.0F );
-		return ch -> ch.equals( CHANNEL_ITEM ) ? in_hand_setup : IPoseSetup.EMPTY;
+		final IPose in_hand_setup = IPose.of( pos, type.fp_rot );
+		return ch -> ch.equals( CHANNEL_ITEM ) ? in_hand_setup : IPose.EMPTY;
 	}
 	
 	@Override

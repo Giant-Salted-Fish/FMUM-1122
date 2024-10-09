@@ -1,7 +1,6 @@
 package com.fmum.network;
 
 import com.fmum.gun.EquippedGun;
-import com.fmum.gun.SEquippedLoadMag;
 import com.fmum.gun.SEquippedUnloadMag;
 import com.fmum.player.PlayerPatch;
 import io.netty.buffer.ByteBuf;

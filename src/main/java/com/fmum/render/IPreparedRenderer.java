@@ -1,7 +1,7 @@
 package com.fmum.render;
 
 import com.mojang.realmsclient.util.Pair;
-import gsf.util.animation.IPoseSetup;
+import gsf.util.render.IPose;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -17,5 +17,5 @@ public interface IPreparedRenderer
 	 *
 	 * @return Priority and the render callback.
 	 */
-	Pair< Float, Runnable > with( IPoseSetup camera_setup );
+	Pair< Float, Runnable > with( IPose camera_setup );
 }

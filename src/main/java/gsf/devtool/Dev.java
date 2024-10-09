@@ -13,6 +13,7 @@ import gsf.util.math.MoreMath;
 import gsf.util.math.Quat4f;
 import gsf.util.math.Vec3f;
 import gsf.util.render.GLUtil;
+import gsf.util.render.IPose;
 import gsf.util.render.Mesh;
 import gsf.util.render.MeshBuilder;
 import net.minecraft.client.Minecraft;
@@ -87,6 +88,58 @@ public class Dev
 		mat.m00 *= scale;
 		mat.m11 *= scale;
 		mat.m22 *= scale;
+	}
+	
+	public static void testRender()
+	{
+		GL11.glPushMatrix();
+		GL11.glTranslatef( 0.0F, 0.0F, 0.2F );
+		final Mat4f mat = new Mat4f();
+		mat.setIdentity();
+		for ( TestPosRot tpr : test_list )
+		{
+			if ( flag )
+			{
+				Mat4f next = new Mat4f();
+				next.setIdentity();
+				next.translate( tpr.getPos() );
+				next.eulerRotateYXZ( tpr.getRot() );
+				mat.mul( mat, next );
+			}
+			else
+			{
+				mat.translate( tpr.getPos() );
+				mat.eulerRotateYXZ( tpr.getRot() );
+			}
+		}
+		GLUtil.glMultMatrix( mat );
+		DEBUG_BOX.accept( true );
+		GL11.glPopMatrix();
+		
+		GL11.glPushMatrix();
+		GL11.glTranslatef( 0.0F, 0.0F, 0.2F );
+		IPose pose = IPose.EMPTY;
+		for ( TestPosRot tpr : test_list )
+		{
+			final Vec3f rot = tpr.getRot();
+			Quat4f quat = new Quat4f();
+			quat.setEulerRot( rot.x, rot.y, rot.z );
+			IPose next = IPose.of( tpr.getPos(), quat );
+			pose = IPose.compose( pose, next );
+		}
+		pose.glApply();
+		for ( int i = 0; i < 8; i += 1 )
+		{
+			final float x = ( i & 1 ) - 0.5F;
+			final float y = ( i >>> 1 & 1 ) - 0.5F;
+			final float z = ( i >>> 2 & 1 ) - 0.5F;
+			GL11.glPushMatrix();
+			GLUtil.glScale1f( 1.0F / 16.0F );
+			GL11.glTranslatef( x, y, z );
+			DEBUG_BOX.accept( true );
+			GL11.glPopMatrix();
+		}
+		GL11.glPopMatrix();
 	}
 	
 	public static void renderDebugBox()

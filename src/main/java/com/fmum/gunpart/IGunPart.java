@@ -7,7 +7,7 @@ import com.fmum.module.IModule;
 import com.fmum.render.IPreparedRenderer;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimator;
-import gsf.util.animation.IPoseSetup;
+import gsf.util.render.IPose;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -43,13 +43,10 @@ public interface IGunPart extends IModule
 	
 	@SideOnly( Side.CLIENT )
 	void IGunPart$prepareRender(
-		int base_slot_idx,
+		IPose base_pose,
 		IAnimator animator,
 		Consumer< IPreparedRenderer > registry
 	);
-	
-	@SideOnly( Side.CLIENT )
-	IPoseSetup IGunPart$getRenderSetup( IGunPart gun_part, int slot_idx );
 	
 	
 	static IGunPart from( IItem item )

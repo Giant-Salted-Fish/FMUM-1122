@@ -2,8 +2,8 @@ package com.fmum.gun;
 
 import com.fmum.FMUM;
 import com.fmum.animation.SoundFrame;
-import com.fmum.gunpart.EquippedGunPart;
 import com.fmum.gunpart.CEquippedWrapRender;
+import com.fmum.gunpart.EquippedGunPart;
 import com.fmum.gunpart.IGunPart;
 import com.fmum.input.IInput;
 import com.fmum.item.IEquippedItem;
@@ -103,7 +103,7 @@ public class CEquippedLoadMag extends CEquippedWrapRender
 		final GunOpConfig config = type.op_load_mag;
 		final float progress = _getAnimProg( this.tick_left, config.tick_count );
 		final IAnimator animation = config.animation.ofProgress( progress );
-		return IAnimator.compose( animation, base );
+		return IAnimator.compose( base, animation );
 	}
 	
 	@Override
