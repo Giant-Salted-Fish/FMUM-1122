@@ -19,20 +19,20 @@ public class Animation implements IAnimation
 	public final HashMap< String, Bone > channels = new HashMap<>();
 	
 	@Override
-	public IAnimator ofProgress( float progress )
+	public IAnimator query( float progress )
 	{
 		return new IAnimator() {
-			private final HashMap< String, IPoseSetup > cache = new HashMap<>();
+			private final HashMap< String, IAnimCursor > cache = new HashMap<>();
 			
 			@Override
-			public IPoseSetup getChannel( String channel )
+			public IAnimCursor getChannel( String channel )
 			{
 				// This is not thread safe because of the possible nested calls.
-				final IPoseSetup setup = this.cache.computeIfAbsent( channel, c -> {
+				final IAnimCursor setup = this.cache.computeIfAbsent( channel, c -> {
 					final Bone bone = Animation.this.channels.get( channel );
 					return bone == null ? null : bone.getPoseSetup( progress, this );
 				} );
-				return MoreObjects.firstNonNull( setup, IPoseSetup.EMPTY );
+				return MoreObjects.firstNonNull( setup, IAnimCursor.EMPTY );
 			}
 		};
 	}

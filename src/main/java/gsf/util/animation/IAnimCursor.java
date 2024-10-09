@@ -6,9 +6,9 @@ import gsf.util.render.GLUtil;
 import gsf.util.render.IPose;
 
 // TODO: Make it work like a matrix stack?
-public interface IPoseSetup extends IPose
+public interface IAnimCursor extends IPose
 {
-	IPoseSetup EMPTY = new IPoseSetup() {
+	IAnimCursor EMPTY = new IAnimCursor() {
 		@Override
 		public void getPos( Vec3f dst ) {
 			dst.setZero();
@@ -34,9 +34,9 @@ public interface IPoseSetup extends IPose
 	float getFactor();
 	
 	
-	static IPoseSetup of( Vec3f pos, Quat4f rot, float factor )
+	static IAnimCursor of( Vec3f pos, Quat4f rot, float factor )
 	{
-		return new IPoseSetup() {
+		return new IAnimCursor() {
 			@Override
 			public void getPos( Vec3f dst ) {
 				dst.set( pos );

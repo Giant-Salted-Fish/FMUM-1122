@@ -102,7 +102,7 @@ public class CEquippedLoadMag extends CEquippedWrapRender
 		final GunType type = ( GunType ) item.getType();
 		final GunOpConfig config = type.op_load_mag;
 		final float progress = _getAnimProg( this.tick_left, config.tick_count );
-		final IAnimator animation = config.animation.ofProgress( progress );
+		final IAnimator animation = config.animation.query( progress );
 		return IAnimator.compose( base, animation );
 	}
 	

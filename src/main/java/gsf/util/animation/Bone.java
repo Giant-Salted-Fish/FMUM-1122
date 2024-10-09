@@ -30,7 +30,7 @@ public class Bone
 		this.alpha_track = alpha_track;
 	}
 	
-	public IPoseSetup getPoseSetup( float progress, IAnimator cursor )
+	public IAnimCursor getPoseSetup( float progress, IAnimator cursor )
 	{
 		// Get parent track.
 		final IPose parent = cursor.getChannel( this.parent );
@@ -91,7 +91,7 @@ public class Bone
 			Quat4f.release( quat );
 		}
 		
-		return IPoseSetup.of( pos, rot, alpha );
+		return IAnimCursor.of( pos, rot, alpha );
 	}
 	
 	/**

@@ -11,5 +11,5 @@ public interface IAnimation
 	 * @param progress Range from {@code 0.0F-1.0F}.
 	 * @return A cursor to access each animation channel.
 	 */
-	IAnimator ofProgress( float progress );
+	IAnimator query( float progress );
 }
