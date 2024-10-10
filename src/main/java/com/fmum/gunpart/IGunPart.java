@@ -4,7 +4,6 @@ import com.fmum.item.IItem;
 import com.fmum.module.IModifyContext;
 import com.fmum.module.IModifyPreview;
 import com.fmum.module.IModule;
-import com.fmum.render.IPreparedRenderer;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimator;
 import gsf.util.render.IPose;
@@ -13,6 +12,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -37,7 +37,6 @@ public interface IGunPart extends IModule
 	
 	IModifyPreview< Pair< Integer, Integer > > trySetOffsetAndStep( int offset, int step );
 	
-	
 	@SideOnly( Side.CLIENT )
 	IModule IGunPart$createSelectionProxy( IModifyContext ctx );
 	
@@ -45,7 +44,9 @@ public interface IGunPart extends IModule
 	void IGunPart$prepareRender(
 		IPose base_pose,
 		IAnimator animator,
-		Consumer< IPreparedRenderer > registry
+		Consumer< IPreparedRenderer > render_queue,
+		BiConsumer< Integer, IHandSetup > left_hand,
+		BiConsumer< Integer, IHandSetup > right_hand
 	);
 	
 	

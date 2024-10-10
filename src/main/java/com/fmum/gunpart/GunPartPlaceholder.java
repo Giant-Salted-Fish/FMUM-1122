@@ -1,10 +1,11 @@
 package com.fmum.gunpart;
 
+import com.fmum.FMUM;
 import com.fmum.item.ItemCategory;
 import com.fmum.module.IModifyContext;
 import com.fmum.module.IModifyPreview;
 import com.fmum.module.IModule;
-import com.fmum.render.IPreparedRenderer;
+import com.fmum.module.IModuleType;
 import com.fmum.render.ModelPath;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimator;
@@ -15,16 +16,22 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @SideOnly( Side.CLIENT )
 public abstract class GunPartPlaceholder implements IGunPart
 {
-	public static final ModelPath MODEL_PATH = new ModelPath( "fmum", "models/preview_placeholder.obj" );
+	public static final ModelPath MODEL_PATH = new ModelPath( FMUM.MODID, "models/preview_placeholder.obj" );
 	
 	
 	protected IGunPart base = null;
+	
+	@Override
+	public IModuleType getType() {
+		throw new UnsupportedOperationException();
+	}
 	
 	@Override
 	public ItemCategory getCategory() {
@@ -144,9 +151,11 @@ public abstract class GunPartPlaceholder implements IGunPart
 	public void IGunPart$prepareRender(
 		IPose base_pose,
 		IAnimator animator,
-		Consumer< IPreparedRenderer > registry
+		Consumer< IPreparedRenderer > render_queue,
+		BiConsumer< Integer, IHandSetup > left_hand,
+		BiConsumer< Integer, IHandSetup > right_hand
 	) {
-		registry.accept( cam -> Pair.of( 0.0F, () -> this._renderModel( base_pose, animator ) ) );
+		render_queue.accept( cam -> Pair.of( 0.0F, () -> this._renderModel( base_pose, animator ) ) );
 	}
 	
 	protected abstract void _renderModel( IPose pose, IAnimator animator );

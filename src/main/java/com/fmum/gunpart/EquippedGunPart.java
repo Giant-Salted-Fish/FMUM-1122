@@ -6,7 +6,6 @@ import com.fmum.input.Inputs;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.player.PlayerPatchClient;
-import com.fmum.render.IPreparedRenderer;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimator;
 import gsf.util.math.Vec3f;
@@ -69,7 +68,7 @@ public class EquippedGunPart implements IEquippedItem
 		// Collect render callback.
 		final ArrayList< IPreparedRenderer > renderers = new ArrayList<>();
 		final IPose pose = animator.getChannel( CHANNEL_ITEM );
-		self.IGunPart$prepareRender( pose, animator, renderers::add );
+		self.IGunPart$prepareRender( pose, animator, renderers::add, ( p, l ) -> { }, ( p, r ) -> { } );
 		renderers.stream()
 			.map( pr -> pr.with( IPose.EMPTY ) )
 			.sorted( Comparator.comparing( Pair::first ) )  // TODO: Reverse or not?

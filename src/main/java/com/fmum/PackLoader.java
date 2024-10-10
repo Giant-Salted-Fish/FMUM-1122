@@ -2,6 +2,7 @@ package com.fmum;
 
 import com.fmum.ammo.AmmoType;
 import com.fmum.animation.SoundFrame;
+import com.fmum.attachment.GripType;
 import com.fmum.gun.GunType;
 import com.fmum.gunpart.GunPartType;
 import com.fmum.input.JsonKeyBinding;
@@ -380,6 +381,7 @@ final class PackLoader
 		ctx.regisContentLoader( "gun_part", GunPartType.LOADER );
 		ctx.regisContentLoader( "gun", GunType.LOADER );
 		ctx.regisContentLoader( "mag", MagType.LOADER );
+		ctx.regisContentLoader( "grip", GripType.LOADER );
 		
 		FMUM.SIDE.runIfClient( () -> {
 			// Key bindings are client side only.

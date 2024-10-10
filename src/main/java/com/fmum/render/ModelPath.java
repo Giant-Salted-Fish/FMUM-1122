@@ -14,6 +14,9 @@ public final class ModelPath extends ResourceLocation
 	 */
 	public static final ModelPath NONE = new ModelPath( FMUM.MODID, "none" );
 	
+	public static final ModelPath ALEX_ARM = new ModelPath( FMUM.MODID, "models/alex_arm.obj" );
+	public static final ModelPath STEVE_ARM = new ModelPath( FMUM.MODID, "models/steve_arm.obj" );
+	
 	
 	public ModelPath( String identifier ) {
 		super( identifier );

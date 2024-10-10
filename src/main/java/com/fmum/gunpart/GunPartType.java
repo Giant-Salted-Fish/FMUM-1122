@@ -19,7 +19,6 @@ import com.fmum.module.Module;
 import com.fmum.paintjob.IPaintableType;
 import com.fmum.paintjob.IPaintjob;
 import com.fmum.render.AnimatedModel;
-import com.fmum.render.IPreparedRenderer;
 import com.fmum.render.ModelPath;
 import com.fmum.render.Texture;
 import com.google.gson.JsonElement;
@@ -66,6 +65,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -507,6 +507,11 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		}
 		
 		@Override
+		public IModuleType getType() {
+			return GunPartType.this;
+		}
+		
+		@Override
 		public ItemCategory getCategory() {
 			return GunPartType.this.category;
 		}
@@ -642,20 +647,28 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		{
 			return new GunPart( GunPart.this.nbt.copy() ) {
 				@Override
-				protected void _renderModel( IPose pose, IAnimator animator )
-				{
-					GL11.glPushMatrix();
-					pose.glApply();
-					GLUtil.glScale1f( GunPartType.this.fp_scale );
-					
-					// Highlight in green/red to indicate selection.
-					final Texture tex = ctx.mapTexture( this._getTexture() );
-					GLUtil.bindTexture( tex );
-					GLUtil.maxGlowOn();
-					Arrays.stream( GunPartType.this.models ).forEachOrdered( model -> model.render( animator ) );
-					GLUtil.glowOff();
-					
-					GL11.glPopMatrix();
+				protected void _enqueueRenderer(
+					IPose pose,
+					IAnimator animator,
+					Consumer< IPreparedRenderer > render_queue,
+					BiConsumer< Integer, IHandSetup > left_hand,
+					BiConsumer< Integer, IHandSetup > right_hand
+				) {
+					render_queue.accept( cam -> Pair.of( 0.0F, () -> {
+						GL11.glPushMatrix();
+						pose.glApply();
+						GLUtil.glScale1f( GunPartType.this.fp_scale );
+						
+						// Highlight in green/red to indicate selection.
+						final Texture tex = ctx.mapTexture( this._getTexture() );
+						GLUtil.bindTexture( tex );
+						GLUtil.maxGlowOn();
+						Arrays.stream( GunPartType.this.models )
+							.forEachOrdered( model -> model.render( animator ) );
+						GLUtil.glowOff();
+						
+						GL11.glPopMatrix();
+					} ) );
 				}
 			};
 		}
@@ -665,14 +678,16 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		public void IGunPart$prepareRender(
 			IPose base_pose,
 			IAnimator animator,
-			Consumer< IPreparedRenderer > render_queue
+			Consumer< IPreparedRenderer > render_queue,
+			BiConsumer< Integer, IHandSetup > left_hand,
+			BiConsumer< Integer, IHandSetup > right_hand
 		) {
 			// Apply animation specific to this gun part.
 			final IPose anim = animator.getChannel( GunPartType.this.mod_anim_channel );
 			final IPose pose = IPose.compose( base_pose, anim );  // TODO: Maybe skip IPose.EMPTY?
 			
 			// Enqueue render callback.
-			render_queue.accept( cam -> Pair.of( 0.0F, () -> this._renderModel( pose, animator ) ) );
+			this._enqueueRenderer( pose, animator, render_queue, left_hand, right_hand );
 			
 			// Dispatch to child modules.
 			final ListIterator< IModule > itr = this.installed_modules.listIterator();
@@ -686,9 +701,32 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 					final IGunPart child = ( IGunPart ) itr.next();
 					final IPose slt_pose = slot.getPose( child.getStep() );
 					final IPose child_pose = IPose.compose( pose, slt_pose );
-					child.IGunPart$prepareRender( child_pose, animator, render_queue );
+					child.IGunPart$prepareRender( child_pose, animator, render_queue, left_hand, right_hand );
 				}
 			}
+		}
+		
+		@SideOnly( Side.CLIENT )
+		protected void _enqueueRenderer(
+			IPose pose,
+			IAnimator animator,
+			Consumer< IPreparedRenderer > render_queue,
+			BiConsumer< Integer, IHandSetup > left_hand,
+			BiConsumer< Integer, IHandSetup > right_hand
+		) {
+			render_queue.accept( cam -> Pair.of( 0.0F, () -> {
+				GL11.glPushMatrix();
+				pose.glApply();
+				GLUtil.glScale1f( GunPartType.this.fp_scale );
+				GLUtil.bindTexture( this._getTexture() );
+				Arrays.stream( GunPartType.this.models ).forEachOrdered( model -> model.render( animator ) );
+				GL11.glPopMatrix();
+			} ) );
+		}
+		
+		@SideOnly( Side.CLIENT )
+		protected Texture _getTexture() {
+			return GunPartType.this.paintjobs.get( this.paintjob_idx ).getTexture();
 		}
 		
 		@Override
@@ -702,22 +740,6 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 			);
 			cap_provider.deserializeNBT( this.nbt.copy() );
 			return stack;
-		}
-		
-		@SideOnly( Side.CLIENT )
-		protected void _renderModel( IPose pose, IAnimator animator )
-		{
-			GL11.glPushMatrix();
-			pose.glApply();
-			GLUtil.glScale1f( GunPartType.this.fp_scale );
-			GLUtil.bindTexture( this._getTexture() );
-			Arrays.stream( GunPartType.this.models ).forEachOrdered( model -> model.render( animator ) );
-			GL11.glPopMatrix();
-		}
-		
-		@SideOnly( Side.CLIENT )
-		protected Texture _getTexture() {
-			return GunPartType.this.paintjobs.get( this.paintjob_idx ).getTexture();
 		}
 		
 		@Override

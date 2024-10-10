@@ -5,6 +5,8 @@ import com.fmum.ammo.IAmmoType;
 import com.fmum.animation.SoundFrame;
 import com.fmum.animation.Sounds;
 import com.fmum.gunpart.GunPartType;
+import com.fmum.gunpart.IHandSetup;
+import com.fmum.gunpart.IPreparedRenderer;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
@@ -17,8 +19,8 @@ import com.fmum.module.IModifyContext;
 import com.fmum.module.IModule;
 import com.fmum.module.IModuleType;
 import com.fmum.paintjob.IPaintableType;
-import com.fmum.render.IPreparedRenderer;
 import com.fmum.render.ModelPath;
+import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimator;
 import gsf.util.lang.Error;
 import gsf.util.lang.Result;
@@ -40,6 +42,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.PrimitiveIterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
@@ -194,58 +197,69 @@ public class MagType extends GunPartType
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		protected void _renderModel( IPose pose, IAnimator animator )
-		{
-			// Render ammo first as mag itself can be transparent.
-			GL11.glPushMatrix();
-			pose.glApply();
-			
-			final Vec3f[] ammo_pos = MagType.this.ammo_pos;
-			final AxisAngle4f[] ammo_rot = MagType.this.ammo_rot;
-			final int ammo_count = this.getAmmoCount();
-			final boolean is_odd_cnt = ammo_count % 2 != 0;
-			final boolean flip_pos_x = MagType.this.is_dou_col_mag && is_odd_cnt;
-			final int[] data = this.nbt.getIntArray( this.encoding_tag );
-			final IntStream stream = (
-				this.encoding_tag.equals( COUNT_AMMO_TAG )
-				? _Cnt$stream( data, true )
-				: _Lst$stream( data, true )
-			);
-			final Iterator< IAmmoType > itr = (
-				stream.mapToObj( i -> ( short ) i )
-				.map( IAmmoType.REGISTRY::lookup )
-				.map( opt -> opt.orElseThrow( IllegalArgumentException::new ) )
-				.limit( ammo_pos.length )
-				.iterator()
-			);
-			for ( int i = 0; itr.hasNext(); i += 1 )
-			{
+		protected void _enqueueRenderer(
+			IPose pose,
+			IAnimator animator,
+			Consumer< IPreparedRenderer > render_queue,
+			BiConsumer< Integer, IHandSetup > left_hand,
+			BiConsumer< Integer, IHandSetup > right_hand
+		) {
+			render_queue.accept( cam -> Pair.of( 0.0F, () -> {
+				// Render ammo first as mag itself can be transparent.
 				GL11.glPushMatrix();
-				final Vec3f pos = ammo_pos[ i ];
-				final AxisAngle4f rot = i < ammo_rot.length ? ammo_rot[ i ] : AxisAngle4f.IDENTITY;
-				GL11.glTranslatef( flip_pos_x ? -pos.x : pos.x, pos.y, pos.z );
-				GLUtil.glRotateAA4f( rot );
-				itr.next().renderModel( animator );
-				GL11.glPopMatrix();
-			}
-			
-			// Follower first for the same reason.
-			final Vec3f[] flw_pos = MagType.this.follower_pos;
-			if ( flw_pos.length > 0 )
-			{
-				final AxisAngle4f[] flw_rot = MagType.this.follower_rot;
-				final int idx = Math.min( ammo_count, flw_pos.length - 1 );
-				final Vec3f pos = flw_pos[ idx ];
-				final AxisAngle4f rot = idx < flw_rot.length ? flw_rot[ idx ] : AxisAngle4f.IDENTITY;
-				GLUtil.glTranslateV3f( pos );
-				GLUtil.glRotateAA4f( rot );
+				pose.glApply();
+				
+				final Vec3f[] ammo_pos = MagType.this.ammo_pos;
+				final AxisAngle4f[] ammo_rot = MagType.this.ammo_rot;
+				final int ammo_count = this.getAmmoCount();
+				final boolean is_odd_cnt = ammo_count % 2 != 0;
+				final boolean flip_pos_x = MagType.this.is_dou_col_mag && is_odd_cnt;
+				final int[] data = this.nbt.getIntArray( this.encoding_tag );
+				final IntStream stream = (
+					this.encoding_tag.equals( COUNT_AMMO_TAG )
+					? _Cnt$stream( data, true )
+					: _Lst$stream( data, true )
+				);
+				final Iterator< IAmmoType > itr = (
+					stream.mapToObj( i -> ( short ) i )
+					.map( IAmmoType.REGISTRY::lookup )
+					.map( opt -> opt.orElseThrow( IllegalArgumentException::new ) )
+					.limit( ammo_pos.length )
+					.iterator()
+				);
+				for ( int i = 0; itr.hasNext(); i += 1 )
+				{
+					GL11.glPushMatrix();
+					final Vec3f pos = ammo_pos[ i ];
+					final AxisAngle4f rot = i < ammo_rot.length ? ammo_rot[ i ] : AxisAngle4f.IDENTITY;
+					GL11.glTranslatef( flip_pos_x ? -pos.x : pos.x, pos.y, pos.z );
+					GLUtil.glRotateAA4f( rot );
+					itr.next().renderModel( animator );
+					GL11.glPopMatrix();
+				}
+				
+				// Follower first for the same reason.
+				final Vec3f[] flw_pos = MagType.this.follower_pos;
+				if ( flw_pos.length > 0 )
+				{
+					final AxisAngle4f[] flw_rot = MagType.this.follower_rot;
+					final int idx = Math.min( ammo_count, flw_pos.length - 1 );
+					final Vec3f pos = flw_pos[ idx ];
+					final AxisAngle4f rot = idx < flw_rot.length ? flw_rot[ idx ] : AxisAngle4f.IDENTITY;
+					GL11.glPushMatrix();
+					GLUtil.glTranslateV3f( pos );
+					GLUtil.glRotateAA4f( rot );
+					GLUtil.glScale1f( MagType.this.fp_scale );
+					GLUtil.bindTexture( this._getTexture() );
+					MagType.this.follower_mesh.draw();
+					GL11.glPopMatrix();
+				}
+				
 				GLUtil.glScale1f( MagType.this.fp_scale );
 				GLUtil.bindTexture( this._getTexture() );
-				MagType.this.follower_mesh.draw();
-			}
-			GL11.glPopMatrix();
-			
-			super._renderModel( pose, animator );
+				Arrays.stream( MagType.this.models ).forEachOrdered( model -> model.render( animator ) );
+				GL11.glPopMatrix();
+			} ) );
 		}
 		
 		@Override
@@ -265,14 +279,16 @@ public class MagType extends GunPartType
 				public void IGunPart$prepareRender(
 					IPose base_pose,
 					IAnimator animator,
-					Consumer< IPreparedRenderer > render_queue
+					Consumer< IPreparedRenderer > render_queue,
+					BiConsumer< Integer, IHandSetup > left_hand,
+					BiConsumer< Integer, IHandSetup > right_hand
 				) {
 					final IAnimator wrapper = channel -> animator.getChannel(
 						channel.equals( IEquippedItem.CHANNEL_ITEM )
 						? IEquippedItem.CHANNEL_ITEM
 						: "loading-".concat( channel )
 					);
-					super.IGunPart$prepareRender( base_pose, wrapper, render_queue );
+					super.IGunPart$prepareRender( base_pose, wrapper, render_queue, left_hand, right_hand );
 				}
 			};
 		}

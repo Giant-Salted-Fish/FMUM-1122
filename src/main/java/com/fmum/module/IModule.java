@@ -20,6 +20,8 @@ public interface IModule
 	String DATA_TAG = "*";
 	
 	
+	IModuleType getType();
+	
 	ItemCategory getCategory();
 	
 	/**

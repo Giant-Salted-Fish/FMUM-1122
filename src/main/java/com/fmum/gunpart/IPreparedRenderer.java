@@ -1,4 +1,4 @@
-package com.fmum.render;
+package com.fmum.gunpart;
 
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.render.IPose;

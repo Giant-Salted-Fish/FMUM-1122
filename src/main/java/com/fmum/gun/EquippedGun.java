@@ -2,11 +2,19 @@ package com.fmum.gun;
 
 import com.fmum.FMUM;
 import com.fmum.gunpart.EquippedGunPart;
+import com.fmum.gunpart.IGunPart;
+import com.fmum.gunpart.IHandSetup;
+import com.fmum.gunpart.IPreparedRenderer;
 import com.fmum.input.IInput;
 import com.fmum.input.Inputs;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.mojang.realmsclient.util.Pair;
+import gsf.util.animation.IAnimator;
+import gsf.util.render.GLUtil;
+import gsf.util.render.IPose;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
@@ -19,6 +27,8 @@ import org.lwjgl.util.glu.Project;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Optional;
 
 public class EquippedGun extends EquippedGunPart
@@ -27,6 +37,10 @@ public class EquippedGun extends EquippedGunPart
 	protected static Method EntityRenderer$getFOVModifier;
 	@SideOnly( Side.CLIENT )
 	protected static Field EntityRenderer$farPlaneDistance;
+	
+	@SideOnly( Side.CLIENT )
+	protected static float ARM_LEN;
+	
 	static
 	{
 		FMUM.SIDE.runIfClient( () -> {
@@ -43,8 +57,10 @@ public class EquippedGun extends EquippedGunPart
 				"farPlaneDistance",
 				"field_78530_s"
 			);
+			ARM_LEN = 10.0F / 16.0F;
 		} );
 	}
+	
 	
 	@Override
 	public Optional< IEquippedItem > tickPutAway( IItem item, EnumHand hand, EntityPlayer player )
@@ -54,6 +70,67 @@ public class EquippedGun extends EquippedGunPart
 			? new CEquippedPutAway( this, item )
 			: new SEquippedPutAway( this, item )
 		);
+	}
+	
+	@Override
+	@SideOnly( Side.CLIENT )
+	public void EquippedGunPart$doPrepareRenderInHand( IGunPart self, IAnimator animator )
+	{
+		final GunType type = ( GunType ) self.getType();
+		
+		// Clear previous in hand queue.
+		this.in_hand_queue.clear();
+		
+		// Collect render callback.
+		final ArrayList< IPreparedRenderer > renderers = new ArrayList<>();
+		final int[] hand_priority = { Integer.MIN_VALUE, Integer.MIN_VALUE };
+		final IHandSetup[] hand_setup = { null, null };
+		final IPose pose = animator.getChannel( CHANNEL_ITEM );
+		self.IGunPart$prepareRender(
+			pose,
+			animator,
+			renderers::add,
+			( prio, setup ) -> {
+				if ( prio > hand_priority[ 0 ] )
+				{
+					hand_priority[ 0 ] = prio;
+					hand_setup[ 0 ] = setup;
+				}
+			},
+			( prio, setup ) -> {
+				if ( prio > hand_priority[ 1 ] )
+				{
+					hand_priority[ 1 ] = prio;
+					hand_setup[ 1 ] = setup;
+				}
+			}
+		);
+		
+		final IPose left = hand_setup[ 0 ].get( type.left_shoulder_pos, ARM_LEN, ARM_LEN );
+		renderers.add( cam -> Pair.of( 0.0F, () -> {
+			GL11.glPushMatrix();
+			left.glApply();
+			final EntityPlayerSP player = Minecraft.getMinecraft().player;
+			GLUtil.bindTexture( player.getLocationSkin() );
+			type.alex_arm.draw();
+			GL11.glPopMatrix();
+		} ) );
+		
+		final IPose right = hand_setup[ 1 ].get( type.right_shoulder_pos, ARM_LEN, ARM_LEN );
+		renderers.add( cam -> Pair.of( 0.0F, () -> {
+			GL11.glPushMatrix();
+			right.glApply();
+			final EntityPlayerSP player = Minecraft.getMinecraft().player;
+			GLUtil.bindTexture( player.getLocationSkin() );
+			type.alex_arm.draw();
+			GL11.glPopMatrix();
+		} ) );
+		
+		renderers.stream()
+			.map( pr -> pr.with( IPose.EMPTY ) )
+			.sorted( Comparator.comparing( Pair::first ) )  // TODO: Reverse or not?
+			.map( Pair::second )
+			.forEachOrdered( this.in_hand_queue::add );
 	}
 	
 	@Override

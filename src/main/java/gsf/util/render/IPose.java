@@ -20,6 +20,11 @@ public interface IPose
 		}
 		
 		@Override
+		public void transform( Vec3f point, Vec3f dst ) {
+			// Pass.
+		}
+		
+		@Override
 		public void glApply() {
 			// Pass.
 		}
@@ -29,6 +34,19 @@ public interface IPose
 	void getPos( Vec3f dst );
 	
 	void getRot( Quat4f dst );
+	
+	default void transform( Vec3f point, Vec3f dst )
+	{
+		final Quat4f rot = Quat4f.allocate();
+		this.getRot( rot );
+		rot.transform( point, dst );
+		Quat4f.release( rot );
+		
+		final Vec3f pos = Vec3f.allocate();
+		this.getPos( pos );
+		dst.add( pos );
+		Vec3f.release( pos );
+	}
 	
 	default void glApply()
 	{
@@ -58,6 +76,11 @@ public interface IPose
 			}
 			
 			@Override
+			public void transform( Vec3f point, Vec3f dst ) {
+				dst.add( point, pos );
+			}
+			
+			@Override
 			public void glApply() {
 				GLUtil.glTranslateV3f( pos );
 			}
@@ -78,6 +101,11 @@ public interface IPose
 			}
 			
 			@Override
+			public void transform( Vec3f point, Vec3f dst ) {
+				rot.transform( point, dst );
+			}
+			
+			@Override
 			public void glApply() {
 				GLUtil.glRotateQ4f( rot );
 			}
@@ -95,6 +123,13 @@ public interface IPose
 			@Override
 			public void getRot( Quat4f dst ) {
 				dst.set( rot );
+			}
+			
+			@Override
+			public void transform( Vec3f point, Vec3f dst )
+			{
+				rot.transform( point, dst );
+				dst.add( pos );
 			}
 			
 			@Override
@@ -120,6 +155,11 @@ public interface IPose
 			@Override
 			public void getRot( Quat4f dst ) {
 				dst.set( mat );
+			}
+			
+			@Override
+			public void transform( Vec3f point, Vec3f dst ) {
+				mat.transformAsPoint( point, dst );
 			}
 			
 			@Override
