@@ -6,6 +6,7 @@ import gsf.util.math.Vec3f;
 
 import javax.vecmath.Matrix4f;
 
+// TODO: Make it work like a matrix stack?
 public interface IPose
 {
 	IPose EMPTY = new IPose() {
@@ -189,6 +190,23 @@ public interface IPose
 		right.getRot( quat );
 		rot.mul( rot, quat );
 		Quat4f.release( quat );
+		
+		return of( pos, rot );
+	}
+	
+	static IPose blend( IPose a, IPose b, float t )
+	{
+		final Vec3f pos = new Vec3f();
+		final Vec3f vec = Vec3f.allocate();
+		a.getPos( pos );
+		b.getPos( vec );
+		pos.interpolate( pos, vec, t );
+		
+		final Quat4f rot = new Quat4f();
+		final Quat4f quat = Quat4f.allocate();
+		a.getRot( rot );
+		b.getRot( quat );
+		rot.interpolate( rot, quat, t );
 		
 		return of( pos, rot );
 	}

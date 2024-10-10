@@ -2,10 +2,8 @@ package gsf.util.animation;
 
 import gsf.util.math.Quat4f;
 import gsf.util.math.Vec3f;
-import gsf.util.render.GLUtil;
 import gsf.util.render.IPose;
 
-// TODO: Make it work like a matrix stack?
 public interface IAnimCursor extends IPose
 {
 	IAnimCursor EMPTY = new IAnimCursor() {
@@ -34,17 +32,17 @@ public interface IAnimCursor extends IPose
 	float getFactor();
 	
 	
-	static IAnimCursor of( Vec3f pos, Quat4f rot, float factor )
+	static IAnimCursor of( IPose pose, float factor )
 	{
 		return new IAnimCursor() {
 			@Override
 			public void getPos( Vec3f dst ) {
-				dst.set( pos );
+				pose.getPos( dst );
 			}
 			
 			@Override
 			public void getRot( Quat4f dst ) {
-				dst.set( rot );
+				pose.getRot( dst );
 			}
 			
 			@Override
@@ -53,10 +51,8 @@ public interface IAnimCursor extends IPose
 			}
 			
 			@Override
-			public void glApply()
-			{
-				GLUtil.glTranslateV3f( pos );
-				GLUtil.glRotateQ4f( rot );
+			public void glApply() {
+				pose.glApply();
 			}
 		};
 	}

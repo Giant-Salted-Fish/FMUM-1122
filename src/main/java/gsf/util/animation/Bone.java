@@ -32,9 +32,6 @@ public class Bone
 	
 	public IAnimCursor getPoseSetup( float progress, IAnimator cursor )
 	{
-		// Get parent track.
-		final IPose parent = cursor.getChannel( this.parent );
-		
 		// Alpha track.
 		final float alpha;
 		{
@@ -51,7 +48,6 @@ public class Bone
 		
 		// Position track.
 		final Vec3f pos = new Vec3f();
-		final Quat4f rot = new Quat4f();
 		{
 			final Track< Vec3f > track = this.pos_track;
 			final float[] keys = track.keys;
@@ -62,19 +58,10 @@ public class Bone
 			final int ceiling = Math.min( keys.length - 1, idx );
 			final float a = __shiftDiv( progress, keys[ ceiling ], -keys[ floor ] );
 			pos.interpolate( values[ floor ], values[ ceiling ], a );
-			
-			// Apply rotation from parent bone.
-			parent.getRot( rot );
-			rot.transform( pos, pos );
-			
-			// Apply translation from parent bone.
-			final Vec3f vec = Vec3f.allocate();
-			parent.getPos( vec );
-			pos.add( vec );
-			Vec3f.release( vec );
 		}
 		
 		// Rotation track.
+		final Quat4f rot = new Quat4f();
 		{
 			final Track< Quat4f > track = this.rot_track;
 			final float[] keys = track.keys;
@@ -84,14 +71,19 @@ public class Bone
 			final int floor = Math.max( 0, idx - 1 );
 			final int ceiling = Math.min( keys.length - 1, idx );
 			final float a = __shiftDiv( progress, keys[ ceiling ], -keys[ floor ] );
-			
-			final Quat4f quat = Quat4f.allocate();
-			quat.interpolate( values[ floor ], values[ ceiling ], a );
-			rot.mul( rot, quat );
-			Quat4f.release( quat );
+			rot.interpolate( values[ floor ], values[ ceiling ], a );
 		}
 		
-		return IAnimCursor.of( pos, rot, alpha );
+		// Get parent track.
+		if ( this.parent.equals( IAnimation.CHANNEL_NONE ) ) {
+			return IAnimCursor.of( IPose.of( pos, rot ), alpha );
+		}
+		else
+		{
+			final IPose parent = cursor.getChannel( this.parent );
+			final IPose pose = IPose.compose( parent, IPose.of( pos, rot ) );
+			return IAnimCursor.of( pose, alpha );
+		}
 	}
 	
 	/**

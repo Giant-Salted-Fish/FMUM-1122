@@ -10,6 +10,7 @@ import com.fmum.input.Inputs;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.mojang.realmsclient.util.Pair;
+import gsf.util.animation.FloatAttr;
 import gsf.util.animation.IAnimator;
 import gsf.util.render.GLUtil;
 import gsf.util.render.IPose;
@@ -106,7 +107,10 @@ public class EquippedGun extends EquippedGunPart
 			}
 		);
 		
-		final IPose left = hand_setup[ 0 ].get( type.left_shoulder_pos, ARM_LEN, ARM_LEN );
+		final IPose left_grip = hand_setup[ 0 ].get( type.left_shoulder_pos, ARM_LEN, ARM_LEN );
+		final IPose left_anim = IPose.compose( pose, animator.getChannel( CHANNEL_LEFT_ARM ) );
+		final Float left_alpha = animator.getAttr( FloatAttr.LEFT_HAND_BLEND ).orElse( 0.0F );
+		final IPose left = IPose.blend( left_grip, left_anim, left_alpha );
 		renderers.add( cam -> Pair.of( 0.0F, () -> {
 			GL11.glPushMatrix();
 			left.glApply();
@@ -116,7 +120,10 @@ public class EquippedGun extends EquippedGunPart
 			GL11.glPopMatrix();
 		} ) );
 		
-		final IPose right = hand_setup[ 1 ].get( type.right_shoulder_pos, ARM_LEN, ARM_LEN );
+		final IPose right_grip = hand_setup[ 1 ].get( type.right_shoulder_pos, ARM_LEN, ARM_LEN );
+		final IPose right_anim = IPose.compose( pose, animator.getChannel( CHANNEL_RIGHT_ARM ) );
+		final Float right_alpha = animator.getAttr( FloatAttr.RIGHT_HAND_BLEND ).orElse( 0.0F );
+		final IPose right = IPose.blend( right_grip, right_anim, right_alpha );
 		renderers.add( cam -> Pair.of( 0.0F, () -> {
 			GL11.glPushMatrix();
 			right.glApply();

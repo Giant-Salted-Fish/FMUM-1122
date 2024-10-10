@@ -15,6 +15,9 @@ public interface IEquippedItem
 	 */
 	String CHANNEL_ITEM = "item";
 	
+	String CHANNEL_LEFT_ARM = "left_arm";
+	String CHANNEL_RIGHT_ARM = "right_arm";
+	
 	
 	default IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player ) {
 		return this;

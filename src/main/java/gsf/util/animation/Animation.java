@@ -34,6 +34,22 @@ public class Animation implements IAnimation
 				} );
 				return MoreObjects.firstNonNull( setup, IAnimCursor.EMPTY );
 			}
+			
+			@Override
+			public < T > Optional< T > getAttr( AnimAttr< T > attr )
+			{
+				if ( attr == FloatAttr.LEFT_HAND_BLEND )
+				{
+					final IAnimCursor left = this.cache.get( "left_arm" );
+					return Optional.ofNullable( left ).map( IAnimCursor::getFactor ).map( attr::cast );
+				}
+				if ( attr == FloatAttr.RIGHT_HAND_BLEND )
+				{
+					final IAnimCursor right = this.cache.get( "right_arm" );
+					return Optional.ofNullable( right ).map( IAnimCursor::getFactor ).map( attr::cast );
+				}
+				return IAnimator.super.getAttr( attr );
+			}
 		};
 	}
 	
