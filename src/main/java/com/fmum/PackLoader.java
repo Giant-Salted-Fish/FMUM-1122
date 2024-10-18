@@ -1,6 +1,8 @@
 package com.fmum;
 
 import com.fmum.ammo.AmmoType;
+import com.fmum.animation.AnimLoader;
+import com.fmum.animation.AttrArmBlend;
 import com.fmum.animation.SoundFrame;
 import com.fmum.attachment.GripType;
 import com.fmum.gun.GunType;
@@ -38,7 +40,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.realmsclient.util.Pair;
-import gsf.util.animation.Animation;
 import gsf.util.animation.IAnimation;
 import gsf.util.math.AxisAngle4f;
 import gsf.util.math.Quat4f;
@@ -298,7 +299,7 @@ final class PackLoader
 					{
 						final InputStreamReader in = new InputStreamReader( res.getInputStream() );
 						final JsonObject obj = this.gson.fromJson( in, JsonObject.class );
-						return Animation.fromBBJson( obj, this.gson );
+						return AnimLoader.fromBBJson( obj, context, AttrArmBlend.LEFT_ARM, AttrArmBlend.RIGHT_ARM );
 					}
 					catch ( JsonSyntaxException | JsonIOException | IOException e )
 					{

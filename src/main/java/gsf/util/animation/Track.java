@@ -63,7 +63,7 @@ public final class Track< T >
 	}
 	
 	
-	public static < T > Track< T > from(
+	public static < T > Track< T > parse(
 		JsonObject obj,
 		float key_scale,
 		IntFunction< T[] > factory,

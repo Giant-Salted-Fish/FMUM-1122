@@ -165,7 +165,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 				return GunPartType.this.texture;
 			}
 		} );
-		this.default_setup_data = data.getData( "default_setup" ).orElseGet( () -> new JsonData( new JsonObject(), data.gson ) );
+		this.default_setup_data = data.getData( "default_setup" ).orElseGet( () -> new JsonData( new JsonObject(), data.ctx ) );
 		FMUM.SIDE.runIfClient( () -> {
 			this.models = data.get( "model", AnimatedModel[].class ).orElse( new AnimatedModel[ 0 ] );
 			this.texture = data.get( "texture", Texture.class ).orElse( Texture.GREEN );
@@ -268,7 +268,7 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 					obj.entrySet().stream()
 					.map( e -> lookup.apply( e.getKey() ).map( mt -> {
 						final JsonObject value = e.getValue().getAsJsonObject();
-						final JsonData setup = new JsonData( value, data.gson );
+						final JsonData setup = new JsonData( value, data.ctx );
 						return mt.buildSetupFactory( setup, lookup );
 					} ) )
 					.filter( Optional::isPresent )

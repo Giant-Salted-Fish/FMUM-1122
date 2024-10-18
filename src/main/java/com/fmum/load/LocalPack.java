@@ -118,7 +118,7 @@ public abstract class LocalPack implements IPackLoadCallback
 			data_arr.entrySet().forEach( entry -> {
 				final String fallback_name = entry.getKey();
 				final JsonObject obj = entry.getValue().getAsJsonObject();
-				final JsonData data = new JsonData( obj, gson );
+				final JsonData data = new JsonData( obj, gson::fromJson );
 				this._loadFromJson( data, "key_binding", fallback_name, ctx )
 					.matchAnyError( e -> {
 						final String source_trace = trace_prefix + fallback_name;
@@ -159,7 +159,7 @@ public abstract class LocalPack implements IPackLoadCallback
 		final Gson gson = ctx.getGson();
 		return (
 			Result.of( () -> gson.fromJson( entry_reader, JsonObject.class ) )
-			.map( obj -> new JsonData( obj, gson ) )
+			.map( obj -> new JsonData( obj, gson::fromJson ) )
 			.flatMap( data -> this._loadFromJson( data, fallback_type, fallback_name, ctx ) )
 		);
 	}
