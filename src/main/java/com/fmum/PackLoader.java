@@ -33,7 +33,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.Animation;
@@ -295,10 +297,10 @@ final class PackLoader
 					try ( IResource res = res_mgr.getResource( location ) )
 					{
 						final InputStreamReader in = new InputStreamReader( res.getInputStream() );
-						final JsonObject obj = gson.fromJson( in, JsonObject.class );
-						return Animation.fromBBJson( obj, gson );
+						final JsonObject obj = this.gson.fromJson( in, JsonObject.class );
+						return Animation.fromBBJson( obj, this.gson );
 					}
-					catch ( IOException e )
+					catch ( JsonSyntaxException | JsonIOException | IOException e )
 					{
 						// TODO
 					}

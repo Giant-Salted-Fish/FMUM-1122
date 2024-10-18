@@ -1,9 +1,25 @@
 package gsf.util.animation;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import gsf.util.math.Quat4f;
+import gsf.util.math.Vec3f;
+
 import java.util.Arrays;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 
 public final class Track< T >
 {
+	public static final Track< Vec3f >
+		EMPTY_POS_TRACK = new Track<>( new float[] { 0.0F }, new Vec3f[] { Vec3f.ORIGIN } );
+	public static final Track< Quat4f >
+		EMPTY_ROT_TRACK = new Track<>( new float[] { 0.0F }, new Quat4f[] { Quat4f.IDENTITY } );
+	public static final Track< Float >
+		EMPTY_ALPHA_TRACK = new Track<>( new float[] { 0.0F }, new Float[] { 0.0F } );
+	
+	
 	private final float[] keys;
 	private final T[] values;
 	
@@ -44,5 +60,28 @@ public final class Track< T >
 	@FunctionalInterface
 	public interface LerpFunc< T, R > {
 		R lerp( T a, T b, float alpha );
+	}
+	
+	
+	public static < T > Track< T > from(
+		JsonObject obj,
+		float key_scale,
+		IntFunction< T[] > factory,
+		Function< ? super JsonElement, ? extends T > parser
+	) {
+		final int size = obj.size();
+		final float[] keys = new float[ size ];
+		final T[] values = factory.apply( size );
+		
+		int idx = 0;
+		for ( Entry< String, JsonElement > entry : obj.entrySet() )
+		{
+			final String key = entry.getKey();
+			final JsonElement value = entry.getValue();
+			keys[ idx ] = key_scale * Float.parseFloat( key );
+			values[ idx ] = parser.apply( value );
+			idx += 1;
+		}
+		return new Track<>( keys, values );
 	}
 }

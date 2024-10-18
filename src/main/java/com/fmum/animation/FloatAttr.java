@@ -1,4 +1,6 @@
-package gsf.util.animation;
+package com.fmum.animation;
+
+import gsf.util.animation.AnimAttr;
 
 import javax.annotation.Nullable;
 import java.util.Optional;

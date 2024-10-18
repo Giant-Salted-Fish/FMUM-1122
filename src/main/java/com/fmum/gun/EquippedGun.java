@@ -10,7 +10,7 @@ import com.fmum.input.Inputs;
 import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.mojang.realmsclient.util.Pair;
-import gsf.util.animation.FloatAttr;
+import com.fmum.animation.FloatAttr;
 import gsf.util.animation.IAnimator;
 import gsf.util.render.GLUtil;
 import gsf.util.render.IPose;
