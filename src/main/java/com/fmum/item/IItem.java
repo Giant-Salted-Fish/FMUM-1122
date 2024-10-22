@@ -4,7 +4,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -38,8 +37,11 @@ public interface IItem
 		return Optional.empty();
 	}
 	
-	IEquippedItem onTakeOut( EnumHand hand, EntityPlayer player );
+	IMainEquipped onTakeOutMainHand( EntityPlayer player );
 	
+	default IOffEquipped onTakeOutOffHand( EntityPlayer player ) {
+		return new IOffEquipped() { };
+	}
 	
 	@SuppressWarnings( "DataFlowIssue" )
 	static Optional< IItem > ofOrEmpty( ItemStack stack ) {

@@ -2,9 +2,9 @@ package com.fmum.gunpart;
 
 import com.fmum.FMUM;
 import com.fmum.SyncConfig;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
+import com.fmum.item.IMainEquipped;
 import com.fmum.item.ItemCategory;
 import com.fmum.item.ItemType;
 import com.fmum.load.IContentBuildContext;
@@ -39,7 +39,6 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -306,8 +305,8 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		return new GunPart( nbt );
 	}
 	
-	protected IEquippedItem _newEquipped( EnumHand hand, IItem item, EntityPlayer player ) {
-		return new EquippedGunPart();  // TODO: a special impl for off-hand?
+	protected IMainEquipped _newMainEquipped( IItem item, EntityPlayer player ) {
+		return new EquippedGunPart();
 	}
 	
 	
@@ -468,8 +467,8 @@ public class GunPartType extends ItemType implements IModuleType, IPaintableType
 		}
 		
 		@Override
-		public IEquippedItem onTakeOut( EnumHand hand, EntityPlayer player ) {
-			return GunPartType.this._newEquipped( hand, this, player );
+		public IMainEquipped onTakeOutMainHand( EntityPlayer player ) {
+			return GunPartType.this._newMainEquipped( this, player );
 		}
 		
 		@Override

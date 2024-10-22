@@ -2,12 +2,11 @@ package com.fmum.gun;
 
 import com.fmum.input.IInput;
 import com.fmum.item.EquippedWrapper;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.fmum.item.IMainEquipped;
 import com.fmum.mag.IMag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -15,7 +14,7 @@ public class SEquippedUnloadMag extends EquippedWrapper
 {
 	protected int tick_left;
 	
-	public SEquippedUnloadMag( IEquippedItem wrapped, IItem item )
+	public SEquippedUnloadMag( IMainEquipped wrapped, IItem item )
 	{
 		super( wrapped );
 		
@@ -24,10 +23,10 @@ public class SEquippedUnloadMag extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player )
+	public IMainEquipped tickInHand( IItem item, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 ) {
-			return this.wrapped.tickInHand( item, hand, player );
+			return this.wrapped.tickInHand( item, player );
 		}
 		
 		final GunType type = ( GunType ) item.getType();
@@ -63,7 +62,7 @@ public class SEquippedUnloadMag extends EquippedWrapper
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public IEquippedItem onInputUpdate( IItem item, String name, IInput input ) {
+	public IMainEquipped onInputUpdate( String name, IInput input, IItem item ) {
 		throw new UnsupportedOperationException();
 	}
 }

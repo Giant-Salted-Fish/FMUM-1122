@@ -3,12 +3,11 @@ package com.fmum.mag;
 import com.fmum.ammo.IAmmoType;
 import com.fmum.input.IInput;
 import com.fmum.item.EquippedWrapper;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.fmum.item.IMainEquipped;
 import gsf.util.lang.Result;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -17,14 +16,14 @@ import java.util.function.IntSupplier;
 
 public class SEquippedLoad extends EquippedWrapper
 {
-	public IEquippedItem next;
+	public IMainEquipped next;
 	
 	protected final int ammo_slot;
 	
 	protected int tick_left;
 	
 	
-	public SEquippedLoad( IEquippedItem wrapped, IItem item, int ammo_slot )
+	public SEquippedLoad( IMainEquipped wrapped, IItem item, int ammo_slot )
 	{
 		super( wrapped );
 		
@@ -36,12 +35,12 @@ public class SEquippedLoad extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player )
+	public IMainEquipped tickInHand( IItem item, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 )
 		{
 			// Tick next here, otherwise we will have one tick lag with client.
-			return this.next.tickInHand( item, hand, player );
+			return this.next.tickInHand( item, player );
 		}
 		
 		final MagType type = ( MagType ) item.getType();
@@ -92,7 +91,7 @@ public class SEquippedLoad extends EquippedWrapper
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public IEquippedItem onInputUpdate( IItem item, String name, IInput input ) {
+	public IMainEquipped onInputUpdate( String name, IInput input, IItem item ) {
 		throw new UnsupportedOperationException();
 	}
 }

@@ -4,11 +4,10 @@ import com.fmum.animation.SoundFrame;
 import com.fmum.gunpart.CEquippedWrapRender;
 import com.fmum.gunpart.EquippedGunPart;
 import com.fmum.input.IInput;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.fmum.item.IMainEquipped;
 import gsf.util.animation.IAnimator;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -20,7 +19,7 @@ public class CEquippedPutAway extends CEquippedWrapRender
 	protected int tick_left;
 	protected int sound_idx = 0;
 	
-	public CEquippedPutAway( IEquippedItem wrapped, IItem item )
+	public CEquippedPutAway( IMainEquipped wrapped, IItem item )
 	{
 		super( wrapped );
 		
@@ -29,7 +28,7 @@ public class CEquippedPutAway extends CEquippedWrapRender
 	}
 	
 	@Override
-	public Optional< IEquippedItem > tickPutAway( IItem item, EnumHand hand, EntityPlayer player )
+	public Optional< IMainEquipped > tickPutAway( IItem item, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 ) {
 			return Optional.empty();
@@ -45,15 +44,15 @@ public class CEquippedPutAway extends CEquippedWrapRender
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player ) {
-		return this.wrapped.tickInHand( item, hand, player );
+	public IMainEquipped tickInHand( IItem item, EntityPlayer player ) {
+		return this.wrapped.tickInHand( item, player );
 	}
 	
 	@Override
-	protected IAnimator _getInHandAnimator( EnumHand hand, IItem item )
+	protected IAnimator _getInHandAnimator( IItem item )
 	{
 		final EquippedGunPart eq = ( EquippedGunPart ) this.wrapped;
-		final IAnimator base = eq.EquippedGunPart$getInHandAnimator( hand, item );
+		final IAnimator base = eq.EquippedGunPart$getInHandAnimator( item );
 		
 		final GunType type = ( GunType ) item.getType();
 		final GunOpConfig config = type.op_put_away;
@@ -63,12 +62,12 @@ public class CEquippedPutAway extends CEquippedWrapRender
 	}
 	
 	@Override
-	public boolean onMouseWheelInput( IItem item, int dwheel ) {
+	public boolean onMouseWheelInput( int dwheel, IItem item ) {
 		return false;
 	}
 	
 	@Override
-	public IEquippedItem onInputUpdate( IItem item, String name, IInput input ) {
+	public IMainEquipped onInputUpdate( String name, IInput input, IItem item ) {
 		return this;
 	}
 }

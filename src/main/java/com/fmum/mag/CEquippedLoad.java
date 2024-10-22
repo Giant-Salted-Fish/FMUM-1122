@@ -7,15 +7,14 @@ import com.fmum.input.IInput;
 import com.fmum.input.InputManager;
 import com.fmum.input.Inputs;
 import com.fmum.item.EquippedWrapper;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.fmum.item.IMainEquipped;
 import com.fmum.network.PacketFullMag;
 import com.fmum.network.PacketLoadAmmo;
 import com.fmum.network.PacketUnwrapEquipped;
 import com.fmum.player.ChatBoxUtil;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -29,7 +28,7 @@ public class CEquippedLoad extends EquippedWrapper
 	protected int tick_left = 0;
 	protected int sound_idx;
 	
-	public CEquippedLoad( IEquippedItem wrapped, String trigger_key )
+	public CEquippedLoad( IMainEquipped wrapped, String trigger_key )
 	{
 		super( wrapped );
 		
@@ -37,7 +36,7 @@ public class CEquippedLoad extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player )
+	public IMainEquipped tickInHand( IItem item, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 )
 		{
@@ -50,7 +49,7 @@ public class CEquippedLoad extends EquippedWrapper
 				
 				// Because every ammo is corresponding to a load packet, \
 				// we do not need to send unwrap packet here.
-				return this.wrapped.tickInHand( item, hand, player );
+				return this.wrapped.tickInHand( item, player );
 			}
 			
 			final OptionalInt slot = IAmmoType.lookupValidAmmoSlot(
@@ -59,7 +58,7 @@ public class CEquippedLoad extends EquippedWrapper
 				InputManager.getBoolState( Inputs.ALT_AMMO ) ? 1 : 0
 			);
 			if ( !slot.isPresent() ) {
-				return this.wrapped.tickInHand( item, hand, player );
+				return this.wrapped.tickInHand( item, player );
 			}
 			
 			final int ammo_slot = slot.getAsInt();
@@ -90,7 +89,7 @@ public class CEquippedLoad extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
+	public IMainEquipped onInputUpdate( String name, IInput input, IItem item )
 	{
 		// Use trigger key to quit.
 		final String key = input.getAsBool() ? Inputs.RELOAD : Inputs.LOAD_AMMO;

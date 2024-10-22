@@ -5,15 +5,14 @@ import com.fmum.animation.SoundFrame;
 import com.fmum.input.IInput;
 import com.fmum.input.Inputs;
 import com.fmum.item.EquippedWrapper;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.fmum.item.IMainEquipped;
 import com.fmum.network.PacketClearMag;
 import com.fmum.network.PacketUnloadAmmo;
 import com.fmum.network.PacketUnwrapEquipped;
 import com.fmum.player.ChatBoxUtil;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -26,7 +25,7 @@ public class CEquippedUnload extends EquippedWrapper
 	protected int sound_idx;
 	protected boolean is_packet_sent = false;
 	
-	public CEquippedUnload( IEquippedItem wrapped, String trigger_key )
+	public CEquippedUnload( IMainEquipped wrapped, String trigger_key )
 	{
 		super( wrapped );
 		
@@ -34,7 +33,7 @@ public class CEquippedUnload extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player )
+	public IMainEquipped tickInHand( IItem item, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 )
 		{
@@ -46,7 +45,7 @@ public class CEquippedUnload extends EquippedWrapper
 				
 				// Server side will know that this mag is empty. So no need \
 				// to send unwrap packet here.
-				return this.wrapped.tickInHand( item, hand, player );
+				return this.wrapped.tickInHand( item, player );
 			}
 			else if ( !this.is_packet_sent )
 			{
@@ -79,7 +78,7 @@ public class CEquippedUnload extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
+	public IMainEquipped onInputUpdate( String name, IInput input, IItem item )
 	{
 		// Use trigger key to quit.
 		final String key = input.getAsBool() ? Inputs.LOAD_OR_UNLOAD_MAG : Inputs.UNLOAD_AMMO;

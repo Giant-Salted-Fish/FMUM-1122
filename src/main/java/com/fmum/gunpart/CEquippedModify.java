@@ -3,8 +3,8 @@ package com.fmum.gunpart;
 import com.fmum.input.IInput;
 import com.fmum.input.InputManager;
 import com.fmum.input.Inputs;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.fmum.item.IMainEquipped;
 import com.fmum.module.IModule;
 import com.fmum.module.ModifySession;
 import com.mojang.realmsclient.util.Pair;
@@ -17,7 +17,6 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -48,7 +47,7 @@ public class CEquippedModify extends CEquippedWrapRender
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( IItem held_item, EnumHand hand, EntityPlayer player )
+	public IMainEquipped tickInHand( IItem held_item, EntityPlayer player )
 	{
 		if ( held_item == this.item ) {
 			return this;
@@ -74,16 +73,16 @@ public class CEquippedModify extends CEquippedWrapRender
 	}
 	
 	@Override
-	protected IGunPart _getRenderDelegate( EnumHand hand, IItem item ) {
+	protected IGunPart _getRenderDelegate( IItem item ) {
 		return ( IGunPart ) this.session.getRoot();
 	}
 	
 	@Override
-	protected IAnimator _getInHandAnimator( EnumHand hand, IItem item )
+	protected IAnimator _getInHandAnimator( IItem item )
 	{
 		// TODO: blend with original animator.
 		final EquippedGunPart eq = ( EquippedGunPart ) this.wrapped;
-		final IAnimator wrapped = eq.EquippedGunPart$getInHandAnimator( hand, item );
+		final IAnimator wrapped = eq.EquippedGunPart$getInHandAnimator( item );
 		
 		final EntityPlayerSP player = Minecraft.getMinecraft().player;
 		final GunPartType type = ( GunPartType ) item.getType();
@@ -99,7 +98,7 @@ public class CEquippedModify extends CEquippedWrapRender
 	}
 	
 	@Override
-	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
+	public IMainEquipped onInputUpdate( String name, IInput input, IItem item )
 	{
 		final boolean is_activation = input.getAsBool();
 		if ( !is_activation ) {

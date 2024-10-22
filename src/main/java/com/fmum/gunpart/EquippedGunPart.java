@@ -3,12 +3,11 @@ package com.fmum.gunpart;
 import com.fmum.FMUM;
 import com.fmum.input.IInput;
 import com.fmum.input.Inputs;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.fmum.item.IMainEquipped;
 import com.fmum.player.PlayerPatchClient;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimator;
-import gsf.util.math.Vec3f;
 import gsf.util.render.GLUtil;
 import gsf.util.render.IPose;
 import net.minecraft.client.Minecraft;
@@ -17,7 +16,6 @@ import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -26,7 +24,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-public class EquippedGunPart implements IEquippedItem
+public class EquippedGunPart implements IMainEquipped
 {
 	@SideOnly( Side.CLIENT )
 	protected ArrayList< Runnable > in_hand_queue;
@@ -37,7 +35,7 @@ public class EquippedGunPart implements IEquippedItem
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
+	public IMainEquipped onInputUpdate( String name, IInput input, IItem item )
 	{
 		if ( input.getAsBool() && name.equals( Inputs.OPEN_MODIFY_VIEW ) ) {
 			return new CEquippedModify( this, item );
@@ -48,15 +46,15 @@ public class EquippedGunPart implements IEquippedItem
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public void prepareRenderInHand( IItem item, EnumHand hand )
+	public void prepareRenderInHand( IItem item )
 	{
 		final IGunPart self = IGunPart.from( item );
-		final IAnimator animator = this.EquippedGunPart$getInHandAnimator( hand, item );
+		final IAnimator animator = this.EquippedGunPart$getInHandAnimator( item );
 		this.EquippedGunPart$doPrepareRenderInHand( self, animator );
 	}
 	
 	/**
-	 * Stateless version of the {@link IEquippedItem#prepareRenderInHand(IItem, EnumHand)}.
+	 * Stateless version of the {@link IMainEquipped#prepareRenderInHand(IItem)}.
 	 * This allows other equipped wrappers to fully proxy the rendering.
 	 */
 	@SideOnly( Side.CLIENT )
@@ -77,26 +75,16 @@ public class EquippedGunPart implements IEquippedItem
 	}
 	
 	@SideOnly( Side.CLIENT )
-	public IAnimator EquippedGunPart$getInHandAnimator( EnumHand hand, IItem item )
+	public IAnimator EquippedGunPart$getInHandAnimator( IItem item )
 	{
 		final GunPartType type = ( GunPartType ) item.getType();
-		final Vec3f pos;
-		if ( hand == EnumHand.MAIN_HAND ) {
-			pos = type.fp_pos;
-		}
-		else
-		{
-			pos = new Vec3f();
-			pos.set( type.fp_pos );
-			pos.x = -pos.x;
-		}
-		final IPose in_hand_setup = IPose.of( pos, type.fp_rot );
+		final IPose in_hand_setup = IPose.of( type.fp_pos, type.fp_rot );
 		return ch -> ch.equals( CHANNEL_ITEM ) ? in_hand_setup : IPose.EMPTY;
 	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public boolean renderInHand( IItem item, EnumHand hand )
+	public boolean renderInHand( IItem item )
 	{
 		GL11.glPushMatrix();
 		
@@ -132,7 +120,7 @@ public class EquippedGunPart implements IEquippedItem
 		// Setup and render!
 		GLUtil.glRotateYf( 180.0F - player.rotationYaw );
 		GLUtil.glRotateXf( player.rotationPitch );
-		this._doRenderInHand( item, hand );
+		this._doRenderInHand( item );
 		
 		GlStateManager.disableRescaleNormal();
 		RenderHelper.disableStandardItemLighting();
@@ -145,7 +133,7 @@ public class EquippedGunPart implements IEquippedItem
 	}
 	
 	@SideOnly( Side.CLIENT )
-	protected void _doRenderInHand( IItem item, EnumHand hand )
+	protected void _doRenderInHand( IItem item )
 	{
 //		Dev.cur().applyTransRot();
 		this.in_hand_queue.forEach( Runnable::run );
@@ -153,7 +141,7 @@ public class EquippedGunPart implements IEquippedItem
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public boolean renderSpecificInHand( IItem item, EnumHand hand ) {
+	public boolean renderSpecificInHand( IItem item ) {
 		return true;
 	}
 }

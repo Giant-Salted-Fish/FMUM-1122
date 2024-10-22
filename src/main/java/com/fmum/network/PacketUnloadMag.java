@@ -5,7 +5,6 @@ import com.fmum.gun.SEquippedUnloadMag;
 import com.fmum.player.PlayerPatch;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -27,11 +26,11 @@ public class PacketUnloadMag implements IPacket
 	{
 		final EntityPlayerMP player = ctx.getServerHandler().player;
 		player.getServerWorld().addScheduledTask( () -> PlayerPatch.of( player )
-			.mapEquipped( ( eq, it ) -> {
+			.mapMainEquipped( ( eq, it ) -> {
 				if ( eq instanceof EquippedGun )
 				{
 					final SEquippedUnloadMag unload = new SEquippedUnloadMag( eq, it );
-					return unload.tickInHand( it, EnumHand.MAIN_HAND, player );
+					return unload.tickInHand( it, player );
 				}
 				else {
 					return eq;

@@ -2,16 +2,15 @@ package com.fmum.gun;
 
 import com.fmum.input.IInput;
 import com.fmum.item.EquippedWrapper;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.fmum.item.IMainEquipped;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumHand;
 
 public class SEquippedTakeOut extends EquippedWrapper
 {
 	protected int tick_left;
 	
-	public SEquippedTakeOut( IEquippedItem wrapped, IItem item )
+	public SEquippedTakeOut( IMainEquipped wrapped, IItem item )
 	{
 		super( wrapped );
 		
@@ -21,10 +20,10 @@ public class SEquippedTakeOut extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player )
+	public IMainEquipped tickInHand( IItem item, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 ) {
-			return this.wrapped.tickInHand( item, hand, player );
+			return this.wrapped.tickInHand( item, player );
 		}
 		
 //		final GunType type = ( GunType ) item.getType();
@@ -36,7 +35,7 @@ public class SEquippedTakeOut extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem onInputUpdate( IItem item, String name, IInput input ) {
+	public IMainEquipped onInputUpdate( String name, IInput input, IItem item ) {
 		throw new UnsupportedOperationException();
 	}
 }

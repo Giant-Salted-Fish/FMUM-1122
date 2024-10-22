@@ -8,8 +8,8 @@ import com.fmum.gunpart.IHandSetup;
 import com.fmum.gunpart.IPreparedRenderer;
 import com.fmum.input.IInput;
 import com.fmum.input.Inputs;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.fmum.item.IMainEquipped;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimator;
 import gsf.util.render.GLUtil;
@@ -18,7 +18,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -64,7 +63,7 @@ public class EquippedGun extends EquippedGunPart
 	
 	
 	@Override
-	public Optional< IEquippedItem > tickPutAway( IItem item, EnumHand hand, EntityPlayer player )
+	public Optional< IMainEquipped > tickPutAway( IItem item, EntityPlayer player )
 	{
 		return Optional.of(
 			player.world.isRemote
@@ -142,7 +141,7 @@ public class EquippedGun extends EquippedGunPart
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	protected void _doRenderInHand( IItem item, EnumHand hand )
+	protected void _doRenderInHand( IItem item )
 	{
 		final Minecraft mc = Minecraft.getMinecraft();
 		final EntityRenderer renderer = mc.entityRenderer;
@@ -163,12 +162,12 @@ public class EquippedGun extends EquippedGunPart
 		Project.gluPerspective( fov_y, aspect, z_near, z_far );
 		GL11.glMatrixMode( GL11.GL_MODELVIEW );
 		
-		super._doRenderInHand( item, hand );
+		super._doRenderInHand( item );
 	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
+	public IMainEquipped onInputUpdate( String name, IInput input, IItem item )
 	{
 		if ( input.getAsBool() )
 		{
@@ -184,12 +183,12 @@ public class EquippedGun extends EquippedGunPart
 				return new CEquippedInspect( this, item );
 			}
 		}
-		return super.onInputUpdate( item, name, input );
+		return super.onInputUpdate( name, input, item );
 	}
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public boolean getViewBobbing( IItem item, boolean original ) {
+	public boolean getViewBobbing( boolean original, IItem item ) {
 		return false;
 	}
 	

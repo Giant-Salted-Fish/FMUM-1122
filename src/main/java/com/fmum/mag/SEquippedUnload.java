@@ -3,11 +3,10 @@ package com.fmum.mag;
 import com.fmum.ammo.IAmmoType;
 import com.fmum.input.IInput;
 import com.fmum.item.EquippedWrapper;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.fmum.item.IMainEquipped;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -17,18 +16,18 @@ public class SEquippedUnload extends EquippedWrapper
 {
 	protected int tick_left = 0;
 	
-	public SEquippedUnload( IEquippedItem wrapped ) {
+	public SEquippedUnload( IMainEquipped wrapped ) {
 		super( wrapped );
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player )
+	public IMainEquipped tickInHand( IItem item, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 )
 		{
 			final IMag mag = IMag.from( item );
 			if ( mag.isEmpty() ) {
-				return this.wrapped.tickInHand( item, hand, player );
+				return this.wrapped.tickInHand( item, player );
 			}
 			
 			final MagType type = ( MagType ) item.getType();
@@ -72,7 +71,7 @@ public class SEquippedUnload extends EquippedWrapper
 	
 	@Override
 	@SideOnly( Side.CLIENT )
-	public IEquippedItem onInputUpdate( IItem item, String name, IInput input ) {
+	public IMainEquipped onInputUpdate( String name, IInput input, IItem item ) {
 		throw new UnsupportedOperationException();
 	}
 }

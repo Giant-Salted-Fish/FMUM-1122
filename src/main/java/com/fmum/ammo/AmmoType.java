@@ -1,9 +1,9 @@
 package com.fmum.ammo;
 
 import com.fmum.FMUM;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
+import com.fmum.item.IMainEquipped;
 import com.fmum.item.ItemCategory;
 import com.fmum.item.ItemType;
 import com.fmum.load.IContentBuildContext;
@@ -22,7 +22,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -177,7 +176,7 @@ public class AmmoType extends ItemType implements IAmmoType
 		}
 		
 		@Override
-		public IEquippedItem onTakeOut( EnumHand hand, EntityPlayer player ) {
+		public IMainEquipped onTakeOutMainHand( EntityPlayer player ) {
 			return new EquippedAmmo();
 		}
 		
@@ -188,17 +187,17 @@ public class AmmoType extends ItemType implements IAmmoType
 	}
 	
 	
-	protected static class EquippedAmmo implements IEquippedItem
+	protected static class EquippedAmmo implements IMainEquipped
 	{
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean renderInHand( IItem item, EnumHand hand ) {
+		public boolean renderInHand( IItem item ) {
 			return false;
 		}
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean renderSpecificInHand( IItem item, EnumHand hand )
+		public boolean renderSpecificInHand( IItem item )
 		{
 			final AmmoType type = ( AmmoType ) item.getType();
 			

@@ -1,9 +1,10 @@
 package com.fmum.player;
 
 import com.fmum.FMUM;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
+import com.fmum.item.IMainEquipped;
+import com.fmum.item.IOffEquipped;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -36,17 +37,31 @@ import java.util.function.BiFunction;
 @EventBusSubscriber( modid = FMUM.MODID )
 public class PlayerPatch
 {
-	private static final IEquippedItem VANILLA_EQUIPPED = new IEquippedItem() {
+	private static final IMainEquipped VANILLA_MAIN_EQUIPPED = new IMainEquipped() {
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean renderInHand( IItem item, EnumHand hand ) {
-			return hand == EnumHand.OFF_HAND;  // TODO: Config setting?
+		public boolean renderInHand( IItem item ) {
+			return false;
 		}
 		
 		@Override
 		@SideOnly( Side.CLIENT )
-		public boolean renderSpecificInHand( IItem item, EnumHand hand ) {
-			return hand == EnumHand.OFF_HAND;
+		public boolean renderSpecificInHand( IItem item ) {
+			return false;
+		}
+	};
+	
+	private static final IOffEquipped VANILLA_OFF_EQUIPPED = new IOffEquipped() {
+		@Override
+		@SideOnly( Side.CLIENT )
+		public boolean renderInHand( IItem item ) {
+			return true;  // TODO: Config setting?
+		}
+		
+		@Override
+		@SideOnly( Side.CLIENT )
+		public boolean renderSpecificInHand( IItem item ) {
+			return true;
 		}
 	};
 	
@@ -57,18 +72,23 @@ public class PlayerPatch
 		}
 		
 		@Override
-		public IEquippedItem onTakeOut( EnumHand hand, EntityPlayer player ) {
-			return VANILLA_EQUIPPED;
+		public IMainEquipped onTakeOutMainHand( EntityPlayer player ) {
+			return VANILLA_MAIN_EQUIPPED;
+		}
+		
+		@Override
+		public IOffEquipped onTakeOutOffHand( EntityPlayer player ) {
+			return VANILLA_OFF_EQUIPPED;
 		}
 	};
 	
 	
 	int inv_slot = -1;
 	IItem main_item = VANILLA_ITEM;
-	IEquippedItem main_equipped = VANILLA_EQUIPPED;
+	IMainEquipped main_equipped = VANILLA_MAIN_EQUIPPED;
 	
 	IItem off_item = VANILLA_ITEM;
-	IEquippedItem off_equipped = VANILLA_EQUIPPED;
+	IOffEquipped off_equipped = VANILLA_OFF_EQUIPPED;
 	
 	
 	PlayerPatch() { }
@@ -87,12 +107,12 @@ public class PlayerPatch
 				final IItem item = opt_item.orElse( VANILLA_ITEM );
 				// Necessary, because we are using #equals here.
 				this.main_item = item;
-				this.main_equipped = this.main_equipped.tickInHand( item, hand, player );
+				this.main_equipped = this.main_equipped.tickInHand( item, player );
 			}
 			else
 			{
-				final Optional< IEquippedItem > opt_eq;
-				opt_eq = this.main_equipped.tickPutAway( this.main_item, hand, player );
+				final Optional< IMainEquipped > opt_eq;
+				opt_eq = this.main_equipped.tickPutAway( this.main_item, player );
 				if ( opt_eq.isPresent() ) {
 					this.main_equipped = opt_eq.get();
 				}
@@ -101,8 +121,8 @@ public class PlayerPatch
 					this.inv_slot = inv_slot;
 					final IItem item = opt_item.orElse( VANILLA_ITEM );
 					this.main_item = item;
-					final IEquippedItem equipped = item.onTakeOut( hand, player );
-					this.main_equipped = equipped.tickInHand( item, hand, player );
+					final IMainEquipped equipped = item.onTakeOutMainHand( player );
+					this.main_equipped = equipped.tickInHand( item, player );
 				}
 			}
 		}
@@ -116,12 +136,12 @@ public class PlayerPatch
 			{
 				final IItem item = opt_item.orElse( VANILLA_ITEM );
 				this.off_item = item;
-				this.off_equipped = this.off_equipped.tickInHand( item, hand, player );
+				this.off_equipped = this.off_equipped.tickInHand( item, player );
 			}
 			else
 			{
-				final Optional< IEquippedItem > opt_eq;
-				opt_eq = this.off_equipped.tickPutAway( this.main_item, hand, player );
+				final Optional< IOffEquipped > opt_eq;
+				opt_eq = this.off_equipped.tickPutAway( this.main_item, player );
 				if ( opt_eq.isPresent() ) {
 					this.off_equipped = opt_eq.get();
 				}
@@ -129,8 +149,8 @@ public class PlayerPatch
 				{
 					final IItem item = opt_item.orElse( VANILLA_ITEM );
 					this.off_item = item;
-					final IEquippedItem equipped = item.onTakeOut( hand, player );
-					this.off_equipped = equipped.tickInHand( item, hand, player );
+					final IOffEquipped equipped = item.onTakeOutOffHand( player );
+					this.off_equipped = equipped.tickInHand( item, player );
 				}
 			}
 		}
@@ -142,10 +162,10 @@ public class PlayerPatch
 		return item != VANILLA_ITEM ? Optional.of( item ) : Optional.empty();
 	}
 	
-	public final < T extends IEquippedItem > Optional< T > mapEquipped(
-		BiFunction< ? super IEquippedItem, ? super IItem, T > mapper
+	public final < T extends IMainEquipped > Optional< T > mapMainEquipped(
+		BiFunction< ? super IMainEquipped, ? super IItem, T > mapper
 	) {
-		if ( this.main_equipped == VANILLA_EQUIPPED ) {
+		if ( this.main_equipped == VANILLA_MAIN_EQUIPPED ) {
 			return Optional.empty();
 		}
 		

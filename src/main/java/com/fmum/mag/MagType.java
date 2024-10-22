@@ -7,9 +7,9 @@ import com.fmum.animation.Sounds;
 import com.fmum.gunpart.GunPartType;
 import com.fmum.gunpart.IHandSetup;
 import com.fmum.gunpart.IPreparedRenderer;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
+import com.fmum.item.IMainEquipped;
 import com.fmum.item.ItemCategory;
 import com.fmum.load.IContentBuildContext;
 import com.fmum.load.IContentLoader;
@@ -32,7 +32,6 @@ import gsf.util.render.IPose;
 import gsf.util.render.Mesh;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -135,7 +134,7 @@ public class MagType extends GunPartType
 	}
 	
 	@Override
-	protected IEquippedItem _newEquipped( EnumHand hand, IItem item, EntityPlayer player ) {
+	protected IMainEquipped _newMainEquipped( IItem item, EntityPlayer player ) {
 		return new EquippedMag();
 	}
 	
@@ -284,8 +283,8 @@ public class MagType extends GunPartType
 					BiConsumer< Integer, IHandSetup > right_hand
 				) {
 					final IAnimator wrapper = channel -> animator.getChannel(
-						channel.equals( IEquippedItem.CHANNEL_ITEM )
-						? IEquippedItem.CHANNEL_ITEM
+						channel.equals( IMainEquipped.CHANNEL_ITEM )
+						? IMainEquipped.CHANNEL_ITEM
 						: "loading-".concat( channel )
 					);
 					super.IGunPart$prepareRender( base_pose, wrapper, render_queue, left_hand, right_hand );

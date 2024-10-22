@@ -5,7 +5,6 @@ import com.fmum.mag.SEquippedUnload;
 import com.fmum.player.PlayerPatch;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -27,12 +26,12 @@ public class PacketUnloadAmmo implements IPacket
 	{
 		final EntityPlayerMP player = ctx.getServerHandler().player;
 		player.getServerWorld().addScheduledTask( () -> PlayerPatch.of( player )
-			.mapEquipped( ( eq, it ) -> {
+			.mapMainEquipped( ( eq, it ) -> {
 				if ( eq instanceof EquippedMag )
 				{
 					// Tick now to catch up client progress.
 					final SEquippedUnload unloading = new SEquippedUnload( eq );
-					return unloading.tickInHand( it, EnumHand.MAIN_HAND, player );
+					return unloading.tickInHand( it, player );
 				}
 				else {
 					return eq;

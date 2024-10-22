@@ -3,8 +3,8 @@ package com.fmum.player;
 import com.fmum.FMUM;
 import com.fmum.ModConfigClient;
 import com.fmum.input.InputUpdateEvent;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.fmum.item.IMainEquipped;
 import gsf.util.lang.Type;
 import gsf.util.math.Vec3f;
 import gsf.util.render.GLUtil;
@@ -139,9 +139,9 @@ public final class PlayerPatchClient extends PlayerPatch
 		protected float _getMouseSensitivity()
 		{
 			final GameSettings settings = Minecraft.getMinecraft().gameSettings;
-			final IEquippedItem equipped = PlayerPatchClient.this.main_equipped;
+			final IMainEquipped equipped = PlayerPatchClient.this.main_equipped;
 			final IItem item = PlayerPatchClient.this.main_item;
-			return equipped.getMouseSensitivity( item, settings.mouseSensitivity );
+			return equipped.getMouseSensitivity( settings.mouseSensitivity, item );
 		}
 	};
 	
@@ -161,17 +161,17 @@ public final class PlayerPatchClient extends PlayerPatch
 		if ( no_gui_active )
 		{
 			final GameSettings settings = mc.gameSettings;
-			final IEquippedItem equipped = this.main_equipped;
+			final IMainEquipped equipped = this.main_equipped;
 			final IItem item = this.main_item;
-			settings.viewBobbing = equipped.getViewBobbing( item, ori_view_bobbing );
+			settings.viewBobbing = equipped.getViewBobbing( ori_view_bobbing, item );
 		}
 		
 		// Update player motion info.
 		this.prev_position.set( this.position );
 		this.position.set(
-			0.0F +                  ( float ) player.posX,
-			player.getEyeHeight() + ( float ) player.posY,
-			0.0F +                  ( float ) player.posZ
+			( float ) player.posX,
+			( float ) player.posY + player.getEyeHeight(),
+			( float ) player.posZ
 		);
 		
 		this.prev_velocity.set( this.velocity );
@@ -195,8 +195,8 @@ public final class PlayerPatchClient extends PlayerPatch
 		// is also updated. Hence, it is the proper place to fire prepare \
 		// render callback.
 		this.camera.prepareRender( mouse );
-		this.main_equipped.prepareRenderInHand( this.main_item, EnumHand.MAIN_HAND );
-		this.off_equipped.prepareRenderInHand( this.off_item, EnumHand.OFF_HAND );
+		this.main_equipped.prepareRenderInHand( this.main_item );
+		this.off_equipped.prepareRenderInHand( this.off_item );
 	}
 	
 	
@@ -213,7 +213,7 @@ public final class PlayerPatchClient extends PlayerPatch
 	{
 		if ( evt.getType() == ElementType.CROSSHAIRS )
 		{
-			final IEquippedItem equipped = instance.main_equipped;
+			final IMainEquipped equipped = instance.main_equipped;
 			final IItem item = instance.main_item;
 			evt.setCanceled( equipped.shouldDisableCrosshair( item ) );
 		}
@@ -247,8 +247,8 @@ public final class PlayerPatchClient extends PlayerPatch
 			return;
 		}
 		
-		final boolean is_custom_main = instance.main_equipped.renderInHand( instance.main_item, EnumHand.MAIN_HAND );
-		final boolean is_custom_off = instance.off_equipped.renderInHand( instance.off_item, EnumHand.OFF_HAND );
+		final boolean is_custom_main = instance.main_equipped.renderInHand( instance.main_item );
+		final boolean is_custom_off = instance.off_equipped.renderInHand( instance.off_item );
 		if ( is_custom_main && is_custom_off ) {
 			evt.setCanceled( true );
 		}
@@ -268,11 +268,11 @@ public final class PlayerPatchClient extends PlayerPatch
 	@SubscribeEvent
 	static void _onRenderSpecificHand( RenderSpecificHandEvent evt )
 	{
-		final EnumHand hand = evt.getHand();
-		final boolean is_main = hand == EnumHand.MAIN_HAND;
-		final IEquippedItem equipped = is_main ? instance.main_equipped : instance.off_equipped;
-		final IItem item = is_main ? instance.main_item : instance.off_item;
-		final boolean cancel = equipped.renderSpecificInHand( item, hand );
+		final boolean cancel = (
+			evt.getHand() == EnumHand.MAIN_HAND
+			? instance.main_equipped.renderSpecificInHand( instance.main_item )
+			: instance.off_equipped.renderSpecificInHand( instance.off_item )
+		);
 		evt.setCanceled( cancel );
 	}
 	
@@ -282,9 +282,9 @@ public final class PlayerPatchClient extends PlayerPatch
 		final int dwheel = evt.getDwheel();
 		if ( dwheel != 0 )
 		{
-			final IEquippedItem equipped = instance.main_equipped;
+			final IMainEquipped equipped = instance.main_equipped;
 			final IItem item = instance.main_item;
-			final boolean cancel = equipped.onMouseWheelInput( item, dwheel );
+			final boolean cancel = equipped.onMouseWheelInput( dwheel, item );
 			evt.setCanceled( cancel );
 		}
 	}
@@ -293,8 +293,8 @@ public final class PlayerPatchClient extends PlayerPatch
 	static void _onInputUpdate( InputUpdateEvent evt )
 	{
 		final IItem item = instance.main_item;
-		final IEquippedItem eq = instance.main_equipped;
-		instance.main_equipped = eq.onInputUpdate( item, evt.name, evt.input );
+		final IMainEquipped eq = instance.main_equipped;
+		instance.main_equipped = eq.onInputUpdate( evt.name, evt.input, item );
 	}
 	
 	@SubscribeEvent

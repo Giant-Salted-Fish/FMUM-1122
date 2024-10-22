@@ -3,13 +3,13 @@ package com.fmum.mag;
 import com.fmum.gunpart.EquippedGunPart;
 import com.fmum.input.IInput;
 import com.fmum.input.Inputs;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.fmum.item.IMainEquipped;
 
 public class EquippedMag extends EquippedGunPart
 {
 	@Override
-	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
+	public IMainEquipped onInputUpdate( String name, IInput input, IItem item )
 	{
 		if ( input.getAsBool() )
 		{
@@ -23,7 +23,7 @@ public class EquippedMag extends EquippedGunPart
 				return new CEquippedUnload( this, name );
 			}
 		}
-		return super.onInputUpdate( item, name, input );
+		return super.onInputUpdate( name, input, item );
 	}
 	
 	

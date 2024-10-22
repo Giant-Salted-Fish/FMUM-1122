@@ -4,9 +4,9 @@ import com.fmum.FMUM;
 import com.fmum.gunpart.GunPartType;
 import com.fmum.gunpart.IHandSetup;
 import com.fmum.gunpart.IPreparedRenderer;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
 import com.fmum.item.IItemType;
+import com.fmum.item.IMainEquipped;
 import com.fmum.load.IContentBuildContext;
 import com.fmum.load.IContentLoader;
 import com.fmum.load.JsonData;
@@ -25,7 +25,6 @@ import gsf.util.render.IPose;
 import gsf.util.render.Mesh;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -109,7 +108,7 @@ public class GunType extends GunPartType
 	}
 	
 	@Override
-	protected IEquippedItem _newEquipped( EnumHand hand, IItem item, EntityPlayer player )
+	protected IMainEquipped _newMainEquipped( IItem item, EntityPlayer player )
 	{
 		final EquippedGun equipped = new EquippedGun();
 		return (

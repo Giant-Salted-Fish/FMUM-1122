@@ -2,10 +2,9 @@ package com.fmum.gun;
 
 import com.fmum.input.IInput;
 import com.fmum.item.EquippedWrapper;
-import com.fmum.item.IEquippedItem;
 import com.fmum.item.IItem;
+import com.fmum.item.IMainEquipped;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumHand;
 
 import java.util.Optional;
 
@@ -13,7 +12,7 @@ public class SEquippedPutAway extends EquippedWrapper
 {
 	protected int tick_left;
 	
-	public SEquippedPutAway( IEquippedItem wrapped, IItem item )
+	public SEquippedPutAway( IMainEquipped wrapped, IItem item )
 	{
 		super( wrapped );
 		
@@ -23,7 +22,7 @@ public class SEquippedPutAway extends EquippedWrapper
 	}
 	
 	@Override
-	public Optional< IEquippedItem > tickPutAway( IItem item, EnumHand hand, EntityPlayer player )
+	public Optional< IMainEquipped > tickPutAway( IItem item, EntityPlayer player )
 	{
 		if ( this.tick_left == 0 ) {
 			return Optional.empty();
@@ -38,12 +37,12 @@ public class SEquippedPutAway extends EquippedWrapper
 	}
 	
 	@Override
-	public IEquippedItem tickInHand( IItem item, EnumHand hand, EntityPlayer player ) {
-		return this.wrapped.tickInHand( item, hand, player );
+	public IMainEquipped tickInHand( IItem item, EntityPlayer player ) {
+		return this.wrapped.tickInHand( item, player );
 	}
 	
 	@Override
-	public IEquippedItem onInputUpdate( IItem item, String name, IInput input )
+	public IMainEquipped onInputUpdate( String name, IInput input, IItem item )
 	{
 		return null;
 	}
