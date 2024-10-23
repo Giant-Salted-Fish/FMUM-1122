@@ -77,15 +77,6 @@ public final class Mat4f extends Matrix4f
 		this.m33 += this.m30 * x + this.m31 * y + this.m32 * z;
 	}
 	
-	public void rotate( Quat4f quat )
-	{
-		// TODO: a better implementation?
-		final Mat4f mat = allocate();
-		mat.set( quat );
-		this.mul( mat );
-		release( mat );
-	}
-	
 	/**
 	 * Axis need to be normalized.
 	 *
@@ -218,20 +209,6 @@ public final class Mat4f extends Matrix4f
 	/**
 	 * Equivalent to calling {@link GL11#glRotatef(float, float, float, float)} in same order.
 	 *
-	 * @param pitch The angle to rotate about the X axis in degrees.
-	 * @param yaw The angle to rotate about the Y axis in degrees.
-	 * @param roll The angle to rotate about the Z axis in degrees.
-	 */
-	public void eulerRotateYXZ( float pitch, float yaw, float roll )
-	{
-		this.rotateY( yaw );
-		this.rotateX( pitch );
-		this.rotateZ( roll );
-	}
-	
-	/**
-	 * Equivalent to calling {@link GL11#glRotatef(float, float, float, float)} in same order.
-	 *
 	 * @param euler_angle The angle to rotate about the three axis in degrees.
 	 */
 	public void eulerRotateYXZ( Vec3f euler_angle )
@@ -254,21 +231,6 @@ public final class Mat4f extends Matrix4f
 		this.m02 *= z;
 		this.m12 *= z;
 		this.m22 *= z;
-	}
-	
-	public void scale( float factor )
-	{
-		this.m00 *= factor;
-		this.m01 *= factor;
-		this.m02 *= factor;
-		
-		this.m10 *= factor;
-		this.m11 *= factor;
-		this.m12 *= factor;
-		
-		this.m20 *= factor;
-		this.m21 *= factor;
-		this.m22 *= factor;
 	}
 	
 	/**

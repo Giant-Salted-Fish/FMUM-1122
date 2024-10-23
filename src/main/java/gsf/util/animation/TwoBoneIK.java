@@ -1,6 +1,6 @@
 package gsf.util.animation;
 
-import gsf.util.math.Mat4f;
+import gsf.util.math.Quat4f;
 import gsf.util.math.Vec3f;
 import net.minecraft.util.math.MathHelper;
 
@@ -54,11 +54,12 @@ public class TwoBoneIK
 			
 			// Get elbow coordinate in 3D space.
 			hand_pos.getEulerAngle( vec );
-			final Mat4f mat = Mat4f.allocate();
-			mat.setIdentity();
-			mat.eulerRotateYXZ( vec.x, vec.y, arm_rot_z );
-			mat.transformAsPoint( this.elbow_pos, this.elbow_pos );
-			Mat4f.release( mat );
+			final Quat4f quat = Quat4f.allocate();
+			quat.setRotY( vec.y );
+			quat.rotateX( vec.x );
+			quat.rotateZ( arm_rot_z );
+			quat.transform( this.elbow_pos, this.elbow_pos );
+			Quat4f.release( quat );
 		}
 		
 		vec.set( hand_pos );

@@ -3,9 +3,7 @@ package com.fmum.player;
 import com.fmum.SyncConfig;
 import com.fmum.input.InputManager;
 import com.fmum.input.Inputs;
-import gsf.util.animation.IAnimator;
 import gsf.util.animation.MassSpringMotion;
-import gsf.util.math.Mat4f;
 import gsf.util.math.Quat4f;
 import gsf.util.math.Vec3f;
 import gsf.util.render.IPose;
@@ -35,13 +33,12 @@ public abstract class PlayerCamera implements IPlayerCamera
 	protected static float drop_distance_cycle = 0.0F;
 	
 	
-	protected final Mat4f view_mat = new Mat4f();
 	protected final Vec3f player_rot = new Vec3f();
 	
 	protected final MassSpringMotion free_view_rot = new MassSpringMotion();
 	protected final MassSpringMotion camera_easing = new MassSpringMotion();
 	
-	protected IAnimator animator = IAnimator.NONE;
+	protected IPose camera_pose = IPose.EMPTY;
 	
 	@Override
 	public void tickCamera()
@@ -162,27 +159,28 @@ public abstract class PlayerCamera implements IPlayerCamera
 		final float view_pitch = this.player_rot.x + free_view_pitch;
 		final float view_yaw = this.player_rot.y + free_view_yaw;
 		
-//		this.animator.update();  // FIXME: Animator update?
-		final IPose setup = this.animator.getChannel( CHANNEL_CAMERA );
+//		final IPose setup = this.animator.getChannel( CHANNEL_CAMERA );
 		
-		final Mat4f view_mat = this.view_mat;
-		final Quat4f quat = Quat4f.allocate();
-		setup.getRot( quat );
-		view_mat.set( quat );
-		Quat4f.release( quat );
+//		final Mat4f view_mat = this.view_mat;
+//		final Quat4f quat = Quat4f.allocate();
+//		setup.getRot( quat );
+//		view_mat.set( quat );
+//		Quat4f.release( quat );
+		final Quat4f quat = new Quat4f();
 		
 		final Vec3f vec = Vec3f.allocate();
 		this.camera_easing.getPos( mc.getRenderPartialTicks(), vec );
-		view_mat.rotateZ( vec.z );
-		view_mat.rotateX( vec.x );
-		view_mat.rotateY( vec.y );
+		quat.setRotZ( vec.z );
+		quat.rotateX( vec.x );
+		quat.rotateY( vec.y );
 		
-		setup.getPos( vec );
-		view_mat.translate( vec );
-		Vec3f.release( vec );
+//		setup.getPos( vec );
+//		view_mat.translate( vec );
+//		Vec3f.release( vec );
 		
-		view_mat.rotateX( view_pitch );
-		view_mat.rotateY( 180.0F + view_yaw );
+		quat.rotateX( view_pitch );
+		quat.rotateY( 180.0F + view_yaw );
+		this.camera_pose = IPose.of( Vec3f.ORIGIN, quat );
 		
 		// Apply a tiny change to player's pitch rotation to force view \
 		// frustum culling update if off-axis has changed.
@@ -205,7 +203,7 @@ public abstract class PlayerCamera implements IPlayerCamera
 	
 	@Override
 	public IPose getCameraSetup() {
-		return IPose.ofMat( this.view_mat );
+		return this.camera_pose;
 	}
 	
 	protected float _getMouseFactor()

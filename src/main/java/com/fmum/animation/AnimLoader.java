@@ -10,7 +10,6 @@ import gsf.util.animation.AnimAttr;
 import gsf.util.animation.Bone;
 import gsf.util.animation.IAnimation;
 import gsf.util.animation.Track;
-import gsf.util.math.Mat4f;
 import gsf.util.math.Quat4f;
 import gsf.util.math.Vec3f;
 
@@ -52,12 +51,11 @@ public final class AnimLoader
 						};
 						rot_parser = e -> {
 							final Vec3f euler = ctx.deserialize( e, Vec3f.class );
-							final Mat4f mat = Mat4f.allocate();
-							mat.setIdentity();
-							mat.rotateZ( euler.z );
-							mat.rotateY( euler.y );
-							mat.rotateX( -euler.x );
-							return Quat4f.rotOf( mat );
+							final Quat4f quat = new Quat4f();
+							quat.setRotZ( euler.z );
+							quat.rotateY( euler.y );
+							quat.rotateX( -euler.x );
+							return quat;
 						};
 					}
 					else  // All rest of the bones.
@@ -70,12 +68,11 @@ public final class AnimLoader
 						};
 						rot_parser = e -> {
 							final Vec3f euler = ctx.deserialize( e, Vec3f.class );
-							final Mat4f mat = Mat4f.allocate();
-							mat.setIdentity();
-							mat.rotateZ( euler.z );
-							mat.rotateY( -euler.y );
-							mat.rotateX( -euler.x );
-							return Quat4f.rotOf( mat );
+							final Quat4f quat = new Quat4f();
+							quat.setRotZ( euler.z );
+							quat.rotateY( -euler.y );
+							quat.rotateX( -euler.x );
+							return quat;
 						};
 					}
 					final JsonData dat = new JsonData( value.getAsJsonObject(), ctx );

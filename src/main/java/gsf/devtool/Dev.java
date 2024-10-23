@@ -16,6 +16,7 @@ import gsf.util.render.GLUtil;
 import gsf.util.render.IPose;
 import gsf.util.render.Mesh;
 import gsf.util.render.MeshBuilder;
+import gsf.util.render.PoseBuilder;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 
@@ -74,22 +75,6 @@ public class Dev
 		}
 	}
 	
-	private static final SpringLikeRotation rot = new SpringLikeRotation();
-	private static final Matrix3f inertia = new Matrix3f(
-		0.025F, 0.0F, 0.0F,
-		0.0F, 0.025F, 0.0F,
-		0.0F, 0.0F, 0.025F
-	);
-	private static float radian_clamp = MoreMath.PI / 8.0F;
-	private static float damping = 0.95F;
-	
-	private static void scaleMat( Matrix3f mat, float scale )
-	{
-		mat.m00 *= scale;
-		mat.m11 *= scale;
-		mat.m22 *= scale;
-	}
-	
 	public static void testRender()
 	{
 		GL11.glPushMatrix();
@@ -100,7 +85,7 @@ public class Dev
 		{
 			if ( flag )
 			{
-				Mat4f next = new Mat4f();
+				final Mat4f next = new Mat4f();
 				next.setIdentity();
 				next.translate( tpr.getPos() );
 				next.eulerRotateYXZ( tpr.getRot() );
@@ -118,16 +103,33 @@ public class Dev
 		
 		GL11.glPushMatrix();
 		GL11.glTranslatef( 0.0F, 0.0F, 0.2F );
-		IPose pose = IPose.EMPTY;
-		for ( TestPosRot tpr : test_list )
+		if ( flag )
 		{
-			final Vec3f rot = tpr.getRot();
-			Quat4f quat = new Quat4f();
-			quat.setEulerRot( rot.x, rot.y, rot.z );
-			IPose next = IPose.of( tpr.getPos(), quat );
-			pose = IPose.compose( pose, next );
+			IPose pose = IPose.EMPTY;
+			for ( TestPosRot tpr : test_list )
+			{
+				final Vec3f rot = tpr.getRot();
+				final Quat4f quat = new Quat4f();
+				quat.setRotY( rot.y );
+				quat.rotateX( rot.x );
+				quat.rotateZ( rot.z );
+				final IPose next = IPose.of( tpr.getPos(), quat );
+				pose = IPose.compose( pose, next );
+			}
+			pose.glApply();
 		}
-		pose.glApply();
+		else
+		{
+			final PoseBuilder builder = new PoseBuilder();
+			for ( TestPosRot tpr : test_list )
+			{
+				builder.translate( tpr.getPos() );
+				builder.rotateY( tpr.getRot().y );
+				builder.rotateX( tpr.getRot().x );
+				builder.rotateZ( tpr.getRot().z );
+			}
+			builder.build().glApply();
+		}
 		for ( int i = 0; i < 8; i += 1 )
 		{
 			final float x = ( i & 1 ) - 0.5F;
@@ -142,80 +144,97 @@ public class Dev
 		GL11.glPopMatrix();
 	}
 	
-	public static void renderDebugBox()
+	public static class SpringLikeRot
 	{
-		toggleFlagDo( () -> {
-			final Vec3f r = cur().getRot();
-			rot.resetRot( Quat4f.ofEulerRot( r.x, r.y, r.z ) );
-		} );
+		private final SpringLikeRotation rot = new SpringLikeRotation();
+		private final Matrix3f inertia = new Matrix3f(
+			0.025F, 0.0F, 0.0F,
+			0.0F, 0.025F, 0.0F,
+			0.0F, 0.0F, 0.025F
+		);
+		private float radian_clamp = MoreMath.PI / 8.0F;
+		private float damping = 0.95F;
 		
-		GLUtil.glTranslateV3f( cur().getPos() );
-		rot.update( inertia, radian_clamp, damping );
-		final Quat4f quat = Quat4f.allocate();
-		rot.getRot( Minecraft.getMinecraft().getRenderPartialTicks(), quat );
-		final Mat4f mat = Mat4f.allocate();
-		mat.set( quat );
-		GLUtil.glMultMatrix( mat );
-		
-		DEBUG_BOX.accept( true );
+		public void render()
+		{
+			toggleFlagDo( () -> {
+				final Vec3f r = cur().getRot();
+				this.rot.resetRot( Quat4f.ofEulerRotYXZ( r.x, r.y, r.z ) );
+			} );
+			
+			GLUtil.glTranslateV3f( cur().getPos() );
+			this.rot.update( this.inertia, this.radian_clamp, this.damping );
+			final Quat4f quat = Quat4f.allocate();
+			this.rot.getRot( Minecraft.getMinecraft().getRenderPartialTicks(), quat );
+			final Mat4f mat = Mat4f.allocate();
+			mat.set( quat );
+			GLUtil.glMultMatrix( mat );
+			
+			DEBUG_BOX.accept( true );
+		}
 	}
 	
-	private static final Quat4f ori = Quat4f.ofEulerRot( 30, 0, 0 );
-	private static final Quat4f delta = Quat4f.ofEulerRot( 0, 180, 0 );
-	private static final Vec3f av = new Vec3f( 0, MoreMath.PI, 0 );
-	public static void render8DebugBox()
+	public static class Debug8Box
 	{
-		final Vec3f dev_pos = cur().getPos();
-		GL11.glTranslatef( 0.0F, 0.0F, dev_pos.z );
-//		GLUtil.glTranslateV3f( Dev.cur().getPos() );
-//		GLUtil.glEulerRotateYXZ( Dev.cur().getRot() );
-//		GLUtil.bindTexture( Texture.GREEN );
-		final Mat4f mat = Mat4f.allocate();
-		final Quat4f quat = Quat4f.allocate();
-		final Vec3f vec = Vec3f.allocate();
-		for ( int i = 0; i < 8; i += 1 )
+		private final Quat4f ori = Quat4f.ofEulerRotYXZ( 30, 0, 0 );
+		private final Quat4f delta = Quat4f.ofEulerRotYXZ( 0, 180, 0 );
+		private final Vec3f av = new Vec3f( 0, MoreMath.PI, 0 );
+		
+		public void render()
 		{
-			quat.set( ori );
-			quat.addRot( av, cur().getRot().x / 180F );
+			
+			final Vec3f dev_pos = cur().getPos();
+			GL11.glTranslatef( 0.0F, 0.0F, dev_pos.z );
+//			GLUtil.glTranslateV3f( Dev.cur().getPos() );
+//			GLUtil.glEulerRotateYXZ( Dev.cur().getRot() );
+//			GLUtil.bindTexture( Texture.GREEN );
+			final Mat4f mat = Mat4f.allocate();
+			final Quat4f quat = Quat4f.allocate();
+			final Vec3f vec = Vec3f.allocate();
+			for ( int i = 0; i < 8; i += 1 )
+			{
+				quat.set( this.ori );
+				quat.addRot( this.av, cur().getRot().x / 180F );
 
-//			quat.set( this.delta );
-//			quat.scaleAngle( Dev.cur().getRot().x / 180F );
+//				quat.set( this.delta );
+//				quat.scaleAngle( Dev.cur().getRot().x / 180F );
 
-//			if ( Dev.flag ) {
-//				quat.mul( quat, this.ori );
-//			}
-//			else {
-//				quat.mul( this.ori, quat );
-//			}
-			
-			// First pass.
-			mat.set( quat );
-			
-			vec.set( ( i & 1 ) - 0.5F, ( i >>> 1 & 1 ) - 0.5F, ( i >>> 2 & 1 ) - 0.5F );
-			vec.scale( 1F / 16F );
-			mat.translate( vec );
-			
-			GL11.glPushMatrix();
-			GL11.glTranslatef( dev_pos.x, 0.0F, 0.0F );
-			GLUtil.glMultMatrix( mat );
-			GLUtil.glScale1f( 1F / 16F );
-			DEBUG_BOX.accept( true );
-			GL11.glPopMatrix();
-			
-			// Second pass.
-			GL11.glPushMatrix();
-			GL11.glTranslatef( -dev_pos.x, 0.0F, 0.0F );
-			
-			quat.transform( vec, vec );
-			GLUtil.glTranslateV3f( vec );
-			GLUtil.glScale1f( 1F / 16F );
-			DEBUG_BOX.accept( true );
-			
-			GL11.glPopMatrix();
+//				if ( Dev.flag ) {
+//					quat.mul( quat, this.ori );
+//				}
+//				else {
+//					quat.mul( this.ori, quat );
+//				}
+				
+				// First pass.
+				mat.set( quat );
+				
+				vec.set( ( i & 1 ) - 0.5F, ( i >>> 1 & 1 ) - 0.5F, ( i >>> 2 & 1 ) - 0.5F );
+				vec.scale( 1F / 16F );
+				mat.translate( vec );
+				
+				GL11.glPushMatrix();
+				GL11.glTranslatef( dev_pos.x, 0.0F, 0.0F );
+				GLUtil.glMultMatrix( mat );
+				GLUtil.glScale1f( 1F / 16F );
+				DEBUG_BOX.accept( true );
+				GL11.glPopMatrix();
+				
+				// Second pass.
+				GL11.glPushMatrix();
+				GL11.glTranslatef( -dev_pos.x, 0.0F, 0.0F );
+				
+				quat.transform( vec, vec );
+				GLUtil.glTranslateV3f( vec );
+				GLUtil.glScale1f( 1F / 16F );
+				DEBUG_BOX.accept( true );
+				
+				GL11.glPopMatrix();
+			}
+			Vec3f.release( vec );
+			Quat4f.release( quat );
+			Mat4f.release( mat );
 		}
-		Vec3f.release( vec );
-		Quat4f.release( quat );
-		Mat4f.release( mat );
 	}
 	
 	

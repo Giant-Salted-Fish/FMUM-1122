@@ -274,15 +274,17 @@ final class PackLoader
 				final JsonArray arr = json.getAsJsonArray();
 				if ( arr.size() < 4 )
 				{
-					return Quat4f.ofEulerRot(
+					return Quat4f.ofEulerRotYXZ(
 						arr.get( 0 ).getAsFloat(),
 						arr.get( 1 ).getAsFloat(),
 						arr.get( 2 ).getAsFloat()
 					);
 				}
-				
-				final AxisAngle4f aa = context.deserialize( json, AxisAngle4f.class );
-				return Quat4f.ofAxisAngle( aa );
+				else
+				{
+					final AxisAngle4f aa = context.deserialize( json, AxisAngle4f.class );
+					return Quat4f.ofAxisAngle( aa );
+				}
 			}
 		);
 		

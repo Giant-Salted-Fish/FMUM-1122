@@ -17,7 +17,7 @@ public interface IPose
 		
 		@Override
 		public void getRot( Quat4f dst ) {
-			dst.clearRot();
+			dst.setIdentity();
 		}
 		
 		@Override
@@ -73,7 +73,7 @@ public interface IPose
 			
 			@Override
 			public void getRot( Quat4f dst ) {
-				dst.clearRot();
+				dst.setIdentity();
 			}
 			
 			@Override
@@ -138,34 +138,6 @@ public interface IPose
 			{
 				GLUtil.glTranslateV3f( pos );
 				GLUtil.glRotateQ4f( rot );
-			}
-		};
-	}
-	
-	static IPose ofMat( Mat4f mat )
-	{
-		return new IPose() {
-			@Override
-			public void getPos( Vec3f dst )
-			{
-				// TODO: directly get col from mat.
-				dst.setZero();
-				mat.transformAsPoint( dst, dst );
-			}
-			
-			@Override
-			public void getRot( Quat4f dst ) {
-				dst.set( mat );
-			}
-			
-			@Override
-			public void transform( Vec3f point, Vec3f dst ) {
-				mat.transformAsPoint( point, dst );
-			}
-			
-			@Override
-			public void glApply() {
-				GLUtil.glMultMatrix( mat );
 			}
 		};
 	}

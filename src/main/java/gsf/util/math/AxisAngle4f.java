@@ -40,7 +40,7 @@ public final class AxisAngle4f extends javax.vecmath.AxisAngle4f
 	public static AxisAngle4f ofEulerRot( float pitch, float yaw, float roll )
 	{
 		final AxisAngle4f aa = new AxisAngle4f();
-		aa.set( Quat4f.ofEulerRot( pitch, yaw, roll ) );
+		aa.set( Quat4f.ofEulerRotYXZ( pitch, yaw, roll ) );
 		return aa;
 	}
 	

@@ -9,9 +9,9 @@ import com.fmum.module.IModule;
 import com.fmum.module.ModifySession;
 import com.mojang.realmsclient.util.Pair;
 import gsf.util.animation.IAnimator;
-import gsf.util.math.Mat4f;
 import gsf.util.math.Vec3f;
 import gsf.util.render.IPose;
+import gsf.util.render.PoseBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
@@ -87,13 +87,12 @@ public class CEquippedModify extends CEquippedWrapRender
 		final EntityPlayerSP player = Minecraft.getMinecraft().player;
 		final GunPartType type = ( GunPartType ) item.getType();
 		final Vec3f modify_pos = type.modify_pos;
-		final Mat4f mat = new Mat4f();
-		mat.setIdentity();
-		mat.translate( 0.0F, 0.0F, modify_pos.z );
-		mat.rotateX( -player.rotationPitch );
-		mat.rotateY( 90.0F + player.rotationYaw );
-		mat.translate( modify_pos.x, modify_pos.y, 0.0F );
-		final IPose in_hand_setup = IPose.ofMat( mat );
+		final PoseBuilder builder = new PoseBuilder();
+		builder.translate( 0.0F, 0.0F, modify_pos.z );
+		builder.rotateX( -player.rotationPitch );
+		builder.rotateY( 90.0F + player.rotationYaw );
+		builder.translate( modify_pos.x, modify_pos.y, 0.0F );
+		final IPose in_hand_setup = builder.takeAndBuild();
 		return channel -> channel.equals( CHANNEL_ITEM ) ? in_hand_setup : IPose.EMPTY;
 	}
 	

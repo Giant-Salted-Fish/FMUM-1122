@@ -1,9 +1,9 @@
 package com.fmum.gunpart;
 
 import gsf.util.animation.TwoBoneIK;
-import gsf.util.math.Mat4f;
 import gsf.util.math.Vec3f;
 import gsf.util.render.IPose;
+import gsf.util.render.PoseBuilder;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -26,12 +26,13 @@ public interface IHandSetup
 			ik.solve( fore_len, upper_len, vec1, 0.0F );
 			Vec3f.release( vec1 );
 			
-			final Mat4f mat = new Mat4f();
-			mat.setIdentity();
-			mat.translate( vec );
-			mat.eulerRotateYXZ( ik.hand_rot );
-			Vec3f.release( vec );
-			return IPose.ofMat( mat );
+			final PoseBuilder builder = new PoseBuilder();
+			builder.translate( vec );
+			final Vec3f euler = ik.hand_rot;
+			builder.rotateY( euler.y );
+			builder.rotateX( euler.x );
+			builder.rotateZ( euler.z );
+			return builder.takeAndBuild();
 		};
 	}
 }

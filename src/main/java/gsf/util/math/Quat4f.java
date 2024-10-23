@@ -36,10 +36,12 @@ public final class Quat4f extends javax.vecmath.Quat4f
 		super( x, y, z, w );
 	}
 	
-	public static Quat4f ofEulerRot( float pitch, float yaw, float roll )
+	public static Quat4f ofEulerRotYXZ( float pitch, float yaw, float roll )
 	{
 		final Quat4f quat = new Quat4f();
-		quat.setEulerRot( pitch, yaw, roll );
+		quat.setRotY( yaw );
+		quat.rotateX( pitch );
+		quat.rotateZ( roll );
 		return quat;
 	}
 	
@@ -50,28 +52,68 @@ public final class Quat4f extends javax.vecmath.Quat4f
 		return quat;
 	}
 	
-	public static Quat4f rotOf( Mat4f mat )
+	public void setRotX( float angle )
 	{
-		final Quat4f quat = new Quat4f();
-		quat.set( mat );
-		return quat;
+		final float radians = MoreMath.toRadians( angle );
+		final float half_radians = radians * 0.5F;
+		final float sin = MathHelper.sin( half_radians );
+		final float cos = MathHelper.cos( half_radians );
+		this.x = sin;
+		this.y = 0.0F;
+		this.z = 0.0F;
+		this.w = cos;
 	}
 	
-	public void setEulerRot( float pitch, float yaw, float roll )
+	public void setRotY( float angle )
 	{
-		final Mat4f mat = Mat4f.allocate();
-		mat.setIdentity();
-		mat.eulerRotateYXZ( pitch, yaw, roll );
-		this.set( mat );
-		Mat4f.release( mat );
+		final float radians = MoreMath.toRadians( angle );
+		final float half_radians = radians * 0.5F;
+		final float sin = MathHelper.sin( half_radians );
+		final float cos = MathHelper.cos( half_radians );
+		this.x = 0.0F;
+		this.y = sin;
+		this.z = 0.0F;
+		this.w = cos;
 	}
 	
-	public void clearRot() {
+	public void setRotZ( float angle )
+	{
+		final float radians = MoreMath.toRadians( angle );
+		final float half_radians = radians * 0.5F;
+		final float sin = MathHelper.sin( half_radians );
+		final float cos = MathHelper.cos( half_radians );
+		this.x = 0.0F;
+		this.y = 0.0F;
+		this.z = sin;
+		this.w = cos;
+	}
+	
+	public void rotateX( float angle )
+	{
+		final Quat4f quat = allocate();
+		quat.setRotX( angle );
+		this.mul( quat );
+		release( quat );
+	}
+	
+	public void rotateY( float angle )
+	{
+		final Quat4f quat = allocate();
+		quat.setRotY( angle );
+		this.mul( quat );
+		release( quat );
+	}
+	
+	public void rotateZ( float angle )
+	{
+		final Quat4f quat = allocate();
+		quat.setRotZ( angle );
+		this.mul( quat );
+		release( quat );
+	}
+	
+	public void setIdentity() {
 		this.set( IDENTITY );
-	}
-	
-	public void scaleAngle( float factor ) {
-		this.interpolate( IDENTITY, this, factor );
 	}
 	
 	/**
