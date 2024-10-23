@@ -4,6 +4,7 @@ import com.fmum.animation.SoundFrame;
 import com.fmum.gunpart.CEquippedWrapRender;
 import com.fmum.gunpart.EquippedGunPart;
 import com.fmum.input.IInput;
+import com.fmum.input.Inputs;
 import com.fmum.item.IItem;
 import com.fmum.item.IMainEquipped;
 import gsf.util.animation.IAnimator;
@@ -42,7 +43,21 @@ public class CEquippedInspect extends CEquippedWrapRender
 	}
 	
 	@Override
-	public IMainEquipped onInputUpdate( String name, IInput input, IItem item ) {
+	public IMainEquipped onInputUpdate( String name, IInput input, IItem item )
+	{
+		if ( input.getAsBool() )
+		{
+			switch ( name )
+			{
+			case Inputs.PULL_TRIGGER:
+			case Inputs.LOAD_OR_UNLOAD_MAG:
+			case Inputs.OPEN_MODIFY_VIEW:
+			case Inputs.RELOAD:
+			case Inputs.CHARGE_GUN:
+			case Inputs.RELEASE_BOLT:
+				return this.wrapped.onInputUpdate( name, input, item );
+			}
+		}
 		return this;
 	}
 	
