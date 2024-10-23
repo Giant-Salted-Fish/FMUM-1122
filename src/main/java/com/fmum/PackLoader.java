@@ -303,9 +303,8 @@ final class PackLoader
 						final JsonObject obj = this.gson.fromJson( in, JsonObject.class );
 						return AnimLoader.fromBBJson( obj, context, AttrArmBlend.LEFT_ARM, AttrArmBlend.RIGHT_ARM );
 					}
-					catch ( JsonSyntaxException | JsonIOException | IOException e )
-					{
-						// TODO
+					catch ( JsonSyntaxException | JsonIOException | IOException e ) {
+						FMUM.LOGGER.exception( e, "Failed to load animation <{}>.", location );
 					}
 				}
 				return IAnimation.EMPTY;

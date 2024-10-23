@@ -3,8 +3,11 @@ package com.fmum.gunpart;
 import com.fmum.item.EquippedWrapper;
 import com.fmum.item.IItem;
 import com.fmum.item.IMainEquipped;
+import com.fmum.player.CameraController;
+import com.fmum.player.PlayerPatchClient;
 import gsf.util.animation.IAnimator;
 import gsf.util.math.MoreMath;
+import gsf.util.render.IPose;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -21,6 +24,9 @@ public abstract class CEquippedWrapRender extends EquippedWrapper
 	{
 		final IGunPart delegate = this._getRenderDelegate( item );
 		final IAnimator animator = this._getInHandAnimator( item );
+		final IPose cam_anim = animator.getChannel( CameraController.CHANNEL_CAMERA );
+		PlayerPatchClient.get().mapCameraSetup( prev -> IPose.compose( cam_anim, prev ) );
+		
 		final EquippedGunPart eq = ( EquippedGunPart ) this.wrapped;
 		eq.EquippedGunPart$doPrepareRenderInHand( delegate, animator );
 	}

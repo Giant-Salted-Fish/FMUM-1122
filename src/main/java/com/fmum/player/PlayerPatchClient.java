@@ -32,6 +32,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.function.Function;
+
 @SideOnly( Side.CLIENT )
 @EventBusSubscriber( modid = FMUM.MODID, value = Side.CLIENT )
 public final class PlayerPatchClient extends PlayerPatch
@@ -191,6 +193,13 @@ public final class PlayerPatchClient extends PlayerPatch
 		this.off_equipped.prepareRenderInHand( this.off_item );
 	}
 	
+	public IPose mapCameraSetup( Function< ? super IPose, ? extends IPose > mapper )
+	{
+		final IPose mapped = mapper.apply( this.camera_setup );
+		this.camera_setup = mapped;
+		return mapped;
+	}
+	
 	public IPose getCameraSetup() {
 		return this.camera_setup;
 	}
@@ -226,6 +235,7 @@ public final class PlayerPatchClient extends PlayerPatch
 	@SubscribeEvent
 	static void _onCameraSetup( CameraSetup evt )
 	{
+		// TODO: Maybe only apply this if view render entity is player.
 		evt.setYaw( 0.0F );
 		evt.setPitch( 0.0F );
 		evt.setRoll( 0.0F );
