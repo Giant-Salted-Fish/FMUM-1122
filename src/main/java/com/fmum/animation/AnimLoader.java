@@ -1,7 +1,7 @@
 package com.fmum.animation;
 
 import com.fmum.load.JsonData;
-import com.fmum.player.IPlayerCamera;
+import com.fmum.player.CameraController;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -39,7 +39,7 @@ public final class AnimLoader
 					final JsonElement value = entry.getValue();
 					final Function< JsonElement, Vec3f > pos_parser;
 					final Function< JsonElement, Quat4f > rot_parser;
-					if ( channel.equals( IPlayerCamera.CHANNEL_CAMERA ) )
+					if ( channel.equals( CameraController.CHANNEL_CAMERA ) )
 					{
 						// Camera channel is a bit special, process it independently.
 						pos_parser = e -> {

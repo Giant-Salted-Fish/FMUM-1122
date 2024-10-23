@@ -8,6 +8,7 @@ import com.fmum.item.IMainEquipped;
 import gsf.util.lang.Type;
 import gsf.util.math.Vec3f;
 import gsf.util.render.GLUtil;
+import gsf.util.render.IPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
@@ -122,6 +123,9 @@ public final class PlayerPatchClient extends PlayerPatch
 	private static boolean ori_view_bobbing = Minecraft.getMinecraft().gameSettings.viewBobbing;
 	
 	
+	private final CameraController camera_controller = new CameraController();
+	private IPose camera_setup = IPose.EMPTY;
+	
 	/**
 	 * Player's eye position.
 	 */
@@ -134,17 +138,6 @@ public final class PlayerPatchClient extends PlayerPatch
 	public final Vec3f acceleration = new Vec3f();
 	public final Vec3f prev_acceleration = new Vec3f();
 	
-	public IPlayerCamera camera = new PlayerCamera() {
-		@Override
-		protected float _getMouseSensitivity()
-		{
-			final GameSettings settings = Minecraft.getMinecraft().gameSettings;
-			final IMainEquipped equipped = PlayerPatchClient.this.main_equipped;
-			final IItem item = PlayerPatchClient.this.main_item;
-			return equipped.getMouseSensitivity( settings.mouseSensitivity, item );
-		}
-	};
-	
 	
 	PlayerPatchClient() {
 		instance = this;
@@ -153,7 +146,7 @@ public final class PlayerPatchClient extends PlayerPatch
 	@Override
 	void _tick( EntityPlayer player )
 	{
-		super._tick( player );
+		this.camera_controller.tickCamera();
 		
 		// TODO: maybe only update this in GUI event?
 		final Minecraft mc = Minecraft.getMinecraft();
@@ -182,11 +175,10 @@ public final class PlayerPatchClient extends PlayerPatch
 		this.acceleration.set( this.velocity );
 		this.acceleration.sub( this.prev_velocity );
 		
-		// Tick camera effects.
-		this.camera.tickCamera();
-		
 		// Ensure mouse helper is properly setup.
 		mouse_helper_checker.run();
+		
+		super._tick( player );
 	}
 	
 	private void __onMouseXYChange( MouseHelper mouse )
@@ -194,9 +186,13 @@ public final class PlayerPatchClient extends PlayerPatch
 		// This method is called right before the render and player rotation \
 		// is also updated. Hence, it is the proper place to fire prepare \
 		// render callback.
-		this.camera.prepareRender( mouse );
+		this.camera_setup = this.camera_controller.prepareRender( mouse );
 		this.main_equipped.prepareRenderInHand( this.main_item );
 		this.off_equipped.prepareRenderInHand( this.off_item );
+	}
+	
+	public IPose getCameraSetup() {
+		return this.camera_setup;
 	}
 	
 	
@@ -206,6 +202,14 @@ public final class PlayerPatchClient extends PlayerPatch
 	 */
 	public static PlayerPatchClient get() {
 		return instance;
+	}
+	
+	static float _getMouseSensitivity()
+	{
+		final GameSettings settings = Minecraft.getMinecraft().gameSettings;
+		final IMainEquipped equipped = instance.main_equipped;
+		final IItem item = instance.main_item;
+		return equipped.getMouseSensitivity( settings.mouseSensitivity, item );
 	}
 	
 	@SubscribeEvent
@@ -226,7 +230,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		evt.setPitch( 0.0F );
 		evt.setRoll( 0.0F );
 		
-		instance.camera.getCameraSetup().glApply();
+		instance.camera_setup.glApply();
 	}
 	
 	@SubscribeEvent
@@ -256,7 +260,7 @@ public final class PlayerPatchClient extends PlayerPatch
 		{
 			// Otherwise, setup orientation for vanilla item rendering.
 			// Setup item lighting orientation.
-			instance.camera.getCameraSetup().glApply();
+			instance.camera_setup.glApply();
 			
 			// Cancel vanilla item lighting orientation.
 			final EntityPlayerSP player = mc.player;

@@ -98,7 +98,7 @@ public class EquippedGunPart implements IMainEquipped
 		
 		// Copied from {@link ItemRenderer#renderItemInFirstPerson(float)}.
 		// {@link ItemRenderer#rotateArroundXAndY(float, float)}.
-		PlayerPatchClient.get().camera.getCameraSetup().glApply();
+		PlayerPatchClient.get().getCameraSetup().glApply();
 		
 		GLUtil.glRotateYf( 180.0F );
 		RenderHelper.enableStandardItemLighting();

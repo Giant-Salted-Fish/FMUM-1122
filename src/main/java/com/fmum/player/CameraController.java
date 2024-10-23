@@ -15,9 +15,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly( Side.CLIENT )
-public abstract class PlayerCamera implements IPlayerCamera
+public final class CameraController
 {
-	protected static final float PITCH_JITTER;
+	public static final String CHANNEL_CAMERA = "camera";
+	
+	
+	private static final float PITCH_JITTER;
 	static
 	{
 		final float pitch_max = 90.0F;
@@ -30,17 +33,14 @@ public abstract class PlayerCamera implements IPlayerCamera
 	/**
 	 * Shared drop distance cycle for different camera implementations.
 	 */
-	protected static float drop_distance_cycle = 0.0F;
+	private static float drop_distance_cycle = 0.0F;
 	
 	
-	protected final Vec3f player_rot = new Vec3f();
+	private final Vec3f player_rot = new Vec3f();
 	
-	protected final MassSpringMotion free_view_rot = new MassSpringMotion();
-	protected final MassSpringMotion camera_easing = new MassSpringMotion();
+	private final MassSpringMotion free_view_rot = new MassSpringMotion();
+	private final MassSpringMotion camera_easing = new MassSpringMotion();
 	
-	protected IPose camera_pose = IPose.EMPTY;
-	
-	@Override
 	public void tickCamera()
 	{
 		// TODO: Buffer this input so no need to re-fetch every frame.
@@ -88,8 +88,7 @@ public abstract class PlayerCamera implements IPlayerCamera
 		this.camera_easing.update( 1.0F, 4.25F, 0.4F );
 	}
 	
-	@Override
-	public void prepareRender( MouseHelper mouse )
+	public IPose prepareRender( MouseHelper mouse )
 	{
 		// Handles view update upon mouse input.
 		final Minecraft mc = Minecraft.getMinecraft();
@@ -99,7 +98,7 @@ public abstract class PlayerCamera implements IPlayerCamera
 		final float smoother = mc.getRenderPartialTicks();
 		
 		// Process input mouse delta.
-		final float mouse_factor = this._getMouseFactor();
+		final float mouse_factor = this.__getMouseFactor();
 		final float mouse_delta_y = mc.gameSettings.invertMouse ? mouse.deltaY : -mouse.deltaY;
 		final float raw_delta_pitch = mouse_delta_y * mouse_factor;
 		final float raw_delta_yaw = mouse.deltaX * mouse_factor;
@@ -111,6 +110,7 @@ public abstract class PlayerCamera implements IPlayerCamera
 		final float delta_pitch = new_view_pitch - raw_view_pitch;
 		
 		// If looking around, apply view rot to off-axis.
+		final IPose setup;
 		if ( InputManager.getBoolState( Inputs.FREE_VIEW ) )
 		{
 			player_rot.set( player.rotationPitch, player.rotationYaw, 0.0F );
@@ -135,7 +135,7 @@ public abstract class PlayerCamera implements IPlayerCamera
 			mouse.deltaX = 0;
 			mouse.deltaY = 0;
 			
-			this._updateViewRot( cur_fv_rot.x, cur_fv_rot.y );
+			setup = this.__updateViewRot( cur_fv_rot.x, cur_fv_rot.y );
 			
 			// Set previous to current value to avoid bobbing.
 			// Needs to set it after #_updateViewRot(...) call as it uses the \
@@ -148,11 +148,12 @@ public abstract class PlayerCamera implements IPlayerCamera
 			final float pitch = player.rotationPitch + delta_pitch;
 			final float yaw = player.rotationYaw + raw_delta_yaw;
 			player_rot.set( pitch, yaw, 0.0F );
-			this._updateViewRot( free_view_pitch, free_view_rot.getPosY( smoother ) );
+			setup = this.__updateViewRot( free_view_pitch, free_view_rot.getPosY( smoother ) );
 		}
+		return setup;
 	}
 	
-	protected final void _updateViewRot( float free_view_pitch, float free_view_yaw )
+	private IPose __updateViewRot( float free_view_pitch, float free_view_yaw )
 	{
 		// Apply easing and camera animation.
 		final Minecraft mc = Minecraft.getMinecraft();
@@ -180,7 +181,7 @@ public abstract class PlayerCamera implements IPlayerCamera
 		
 		quat.rotateX( view_pitch );
 		quat.rotateY( 180.0F + view_yaw );
-		this.camera_pose = IPose.of( Vec3f.ORIGIN, quat );
+		final IPose setup = IPose.of( Vec3f.ORIGIN, quat );
 		
 		// Apply a tiny change to player's pitch rotation to force view \
 		// frustum culling update if off-axis has changed.
@@ -199,19 +200,13 @@ public abstract class PlayerCamera implements IPlayerCamera
 			player.rotationPitch += PITCH_JITTER;
 			player.prevRotationPitch += PITCH_JITTER;
 		}
+		return setup;
 	}
 	
-	@Override
-	public IPose getCameraSetup() {
-		return this.camera_pose;
-	}
-	
-	protected float _getMouseFactor()
+	private float __getMouseFactor()
 	{
-		final float sensitivity = this._getMouseSensitivity();
+		final float sensitivity = PlayerPatchClient._getMouseSensitivity();
 		final float factor = sensitivity * 0.6F + 0.2F;
 		return factor * factor * factor * 8.0F * 0.15F;
 	}
-	
-	protected abstract float _getMouseSensitivity();
 }
